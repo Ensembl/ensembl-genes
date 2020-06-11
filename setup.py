@@ -18,7 +18,7 @@
 from setuptools import setup, find_packages
 
 setup(
-    name='ensembl_template_py',
+    name='ensembl_genes',
     packages=find_packages(),
     include_package_data=True,
     install_requires=[
