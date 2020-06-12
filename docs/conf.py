@@ -33,7 +33,7 @@ class Mock(MagicMock):
 MOCK_MODULES = []
 sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
 
-import ensembl_template_py
+import ensembl_genes
 
 
 # -- General configuration ------------------------------------------------
@@ -67,9 +67,9 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = 'Ensembl - Template'
-copyright = '2019, Ensembl'
-author = 'Mark McDowall'
+project = 'Ensembl Genes'
+copyright = '2020, EMBL-European Bioinformatics Institute'
+author = 'Ensembl Genebuild team and contributors'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the

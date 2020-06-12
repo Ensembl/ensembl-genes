@@ -18,7 +18,7 @@ language: python
 os: linux
 
 python:
-    - "3.7"
+    - "3.8"
 
 env:
     matrix:
@@ -35,6 +35,6 @@ install:
 
 # command to run tests
 script:
-    - if [[ "$TESTENV" == "code" ]]; then pytest ensembl_template_py; fi
+    - if [[ "$TESTENV" == "code" ]]; then pytest ensembl_genes; fi
     - if [[ "$TESTENV" == "docs" ]]; then ./scripts/travis/docs_harness.sh; fi
     - if [[ "$TESTENV" == "pylint" ]]; then ./scripts/travis/pylint_harness.sh; fi
