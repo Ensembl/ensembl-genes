@@ -17,7 +17,9 @@
 import eHive
 
 import datetime
-# import mysql.connector
+import mysql.connector
+from mysql.connector import errorcode
+
 
 import time
 #from builtins import input
@@ -35,7 +37,8 @@ class connect_to_mysql_db(eHive.BaseRunnable):
     def run(self):
         # a_multiplier = self.param_required('hello')
         print("Hi I am Python and connecto to db")
-        connect_to_db("mysql-ens-genebuild-prod-6","4532", "ensro", "kbillis_sarcophilus_harrisii_core_100")
+        alist=["mysql-ens-genebuild-prod-6","4532", "ensro", "kbillis_sarcophilus_harrisii_core_100"]
+        connect_to_db(alist)
 
 
     def write_output(self):
@@ -43,27 +46,50 @@ class connect_to_mysql_db(eHive.BaseRunnable):
     
     
 
-def connect_to_db(*db_connection_param):
+def connect_to_db(db_connection_param):
         
-    status = "OK"
     print("And all the rest... %s" %(list(db_connection_param)))
+    # for item in db_connection_param:
+    for position in range(len(db_connection_param)):
+        print(db_connection_param[position])
+        print(position)
+    
+    server_read,port_read,user_read,database_read = db_connection_param
 
-        # status = "good"
-        # cnx = mysql.connector.connect(user='ensro', database='')
-        # cursor = cnx.cursor()
+    print("server::" + server_read)
+
+    status = "good"
+    try:
+        cnx = mysql.connector.connect(user=user_read, database=database_read, port=port_read, password="", host=server_read)
+        # cnx = mysql.connector.connect(user='ensro', database='', port=4532, password='', host='mysql-ens-genebuild-prod-6')
+        # cnx = mysql.connector.connect(user='ensro', port=4532, password='', host='mysql-ens-genebuild-prod-6', buffered=True)
+    except mysql.connector.Error as err:
+        if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
+            print("Something is wrong with your user name or password")
+        elif err.errno == errorcode.ER_BAD_DB_ERROR:
+            print("Database does not exist")
+        else:
+            print(err)
+    else:
+        print("all ok")
         
-        # query = ("SELECT first_name, last_name, hire_date FROM employees "
-        # "WHERE hire_date BETWEEN %s AND %s")
+    # what to do: check all the dbs
+    todo = "query" 
+    if todo == "show" :
+        cursor = cnx.cursor()
+        databases = ("show databases")
+        cursor.execute(databases)
+        for (databases) in cursor: 
+            print(databases[0])
+    else: 
+        cursor = cnx.cursor()
+        query = ("SELECT * FROM meta")
+        cursor.execute(query)
+        remaining_rows = cursor.fetchall()
+        # print(cursor)
+        for (i) in range(len(remaining_rows)):
+            print(i," is ", remaining_rows[i] )
         
-        #hire_start = datetime.date(1999, 1, 1)
-        #hire_end = datetime.date(1999, 12, 31)
-        
-        #cursor.execute(query, (hire_start, hire_end))
-        
-        #for (first_name, last_name, hire_date) in cursor:
-        #    print("{}, {} was hired on {:%d %b %Y}".format(
-        #        last_name, first_name, hire_date))
-        
-        #cursor.close()
-        #cnx.close()
+    cursor.close()
+    cnx.close()
     return status
