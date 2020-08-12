@@ -1,0 +1,15 @@
+##Change python versions with pynv: 
+pyenv versions
+pyenv local 3.7.6
+
+##And install: 
+# $ python3 setup.py install --user
+# Or 
+pip install --user  mysql-connector-python
+
+##Installed at :
+# /homes/${USER}/.local/lib/python3.7/site-packages/
+
+##Add it in your PYTHONPATH
+export PYTHONPATH=$PYTHONPATH:/homes/${USER}/.local/lib/python3.7/site-packages/
+
