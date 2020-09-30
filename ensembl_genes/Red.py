@@ -14,6 +14,7 @@
 # limitations under the License.
 
 import os
+import sys
 import filecmp
 import errno
 import subprocess
@@ -26,7 +27,9 @@ import sqlalchemy_utils as db_utils
 import pymysql
 pymysql.install_as_MySQLdb()
 
-import ensembl-hive.wrappers.python3.eHive
+currentdir = os.path.dirname(os.path.realpath(__file__))
+sys.path.append(currentdir+'ensembl-hive/wrappers/python3')
+import eHive
 
 class Red(eHive.BaseRunnable):
     """Runnable that runs Red to find repeats and store them in the target database"""
