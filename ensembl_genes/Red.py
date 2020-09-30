@@ -13,8 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import eHive
-
 import os
 import filecmp
 import errno
@@ -27,6 +25,8 @@ import sqlalchemy_utils as db_utils
 # pymysql can be imported and used instead
 import pymysql
 pymysql.install_as_MySQLdb()
+
+import eHive
 
 class Red(eHive.BaseRunnable):
     """Runnable that runs Red to find repeats and store them in the target database"""
