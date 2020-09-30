@@ -1,3 +1,6 @@
 pylint
 pytest
 sphinx
+sqlalchemy
+sqlalchemy_utils
+pymysql
