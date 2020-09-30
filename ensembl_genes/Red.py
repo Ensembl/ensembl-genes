@@ -26,7 +26,7 @@ import sqlalchemy_utils as db_utils
 import pymysql
 pymysql.install_as_MySQLdb()
 
-import eHive
+import ensembl-hive.wrappers.python3.eHive
 
 class Red(eHive.BaseRunnable):
     """Runnable that runs Red to find repeats and store them in the target database"""
