@@ -4,4 +4,4 @@ sphinx
 sqlalchemy
 sqlalchemy_utils
 pymysql
-eHive
+ensembl-hive.wrappers.python3.eHive
