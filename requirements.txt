@@ -4,3 +4,4 @@ sphinx
 sqlalchemy
 sqlalchemy_utils
 pymysql
+eHive
