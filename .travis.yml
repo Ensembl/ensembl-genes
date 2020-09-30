@@ -26,6 +26,9 @@ env:
         - TESTENV=code
         - TESTENV=pylint
 
+before_install:
+    - git clone --branch master --depth 1 https://github.com/Ensembl/ensembl-hive.git
+
 # command to install dependencies
 install:
     - pip install .
