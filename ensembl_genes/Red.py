@@ -1,12 +1,12 @@
 # Copyright [1999-2015] Wellcome Trust Sanger Institute and the EMBL-European Bioinformatics Institute
 # Copyright [2016-2020] EMBL-European Bioinformatics Institute
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #      http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -45,7 +45,7 @@ class Red(eHive.BaseRunnable):
         }
 
     def fetch_input(self):
-        
+
         genome_file = self.param_required('genome_file')
         gnm = self.param('gnm',self.param_required('genome_file_tmpdir'))
         msk = self.param_required('msk')
@@ -96,7 +96,7 @@ class Red(eHive.BaseRunnable):
         # check that the target database exists
         if not(db_utils.database_exists(self.param('target_db_url'))):
             raise ValueError('Could not connect to the target database '+target_db+' in "target_db".')
-        
+
         # make sure that the output directories exist
         try:
             os.makedirs(msk,exist_ok=True)
@@ -114,7 +114,7 @@ class Red(eHive.BaseRunnable):
         if os.listdir(msk):
             raise ValueError('The msk output directory '+msk+' is not empty.')
 
-        if os.listdir(rpt):        
+        if os.listdir(rpt):
             raise ValueError('The rpt output directory '+rpt+' is not empty.')
 
 
@@ -152,7 +152,7 @@ class Red(eHive.BaseRunnable):
                                                          'program_version':'05/22/2015', \
                                                          'program_file':self.param('red_path')})
         connection.execute(analysis_insert)
-        
+
         # fetch the inserted analysis_id
         analysis_query = db.select([analysis_table.columns.analysis_id])
         analysis_query = analysis_query.where(analysis_table.columns.logic_name == 'red')
@@ -188,7 +188,7 @@ class Red(eHive.BaseRunnable):
 
     def parse_repeats(self,rpt,repeat_consensus_id,analysis_id):
 
-        rpt_files = os.listdir(rpt)    
+        rpt_files = os.listdir(rpt)
         if not rpt_files:
             raise FileNotFoundError(errno.ENOENT,os.strerror(errno.ENOENT),"The repeats output directory "+rpt+" is empty.")
         elif len(rpt_files) > 1:
@@ -218,19 +218,19 @@ class Red(eHive.BaseRunnable):
             seq_region = {}
             for seq_region_id,name in results:
                 seq_region[name] = seq_region_id
-             
+
             rpt_file = rpt+'/'+rpt_files[0]
             fixed_rpt_file = rpt_file+'.fixed'
 
             with open(rpt_file,'r') as f_in,open(fixed_rpt_file,'w') as f_out:
                 for line in f_in:
                     columns = line.split()
-                    
+
                     if columns[0][0] == ">":
                         name = columns[0][1:] # remove first character '>'
                     else:
                         name = columns[0]
-                    
+
                     seq_region_start = int(columns[1])+1 # Red's start is zero-based
                     seq_region_end = int(columns[2])-1   # Red's end is exclusive
                     seq_region_id = seq_region[name]
@@ -246,4 +246,3 @@ class Red(eHive.BaseRunnable):
                     #f_out.write(line[1:])
 
         return fixed_rpt_file
-
