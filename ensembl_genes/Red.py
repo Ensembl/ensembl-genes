@@ -14,7 +14,6 @@
 # limitations under the License.
 
 import os
-import sys
 import filecmp
 import errno
 import subprocess
