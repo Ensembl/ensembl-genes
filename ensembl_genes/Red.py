@@ -27,8 +27,6 @@ import sqlalchemy_utils as db_utils
 import pymysql
 pymysql.install_as_MySQLdb()
 
-enscode_root = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
-sys.path.append(enscode_root+'/ensembl-hive/wrappers/python3')
 import eHive
 
 class Red(eHive.BaseRunnable):
