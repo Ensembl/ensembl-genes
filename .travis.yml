@@ -41,4 +41,4 @@ install:
 script:
     - if [[ "$TESTENV" == "code" ]]; then pytest ensembl_genes; fi
     - if [[ "$TESTENV" == "docs" ]]; then ./scripts/travis/docs_harness.sh; fi
-    - if [[ "$TESTENV" == "pylint" ]]; then ./scripts/travis/pylint_harness.sh; python -m pylint --load-plugins pylint_flash_sqlalchemy $(pwd)/ensembl_genes/Red.py>; fi
+    - if [[ "$TESTENV" == "pylint" ]]; then ./scripts/travis/pylint_harness.sh; python -m pylint --load-plugins pylint_flash_sqlalchemy $(pwd)/ensembl_genes/Red.py; fi
