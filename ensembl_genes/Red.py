@@ -147,7 +147,7 @@ class Red(eHive.BaseRunnable):
         repeat_feature_table = db.Table('repeat_feature',metadata,autoload=True,autoload_with=engine)
 
         # insert Red analysis
-        analysis_insert = analysis_table.insert().values({'created':db.sql.func.now(), \
+        analysis_insert = analysis_table.insert(None).values({'created':db.sql.func.now(), \
                                                          'logic_name':self.param('logic_name'), \
                                                          'program':'Red', \
                                                          'program_version':'05/22/2015', \
@@ -161,13 +161,13 @@ class Red(eHive.BaseRunnable):
         analysis_id = analysis_results[0][0]
 
         # insert repeat analysis meta keys
-        meta_insert = meta_table.insert().values({'species_id':1, \
+        meta_insert = meta_table.insert(None).values({'species_id':1, \
                                                   'meta_key':'repeat.analysis', \
                                                   'meta_value':'red'})
         connection.execute(meta_insert)
 
         # insert dummy repeat consensus
-        repeat_consensus_insert = repeat_consensus_table.insert().values({'repeat_name':'Red', \
+        repeat_consensus_insert = repeat_consensus_table.insert(None).values({'repeat_name':'Red', \
                                                                           'repeat_class':'Red', \
                                                                           'repeat_type':'Red', \
                                                                           'repeat_consensus':'N'})
