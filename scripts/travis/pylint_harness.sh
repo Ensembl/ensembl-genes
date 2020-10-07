@@ -15,7 +15,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-disabled="--disable=max-line-length,similarities,invalid-name,too-many-statements,too-many-arguments,too-many-locals,too-few-public-methods,relative-import,no-self-use"
+disabled="--disable=wrong-import-order,max-line-length,similarities,invalid-name,too-many-statements,too-many-arguments,too-many-locals,too-few-public-methods,relative-import,no-self-use"
 
 pylint ${disabled} --rcfile pylintrc ensembl_genes/ > output.err
 
