@@ -134,7 +134,7 @@ class Red(eHive.BaseRunnable):
               ' -rpt '+self.param('rpt')
 
         try:
-            response = subprocess.check_call(cmd.split())
+            subprocess.check_call(cmd.split())
         except subprocess.CalledProcessError as err:
             print("Could not run Red. Return code "+err.returncode)
 
