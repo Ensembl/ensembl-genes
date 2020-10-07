@@ -13,6 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import eHive
+
 import os
 import filecmp
 import errno
@@ -25,8 +27,6 @@ import sqlalchemy_utils as db_utils
 # pymysql can be imported and used instead
 import pymysql
 pymysql.install_as_MySQLdb()
-
-import eHive
 
 class Red(eHive.BaseRunnable):
     """Runnable that runs Red to find repeats and store them in the target database"""
@@ -71,7 +71,8 @@ class Red(eHive.BaseRunnable):
 
         new_genome_file = gnm+'/'+os.path.basename(genome_file)
         try:
-            os.popen('cp '+genome_file+' '+new_genome_file).read() # without read() Python keeps running before the file is written
+            # without read() Python keeps running before the file is written
+            os.popen('cp '+genome_file+' '+new_genome_file).read()
         except:
             print('Could not copy file '+genome_file+' into directory '+gnm)
             raise PermissionError(errno.EPERM,os.strerror(errno.EPERM),new_genome_file)
@@ -79,9 +80,12 @@ class Red(eHive.BaseRunnable):
         # check that the file genome_file exists, it ends with .fa
         # and there is not any other .fa file within the same directory
         if sum(map(lambda x: x.endswith('.fa'),os.listdir(gnm))) > 1:
-            raise ValueError('The Red program requires that the directory containing the .fa file does not contain any other .fa file. The directory '+gnm+' in "gnm"  contains more than one .fa file.')
+            raise ValueError('The Red program requires that the directory containing \
+                              the .fa file does not contain any other .fa file. \
+                              The directory '+gnm+' in "gnm"  contains more than one .fa file.')
         elif not(os.path.isfile(genome_file)):
-            raise ValueError('The file '+genome_file+' in "genome_file" does not end with .fa as required by the Red program.')
+            raise ValueError('The file '+genome_file+' in "genome_file" does not end \
+                              with .fa as required by the Red program.')
 
         # check that the file was copied successfully
         if not(filecmp.cmp(genome_file,new_genome_file,shallow=False)):
@@ -95,7 +99,8 @@ class Red(eHive.BaseRunnable):
 
         # check that the target database exists
         if not(db_utils.database_exists(self.param('target_db_url'))):
-            raise ValueError('Could not connect to the target database '+target_db+' in "target_db".')
+            raise ValueError('Could not connect to the target database ' \
+                             +target_db+' in "target_db".')
 
         # make sure that the output directories exist
         try:
@@ -143,7 +148,7 @@ class Red(eHive.BaseRunnable):
         analysis_table = db.Table('analysis',metadata,autoload=True,autoload_with=engine)
         meta_table = db.Table('meta',metadata,autoload=True,autoload_with=engine)
         repeat_consensus_table = db.Table('repeat_consensus',metadata,autoload=True,autoload_with=engine)
-        repeat_feature_table = db.Table('repeat_feature',metadata,autoload=True,autoload_with=engine)
+        db.Table('repeat_feature',metadata,autoload=True,autoload_with=engine)
 
         # insert Red analysis
         analysis_insert = analysis_table.insert(None).values({'created':db.sql.func.now(), \
@@ -182,22 +187,30 @@ class Red(eHive.BaseRunnable):
         repeats_file = self.parse_repeats(self.param('rpt'),repeat_consensus_id,analysis_id)
 
         # insert repeat features
-        repeat_feature_query = "LOAD DATA LOCAL INFILE '"+repeats_file+"' INTO TABLE repeat_feature FIELDS TERMINATED BY '\\t' LINES TERMINATED BY '\\n' (seq_region_id,seq_region_start,seq_region_end,repeat_start,repeat_end,repeat_consensus_id,analysis_id)"
-        repeat_feature_result = connection.execute(repeat_feature_query)
+        repeat_feature_query = "LOAD DATA LOCAL INFILE '"+repeats_file+"' \
+                                INTO TABLE repeat_feature \
+                                FIELDS TERMINATED BY '\\t' \
+                                LINES TERMINATED BY '\\n' \
+                                (seq_region_id,seq_region_start,seq_region_end,\
+                                 repeat_start,repeat_end,repeat_consensus_id,analysis_id)"
+        connection.execute(repeat_feature_query)
 
 
     def parse_repeats(self,rpt,repeat_consensus_id,analysis_id):
 
         rpt_files = os.listdir(rpt)
         if not rpt_files:
-            raise FileNotFoundError(errno.ENOENT,os.strerror(errno.ENOENT),"The repeats output directory "+rpt+" is empty.")
+            raise FileNotFoundError(errno.ENOENT,os.strerror(errno.ENOENT), \
+                                    "The repeats output directory "+rpt+" is empty.")
         elif len(rpt_files) > 1:
             raise ValueError('The rpt output directory '+rpt+' contains more than 1 file.')
         elif not rpt_files[0].endswith('.rpt'):
-            raise ValueError('The file '+rpt_files[0]+' in the rpt output directory '+rpt+' does not end with .rpt as required.')
+            raise ValueError('The file '+rpt_files[0]+' in the rpt output directory '+rpt+' \
+                              does not end with .rpt as required.')
         else: # 1 file in rpt dir and ends with .rpt as expected
               # Red's rpt output file contains ">" which needs to be removed from each line
-              # and we need to replace the seq region name with seq region id and add some extra columns so it can be loaded directly
+              # and we need to replace the seq region name with seq region id and
+              # add some extra columns so it can be loaded directly
             engine = db.create_engine(self.param('target_db_url'))
             connection = engine.connect()
             metadata = db.MetaData()
