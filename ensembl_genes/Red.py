@@ -100,8 +100,32 @@ class Red(eHive.BaseRunnable):
         if not(os.path.isfile(red_path)):
             raise FileNotFoundError(errno.ENOENT,os.strerror(errno.ENOENT),red_path)
 
-        # check that the target database exists
-        if not(db_utils.database_exists(self.param('target_db_url'))):
+        # check that the target database exists and
+        
+        if db_utils.database_exists(self.param('target_db_url')):
+            engine = db.create_engine(self.param('target_db_url'))
+            connection = engine.connect()
+            metadata = db.MetaData()
+
+            sr = db.Table('seq_region',metadata,autoload=True,autoload_with=engine)
+            sra = db.Table('seq_region_attrib',metadata,autoload=True,autoload_with=engine)
+            at = db.Table('attrib_type',metadata,autoload=True,autoload_with=engine)
+
+            query = db.select([sr.columns.seq_region_id,sr.columns.name])
+            query = query.select_from(sr.join(sra, \
+                                              sr.columns.seq_region_id == sra.columns.seq_region_id). \
+                                         join(at,
+                                              at.columns.attrib_type_id == sra.columns.attrib_type_id))
+            query = query.where(at.columns.code == 'toplevel')
+
+            results = connection.execute(query).fetchall()
+
+            seq_region = {}
+            for seq_region_id,name in results:
+                seq_region[name] = seq_region_id
+            self.param('seq_region',seq_region)
+            
+        else:
             raise ValueError('Could not connect to the target database ' \
                              +target_db+' in "target_db".')
 
@@ -212,31 +236,12 @@ class Red(eHive.BaseRunnable):
         elif not rpt_files[0].endswith('.rpt'):
             raise ValueError('The file '+rpt_files[0]+' in the rpt output directory '+rpt+' \
                               does not end with .rpt as required.')
-        else: # 1 file in rpt dir and ends with .rpt as expected
-              # Red's rpt output file contains ">" which needs to be removed from each line
-              # and we need to replace the seq region name with seq region id and
-              # add some extra columns so it can be loaded directly
-            engine = db.create_engine(self.param('target_db_url'))
-            connection = engine.connect()
-            metadata = db.MetaData()
-
-            sr = db.Table('seq_region',metadata,autoload=True,autoload_with=engine)
-            sra = db.Table('seq_region_attrib',metadata,autoload=True,autoload_with=engine)
-            at = db.Table('attrib_type',metadata,autoload=True,autoload_with=engine)
-
-            query = db.select([sr.columns.seq_region_id,sr.columns.name])
-            query = query.select_from(sr.join(sra, \
-                                              sr.columns.seq_region_id == sra.columns.seq_region_id). \
-                                         join(at,
-                                              at.columns.attrib_type_id == sra.columns.attrib_type_id))
-            query = query.where(at.columns.code == 'toplevel')
-
-            results = connection.execute(query).fetchall()
-
-            seq_region = {}
-            for seq_region_id,name in results:
-                seq_region[name] = seq_region_id
-
+        else:
+            # 1 file in rpt dir and ends with .rpt as expected
+            # Red's rpt output file contains ">" which needs to be removed from each line
+            # and we need to replace the seq region name with seq region id and
+            # add some extra columns so it can be loaded directly
+            seq_region = self.param('seq_region')
             rpt_file = rpt+'/'+rpt_files[0]
             fixed_rpt_file = rpt_file+'.fixed'
 
