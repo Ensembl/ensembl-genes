@@ -100,8 +100,7 @@ class Red(eHive.BaseRunnable):
         if not(os.path.isfile(red_path)):
             raise FileNotFoundError(errno.ENOENT,os.strerror(errno.ENOENT),red_path)
 
-        # check that the target database exists and
-        
+        # check that the target database exists and fetch the seq_region_ids required later
         if db_utils.database_exists(self.param('target_db_url')):
             engine = db.create_engine(self.param('target_db_url'))
             connection = engine.connect()
@@ -124,7 +123,6 @@ class Red(eHive.BaseRunnable):
             for seq_region_id,name in results:
                 seq_region[name] = seq_region_id
             self.param('seq_region',seq_region)
-            
         else:
             raise ValueError('Could not connect to the target database ' \
                              +target_db+' in "target_db".')
