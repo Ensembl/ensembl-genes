@@ -125,7 +125,7 @@ class Red(eHive.BaseRunnable):
 
 
     def run(self):
-        """ It runs the Red program. """
+    """ It runs the Red program. """
         # output format: 1 (chrName:start-end) or 2 (chrName start end)
         # Note that chrName includes the '>' character
         cmd = self.param('red_path')+ \
