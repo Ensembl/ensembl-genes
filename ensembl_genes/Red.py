@@ -31,7 +31,7 @@ pymysql.install_as_MySQLdb()
 class Red(eHive.BaseRunnable):
     """ Runnable that runs Red to find repeats and store them in the target database. """
 
-    def param_defaults(self):
+    defzzzzzz param_defaults(self):
         """ It sets the parameters default values. """
         return {
             'logic_name' : 'red',
@@ -125,7 +125,7 @@ class Red(eHive.BaseRunnable):
 
 
     def run(self):
-    """ It runs the Red program. """
+        """ It runs the Red program. """
         # output format: 1 (chrName:start-end) or 2 (chrName start end)
         # Note that chrName includes the '>' character
         cmd = self.param('red_path')+ \
