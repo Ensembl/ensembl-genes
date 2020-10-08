@@ -141,7 +141,7 @@ class Red(eHive.BaseRunnable):
 
 
     def write_output(self):
-        """ It parses the Red's program output and inserts it into 
+        """ It parses the Red's program output and inserts it into
             the given Ensembl core database. """
         engine = db.create_engine(self.param('target_db_url'))
         connection = engine.connect()
@@ -199,7 +199,7 @@ class Red(eHive.BaseRunnable):
 
 
     def parse_repeats(self,rpt,repeat_consensus_id,analysis_id):
-        """ It parses the Red's program output and it converts it into 
+        """ It parses the Red's program output and it converts it into
             a tsv file which can be loaded into an Ensembl core repeat_feature table. """
         rpt_files = os.listdir(rpt)
         if not rpt_files:
