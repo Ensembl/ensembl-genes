@@ -19,10 +19,10 @@ disabled="--disable=raise-missing-from,line-too-long,wrong-import-order,similari
 
 pylint ${disabled} --rcfile pylintrc ensembl_genes/ > output.err
 
-grep -v "\-\-\-\-\-\-\-\-\-" output.err | grep -v "Your code has been rated" | grep -v "\n\n" | sed '/^$/d' > pylint.err
+grep -v "\-\-\-\-\-\-\-\-\-" output.err | grep -v "\*\*\*\*\*\*\*\*\*\*\*\*\*" | grep -v "Your code has been rated" | grep -v "\n\n" | sed '/^$/d' > pylint.err
 
 
-if ! [[ -z $(grep '[^[:space:]]' pylint.err) ]]
+if [ -s pylint.err ]
 then
     cat pylint.err
     rm pylint.err
