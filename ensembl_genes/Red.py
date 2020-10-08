@@ -68,17 +68,17 @@ class Red(eHive.BaseRunnable):
         try:
             os.makedirs(gnm,exist_ok=True)
             os.chmod(gnm,0o777)
-        except:
+        except PermissionError:
             print('Could not create '+gnm+' directory in "genome_file_tmpdir".')
-            raise PermissionError(errno.EPERM,os.strerror(errno.EPERM),gnm)
+            raise
 
         new_genome_file = gnm+'/'+os.path.basename(genome_file)
         try:
             # without read() Python keeps running before the file is written
             os.popen('cp '+genome_file+' '+new_genome_file).read()
-        except:
+        except PermissionError:
             print('Could not copy file '+genome_file+' into directory '+gnm)
-            raise PermissionError(errno.EPERM,os.strerror(errno.EPERM),new_genome_file)
+            raise
 
         # check that the file genome_file exists, it ends with .fa
         # and there is not any other .fa file within the same directory
@@ -108,15 +108,15 @@ class Red(eHive.BaseRunnable):
         # make sure that the output directories exist
         try:
             os.makedirs(msk,exist_ok=True)
-        except:
+        except PermissionError:
             print('Could not create '+msk+' directory in "msk".')
-            raise PermissionError(errno.EPERM,os.strerror(errno.EPERM),msk)
+            raise
 
         try:
             os.makedirs(rpt,exist_ok=True)
-        except:
+        except PermissionError:
             print('Could not create '+rpt+' directory in "rpt".')
-            raise PermissionError(errno.EPERM,os.strerror(errno.EPERM),rpt)
+            raise
 
         # check that the output directories are empty
         if os.listdir(msk):
