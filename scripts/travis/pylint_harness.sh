@@ -27,4 +27,6 @@ then
     cat pylint.err
     rm pylint.err
     exit 1
+else
+    exit 0
 fi
