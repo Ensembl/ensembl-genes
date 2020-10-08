@@ -63,7 +63,7 @@ class Red(eHive.BaseRunnable):
                                    target_db['dbname']+'?'+ \
                                    'local_infile=1')
 
-        # make sure the genome_file tmpdir exists and copy the genome file into it
+        # make sure the genome_file tmpdir 'gnm' exists and copy the genome file into it
         # in this way we make sure that the only .fa file to be processed is the one we want
         try:
             os.makedirs(gnm,exist_ok=True)
