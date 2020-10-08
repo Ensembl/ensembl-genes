@@ -1,17 +1,17 @@
-# Copyright [1999-2015] Wellcome Trust Sanger Institute and the EMBL-European Bioinformatics Institute
-# Copyright [2016-2020] EMBL-European Bioinformatics Institute
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#      http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+""" Copyright [1999-2015] Wellcome Trust Sanger Institute and the EMBL-European Bioinformatics Institute
+    Copyright [2016-2020] EMBL-European Bioinformatics Institute
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+         http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License. """
 
 import eHive
 
@@ -29,7 +29,7 @@ import pymysql
 pymysql.install_as_MySQLdb()
 
 class Red(eHive.BaseRunnable):
-    """Runnable that runs Red to find repeats and store them in the target database"""
+    """ Runnable that runs Red to find repeats and store them in the target database. """
 
     def param_defaults(self):
 
@@ -45,7 +45,7 @@ class Red(eHive.BaseRunnable):
         }
 
     def fetch_input(self):
-
+    """ It fetches the input parameters and it checks that they are correct. """
         genome_file = self.param_required('genome_file')
         gnm = self.param('gnm',self.param_required('genome_file_tmpdir'))
         msk = self.param_required('msk')
@@ -124,7 +124,7 @@ class Red(eHive.BaseRunnable):
 
 
     def run(self):
-
+    """ It runs the Red program. """
         # output format: 1 (chrName:start-end) or 2 (chrName start end)
         # Note that chrName includes the '>' character
         cmd = self.param('red_path')+ \
@@ -140,7 +140,8 @@ class Red(eHive.BaseRunnable):
 
 
     def write_output(self):
-
+    """ It parses the Red's program output and inserts it into 
+        the given Ensembl core database. """
         engine = db.create_engine(self.param('target_db_url'))
         connection = engine.connect()
         metadata = db.MetaData()
@@ -197,7 +198,8 @@ class Red(eHive.BaseRunnable):
 
 
     def parse_repeats(self,rpt,repeat_consensus_id,analysis_id):
-
+    """ It parses the Red's program output and it converts it into 
+        a tsv file which can be loaded into an Ensembl core repeat_feature table. """
         rpt_files = os.listdir(rpt)
         if not rpt_files:
             raise FileNotFoundError(errno.ENOENT,os.strerror(errno.ENOENT), \
