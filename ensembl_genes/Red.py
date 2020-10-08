@@ -72,7 +72,7 @@ class Red(eHive.BaseRunnable):
             print('Could not create '+gnm+' directory in "genome_file_tmpdir".')
             raise
 
-        new_genome_file = gnm+'/'+os.path.basename(genome_file)
+        new_genome_file = gnm+os.path.sep()+os.path.basename(genome_file)
         try:
             # without read() Python keeps running before the file is written
             os.popen('cp '+genome_file+' '+new_genome_file).read()
@@ -240,7 +240,7 @@ class Red(eHive.BaseRunnable):
             # and we need to replace the seq region name with seq region id and
             # add some extra columns so it can be loaded directly
             seq_region = self.param('seq_region')
-            rpt_file = rpt+'/'+rpt_files[0]
+            rpt_file = rpt+os.path.sep()+rpt_files[0]
             fixed_rpt_file = rpt_file+'.fixed'
 
             with open(rpt_file,'r') as f_in,open(fixed_rpt_file,'w') as f_out:
