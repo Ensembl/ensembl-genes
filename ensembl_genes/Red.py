@@ -21,7 +21,6 @@ import errno
 import subprocess
 
 import sqlalchemy as db
-import sqlalchemy_utils as db_utils
 
 # sqlalchemy requires MySQLdb but MySQLdb doesn't support Python 3.x
 # pymysql can be imported and used instead
@@ -100,10 +99,10 @@ class Red(eHive.BaseRunnable):
         if not(os.path.isfile(red_path)):
             raise FileNotFoundError(errno.ENOENT,os.strerror(errno.ENOENT),red_path)
 
-        # check that the target database exists and fetch the seq_region_ids required later
-        if db_utils.database_exists(self.param('target_db_url')):
-            engine = db.create_engine(self.param('target_db_url'))
-            connection = engine.connect()
+        # connect to the target database and fetch the seq_region_ids required later
+        engine = db.create_engine(self.param('target_db_url'))
+        connection = engine.connect()
+        if connection:
             metadata = db.MetaData()
 
             sr = db.Table('seq_region',metadata,autoload=True,autoload_with=engine)
