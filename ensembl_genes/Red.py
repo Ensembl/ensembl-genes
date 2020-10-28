@@ -19,6 +19,8 @@ import os
 import filecmp
 import errno
 import subprocess
+import tempfile
+import shutil
 
 import sqlalchemy as db
 
@@ -43,22 +45,28 @@ class Red(eHive.BaseRunnable):
     def fetch_input(self):
         """ It fetches the input parameters and it checks that they are correct. """
 
+        # get new temporary directory name in the default path with prefix gnm_ (eg '/scratch/gnm_nar4nry8')
+        temp_gnm_dir = tempfile.TemporaryDirectory(prefix='gnm_').name
+
         genome_file = self.param_required('genome_file')
-        gnm = self.param('gnm',self.param_required('genome_file_tmpdir'))
+        gnm = self.param('gnm',temp_gnm_dir)
         msk = self.param_required('msk')
         rpt = self.param_required('rpt')
         red_path = self.param_required('red_path')
         target_db_url = self.param_required('target_db_url')
         self.param('target_db_url',target_db_url+'?local_infile=1')
 
-        # make sure the genome_file tmpdir 'gnm' exists and copy the genome file into it
+        # make the temporary directory 'gnm' and copy the genome file into it
         # in this way we make sure that the only .fa file to be processed is the one we want
         try:
-            os.makedirs(gnm,exist_ok=True)
-            os.chmod(gnm,0o777)
+            os.makedirs(gnm)
         except PermissionError:
-            print('Could not create '+gnm+' directory in "genome_file_tmpdir".')
+            print('Could not create '+gnm+' directory.')
             raise
+
+        # copy the genome file into the temporary directory
+        # in this way we make sure that the only .fa file to be processed is the one we want
+                
 
         new_genome_file = gnm+os.path.sep+os.path.basename(genome_file)
         try:
@@ -149,7 +157,7 @@ class Red(eHive.BaseRunnable):
         try:
             subprocess.check_call(cmd.split())
         except subprocess.CalledProcessError as err:
-            print("Could not run Red. Return code "+err.returncode)
+            print("Could not run Red. Command: "+cmd+" Return code "+str(err.returncode))
 
 
     def write_output(self):
@@ -211,6 +219,11 @@ class Red(eHive.BaseRunnable):
                                  repeat_start,repeat_end,repeat_consensus_id,analysis_id)"
         connection.execute(repeat_feature_query)
 
+        # delete temporary directory and its contents
+        try:
+            shutil.rmtree(self.param('gnm'))
+        except OSError as e:
+            print("Error: %s : %s" % (self.param('gnm'),e.strerror))
 
     def parse_repeats(self,rpt,repeat_consensus_id,analysis_id):
         """ It parses the Red's program output and it converts it into
