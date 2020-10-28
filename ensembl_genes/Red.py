@@ -36,12 +36,7 @@ class Red(eHive.BaseRunnable):
         """ It sets the parameters default values. """
         return {
             'logic_name' : 'red',
-            'target_db' : {'dbname' : '', \
-                           'driver' : '', \
-                           'host' : '', \
-                           'pass' : '', \
-                           'port' : '', \
-                           'user' : ''},
+            'target_db_url' : '', # 'driver://user:pass@host:port/dbname'
             'red_path' : '',
         }
 
@@ -53,14 +48,8 @@ class Red(eHive.BaseRunnable):
         msk = self.param_required('msk')
         rpt = self.param_required('rpt')
         red_path = self.param_required('red_path')
-        target_db = self.param_required('target_db')
-        self.param('target_db_url',target_db['driver']+'://'+ \
-                                   target_db['user']+':'+ \
-                                   target_db['pass']+'@'+ \
-                                   target_db['host']+':'+ \
-                                   str(target_db['port'])+'/'+ \
-                                   target_db['dbname']+'?'+ \
-                                   'local_infile=1')
+        target_db_url = self.param_required('target_db_url')
+        self.param('target_db_url',target_db_url+'?local_infile=1')
 
         # make sure the genome_file tmpdir 'gnm' exists and copy the genome file into it
         # in this way we make sure that the only .fa file to be processed is the one we want
