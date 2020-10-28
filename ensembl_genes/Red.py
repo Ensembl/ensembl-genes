@@ -113,7 +113,7 @@ class Red(eHive.BaseRunnable):
             self.param('seq_region',seq_region)
         else:
             raise ValueError('Could not connect to the target database ' \
-                             +target_db+' in "target_db".')
+                             +target_db_url+' in "target_db_url".')
 
         # make sure that the output directories exist
         try:
