@@ -176,11 +176,12 @@ class Red(eHive.BaseRunnable):
         db.Table('repeat_feature',metadata,autoload=True,autoload_with=engine)
 
         # insert Red analysis
-        analysis_insert = analysis_table.insert(None).values({'created':db.sql.func.now(), \
-                                                         'logic_name':self.param('logic_name'), \
-                                                         'program':'Red', \
-                                                         'program_version':'05/22/2015', \
-                                                         'program_file':self.param('red_path')})
+        analysis_insert = analysis_table.insert(None).prefix_with("IGNORE"). \
+                                                      values({'created':db.sql.func.now(), \
+                                                              'logic_name':self.param('logic_name'), \
+                                                              'program':'Red', \
+                                                              'program_version':'05/22/2015', \
+                                                              'program_file':self.param('red_path')})
         connection.execute(analysis_insert)
 
         # fetch the inserted analysis_id
@@ -190,16 +191,17 @@ class Red(eHive.BaseRunnable):
         analysis_id = analysis_results[0][0]
 
         # insert repeat analysis meta keys
-        meta_insert = meta_table.insert(None).values({'species_id':1, \
-                                                  'meta_key':'repeat.analysis', \
-                                                  'meta_value':'red'})
+        meta_insert = meta_table.insert(None).prefix_with("IGNORE"). \
+                                              values({'species_id':1, \
+                                                      'meta_key':'repeat.analysis', \
+                                                      'meta_value':'red'})
         connection.execute(meta_insert)
 
         # insert dummy repeat consensus
         repeat_consensus_insert = repeat_consensus_table.insert(None).values({'repeat_name':'Red', \
-                                                                          'repeat_class':'Red', \
-                                                                          'repeat_type':'Red', \
-                                                                          'repeat_consensus':'N'})
+                                                                              'repeat_class':'Red', \
+                                                                              'repeat_type':'Red', \
+                                                                              'repeat_consensus':'N'})
         connection.execute(repeat_consensus_insert)
 
         # fetch the inserted repeat_consensus_id
