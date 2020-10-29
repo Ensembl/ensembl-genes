@@ -107,15 +107,17 @@ class Red(eHive.BaseRunnable):
                              +target_db_url+' in "target_db_url".')
 
         # make sure that the output directories exist and they are empty
-        try:
-            shutil.rmtree(msk)
-        except OSError as e:
-            print("Error: %s : %s" % (msk,e.strerror))
+        if os.path.isdir(msk):
+            try:
+                shutil.rmtree(msk)
+            except OSError as e:
+                print("Error: %s : %s" % (msk,e.strerror))
 
-        try:
-            shutil.rmtree(rpt)
-        except OSError as e:
-            print("Error: %s : %s" % (msk,e.strerror))
+        if os.path.isdir(rpt):
+            try:
+                shutil.rmtree(rpt)
+            except OSError as e:
+                print("Error: %s : %s" % (msk,e.strerror))
 
         try:
             os.makedirs(msk)
