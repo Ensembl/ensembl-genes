@@ -66,8 +66,6 @@ class Red(eHive.BaseRunnable):
 
         # copy the genome file into the temporary directory
         # in this way we make sure that the only .fa file to be processed is the one we want
-                
-
         new_genome_file = gnm+os.path.sep+os.path.basename(genome_file)
         try:
             # without read() Python keeps running before the file is written
