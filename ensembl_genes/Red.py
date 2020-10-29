@@ -16,7 +16,6 @@
 """ Module to run Red to find repeats and store them in the given Ensembl core database """
 
 import os
-import filecmp
 import errno
 import subprocess
 import tempfile
