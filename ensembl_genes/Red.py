@@ -135,16 +135,15 @@ class Red(eHive.BaseRunnable):
         """ It runs the Red program. """
         # output format: 1 (chrName:start-end) or 2 (chrName start end)
         # Note that chrName includes the '>' character
-        cmd = self.param('red_path')+ \
-              ' -frm 2'+ \
-              ' -gnm '+self.param('gnm')+ \
-              ' -msk '+self.param('msk')+ \
-              ' -rpt '+self.param('rpt')
-
+        cmd = [self.param('red_path'),   \
+               '-frm','2',               \
+               '-gnm',self.param('gnm'), \
+               '-msk',self.param('msk'), \
+               '-rpt',self.param('rpt')]
         try:
-            subprocess.check_call(cmd.split())
+            subprocess.check_call(cmd)
         except subprocess.CalledProcessError as err:
-            print("Could not run Red. Command: "+cmd+" Return code "+str(err.returncode))
+            print('Could not run Red. Command: '+' '.join(cmd)+' Return code '+str(err.returncode))
 
 
     def write_output(self):
