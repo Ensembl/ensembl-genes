@@ -106,26 +106,28 @@ class Red(eHive.BaseRunnable):
             raise ValueError('Could not connect to the target database ' \
                              +target_db_url+' in "target_db_url".')
 
-        # make sure that the output directories exist
+        # make sure that the output directories exist and they are empty
         try:
-            os.makedirs(msk,exist_ok=True)
+            shutil.rmtree(msk)
+        except OSError as e:
+            print("Error: %s : %s" % (msk,e.strerror))
+
+        try:
+            shutil.rmtree(rpt)
+        except OSError as e:
+            print("Error: %s : %s" % (msk,e.strerror))
+
+        try:
+            os.makedirs(msk)
         except PermissionError:
             print('Could not create '+msk+' directory in "msk".')
             raise
 
         try:
-            os.makedirs(rpt,exist_ok=True)
+            os.makedirs(rpt)
         except PermissionError:
             print('Could not create '+rpt+' directory in "rpt".')
             raise
-
-        # check that the output directories are empty
-        if os.listdir(msk):
-            raise ValueError('The msk output directory '+msk+' is not empty.')
-
-        if os.listdir(rpt):
-            raise ValueError('The rpt output directory '+rpt+' is not empty.')
-
 
     def run(self):
         """ It runs the Red program. """
