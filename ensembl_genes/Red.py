@@ -20,8 +20,8 @@ import errno
 import subprocess
 import tempfile
 import shutil
-
 import sqlalchemy as db
+from pathlib import Path,PurePath
 
 # sqlalchemy requires MySQLdb but MySQLdb doesn't support Python 3.x
 # pymysql can be imported and used instead
@@ -53,30 +53,30 @@ class Red(eHive.BaseRunnable):
         rpt = self.param_required('rpt')
         red_path = self.param_required('red_path')
         target_db_url = self.param_required('target_db_url')
-        self.param('target_db_url',target_db_url+'?local_infile=1')
+        self.param('target_db_url',f'{target_db_url}?local_infile=1')
 
         # make the temporary directory 'gnm' and copy the genome file into it
         # in this way we make sure that the only .fa file to be processed is the one we want
         try:
-            os.makedirs(gnm)
+            Path(gnm).mkdir()
         except PermissionError:
-            print('Could not create '+gnm+' directory.')
+            print(f'Could not create {gnm} directory.')
             raise
 
         # copy the genome file into the temporary directory
         # add suffix '.fa' to make sure it ends with '.fa' as required by Red
         # In this way we make sure that the only .fa file to be processed is the one we want
-        new_genome_file = gnm+os.path.sep+os.path.basename(genome_file)+'.fa'
+        new_genome_file = Path(f'{gnm}/{PurePath(genome_file).name}.fa')
         try:
             shutil.copyfile(genome_file,new_genome_file)
         except PermissionError:
-            print('Could not copy file '+genome_file+' into directory '+gnm)
+            print(f'Could not copy file {genome_file} into directory {gnm}')
             raise
 
         genome_file = self.param(genome_file,new_genome_file)
 
         # check that the Red binary exists
-        if not(os.path.isfile(red_path)):
+        if not(Path(red_path).exists()):
             raise FileNotFoundError(errno.ENOENT,os.strerror(errno.ENOENT),red_path)
 
         # connect to the target database and fetch the seq_region_ids required later
@@ -103,32 +103,31 @@ class Red(eHive.BaseRunnable):
                 seq_region[name] = seq_region_id
             self.param('seq_region',seq_region)
         else:
-            raise ValueError('Could not connect to the target database ' \
-                             +target_db_url+' in "target_db_url".')
+            raise ValueError(f'Could not connect to the target database {target_db_url}.')
 
         # make sure that the output directories exist and they are empty
-        if os.path.isdir(msk):
+        if Path(msk).exists():
             try:
                 shutil.rmtree(msk)
             except OSError as e:
-                print("Error: %s : %s" % (msk,e.strerror))
+                print(f'Error: {msk} : {e.strerror}')
 
-        if os.path.isdir(rpt):
+        if Path(rpt).exists():
             try:
                 shutil.rmtree(rpt)
             except OSError as e:
-                print("Error: %s : %s" % (msk,e.strerror))
+                print(f'Error: {rpt} : {e.strerror}')
 
         try:
-            os.makedirs(msk)
+            Path(msk).mkdir()
         except PermissionError:
-            print('Could not create '+msk+' directory in "msk".')
+            print(f'Could not create {msk} directory.')
             raise
 
         try:
-            os.makedirs(rpt)
+            Path(rpt).mkdir()
         except PermissionError:
-            print('Could not create '+rpt+' directory in "rpt".')
+            print(f'Could not create {rpt} directory.')
             raise
 
     def run(self):
@@ -143,7 +142,7 @@ class Red(eHive.BaseRunnable):
         try:
             subprocess.check_call(cmd)
         except subprocess.CalledProcessError as err:
-            print('Could not run Red. Command: '+' '.join(cmd)+' Return code '+str(err.returncode))
+            print(f'Could not run Red. Command: {" ".join(cmd)} Return code {str(err.returncode)}')
 
 
     def write_output(self):
@@ -197,42 +196,41 @@ class Red(eHive.BaseRunnable):
         repeats_file = self.parse_repeats(self.param('rpt'),repeat_consensus_id,analysis_id)
 
         # insert repeat features
-        repeat_feature_query = "LOAD DATA LOCAL INFILE '"+repeats_file+"' \
-                                INTO TABLE repeat_feature \
-                                FIELDS TERMINATED BY '\\t' \
-                                LINES TERMINATED BY '\\n' \
-                                (seq_region_id,seq_region_start,seq_region_end,\
-                                 repeat_start,repeat_end,repeat_consensus_id,analysis_id)"
+        repeat_feature_query = f'LOAD DATA LOCAL INFILE "{repeats_file}"' \
+                               +"INTO TABLE repeat_feature \
+                                 FIELDS TERMINATED BY '\\t' \
+                                 LINES TERMINATED BY '\\n' \
+                                 (seq_region_id,seq_region_start,seq_region_end, \
+                                  repeat_start,repeat_end,repeat_consensus_id,analysis_id)"
         connection.execute(repeat_feature_query)
 
         # delete temporary directory and its contents
         try:
             shutil.rmtree(self.param('gnm'))
         except OSError as e:
-            print("Error: %s : %s" % (self.param('gnm'),e.strerror))
+            print(f'Error: {self.param("gnm")} : {e.strerror}')
 
     def parse_repeats(self,rpt,repeat_consensus_id,analysis_id):
         """ It parses the Red's program output and it converts it into
             a tsv file which can be loaded into an Ensembl core repeat_feature table. """
-        rpt_files = os.listdir(rpt)
+        rpt_files = [str(path) for path in Path(rpt).iterdir()]
         if not rpt_files:
             raise FileNotFoundError(errno.ENOENT,os.strerror(errno.ENOENT), \
-                                    "The repeats output directory "+rpt+" is empty.")
+                                    f'The repeats output directory {rpt} is empty.')
         elif len(rpt_files) > 1:
-            raise ValueError('The rpt output directory '+rpt+' contains more than 1 file.')
+            raise ValueError(f'The rpt output directory {rpt} contains more than 1 file.')
         elif not rpt_files[0].endswith('.rpt'):
-            raise ValueError('The file '+rpt_files[0]+' in the rpt output directory '+rpt+' \
-                              does not end with .rpt as required.')
+            raise ValueError(f'The file {rpt_files[0]} in {rpt} does not end with ".rpt".')
         else:
             # 1 file in rpt dir and ends with .rpt as expected
             # Red's rpt output file contains ">" which needs to be removed from each line
             # and we need to replace the seq region name with seq region id and
             # add some extra columns so it can be loaded directly
             seq_region = self.param('seq_region')
-            rpt_file = rpt+os.path.sep+rpt_files[0]
-            fixed_rpt_file = rpt_file+'.fixed'
+            rpt_file = Path(rpt_files[0])
+            fixed_rpt_file = Path(f'{rpt_file}.fixed')
 
-            with open(rpt_file,'r') as f_in,open(fixed_rpt_file,'w') as f_out:
+            with rpt_file.open('r') as f_in,fixed_rpt_file.open('w') as f_out:
                 for line in f_in:
                     columns = line.split()
 
@@ -253,6 +251,5 @@ class Red(eHive.BaseRunnable):
                           str(repeat_consensus_id)+"\t"+ \
                           str(analysis_id),
                           file=f_out)
-                    #f_out.write(line[1:])
 
         return fixed_rpt_file
