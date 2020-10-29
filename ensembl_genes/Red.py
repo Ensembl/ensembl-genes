@@ -65,27 +65,14 @@ class Red(eHive.BaseRunnable):
             raise
 
         # copy the genome file into the temporary directory
-        # in this way we make sure that the only .fa file to be processed is the one we want
-        new_genome_file = gnm+os.path.sep+os.path.basename(genome_file)
+        # add suffix '.fa' to make sure it ends with '.fa' as required by Red
+        # In this way we make sure that the only .fa file to be processed is the one we want
+        new_genome_file = gnm+os.path.sep+os.path.basename(genome_file)+'.fa'
         try:
             shutil.copyfile(genome_file,new_genome_file)
         except PermissionError:
             print('Could not copy file '+genome_file+' into directory '+gnm)
             raise
-
-        # check that the file genome_file exists, it ends with .fa
-        # and there is not any other .fa file within the same directory
-        if sum(map(lambda x: x.endswith('.fa'),os.listdir(gnm))) > 1:
-            raise ValueError('The Red program requires that the directory containing \
-                              the .fa file does not contain any other .fa file. \
-                              The directory '+gnm+' in "gnm"  contains more than one .fa file.')
-        elif not(os.path.isfile(genome_file)):
-            raise ValueError('The file '+genome_file+' in "genome_file" does not end \
-                              with .fa as required by the Red program.')
-
-        # check that the file was copied successfully
-        if not(filecmp.cmp(genome_file,new_genome_file,shallow=False)):
-            raise FileNotFoundError(errno.ENOENT,os.strerror(errno.ENOENT),new_genome_file)
 
         genome_file = self.param(genome_file,new_genome_file)
 
