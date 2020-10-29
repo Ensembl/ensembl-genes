@@ -68,8 +68,7 @@ class Red(eHive.BaseRunnable):
         # in this way we make sure that the only .fa file to be processed is the one we want
         new_genome_file = gnm+os.path.sep+os.path.basename(genome_file)
         try:
-            # without read() Python keeps running before the file is written
-            os.popen('cp '+genome_file+' '+new_genome_file).read()
+            shutil.copyfile(genome_file,new_genome_file)
         except PermissionError:
             print('Could not copy file '+genome_file+' into directory '+gnm)
             raise
