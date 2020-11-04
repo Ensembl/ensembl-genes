@@ -68,9 +68,9 @@ class Red(eHive.BaseRunnable):
         # In this way we make sure that the only .fa file to be processed is the one we want
         new_genome_file = Path(f'{gnm}/{PurePath(genome_file).name}.fa')
         try:
-            shutil.copyfile(genome_file,new_genome_file)
+            os.symlink(genome_file,new_genome_file)
         except PermissionError:
-            print(f'Could not copy file {genome_file} into directory {gnm}')
+            print(f'Could not create symlink to {genome_file} in directory {gnm}')
             raise
 
         genome_file = self.param(genome_file,new_genome_file)
