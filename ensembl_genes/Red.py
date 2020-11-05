@@ -57,16 +57,18 @@ class Red(eHive.BaseRunnable):
 
         # make the temporary directory 'gnm' and copy the genome file into it
         # in this way we make sure that the only .fa file to be processed is the one we want
+        gnm_path = Path(gnm)
         try:
-            Path(gnm).mkdir()
+            gnm_path.mkdir()
         except PermissionError:
-            print(f'Could not create {gnm} directory.')
+            print(f'Could not create {gnm_path} directory.')
             raise
 
         # copy the genome file into the temporary directory
         # add suffix '.fa' to make sure it ends with '.fa' as required by Red
         # In this way we make sure that the only .fa file to be processed is the one we want
-        new_genome_file = Path(f'{gnm}/{PurePath(genome_file).name}.fa')
+        genome_file_path = Path(genome_file)
+        new_genome_file = gnm_path / f'{genome_file_path.name}.fa'
         try:
             os.symlink(genome_file,new_genome_file)
         except PermissionError:
@@ -76,7 +78,8 @@ class Red(eHive.BaseRunnable):
         genome_file = self.param(genome_file,new_genome_file)
 
         # check that the Red binary exists
-        if not(Path(red_path).exists()):
+        red_path_obj = Path(red_path)
+        if not(red_path_obj.exists()):
             raise FileNotFoundError(errno.ENOENT,os.strerror(errno.ENOENT),red_path)
 
         # connect to the target database and fetch the seq_region_ids required later
@@ -106,13 +109,15 @@ class Red(eHive.BaseRunnable):
             raise ValueError(f'Could not connect to the target database {target_db_url}.')
 
         # make sure that the output directories exist and they are empty
-        if Path(msk).exists():
+        msk_path = Path(msk)
+        if msk_path.exists():
             try:
                 shutil.rmtree(msk)
             except OSError as e:
                 print(f'Error: {msk} : {e.strerror}')
 
-        if Path(rpt).exists():
+        rpt_path = Path(rpt)
+        if rpt_path.exists():
             try:
                 shutil.rmtree(rpt)
             except OSError as e:
