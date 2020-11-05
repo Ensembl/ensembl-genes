@@ -105,8 +105,12 @@ class Red(eHive.BaseRunnable):
             for seq_region_id,name in results:
                 seq_region[name] = seq_region_id
             self.param('seq_region',seq_region)
+
+            connection.close()
         else:
             raise ValueError(f'Could not connect to the target database {target_db_url}.')
+
+        engine.dispose()
 
         # make sure that the output directories exist and they are empty
         msk_path = Path(msk)
@@ -208,6 +212,9 @@ class Red(eHive.BaseRunnable):
                                  (seq_region_id,seq_region_start,seq_region_end, \
                                   repeat_start,repeat_end,repeat_consensus_id,analysis_id)"
         connection.execute(repeat_feature_query)
+
+        connection.close()
+        engine.dispose()
 
         # delete temporary directory and its contents
         try:
