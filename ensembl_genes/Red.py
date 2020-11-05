@@ -124,13 +124,13 @@ class Red(eHive.BaseRunnable):
                 print(f'Error: {rpt} : {e.strerror}')
 
         try:
-            Path(msk).mkdir()
+            msk_path.mkdir()
         except PermissionError:
             print(f'Could not create {msk} directory.')
             raise
 
         try:
-            Path(rpt).mkdir()
+            rpt_path.mkdir()
         except PermissionError:
             print(f'Could not create {rpt} directory.')
             raise
@@ -218,43 +218,35 @@ class Red(eHive.BaseRunnable):
     def parse_repeats(self,rpt,repeat_consensus_id,analysis_id):
         """ It parses the Red's program output and it converts it into
             a tsv file which can be loaded into an Ensembl core repeat_feature table. """
-        rpt_files = [str(path) for path in Path(rpt).iterdir()]
-        if not rpt_files:
-            raise FileNotFoundError(errno.ENOENT,os.strerror(errno.ENOENT), \
-                                    f'The repeats output directory {rpt} is empty.')
-        elif len(rpt_files) > 1:
-            raise ValueError(f'The rpt output directory {rpt} contains more than 1 file.')
-        elif not rpt_files[0].endswith('.rpt'):
-            raise ValueError(f'The file {rpt_files[0]} in {rpt} does not end with ".rpt".')
-        else:
-            # 1 file in rpt dir and ends with .rpt as expected
-            # Red's rpt output file contains ">" which needs to be removed from each line
-            # and we need to replace the seq region name with seq region id and
-            # add some extra columns so it can be loaded directly
-            seq_region = self.param('seq_region')
-            rpt_file = Path(rpt_files[0])
-            fixed_rpt_file = Path(f'{rpt_file}.fixed')
+        # Required 1 file in rpt dir and it ends with .rpt
+        # Red's rpt output file contains ">" which needs to be removed from each line
+        # and we need to replace the seq region name with seq region id and
+        # add some extra columns so it can be loaded directly
+        seq_region = self.param('seq_region')
+        rpt_path = Path(self.param('rpt'))
+        rpt_files = list(rpt_path.iterdir())
+        rpt_file = Path(rpt_files[0]) # we know there is only one file
+        fixed_rpt_file = Path(f'{rpt_file}.fixed')
+        with rpt_file.open('r') as f_in,fixed_rpt_file.open('w') as f_out:
+            for line in f_in:
+                columns = line.split()
 
-            with rpt_file.open('r') as f_in,fixed_rpt_file.open('w') as f_out:
-                for line in f_in:
-                    columns = line.split()
+                if columns[0][0] == ">":
+                    name = columns[0][1:] # remove first character '>'
+                else:
+                    name = columns[0]
 
-                    if columns[0][0] == ">":
-                        name = columns[0][1:] # remove first character '>'
-                    else:
-                        name = columns[0]
-
-                    seq_region_start = int(columns[1])+1 # Red's start is zero-based
-                    seq_region_end = int(columns[2])-1   # Red's end is exclusive
-                    seq_region_id = seq_region[name]
-                    # seq_region_id seq_region_start seq_region_end repeat_start repeat_end repeat_consensus_id analysis_id
-                    print(str(seq_region_id)+"\t"+ \
-                          str(seq_region_start)+"\t"+ \
-                          str(seq_region_end)+"\t"+ \
-                          "1\t"+ \
-                          str(seq_region_end-seq_region_start+1)+"\t"+ \
-                          str(repeat_consensus_id)+"\t"+ \
-                          str(analysis_id),
-                          file=f_out)
+                seq_region_start = int(columns[1])+1 # Red's start is zero-based
+                seq_region_end = int(columns[2])-1   # Red's end is exclusive
+                seq_region_id = seq_region[name]
+                # seq_region_id seq_region_start seq_region_end repeat_start repeat_end repeat_consensus_id analysis_id
+                print(str(seq_region_id)+"\t"+ \
+                      str(seq_region_start)+"\t"+ \
+                      str(seq_region_end)+"\t"+ \
+                      "1\t"+ \
+                      str(seq_region_end-seq_region_start+1)+"\t"+ \
+                      str(repeat_consensus_id)+"\t"+ \
+                      str(analysis_id),
+                      file=f_out)
 
         return fixed_rpt_file
