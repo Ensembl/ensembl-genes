@@ -36,7 +36,7 @@ class Red(eHive.BaseRunnable):
     def param_defaults(self):
         """ It sets the parameters default values. """
         return {
-            'logic_name' : 'red',
+            'logic_name' : 'repeatdetector',
             'target_db_url' : '', # 'driver://user:pass@host:port/dbname'
             'red_path' : '',
             'red_meta_key' : 0
@@ -171,7 +171,7 @@ class Red(eHive.BaseRunnable):
         analysis_insert = analysis_table.insert(None).prefix_with("IGNORE"). \
                                                       values({'created':db.sql.func.now(), \
                                                               'logic_name':self.param('logic_name'), \
-                                                              'program':'Red', \
+                                                              'program':self.param('logic_name'), \
                                                               'program_version':'05/22/2015', \
                                                               'program_file':self.param('red_path')})
         connection.execute(analysis_insert)
@@ -187,19 +187,19 @@ class Red(eHive.BaseRunnable):
             meta_insert = meta_table.insert(None).prefix_with("IGNORE"). \
                                                   values({'species_id':1, \
                                                           'meta_key':'repeat.analysis', \
-                                                          'meta_value':'red'})
+                                                          'meta_value':self.param('logic_name')})
             connection.execute(meta_insert)
 
         # insert dummy repeat consensus
-        repeat_consensus_insert = repeat_consensus_table.insert(None).values({'repeat_name':'Red', \
-                                                                              'repeat_class':'Red', \
-                                                                              'repeat_type':'Red', \
+        repeat_consensus_insert = repeat_consensus_table.insert(None).values({'repeat_name':self.param('logic_name'), \
+                                                                              'repeat_class':self.param('logic_name'), \
+                                                                              'repeat_type':self.param('logic_name'), \
                                                                               'repeat_consensus':'N'})
         connection.execute(repeat_consensus_insert)
 
         # fetch the inserted repeat_consensus_id
         repeat_consensus_query = db.select([repeat_consensus_table.columns.repeat_consensus_id])
-        repeat_consensus_query = repeat_consensus_query.where(repeat_consensus_table.columns.repeat_name == 'Red')
+        repeat_consensus_query = repeat_consensus_query.where(repeat_consensus_table.columns.repeat_name == self.param('logic_name'))
         repeat_consensus_results = connection.execute(repeat_consensus_query).fetchall()
         repeat_consensus_id = repeat_consensus_results[0][0]
 
