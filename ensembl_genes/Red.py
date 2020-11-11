@@ -39,6 +39,7 @@ class Red(eHive.BaseRunnable):
             'logic_name' : 'red',
             'target_db_url' : '', # 'driver://user:pass@host:port/dbname'
             'red_path' : '',
+            'red_meta_key' : 0
         }
 
     def fetch_input(self):
@@ -182,11 +183,12 @@ class Red(eHive.BaseRunnable):
         analysis_id = analysis_results[0][0]
 
         # insert repeat analysis meta keys
-        meta_insert = meta_table.insert(None).prefix_with("IGNORE"). \
-                                              values({'species_id':1, \
-                                                      'meta_key':'repeat.analysis', \
-                                                      'meta_value':'red'})
-        connection.execute(meta_insert)
+        if self.param('red_meta_key'):
+            meta_insert = meta_table.insert(None).prefix_with("IGNORE"). \
+                                                  values({'species_id':1, \
+                                                          'meta_key':'repeat.analysis', \
+                                                          'meta_value':'red'})
+            connection.execute(meta_insert)
 
         # insert dummy repeat consensus
         repeat_consensus_insert = repeat_consensus_table.insert(None).values({'repeat_name':'Red', \
