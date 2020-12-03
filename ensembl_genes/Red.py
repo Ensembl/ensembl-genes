@@ -178,7 +178,7 @@ class Red(eHive.BaseRunnable):
 
         # fetch the inserted analysis_id
         analysis_query = db.select([analysis_table.columns.analysis_id])
-        analysis_query = analysis_query.where(analysis_table.columns.logic_name == 'red')
+        analysis_query = analysis_query.where(analysis_table.columns.logic_name == self.param('logic_name'))
         analysis_results = connection.execute(analysis_query).fetchall()
         analysis_id = analysis_results[0][0]
 
