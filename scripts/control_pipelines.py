@@ -15,7 +15,7 @@ import argparse
 import logging
 import subprocess
 import sqlalchemy as db
-from subprocess import Popen, PIPE
+# from subprocess import Popen, PIPE
 from sqlalchemy.sql import select
 from sqlalchemy import func, and_
 from urllib.parse import urlparse
@@ -32,18 +32,22 @@ pymysql.install_as_MySQLdb()
 
 
 
-
+# this is a pipeline object
 class Pipeliner:
-
+    
+    counter = 0
     # Constructor
-    def __init__(self, name, pipeline_status, mysql_status=0, farm_status=0, pipeline_input_ids_status=0):
+    def __init__(self, name, pipeline_status = 'stop', mysql_status=0, farm_status=0, pipeline_input_ids_status=0):
         self.name            = name  
         self.pipeline_status = pipeline_status
         colour_pipeline(self.name, self.pipeline_status)
         self.mysql_status    = mysql_servers_status(self.name, 2, True)
         self.farm_status     = check_farm_jobs() 
         self.pipeline_input_ids_status = check_pipeline_inputIDs_status(self.name, verbose)
-
+        
+        Pipeliner.counter += 1
+    
+    # Print all info object holds
     def print_data(self, verbose=False):
         if verbose:
             print('# name, {}'.format(self.name))
@@ -52,6 +56,15 @@ class Pipeliner:
             print('# Can I submit more?, {}'.format(self.farm_status))
             print('# pipeline_input_ids_status, {}'.format(self.pipeline_input_ids_status))
     
+    def get_set_status(self, new_status = ''):
+        if new_status: 
+            print('old_status: ', self.pipeline_status) 
+            self.pipeline_status = new_status 
+            print('AND I WILL UPDATE IT TO new_status: ', self.pipeline_status)
+        else:     
+            return self.pipeline_status 
+    
+    # Calculate parameters that will be used by beekeeper. 
     def calculate_bkeeper_params(self, number_of_loops, sleep_div, number_of_workers, verbose = True): 
         max_of_mysql_connections = sum(self.mysql_status.values())
         
@@ -60,9 +73,9 @@ class Pipeliner:
             print('# script will do the calculations')
             print('max_of_mysql_connections:', max_of_mysql_connections)
 
-        ### MAJOR CHECKS ### 
+        ### Security CHECKS ### 
         # STOP/GO checks
-        while max_of_mysql_connections  > 2000:
+        while max_of_mysql_connections  > 2300:
             print('max_connections are: very high (', max_of_mysql_connections , ')', '. You need to wait.' )
             sleep(10)
             max_of_mysql_connections  = sum(mysql_servers_status(self.name, check=2))
@@ -110,9 +123,16 @@ class Pipeliner:
         # number_of_loops = 1
         
         
+        number_of_workers = round(number_of_workers) 
+        
+        # you don't want to submit too many jobs per pipeline
+        if number_of_workers > 1000 : 
+            number_of_workers = 900
+        
         return number_of_loops, sleep_div, number_of_workers
 
-    
+
+# Find analyses that are ready to go    
 def ready_analyses(db_url, verbose=False):
     engine = db.create_engine(db_url)
     connection = engine.connect()
@@ -128,17 +148,17 @@ def ready_analyses(db_url, verbose=False):
         
         for analysis_id, logic_name in results: 
             connections_info[logic_name] = analysis_id
-            print('ready analysis:',analysis_id, 'logic_name', logic_name)
+            # print('ready analysis:',analysis_id, 'logic_name', logic_name)
     else:
         raise ValueError(f'Could not connect to the target database {db_url}.')
     return connections_info
     
 
-# run commands 
+# run commands: I sent all commands and execute them here. 
 def block_checkcall(cmd, verbose) :
     if verbose:
         print('running cmd: ', cmd)
-    p = subprocess.Popen(cmd, shell=True, stdout=PIPE, stderr=PIPE)
+    p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     stdout, stderr = p.communicate()
     if verbose == 3: 
         print("err:", stderr)
@@ -162,6 +182,8 @@ def check_farm_jobs(task_max=2000, verbose=True):
         print('You are running less than ', task_max , ' jobs')
         return True
 
+
+# checking the processlist of mysql servers 
 def mysql_servers_status(db_url, check=1, verbose=False):
     url_attributes = urlparse(db_url)
     connections_info = {}
@@ -215,7 +237,6 @@ def mysql_servers_status(db_url, check=1, verbose=False):
     if verbose: 
         for xx in connections_info:
             print (xx,':',connections_info[xx])
-       
         
     return connections_info 
     
@@ -319,7 +340,38 @@ def mysql_load_analyses(list_type):
         print('problem')    
 
 
+# 
+def check_for_long_running_jobs():
+    return
+
 # connect to registry db and update status of the pipeline
+
+# display basic table: 
+def create_html(data):
+    
+    new_data = {}
+    for i in data:
+        if 'ensembl' not in i: 
+            continue
+        i_new = i
+        i_new = i_new.replace('ensembl','xxxxxxx')
+        new_data[i_new] = data[i]
+        print("old:",i,"new:",i_new, "data_old:", data[i],"data_new:", new_data[i_new])
+    data = new_data    
+
+    html = '<table><tr><th>' 
+    for row in data:
+        html += '<tr><td>' + row +  '</td><td>'  + data[row] + '</td></tr>'
+    html += '</table>'
+
+    file_html = '/homes/kbillis/public_html/test/display/index.html'
+    with open(file_html, 'w') as newHTMLFile:
+        newHTMLFile.write(html)
+        newHTMLFile.close()
+
+
+
+
 
 
 
@@ -363,14 +415,19 @@ def main():
             else:
             # key = line.split()
                 print(line)
-                d[line.rstrip()] = 'run'
+                pl_name = line.rstrip()
+                d[pl_name] = Pipeliner(pl_name, 'run')
+
+    for pipeline_name in d:
+        print('this is object key name:', pipeline_name, 'end of object.')
+        d[pipeline_name].print_data(verbose=True)
     
     
     if options.act == 'loop':
         d = use_priority(d)
     else: 
         how_many_loops = 1
-        
+    
     # how many total loops 
     # this is a while: 
     for ii in range(how_many_loops): 
@@ -380,22 +437,23 @@ def main():
         # check how many workers each pipeline should run. 
         bkeeper_total_workers = options.number_of_total_workers
         worker_equal_dis =  bkeeper_total_workers/len(d)
-        
-        
+                
         ## loop those pipelines 
         for pipeline_name in d:
+            # Construct an instance of the Pipeline class   
+            # g = Pipeliner(pipeline_name, d[pipeline_name])
+            g = d[pipeline_name]
+                        
             bkeeper_max_loops = 5
             bkeeper_sleep = 0.5
 
             print('\n#################################################################')
-            print(pipeline_name,'status',':',d[pipeline_name])
-            
+          
             if options.act != 'loop':
                 mylist = ['perl ', beekeeper_locations, ' ', debug_parameter , ' -' , options.act , ' -url ' , pipeline_name ]
                 cmd_tmp = ''.join(mylist)
                 stdout_run, stderr_run = block_checkcall(cmd_tmp, verbose)
-                # Construct an instance of the Pipeline class 
-                g = Pipeliner(pipeline_name, d[pipeline_name])  
+                # Construct an instance of the Pipeline class   
                 g.print_data(verbose=True)   # Call an instance method; prints 
             else: 
                 if ( d[pipeline_name] == 'failed') :
@@ -424,7 +482,6 @@ def main():
                     # Here is the semi-dynamic part
                     # Construct an instance of the Pipeline class
                     print('I will set beekeeper: sleep, max_loops and total_running_workers_max')
-                    g = Pipeliner(pipeline_name, d[pipeline_name])
                     # g.print_data(verbose=True)  
                     # will return number of workers, amount of loops and sleep value.
                     bkeeper_max_loops, bkeeper_sleep, bkeeper_total_workers = g.calculate_bkeeper_params(bkeeper_max_loops, bkeeper_sleep, worker_equal_dis)
@@ -435,21 +492,37 @@ def main():
                 cmd_tmp = ''.join(mylist)
                 print('command: ',cmd_tmp)
                 # STOP/GO checks should be here too.  
-                # stdout_run, stderr_run = block_checkcall(cmd_tmp, verbose)
+                stdout_run, stderr_run = block_checkcall(cmd_tmp, verbose)
                 
                 if (d[pipeline_name] == 'boost_run'):
+                    # this is a high-priority and it will run until jobs fail or if there are analyses with single jobs that doesn't require usually more than 2 sec
                     while check_pipeline_inputIDs_status(pipeline_name)['READY'] > 5000: 
                         # give it a bit more of life until more input_id are done.
-                        # stdout_run, stderr_run = block_checkcall(cmd_tmp, verbose) 
+                        stdout_run, stderr_run = block_checkcall(cmd_tmp, verbose) 
                         print('I like this pipeline, ', pipeline_name, 'and I will run again. ')
                         sleep(5)
+                    
+                    analysis_list = mysql_load_analyses(list_type='quickly_done')
+                    while analyses_ready in analysis_list:
+                        analyses_ready = ready_analyses(pipeline_name)
+                        stdout_run, stderr_run = block_checkcall(cmd_tmp, verbose) 
+                
+                print("Total number of objects created: ", g.counter)
+                
+                # if there are long running jobs this update pipeline to something else: 
+                # major check if there is an analysis that takes too much time (for example, if one analysis runs for more than 10 hours,
             
-            # TODO: major check if there is an analysis that takes too much time (for example, if one analysis runs for more than 10 hours,
-            # mark db as 'problematic/failed'): 
-            
+                # if failed jobs this will be change the status 
+                # 
+                # if :
+                #    d[pipeline_name] = 'failed'
+                force_to_fail = 1 
+                
+                if force_to_fail: 
+                    g.get_set_status('FAIL')
 
-             
-        
+            print('create html: pipeline_name: ', pipeline_name, ' get_status: ', g.get_set_status())
+        # create_html(d)
         # call the class 
         # pipeline, mysql_check, check_jobs 
     print('Game over!')
