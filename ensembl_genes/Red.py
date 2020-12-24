@@ -21,7 +21,7 @@ import subprocess
 import tempfile
 import shutil
 import sqlalchemy as db
-from pathlib import Path,PurePath
+from pathlib import Path
 
 # sqlalchemy requires MySQLdb but MySQLdb doesn't support Python 3.x
 # pymysql can be imported and used instead
