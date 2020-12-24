@@ -30,7 +30,7 @@ pymysql.install_as_MySQLdb()
 
 import eHive
 
-class Red(eHive.BaseRunnable):
+class Repeatmask_Red(eHive.BaseRunnable):
     """ Runnable that runs Red to find repeats and store them in the target database. """
 
     def param_defaults(self):
