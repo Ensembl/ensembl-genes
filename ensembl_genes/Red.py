@@ -232,7 +232,7 @@ class Red(eHive.BaseRunnable):
         # and we need to replace the seq region name with seq region id and
         # add some extra columns so it can be loaded directly
         seq_region = self.param('seq_region')
-        rpt_path = Path(self.param('rpt'))
+        rpt_path = Path(rpt)
         rpt_files = list(rpt_path.iterdir())
         rpt_file = Path(rpt_files[0]) # we know there is only one file
         fixed_rpt_file = Path(f'{rpt_file}.fixed')
