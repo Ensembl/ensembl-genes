@@ -11,7 +11,7 @@ Docker image at Docker Hub:
 https://hub.docker.com/r/williamebi/red
 
 
-## build and publish a Docker image
+## build, publish, and run a Docker image
 
 build a Docker image
 ```
