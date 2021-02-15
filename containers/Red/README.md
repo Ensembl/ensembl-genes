@@ -28,11 +28,22 @@ upload the Docker image to Docker Hub (you need an account and to log in with `d
 docker push williamebi/red:2.0
 ```
 
-run the Docker image with Singularity
+run the Docker image directly with Singularity on a compute or login node
 ```
-# run on a login or compute node
 singularity run docker://williamebi/red:2.0
+```
 
-# submit to run as a job on LFS
-bsub "singularity run docker://williamebi/red:2.0"
+generate a Singularity image from the Docker image at Docker Hub
+```
+singularity pull docker://williamebi/red:2.0
+```
+
+run the Singularity image on a compute or login node
+```
+singularity run /hps/nobackup2/singularity/william/red-2.0.simg
+```
+
+submit a job for running the Singularity image on LFS
+```
+bsub "singularity run /hps/nobackup2/singularity/william/red-2.0.simg"
 ```
