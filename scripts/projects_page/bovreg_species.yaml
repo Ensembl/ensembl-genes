@@ -1,0 +1,77 @@
+- species: Bos taurus
+  submitted_by: USDA ARS
+  accession: GCA_002263795.2
+  annotation_gtf: http://ftp.ensembl.org/pub/release-102/gtf/bos_taurus/Bos_taurus.ARS-UCD1.2.102.gtf.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/release-102/gff3/bos_taurus/Bos_taurus.ARS-UCD1.2.102.gff3.gz
+  proteins: http://ftp.ensembl.org/pub/release-102/fasta/bos_taurus/pep/Bos_taurus.ARS-UCD1.2.102.pep.all.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/release-102/fasta/bos_taurus/cdna/Bos_taurus.ARS-UCD1.2.102.cdna.all.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/release-102/fasta/bos_taurus/dna/Bos_taurus.ARS-UCD1.2.dna_sm.toplevel.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/release-102
+  ensembl_link: https://www.ensembl.org/Bos_taurus/Info/Index
+
+- species: Bos gaurus
+  submitted_by: USDA, ARS, USMARC
+  accession: GCA_014182915.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Bos_gaurus/GCA_014182915.1/geneset/2020_09/Bos_gaurus-GCA_014182915.1-2020_09-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Bos_gaurus/GCA_014182915.1/geneset/2020_09/Bos_gaurus-GCA_014182915.1-2020_09-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Bos_gaurus/GCA_014182915.1/geneset/2020_09/Bos_gaurus-GCA_014182915.1-2020_09-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Bos_gaurus/GCA_014182915.1/geneset/2020_09/Bos_gaurus-GCA_014182915.1-2020_09-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Bos_gaurus/GCA_014182915.1/genome/Bos_gaurus-GCA_014182915.1-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Bos_gaurus/GCA_014182915.1
+  rapid_link: https://rapid.ensembl.org/Bos_gaurus/Info/Index
+
+- species: Bos grunniens
+  submitted_by: Lanzhou University
+  accession: GCA_005887515.1
+  annotation_gtf: http://ftp.ensembl.org/pub/release-102/gtf/bos_grunniens/Bos_grunniens.LU_Bosgru_v3.0.102.gtf.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/release-102/gff3/bos_grunniens/Bos_grunniens.LU_Bosgru_v3.0.102.gff3.gz
+  proteins: http://ftp.ensembl.org/pub/release-102/fasta/bos_grunniens/pep/Bos_grunniens.LU_Bosgru_v3.0.102.pep.all.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/release-102/fasta/bos_grunniens/cdna/Bos_grunniens.LU_Bosgru_v3.0.102.cdna.all.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/release-102/fasta/bos_grunniens/dna/Bos_grunniens.LU_Bosgru_v3.0.dna_sm.toplevel.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/release-102
+  ensembl_link: https://www.ensembl.org/Bos_grunniens/Info/Index
+
+- species: Bos indicus x Bos taurus
+  submitted_by: University of Adelaide
+  accession: GCA_003369695.2
+  annotation_gtf: http://ftp.ensembl.org/pub/release-102/gtf/bos_indicus_hybrid/Bos_indicus_hybrid.UOA_Brahman_1.102.gtf.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/release-102/gff3/bos_indicus_hybrid/Bos_indicus_hybrid.UOA_Brahman_1.102.gff3.gz
+  proteins: http://ftp.ensembl.org/pub/release-102/fasta/bos_indicus_hybrid/pep/Bos_indicus_hybrid.UOA_Brahman_1.102.pep.all.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/release-102/fasta/bos_indicus_hybrid/cdna/Bos_indicus_hybrid.UOA_Brahman_1.102.cdna.all.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/release-102/fasta/bos_indicus_hybrid/dna/Bos_indicus_hybrid.UOA_Brahman_1.dna_sm.toplevel.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/release-102
+  ensembl_link: https://www.ensembl.org/Bos_indicus_hybrid/Info/Index
+
+- species: Bos mutus
+  submitted_by: BGI-shenzhen
+  accession: GCA_000298355.1
+  annotation_gtf: http://ftp.ensembl.org/pub/release-102/gtf/bos_mutus/Bos_mutus.BosGru_v2.0.102.gtf.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/release-102/gff3/bos_mutus/Bos_mutus.BosGru_v2.0.102.gff3.gz
+  proteins: http://ftp.ensembl.org/pub/release-102/fasta/bos_mutus/pep/Bos_mutus.BosGru_v2.0.102.pep.all.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/release-102/fasta/bos_mutus/cdna/Bos_mutus.BosGru_v2.0.102.cdna.all.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/release-102/fasta/bos_mutus/dna/Bos_mutus.BosGru_v2.0.dna_sm.toplevel.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/release-102
+  ensembl_link: https://www.ensembl.org/Bos_mutus/Info/Index
+
+- species: Bos mutus (Datong Yak)
+  submitted_by: Lanzhou University
+  accession: GCA_007646595.3
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Bos_mutus/GCA_007646595.3/geneset/2020_08/Bos_mutus-GCA_007646595.3-2020_08-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Bos_mutus/GCA_007646595.3/geneset/2020_08/Bos_mutus-GCA_007646595.3-2020_08-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Bos_mutus/GCA_007646595.3/geneset/2020_08/Bos_mutus-GCA_007646595.3-2020_08-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Bos_mutus/GCA_007646595.3/geneset/2020_08/Bos_mutus-GCA_007646595.3-2020_08-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Bos_mutus/GCA_007646595.3/genome/Bos_mutus-GCA_007646595.3-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Bos_mutus/GCA_007646595.3
+  rapid_link: https://rapid.ensembl.org/Bos_mutus_datongyak/Info/Index
+
+- species: Bos indicus x Bos taurus
+  submitted_by: University of Adelaide
+  accession: GCA_003369685.2
+  annotation_gtf: http://ftp.ensembl.org/pub/release-102/gtf/bos_taurus_hybrid/Bos_taurus_hybrid.UOA_Angus_1.102.gtf.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/release-102/gff3/bos_taurus_hybrid/Bos_taurus_hybrid.UOA_Angus_1.102.gff3.gz
+  proteins: http://ftp.ensembl.org/pub/release-102/fasta/bos_taurus_hybrid/pep/Bos_taurus_hybrid.UOA_Angus_1.102.pep.all.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/release-102/fasta/bos_taurus_hybrid/cdna/Bos_taurus_hybrid.UOA_Angus_1.102.cdna.all.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/release-102/fasta/bos_taurus_hybrid/dna/Bos_taurus_hybrid.UOA_Angus_1.dna_sm.toplevel.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/release-102
+  ensembl_link: https://www.ensembl.org/Bos_taurus_hybrid/Info/Index
+

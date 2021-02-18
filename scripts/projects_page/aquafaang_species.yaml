@@ -1,0 +1,99 @@
+- species: Cyprinus carpio
+  submitted_by: CHINESE ACADEMY OF FISHERY SCIENCE
+  accession: GCA_000951615.2
+  annotation_gtf: http://ftp.ensembl.org/pub/release-102/gtf/cyprinus_carpio/Cyprinus_carpio.common_carp_genome.102.gtf.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/release-102/gff3/cyprinus_carpio/Cyprinus_carpio.common_carp_genome.102.gff3.gz
+  proteins: http://ftp.ensembl.org/pub/release-102/fasta/cyprinus_carpio/pep/Cyprinus_carpio.common_carp_genome.102.pep.all.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/release-102/fasta/cyprinus_carpio/cdna/Cyprinus_carpio.common_carp_genome.102.cdna.all.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/release-102/fasta/cyprinus_carpio/dna/Cyprinus_carpio.common_carp_genome.dna_sm.toplevel.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/release-102
+  ensembl_link: https://www.ensembl.org/Cyprinus_carpio/Info/Index
+
+- species: Dicentrarchus labrax
+  submitted_by: MPI-PZ
+  accession: GCA_000689215.1
+  annotation_gtf: http://ftp.ensembl.org/pub/release-102/gtf/dicentrarchus_labrax/Dicentrarchus_labrax.seabass_V1.0.102.gtf.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/release-102/gff3/dicentrarchus_labrax/Dicentrarchus_labrax.seabass_V1.0.102.gff3.gz
+  proteins: http://ftp.ensembl.org/pub/release-102/fasta/dicentrarchus_labrax/pep/Dicentrarchus_labrax.seabass_V1.0.102.pep.all.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/release-102/fasta/dicentrarchus_labrax/cdna/Dicentrarchus_labrax.seabass_V1.0.102.cdna.all.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/release-102/fasta/dicentrarchus_labrax/dna/Dicentrarchus_labrax.seabass_V1.0.dna_sm.toplevel.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/release-102
+  ensembl_link: https://www.ensembl.org/Dicentrarchus_labrax/Info/Index
+
+- species: Oncorhynchus mykiss
+  submitted_by: USDA/ARS
+  accession: GCA_002163495.1
+  annotation_gtf: http://ftp.ensembl.org/pub/release-102/gtf/oncorhynchus_mykiss/Oncorhynchus_mykiss.Omyk_1.0.102.gtf.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/release-102/gff3/oncorhynchus_mykiss/Oncorhynchus_mykiss.Omyk_1.0.102.gff3.gz
+  proteins: http://ftp.ensembl.org/pub/release-102/fasta/oncorhynchus_mykiss/pep/Oncorhynchus_mykiss.Omyk_1.0.102.pep.all.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/release-102/fasta/oncorhynchus_mykiss/cdna/Oncorhynchus_mykiss.Omyk_1.0.102.cdna.all.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/release-102/fasta/oncorhynchus_mykiss/dna/Oncorhynchus_mykiss.Omyk_1.0.dna_sm.toplevel.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/release-102
+  ensembl_link: https://www.ensembl.org/Oncorhynchus_mykiss/Info/Index
+
+- species: Oncorhynchus mykiss
+  submitted_by: USDA/ARS
+  accession: GCA_013265735.3
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Oncorhynchus_mykiss/GCA_013265735.3/geneset/2020_12/Oncorhynchus_mykiss-GCA_013265735.3-2020_12-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Oncorhynchus_mykiss/GCA_013265735.3/geneset/2020_12/Oncorhynchus_mykiss-GCA_013265735.3-2020_12-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Oncorhynchus_mykiss/GCA_013265735.3/geneset/2020_12/Oncorhynchus_mykiss-GCA_013265735.3-2020_12-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Oncorhynchus_mykiss/GCA_013265735.3/geneset/2020_12/Oncorhynchus_mykiss-GCA_013265735.3-2020_12-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Oncorhynchus_mykiss/GCA_013265735.3/genome/Oncorhynchus_mykiss-GCA_013265735.3-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Oncorhynchus_mykiss/GCA_013265735.3
+  rapid_link: https://rapid.ensembl.org/Oncorhynchus_mykiss_gca013265735v3/Info/Index
+
+- species: Salmo salar
+  submitted_by: International Cooperation to Sequence the Atlantic Salmon Genome
+  accession: GCA_000233375.4
+  annotation_gtf: http://ftp.ensembl.org/pub/release-102/gtf/salmo_salar/Salmo_salar.ICSASG_v2.102.gtf.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/release-102/gff3/salmo_salar/Salmo_salar.ICSASG_v2.102.gff3.gz
+  proteins: http://ftp.ensembl.org/pub/release-102/fasta/salmo_salar/pep/Salmo_salar.ICSASG_v2.102.pep.all.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/release-102/fasta/salmo_salar/cdna/Salmo_salar.ICSASG_v2.102.cdna.all.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/release-102/fasta/salmo_salar/dna/Salmo_salar.ICSASG_v2.dna_sm.toplevel.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/release-102
+  ensembl_link: https://www.ensembl.org/Salmo_salar/Info/Index
+
+- species: Scophthalmus maximus
+  submitted_by: CNAG
+  accession: GCA_003186165.1
+  annotation_gtf: http://ftp.ensembl.org/pub/release-102/gtf/scophthalmus_maximus/Scophthalmus_maximus.ASM318616v1.102.gtf.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/release-102/gff3/scophthalmus_maximus/Scophthalmus_maximus.ASM318616v1.102.gff3.gz
+  proteins: http://ftp.ensembl.org/pub/release-102/fasta/scophthalmus_maximus/pep/Scophthalmus_maximus.ASM318616v1.102.pep.all.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/release-102/fasta/scophthalmus_maximus/cdna/Scophthalmus_maximus.ASM318616v1.102.cdna.all.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/release-102/fasta/scophthalmus_maximus/dna/Scophthalmus_maximus.ASM318616v1.dna_sm.toplevel.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/release-102
+  ensembl_link: https://www.ensembl.org/Scophthalmus_maximus/Info/Index
+
+- species: Scophthalmus maximus
+  submitted_by: CIGENE
+  accession: GCA_013347765.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Scophthalmus_maximus/GCA_013347765.1/geneset/2020_12/Scophthalmus_maximus-GCA_013347765.1-2020_12-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Scophthalmus_maximus/GCA_013347765.1/geneset/2020_12/Scophthalmus_maximus-GCA_013347765.1-2020_12-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Scophthalmus_maximus/GCA_013347765.1/geneset/2020_12/Scophthalmus_maximus-GCA_013347765.1-2020_12-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Scophthalmus_maximus/GCA_013347765.1/geneset/2020_12/Scophthalmus_maximus-GCA_013347765.1-2020_12-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Scophthalmus_maximus/GCA_013347765.1/genome/Scophthalmus_maximus-GCA_013347765.1-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Scophthalmus_maximus/GCA_013347765.1
+  rapid_link: https://rapid.ensembl.org/Scophthalmus_maximus_gca013347765v1/Info/Index
+
+- species: Sparus aurata
+  submitted_by: SC
+  accession: GCA_900880675.1
+  annotation_gtf: http://ftp.ensembl.org/pub/release-102/gtf/sparus_aurata/Sparus_aurata.fSpaAur1.1.102.gtf.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/release-102/gff3/sparus_aurata/Sparus_aurata.fSpaAur1.1.102.gff3.gz
+  proteins: http://ftp.ensembl.org/pub/release-102/fasta/sparus_aurata/pep/Sparus_aurata.fSpaAur1.1.102.pep.all.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/release-102/fasta/sparus_aurata/cdna/Sparus_aurata.fSpaAur1.1.102.cdna.all.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/release-102/fasta/sparus_aurata/dna/Sparus_aurata.fSpaAur1.1.dna_sm.toplevel.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/release-102
+  ensembl_link: https://www.ensembl.org/Sparus_aurata/Info/Index
+
+- species: Danio rerio
+  submitted_by: Genome Reference Consortium
+  accession: GCA_000002035.4
+  annotation_gtf: http://ftp.ensembl.org/pub/release-102/gtf/danio_rerio/Danio_rerio.GRCz11.102.gtf.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/release-102/gff3/danio_rerio/Danio_rerio.GRCz11.102.gff3.gz
+  proteins: http://ftp.ensembl.org/pub/release-102/fasta/danio_rerio/pep/Danio_rerio.GRCz11.102.pep.all.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/release-102/fasta/danio_rerio/cdna/Danio_rerio.GRCz11.102.cdna.all.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/release-102/fasta/danio_rerio/dna/Danio_rerio.GRCz11.dna_sm.toplevel.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/release-102
+  ensembl_link: https://www.ensembl.org/Danio_rerio/Info/Index
+
