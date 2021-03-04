@@ -106,8 +106,8 @@ def write_yaml(info_dict,icon,yaml_out,project,use_server):
     yaml += "  accession: "+info_dict['assembly.accession']+"\n"
     yaml += "  annotation_gtf: "+ftp_base+"/gtf/"+info_dict['species.production_name']+"/"+uc_prod_name+"."+assembly_name+"."+info_dict['schema_version']+".gtf.gz\n"
     yaml += "  annotation_gff3: "+ftp_base+"/gff3/"+info_dict['species.production_name']+"/"+uc_prod_name+"."+assembly_name+"."+info_dict['schema_version']+".gff3.gz\n"
-    yaml += "  proteins: "+ftp_base+"/fasta/"+info_dict['species.production_name']+"/pep/"+uc_prod_name+"."+assembly_name+"."+info_dict['schema_version']+".pep.all.fa.gz\n"
-    yaml += "  transcripts: "+ftp_base+"/fasta/"+info_dict['species.production_name']+"/cdna/"+uc_prod_name+"."+assembly_name+"."+info_dict['schema_version']+".cdna.all.fa.gz\n"
+    yaml += "  proteins: "+ftp_base+"/fasta/"+info_dict['species.production_name']+"/pep/"+uc_prod_name+"."+assembly_name+".pep.all.fa.gz\n"
+    yaml += "  transcripts: "+ftp_base+"/fasta/"+info_dict['species.production_name']+"/cdna/"+uc_prod_name+"."+assembly_name+".cdna.all.fa.gz\n"
     yaml += "  softmasked_genome: "+ftp_base+"/fasta/"+info_dict['species.production_name']+"/dna/"+uc_prod_name+"."+assembly_name+".dna_sm.toplevel.fa.gz\n"
 
     rm_file = check_for_repeatmodeler(lc_species_name,info_dict['assembly.accession'])

@@ -36,8 +36,8 @@
   accession: GCA_901001165.1
   annotation_gtf: http://ftp.ensembl.org/pub/release-103/gtf/salmo_trutta/Salmo_trutta.fSalTru1.1.103.gtf.gz
   annotation_gff3: http://ftp.ensembl.org/pub/release-103/gff3/salmo_trutta/Salmo_trutta.fSalTru1.1.103.gff3.gz
-  proteins: http://ftp.ensembl.org/pub/release-103/fasta/salmo_trutta/pep/Salmo_trutta.fSalTru1.1.103.pep.all.fa.gz
-  transcripts: http://ftp.ensembl.org/pub/release-103/fasta/salmo_trutta/cdna/Salmo_trutta.fSalTru1.1.103.cdna.all.fa.gz
+  proteins: http://ftp.ensembl.org/pub/release-103/fasta/salmo_trutta/pep/Salmo_trutta.fSalTru1.1.pep.all.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/release-103/fasta/salmo_trutta/cdna/Salmo_trutta.fSalTru1.1.cdna.all.fa.gz
   softmasked_genome: http://ftp.ensembl.org/pub/release-103/fasta/salmo_trutta/dna/Salmo_trutta.fSalTru1.1.dna_sm.toplevel.fa.gz
   ftp_dumps: http://ftp.ensembl.org/pub/release-103
   ensembl_link: https://www.ensembl.org/Salmo_trutta/Info/Index
