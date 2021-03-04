@@ -104,10 +104,10 @@ def write_yaml(info_dict,icon,yaml_out,project,use_server):
       yaml += "  submitted_by: "+submitter+"\n"
 
     yaml += "  accession: "+info_dict['assembly.accession']+"\n"
-    yaml += "  annotation_gtf: "+ftp_base+"/gtf/"+info_dict['species.production_name']+"/"+uc_prod_name+"."+assembly_name+".gtf.gz\n"
-    yaml += "  annotation_gff3: "+ftp_base+"/gff3/"+info_dict['species.production_name']+"/"+uc_prod_name+"."+assembly_name+".gff3.gz\n"
-    yaml += "  proteins: "+ftp_base+"/fasta/"+info_dict['species.production_name']+"/pep/"+uc_prod_name+"."+assembly_name+".pep.all.fa.gz\n"
-    yaml += "  transcripts: "+ftp_base+"/fasta/"+info_dict['species.production_name']+"/cdna/"+uc_prod_name+"."+assembly_name+".cdna.all.fa.gz\n"
+    yaml += "  annotation_gtf: "+ftp_base+"/gtf/"+info_dict['species.production_name']+"/"+uc_prod_name+"."+assembly_name+"."+info_dict['schema_version']+".gtf.gz\n"
+    yaml += "  annotation_gff3: "+ftp_base+"/gff3/"+info_dict['species.production_name']+"/"+uc_prod_name+"."+assembly_name+"."+info_dict['schema_version']+".gff3.gz\n"
+    yaml += "  proteins: "+ftp_base+"/fasta/"+info_dict['species.production_name']+"/pep/"+uc_prod_name+"."+assembly_name+"."+info_dict['schema_version']+".pep.all.fa.gz\n"
+    yaml += "  transcripts: "+ftp_base+"/fasta/"+info_dict['species.production_name']+"/cdna/"+uc_prod_name+"."+assembly_name+"."+info_dict['schema_version']+".cdna.all.fa.gz\n"
     yaml += "  softmasked_genome: "+ftp_base+"/fasta/"+info_dict['species.production_name']+"/dna/"+uc_prod_name+"."+assembly_name+".dna_sm.toplevel.fa.gz\n"
 
     rm_file = check_for_repeatmodeler(lc_species_name,info_dict['assembly.accession'])
@@ -194,6 +194,8 @@ if __name__ == '__main__':
       exists_main = cur.execute(exists_query)
       if (exists_main):
         use_server = 'main'
+      else:
+        raise Exception ("Unable to find database on rapid or main servers!")
 
     if (use_server):
       # retrieve the species name, assembly accession and assembly name from the database
