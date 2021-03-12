@@ -214,7 +214,7 @@ def write_yaml(info_dict, icon, yaml_out, project, use_server):
         # 12-03-21: GENE-SWitCH project is frozen on Ensembl version 102 for the time being!
         if project == "geneswitch":
             release = "release-102"
-            release_number = 102
+            release_number = "102"
         else:
             release = "release-" + info_dict["schema_version"]
             release_number = info_dict["schema_version"]
