@@ -35,3 +35,46 @@ Don't forget to push updated DB_FILEs to this repo.
 
 NOTE:
 Don't forget to push updated species.yaml to this repo. 
+
+## Adding new image icons
+
+-Images used for the VGP and DToL projects pages are stored in the [Ensembl projects repo](https://github.com/Ensembl/projects.ensembl.org/tree/master/) at /img/vgp/ 
+-The file, icons.txt, in this repo contains a list of species classifications that have already been added to the VGP or DToL pages
+-If you are adding a species that does not fall into one of these classifications, then you will need to update the file 
+   - check the species.classification keys in the meta table in the core db and choose a classification level that is appropriate
+   - add the classification and image name to the icons.txt file
+   - make sure the image exists in the [Ensembl projects repo](https://github.com/Ensembl/projects.ensembl.org/tree/master/) at /img/vgp/ - if it does not, you will need to add it (you should take the image from the rapid release, if it exists, otherwise, you should talk to Anne from web about getting a new appropriate image)
+
+## Things to note in write_yaml.py
+
+There are certain species for which the standard url format will not work and so custom urls must be created
+      `# there are species on main for which the upper case production name is used in the url instead of the upper case species name`
+      `prod_url_list = ["bos_taurus_hybrid", "bos_indicus_hybrid"]`
+
+For some of the projects pages, there is an expectation that certain species/assemblies are listed first, so some ordering had to be added
+```
+    if project == "aquafaang":
+        # move danio rerio reference dbs to end of the list
+        for db in sorted_db_list:
+            if "danio_rerio_core" in db:
+                sorted_db_list.append(sorted_db_list.pop(sorted_db_list.index(db)))
+
+    if project == "bovreg":
+        # move bos taurus reference dbs to top of the list
+        for db in sorted_db_list:
+            if "bos_taurus_core" in db:
+                sorted_db_list.insert(0, sorted_db_list.pop(sorted_db_list.index(db)))
+
+    if project == "geneswitch":
+        # move sus scrofa or gallus gallus reference dbs to top of the list
+        for db in sorted_db_list:
+            if "sus_scrofa_core" in db or "gallus_gallus_core" in db:
+                sorted_db_list.insert(0, sorted_db_list.pop(sorted_db_list.index(db)))
+```
+
+For the chicken reference (GENE-SWitCH project) the submitter information cannot be pulled from the assembly report so it has to be set
+```
+    # for the chicken reference the submitter info is missing, set it manually
+    if info_dict["assembly.accession"] is 'GCA_000002315.5':
+        submitter = "Genome Reference Consortium"
+```
