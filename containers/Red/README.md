@@ -3,12 +3,16 @@
 Dockerfile for generating a Docker image for Red, "an intelligent, rapid, accurate tool for detecting repeats de-novo on the genomic scale".
 
 Links:
-[source code](https://github.com/BioinformaticsToolsmith/Red)
+[source code](https://github.com/BioinformaticsToolsmith/Red),
 [publication](https://bmcbioinformatics.biomedcentral.com/articles/10.1186/s12859-015-0654-5)
-
 
 Docker image at Docker Hub:
 https://hub.docker.com/r/williamebi/red
+
+
+## notes
+
+The Dockerfile in the root of this directory compiles a Red binary from source code, whereas the Dockerfile in the `use_existing_binary` directory downloads the pre-compiled binary provided by the developer of Red. Normally the pre-compiled binary would be used, but since these two Dockerfiles have been created as examples, the one with compiling a binary from scratch is included as well. For future production images only a single Dockerfile is needed.
 
 
 ## build, publish, and run a Docker image
