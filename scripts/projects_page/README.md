@@ -48,8 +48,10 @@ Don't forget to push updated species.yaml to this repo.
 ## Things to note in write_yaml.py
 
 There are certain species for which the standard url format will not work and so custom urls must be created
-      `# there are species on main for which the upper case production name is used in the url instead of the upper case species name`
-      `prod_url_list = ["bos_taurus_hybrid", "bos_indicus_hybrid"]`
+```
+      # there are species on main for which the upper case production name is used in the url instead of the upper case species name
+      prod_url_list = ["bos_taurus_hybrid", "bos_indicus_hybrid"]
+```
 
 For some of the projects pages, there is an expectation that certain species/assemblies are listed first, so some ordering had to be added
 ```
