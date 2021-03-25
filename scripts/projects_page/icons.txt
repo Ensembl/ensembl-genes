@@ -1,0 +1,6 @@
+Teleostei	Fish.png
+Actinopterygii	Fish.png
+Mammalia	Mammals.png
+Testudines	Reptiles.png
+Aves		Birds.png
+Serpentes	Reptiles.png

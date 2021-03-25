@@ -1,0 +1,156 @@
+- species: Sus scrofa
+  submitted_by: The Swine Genome Sequencing Consortium (SGSC)
+  accession: GCA_000003025.6
+  annotation_gtf: http://ftp.ensembl.org/pub/release-102/gtf/sus_scrofa/Sus_scrofa.Sscrofa11.1.102.gtf.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/release-102/gff3/sus_scrofa/Sus_scrofa.Sscrofa11.1.102.gff3.gz
+  proteins: http://ftp.ensembl.org/pub/release-102/fasta/sus_scrofa/pep/Sus_scrofa.Sscrofa11.1.pep.all.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/release-102/fasta/sus_scrofa/cdna/Sus_scrofa.Sscrofa11.1.cdna.all.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/release-102/fasta/sus_scrofa/dna/Sus_scrofa.Sscrofa11.1.dna_sm.toplevel.fa.gz
+  repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/sus_scrofa/GCA_000003025.6.repeatmodeler.fa
+  ftp_dumps: http://ftp.ensembl.org/pub/release-102
+  ensembl_link: https://e102.ensembl.org/Sus_scrofa/Info/Index
+
+- species: Gallus gallus
+  submitted_by: Genome Reference Consortium
+  accession: GCA_000002315.5
+  annotation_gtf: http://ftp.ensembl.org/pub/release-102/gtf/gallus_gallus/Gallus_gallus.GRCg6a.102.gtf.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/release-102/gff3/gallus_gallus/Gallus_gallus.GRCg6a.102.gff3.gz
+  proteins: http://ftp.ensembl.org/pub/release-102/fasta/gallus_gallus/pep/Gallus_gallus.GRCg6a.pep.all.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/release-102/fasta/gallus_gallus/cdna/Gallus_gallus.GRCg6a.cdna.all.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/release-102/fasta/gallus_gallus/dna/Gallus_gallus.GRCg6a.dna_sm.toplevel.fa.gz
+  repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/gallus_gallus/GCA_000002315.5.repeatmodeler.fa
+  ftp_dumps: http://ftp.ensembl.org/pub/release-102
+  ensembl_link: https://e102.ensembl.org/Gallus_gallus/Info/Index
+
+- species: Sus scrofa (bamei)
+  submitted_by: Novogene
+  accession: GCA_001700235.1
+  annotation_gtf: http://ftp.ensembl.org/pub/release-102/gtf/sus_scrofa_bamei/Sus_scrofa_bamei.Bamei_pig_v1.102.gtf.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/release-102/gff3/sus_scrofa_bamei/Sus_scrofa_bamei.Bamei_pig_v1.102.gff3.gz
+  proteins: http://ftp.ensembl.org/pub/release-102/fasta/sus_scrofa_bamei/pep/Sus_scrofa_bamei.Bamei_pig_v1.pep.all.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/release-102/fasta/sus_scrofa_bamei/cdna/Sus_scrofa_bamei.Bamei_pig_v1.cdna.all.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/release-102/fasta/sus_scrofa_bamei/dna/Sus_scrofa_bamei.Bamei_pig_v1.dna_sm.toplevel.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/release-102
+  ensembl_link: https://e102.ensembl.org/Sus_scrofa/Info/Index
+
+- species: Sus scrofa (berkshire)
+  submitted_by: Novogene
+  accession: GCA_001700575.1
+  annotation_gtf: http://ftp.ensembl.org/pub/release-102/gtf/sus_scrofa_berkshire/Sus_scrofa_berkshire.Berkshire_pig_v1.102.gtf.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/release-102/gff3/sus_scrofa_berkshire/Sus_scrofa_berkshire.Berkshire_pig_v1.102.gff3.gz
+  proteins: http://ftp.ensembl.org/pub/release-102/fasta/sus_scrofa_berkshire/pep/Sus_scrofa_berkshire.Berkshire_pig_v1.pep.all.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/release-102/fasta/sus_scrofa_berkshire/cdna/Sus_scrofa_berkshire.Berkshire_pig_v1.cdna.all.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/release-102/fasta/sus_scrofa_berkshire/dna/Sus_scrofa_berkshire.Berkshire_pig_v1.dna_sm.toplevel.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/release-102
+  ensembl_link: https://e102.ensembl.org/Sus_scrofa/Info/Index
+
+- species: Sus scrofa (hampshire)
+  submitted_by: Novogene
+  accession: GCA_001700165.1
+  annotation_gtf: http://ftp.ensembl.org/pub/release-102/gtf/sus_scrofa_hampshire/Sus_scrofa_hampshire.Hampshire_pig_v1.102.gtf.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/release-102/gff3/sus_scrofa_hampshire/Sus_scrofa_hampshire.Hampshire_pig_v1.102.gff3.gz
+  proteins: http://ftp.ensembl.org/pub/release-102/fasta/sus_scrofa_hampshire/pep/Sus_scrofa_hampshire.Hampshire_pig_v1.pep.all.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/release-102/fasta/sus_scrofa_hampshire/cdna/Sus_scrofa_hampshire.Hampshire_pig_v1.cdna.all.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/release-102/fasta/sus_scrofa_hampshire/dna/Sus_scrofa_hampshire.Hampshire_pig_v1.dna_sm.toplevel.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/release-102
+  ensembl_link: https://e102.ensembl.org/Sus_scrofa/Info/Index
+
+- species: Sus scrofa (jinhua)
+  submitted_by: Novogene
+  accession: GCA_001700295.1
+  annotation_gtf: http://ftp.ensembl.org/pub/release-102/gtf/sus_scrofa_jinhua/Sus_scrofa_jinhua.Jinhua_pig_v1.102.gtf.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/release-102/gff3/sus_scrofa_jinhua/Sus_scrofa_jinhua.Jinhua_pig_v1.102.gff3.gz
+  proteins: http://ftp.ensembl.org/pub/release-102/fasta/sus_scrofa_jinhua/pep/Sus_scrofa_jinhua.Jinhua_pig_v1.pep.all.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/release-102/fasta/sus_scrofa_jinhua/cdna/Sus_scrofa_jinhua.Jinhua_pig_v1.cdna.all.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/release-102/fasta/sus_scrofa_jinhua/dna/Sus_scrofa_jinhua.Jinhua_pig_v1.dna_sm.toplevel.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/release-102
+  ensembl_link: https://e102.ensembl.org/Sus_scrofa/Info/Index
+
+- species: Sus scrofa (landrace)
+  submitted_by: Novogene
+  accession: GCA_001700215.1
+  annotation_gtf: http://ftp.ensembl.org/pub/release-102/gtf/sus_scrofa_landrace/Sus_scrofa_landrace.Landrace_pig_v1.102.gtf.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/release-102/gff3/sus_scrofa_landrace/Sus_scrofa_landrace.Landrace_pig_v1.102.gff3.gz
+  proteins: http://ftp.ensembl.org/pub/release-102/fasta/sus_scrofa_landrace/pep/Sus_scrofa_landrace.Landrace_pig_v1.pep.all.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/release-102/fasta/sus_scrofa_landrace/cdna/Sus_scrofa_landrace.Landrace_pig_v1.cdna.all.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/release-102/fasta/sus_scrofa_landrace/dna/Sus_scrofa_landrace.Landrace_pig_v1.dna_sm.toplevel.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/release-102
+  ensembl_link: https://e102.ensembl.org/Sus_scrofa/Info/Index
+
+- species: Sus scrofa (largewhite)
+  submitted_by: Novogene
+  accession: GCA_001700135.1
+  annotation_gtf: http://ftp.ensembl.org/pub/release-102/gtf/sus_scrofa_largewhite/Sus_scrofa_largewhite.Large_White_v1.102.gtf.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/release-102/gff3/sus_scrofa_largewhite/Sus_scrofa_largewhite.Large_White_v1.102.gff3.gz
+  proteins: http://ftp.ensembl.org/pub/release-102/fasta/sus_scrofa_largewhite/pep/Sus_scrofa_largewhite.Large_White_v1.pep.all.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/release-102/fasta/sus_scrofa_largewhite/cdna/Sus_scrofa_largewhite.Large_White_v1.cdna.all.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/release-102/fasta/sus_scrofa_largewhite/dna/Sus_scrofa_largewhite.Large_White_v1.dna_sm.toplevel.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/release-102
+  ensembl_link: https://e102.ensembl.org/Sus_scrofa/Info/Index
+
+- species: Sus scrofa (meishan)
+  submitted_by: Novogene
+  accession: GCA_001700195.1
+  annotation_gtf: http://ftp.ensembl.org/pub/release-102/gtf/sus_scrofa_meishan/Sus_scrofa_meishan.Meishan_pig_v1.102.gtf.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/release-102/gff3/sus_scrofa_meishan/Sus_scrofa_meishan.Meishan_pig_v1.102.gff3.gz
+  proteins: http://ftp.ensembl.org/pub/release-102/fasta/sus_scrofa_meishan/pep/Sus_scrofa_meishan.Meishan_pig_v1.pep.all.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/release-102/fasta/sus_scrofa_meishan/cdna/Sus_scrofa_meishan.Meishan_pig_v1.cdna.all.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/release-102/fasta/sus_scrofa_meishan/dna/Sus_scrofa_meishan.Meishan_pig_v1.dna_sm.toplevel.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/release-102
+  ensembl_link: https://e102.ensembl.org/Sus_scrofa/Info/Index
+
+- species: Sus scrofa (pietrain)
+  submitted_by: Novogene
+  accession: GCA_001700255.1
+  annotation_gtf: http://ftp.ensembl.org/pub/release-102/gtf/sus_scrofa_pietrain/Sus_scrofa_pietrain.Pietrain_pig_v1.102.gtf.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/release-102/gff3/sus_scrofa_pietrain/Sus_scrofa_pietrain.Pietrain_pig_v1.102.gff3.gz
+  proteins: http://ftp.ensembl.org/pub/release-102/fasta/sus_scrofa_pietrain/pep/Sus_scrofa_pietrain.Pietrain_pig_v1.pep.all.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/release-102/fasta/sus_scrofa_pietrain/cdna/Sus_scrofa_pietrain.Pietrain_pig_v1.cdna.all.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/release-102/fasta/sus_scrofa_pietrain/dna/Sus_scrofa_pietrain.Pietrain_pig_v1.dna_sm.toplevel.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/release-102
+  ensembl_link: https://e102.ensembl.org/Sus_scrofa/Info/Index
+
+- species: Sus scrofa (rongchang)
+  submitted_by: Novogene
+  accession: GCA_001700155.1
+  annotation_gtf: http://ftp.ensembl.org/pub/release-102/gtf/sus_scrofa_rongchang/Sus_scrofa_rongchang.Rongchang_pig_v1.102.gtf.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/release-102/gff3/sus_scrofa_rongchang/Sus_scrofa_rongchang.Rongchang_pig_v1.102.gff3.gz
+  proteins: http://ftp.ensembl.org/pub/release-102/fasta/sus_scrofa_rongchang/pep/Sus_scrofa_rongchang.Rongchang_pig_v1.pep.all.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/release-102/fasta/sus_scrofa_rongchang/cdna/Sus_scrofa_rongchang.Rongchang_pig_v1.cdna.all.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/release-102/fasta/sus_scrofa_rongchang/dna/Sus_scrofa_rongchang.Rongchang_pig_v1.dna_sm.toplevel.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/release-102
+  ensembl_link: https://e102.ensembl.org/Sus_scrofa/Info/Index
+
+- species: Sus scrofa (tibetan)
+  submitted_by: Novogene
+  accession: GCA_000472085.2
+  annotation_gtf: http://ftp.ensembl.org/pub/release-102/gtf/sus_scrofa_tibetan/Sus_scrofa_tibetan.Tibetan_Pig_v2.102.gtf.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/release-102/gff3/sus_scrofa_tibetan/Sus_scrofa_tibetan.Tibetan_Pig_v2.102.gff3.gz
+  proteins: http://ftp.ensembl.org/pub/release-102/fasta/sus_scrofa_tibetan/pep/Sus_scrofa_tibetan.Tibetan_Pig_v2.pep.all.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/release-102/fasta/sus_scrofa_tibetan/cdna/Sus_scrofa_tibetan.Tibetan_Pig_v2.cdna.all.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/release-102/fasta/sus_scrofa_tibetan/dna/Sus_scrofa_tibetan.Tibetan_Pig_v2.dna_sm.toplevel.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/release-102
+  ensembl_link: https://e102.ensembl.org/Sus_scrofa/Info/Index
+
+- species: Sus scrofa (usmarc)
+  submitted_by: USDA ARS
+  accession: GCA_002844635.1
+  annotation_gtf: http://ftp.ensembl.org/pub/release-102/gtf/sus_scrofa_usmarc/Sus_scrofa_usmarc.USMARCv1.0.102.gtf.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/release-102/gff3/sus_scrofa_usmarc/Sus_scrofa_usmarc.USMARCv1.0.102.gff3.gz
+  proteins: http://ftp.ensembl.org/pub/release-102/fasta/sus_scrofa_usmarc/pep/Sus_scrofa_usmarc.USMARCv1.0.pep.all.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/release-102/fasta/sus_scrofa_usmarc/cdna/Sus_scrofa_usmarc.USMARCv1.0.cdna.all.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/release-102/fasta/sus_scrofa_usmarc/dna/Sus_scrofa_usmarc.USMARCv1.0.dna_sm.toplevel.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/release-102
+  ensembl_link: https://e102.ensembl.org/Sus_scrofa/Info/Index
+
+- species: Sus scrofa (wuzhishan)
+  submitted_by: BGI-shenzhen
+  accession: GCA_000325925.2
+  annotation_gtf: http://ftp.ensembl.org/pub/release-102/gtf/sus_scrofa_wuzhishan/Sus_scrofa_wuzhishan.minipig_v1.0.102.gtf.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/release-102/gff3/sus_scrofa_wuzhishan/Sus_scrofa_wuzhishan.minipig_v1.0.102.gff3.gz
+  proteins: http://ftp.ensembl.org/pub/release-102/fasta/sus_scrofa_wuzhishan/pep/Sus_scrofa_wuzhishan.minipig_v1.0.pep.all.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/release-102/fasta/sus_scrofa_wuzhishan/cdna/Sus_scrofa_wuzhishan.minipig_v1.0.cdna.all.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/release-102/fasta/sus_scrofa_wuzhishan/dna/Sus_scrofa_wuzhishan.minipig_v1.0.dna_sm.toplevel.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/release-102
+  ensembl_link: https://e102.ensembl.org/Sus_scrofa/Info/Index
+

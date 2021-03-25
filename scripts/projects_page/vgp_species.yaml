@@ -1,0 +1,645 @@
+- species: Acipenser ruthenus
+  image: Fish.png
+  accession: GCA_902713435.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Acipenser_ruthenus/GCA_902713435.1/geneset/2020_06/Acipenser_ruthenus-GCA_902713435.1-2020_06-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Acipenser_ruthenus/GCA_902713435.1/geneset/2020_06/Acipenser_ruthenus-GCA_902713435.1-2020_06-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Acipenser_ruthenus/GCA_902713435.1/geneset/2020_06/Acipenser_ruthenus-GCA_902713435.1-2020_06-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Acipenser_ruthenus/GCA_902713435.1/geneset/2020_06/Acipenser_ruthenus-GCA_902713435.1-2020_06-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Acipenser_ruthenus/GCA_902713435.1/genome/Acipenser_ruthenus-GCA_902713435.1-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Acipenser_ruthenus/GCA_902713435.1
+  rapid_link: https://rapid.ensembl.org/Acipenser_ruthenus/Info/Index
+
+- species: Amblyraja radiata
+  image: Chordates.png
+  accession: GCA_010909765.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Amblyraja_radiata/GCA_010909765.1/geneset/2020_06/Amblyraja_radiata-GCA_010909765.1-2020_06-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Amblyraja_radiata/GCA_010909765.1/geneset/2020_06/Amblyraja_radiata-GCA_010909765.1-2020_06-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Amblyraja_radiata/GCA_010909765.1/geneset/2020_06/Amblyraja_radiata-GCA_010909765.1-2020_06-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Amblyraja_radiata/GCA_010909765.1/geneset/2020_06/Amblyraja_radiata-GCA_010909765.1-2020_06-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Amblyraja_radiata/GCA_010909765.1/genome/Amblyraja_radiata-GCA_010909765.1-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Amblyraja_radiata/GCA_010909765.1
+  rapid_link: https://rapid.ensembl.org/Amblyraja_radiata/Info/Index
+
+- species: Anabas testudineus
+  image: Fish.png
+  accession: GCA_900324465.2
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Anabas_testudineus/GCA_900324465.2/geneset/2020_06/Anabas_testudineus-GCA_900324465.2-2020_06-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Anabas_testudineus/GCA_900324465.2/geneset/2020_06/Anabas_testudineus-GCA_900324465.2-2020_06-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Anabas_testudineus/GCA_900324465.2/geneset/2020_06/Anabas_testudineus-GCA_900324465.2-2020_06-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Anabas_testudineus/GCA_900324465.2/geneset/2020_06/Anabas_testudineus-GCA_900324465.2-2020_06-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Anabas_testudineus/GCA_900324465.2/genome/Anabas_testudineus-GCA_900324465.2-softmasked.fa.gz
+  repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/anabas_testudineus/GCA_900324465.2.repeatmodeler.fa
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Anabas_testudineus/GCA_900324465.2
+  rapid_link: https://rapid.ensembl.org/Anabas_testudineus/Info/Index
+
+- species: Anabas testudineus
+  image: Fish.png
+  accession: GCA_900324465.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Anabas_testudineus/GCA_900324465.1/geneset/2018_07/Anabas_testudineus-GCA_900324465.1-2018_07-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Anabas_testudineus/GCA_900324465.1/geneset/2018_07/Anabas_testudineus-GCA_900324465.1-2018_07-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Anabas_testudineus/GCA_900324465.1/geneset/2018_07/Anabas_testudineus-GCA_900324465.1-2018_07-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Anabas_testudineus/GCA_900324465.1/geneset/2018_07/Anabas_testudineus-GCA_900324465.1-2018_07-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Anabas_testudineus/GCA_900324465.1/genome/Anabas_testudineus-GCA_900324465.1-softmasked.fa.gz
+  repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/anabas_testudineus/GCA_900324465.1.repeatmodeler.fa
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Anabas_testudineus/GCA_900324465.1
+  ensembl_link: https://www.ensembl.org/Anabas_testudineus/Info/Index
+
+- species: Anguilla anguilla
+  image: Fish.png
+  accession: GCA_013347855.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Anguilla_anguilla/GCA_013347855.1/geneset/2020_08/Anguilla_anguilla-GCA_013347855.1-2020_08-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Anguilla_anguilla/GCA_013347855.1/geneset/2020_08/Anguilla_anguilla-GCA_013347855.1-2020_08-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Anguilla_anguilla/GCA_013347855.1/geneset/2020_08/Anguilla_anguilla-GCA_013347855.1-2020_08-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Anguilla_anguilla/GCA_013347855.1/geneset/2020_08/Anguilla_anguilla-GCA_013347855.1-2020_08-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Anguilla_anguilla/GCA_013347855.1/genome/Anguilla_anguilla-GCA_013347855.1-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Anguilla_anguilla/GCA_013347855.1
+  rapid_link: https://rapid.ensembl.org/Anguilla_anguilla/Info/Index
+
+- species: Aquila chrysaetos chrysaetos
+  image: Birds.png
+  accession: GCA_900496995.2
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Aquila_chrysaetos_chrysaetos/GCA_900496995.2/geneset/2019_07/Aquila_chrysaetos_chrysaetos-GCA_900496995.2-2019_07-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Aquila_chrysaetos_chrysaetos/GCA_900496995.2/geneset/2019_07/Aquila_chrysaetos_chrysaetos-GCA_900496995.2-2019_07-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Aquila_chrysaetos_chrysaetos/GCA_900496995.2/geneset/2019_07/Aquila_chrysaetos_chrysaetos-GCA_900496995.2-2019_07-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Aquila_chrysaetos_chrysaetos/GCA_900496995.2/geneset/2019_07/Aquila_chrysaetos_chrysaetos-GCA_900496995.2-2019_07-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Aquila_chrysaetos_chrysaetos/GCA_900496995.2/genome/Aquila_chrysaetos_chrysaetos-GCA_900496995.2-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Aquila_chrysaetos_chrysaetos/GCA_900496995.2
+  ensembl_link: https://www.ensembl.org/Aquila_chrysaetos_chrysaetos/Info/Index
+
+- species: Archocentrus centrarchus
+  image: Fish.png
+  accession: GCA_007364275.2
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Archocentrus_centrarchus/GCA_007364275.2/geneset/2020_04/Archocentrus_centrarchus-GCA_007364275.2-2020_04-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Archocentrus_centrarchus/GCA_007364275.2/geneset/2020_04/Archocentrus_centrarchus-GCA_007364275.2-2020_04-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Archocentrus_centrarchus/GCA_007364275.2/geneset/2020_04/Archocentrus_centrarchus-GCA_007364275.2-2020_04-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Archocentrus_centrarchus/GCA_007364275.2/geneset/2020_04/Archocentrus_centrarchus-GCA_007364275.2-2020_04-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Archocentrus_centrarchus/GCA_007364275.2/genome/Archocentrus_centrarchus-GCA_007364275.2-softmasked.fa.gz
+  repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/archocentrus_centrarchus/GCA_007364275.2.repeatmodeler.fa
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Archocentrus_centrarchus/GCA_007364275.2
+  rapid_link: https://rapid.ensembl.org/Archocentrus_centrarchus/Info/Index
+
+- species: Arvicanthis niloticus
+  image: Mammals.png
+  accession: GCA_011762505.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Arvicanthis_niloticus/GCA_011762505.1/geneset/2020_06/Arvicanthis_niloticus-GCA_011762505.1-2020_06-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Arvicanthis_niloticus/GCA_011762505.1/geneset/2020_06/Arvicanthis_niloticus-GCA_011762505.1-2020_06-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Arvicanthis_niloticus/GCA_011762505.1/geneset/2020_06/Arvicanthis_niloticus-GCA_011762505.1-2020_06-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Arvicanthis_niloticus/GCA_011762505.1/geneset/2020_06/Arvicanthis_niloticus-GCA_011762505.1-2020_06-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Arvicanthis_niloticus/GCA_011762505.1/genome/Arvicanthis_niloticus-GCA_011762505.1-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Arvicanthis_niloticus/GCA_011762505.1
+  rapid_link: https://rapid.ensembl.org/Arvicanthis_niloticus/Info/Index
+
+- species: Astatotilapia calliptera
+  image: Fish.png
+  accession: GCA_900246225.3
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Astatotilapia_calliptera/GCA_900246225.3/geneset/2018_07/Astatotilapia_calliptera-GCA_900246225.3-2018_07-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Astatotilapia_calliptera/GCA_900246225.3/geneset/2018_07/Astatotilapia_calliptera-GCA_900246225.3-2018_07-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Astatotilapia_calliptera/GCA_900246225.3/geneset/2018_07/Astatotilapia_calliptera-GCA_900246225.3-2018_07-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Astatotilapia_calliptera/GCA_900246225.3/geneset/2018_07/Astatotilapia_calliptera-GCA_900246225.3-2018_07-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Astatotilapia_calliptera/GCA_900246225.3/genome/Astatotilapia_calliptera-GCA_900246225.3-softmasked.fa.gz
+  repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/astatotilapia_calliptera/GCA_900246225.3.repeatmodeler.fa
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Astatotilapia_calliptera/GCA_900246225.3
+  ensembl_link: https://www.ensembl.org/Astatotilapia_calliptera/Info/Index
+
+- species: Balaenoptera musculus
+  image: Mammals.png
+  accession: GCA_009873245.2
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Balaenoptera_musculus/GCA_009873245.2/geneset/2020_02/Balaenoptera_musculus-GCA_009873245.2-2020_02-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Balaenoptera_musculus/GCA_009873245.2/geneset/2020_02/Balaenoptera_musculus-GCA_009873245.2-2020_02-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Balaenoptera_musculus/GCA_009873245.2/geneset/2020_02/Balaenoptera_musculus-GCA_009873245.2-2020_02-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Balaenoptera_musculus/GCA_009873245.2/geneset/2020_02/Balaenoptera_musculus-GCA_009873245.2-2020_02-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Balaenoptera_musculus/GCA_009873245.2/genome/Balaenoptera_musculus-GCA_009873245.2-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Balaenoptera_musculus/GCA_009873245.2
+  ensembl_link: https://www.ensembl.org/Balaenoptera_musculus/Info/Index
+
+- species: Balaenoptera musculus
+  image: Mammals.png
+  accession: GCA_009873245.3
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Balaenoptera_musculus/GCA_009873245.3/geneset/2020_12/Balaenoptera_musculus-GCA_009873245.3-2020_12-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Balaenoptera_musculus/GCA_009873245.3/geneset/2020_12/Balaenoptera_musculus-GCA_009873245.3-2020_12-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Balaenoptera_musculus/GCA_009873245.3/geneset/2020_12/Balaenoptera_musculus-GCA_009873245.3-2020_12-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Balaenoptera_musculus/GCA_009873245.3/geneset/2020_12/Balaenoptera_musculus-GCA_009873245.3-2020_12-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Balaenoptera_musculus/GCA_009873245.3/genome/Balaenoptera_musculus-GCA_009873245.3-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Balaenoptera_musculus/GCA_009873245.3
+  rapid_link: https://rapid.ensembl.org/Balaenoptera_musculus_gca009873245v3/Info/Index
+
+- species: Betta splendens
+  image: Fish.png
+  accession: GCA_900634795.2
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Betta_splendens/GCA_900634795.2/geneset/2019_06/Betta_splendens-GCA_900634795.2-2019_06-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Betta_splendens/GCA_900634795.2/geneset/2019_06/Betta_splendens-GCA_900634795.2-2019_06-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Betta_splendens/GCA_900634795.2/geneset/2019_06/Betta_splendens-GCA_900634795.2-2019_06-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Betta_splendens/GCA_900634795.2/geneset/2019_06/Betta_splendens-GCA_900634795.2-2019_06-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Betta_splendens/GCA_900634795.2/genome/Betta_splendens-GCA_900634795.2-softmasked.fa.gz
+  repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/betta_splendens/GCA_900634795.2.repeatmodeler.fa
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Betta_splendens/GCA_900634795.2
+  ensembl_link: https://www.ensembl.org/Betta_splendens/Info/Index
+
+- species: Callithrix jacchus
+  image: Mammals.png
+  accession: GCA_011100555.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Callithrix_jacchus/GCA_011100555.1/geneset/2020_11/Callithrix_jacchus-GCA_011100555.1-2020_11-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Callithrix_jacchus/GCA_011100555.1/geneset/2020_11/Callithrix_jacchus-GCA_011100555.1-2020_11-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Callithrix_jacchus/GCA_011100555.1/geneset/2020_11/Callithrix_jacchus-GCA_011100555.1-2020_11-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Callithrix_jacchus/GCA_011100555.1/geneset/2020_11/Callithrix_jacchus-GCA_011100555.1-2020_11-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Callithrix_jacchus/GCA_011100555.1/genome/Callithrix_jacchus-GCA_011100555.1-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Callithrix_jacchus/GCA_011100555.1
+  rapid_link: https://rapid.ensembl.org/Callithrix_jacchus_gca011100555v1/Info/Index
+
+- species: Catharus ustulatus
+  image: Birds.png
+  accession: GCA_009819885.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Catharus_ustulatus/GCA_009819885.1/geneset/2020_03/Catharus_ustulatus-GCA_009819885.1-2020_03-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Catharus_ustulatus/GCA_009819885.1/geneset/2020_03/Catharus_ustulatus-GCA_009819885.1-2020_03-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Catharus_ustulatus/GCA_009819885.1/geneset/2020_03/Catharus_ustulatus-GCA_009819885.1-2020_03-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Catharus_ustulatus/GCA_009819885.1/geneset/2020_03/Catharus_ustulatus-GCA_009819885.1-2020_03-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Catharus_ustulatus/GCA_009819885.1/genome/Catharus_ustulatus-GCA_009819885.1-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Catharus_ustulatus/GCA_009819885.1
+  ensembl_link: https://www.ensembl.org/Catharus_ustulatus/Info/Index
+
+- species: Corvus moneduloides
+  image: Birds.png
+  accession: GCA_009650955.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Corvus_moneduloides/GCA_009650955.1/geneset/2020_08/Corvus_moneduloides-GCA_009650955.1-2020_08-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Corvus_moneduloides/GCA_009650955.1/geneset/2020_08/Corvus_moneduloides-GCA_009650955.1-2020_08-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Corvus_moneduloides/GCA_009650955.1/geneset/2020_08/Corvus_moneduloides-GCA_009650955.1-2020_08-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Corvus_moneduloides/GCA_009650955.1/geneset/2020_08/Corvus_moneduloides-GCA_009650955.1-2020_08-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Corvus_moneduloides/GCA_009650955.1/genome/Corvus_moneduloides-GCA_009650955.1-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Corvus_moneduloides/GCA_009650955.1
+  rapid_link: https://rapid.ensembl.org/Corvus_moneduloides_gca009650955v1/Info/Index
+
+- species: Cottoperca gobio
+  image: Fish.png
+  accession: GCA_900634415.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Cottoperca_gobio/GCA_900634415.1/geneset/2019_04/Cottoperca_gobio-GCA_900634415.1-2019_04-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Cottoperca_gobio/GCA_900634415.1/geneset/2019_04/Cottoperca_gobio-GCA_900634415.1-2019_04-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Cottoperca_gobio/GCA_900634415.1/geneset/2019_04/Cottoperca_gobio-GCA_900634415.1-2019_04-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Cottoperca_gobio/GCA_900634415.1/geneset/2019_04/Cottoperca_gobio-GCA_900634415.1-2019_04-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Cottoperca_gobio/GCA_900634415.1/genome/Cottoperca_gobio-GCA_900634415.1-softmasked.fa.gz
+  repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/cottoperca_gobio/GCA_900634415.1.repeatmodeler.fa
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Cottoperca_gobio/GCA_900634415.1
+  ensembl_link: https://www.ensembl.org/Cottoperca_gobio/Info/Index
+
+- species: Cyclopterus lumpus
+  image: Fish.png
+  accession: GCA_009769545.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Cyclopterus_lumpus/GCA_009769545.1/geneset/2020_02/Cyclopterus_lumpus-GCA_009769545.1-2020_02-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Cyclopterus_lumpus/GCA_009769545.1/geneset/2020_02/Cyclopterus_lumpus-GCA_009769545.1-2020_02-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Cyclopterus_lumpus/GCA_009769545.1/geneset/2020_02/Cyclopterus_lumpus-GCA_009769545.1-2020_02-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Cyclopterus_lumpus/GCA_009769545.1/geneset/2020_02/Cyclopterus_lumpus-GCA_009769545.1-2020_02-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Cyclopterus_lumpus/GCA_009769545.1/genome/Cyclopterus_lumpus-GCA_009769545.1-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Cyclopterus_lumpus/GCA_009769545.1
+  ensembl_link: https://www.ensembl.org/Cyclopterus_lumpus/Info/Index
+
+- species: Denticeps clupeoides
+  image: Fish.png
+  accession: GCA_900700375.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Denticeps_clupeoides/GCA_900700375.1/geneset/2019_12/Denticeps_clupeoides-GCA_900700375.1-2019_12-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Denticeps_clupeoides/GCA_900700375.1/geneset/2019_12/Denticeps_clupeoides-GCA_900700375.1-2019_12-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Denticeps_clupeoides/GCA_900700375.1/geneset/2019_12/Denticeps_clupeoides-GCA_900700375.1-2019_12-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Denticeps_clupeoides/GCA_900700375.1/geneset/2019_12/Denticeps_clupeoides-GCA_900700375.1-2019_12-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Denticeps_clupeoides/GCA_900700375.1/genome/Denticeps_clupeoides-GCA_900700375.1-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Denticeps_clupeoides/GCA_900700375.1
+  ensembl_link: https://www.ensembl.org/Denticeps_clupeoides/Info/Index
+
+- species: Denticeps clupeoides
+  image: Fish.png
+  accession: GCA_900700375.2
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Denticeps_clupeoides/GCA_900700375.2/geneset/2020_09/Denticeps_clupeoides-GCA_900700375.2-2020_09-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Denticeps_clupeoides/GCA_900700375.2/geneset/2020_09/Denticeps_clupeoides-GCA_900700375.2-2020_09-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Denticeps_clupeoides/GCA_900700375.2/geneset/2020_09/Denticeps_clupeoides-GCA_900700375.2-2020_09-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Denticeps_clupeoides/GCA_900700375.2/geneset/2020_09/Denticeps_clupeoides-GCA_900700375.2-2020_09-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Denticeps_clupeoides/GCA_900700375.2/genome/Denticeps_clupeoides-GCA_900700375.2-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Denticeps_clupeoides/GCA_900700375.2
+  rapid_link: https://rapid.ensembl.org/Denticeps_clupeoides_gca900700375v2/Info/Index
+
+- species: Echeneis naucrates
+  image: Fish.png
+  accession: GCA_900963305.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Echeneis_naucrates/GCA_900963305.1/geneset/2019_08/Echeneis_naucrates-GCA_900963305.1-2019_08-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Echeneis_naucrates/GCA_900963305.1/geneset/2019_08/Echeneis_naucrates-GCA_900963305.1-2019_08-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Echeneis_naucrates/GCA_900963305.1/geneset/2019_08/Echeneis_naucrates-GCA_900963305.1-2019_08-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Echeneis_naucrates/GCA_900963305.1/geneset/2019_08/Echeneis_naucrates-GCA_900963305.1-2019_08-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Echeneis_naucrates/GCA_900963305.1/genome/Echeneis_naucrates-GCA_900963305.1-softmasked.fa.gz
+  repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/echeneis_naucrates/GCA_900963305.1.repeatmodeler.fa
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Echeneis_naucrates/GCA_900963305.1
+  ensembl_link: https://www.ensembl.org/Echeneis_naucrates/Info/Index
+
+- species: Electrophorus electricus
+  image: Fish.png
+  accession: GCA_013358815.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Electrophorus_electricus/GCA_013358815.1/geneset/2020_08/Electrophorus_electricus-GCA_013358815.1-2020_08-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Electrophorus_electricus/GCA_013358815.1/geneset/2020_08/Electrophorus_electricus-GCA_013358815.1-2020_08-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Electrophorus_electricus/GCA_013358815.1/geneset/2020_08/Electrophorus_electricus-GCA_013358815.1-2020_08-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Electrophorus_electricus/GCA_013358815.1/geneset/2020_08/Electrophorus_electricus-GCA_013358815.1-2020_08-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Electrophorus_electricus/GCA_013358815.1/genome/Electrophorus_electricus-GCA_013358815.1-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Electrophorus_electricus/GCA_013358815.1
+  rapid_link: https://rapid.ensembl.org/Electrophorus_electricus/Info/Index
+
+- species: Erpetoichthys calabaricus
+  image: Fish.png
+  accession: GCA_900747795.2
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Erpetoichthys_calabaricus/GCA_900747795.2/geneset/2019_05/Erpetoichthys_calabaricus-GCA_900747795.2-2019_05-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Erpetoichthys_calabaricus/GCA_900747795.2/geneset/2019_05/Erpetoichthys_calabaricus-GCA_900747795.2-2019_05-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Erpetoichthys_calabaricus/GCA_900747795.2/geneset/2019_05/Erpetoichthys_calabaricus-GCA_900747795.2-2019_05-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Erpetoichthys_calabaricus/GCA_900747795.2/geneset/2019_05/Erpetoichthys_calabaricus-GCA_900747795.2-2019_05-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Erpetoichthys_calabaricus/GCA_900747795.2/genome/Erpetoichthys_calabaricus-GCA_900747795.2-softmasked.fa.gz
+  repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/erpetoichthys_calabaricus/GCA_900747795.2.repeatmodeler.fa
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Erpetoichthys_calabaricus/GCA_900747795.2
+  ensembl_link: https://www.ensembl.org/Erpetoichthys_calabaricus/Info/Index
+
+- species: Gadus morhua
+  image: Fish.png
+  accession: GCA_902167405.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Gadus_morhua/GCA_902167405.1/geneset/2020_06/Gadus_morhua-GCA_902167405.1-2020_06-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Gadus_morhua/GCA_902167405.1/geneset/2020_06/Gadus_morhua-GCA_902167405.1-2020_06-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Gadus_morhua/GCA_902167405.1/geneset/2020_06/Gadus_morhua-GCA_902167405.1-2020_06-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Gadus_morhua/GCA_902167405.1/geneset/2020_06/Gadus_morhua-GCA_902167405.1-2020_06-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Gadus_morhua/GCA_902167405.1/genome/Gadus_morhua-GCA_902167405.1-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Gadus_morhua/GCA_902167405.1
+  rapid_link: https://rapid.ensembl.org/Gadus_morhua/Info/Index
+
+- species: Gopherus evgoodei
+  image: Reptiles.png
+  accession: GCA_007399415.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Gopherus_evgoodei/GCA_007399415.1/geneset/2019_12/Gopherus_evgoodei-GCA_007399415.1-2019_12-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Gopherus_evgoodei/GCA_007399415.1/geneset/2019_12/Gopherus_evgoodei-GCA_007399415.1-2019_12-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Gopherus_evgoodei/GCA_007399415.1/geneset/2019_12/Gopherus_evgoodei-GCA_007399415.1-2019_12-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Gopherus_evgoodei/GCA_007399415.1/geneset/2019_12/Gopherus_evgoodei-GCA_007399415.1-2019_12-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Gopherus_evgoodei/GCA_007399415.1/genome/Gopherus_evgoodei-GCA_007399415.1-softmasked.fa.gz
+  repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/gopherus_evgoodei/GCA_007399415.1.repeatmodeler.fa
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Gopherus_evgoodei/GCA_007399415.1
+  ensembl_link: https://www.ensembl.org/Gopherus_evgoodei/Info/Index
+
+- species: Gouania willdenowi
+  image: Fish.png
+  accession: GCA_900634775.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Gouania_willdenowi/GCA_900634775.1/geneset/2019_05/Gouania_willdenowi-GCA_900634775.1-2019_05-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Gouania_willdenowi/GCA_900634775.1/geneset/2019_05/Gouania_willdenowi-GCA_900634775.1-2019_05-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Gouania_willdenowi/GCA_900634775.1/geneset/2019_05/Gouania_willdenowi-GCA_900634775.1-2019_05-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Gouania_willdenowi/GCA_900634775.1/geneset/2019_05/Gouania_willdenowi-GCA_900634775.1-2019_05-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Gouania_willdenowi/GCA_900634775.1/genome/Gouania_willdenowi-GCA_900634775.1-softmasked.fa.gz
+  repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/gouania_willdenowi/GCA_900634775.1.repeatmodeler.fa
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Gouania_willdenowi/GCA_900634775.1
+  ensembl_link: https://www.ensembl.org/Gouania_willdenowi/Info/Index
+
+- species: Gymnodraco acuticeps
+  image: Fish.png
+  accession: GCA_902827175.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Gymnodraco_acuticeps/GCA_902827175.1/geneset/2020_05/Gymnodraco_acuticeps-GCA_902827175.1-2020_05-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Gymnodraco_acuticeps/GCA_902827175.1/geneset/2020_05/Gymnodraco_acuticeps-GCA_902827175.1-2020_05-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Gymnodraco_acuticeps/GCA_902827175.1/geneset/2020_05/Gymnodraco_acuticeps-GCA_902827175.1-2020_05-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Gymnodraco_acuticeps/GCA_902827175.1/geneset/2020_05/Gymnodraco_acuticeps-GCA_902827175.1-2020_05-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Gymnodraco_acuticeps/GCA_902827175.1/genome/Gymnodraco_acuticeps-GCA_902827175.1-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Gymnodraco_acuticeps/GCA_902827175.1
+  rapid_link: https://rapid.ensembl.org/Gymnodraco_acuticeps/Info/Index
+
+- species: Harpagifer antarcticus
+  image: Fish.png
+  accession: GCA_902827135.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Harpagifer_antarcticus/GCA_902827135.1/geneset/2020_07/Harpagifer_antarcticus-GCA_902827135.1-2020_07-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Harpagifer_antarcticus/GCA_902827135.1/geneset/2020_07/Harpagifer_antarcticus-GCA_902827135.1-2020_07-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Harpagifer_antarcticus/GCA_902827135.1/geneset/2020_07/Harpagifer_antarcticus-GCA_902827135.1-2020_07-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Harpagifer_antarcticus/GCA_902827135.1/geneset/2020_07/Harpagifer_antarcticus-GCA_902827135.1-2020_07-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Harpagifer_antarcticus/GCA_902827135.1/genome/Harpagifer_antarcticus-GCA_902827135.1-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Harpagifer_antarcticus/GCA_902827135.1
+  rapid_link: https://rapid.ensembl.org/Harpagifer_antarcticus/Info/Index
+
+- species: Lynx canadensis
+  image: Mammals.png
+  accession: GCA_007474595.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Lynx_canadensis/GCA_007474595.1/geneset/2019_08/Lynx_canadensis-GCA_007474595.1-2019_08-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Lynx_canadensis/GCA_007474595.1/geneset/2019_08/Lynx_canadensis-GCA_007474595.1-2019_08-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Lynx_canadensis/GCA_007474595.1/geneset/2019_08/Lynx_canadensis-GCA_007474595.1-2019_08-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Lynx_canadensis/GCA_007474595.1/geneset/2019_08/Lynx_canadensis-GCA_007474595.1-2019_08-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Lynx_canadensis/GCA_007474595.1/genome/Lynx_canadensis-GCA_007474595.1-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Lynx_canadensis/GCA_007474595.1
+  ensembl_link: https://www.ensembl.org/Lynx_canadensis/Info/Index
+
+- species: Mastacembelus armatus
+  image: Fish.png
+  accession: GCA_900324485.2
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Mastacembelus_armatus/GCA_900324485.2/geneset/2020_04/Mastacembelus_armatus-GCA_900324485.2-2020_04-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Mastacembelus_armatus/GCA_900324485.2/geneset/2020_04/Mastacembelus_armatus-GCA_900324485.2-2020_04-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Mastacembelus_armatus/GCA_900324485.2/geneset/2020_04/Mastacembelus_armatus-GCA_900324485.2-2020_04-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Mastacembelus_armatus/GCA_900324485.2/geneset/2020_04/Mastacembelus_armatus-GCA_900324485.2-2020_04-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Mastacembelus_armatus/GCA_900324485.2/genome/Mastacembelus_armatus-GCA_900324485.2-softmasked.fa.gz
+  repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/mastacembelus_armatus/GCA_900324485.2.repeatmodeler.fa
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Mastacembelus_armatus/GCA_900324485.2
+  rapid_link: https://rapid.ensembl.org/Mastacembelus_armatus/Info/Index
+
+- species: Mastacembelus armatus
+  image: Fish.png
+  accession: GCA_900324485.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Mastacembelus_armatus/GCA_900324485.1/geneset/2018_07/Mastacembelus_armatus-GCA_900324485.1-2018_07-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Mastacembelus_armatus/GCA_900324485.1/geneset/2018_07/Mastacembelus_armatus-GCA_900324485.1-2018_07-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Mastacembelus_armatus/GCA_900324485.1/geneset/2018_07/Mastacembelus_armatus-GCA_900324485.1-2018_07-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Mastacembelus_armatus/GCA_900324485.1/geneset/2018_07/Mastacembelus_armatus-GCA_900324485.1-2018_07-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Mastacembelus_armatus/GCA_900324485.1/genome/Mastacembelus_armatus-GCA_900324485.1-softmasked.fa.gz
+  repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/mastacembelus_armatus/GCA_900324485.1.repeatmodeler.fa
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Mastacembelus_armatus/GCA_900324485.1
+  ensembl_link: https://www.ensembl.org/Mastacembelus_armatus/Info/Index
+
+- species: Megalops cyprinoides
+  image: Fish.png
+  accession: GCA_013368585.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Megalops_cyprinoides/GCA_013368585.1/geneset/2020_07/Megalops_cyprinoides-GCA_013368585.1-2020_07-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Megalops_cyprinoides/GCA_013368585.1/geneset/2020_07/Megalops_cyprinoides-GCA_013368585.1-2020_07-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Megalops_cyprinoides/GCA_013368585.1/geneset/2020_07/Megalops_cyprinoides-GCA_013368585.1-2020_07-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Megalops_cyprinoides/GCA_013368585.1/geneset/2020_07/Megalops_cyprinoides-GCA_013368585.1-2020_07-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Megalops_cyprinoides/GCA_013368585.1/genome/Megalops_cyprinoides-GCA_013368585.1-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Megalops_cyprinoides/GCA_013368585.1
+  rapid_link: https://rapid.ensembl.org/Megalops_cyprinoides/Info/Index
+
+- species: Melopsittacus undulatus
+  image: Birds.png
+  accession: GCA_012275295.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Melopsittacus_undulatus/GCA_012275295.1/geneset/2020_05/Melopsittacus_undulatus-GCA_012275295.1-2020_05-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Melopsittacus_undulatus/GCA_012275295.1/geneset/2020_05/Melopsittacus_undulatus-GCA_012275295.1-2020_05-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Melopsittacus_undulatus/GCA_012275295.1/geneset/2020_05/Melopsittacus_undulatus-GCA_012275295.1-2020_05-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Melopsittacus_undulatus/GCA_012275295.1/geneset/2020_05/Melopsittacus_undulatus-GCA_012275295.1-2020_05-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Melopsittacus_undulatus/GCA_012275295.1/genome/Melopsittacus_undulatus-GCA_012275295.1-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Melopsittacus_undulatus/GCA_012275295.1
+  rapid_link: https://rapid.ensembl.org/Melopsittacus_undulatus/Info/Index
+
+- species: Myripristis murdjan
+  image: Fish.png
+  accession: GCA_902150065.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Myripristis_murdjan/GCA_902150065.1/geneset/2019_08/Myripristis_murdjan-GCA_902150065.1-2019_08-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Myripristis_murdjan/GCA_902150065.1/geneset/2019_08/Myripristis_murdjan-GCA_902150065.1-2019_08-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Myripristis_murdjan/GCA_902150065.1/geneset/2019_08/Myripristis_murdjan-GCA_902150065.1-2019_08-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Myripristis_murdjan/GCA_902150065.1/geneset/2019_08/Myripristis_murdjan-GCA_902150065.1-2019_08-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Myripristis_murdjan/GCA_902150065.1/genome/Myripristis_murdjan-GCA_902150065.1-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Myripristis_murdjan/GCA_902150065.1
+  ensembl_link: https://www.ensembl.org/Myripristis_murdjan/Info/Index
+
+- species: Notolabrus celidotus
+  image: Fish.png
+  accession: GCA_009762535.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Notolabrus_celidotus/GCA_009762535.1/geneset/2020_06/Notolabrus_celidotus-GCA_009762535.1-2020_06-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Notolabrus_celidotus/GCA_009762535.1/geneset/2020_06/Notolabrus_celidotus-GCA_009762535.1-2020_06-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Notolabrus_celidotus/GCA_009762535.1/geneset/2020_06/Notolabrus_celidotus-GCA_009762535.1-2020_06-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Notolabrus_celidotus/GCA_009762535.1/geneset/2020_06/Notolabrus_celidotus-GCA_009762535.1-2020_06-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Notolabrus_celidotus/GCA_009762535.1/genome/Notolabrus_celidotus-GCA_009762535.1-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Notolabrus_celidotus/GCA_009762535.1
+  rapid_link: https://rapid.ensembl.org/Notolabrus_celidotus/Info/Index
+
+- species: Ornithorhynchus anatinus
+  image: Mammals.png
+  accession: GCA_004115215.2
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Ornithorhynchus_anatinus/GCA_004115215.2/geneset/2019_10/Ornithorhynchus_anatinus-GCA_004115215.2-2019_10-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Ornithorhynchus_anatinus/GCA_004115215.2/geneset/2019_10/Ornithorhynchus_anatinus-GCA_004115215.2-2019_10-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Ornithorhynchus_anatinus/GCA_004115215.2/geneset/2019_10/Ornithorhynchus_anatinus-GCA_004115215.2-2019_10-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Ornithorhynchus_anatinus/GCA_004115215.2/geneset/2019_10/Ornithorhynchus_anatinus-GCA_004115215.2-2019_10-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Ornithorhynchus_anatinus/GCA_004115215.2/genome/Ornithorhynchus_anatinus-GCA_004115215.2-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Ornithorhynchus_anatinus/GCA_004115215.2
+  ensembl_link: https://www.ensembl.org/Ornithorhynchus_anatinus/Info/Index
+
+- species: Parambassis ranga
+  image: Fish.png
+  accession: GCA_900634625.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Parambassis_ranga/GCA_900634625.1/geneset/2019_05/Parambassis_ranga-GCA_900634625.1-2019_05-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Parambassis_ranga/GCA_900634625.1/geneset/2019_05/Parambassis_ranga-GCA_900634625.1-2019_05-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Parambassis_ranga/GCA_900634625.1/geneset/2019_05/Parambassis_ranga-GCA_900634625.1-2019_05-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Parambassis_ranga/GCA_900634625.1/geneset/2019_05/Parambassis_ranga-GCA_900634625.1-2019_05-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Parambassis_ranga/GCA_900634625.1/genome/Parambassis_ranga-GCA_900634625.1-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Parambassis_ranga/GCA_900634625.1
+  ensembl_link: https://www.ensembl.org/Parambassis_ranga/Info/Index
+
+- species: Periophthalmus magnuspinnatus
+  image: Fish.png
+  accession: GCA_009829125.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Periophthalmus_magnuspinnatus/GCA_009829125.1/geneset/2020_05/Periophthalmus_magnuspinnatus-GCA_009829125.1-2020_05-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Periophthalmus_magnuspinnatus/GCA_009829125.1/geneset/2020_05/Periophthalmus_magnuspinnatus-GCA_009829125.1-2020_05-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Periophthalmus_magnuspinnatus/GCA_009829125.1/geneset/2020_05/Periophthalmus_magnuspinnatus-GCA_009829125.1-2020_05-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Periophthalmus_magnuspinnatus/GCA_009829125.1/geneset/2020_05/Periophthalmus_magnuspinnatus-GCA_009829125.1-2020_05-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Periophthalmus_magnuspinnatus/GCA_009829125.1/genome/Periophthalmus_magnuspinnatus-GCA_009829125.1-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Periophthalmus_magnuspinnatus/GCA_009829125.1
+  rapid_link: https://rapid.ensembl.org/Periophthalmus_magnuspinnatus/Info/Index
+
+- species: Phocoena sinus
+  image: Mammals.png
+  accession: GCA_008692025.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Phocoena_sinus/GCA_008692025.1/geneset/2020_03/Phocoena_sinus-GCA_008692025.1-2020_03-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Phocoena_sinus/GCA_008692025.1/geneset/2020_03/Phocoena_sinus-GCA_008692025.1-2020_03-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Phocoena_sinus/GCA_008692025.1/geneset/2020_03/Phocoena_sinus-GCA_008692025.1-2020_03-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Phocoena_sinus/GCA_008692025.1/geneset/2020_03/Phocoena_sinus-GCA_008692025.1-2020_03-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Phocoena_sinus/GCA_008692025.1/genome/Phocoena_sinus-GCA_008692025.1-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Phocoena_sinus/GCA_008692025.1
+  ensembl_link: https://www.ensembl.org/Phocoena_sinus/Info/Index
+
+- species: Phyllostomus discolor
+  image: Mammals.png
+  accession: GCA_004126475.2
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Phyllostomus_discolor/GCA_004126475.2/geneset/2020_04/Phyllostomus_discolor-GCA_004126475.2-2020_04-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Phyllostomus_discolor/GCA_004126475.2/geneset/2020_04/Phyllostomus_discolor-GCA_004126475.2-2020_04-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Phyllostomus_discolor/GCA_004126475.2/geneset/2020_04/Phyllostomus_discolor-GCA_004126475.2-2020_04-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Phyllostomus_discolor/GCA_004126475.2/geneset/2020_04/Phyllostomus_discolor-GCA_004126475.2-2020_04-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Phyllostomus_discolor/GCA_004126475.2/genome/Phyllostomus_discolor-GCA_004126475.2-softmasked.fa.gz
+  repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/phyllostomus_discolor/GCA_004126475.2.repeatmodeler.fa
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Phyllostomus_discolor/GCA_004126475.2
+  rapid_link: https://rapid.ensembl.org/Phyllostomus_discolor/Info/Index
+
+- species: Pseudochaenichthys georgianus
+  image: Fish.png
+  accession: GCA_902827115.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Pseudochaenichthys_georgianus/GCA_902827115.1/geneset/2020_05/Pseudochaenichthys_georgianus-GCA_902827115.1-2020_05-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Pseudochaenichthys_georgianus/GCA_902827115.1/geneset/2020_05/Pseudochaenichthys_georgianus-GCA_902827115.1-2020_05-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Pseudochaenichthys_georgianus/GCA_902827115.1/geneset/2020_05/Pseudochaenichthys_georgianus-GCA_902827115.1-2020_05-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Pseudochaenichthys_georgianus/GCA_902827115.1/geneset/2020_05/Pseudochaenichthys_georgianus-GCA_902827115.1-2020_05-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Pseudochaenichthys_georgianus/GCA_902827115.1/genome/Pseudochaenichthys_georgianus-GCA_902827115.1-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Pseudochaenichthys_georgianus/GCA_902827115.1
+  rapid_link: https://rapid.ensembl.org/Pseudochaenichthys_georgianus/Info/Index
+
+- species: Salarias fasciatus
+  image: Fish.png
+  accession: GCA_902148845.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Salarias_fasciatus/GCA_902148845.1/geneset/2019_08/Salarias_fasciatus-GCA_902148845.1-2019_08-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Salarias_fasciatus/GCA_902148845.1/geneset/2019_08/Salarias_fasciatus-GCA_902148845.1-2019_08-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Salarias_fasciatus/GCA_902148845.1/geneset/2019_08/Salarias_fasciatus-GCA_902148845.1-2019_08-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Salarias_fasciatus/GCA_902148845.1/geneset/2019_08/Salarias_fasciatus-GCA_902148845.1-2019_08-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Salarias_fasciatus/GCA_902148845.1/genome/Salarias_fasciatus-GCA_902148845.1-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Salarias_fasciatus/GCA_902148845.1
+  ensembl_link: https://www.ensembl.org/Salarias_fasciatus/Info/Index
+
+- species: Salmo trutta
+  image: Fish.png
+  accession: GCA_901001165.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Salmo_trutta/GCA_901001165.1/geneset/2019_12/Salmo_trutta-GCA_901001165.1-2019_12-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Salmo_trutta/GCA_901001165.1/geneset/2019_12/Salmo_trutta-GCA_901001165.1-2019_12-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Salmo_trutta/GCA_901001165.1/geneset/2019_12/Salmo_trutta-GCA_901001165.1-2019_12-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Salmo_trutta/GCA_901001165.1/geneset/2019_12/Salmo_trutta-GCA_901001165.1-2019_12-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Salmo_trutta/GCA_901001165.1/genome/Salmo_trutta-GCA_901001165.1-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Salmo_trutta/GCA_901001165.1
+  ensembl_link: https://www.ensembl.org/Salmo_trutta/Info/Index
+
+- species: Sarcophilus harrisii
+  image: Mammals.png
+  accession: GCA_902635505.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Sarcophilus_harrisii/GCA_902635505.1/geneset/2020_06/Sarcophilus_harrisii-GCA_902635505.1-2020_06-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Sarcophilus_harrisii/GCA_902635505.1/geneset/2020_06/Sarcophilus_harrisii-GCA_902635505.1-2020_06-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Sarcophilus_harrisii/GCA_902635505.1/geneset/2020_06/Sarcophilus_harrisii-GCA_902635505.1-2020_06-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Sarcophilus_harrisii/GCA_902635505.1/geneset/2020_06/Sarcophilus_harrisii-GCA_902635505.1-2020_06-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Sarcophilus_harrisii/GCA_902635505.1/genome/Sarcophilus_harrisii-GCA_902635505.1-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Sarcophilus_harrisii/GCA_902635505.1
+  ensembl_link: https://www.ensembl.org/Sarcophilus_harrisii/Info/Index
+
+- species: Sciurus vulgaris
+  image: Mammals.png
+  accession: GCA_902686455.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Sciurus_vulgaris/GCA_902686455.1/geneset/2020_01/Sciurus_vulgaris-GCA_902686455.1-2020_01-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Sciurus_vulgaris/GCA_902686455.1/geneset/2020_01/Sciurus_vulgaris-GCA_902686455.1-2020_01-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Sciurus_vulgaris/GCA_902686455.1/geneset/2020_01/Sciurus_vulgaris-GCA_902686455.1-2020_01-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Sciurus_vulgaris/GCA_902686455.1/geneset/2020_01/Sciurus_vulgaris-GCA_902686455.1-2020_01-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Sciurus_vulgaris/GCA_902686455.1/genome/Sciurus_vulgaris-GCA_902686455.1-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Sciurus_vulgaris/GCA_902686455.1
+  ensembl_link: https://www.ensembl.org/Sciurus_vulgaris/Info/Index
+
+- species: Scleropages formosus
+  image: Fish.png
+  accession: GCA_900964775.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Scleropages_formosus/GCA_900964775.1/geneset/2019_06/Scleropages_formosus-GCA_900964775.1-2019_06-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Scleropages_formosus/GCA_900964775.1/geneset/2019_06/Scleropages_formosus-GCA_900964775.1-2019_06-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Scleropages_formosus/GCA_900964775.1/geneset/2019_06/Scleropages_formosus-GCA_900964775.1-2019_06-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Scleropages_formosus/GCA_900964775.1/geneset/2019_06/Scleropages_formosus-GCA_900964775.1-2019_06-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Scleropages_formosus/GCA_900964775.1/genome/Scleropages_formosus-GCA_900964775.1-softmasked.fa.gz
+  repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/scleropages_formosus/GCA_900964775.1.repeatmodeler.fa
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Scleropages_formosus/GCA_900964775.1
+  ensembl_link: https://www.ensembl.org/Scleropages_formosus/Info/Index
+
+- species: Sparus aurata
+  image: Fish.png
+  accession: GCA_900880675.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Sparus_aurata/GCA_900880675.1/geneset/2019_09/Sparus_aurata-GCA_900880675.1-2019_09-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Sparus_aurata/GCA_900880675.1/geneset/2019_09/Sparus_aurata-GCA_900880675.1-2019_09-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Sparus_aurata/GCA_900880675.1/geneset/2019_09/Sparus_aurata-GCA_900880675.1-2019_09-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Sparus_aurata/GCA_900880675.1/geneset/2019_09/Sparus_aurata-GCA_900880675.1-2019_09-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Sparus_aurata/GCA_900880675.1/genome/Sparus_aurata-GCA_900880675.1-softmasked.fa.gz
+  repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/sparus_aurata/GCA_900880675.1.repeatmodeler.fa
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Sparus_aurata/GCA_900880675.1
+  ensembl_link: https://www.ensembl.org/Sparus_aurata/Info/Index
+
+- species: Sphaeramia orbicularis
+  image: Fish.png
+  accession: GCA_902148855.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Sphaeramia_orbicularis/GCA_902148855.1/geneset/2019_08/Sphaeramia_orbicularis-GCA_902148855.1-2019_08-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Sphaeramia_orbicularis/GCA_902148855.1/geneset/2019_08/Sphaeramia_orbicularis-GCA_902148855.1-2019_08-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Sphaeramia_orbicularis/GCA_902148855.1/geneset/2019_08/Sphaeramia_orbicularis-GCA_902148855.1-2019_08-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Sphaeramia_orbicularis/GCA_902148855.1/geneset/2019_08/Sphaeramia_orbicularis-GCA_902148855.1-2019_08-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Sphaeramia_orbicularis/GCA_902148855.1/genome/Sphaeramia_orbicularis-GCA_902148855.1-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Sphaeramia_orbicularis/GCA_902148855.1
+  ensembl_link: https://www.ensembl.org/Sphaeramia_orbicularis/Info/Index
+
+- species: Strigops habroptila
+  image: Birds.png
+  accession: GCA_004027225.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Strigops_habroptila/GCA_004027225.1/geneset/2019_08/Strigops_habroptila-GCA_004027225.1-2019_08-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Strigops_habroptila/GCA_004027225.1/geneset/2019_08/Strigops_habroptila-GCA_004027225.1-2019_08-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Strigops_habroptila/GCA_004027225.1/geneset/2019_08/Strigops_habroptila-GCA_004027225.1-2019_08-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Strigops_habroptila/GCA_004027225.1/geneset/2019_08/Strigops_habroptila-GCA_004027225.1-2019_08-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Strigops_habroptila/GCA_004027225.1/genome/Strigops_habroptila-GCA_004027225.1-softmasked.fa.gz
+  repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/strigops_habroptila/GCA_004027225.1.repeatmodeler.fa
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Strigops_habroptila/GCA_004027225.1
+  ensembl_link: https://www.ensembl.org/Strigops_habroptila/Info/Index
+
+- species: Taeniopygia guttata
+  image: Birds.png
+  accession: GCA_008822105.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Taeniopygia_guttata/GCA_008822105.1/geneset/2019_10/Taeniopygia_guttata-GCA_008822105.1-2019_10-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Taeniopygia_guttata/GCA_008822105.1/geneset/2019_10/Taeniopygia_guttata-GCA_008822105.1-2019_10-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Taeniopygia_guttata/GCA_008822105.1/geneset/2019_10/Taeniopygia_guttata-GCA_008822105.1-2019_10-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Taeniopygia_guttata/GCA_008822105.1/geneset/2019_10/Taeniopygia_guttata-GCA_008822105.1-2019_10-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Taeniopygia_guttata/GCA_008822105.1/genome/Taeniopygia_guttata-GCA_008822105.1-softmasked.fa.gz
+  repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/taeniopygia_guttata/GCA_008822105.1.repeatmodeler.fa
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Taeniopygia_guttata/GCA_008822105.1
+  rapid_link: https://rapid.ensembl.org/Taeniopygia_guttata/Info/Index
+
+- species: Taeniopygia guttata
+  image: Birds.png
+  accession: GCA_003957565.2
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Taeniopygia_guttata/GCA_003957565.2/geneset/2019_12/Taeniopygia_guttata-GCA_003957565.2-2019_12-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Taeniopygia_guttata/GCA_003957565.2/geneset/2019_12/Taeniopygia_guttata-GCA_003957565.2-2019_12-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Taeniopygia_guttata/GCA_003957565.2/geneset/2019_12/Taeniopygia_guttata-GCA_003957565.2-2019_12-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Taeniopygia_guttata/GCA_003957565.2/geneset/2019_12/Taeniopygia_guttata-GCA_003957565.2-2019_12-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Taeniopygia_guttata/GCA_003957565.2/genome/Taeniopygia_guttata-GCA_003957565.2-softmasked.fa.gz
+  repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/taeniopygia_guttata/GCA_003957565.2.repeatmodeler.fa
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Taeniopygia_guttata/GCA_003957565.2
+  ensembl_link: https://www.ensembl.org/Taeniopygia_guttata/Info/Index
+
+- species: Takifugu rubripes
+  image: Fish.png
+  accession: GCA_901000725.2
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Takifugu_rubripes/GCA_901000725.2/geneset/2019_08/Takifugu_rubripes-GCA_901000725.2-2019_08-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Takifugu_rubripes/GCA_901000725.2/geneset/2019_08/Takifugu_rubripes-GCA_901000725.2-2019_08-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Takifugu_rubripes/GCA_901000725.2/geneset/2019_08/Takifugu_rubripes-GCA_901000725.2-2019_08-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Takifugu_rubripes/GCA_901000725.2/geneset/2019_08/Takifugu_rubripes-GCA_901000725.2-2019_08-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Takifugu_rubripes/GCA_901000725.2/genome/Takifugu_rubripes-GCA_901000725.2-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Takifugu_rubripes/GCA_901000725.2
+  ensembl_link: https://www.ensembl.org/Takifugu_rubripes/Info/Index
+
+- species: Thalassophryne amazonica
+  image: Fish.png
+  accession: GCA_902500255.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Thalassophryne_amazonica/GCA_902500255.1/geneset/2020_05/Thalassophryne_amazonica-GCA_902500255.1-2020_05-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Thalassophryne_amazonica/GCA_902500255.1/geneset/2020_05/Thalassophryne_amazonica-GCA_902500255.1-2020_05-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Thalassophryne_amazonica/GCA_902500255.1/geneset/2020_05/Thalassophryne_amazonica-GCA_902500255.1-2020_05-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Thalassophryne_amazonica/GCA_902500255.1/geneset/2020_05/Thalassophryne_amazonica-GCA_902500255.1-2020_05-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Thalassophryne_amazonica/GCA_902500255.1/genome/Thalassophryne_amazonica-GCA_902500255.1-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Thalassophryne_amazonica/GCA_902500255.1
+  rapid_link: https://rapid.ensembl.org/Thalassophryne_amazonica/Info/Index
+
+- species: Thamnophis elegans
+  image: Reptiles.png
+  accession: GCA_009769535.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Thamnophis_elegans/GCA_009769535.1/geneset/2020_04/Thamnophis_elegans-GCA_009769535.1-2020_04-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Thamnophis_elegans/GCA_009769535.1/geneset/2020_04/Thamnophis_elegans-GCA_009769535.1-2020_04-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Thamnophis_elegans/GCA_009769535.1/geneset/2020_04/Thamnophis_elegans-GCA_009769535.1-2020_04-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Thamnophis_elegans/GCA_009769535.1/geneset/2020_04/Thamnophis_elegans-GCA_009769535.1-2020_04-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Thamnophis_elegans/GCA_009769535.1/genome/Thamnophis_elegans-GCA_009769535.1-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Thamnophis_elegans/GCA_009769535.1
+  rapid_link: https://rapid.ensembl.org/Thamnophis_elegans/Info/Index
+
+- species: Trematomus bernacchii
+  image: Fish.png
+  accession: GCA_902827165.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Trematomus_bernacchii/GCA_902827165.1/geneset/2020_07/Trematomus_bernacchii-GCA_902827165.1-2020_07-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Trematomus_bernacchii/GCA_902827165.1/geneset/2020_07/Trematomus_bernacchii-GCA_902827165.1-2020_07-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Trematomus_bernacchii/GCA_902827165.1/geneset/2020_07/Trematomus_bernacchii-GCA_902827165.1-2020_07-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Trematomus_bernacchii/GCA_902827165.1/geneset/2020_07/Trematomus_bernacchii-GCA_902827165.1-2020_07-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Trematomus_bernacchii/GCA_902827165.1/genome/Trematomus_bernacchii-GCA_902827165.1-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Trematomus_bernacchii/GCA_902827165.1
+  rapid_link: https://rapid.ensembl.org/Trematomus_bernacchii/Info/Index
+
+- species: Tursiops truncatus
+  image: Mammals.png
+  accession: GCA_011762595.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Tursiops_truncatus/GCA_011762595.1/geneset/2020_06/Tursiops_truncatus-GCA_011762595.1-2020_06-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Tursiops_truncatus/GCA_011762595.1/geneset/2020_06/Tursiops_truncatus-GCA_011762595.1-2020_06-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Tursiops_truncatus/GCA_011762595.1/geneset/2020_06/Tursiops_truncatus-GCA_011762595.1-2020_06-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Tursiops_truncatus/GCA_011762595.1/geneset/2020_06/Tursiops_truncatus-GCA_011762595.1-2020_06-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Tursiops_truncatus/GCA_011762595.1/genome/Tursiops_truncatus-GCA_011762595.1-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Tursiops_truncatus/GCA_011762595.1
+  rapid_link: https://rapid.ensembl.org/Tursiops_truncatus/Info/Index
+
+- species: Zalophus californianus
+  image: Mammals.png
+  accession: GCA_009762305.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Zalophus_californianus/GCA_009762305.1/geneset/2020_01/Zalophus_californianus-GCA_009762305.1-2020_01-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Zalophus_californianus/GCA_009762305.1/geneset/2020_01/Zalophus_californianus-GCA_009762305.1-2020_01-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Zalophus_californianus/GCA_009762305.1/geneset/2020_01/Zalophus_californianus-GCA_009762305.1-2020_01-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Zalophus_californianus/GCA_009762305.1/geneset/2020_01/Zalophus_californianus-GCA_009762305.1-2020_01-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Zalophus_californianus/GCA_009762305.1/genome/Zalophus_californianus-GCA_009762305.1-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Zalophus_californianus/GCA_009762305.1
+  ensembl_link: https://www.ensembl.org/Zalophus_californianus/Info/Index
+
+- species: Zalophus californianus
+  image: Mammals.png
+  accession: GCA_009762305.2
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Zalophus_californianus/GCA_009762305.2/geneset/2020_08/Zalophus_californianus-GCA_009762305.2-2020_08-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Zalophus_californianus/GCA_009762305.2/geneset/2020_08/Zalophus_californianus-GCA_009762305.2-2020_08-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Zalophus_californianus/GCA_009762305.2/geneset/2020_08/Zalophus_californianus-GCA_009762305.2-2020_08-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Zalophus_californianus/GCA_009762305.2/geneset/2020_08/Zalophus_californianus-GCA_009762305.2-2020_08-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Zalophus_californianus/GCA_009762305.2/genome/Zalophus_californianus-GCA_009762305.2-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Zalophus_californianus/GCA_009762305.2
+  rapid_link: https://rapid.ensembl.org/Zalophus_californianus_gca009762305v2/Info/Index
+

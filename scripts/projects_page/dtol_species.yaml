@@ -1,0 +1,77 @@
+- species: Aquila chrysaetos chrysaetos
+  image: Birds.png
+  accession: GCA_900496995.2
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Aquila_chrysaetos_chrysaetos/GCA_900496995.2/geneset/2019_07/Aquila_chrysaetos_chrysaetos-GCA_900496995.2-2019_07-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Aquila_chrysaetos_chrysaetos/GCA_900496995.2/geneset/2019_07/Aquila_chrysaetos_chrysaetos-GCA_900496995.2-2019_07-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Aquila_chrysaetos_chrysaetos/GCA_900496995.2/geneset/2019_07/Aquila_chrysaetos_chrysaetos-GCA_900496995.2-2019_07-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Aquila_chrysaetos_chrysaetos/GCA_900496995.2/geneset/2019_07/Aquila_chrysaetos_chrysaetos-GCA_900496995.2-2019_07-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Aquila_chrysaetos_chrysaetos/GCA_900496995.2/genome/Aquila_chrysaetos_chrysaetos-GCA_900496995.2-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Aquila_chrysaetos_chrysaetos/GCA_900496995.2
+  ensembl_link: https://www.ensembl.org/Aquila_chrysaetos_chrysaetos/Info/Index
+
+- species: Arvicola amphibius
+  image: Mammals.png
+  accession: GCA_903992535.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Arvicola_amphibius/GCA_903992535.1/geneset/2020_12/Arvicola_amphibius-GCA_903992535.1-2020_12-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Arvicola_amphibius/GCA_903992535.1/geneset/2020_12/Arvicola_amphibius-GCA_903992535.1-2020_12-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Arvicola_amphibius/GCA_903992535.1/geneset/2020_12/Arvicola_amphibius-GCA_903992535.1-2020_12-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Arvicola_amphibius/GCA_903992535.1/geneset/2020_12/Arvicola_amphibius-GCA_903992535.1-2020_12-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Arvicola_amphibius/GCA_903992535.1/genome/Arvicola_amphibius-GCA_903992535.1-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Arvicola_amphibius/GCA_903992535.1
+  rapid_link: https://rapid.ensembl.org/Arvicola_amphibius_gca903992535v1/Info/Index
+
+- species: Asterias rubens
+  image: Metazoa.png
+  accession: GCA_902459465.3
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Asterias_rubens/GCA_902459465.3/geneset/2020_11/Asterias_rubens-GCA_902459465.3-2020_11-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Asterias_rubens/GCA_902459465.3/geneset/2020_11/Asterias_rubens-GCA_902459465.3-2020_11-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Asterias_rubens/GCA_902459465.3/geneset/2020_11/Asterias_rubens-GCA_902459465.3-2020_11-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Asterias_rubens/GCA_902459465.3/geneset/2020_11/Asterias_rubens-GCA_902459465.3-2020_11-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Asterias_rubens/GCA_902459465.3/genome/Asterias_rubens-GCA_902459465.3-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Asterias_rubens/GCA_902459465.3
+  rapid_link: https://rapid.ensembl.org/Asterias_rubens_gca902459465v3/Info/Index
+
+- species: Salmo trutta
+  image: Fish.png
+  accession: GCA_901001165.1
+  annotation_gtf: http://ftp.ensembl.org/pub/release-103/gtf/salmo_trutta/Salmo_trutta.fSalTru1.1.103.gtf.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/release-103/gff3/salmo_trutta/Salmo_trutta.fSalTru1.1.103.gff3.gz
+  proteins: http://ftp.ensembl.org/pub/release-103/fasta/salmo_trutta/pep/Salmo_trutta.fSalTru1.1.pep.all.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/release-103/fasta/salmo_trutta/cdna/Salmo_trutta.fSalTru1.1.cdna.all.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/release-103/fasta/salmo_trutta/dna/Salmo_trutta.fSalTru1.1.dna_sm.toplevel.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/release-103
+  ensembl_link: https://www.ensembl.org/Salmo_trutta/Info/Index
+
+- species: Sciurus carolinensis
+  image: Mammals.png
+  accession: GCA_902686445.2
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Sciurus_carolinensis/GCA_902686445.2/geneset/2020_12/Sciurus_carolinensis-GCA_902686445.2-2020_12-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Sciurus_carolinensis/GCA_902686445.2/geneset/2020_12/Sciurus_carolinensis-GCA_902686445.2-2020_12-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Sciurus_carolinensis/GCA_902686445.2/geneset/2020_12/Sciurus_carolinensis-GCA_902686445.2-2020_12-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Sciurus_carolinensis/GCA_902686445.2/geneset/2020_12/Sciurus_carolinensis-GCA_902686445.2-2020_12-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Sciurus_carolinensis/GCA_902686445.2/genome/Sciurus_carolinensis-GCA_902686445.2-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Sciurus_carolinensis/GCA_902686445.2
+  rapid_link: https://rapid.ensembl.org/Sciurus_carolinensis_gca902686445v2/Info/Index
+
+- species: Sciurus vulgaris
+  image: Mammals.png
+  accession: GCA_902686455.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Sciurus_vulgaris/GCA_902686455.1/geneset/2020_01/Sciurus_vulgaris-GCA_902686455.1-2020_01-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Sciurus_vulgaris/GCA_902686455.1/geneset/2020_01/Sciurus_vulgaris-GCA_902686455.1-2020_01-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Sciurus_vulgaris/GCA_902686455.1/geneset/2020_01/Sciurus_vulgaris-GCA_902686455.1-2020_01-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Sciurus_vulgaris/GCA_902686455.1/geneset/2020_01/Sciurus_vulgaris-GCA_902686455.1-2020_01-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Sciurus_vulgaris/GCA_902686455.1/genome/Sciurus_vulgaris-GCA_902686455.1-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Sciurus_vulgaris/GCA_902686455.1
+  ensembl_link: https://www.ensembl.org/Sciurus_vulgaris/Info/Index
+
+- species: Sciurus vulgaris
+  image: Mammals.png
+  accession: GCA_902686455.2
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Sciurus_vulgaris/GCA_902686455.2/geneset/2020_12/Sciurus_vulgaris-GCA_902686455.2-2020_12-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Sciurus_vulgaris/GCA_902686455.2/geneset/2020_12/Sciurus_vulgaris-GCA_902686455.2-2020_12-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Sciurus_vulgaris/GCA_902686455.2/geneset/2020_12/Sciurus_vulgaris-GCA_902686455.2-2020_12-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Sciurus_vulgaris/GCA_902686455.2/geneset/2020_12/Sciurus_vulgaris-GCA_902686455.2-2020_12-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Sciurus_vulgaris/GCA_902686455.2/genome/Sciurus_vulgaris-GCA_902686455.2-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Sciurus_vulgaris/GCA_902686455.2
+  rapid_link: https://rapid.ensembl.org/Sciurus_vulgaris_gca902686455v2/Info/Index
+
