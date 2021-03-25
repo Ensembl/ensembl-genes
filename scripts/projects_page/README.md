@@ -38,9 +38,9 @@ Don't forget to push updated species.yaml to this repo.
 
 ## Adding new image icons
 
--Images used for the VGP and DToL projects pages are stored in the [Ensembl projects repo](https://github.com/Ensembl/projects.ensembl.org/tree/master/) at /img/vgp/ 
--The file, icons.txt, in this repo contains a list of species classifications that have already been added to the VGP or DToL pages
--If you are adding a species that does not fall into one of these classifications, then you will need to update the file 
+- Images used for the VGP and DToL projects pages are stored in the [Ensembl projects repo](https://github.com/Ensembl/projects.ensembl.org/tree/master/) at /img/vgp/ 
+- The file, icons.txt, in this repo contains a list of species classifications that have already been added to the VGP or DToL pages
+- If you are adding a species that does not fall into one of these classifications, then you will need to update the file 
    - check the species.classification keys in the meta table in the core db and choose a classification level that is appropriate
    - add the classification and image name to the icons.txt file
    - make sure the image exists in the [Ensembl projects repo](https://github.com/Ensembl/projects.ensembl.org/tree/master/) at /img/vgp/ - if it does not, you will need to add it (you should take the image from the rapid release, if it exists, otherwise, you should talk to Anne from web about getting a new appropriate image)
@@ -78,3 +78,11 @@ For the chicken reference (GENE-SWitCH project) the submitter information cannot
     if info_dict["assembly.accession"] is 'GCA_000002315.5':
         submitter = "Genome Reference Consortium"
 ```
+
+The GENE-SWitCH consortium want a release freeze on the data so all links must point to the 102 release
+```
+        if project == "geneswitch":
+            release = "release-102"
+            release_number = 102
+```
+NOTE: this will need to be changed when new annotations are added to this page e.g. the new VGP chickens (relese-102 data won't exists for these)
