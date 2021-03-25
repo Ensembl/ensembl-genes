@@ -1,0 +1,7 @@
+bos_taurus_core_103_12
+bos_taurus_hybrid_core_103_1
+bos_indicus_hybrid_core_103_1
+bos_grunniens_core_103_3
+bos_mutus_core_103_2
+bos_mutus_datongyak_core_103_1
+bos_gaurus_core_103_1
