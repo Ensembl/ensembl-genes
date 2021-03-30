@@ -1,3 +1,6 @@
 pylint
 pytest
 sphinx
+sqlalchemy
+colorama
+urllib

@@ -1,4 +1,4 @@
-# python version of control pipelines script 
+# Python version of control pipelines script 1.1
 # Few comments: 
 # - script can submit many many jobs. You need to monitor it. 
 # - Currently doesn't take into account the mysql servers load - but the analyses that load the servers. 
@@ -54,14 +54,14 @@ class Pipeline:
             print('# Can I submit more?, {}'.format(self.farm_status))
             print('# pipeline_input_ids_status, {}'.format(self.pipeline_input_ids_status))
     
-    # we don't need this one. We used it like: current_status = g.get_set_status()
+    # we don't need this one as it is. We used it like: current_status = g.get_set_status()
     def get_set_status(self, new_status = ''):
         if new_status: 
-            print('old_status: ', self.pipeline_status) 
+            # print('old_status: ', self.pipeline_status) 
             self.pipeline_status = new_status 
-            print('AND I WILL UPDATE IT TO new_status: ', self.pipeline_status)
+            # print('AND I WILL UPDATE IT TO new_status: ', self.pipeline_status)
         else: 
-            print('just_report_status: ', self.pipeline_status)
+            # print('just_report_status: ', self.pipeline_status)
             return self.pipeline_status 
     
     # Calculate parameters that will be used by beekeeper. 
@@ -174,7 +174,7 @@ def block_checkcall(cmd, verbose=False) :
 
 
 # check run/pending/fail jobs: 
-def check_farm_jobs(task_max=2500, verbose=True):
+def check_farm_jobs(task_max=2500, verbose=False):
     stdout_run, stderr_run = block_checkcall('bjobs | grep RUN | wc -l', verbose)
     njobs_run = int(stdout_run.rstrip())
     stdout_pend, stderr_pend = block_checkcall('bjobs | grep PEND | wc -l', verbose)
@@ -194,13 +194,12 @@ def check_farm_jobs(task_max=2500, verbose=True):
 def mysql_servers_status(db_url, check=1, verbose=False):
     url_attributes = urlparse(db_url)
     connections_info = {}
-    print("verbose option is", verbose)
 
     if check == 1:
         list_cmd = [url_attributes.hostname , "-ensadmin " , " -e ", " 'SHOW PROCESSLIST' ", " | " ,
                      " wc -l" ]
         cmd_processlist = ''.join(list_cmd)
-        stdout_pend, stderr_pend = block_checkcall( cmd_processlist , verbose)
+        stdout_pend, stderr_pend = block_checkcall( cmd_processlist, verbose= False )
         connections_info['total'] = stdout_pend
     elif check == 2:
         # This will calculate max connections across servers
@@ -213,7 +212,7 @@ def mysql_servers_status(db_url, check=1, verbose=False):
                 list_cmd = [test_host, "-ensadmin " , " -e ", " 'SHOW PROCESSLIST' ", " | " ,
                      " wc -l" ]
                 cmd_processlist = ''.join(list_cmd)
-                stdout_pend, stderr_pend = block_checkcall( cmd_processlist , verbose)
+                stdout_pend, stderr_pend = block_checkcall( cmd_processlist, verbose= False )
                 stdout_pend = int(stdout_pend)
                 if max_connections < stdout_pend: 
                     max_connections = stdout_pend
@@ -226,7 +225,7 @@ def mysql_servers_status(db_url, check=1, verbose=False):
                 list_cmd = [test_host , "-ensadmin " , " -e ", " 'SHOW PROCESSLIST' ", " | " ,
                      " wc -l" ]
                 cmd_processlist = ''.join(list_cmd)
-                stdout_pend, stderr_pend = block_checkcall( cmd_processlist , verbose)
+                stdout_pend, stderr_pend = block_checkcall( cmd_processlist, verbose= False)
                 stdout_pend = int(stdout_pend)
                 if max_connections < int(stdout_pend): 
                     max_connections = stdout_pend 
@@ -241,7 +240,7 @@ def mysql_servers_status(db_url, check=1, verbose=False):
         list_cmd = [ url_attributes.hostname , "-ensadmin " , " -e ", " 'SHOW PROCESSLIST' ", " | ", 
                     " awk ", " '{print $5}' "  ]
         cmd_processlist = ''.join(list_cmd)
-        stdout_pend, stderr_pend = block_checkcall( cmd_processlist , verbose)
+        stdout_pend, stderr_pend = block_checkcall( cmd_processlist, verbose= False )
 
         for ser_status in stdout_pend.split(): 
             if (ser_status in connections_info): 
@@ -286,7 +285,7 @@ def colour_pipeline(pipeline_name, pipeline_stage):
         print(Fore.GREEN + pipeline_name , pipeline_stage )
     elif (pipeline_stage == 'stop'):
         print(Fore.MAGENTA + pipeline_name , pipeline_stage )
-    elif (pipeline_stage == 'failed'):    
+    elif (pipeline_stage == 'FAILED'):    
         print(Fore.RED + pipeline_name , pipeline_stage )
     elif (pipeline_stage == 'ready'):
         print(Fore.YELLOW + pipeline_name , pipeline_stage )
@@ -362,7 +361,7 @@ def create_html(data):
     for i in data:
         
         url_attributes = urlparse(i)
-        url_attributes = urlparse(i)
+        # url_attributes = urlparse(i)
         info_to_print = url_attributes.hostname + url_attributes.path
 
         i_new = i
@@ -397,15 +396,15 @@ def main():
 
     # get arguments from command line: 
     parser = argparse.ArgumentParser(description="Parses command.")
-    parser.add_argument("-i", "--input", help="Your input file.")
-    parser.add_argument("-r", "--reg_conf", help="Your registry/Databases.pm file if you are ")
+    parser.add_argument("-i", "--input", help="Your input file. Example: /hps/nobackup2/production/ensembl/kbillis/production/genebuilds/2020_11_python_test/running_pipelines.txt")
+    # parser.add_argument("-r", "--reg_conf", help="Your registry/Databases.pm file if you are ")
     parser.add_argument("-a", "--act", help="What I have to do?")
     parser.add_argument("-l", "--number_of_loops", type=int, help="How many loops?", default=10 )
     parser.add_argument("-w", "--number_of_total_workers", type=int, help="How many total_workers?", default=250 )
     parser.add_argument("-s", "--skip_checks", help="Skip tests?", default=False, action='store_true')
     parser.add_argument("-b", "--skip_boost", help="Skip priority?", default=False, action='store_true')
     parser.add_argument("-v", "--verbose",dest='verbose',action='store_true', help="Verbose mode.")
-    
+    parser.add_argument("-p", "--analyses_pattern_str", help="Any analyses pattern to run?")    
     
     options = parser.parse_args()
     verbose = options.verbose
@@ -417,6 +416,7 @@ def main():
         print("Verbose mode off")
 
 
+
     # standard parameters: 
     beekeeper_locations = '/nfs/production/panda/ensembl/kbillis/enscode_2020_08/enscode/ensembl-hive/scripts/beekeeper.pl '
     # debug_parameter = ' -debug 1 '
@@ -425,7 +425,8 @@ def main():
     priority_limit = int(how_many_loops*0.1)
     skip_checks = options.skip_checks
     skip_boost = options.skip_boost
-    registry_file = options.reg_conf
+    analyses_pattern = options.analyses_pattern_str
+    # registry_file = options.reg_conf
 
     if not options.act == 'loop': 
         skip_boost = 1 
@@ -500,6 +501,7 @@ def main():
 
             g.print_data(verbose=True)            
             
+            
             if not options.act == 'loop':
                 mylist = ['perl ', beekeeper_locations, ' ', debug_parameter , ' -' , options.act , ' -url ' , pipeline_name ]
                 cmd_tmp = ''.join(mylist)
@@ -508,11 +510,11 @@ def main():
                 # g.print_data(verbose=True)   # Call an instance method; prints 
             else: 
                 if current_status == 'FAILED' :
-                    print(d, ' pipeline has FAILED issues:')
+                    print(pipeline_name, ' pipeline has FAILED issues:')
                     colour_pipeline(pipeline_name, current_status) 
                     continue
                 elif current_status == 'config' :
-                    print(d, 'I will create config')
+                    print(pipeline_name, 'I will create config')
                     # method to create config
                     g.pipeline_status = 'run'
                     continue
@@ -530,7 +532,10 @@ def main():
                 # include Databases.pm as parameter or not. 
                 registry_filename = g.registry_file
                 analyses_ready_analysis_ids = analyses_ready.values()
-                analysis_id_to_run = max(analyses_ready_analysis_ids)
+                analysis_id_to_run = 0
+                if analyses_ready_analysis_ids: 
+                    analysis_id_to_run = max(analyses_ready_analysis_ids)
+                
                 registry_param = ''
                 print("DEBUG:: analysis_to_run::", analysis_id_to_run)
                 if ( (registry_filename ) and (analysis_id_to_run > 70 ) ) :   # if you are above 40, I assume you created Databases.pm
@@ -544,6 +549,11 @@ def main():
                     registry_param = ' -reg_conf ' + str(registry_filename)
                 else:
                     print("No registry/Databases.pm provided - this might cause issues in lastZ part")
+                    
+                    
+                analyses_pattern_param = ''
+                if (analyses_pattern): 
+                    analyses_pattern_param = ' -analyses_pattern ' + ' "' + analyses_pattern + '" '
 
                 
                 if skip_checks: 
@@ -571,7 +581,7 @@ def main():
                 
                 mylist = ['perl ' , beekeeper_locations , ' ' , debug_parameter , ' -' , options.act , ' -url ' , pipeline_name ,\
                           ' -max_loops ' , str(bkeeper_max_loops) , ' -total_running_workers_max ' , str(bkeeper_total_workers) ,\
-                          ' -sleep ' , str(bkeeper_sleep) , registry_param]
+                          ' -sleep ' , str(bkeeper_sleep) , registry_param, analyses_pattern_param]
                 cmd_tmp = ''.join(mylist)
                 
                 # STOP/GO checks should be here too.  
@@ -585,7 +595,7 @@ def main():
                         bkeeper_max_loops, bkeeper_sleep, bkeeper_total_workers = g.calculate_bkeeper_params(bkeeper_max_loops, bkeeper_sleep, worker_equal_dis)
                         mylist = ['perl ' , beekeeper_locations , ' ' , debug_parameter , ' -' , options.act , ' -url ' , pipeline_name ,\
                                   ' -max_loops ' , str(bkeeper_max_loops) , ' -total_running_workers_max ' , str(bkeeper_total_workers) ,\
-                                  ' -sleep ' , str(bkeeper_sleep) , registry_param]
+                                  ' -sleep ' , str(bkeeper_sleep) , registry_param, analyses_pattern_param]
                         cmd_tmp = ''.join(mylist)
                         stdout_run, stderr_run = block_checkcall(cmd_tmp, verbose) 
                         print('Extra loop: I like this pipeline, ', pipeline_name, 'and I will run again. ')
