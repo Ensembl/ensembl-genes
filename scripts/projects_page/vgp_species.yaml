@@ -30,7 +30,7 @@
   softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Anabas_testudineus/GCA_900324465.2/genome/Anabas_testudineus-GCA_900324465.2-softmasked.fa.gz
   repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/anabas_testudineus/GCA_900324465.2.repeatmodeler.fa
   ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Anabas_testudineus/GCA_900324465.2
-  rapid_link: https://rapid.ensembl.org/Anabas_testudineus/Info/Index
+  ensembl_link: https://www.ensembl.org/Anabas_testudineus/Info/Index
 
 - species: Anabas testudineus
   image: Fish.png
@@ -42,7 +42,7 @@
   softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Anabas_testudineus/GCA_900324465.1/genome/Anabas_testudineus-GCA_900324465.1-softmasked.fa.gz
   repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/anabas_testudineus/GCA_900324465.1.repeatmodeler.fa
   ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Anabas_testudineus/GCA_900324465.1
-  ensembl_link: https://www.ensembl.org/Anabas_testudineus/Info/Index
+  rapid_link: https://rapid.ensembl.org/Anabas_testudineus_gca900324465v1/Info/Index
 
 - species: Anguilla anguilla
   image: Fish.png
@@ -257,7 +257,7 @@
   transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Gadus_morhua/GCA_902167405.1/geneset/2020_06/Gadus_morhua-GCA_902167405.1-2020_06-cdna.fa.gz
   softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Gadus_morhua/GCA_902167405.1/genome/Gadus_morhua-GCA_902167405.1-softmasked.fa.gz
   ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Gadus_morhua/GCA_902167405.1
-  rapid_link: https://rapid.ensembl.org/Gadus_morhua/Info/Index
+  ensembl_link: https://www.ensembl.org/Gadus_morhua/Info/Index
 
 - species: Gopherus evgoodei
   image: Reptiles.png
@@ -305,6 +305,28 @@
   ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Harpagifer_antarcticus/GCA_902827135.1
   rapid_link: https://rapid.ensembl.org/Harpagifer_antarcticus/Info/Index
 
+- species: Hirundo rustica
+  image: Birds.png
+  accession: GCA_015227805.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Hirundo_rustica/GCA_015227805.1/geneset/2021_02/Hirundo_rustica-GCA_015227805.1-2021_02-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Hirundo_rustica/GCA_015227805.1/geneset/2021_02/Hirundo_rustica-GCA_015227805.1-2021_02-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Hirundo_rustica/GCA_015227805.1/geneset/2021_02/Hirundo_rustica-GCA_015227805.1-2021_02-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Hirundo_rustica/GCA_015227805.1/geneset/2021_02/Hirundo_rustica-GCA_015227805.1-2021_02-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Hirundo_rustica/GCA_015227805.1/genome/Hirundo_rustica-GCA_015227805.1-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Hirundo_rustica/GCA_015227805.1
+  rapid_link: https://rapid.ensembl.org/Hirundo_rustica_gca015227805v1/Info/Index
+
+- species: Lacerta agilis
+  image: Chordates.png
+  accession: GCA_009819535.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Lacerta_agilis/GCA_009819535.1/geneset/2021_03/Lacerta_agilis-GCA_009819535.1-2021_03-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Lacerta_agilis/GCA_009819535.1/geneset/2021_03/Lacerta_agilis-GCA_009819535.1-2021_03-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Lacerta_agilis/GCA_009819535.1/geneset/2021_03/Lacerta_agilis-GCA_009819535.1-2021_03-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Lacerta_agilis/GCA_009819535.1/geneset/2021_03/Lacerta_agilis-GCA_009819535.1-2021_03-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Lacerta_agilis/GCA_009819535.1/genome/Lacerta_agilis-GCA_009819535.1-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Lacerta_agilis/GCA_009819535.1
+  rapid_link: https://rapid.ensembl.org/Lacerta_agilis_gca009819535v1/Info/Index
+
 - species: Lynx canadensis
   image: Mammals.png
   accession: GCA_007474595.1
@@ -326,7 +348,7 @@
   softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Mastacembelus_armatus/GCA_900324485.2/genome/Mastacembelus_armatus-GCA_900324485.2-softmasked.fa.gz
   repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/mastacembelus_armatus/GCA_900324485.2.repeatmodeler.fa
   ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Mastacembelus_armatus/GCA_900324485.2
-  rapid_link: https://rapid.ensembl.org/Mastacembelus_armatus/Info/Index
+  ensembl_link: https://www.ensembl.org/Mastacembelus_armatus/Info/Index
 
 - species: Mastacembelus armatus
   image: Fish.png
@@ -338,7 +360,7 @@
   softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Mastacembelus_armatus/GCA_900324485.1/genome/Mastacembelus_armatus-GCA_900324485.1-softmasked.fa.gz
   repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/mastacembelus_armatus/GCA_900324485.1.repeatmodeler.fa
   ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Mastacembelus_armatus/GCA_900324485.1
-  ensembl_link: https://www.ensembl.org/Mastacembelus_armatus/Info/Index
+  rapid_link: https://rapid.ensembl.org/Mastacembelus_armatus_gca900324485v1/Info/Index
 
 - species: Megalops cyprinoides
   image: Fish.png

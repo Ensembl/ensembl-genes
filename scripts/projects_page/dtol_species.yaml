@@ -75,3 +75,14 @@
   ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Sciurus_vulgaris/GCA_902686455.2
   rapid_link: https://rapid.ensembl.org/Sciurus_vulgaris_gca902686455v2/Info/Index
 
+- species: Trachurus trachurus
+  image: Fish.png
+  accession: GCA_905171665.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Trachurus_trachurus/GCA_905171665.1/geneset/2021_03/Trachurus_trachurus-GCA_905171665.1-2021_03-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Trachurus_trachurus/GCA_905171665.1/geneset/2021_03/Trachurus_trachurus-GCA_905171665.1-2021_03-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Trachurus_trachurus/GCA_905171665.1/geneset/2021_03/Trachurus_trachurus-GCA_905171665.1-2021_03-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Trachurus_trachurus/GCA_905171665.1/geneset/2021_03/Trachurus_trachurus-GCA_905171665.1-2021_03-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Trachurus_trachurus/GCA_905171665.1/genome/Trachurus_trachurus-GCA_905171665.1-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Trachurus_trachurus/GCA_905171665.1
+  rapid_link: https://rapid.ensembl.org/Trachurus_trachurus_gca905171665v1/Info/Index
+
