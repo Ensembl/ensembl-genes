@@ -31,6 +31,17 @@
   ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Asterias_rubens/GCA_902459465.3
   rapid_link: https://rapid.ensembl.org/Asterias_rubens_gca902459465v3/Info/Index
 
+- species: Rattus norvegicus (BN/NHsdMcwi)
+  image: Mammals.png
+  accession: GCA_015227675.2
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Rattus_norvegicus/GCA_015227675.2/geneset/2021_02/Rattus_norvegicus-GCA_015227675.2-2021_02-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Rattus_norvegicus/GCA_015227675.2/geneset/2021_02/Rattus_norvegicus-GCA_015227675.2-2021_02-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Rattus_norvegicus/GCA_015227675.2/geneset/2021_02/Rattus_norvegicus-GCA_015227675.2-2021_02-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Rattus_norvegicus/GCA_015227675.2/geneset/2021_02/Rattus_norvegicus-GCA_015227675.2-2021_02-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Rattus_norvegicus/GCA_015227675.2/genome/Rattus_norvegicus-GCA_015227675.2-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Rattus_norvegicus/GCA_015227675.2
+  rapid_link: https://rapid.ensembl.org/Rattus_norvegicus_gca015227675v2/Info/Index
+
 - species: Salmo trutta
   image: Fish.png
   accession: GCA_901001165.1
