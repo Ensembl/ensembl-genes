@@ -157,6 +157,28 @@
   ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Catharus_ustulatus/GCA_009819885.1
   ensembl_link: https://www.ensembl.org/Catharus_ustulatus/Info/Index
 
+- species: Chiroxiphia lanceolata
+  image: Birds.png
+  accession: GCA_009829145.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Chiroxiphia_lanceolata/GCA_009829145.1/geneset/2020_11/Chiroxiphia_lanceolata-GCA_009829145.1-2020_11-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Chiroxiphia_lanceolata/GCA_009829145.1/geneset/2020_11/Chiroxiphia_lanceolata-GCA_009829145.1-2020_11-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Chiroxiphia_lanceolata/GCA_009829145.1/geneset/2020_11/Chiroxiphia_lanceolata-GCA_009829145.1-2020_11-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Chiroxiphia_lanceolata/GCA_009829145.1/geneset/2020_11/Chiroxiphia_lanceolata-GCA_009829145.1-2020_11-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Chiroxiphia_lanceolata/GCA_009829145.1/genome/Chiroxiphia_lanceolata-GCA_009829145.1-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Chiroxiphia_lanceolata/GCA_009829145.1
+  rapid_link: https://rapid.ensembl.org/Chiroxiphia_lanceolata_gca009829145v1/Info/Index
+
+- species: Choloepus didactylus
+  image: Mammals.png
+  accession: GCA_015220235.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Choloepus_didactylus/GCA_015220235.1/geneset/2021_02/Choloepus_didactylus-GCA_015220235.1-2021_02-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Choloepus_didactylus/GCA_015220235.1/geneset/2021_02/Choloepus_didactylus-GCA_015220235.1-2021_02-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Choloepus_didactylus/GCA_015220235.1/geneset/2021_02/Choloepus_didactylus-GCA_015220235.1-2021_02-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Choloepus_didactylus/GCA_015220235.1/geneset/2021_02/Choloepus_didactylus-GCA_015220235.1-2021_02-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Choloepus_didactylus/GCA_015220235.1/genome/Choloepus_didactylus-GCA_015220235.1-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Choloepus_didactylus/GCA_015220235.1
+  rapid_link: https://rapid.ensembl.org/Choloepus_didactylus_gca015220235v1/Info/Index
+
 - species: Corvus moneduloides
   image: Birds.png
   accession: GCA_009650955.1
@@ -247,6 +269,17 @@
   repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/erpetoichthys_calabaricus/GCA_900747795.2.repeatmodeler.fa
   ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Erpetoichthys_calabaricus/GCA_900747795.2
   ensembl_link: https://www.ensembl.org/Erpetoichthys_calabaricus/Info/Index
+
+- species: Esox lucius
+  image: Fish.png
+  accession: GCA_004634155.1
+  annotation_gtf: http://ftp.ensembl.org/pub/release-104/gtf/esox_lucius/Esox_lucius.Eluc_v4.104.gtf.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/release-104/gff3/esox_lucius/Esox_lucius.Eluc_v4.104.gff3.gz
+  proteins: http://ftp.ensembl.org/pub/release-104/fasta/esox_lucius/pep/Esox_lucius.Eluc_v4.pep.all.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/release-104/fasta/esox_lucius/cdna/Esox_lucius.Eluc_v4.cdna.all.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/release-104/fasta/esox_lucius/dna/Esox_lucius.Eluc_v4.dna_sm.toplevel.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/release-104
+  ensembl_link: https://www.ensembl.org/Esox_lucius/Info/Index
 
 - species: Gadus morhua
   image: Fish.png
@@ -472,6 +505,28 @@
   softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Pseudochaenichthys_georgianus/GCA_902827115.1/genome/Pseudochaenichthys_georgianus-GCA_902827115.1-softmasked.fa.gz
   ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Pseudochaenichthys_georgianus/GCA_902827115.1
   rapid_link: https://rapid.ensembl.org/Pseudochaenichthys_georgianus/Info/Index
+
+- species: Pygocentrus nattereri
+  image: Fish.png
+  accession: GCA_015220715.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Pygocentrus_nattereri/GCA_015220715.1/geneset/2021_03/Pygocentrus_nattereri-GCA_015220715.1-2021_03-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Pygocentrus_nattereri/GCA_015220715.1/geneset/2021_03/Pygocentrus_nattereri-GCA_015220715.1-2021_03-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Pygocentrus_nattereri/GCA_015220715.1/geneset/2021_03/Pygocentrus_nattereri-GCA_015220715.1-2021_03-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Pygocentrus_nattereri/GCA_015220715.1/geneset/2021_03/Pygocentrus_nattereri-GCA_015220715.1-2021_03-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Pygocentrus_nattereri/GCA_015220715.1/genome/Pygocentrus_nattereri-GCA_015220715.1-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Pygocentrus_nattereri/GCA_015220715.1
+  rapid_link: https://rapid.ensembl.org/Pygocentrus_nattereri_gca015220715v1/Info/Index
+
+- species: Rattus norvegicus (BN/NHsdMcwi)
+  image: Mammals.png
+  accession: GCA_015227675.2
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Rattus_norvegicus/GCA_015227675.2/geneset/2021_02/Rattus_norvegicus-GCA_015227675.2-2021_02-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Rattus_norvegicus/GCA_015227675.2/geneset/2021_02/Rattus_norvegicus-GCA_015227675.2-2021_02-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Rattus_norvegicus/GCA_015227675.2/geneset/2021_02/Rattus_norvegicus-GCA_015227675.2-2021_02-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Rattus_norvegicus/GCA_015227675.2/geneset/2021_02/Rattus_norvegicus-GCA_015227675.2-2021_02-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Rattus_norvegicus/GCA_015227675.2/genome/Rattus_norvegicus-GCA_015227675.2-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Rattus_norvegicus/GCA_015227675.2
+  rapid_link: https://rapid.ensembl.org/Rattus_norvegicus_gca015227675v2/Info/Index
 
 - species: Salarias fasciatus
   image: Fish.png
