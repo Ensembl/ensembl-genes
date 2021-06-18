@@ -32,11 +32,11 @@ sub default_options {
     return {
         %{ $self->SUPER::default_options() },
         'pipeline_db' => {
-            -dbname => 'ws_gsc',
-            -host   => 'mysql-ens-genebuild-prod-2',
-            -port   => 4528,
-            -user   => 'ensadmin',
-            -pass   => 'ensembl',
+            -dbname => 'gsc_testing',
+            -host   => $self->o('pipe_db_server'),
+            -port   => $self->o('pipe_db_port'),
+            -user   => $self->o('user'),
+            -pass   => $self->o('password'),
             -driver => 'mysql',
         },
     };
