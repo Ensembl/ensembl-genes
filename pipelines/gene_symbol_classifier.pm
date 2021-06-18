@@ -1,4 +1,3 @@
-
 =head1 LICENSE
 
 See the NOTICE file distributed with this work for additional information
@@ -18,55 +17,97 @@ limitations under the License.
 
 =cut
 
+
 package Bio::EnsEMBL::Analysis::Hive::Config::gene_symbol_classifier;
+
 
 use strict;
 use warnings;
 
 use parent ('Bio::EnsEMBL::Analysis::Hive::Config::HiveBaseConfig_conf');
 
+
 sub default_options {
-  my ($self) = @_;
-  return {
-    # inherit other stuff from the base class
-    %{ $self->SUPER::default_options() },
-    'pipeline_db' => {
-      -dbname => 'ws_gsc',
-      -host   => 'mysql-ens-genebuild-prod-2',
-      -port   => 4528,
-      -user   => 'ensadmin',
-      -pass   => 'ensembl',
-      -driver => 'mysql',
-    },
-  };
+    my ($self) = @_;
+    return {
+        %{ $self->SUPER::default_options() },
+        'pipeline_db' => {
+            -dbname => 'ws_gsc',
+            -host   => 'mysql-ens-genebuild-prod-2',
+            -port   => 4528,
+            -user   => 'ensadmin',
+            -pass   => 'ensembl',
+            -driver => 'mysql',
+        },
+    };
 }
+
 
 sub pipeline_create_commands {
-  my ($self) = @_;
-  return [ @{ $self->SUPER::pipeline_create_commands }, ];
+    my ($self) = @_;
+    return [ @{ $self->SUPER::pipeline_create_commands }, ];
 }
+
 
 sub pipeline_analyses {
-  my ($self) = @_;
-  return [];
+    my ($self) = @_;
+    return [
+        # input: core db
+        # output: FASTA file
+        {
+            -logic_name => 'dump_fasta',
+            -module     => 'Bio::EnsEMBL::Hive::RunnableDB::SystemCmd',
+            -parameters => {
+                cmd => 'echo "dump_fasta analysis"',
+            },
+            -rc_name   => 'default',
+            -input_ids => [ {} ],
+            -flow_into => { 1 => ['run_classifier'] }
+        },
+
+        # input: FASTA file
+        # output: TSV file
+        {
+            -logic_name => 'run_classifier',
+            -module     => 'Bio::EnsEMBL::Hive::RunnableDB::SystemCmd',
+            -parameters => {
+                cmd => 'echo "run_classifier analysis"',
+            },
+            -rc_name   => 'default',
+            -flow_into => { 1 => ['load_gene_symbols'] }
+        },
+
+        # input: TSV file
+        # output: core db
+        {
+            -logic_name => 'load_gene_symbols',
+            -module     => 'Bio::EnsEMBL::Hive::RunnableDB::SystemCmd',
+            -parameters => {
+                cmd => 'echo "load_gene_symbols analysis"',
+            },
+            -rc_name => 'default',
+        },
+    ];
 }
+
 
 sub resource_classes {
-  my $self = shift;
+    my $self = shift;
 
-  return {
-    'default' => {
-      LSF => $self->lsf_resource_builder(
-        'production-rh74',
-        900,
-        [
-          $self->default_options->{'pipe_db_server'},
-          $self->default_options->{'dna_db_server'}
-        ],
-        [ $self->default_options->{'num_tokens'} ]
-      )
-    },
-  };
+    return {
+        'default' => {
+            LSF => $self->lsf_resource_builder(
+                'production-rh74',
+                900,
+                [
+                    $self->default_options->{'pipe_db_server'},
+                    $self->default_options->{'dna_db_server'}
+                ],
+                [ $self->default_options->{'num_tokens'} ]
+            )
+        },
+    };
 }
+
 
 1;
