@@ -18,7 +18,7 @@ limitations under the License.
 =cut
 
 
-package Bio::EnsEMBL::Analysis::Hive::Config::gene_symbol_classifier;
+package Bio::EnsEMBL::Analysis::Hive::Config::gene_symbol_classifier_conf;
 
 
 use strict;
