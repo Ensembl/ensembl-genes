@@ -52,35 +52,38 @@ sub pipeline_create_commands {
 sub pipeline_analyses {
     my ($self) = @_;
     return [
-        # input: core db
-        # output: FASTA file
         {
+            # input: genome assembly core db
+            # output: FASTA file
             -logic_name => 'dump_fasta',
+            -comment    => 'retrieve the protein coding gene sequences from a genome assembly core database and store them as a FASTA file',
             -module     => 'Bio::EnsEMBL::Hive::RunnableDB::SystemCmd',
             -parameters => {
                 cmd => 'echo "dump_fasta analysis"',
             },
             -rc_name   => 'default',
             -input_ids => [ {} ],
-            -flow_into => { 1 => ['run_classifier'] }
+            -flow_into => { '1' => 'run_classifier' }
         },
 
-        # input: FASTA file
-        # output: TSV file
         {
+            # input: FASTA file
+            # output: TSV file
             -logic_name => 'run_classifier',
+            -comment    => 'use a gene symbol classifier neural network to assign symbols to gene protein sequences in a FASTA file and save them in a TSV file',
             -module     => 'Bio::EnsEMBL::Hive::RunnableDB::SystemCmd',
             -parameters => {
                 cmd => 'echo "run_classifier analysis"',
             },
             -rc_name   => 'default',
-            -flow_into => { 1 => ['load_gene_symbols'] }
+            -flow_into => { '1' => 'load_gene_symbols' }
         },
 
-        # input: TSV file
-        # output: core db
         {
+            # input: TSV file
+            # output: genome assembly core db
             -logic_name => 'load_gene_symbols',
+            -comment    => 'read a TSV file with gene symbols and load them to the genome assembly core database',
             -module     => 'Bio::EnsEMBL::Hive::RunnableDB::SystemCmd',
             -parameters => {
                 cmd => 'echo "load_gene_symbols analysis"',
