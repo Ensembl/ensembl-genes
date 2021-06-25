@@ -29,15 +29,18 @@ use parent ('Bio::EnsEMBL::Analysis::Hive::Config::HiveBaseConfig_conf');
 
 sub default_options {
     my ($self) = @_;
+
     return {
+        # inherit from the base class
         %{ $self->SUPER::default_options() },
+
         'pipeline_db' => {
-            -dbname => 'gsc_testing',
+            -driver => 'mysql',
             -host   => $self->o('pipe_db_server'),
             -port   => $self->o('pipe_db_port'),
             -user   => $self->o('user'),
             -pass   => $self->o('password'),
-            -driver => 'mysql',
+            -dbname => 'gsc_testing',
         },
     };
 }
@@ -45,12 +48,14 @@ sub default_options {
 
 sub pipeline_create_commands {
     my ($self) = @_;
+
     return [ @{ $self->SUPER::pipeline_create_commands }, ];
 }
 
 
 sub pipeline_analyses {
     my ($self) = @_;
+
     return [
         {
             # input: genome assembly core db
@@ -59,7 +64,7 @@ sub pipeline_analyses {
             -comment    => 'retrieve the protein coding gene sequences from a genome assembly core database and store them as a FASTA file',
             -module     => 'Bio::EnsEMBL::Hive::RunnableDB::SystemCmd',
             -parameters => {
-                cmd => 'echo "dump_fasta analysis"',
+                'cmd' => 'echo "dump_fasta analysis"',
             },
             -rc_name   => 'default',
             -input_ids => [ {} ],
@@ -73,7 +78,7 @@ sub pipeline_analyses {
             -comment    => 'use a gene symbol classifier neural network to assign symbols to gene protein sequences in a FASTA file and save them in a TSV file',
             -module     => 'Bio::EnsEMBL::Hive::RunnableDB::SystemCmd',
             -parameters => {
-                cmd => 'echo "run_classifier analysis"',
+                'cmd' => 'echo "run_classifier analysis"',
             },
             -rc_name   => 'default',
             -flow_into => { '1' => 'load_gene_symbols' }
@@ -86,7 +91,7 @@ sub pipeline_analyses {
             -comment    => 'read a TSV file with gene symbols and load them to the genome assembly core database',
             -module     => 'Bio::EnsEMBL::Hive::RunnableDB::SystemCmd',
             -parameters => {
-                cmd => 'echo "load_gene_symbols analysis"',
+                'cmd' => 'echo "load_gene_symbols analysis"',
             },
             -rc_name => 'default',
         },
