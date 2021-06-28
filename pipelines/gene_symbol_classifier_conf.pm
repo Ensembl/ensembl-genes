@@ -1,3 +1,19 @@
+=pod
+
+=head1 NAME
+
+    gene_symbol_classifier_conf;
+
+=head1 SYNOPSIS
+
+    # pipeline initialization:
+
+    > init_pipeline.pl gene_symbol_classifier_conf -pipe_db_server <pipeline MySQL server host> -pipe_db_port <pipeline MySQL server port> -user <username> -password <password> -user_r ensro -core_db <core db name> -core_db_server_host <core db server host> -core_db_server_port <core db server port> -annotation_data_directory <annotation data directory>
+
+=head1 DESCRIPTION
+
+    eHive pipeline to assign gene symbols to the protein coding gene sequences in an Ensembl core database using a neural network gene symbol classifier.
+
 =head1 LICENSE
 
 See the NOTICE file distributed with this work for additional information
@@ -49,7 +65,18 @@ sub default_options {
 sub pipeline_create_commands {
     my ($self) = @_;
 
-    return [ @{ $self->SUPER::pipeline_create_commands }, ];
+    my $annotation_data_directory = $self->o('annotation_data_directory');
+
+    # TODO
+    # replace when incorporated to the main Genebuild annotation pipeline
+    #my $gene_symbol_classifier_directory = "${annotation_data_directory}/gene_symbol_classifier";
+    my $gene_symbol_classifier_directory = "$annotation_data_directory";
+
+    return [
+        @{ $self->SUPER::pipeline_create_commands },
+
+        "mkdir --parents --verbose $gene_symbol_classifier_directory",
+    ];
 }
 
 
@@ -63,6 +90,13 @@ sub pipeline_analyses {
             -logic_name => 'dump_fasta',
             -comment    => 'retrieve the protein coding gene sequences from a genome assembly core database and store them as a FASTA file',
             -module     => 'Bio::EnsEMBL::Hive::RunnableDB::SystemCmd',
+            -input_ids => [
+                {
+                    'core_db' => $self->o('core_db'),
+                    'core_db_server_host' => $self->o('core_db_server_host'),
+                    'core_db_server_port' => $self->o('core_db_server_port'),
+                }
+            ],
             -parameters => {
                 'cmd' => 'echo "dump_fasta analysis"',
             },
@@ -104,7 +138,7 @@ sub resource_classes {
 
     return {
         'default' => {
-            LSF => $self->lsf_resource_builder(
+            'LSF' => $self->lsf_resource_builder(
                 'production-rh74',
                 900,
                 [
