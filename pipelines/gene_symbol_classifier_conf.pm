@@ -101,8 +101,9 @@ sub pipeline_analyses {
                 'cmd' => 'echo "dump_fasta analysis"',
             },
             -rc_name   => 'default',
-            -input_ids => [ {} ],
-            -flow_into => { '1' => 'run_classifier' }
+            -flow_into => {
+                1 => 'run_classifier',
+            },
         },
 
         {
@@ -115,7 +116,9 @@ sub pipeline_analyses {
                 'cmd' => 'echo "run_classifier analysis"',
             },
             -rc_name   => 'default',
-            -flow_into => { '1' => 'load_gene_symbols' }
+            -flow_into => {
+                1 => 'load_gene_symbols',
+            },
         },
 
         {
