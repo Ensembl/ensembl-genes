@@ -85,10 +85,10 @@ sub pipeline_analyses {
 
     return [
         {
-            # input: genome assembly core db
+            # input: Ensembl core db
             # output: FASTA file
             -logic_name => 'dump_fasta',
-            -comment    => 'retrieve the protein coding gene sequences from a genome assembly core database and store them as a FASTA file',
+            -comment    => 'Retrieve the protein coding gene sequences from a Ensembl core database and store them as a FASTA file. The analysis is auto-seeded with a job for the target core database.',
             -module     => 'Bio::EnsEMBL::Hive::RunnableDB::SystemCmd',
             -input_ids => [
                 {
@@ -123,9 +123,9 @@ sub pipeline_analyses {
 
         {
             # input: TSV file
-            # output: genome assembly core db
+            # output: gene symbols added to Ensembl core db
             -logic_name => 'load_gene_symbols',
-            -comment    => 'read a TSV file with gene symbols and load them to the genome assembly core database',
+            -comment    => 'read a TSV file with gene symbols and load them to the Ensembl core database',
             -module     => 'Bio::EnsEMBL::Hive::RunnableDB::SystemCmd',
             -parameters => {
                 'cmd' => 'echo "load_gene_symbols analysis"',
