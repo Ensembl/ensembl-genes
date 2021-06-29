@@ -46,9 +46,21 @@ use parent ('Bio::EnsEMBL::Analysis::Hive::Config::HiveBaseConfig_conf');
 sub default_options {
     my ($self) = @_;
 
+    # TODO
+    # replace when incorporated to the main Genebuild annotation pipeline
+    #my $annotation_data_directory = $self->o('annotation_data_directory');
+    #my $gene_symbol_classifier_directory = "${annotation_data_directory}/gene_symbol_classifier";
+    my $gene_symbol_classifier_directory = $self->o('annotation_data_directory');
+
+    my $protein_sequences_fasta_path = "${gene_symbol_classifier_directory}/gene_sequences.fasta";
+    my $gene_symbols_tsv_path = "${gene_symbol_classifier_directory}/gene_symbols.tsv";
+
     return {
         # inherit from the base class
         %{ $self->SUPER::default_options() },
+
+        'protein_sequences_fasta_path' => $protein_sequences_fasta_path,
+        'gene_symbols_tsv_path' => $gene_symbols_tsv_path,
 
         'pipeline_db' => {
             -driver => 'mysql',
@@ -65,12 +77,11 @@ sub default_options {
 sub pipeline_create_commands {
     my ($self) = @_;
 
-    my $annotation_data_directory = $self->o('annotation_data_directory');
-
     # TODO
     # replace when incorporated to the main Genebuild annotation pipeline
+    #my $annotation_data_directory = $self->o('annotation_data_directory');
     #my $gene_symbol_classifier_directory = "${annotation_data_directory}/gene_symbol_classifier";
-    my $gene_symbol_classifier_directory = "$annotation_data_directory";
+    my $gene_symbol_classifier_directory = $self->o('annotation_data_directory');
 
     return [
         @{ $self->SUPER::pipeline_create_commands },
