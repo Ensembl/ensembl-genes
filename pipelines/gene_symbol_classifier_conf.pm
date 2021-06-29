@@ -90,7 +90,7 @@ sub pipeline_analyses {
             -logic_name => 'dump_fasta',
             -comment    => 'Retrieve the protein coding gene sequences from a Ensembl core database and store them as a FASTA file. The analysis is auto-seeded with a job for the target core database.',
             -module     => 'Bio::EnsEMBL::Hive::RunnableDB::SystemCmd',
-            -input_ids => [
+            -input_ids  => [
                 {
                     'core_db' => $self->o('core_db'),
                     'core_db_server_host' => $self->o('core_db_server_host'),
@@ -100,8 +100,8 @@ sub pipeline_analyses {
             -parameters => {
                 'cmd' => 'echo "dump_fasta analysis"',
             },
-            -rc_name   => 'default',
-            -flow_into => {
+            -rc_name    => 'default',
+            -flow_into  => {
                 1 => 'run_classifier',
             },
         },
@@ -115,8 +115,8 @@ sub pipeline_analyses {
             -parameters => {
                 'cmd' => 'echo "run_classifier analysis"',
             },
-            -rc_name   => 'default',
-            -flow_into => {
+            -rc_name    => 'default',
+            -flow_into  => {
                 1 => 'load_gene_symbols',
             },
         },
@@ -130,7 +130,7 @@ sub pipeline_analyses {
             -parameters => {
                 'cmd' => 'echo "load_gene_symbols analysis"',
             },
-            -rc_name => 'default',
+            -rc_name    => 'default',
         },
     ];
 }
