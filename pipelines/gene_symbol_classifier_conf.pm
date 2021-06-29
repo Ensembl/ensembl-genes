@@ -110,7 +110,7 @@ sub pipeline_analyses {
             # input: FASTA file
             # output: TSV file
             -logic_name => 'run_classifier',
-            -comment    => 'use a gene symbol classifier neural network to assign symbols to gene protein sequences in a FASTA file and save them in a TSV file',
+            -comment    => 'Use a gene symbol classifier neural network to assign gene symbols to protein sequences in the FASTA file and save the assignments to a TSV file',
             -module     => 'Bio::EnsEMBL::Hive::RunnableDB::SystemCmd',
             -parameters => {
                 'cmd' => 'echo "run_classifier analysis"',
@@ -125,7 +125,7 @@ sub pipeline_analyses {
             # input: TSV file
             # output: gene symbols added to Ensembl core db
             -logic_name => 'load_gene_symbols',
-            -comment    => 'read a TSV file with gene symbols and load them to the Ensembl core database',
+            -comment    => 'Read gene symbols assignments from a TSV file and load them to the Ensembl core database',
             -module     => 'Bio::EnsEMBL::Hive::RunnableDB::SystemCmd',
             -parameters => {
                 'cmd' => 'echo "load_gene_symbols analysis"',
