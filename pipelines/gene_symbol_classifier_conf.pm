@@ -8,7 +8,7 @@
 
     # pipeline initialization:
 
-    > init_pipeline.pl gene_symbol_classifier_conf -pipe_db_server <pipeline MySQL server host> -pipe_db_port <pipeline MySQL server port> -user <username> -password <password> -user_r ensro -core_db <core db name> -core_db_server_host <core db server host> -core_db_server_port <core db server port> -annotation_data_directory <annotation data directory>
+    > init_pipeline.pl gene_symbol_classifier_conf -pipe_db_server <pipeline MySQL server host> -pipe_db_port <pipeline MySQL server port> -user <username> -password <password> -user_r ensro -pipe_db_name <pipeline db name> -core_db_server_host <core db server host> -core_db_server_port <core db server port> -core_db_name <core db name> -annotation_data_directory <annotation data directory>
 
 =head1 DESCRIPTION
 
@@ -68,7 +68,7 @@ sub default_options {
             -port   => $self->o('pipe_db_port'),
             -user   => $self->o('user'),
             -pass   => $self->o('password'),
-            -dbname => 'gsc_testing',
+            -dbname => $self->o('pipe_db_name'),
         },
     };
 }
@@ -103,9 +103,9 @@ sub pipeline_analyses {
             -module     => 'Bio::EnsEMBL::Hive::RunnableDB::SystemCmd',
             -input_ids  => [
                 {
-                    'core_db' => $self->o('core_db'),
                     'core_db_server_host' => $self->o('core_db_server_host'),
                     'core_db_server_port' => $self->o('core_db_server_port'),
+                    'core_db_name' => $self->o('core_db_name'),
                 }
             ],
             -parameters => {
