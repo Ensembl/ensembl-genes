@@ -52,7 +52,7 @@ sub default_options {
     #my $gene_symbol_classifier_directory = "${annotation_data_directory}/gene_symbol_classifier";
     my $gene_symbol_classifier_directory = $self->o('annotation_data_directory');
 
-    my $protein_sequences_fasta_path = "${gene_symbol_classifier_directory}/gene_sequences.fasta";
+    my $protein_sequences_fasta_path = "${gene_symbol_classifier_directory}/protein_sequences.fasta";
     my $gene_symbols_tsv_path = "${gene_symbol_classifier_directory}/gene_symbols.tsv";
 
     return {
