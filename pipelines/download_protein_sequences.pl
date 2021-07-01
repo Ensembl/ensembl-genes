@@ -7,7 +7,7 @@
 
 # download protein coding gene sequences:
 
-> perl download_protein_sequences.pl --db_host <database server hostname> --db_port <database server port> --db_name <database name>
+> perl download_protein_sequences.pl --db_host <database server hostname> --db_port <database server port> --db_name <database name> --output_file <output file path>
 
 =head1 DESCRIPTION
 
@@ -49,6 +49,7 @@ my $username = "ensro";
 my $password;
 
 my $db_name;
+my $output_file;
 
 
 # parse command line arguments
@@ -57,7 +58,8 @@ my $options = GetOptions (
     "db_port=s" => \$db_port,
     "username=s" => \$username,
     "password=s" => \$password,
-    "db_name=s"   => \$db_name
+    "db_name=s" => \$db_name,
+    "output_file=s" => \$output_file
 );
 
 
@@ -80,7 +82,7 @@ my $production_name = $meta_adaptor->get_production_name;
 say $production_name." genome assembly";
 
 # open output FASTA file for writing
-open(my $sequences_fasta_file, ">", "gene_sequences.fasta");
+open(my $sequences_fasta_file, ">", $output_file);
 
 # iterate slices and save protein coding genes stable ids and sequences to the output file
 foreach my $slice (@$slices) {
