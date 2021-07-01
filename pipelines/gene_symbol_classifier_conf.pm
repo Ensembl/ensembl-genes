@@ -2,17 +2,17 @@
 
 =head1 NAME
 
-    gene_symbol_classifier_conf;
+gene_symbol_classifier_conf;
 
 =head1 SYNOPSIS
 
-    # pipeline initialization:
+# pipeline initialization:
 
-    > init_pipeline.pl gene_symbol_classifier_conf -pipe_db_server <pipeline MySQL server host> -pipe_db_port <pipeline MySQL server port> -user <username> -password <password> -user_r ensro -pipe_db_name <pipeline db name> -core_db_server_host <core db server host> -core_db_server_port <core db server port> -core_db_name <core db name> -annotation_data_directory <annotation data directory>
+> init_pipeline.pl gene_symbol_classifier_conf -pipe_db_server <pipeline MySQL server host> -pipe_db_port <pipeline MySQL server port> -user <username> -password <password> -user_r ensro -pipe_db_name <pipeline db name> -core_db_server_host <core db server host> -core_db_server_port <core db server port> -core_db_name <core db name> -annotation_data_directory <annotation data directory>
 
 =head1 DESCRIPTION
 
-    eHive pipeline to assign gene symbols to the protein coding gene sequences in an Ensembl core database using a neural network gene symbol classifier.
+eHive pipeline to assign gene symbols to the protein coding gene sequences in an Ensembl core database using a neural network gene symbol classifier.
 
 =head1 LICENSE
 
