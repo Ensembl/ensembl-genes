@@ -98,7 +98,7 @@ sub pipeline_analyses {
         {
             # input: Ensembl core db
             # output: FASTA file
-            -logic_name => 'dump_fasta',
+            -logic_name => 'dump_protein_sequences',
             -comment    => 'Retrieve the protein coding gene sequences from a Ensembl core database and store them as a FASTA file. The analysis is auto-seeded with a job for the target core database.',
             -module     => 'Bio::EnsEMBL::Hive::RunnableDB::SystemCmd',
             -input_ids  => [
@@ -113,14 +113,14 @@ sub pipeline_analyses {
             },
             -rc_name    => 'default',
             -flow_into  => {
-                1 => 'run_classifier',
+                1 => 'assign_gene_symbols',
             },
         },
 
         {
             # input: FASTA file
             # output: TSV file
-            -logic_name => 'run_classifier',
+            -logic_name => 'assign_gene_symbols',
             -comment    => 'Use a gene symbol classifier neural network to assign gene symbols to protein sequences in the FASTA file and save the assignments to a TSV file.',
             -module     => 'Bio::EnsEMBL::Hive::RunnableDB::SystemCmd',
             -parameters => {
