@@ -109,7 +109,7 @@ sub pipeline_analyses {
                 }
             ],
             -parameters => {
-                'cmd' => 'echo "dump_fasta analysis"',
+                'cmd' => 'perl download_protein_sequences.pl --db_host '.$self->o('core_db_server_host').' --db_port '.$self->o('core_db_server_port').' --db_name '.$self->o('core_db_name').' --output_file '.$self->o('protein_sequences_fasta_path'),
             },
             -rc_name    => 'default',
             -flow_into  => {
