@@ -8,7 +8,7 @@ gene_symbol_classifier_conf;
 
 # pipeline initialization:
 
-> init_pipeline.pl gene_symbol_classifier_conf -pipe_db_server <pipeline MySQL server host> -pipe_db_port <pipeline MySQL server port> -user <username> -password <password> -user_r ensro -pipe_db_name <pipeline db name> -core_db_server_host <core db server host> -core_db_server_port <core db server port> -core_db_name <core db name> -annotation_data_directory <annotation data directory>
+> init_pipeline.pl gene_symbol_classifier_conf --pipe_db_server <pipeline MySQL server hostname> --pipe_db_port <pipeline MySQL server port> --user <username> --password <password> --user_r ensro --pipe_db_name <pipeline database name> --core_db_server_host <core database server hostname> --core_db_server_port <core database server port> --core_db_name <core database name> --annotation_data_directory <annotation data directory> --singularity_image <singularity image path> --classifier_directory <classifier checkpoint directory> --classifier_filename <classifier checkpoint filename> --scientific_name <assembly scientific name>
 
 =head1 DESCRIPTION
 
@@ -49,11 +49,11 @@ sub default_options {
     # TODO
     # replace when incorporated to the main Genebuild annotation pipeline
     #my $annotation_data_directory = $self->o('annotation_data_directory');
-    #my $gene_symbol_classifier_directory = "${annotation_data_directory}/gene_symbol_classifier";
-    my $gene_symbol_classifier_directory = $self->o('annotation_data_directory');
+    #my $gsc_data_directory = "${annotation_data_directory}/gene_symbol_classifier";
+    my $gsc_data_directory = $self->o('annotation_data_directory');
 
-    my $protein_sequences_fasta_path = "${gene_symbol_classifier_directory}/protein_sequences.fasta";
-    my $gene_symbols_tsv_path = "${gene_symbol_classifier_directory}/gene_symbols.tsv";
+    my $protein_sequences_fasta_path = "${gsc_data_directory}/protein_sequences.fa";
+    my $gene_symbols_tsv_path = "${gsc_data_directory}/gene_symbols.tsv";
 
     return {
         # inherit from the base class
@@ -80,19 +80,25 @@ sub pipeline_create_commands {
     # TODO
     # replace when incorporated to the main Genebuild annotation pipeline
     #my $annotation_data_directory = $self->o('annotation_data_directory');
-    #my $gene_symbol_classifier_directory = "${annotation_data_directory}/gene_symbol_classifier";
-    my $gene_symbol_classifier_directory = $self->o('annotation_data_directory');
+    #my $gsc_data_directory = "${annotation_data_directory}/gene_symbol_classifier";
+    my $gsc_data_directory = $self->o('annotation_data_directory');
 
     return [
         @{ $self->SUPER::pipeline_create_commands },
 
-        "mkdir --parents --verbose $gene_symbol_classifier_directory",
+        "mkdir --parents --verbose $gsc_data_directory",
     ];
 }
 
 
 sub pipeline_analyses {
     my ($self) = @_;
+
+    # TODO
+    # replace when incorporated to the main Genebuild annotation pipeline
+    #my $annotation_data_directory = $self->o('annotation_data_directory');
+    #my $gsc_data_directory = "${annotation_data_directory}/gene_symbol_classifier";
+    my $gsc_data_directory = $self->o('annotation_data_directory');
 
     return [
         {
@@ -101,15 +107,9 @@ sub pipeline_analyses {
             -logic_name => 'dump_protein_sequences',
             -comment    => 'Retrieve the protein coding gene sequences from a Ensembl core database and store them as a FASTA file. The analysis is auto-seeded with a job for the target core database.',
             -module     => 'Bio::EnsEMBL::Hive::RunnableDB::SystemCmd',
-            -input_ids  => [
-                {
-                    'core_db_server_host' => $self->o('core_db_server_host'),
-                    'core_db_server_port' => $self->o('core_db_server_port'),
-                    'core_db_name' => $self->o('core_db_name'),
-                }
-            ],
+            -input_ids  => [ {} ],
             -parameters => {
-                'cmd' => 'perl download_protein_sequences.pl --db_host '.$self->o('core_db_server_host').' --db_port '.$self->o('core_db_server_port').' --db_name '.$self->o('core_db_name').' --output_file '.$self->o('protein_sequences_fasta_path'),
+                'cmd' => 'if [ ! -e "'.$self->o('protein_sequences_fasta_path').'" ]; then perl download_protein_sequences.pl --db_host '.$self->o('core_db_server_host').' --db_port '.$self->o('core_db_server_port').' --db_name '.$self->o('core_db_name').' --output_file '.$self->o('protein_sequences_fasta_path').'; fi',
             },
             -rc_name    => 'default',
             -flow_into  => {
@@ -124,7 +124,7 @@ sub pipeline_analyses {
             -comment    => 'Use a gene symbol classifier neural network to assign gene symbols to protein sequences in the FASTA file and save the assignments to a TSV file.',
             -module     => 'Bio::EnsEMBL::Hive::RunnableDB::SystemCmd',
             -parameters => {
-                'cmd' => 'echo "run_classifier analysis"',
+                'cmd' => 'singularity run --bind '.$self->o('classifier_directory').':/app/checkpoints --bind '.$gsc_data_directory.':/app/data '.$self->o('singularity_image').' --checkpoint /app/checkpoints/'.$self->o('classifier_filename').' --sequences_fasta /app/data/protein_sequences.fa --scientific_name "'.$self->o('scientific_name').'"',
             },
             -rc_name    => 'default',
             -flow_into  => {
