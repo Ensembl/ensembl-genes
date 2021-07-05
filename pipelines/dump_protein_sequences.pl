@@ -5,9 +5,9 @@
 
 =head1 SYNOPSIS
 
-# download protein coding gene sequences:
+# dump protein coding gene sequences:
 
-> perl download_protein_sequences.pl --db_host <database server hostname> --db_port <database server port> --db_name <database name> --output_file <output file path>
+> perl dump_protein_sequences.pl --db_host <database server hostname> --db_port <database server port> --db_name <database name> --output_file <output file path>
 
 =head1 DESCRIPTION
 
