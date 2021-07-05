@@ -52,13 +52,16 @@ sub default_options {
     #my $gsc_data_directory = "${annotation_data_directory}/gene_symbol_classifier";
     my $gsc_data_directory = $self->o('annotation_data_directory');
 
-    my $protein_sequences_fasta_path = "${gsc_data_directory}/protein_sequences.fa";
-    my $gene_symbols_tsv_path = "${gsc_data_directory}/gene_symbols.tsv";
+    my $core_db_name = $self->o('core_db_name');
+
+    my $protein_sequences_fasta_path = "${gsc_data_directory}/${core_db_name}_protein_sequences.fa";
+    my $gene_symbols_tsv_path = "${gsc_data_directory}/${core_db_name}_gene_symbols.tsv";
 
     return {
         # inherit from the base class
         %{ $self->SUPER::default_options() },
 
+        'gsc_data_directory' => $gsc_data_directory,
         'protein_sequences_fasta_path' => $protein_sequences_fasta_path,
         'gene_symbols_tsv_path' => $gene_symbols_tsv_path,
 
@@ -77,11 +80,7 @@ sub default_options {
 sub pipeline_create_commands {
     my ($self) = @_;
 
-    # TODO
-    # replace when incorporated to the main Genebuild annotation pipeline
-    #my $annotation_data_directory = $self->o('annotation_data_directory');
-    #my $gsc_data_directory = "${annotation_data_directory}/gene_symbol_classifier";
-    my $gsc_data_directory = $self->o('annotation_data_directory');
+    my $gsc_data_directory = $self->o('gsc_data_directory');
 
     return [
         @{ $self->SUPER::pipeline_create_commands },
@@ -93,12 +92,6 @@ sub pipeline_create_commands {
 
 sub pipeline_analyses {
     my ($self) = @_;
-
-    # TODO
-    # replace when incorporated to the main Genebuild annotation pipeline
-    #my $annotation_data_directory = $self->o('annotation_data_directory');
-    #my $gsc_data_directory = "${annotation_data_directory}/gene_symbol_classifier";
-    my $gsc_data_directory = $self->o('annotation_data_directory');
 
     return [
         {
@@ -124,7 +117,7 @@ sub pipeline_analyses {
             -comment    => 'Use a gene symbol classifier neural network to assign gene symbols to protein sequences in the FASTA file and save the assignments to a TSV file.',
             -module     => 'Bio::EnsEMBL::Hive::RunnableDB::SystemCmd',
             -parameters => {
-                'cmd' => 'singularity run --bind '.$self->o('classifier_directory').':/app/checkpoints --bind '.$gsc_data_directory.':/app/data '.$self->o('singularity_image').' --checkpoint /app/checkpoints/'.$self->o('classifier_filename').' --sequences_fasta /app/data/protein_sequences.fa --scientific_name "'.$self->o('scientific_name').'"',
+                'cmd' => 'singularity run --bind '.$self->o('classifier_directory').':/app/checkpoints --bind '.$self->o('gsc_data_directory').':/app/data '.$self->o('singularity_image').' --checkpoint /app/checkpoints/'.$self->o('classifier_filename').' --sequences_fasta /app/data/'.$self->o('core_db_name').'_protein_sequences.fa --scientific_name "'.$self->o('scientific_name').'"',
             },
             -rc_name    => 'default',
             -flow_into  => {
