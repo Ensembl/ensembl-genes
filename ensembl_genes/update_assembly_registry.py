@@ -16,12 +16,8 @@ import mysql.connector
 from mysql.connector import Error
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
-import pprint
-import unicodedata
 import time
-import datetime
 import argparse
-import sys
 
 # import traceback
 
