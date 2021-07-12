@@ -3,3 +3,4 @@ pytest
 sphinx
 sqlalchemy
 pymysql
+gspread
