@@ -4,3 +4,5 @@ sphinx
 sqlalchemy
 pymysql
 gspread
+oauth2client
+google-auth
