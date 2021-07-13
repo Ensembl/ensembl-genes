@@ -4,3 +4,4 @@ Mammalia	Mammals.png
 Testudines	Reptiles.png
 Aves		Birds.png
 Serpentes	Reptiles.png
+Lepidoptera	Lepidoptera.png
