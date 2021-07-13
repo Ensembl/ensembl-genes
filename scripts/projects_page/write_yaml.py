@@ -321,8 +321,8 @@ if __name__ == "__main__":
 
     server_dict = {
         "rapid": {
-            "db_host": "mysql-ens-sta-5",
-            "db_port": 4672,
+            "db_host": "mysql-ens-sta-5.ebi.ac.uk",
+            "db_port": 4684,
             "db_user": "ensro",
             "db_pass": "",
         },
@@ -412,7 +412,7 @@ if __name__ == "__main__":
             if exists_main:
                 use_server = "main"
             else:
-                raise Exception("Unable to find database on rapid or main servers!")
+                raise Exception("Unable to find database " + db.strip() + " on rapid or main servers!")
 
         if use_server:
             # retrieve the species name, assembly accession and assembly name from the database

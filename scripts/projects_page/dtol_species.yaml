@@ -17,6 +17,7 @@
   proteins: http://ftp.ensembl.org/pub/rapid-release/species/Arvicola_amphibius/GCA_903992535.1/geneset/2020_12/Arvicola_amphibius-GCA_903992535.1-2020_12-pep.fa.gz
   transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Arvicola_amphibius/GCA_903992535.1/geneset/2020_12/Arvicola_amphibius-GCA_903992535.1-2020_12-cdna.fa.gz
   softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Arvicola_amphibius/GCA_903992535.1/genome/Arvicola_amphibius-GCA_903992535.1-softmasked.fa.gz
+  repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/arvicola_amphibius/GCA_903992535.1.repeatmodeler.fa
   ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Arvicola_amphibius/GCA_903992535.1
   rapid_link: https://rapid.ensembl.org/Arvicola_amphibius_gca903992535v1/Info/Index
 
@@ -30,6 +31,129 @@
   softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Asterias_rubens/GCA_902459465.3/genome/Asterias_rubens-GCA_902459465.3-softmasked.fa.gz
   ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Asterias_rubens/GCA_902459465.3
   rapid_link: https://rapid.ensembl.org/Asterias_rubens_gca902459465v3/Info/Index
+
+- species: Celastrina argiolus
+  image: Lepidoptera.png
+  accession: GCA_905187575.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Celastrina_argiolus/GCA_905187575.1/geneset/2021_05/Celastrina_argiolus-GCA_905187575.1-2021_05-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Celastrina_argiolus/GCA_905187575.1/geneset/2021_05/Celastrina_argiolus-GCA_905187575.1-2021_05-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Celastrina_argiolus/GCA_905187575.1/geneset/2021_05/Celastrina_argiolus-GCA_905187575.1-2021_05-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Celastrina_argiolus/GCA_905187575.1/geneset/2021_05/Celastrina_argiolus-GCA_905187575.1-2021_05-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Celastrina_argiolus/GCA_905187575.1/genome/Celastrina_argiolus-GCA_905187575.1-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Celastrina_argiolus/GCA_905187575.1
+  rapid_link: https://rapid.ensembl.org/Celastrina_argiolus_gca905187575v1/Info/Index
+
+- species: Colias croceus
+  image: Lepidoptera.png
+  accession: GCA_905220415.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Colias_croceus/GCA_905220415.1/geneset/2021_05/Colias_croceus-GCA_905220415.1-2021_05-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Colias_croceus/GCA_905220415.1/geneset/2021_05/Colias_croceus-GCA_905220415.1-2021_05-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Colias_croceus/GCA_905220415.1/geneset/2021_05/Colias_croceus-GCA_905220415.1-2021_05-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Colias_croceus/GCA_905220415.1/geneset/2021_05/Colias_croceus-GCA_905220415.1-2021_05-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Colias_croceus/GCA_905220415.1/genome/Colias_croceus-GCA_905220415.1-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Colias_croceus/GCA_905220415.1
+  rapid_link: https://rapid.ensembl.org/Colias_croceus_gca905220415v1/Info/Index
+
+- species: Inachis io
+  image: Lepidoptera.png
+  accession: GCA_905147045.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Inachis_io/GCA_905147045.1/geneset/2021_05/Inachis_io-GCA_905147045.1-2021_05-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Inachis_io/GCA_905147045.1/geneset/2021_05/Inachis_io-GCA_905147045.1-2021_05-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Inachis_io/GCA_905147045.1/geneset/2021_05/Inachis_io-GCA_905147045.1-2021_05-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Inachis_io/GCA_905147045.1/geneset/2021_05/Inachis_io-GCA_905147045.1-2021_05-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Inachis_io/GCA_905147045.1/genome/Inachis_io-GCA_905147045.1-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Inachis_io/GCA_905147045.1
+  rapid_link: https://rapid.ensembl.org/Inachis_io_gca905147045v1/Info/Index
+
+- species: Lycaena phlaeas
+  image: Lepidoptera.png
+  accession: GCA_905333065.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Lycaena_phlaeas/GCA_905333065.1/geneset/2021_06/Lycaena_phlaeas-GCA_905333065.1-2021_06-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Lycaena_phlaeas/GCA_905333065.1/geneset/2021_06/Lycaena_phlaeas-GCA_905333065.1-2021_06-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Lycaena_phlaeas/GCA_905333065.1/geneset/2021_06/Lycaena_phlaeas-GCA_905333065.1-2021_06-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Lycaena_phlaeas/GCA_905333065.1/geneset/2021_06/Lycaena_phlaeas-GCA_905333065.1-2021_06-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Lycaena_phlaeas/GCA_905333065.1/genome/Lycaena_phlaeas-GCA_905333065.1-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Lycaena_phlaeas/GCA_905333065.1
+  rapid_link: https://rapid.ensembl.org/Lycaena_phlaeas_gca905333065v1/Info/Index
+
+- species: Maniola jurtina
+  image: Lepidoptera.png
+  accession: GCA_905333105.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Maniola_jurtina/GCA_905333105.1/geneset/2021_06/Maniola_jurtina-GCA_905333105.1-2021_06-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Maniola_jurtina/GCA_905333105.1/geneset/2021_06/Maniola_jurtina-GCA_905333105.1-2021_06-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Maniola_jurtina/GCA_905333105.1/geneset/2021_06/Maniola_jurtina-GCA_905333105.1-2021_06-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Maniola_jurtina/GCA_905333105.1/geneset/2021_06/Maniola_jurtina-GCA_905333105.1-2021_06-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Maniola_jurtina/GCA_905333105.1/genome/Maniola_jurtina-GCA_905333105.1-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Maniola_jurtina/GCA_905333105.1
+  rapid_link: https://rapid.ensembl.org/Maniola_jurtina_gca905333105v1/Info/Index
+
+- species: Melitaea cinxia
+  image: Lepidoptera.png
+  accession: GCA_905220565.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Melitaea_cinxia/GCA_905220565.1/geneset/2021_05/Melitaea_cinxia-GCA_905220565.1-2021_05-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Melitaea_cinxia/GCA_905220565.1/geneset/2021_05/Melitaea_cinxia-GCA_905220565.1-2021_05-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Melitaea_cinxia/GCA_905220565.1/geneset/2021_05/Melitaea_cinxia-GCA_905220565.1-2021_05-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Melitaea_cinxia/GCA_905220565.1/geneset/2021_05/Melitaea_cinxia-GCA_905220565.1-2021_05-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Melitaea_cinxia/GCA_905220565.1/genome/Melitaea_cinxia-GCA_905220565.1-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Melitaea_cinxia/GCA_905220565.1
+  rapid_link: https://rapid.ensembl.org/Melitaea_cinxia_gca905220565v1/Info/Index
+
+- species: Mellicta athalia
+  image: Lepidoptera.png
+  accession: GCA_905220545.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Mellicta_athalia/GCA_905220545.1/geneset/2021_06/Mellicta_athalia-GCA_905220545.1-2021_06-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Mellicta_athalia/GCA_905220545.1/geneset/2021_06/Mellicta_athalia-GCA_905220545.1-2021_06-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Mellicta_athalia/GCA_905220545.1/geneset/2021_06/Mellicta_athalia-GCA_905220545.1-2021_06-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Mellicta_athalia/GCA_905220545.1/geneset/2021_06/Mellicta_athalia-GCA_905220545.1-2021_06-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Mellicta_athalia/GCA_905220545.1/genome/Mellicta_athalia-GCA_905220545.1-softmasked.fa.gz
+  repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/mellicta_athalia/GCA_905220545.1.repeatmodeler.fa
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Mellicta_athalia/GCA_905220545.1
+  rapid_link: https://rapid.ensembl.org/Mellicta_athalia_gca905220545v1/Info/Index
+
+- species: Pararge aegeria
+  image: Lepidoptera.png
+  accession: GCA_905163445.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Pararge_aegeria/GCA_905163445.1/geneset/2021_05/Pararge_aegeria-GCA_905163445.1-2021_05-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Pararge_aegeria/GCA_905163445.1/geneset/2021_05/Pararge_aegeria-GCA_905163445.1-2021_05-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Pararge_aegeria/GCA_905163445.1/geneset/2021_05/Pararge_aegeria-GCA_905163445.1-2021_05-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Pararge_aegeria/GCA_905163445.1/geneset/2021_05/Pararge_aegeria-GCA_905163445.1-2021_05-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Pararge_aegeria/GCA_905163445.1/genome/Pararge_aegeria-GCA_905163445.1-softmasked.fa.gz
+  repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/pararge_aegeria/GCA_905163445.1.repeatmodeler.fa
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Pararge_aegeria/GCA_905163445.1
+  rapid_link: https://rapid.ensembl.org/Pararge_aegeria_gca905163445v1/Info/Index
+
+- species: Pieris brassicae
+  image: Lepidoptera.png
+  accession: GCA_905147105.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Pieris_brassicae/GCA_905147105.1/geneset/2021_05/Pieris_brassicae-GCA_905147105.1-2021_05-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Pieris_brassicae/GCA_905147105.1/geneset/2021_05/Pieris_brassicae-GCA_905147105.1-2021_05-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Pieris_brassicae/GCA_905147105.1/geneset/2021_05/Pieris_brassicae-GCA_905147105.1-2021_05-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Pieris_brassicae/GCA_905147105.1/geneset/2021_05/Pieris_brassicae-GCA_905147105.1-2021_05-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Pieris_brassicae/GCA_905147105.1/genome/Pieris_brassicae-GCA_905147105.1-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Pieris_brassicae/GCA_905147105.1
+  rapid_link: https://rapid.ensembl.org/Pieris_brassicae_gca905147105v1/Info/Index
+
+- species: Pieris napi
+  image: Lepidoptera.png
+  accession: GCA_905231885.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Pieris_napi/GCA_905231885.1/geneset/2021_05/Pieris_napi-GCA_905231885.1-2021_05-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Pieris_napi/GCA_905231885.1/geneset/2021_05/Pieris_napi-GCA_905231885.1-2021_05-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Pieris_napi/GCA_905231885.1/geneset/2021_05/Pieris_napi-GCA_905231885.1-2021_05-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Pieris_napi/GCA_905231885.1/geneset/2021_05/Pieris_napi-GCA_905231885.1-2021_05-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Pieris_napi/GCA_905231885.1/genome/Pieris_napi-GCA_905231885.1-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Pieris_napi/GCA_905231885.1
+  rapid_link: https://rapid.ensembl.org/Pieris_napi_gca905231885v1/Info/Index
+
+- species: Pieris rapae
+  image: Lepidoptera.png
+  accession: GCA_905147795.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Pieris_rapae/GCA_905147795.1/geneset/2021_05/Pieris_rapae-GCA_905147795.1-2021_05-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Pieris_rapae/GCA_905147795.1/geneset/2021_05/Pieris_rapae-GCA_905147795.1-2021_05-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Pieris_rapae/GCA_905147795.1/geneset/2021_05/Pieris_rapae-GCA_905147795.1-2021_05-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Pieris_rapae/GCA_905147795.1/geneset/2021_05/Pieris_rapae-GCA_905147795.1-2021_05-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Pieris_rapae/GCA_905147795.1/genome/Pieris_rapae-GCA_905147795.1-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Pieris_rapae/GCA_905147795.1
+  rapid_link: https://rapid.ensembl.org/Pieris_rapae_gca905147795v1/Info/Index
 
 - species: Rattus norvegicus (BN/NHsdMcwi)
   image: Mammals.png
@@ -45,12 +169,13 @@
 - species: Salmo trutta
   image: Fish.png
   accession: GCA_901001165.1
-  annotation_gtf: http://ftp.ensembl.org/pub/release-103/gtf/salmo_trutta/Salmo_trutta.fSalTru1.1.103.gtf.gz
-  annotation_gff3: http://ftp.ensembl.org/pub/release-103/gff3/salmo_trutta/Salmo_trutta.fSalTru1.1.103.gff3.gz
-  proteins: http://ftp.ensembl.org/pub/release-103/fasta/salmo_trutta/pep/Salmo_trutta.fSalTru1.1.pep.all.fa.gz
-  transcripts: http://ftp.ensembl.org/pub/release-103/fasta/salmo_trutta/cdna/Salmo_trutta.fSalTru1.1.cdna.all.fa.gz
-  softmasked_genome: http://ftp.ensembl.org/pub/release-103/fasta/salmo_trutta/dna/Salmo_trutta.fSalTru1.1.dna_sm.toplevel.fa.gz
-  ftp_dumps: http://ftp.ensembl.org/pub/release-103
+  annotation_gtf: http://ftp.ensembl.org/pub/release-104/gtf/salmo_trutta/Salmo_trutta.fSalTru1.1.104.gtf.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/release-104/gff3/salmo_trutta/Salmo_trutta.fSalTru1.1.104.gff3.gz
+  proteins: http://ftp.ensembl.org/pub/release-104/fasta/salmo_trutta/pep/Salmo_trutta.fSalTru1.1.pep.all.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/release-104/fasta/salmo_trutta/cdna/Salmo_trutta.fSalTru1.1.cdna.all.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/release-104/fasta/salmo_trutta/dna/Salmo_trutta.fSalTru1.1.dna_sm.toplevel.fa.gz
+  repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/salmo_trutta/GCA_901001165.1.repeatmodeler.fa
+  ftp_dumps: http://ftp.ensembl.org/pub/release-104
   ensembl_link: https://www.ensembl.org/Salmo_trutta/Info/Index
 
 - species: Sciurus carolinensis
@@ -61,6 +186,7 @@
   proteins: http://ftp.ensembl.org/pub/rapid-release/species/Sciurus_carolinensis/GCA_902686445.2/geneset/2020_12/Sciurus_carolinensis-GCA_902686445.2-2020_12-pep.fa.gz
   transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Sciurus_carolinensis/GCA_902686445.2/geneset/2020_12/Sciurus_carolinensis-GCA_902686445.2-2020_12-cdna.fa.gz
   softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Sciurus_carolinensis/GCA_902686445.2/genome/Sciurus_carolinensis-GCA_902686445.2-softmasked.fa.gz
+  repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/sciurus_carolinensis/GCA_902686445.2.repeatmodeler.fa
   ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Sciurus_carolinensis/GCA_902686445.2
   rapid_link: https://rapid.ensembl.org/Sciurus_carolinensis_gca902686445v2/Info/Index
 
@@ -72,6 +198,7 @@
   proteins: http://ftp.ensembl.org/pub/rapid-release/species/Sciurus_vulgaris/GCA_902686455.1/geneset/2020_01/Sciurus_vulgaris-GCA_902686455.1-2020_01-pep.fa.gz
   transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Sciurus_vulgaris/GCA_902686455.1/geneset/2020_01/Sciurus_vulgaris-GCA_902686455.1-2020_01-cdna.fa.gz
   softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Sciurus_vulgaris/GCA_902686455.1/genome/Sciurus_vulgaris-GCA_902686455.1-softmasked.fa.gz
+  repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/sciurus_vulgaris/GCA_902686455.1.repeatmodeler.fa
   ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Sciurus_vulgaris/GCA_902686455.1
   ensembl_link: https://www.ensembl.org/Sciurus_vulgaris/Info/Index
 
@@ -83,8 +210,20 @@
   proteins: http://ftp.ensembl.org/pub/rapid-release/species/Sciurus_vulgaris/GCA_902686455.2/geneset/2020_12/Sciurus_vulgaris-GCA_902686455.2-2020_12-pep.fa.gz
   transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Sciurus_vulgaris/GCA_902686455.2/geneset/2020_12/Sciurus_vulgaris-GCA_902686455.2-2020_12-cdna.fa.gz
   softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Sciurus_vulgaris/GCA_902686455.2/genome/Sciurus_vulgaris-GCA_902686455.2-softmasked.fa.gz
+  repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/sciurus_vulgaris/GCA_902686455.2.repeatmodeler.fa
   ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Sciurus_vulgaris/GCA_902686455.2
   rapid_link: https://rapid.ensembl.org/Sciurus_vulgaris_gca902686455v2/Info/Index
+
+- species: Thyatira batis
+  image: Lepidoptera.png
+  accession: GCA_905147785.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Thyatira_batis/GCA_905147785.1/geneset/2021_05/Thyatira_batis-GCA_905147785.1-2021_05-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Thyatira_batis/GCA_905147785.1/geneset/2021_05/Thyatira_batis-GCA_905147785.1-2021_05-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Thyatira_batis/GCA_905147785.1/geneset/2021_05/Thyatira_batis-GCA_905147785.1-2021_05-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Thyatira_batis/GCA_905147785.1/geneset/2021_05/Thyatira_batis-GCA_905147785.1-2021_05-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Thyatira_batis/GCA_905147785.1/genome/Thyatira_batis-GCA_905147785.1-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Thyatira_batis/GCA_905147785.1
+  rapid_link: https://rapid.ensembl.org/Thyatira_batis_gca905147785v1/Info/Index
 
 - species: Trachurus trachurus
   image: Fish.png
@@ -96,4 +235,26 @@
   softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Trachurus_trachurus/GCA_905171665.1/genome/Trachurus_trachurus-GCA_905171665.1-softmasked.fa.gz
   ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Trachurus_trachurus/GCA_905171665.1
   rapid_link: https://rapid.ensembl.org/Trachurus_trachurus_gca905171665v1/Info/Index
+
+- species: Vanessa atalanta
+  image: Lepidoptera.png
+  accession: GCA_905147765.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Vanessa_atalanta/GCA_905147765.1/geneset/2021_05/Vanessa_atalanta-GCA_905147765.1-2021_05-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Vanessa_atalanta/GCA_905147765.1/geneset/2021_05/Vanessa_atalanta-GCA_905147765.1-2021_05-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Vanessa_atalanta/GCA_905147765.1/geneset/2021_05/Vanessa_atalanta-GCA_905147765.1-2021_05-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Vanessa_atalanta/GCA_905147765.1/geneset/2021_05/Vanessa_atalanta-GCA_905147765.1-2021_05-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Vanessa_atalanta/GCA_905147765.1/genome/Vanessa_atalanta-GCA_905147765.1-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Vanessa_atalanta/GCA_905147765.1
+  rapid_link: https://rapid.ensembl.org/Vanessa_atalanta_gca905147765v1/Info/Index
+
+- species: Vanessa cardui
+  image: Lepidoptera.png
+  accession: GCA_905220365.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Vanessa_cardui/GCA_905220365.1/geneset/2021_05/Vanessa_cardui-GCA_905220365.1-2021_05-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Vanessa_cardui/GCA_905220365.1/geneset/2021_05/Vanessa_cardui-GCA_905220365.1-2021_05-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Vanessa_cardui/GCA_905220365.1/geneset/2021_05/Vanessa_cardui-GCA_905220365.1-2021_05-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Vanessa_cardui/GCA_905220365.1/geneset/2021_05/Vanessa_cardui-GCA_905220365.1-2021_05-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Vanessa_cardui/GCA_905220365.1/genome/Vanessa_cardui-GCA_905220365.1-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Vanessa_cardui/GCA_905220365.1
+  rapid_link: https://rapid.ensembl.org/Vanessa_cardui_gca905220365v1/Info/Index
 
