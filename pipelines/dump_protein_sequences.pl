@@ -105,13 +105,16 @@ foreach my $slice (@$slices) {
         }
 
         my $gene_stable_id = $gene->stable_id;
+        my $gene_version = $gene->version;
         my $transcript_stable_id = $transcript->stable_id;
+        my $transcript_version = $transcript->version;
 
         my $translation = $transcript->translation;
         my $translation_stable_id = $translation->stable_id;
+        my $translation_version = $translation->version;
         my $protein_sequence = $translation->seq;
 
-        say $sequences_fasta_file ">$gene_stable_id translation_stable_id:$translation_stable_id transcript_stable_id:$transcript_stable_id";
+        say $sequences_fasta_file ">$gene_stable_id.$gene_version transcript:$transcript_stable_id.$transcript_version translation:$translation_stable_id.$translation_version";
         say $sequences_fasta_file $protein_sequence;
     }
 }
