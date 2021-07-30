@@ -1,5 +1,5 @@
 """
-.. See the NOTICE file distributed with this work for additional information
+   See the NOTICE file distributed with this work for additional information
    regarding copyright ownership.
 
    Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,10 +19,22 @@ from setuptools import setup, find_packages
 
 setup(
     name='ensembl_genes',
+    description='Tools for genome annotation',
+    url='https://github.com/Ensembl/ensembl-genes',
+    license='Apache 2.0',
+    classifiers=[
+        'License :: OSI Approved :: Apache Software License',
+        'Programming Language :: Python :: 3 :: Only',
+        'Topic :: Scientific/Engineering :: Bio-Informatics'
+    ],
     packages=find_packages(),
     include_package_data=True,
     install_requires=[
-        'pytest', 'pylint', 'Sphinx'
+        'pytest',
+        'pylint',
+        'Sphinx',
+        'pymysql==1.0.2',
+        'sqlalchemy==1.4.9'
     ],
     setup_requires=[
         'pytest-runner',
@@ -30,4 +42,8 @@ setup(
     tests_require=[
         'pytest',
     ],
+    entry_points={
+        'console_scripts': ['star2introns=ensembl_genes.star2introns:main']
+    }
+
 )
