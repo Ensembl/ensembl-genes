@@ -107,7 +107,8 @@ def process_file(filename: str, analyses: Dict[str, str]) -> Dict[str, Dict[str,
     return daf_table
 
 
-def write_output(intron_db: str, analyses: Dict[str, str], slices: Dict[str, int],
+def write_output(
+        intron_db: str, analyses: Dict[str, str], slices: Dict[str, int],
         daf_table: Dict[str, Dict[str, Dict[str, int]]], batch_size: int) -> None:
     """ Stores the analyses and the junction information into an Ensembl database """
     engine = db.create_engine(intron_db)
