@@ -16,13 +16,11 @@ import mysql.connector
 from mysql.connector import Error
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
-import time
 import argparse
-
-# import traceback
 
 
 def update_registry_db(query, database, host, port, user, password):
+    '''Connection settings for registry database.'''
     try:
         conn = mysql.connector.connect(
             database=database, host=host, port=port, user=user, password=password
@@ -44,12 +42,21 @@ def update_registry_db(query, database, host, port, user, password):
 def update_assembly_sheet(
     existing_sheet_records, assembly_sheet, worksheet_name, accession
 ):
-    # This method creates a dictionary for the lists from the sheets and makes the
-    # dict key on the versioned GCA (which is unique). Once the dicts are generated,
-    # It checks for the versioned GCA to update the status of the annotation
+    """This method creates a dictionary for the lists from the sheets and makes the dict key on the versioned GCA (which is unique). 
+    Once the dicts are generated, it checks for the versioned GCA to update the status of the annotation
+ 
+    Parameters:
+        argument1 (list): A list of existing sheet entries.
+        argument2 (str): Name of sheet.
+        argument3 (str): Name of worksheet.
+        argument4 (str): Assembly accession to be updated.
+
+    Returns:
+        str:Genebuild status update.
+    """
+
     existing_sheet_dict = {}
 
-    # This ordering needs to match the ordering of the columns on the sheet
     assembly_sheet_columns = [
         "GCA",
         "Clade",
@@ -82,17 +89,13 @@ def update_assembly_sheet(
         else:
             existing_sheet_dict[gca] = row
 
-    # This is where the majority of the work occurs. All assembly GCAs are examined to determine what
-    # should be added/updated
-    # Note that currently a three second sleep is needed to avoid exhausting the Sheets REST API quota
-    # use creds to create a client to interact with the Google Drive API
+    # Use creds to create a client to interact with the Google Drive API
     scope = [
         "https://spreadsheets.google.com/feeds",
         "https://www.googleapis.com/auth/drive",
     ]
     creds = ServiceAccountCredentials.from_json_keyfile_name(credentials_path, scope)
     client = gspread.authorize(creds)
-    gettime = time.time()
     # Find a workbook by name and open the first sheet
     # Make sure you use the right name here.
     assembly_sheet = client.open(worksheet_name).worksheet("EnsemblAssemblyRegistry")
@@ -114,17 +117,30 @@ def update_assembly_sheet(
 
 
 def update_cell_val(assembly_sheet, row_index, col_offset, val):
+    """
+    Updates assembly with genebuild status.
+
+    Parameters:
+        argument1 (str): The name of the sheet.
+        argument2 (int): Sheet ssembly row index.
+        argument3 (int): Sheet column index.
+        argument4 (str): Genebuild status.
+
+    Returns:
+        The status of the genebuild.
+    """
     col_offset += 1
     assembly_sheet.update_cell(row_index, col_offset, val)
 
 
 def split_gca(gca):
+    '''Split assembly accession to obtain chain and version values.'''
     split_gca = gca.split(".")
     return split_gca
 
 
 if __name__ == "__main__":
-
+    '''Retrieve command line arguments and start the process of updating the shhet with genebuild status.'''
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "-as", "--assembly_accession", help="Assembly identifier", required=True
