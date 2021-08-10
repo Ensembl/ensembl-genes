@@ -37,9 +37,12 @@ use warnings;
 use strict;
 use feature "say";
 
+use Getopt::Long;
+
+use Data::Dump qw(dump);
+
 use Bio::EnsEMBL::Translation;
 use Bio::EnsEMBL::DBSQL::DBAdaptor;
-use Getopt::Long;
 
 
 my $db_host;
@@ -75,13 +78,26 @@ my $db = new Bio::EnsEMBL::DBSQL::DBAdaptor(
 );
 
 
+
 # open the gene symbol assignments TSV file
 open(my $symbol_assignments_file, "<", $symbol_assignments);
 
 # read gene symbol assignments from the TSV file and load them to the core database
 while (my $line = <$symbol_assignments_file>) {
-    say $line;
-}
+    print("\n");
 
+    # remove newline (line feed and carriage return) from the line
+    #dump($line);
+    $line =~ s/\n//g;
+    $line =~ s/\r//g;
+    #dump($line);
+
+    my @fields = split(/\t/, $line);
+    dump(@fields);
+    if ($fields[0] eq "stable_id") {
+        next;
+    }
+    last;
+}
 
 close $symbol_assignments_file;
