@@ -59,7 +59,7 @@ def update_assembly_sheet(
     """
     current_records = existing_sheet_records
     sheet_name = assembly_sheet
-    wksht_name worksheet_name
+    wksht_name = worksheet_name
     genbank_accession = accession
     existing_sheet_dict = {}
 
