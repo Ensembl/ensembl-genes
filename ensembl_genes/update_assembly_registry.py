@@ -23,7 +23,7 @@ import argparse
 
 
 def update_registry_db(query, database, host, port, user, password):
-   '''Connection settings for registry database.'''
+    '''Connection settings for registry database.'''
     try:
         conn = mysql.connector.connect(
             database=database, host=host, port=port, user=user, password=password
