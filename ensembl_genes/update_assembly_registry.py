@@ -1,16 +1,19 @@
-# Copyright [2018-2021] EMBL-European Bioinformatics Institute
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#      http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+"""
+.. See the NOTICE file distributed with this work for additional information
+   regarding copyright ownership.
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+"""
 
 import mysql.connector
 from mysql.connector import Error
@@ -20,7 +23,7 @@ import argparse
 
 
 def update_registry_db(query, database, host, port, user, password):
-    '''Connection settings for registry database.'''
+   '''Connection settings for registry database.'''
     try:
         conn = mysql.connector.connect(
             database=database, host=host, port=port, user=user, password=password
@@ -54,7 +57,10 @@ def update_assembly_sheet(
     Returns:
         str:Genebuild status update.
     """
-
+    current_records = existing_sheet_records
+    sheet_name = assembly_sheet
+    wksht_name worksheet_name
+    genbank_accession = accession
     existing_sheet_dict = {}
 
     assembly_sheet_columns = [
@@ -80,12 +86,11 @@ def update_assembly_sheet(
         "Filter: Non-human",
     ]
     # This just makes a dict for the sheet based on the versioned GCA
-    for row in existing_sheet_records:
+    for row in current_records:
         gca = row[0]
         gca.encode("ascii", "ignore")
 
         if gca == "GCA":
-            next
         else:
             existing_sheet_dict[gca] = row
 
@@ -94,22 +99,21 @@ def update_assembly_sheet(
         "https://spreadsheets.google.com/feeds",
         "https://www.googleapis.com/auth/drive",
     ]
-    creds = ServiceAccountCredentials.from_json_keyfile_name(credentials_path, scope)
-    client = gspread.authorize(creds)
+    credentials = ServiceAccountCredentials.from_json_keyfile_name(credentials_path, scope)
+    sheet_client = gspread.authorize(credentials)
     # Find a workbook by name and open the first sheet
     # Make sure you use the right name here.
-    assembly_sheet = client.open(worksheet_name).worksheet("EnsemblAssemblyRegistry")
+    sheet_name = sheet_client.open(wksht_name).worksheet("EnsemblAssemblyRegistry")
     annotation_status = "Completed"
-    assembly_accession = accession
-    sheet_row = existing_sheet_dict[assembly_accession]
+    sheet_row = existing_sheet_dict[genbank_accession]
     sheet_annotation_status_index = assembly_sheet_columns.index("Status")
     sheet_annotation_status_val = sheet_row[sheet_annotation_status_index]
 
     # Check status of the genebuild and update accordingly
-    print("Updating genebuild status for: " + assembly_accession)
-    row_update_index = assembly_sheet.find(assembly_accession).row
+    print("Updating genebuild status for: " + genbank_accession)
+    row_update_index = sheet_name.find(genbank_accession).row
     update_cell_val(
-        assembly_sheet,
+        sheet_name,
         row_update_index,
         sheet_annotation_status_index,
         annotation_status,
@@ -129,17 +133,26 @@ def update_cell_val(assembly_sheet, row_index, col_offset, val):
     Returns:
         The status of the genebuild.
     """
-    col_offset += 1
-    assembly_sheet.update_cell(row_index, col_offset, val)
+    assembly_sht_name = assembly_sheet
+    row_id = row_index
+    col_id_offset = col_offset
+    value_update = val
+    col_id_offset += 1
+    assembly_sht_name.update_cell(row_id, col_id_offset, value_update)
 
 
 def split_gca(gca):
     '''Split assembly accession to obtain chain and version values.'''
-    split_gca = gca.split(".")
+    accession = gca
+    split_gca = accession.split(".")
     return split_gca
 
 
 if __name__ == "__main__":
+    main()
+
+
+def main:
     '''Retrieve command line arguments and start the process of updating the shhet with genebuild status.'''
     parser = argparse.ArgumentParser()
     parser.add_argument(
