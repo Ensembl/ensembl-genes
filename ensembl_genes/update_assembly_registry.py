@@ -43,7 +43,7 @@ def update_registry_db(query, database, host, port, user, password):
 
 
 def update_assembly_sheet(
-    existing_sheet_records, assembly_sheet, worksheet_name, accession
+    existing_sheet_records, assembly_sheet, worksheet_name, accession, credentials_path
 ):
     """This method creates a dictionary for the lists from the sheets and makes the dict key on the versioned GCA (which is unique).
     Once the dicts are generated, it checks for the versioned GCA to update the status of the annotation
