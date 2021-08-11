@@ -91,6 +91,7 @@ def update_assembly_sheet(
         gca.encode("ascii", "ignore")
 
         if gca == "GCA":
+            #do nothing
         else:
             existing_sheet_dict[gca] = row
 
