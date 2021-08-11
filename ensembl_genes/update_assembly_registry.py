@@ -45,9 +45,9 @@ def update_registry_db(query, database, host, port, user, password):
 def update_assembly_sheet(
     existing_sheet_records, assembly_sheet, worksheet_name, accession
 ):
-    """This method creates a dictionary for the lists from the sheets and makes the dict key on the versioned GCA (which is unique). 
+    """This method creates a dictionary for the lists from the sheets and makes the dict key on the versioned GCA (which is unique).
     Once the dicts are generated, it checks for the versioned GCA to update the status of the annotation
- 
+
     Parameters:
         argument1 (list): A list of existing sheet entries.
         argument2 (str): Name of sheet.
@@ -62,6 +62,7 @@ def update_assembly_sheet(
     wksht_name = worksheet_name
     genbank_accession = accession
     existing_sheet_dict = {}
+    sheet_credential = credentials_path
 
     assembly_sheet_columns = [
         "GCA",
@@ -98,7 +99,7 @@ def update_assembly_sheet(
         "https://spreadsheets.google.com/feeds",
         "https://www.googleapis.com/auth/drive",
     ]
-    credentials = ServiceAccountCredentials.from_json_keyfile_name(credentials_path, scope)
+    credentials = ServiceAccountCredentials.from_json_keyfile_name(sheet_credential, scope)
     sheet_client = gspread.authorize(credentials)
     # Find a workbook by name and open the first sheet
     # Make sure you use the right name here.
@@ -143,8 +144,8 @@ def update_cell_val(assembly_sheet, row_index, col_offset, val):
 def split_gca(gca):
     '''Split assembly accession to obtain chain and version values.'''
     accession = gca
-    split_gca = accession.split(".")
-    return split_gca
+    split_accession= accession.split(".")
+    return split_accession
 
 
 if __name__ == "__main__":
@@ -223,7 +224,7 @@ def main():
     # Extract and print all of the values
     existing_sheet_records = assembly_sheet.get_all_values()
 
-    update_assembly_sheet(existing_sheet_records, assembly_sheet, worksheet_name, gca)
+    update_assembly_sheet(existing_sheet_records, assembly_sheet, worksheet_name, gca, credentials_path)
     update_registry_db(
         assembly_db_query,
         assembly_db_database,
