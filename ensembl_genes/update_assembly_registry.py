@@ -151,7 +151,7 @@ if __name__ == "__main__":
     main()
 
 
-def main:
+def main():
     '''Retrieve command line arguments and start the process of updating the shhet with genebuild status.'''
     parser = argparse.ArgumentParser()
     parser.add_argument(
