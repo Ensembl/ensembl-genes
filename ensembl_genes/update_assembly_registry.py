@@ -90,9 +90,7 @@ def update_assembly_sheet(
         gca = row[0]
         gca.encode("ascii", "ignore")
 
-        if gca == "GCA":
-            #do nothing
-        else:
+        if gca != "GCA":
             existing_sheet_dict[gca] = row
 
     # Use creds to create a client to interact with the Google Drive API
