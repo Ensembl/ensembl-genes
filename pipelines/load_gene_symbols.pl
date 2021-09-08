@@ -33,15 +33,14 @@ limitations under the License.
 =cut
 
 
-use warnings;
 use strict;
+use warnings;
 use feature "say";
 
 use Getopt::Long;
 
 use Data::Dump qw(dump);
 
-use Bio::EnsEMBL::Translation;
 use Bio::EnsEMBL::DBSQL::DBAdaptor;
 
 
@@ -78,6 +77,9 @@ my $db = new Bio::EnsEMBL::DBSQL::DBAdaptor(
 );
 
 
+# generate a gene adaptor for the database
+my $gene_adaptor = $db->get_GeneAdaptor();
+
 
 # open the gene symbol assignments TSV file
 open(my $symbol_assignments_file, "<", $symbol_assignments);
@@ -87,16 +89,36 @@ while (my $line = <$symbol_assignments_file>) {
     print("\n");
 
     # remove newline (line feed and carriage return) from the line
-    #dump($line);
     $line =~ s/\n//g;
     $line =~ s/\r//g;
-    #dump($line);
 
+    # get TSV field values
     my @fields = split(/\t/, $line);
-    dump(@fields);
+    #dump(@fields);
+    my $stable_id = $fields[0];
+    my $symbol = $fields[1];
+    my $probability = $fields[2];
+
+    # skip TSV header line
     if ($fields[0] eq "stable_id") {
         next;
     }
+
+    # generate gene object for gene stable_id
+    my $gene = $gene_adaptor->fetch_by_stable_id($stable_id);
+
+    # skip gene if display_xref is already defined
+    if ($gene->display_xref()) {
+      next;
+    }
+
+    dump($stable_id);
+    dump($symbol);
+    dump($probability);
+
+    my $display_xref = $gene->display_xref();
+    dump($display_xref);
+
     last;
 }
 
