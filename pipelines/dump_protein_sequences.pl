@@ -33,8 +33,8 @@ limitations under the License.
 =cut
 
 
-use warnings;
 use strict;
+use warnings;
 use feature "say";
 
 use Bio::EnsEMBL::Translation;
