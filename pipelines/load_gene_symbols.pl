@@ -11,7 +11,7 @@
 
 =head1 DESCRIPTION
 
-Load gene symbol assignments from a file to a Ensembl core database.
+Load gene symbol assignments from a TSV file to a Ensembl core database.
 
 =head1 LICENSE
 
@@ -87,8 +87,6 @@ my $xref_adaptor = $db->get_DBEntryAdaptor();
 # open the gene symbol assignments TSV file
 open(my $symbol_assignments_file, "<", $symbol_assignments) or die "Could not open file: $!";
 
-my $counter = 0;
-
 # read gene symbol assignments from the TSV file and load them to the core database
 while (my $line = <$symbol_assignments_file>) {
     # remove newline (line feed and carriage return) from the line
@@ -106,19 +104,14 @@ while (my $line = <$symbol_assignments_file>) {
         next;
     }
 
-    #$stable_id = "ENSBMSG00020000022.1";
-    #$stable_id = "ENSBMSG00000000000.0";
-
     # generate gene object for gene stable_id
     my $gene = $gene_adaptor->fetch_by_stable_id($stable_id);
 
-    my $display_xref = $gene->display_xref();
-
     # skip gene if display_xref is already set
+    my $display_xref = $gene->display_xref();
     if ($display_xref) {
-        say("Xref exists for gene ".$stable_id.", symbol: ".$display_xref->display_id().", skipping.");
+        say("gene ".$stable_id." already has an Xref, symbol: ".$display_xref->display_id().", skipping");
         next;
-        #exit;
     }
 
     # use the symbol for probability >= 0.9, a tilde for a "like" symbol for probability >= 0.7,
@@ -132,36 +125,25 @@ while (my $line = <$symbol_assignments_file>) {
         next;
     }
 
-    # generate xref object
+    # generate Xref object
     my $confidence = 100 * sprintf("%.4f", $probability);
     my $xref_description = "Ensembl Gene Symbol Classifier assignment ".$symbol." with ".$confidence."% confidence";
+    # TODO
+    # specify Xref external_db.db_display_name
+    my $xref_dbname = "HGNC";
     my $xref_object = Bio::EnsEMBL::DBEntry->new(
         -primary_id => $display_id,
         -display_id => $display_id,
-        -dbname => "HGNC",
+        -dbname => $xref_dbname,
         -description => $xref_description,
     );
 
-    dump($stable_id);
-    dump($symbol);
-    dump($probability);
-    dump($display_id);
-    dump($xref_description);
-
+    # store the Xref to the database and add it to the gene
     $xref_adaptor->store($xref_object, $gene->dbID, "Gene", 1);
-
     $gene->display_xref($xref_object);
-
     $gene_adaptor->update($gene);
 
-    print("\n");
-
-    $counter++;
-    if ($counter == 3) {
-        exit;
-    }
-
-    #exit;
+    say("added Xref display_id ".$display_id." for gene ".$stable_id);
 }
 
 close $symbol_assignments_file;
