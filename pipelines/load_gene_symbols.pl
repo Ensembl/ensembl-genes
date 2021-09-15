@@ -126,8 +126,8 @@ while (my $line = <$symbol_assignments_file>) {
     }
 
     # generate Xref object
-    my $confidence = 100 * sprintf("%.4f", $probability);
-    my $xref_description = "Ensembl Gene Symbol Classifier assignment ".$symbol." with ".$confidence."% confidence";
+    my $score = 100 * sprintf("%.4f", $probability);
+    my $assignment_description = "Ensembl Gene Symbol Classifier prediction symbol ".$symbol." with score ".$score."%";
     # TODO
     # specify Xref external_db.db_display_name
     my $xref_dbname = "HGNC";
@@ -135,7 +135,10 @@ while (my $line = <$symbol_assignments_file>) {
         -primary_id => $display_id,
         -display_id => $display_id,
         -dbname => $xref_dbname,
-        -description => $xref_description,
+        # TODO
+        # add gene symbol description
+        #-description => $symbol_description,
+        -info_text => $assignment_description,
     );
 
     # store the Xref to the database and add it to the gene
