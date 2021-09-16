@@ -55,7 +55,7 @@ sub default_options {
     my $core_db_name = $self->o('core_db_name');
 
     my $protein_sequences_fasta_path = "${gsc_data_directory}/${core_db_name}_protein_sequences.fa";
-    my $gene_symbols_csv_path = "${gsc_data_directory}/${core_db_name}_gene_symbols.csv";
+    my $gene_symbols_csv_path = "${gsc_data_directory}/${core_db_name}_protein_sequences_symbols.csv";
 
     return {
         # inherit from the base class
@@ -132,7 +132,7 @@ sub pipeline_analyses {
             -comment    => 'Read gene symbols assignments from a CSV file and load them to the Ensembl core database.',
             -module     => 'Bio::EnsEMBL::Hive::RunnableDB::SystemCmd',
             -parameters => {
-                'cmd' => 'echo "load_gene_symbols analysis"',
+                'cmd' => 'perl load_gene_symbols.pl --db_host '.$self->o('core_db_server_host').' --db_port '.$self->o('core_db_server_port').' --db_name '.$self->o('core_db_name').' --username '.$self->o('user').' --password '.$self->o('password').' --symbol_assignments '.$self->o('gene_symbols_csv_path'),
             },
             -rc_name    => 'default',
         },
