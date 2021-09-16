@@ -11,7 +11,7 @@
 
 =head1 DESCRIPTION
 
-Load gene symbol assignments from a TSV file to a Ensembl core database.
+Load gene symbol assignments from a CSV file to a Ensembl core database.
 
 =head1 LICENSE
 
@@ -84,22 +84,22 @@ my $gene_adaptor = $db->get_GeneAdaptor();
 # generate a DBEntry adaptor for Xref
 my $xref_adaptor = $db->get_DBEntryAdaptor();
 
-# open the gene symbol assignments TSV file
-open(my $symbol_assignments_file, "<", $symbol_assignments) or die "Could not open file: $!";
+# open the gene symbol assignments CSV file
+open(my $symbol_assignments_file, "<", $symbol_assignments) or die "Could not open file $symbol_assignments: $!";
 
-# read gene symbol assignments from the TSV file and load them to the core database
+# read gene symbol assignments from the CSV file and load them to the core database
 while (my $line = <$symbol_assignments_file>) {
     # remove newline (line feed and carriage return) from the line
     $line =~ s/\n//g;
     $line =~ s/\r//g;
 
-    # get TSV field values
+    # get CSV field values
     my @fields = split(/\t/, $line);
     my $stable_id = $fields[0];
     my $symbol = $fields[1];
     my $probability = $fields[2];
 
-    # skip TSV header line
+    # skip CSV header line
     if ($fields[0] eq "stable_id") {
         next;
     }

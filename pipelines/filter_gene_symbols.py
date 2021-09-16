@@ -34,19 +34,19 @@ import pandas as pd
 # project imports
 
 
-def filter_gene_symbols(gene_symbols_tsv, threshold):
+def filter_gene_symbols(gene_symbols_csv, threshold):
     """
     """
-    gene_symbols_tsv_path = pathlib.Path(gene_symbols_tsv)
+    gene_symbols_csv_path = pathlib.Path(gene_symbols_csv)
 
-    all_symbols = pd.read_csv(gene_symbols_tsv_path, sep="\t")
+    all_symbols = pd.read_csv(gene_symbols_csv_path, sep="\t")
 
     filtered_symbols = all_symbols.loc[all_symbols["probability"] >= threshold]
 
-    filtered_symbols_tsv_path = pathlib.Path(
-        f"{gene_symbols_tsv_path.parent}/{gene_symbols_tsv_path.stem}_filtered.csv"
+    filtered_symbols_csv_path = pathlib.Path(
+        f"{gene_symbols_csv_path.parent}/{gene_symbols_csv_path.stem}_filtered.csv"
     )
-    filtered_symbols.to_csv(filtered_symbols_tsv_path, sep="\t", index=False)
+    filtered_symbols.to_csv(filtered_symbols_csv_path, sep="\t", index=False)
 
 
 def main():
@@ -55,8 +55,8 @@ def main():
     """
     argument_parser = argparse.ArgumentParser()
     argument_parser.add_argument(
-        "--gene_symbols_tsv",
-        help="gene symbols assignments TSV file path",
+        "--gene_symbols_csv",
+        help="gene symbols assignments CSV file path",
     )
     argument_parser.add_argument(
         "--threshold",
@@ -67,8 +67,8 @@ def main():
 
     args = argument_parser.parse_args()
 
-    if args.gene_symbols_tsv:
-        filter_gene_symbols(args.gene_symbols_tsv, args.threshold)
+    if args.gene_symbols_csv:
+        filter_gene_symbols(args.gene_symbols_csv, args.threshold)
     else:
         print("Error: missing argument.")
         print(__doc__)

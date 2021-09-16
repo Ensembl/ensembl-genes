@@ -55,7 +55,7 @@ sub default_options {
     my $core_db_name = $self->o('core_db_name');
 
     my $protein_sequences_fasta_path = "${gsc_data_directory}/${core_db_name}_protein_sequences.fa";
-    my $gene_symbols_tsv_path = "${gsc_data_directory}/${core_db_name}_gene_symbols.tsv";
+    my $gene_symbols_csv_path = "${gsc_data_directory}/${core_db_name}_gene_symbols.csv";
 
     return {
         # inherit from the base class
@@ -63,7 +63,7 @@ sub default_options {
 
         'gsc_data_directory' => $gsc_data_directory,
         'protein_sequences_fasta_path' => $protein_sequences_fasta_path,
-        'gene_symbols_tsv_path' => $gene_symbols_tsv_path,
+        'gene_symbols_csv_path' => $gene_symbols_csv_path,
 
         'pipeline_db' => {
             -driver => 'mysql',
@@ -112,12 +112,12 @@ sub pipeline_analyses {
 
         {
             # input: FASTA file
-            # output: TSV file
+            # output: CSV file
             -logic_name => 'assign_gene_symbols',
-            -comment    => 'Use a gene symbol classifier neural network to assign gene symbols to protein sequences in the FASTA file and save the assignments to a TSV file.',
+            -comment    => 'Use a gene symbol classifier neural network to assign gene symbols to protein sequences in the FASTA file and save the assignments to a CSV file.',
             -module     => 'Bio::EnsEMBL::Hive::RunnableDB::SystemCmd',
             -parameters => {
-                'cmd' => 'if [ ! -e "'.$self->o('gene_symbols_tsv_path').'" ]; then singularity run --bind '.$self->o('classifier_directory').':/app/checkpoints --bind '.$self->o('gsc_data_directory').':/app/data '.$self->o('singularity_image').' --checkpoint /app/checkpoints/'.$self->o('classifier_filename').' --sequences_fasta /app/data/'.$self->o('core_db_name').'_protein_sequences.fa --scientific_name "'.$self->o('scientific_name').'"; fi',
+                'cmd' => 'if [ ! -e "'.$self->o('gene_symbols_csv_path').'" ]; then singularity run --bind '.$self->o('classifier_directory').':/app/checkpoints --bind '.$self->o('gsc_data_directory').':/app/data '.$self->o('singularity_image').' --checkpoint /app/checkpoints/'.$self->o('classifier_filename').' --sequences_fasta /app/data/'.$self->o('core_db_name').'_protein_sequences.fa --scientific_name "'.$self->o('scientific_name').'"; fi',
             },
             -rc_name    => 'default',
             -flow_into  => {
@@ -126,10 +126,10 @@ sub pipeline_analyses {
         },
 
         {
-            # input: TSV file
+            # input: CSV file
             # output: gene symbols added to Ensembl core db
             -logic_name => 'load_gene_symbols',
-            -comment    => 'Read gene symbols assignments from a TSV file and load them to the Ensembl core database.',
+            -comment    => 'Read gene symbols assignments from a CSV file and load them to the Ensembl core database.',
             -module     => 'Bio::EnsEMBL::Hive::RunnableDB::SystemCmd',
             -parameters => {
                 'cmd' => 'echo "load_gene_symbols analysis"',
