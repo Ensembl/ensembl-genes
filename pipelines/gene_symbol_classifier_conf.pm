@@ -146,7 +146,7 @@ sub resource_classes {
     return {
         'default' => {
             'LSF' => $self->lsf_resource_builder(
-                'production-rh74',
+                'production',
                 900,
                 [
                     $self->default_options->{'pipe_db_server'},
