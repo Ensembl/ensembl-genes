@@ -114,13 +114,10 @@ while (my $line = <$symbol_assignments_file>) {
         next;
     }
 
-    # use the symbol for probability >= 0.9, a tilde for a "like" symbol for probability >= 0.7,
-    # skip assignments with lower probability
+    # assign symbol for probability >= 0.7, skip assignments with lower probability
     my $display_id;
-    if ($probability >= 0.9) {
+    if ($probability >= 0.7) {
         $display_id = $symbol;
-    } elsif ($probability >= 0.7) {
-        $display_id = "~".$symbol;
     } else {
         next;
     }
