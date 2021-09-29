@@ -19,7 +19,7 @@
 
 
 """
-Filter the gene symbols assigned by the classifier to create the subset of them
+Filter the gene symbol assignments from the GSC network to create the subset of them
 to be loaded to the genome assembly core database.
 """
 
@@ -27,17 +27,23 @@ to be loaded to the genome assembly core database.
 # standard library imports
 import argparse
 import pathlib
+import sys
 
 # third party imports
 import pandas as pd
 
+from loguru import logger
+
 # project imports
 
 
-def filter_gene_symbols(gene_symbols_csv, threshold):
+logging_format = "<green>{time:YYYY-MM-DD HH:mm:ss}</green> | <level>{message}</level>"
+
+
+def filter_gene_symbols(symbol_assignments, threshold):
     """
     """
-    gene_symbols_csv_path = pathlib.Path(gene_symbols_csv)
+    gene_symbols_csv_path = pathlib.Path(symbol_assignments)
 
     all_symbols = pd.read_csv(gene_symbols_csv_path, sep="\t")
 
@@ -47,6 +53,7 @@ def filter_gene_symbols(gene_symbols_csv, threshold):
         f"{gene_symbols_csv_path.parent}/{gene_symbols_csv_path.stem}_filtered.csv"
     )
     filtered_symbols.to_csv(filtered_symbols_csv_path, sep="\t", index=False)
+    logger.info(f"filtered assignments saved at {filtered_symbols_csv_path}")
 
 
 def main():
@@ -55,8 +62,8 @@ def main():
     """
     argument_parser = argparse.ArgumentParser()
     argument_parser.add_argument(
-        "--gene_symbols_csv",
-        help="gene symbols assignments CSV file path",
+        "--symbol_assignments",
+        help="gene symbol assignments CSV file path",
     )
     argument_parser.add_argument(
         "--threshold",
@@ -67,8 +74,12 @@ def main():
 
     args = argument_parser.parse_args()
 
-    if args.gene_symbols_csv:
-        filter_gene_symbols(args.gene_symbols_csv, args.threshold)
+    # set up logger
+    logger.remove()
+    logger.add(sys.stderr, format=logging_format)
+
+    if args.symbol_assignments:
+        filter_gene_symbols(args.symbol_assignments, args.threshold)
     else:
         print("Error: missing argument.")
         print(__doc__)

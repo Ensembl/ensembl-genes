@@ -8,7 +8,7 @@ gene_symbol_classifier_conf;
 
 # pipeline initialization:
 
-> init_pipeline.pl gene_symbol_classifier_conf --pipe_db_server <pipeline MySQL server hostname> --pipe_db_port <pipeline MySQL server port> --user <username> --password <password> --user_r ensro --pipe_db_name <pipeline database name> --core_db_server_host <core database server hostname> --core_db_server_port <core database server port> --core_db_name <core database name> --annotation_data_directory <annotation data directory> --singularity_image <singularity image path> --classifier_directory <classifier checkpoint directory> --classifier_filename <classifier checkpoint filename> --scientific_name <assembly scientific name>
+> init_pipeline.pl gene_symbol_classifier_conf --pipe_db_server <pipeline MySQL server hostname> --pipe_db_port <pipeline MySQL server port> --user <username> --password <password> --user_r ensro --pipe_db_name <pipeline database name> --core_db_server_host <core database server hostname> --core_db_server_port <core database server port> --core_db_name <core database name> --annotation_data_directory <annotation data directory> --singularity_image <singularity image path> --classifier_directory <classifier checkpoint directory> --classifier_filename <classifier checkpoint filename> --scientific_name <assembly scientific name> --loading_threshold <loading symbols threshold probability>
 
 =head1 DESCRIPTION
 
@@ -56,6 +56,7 @@ sub default_options {
 
     my $protein_sequences_fasta_path = "${gsc_data_directory}/${core_db_name}_protein_sequences.fa";
     my $gene_symbols_csv_path = "${gsc_data_directory}/${core_db_name}_protein_sequences_symbols.csv";
+    my $filtered_assignments_csv_path = "${gsc_data_directory}/${core_db_name}_protein_sequences_symbols_filtered.csv";
 
     return {
         # inherit from the base class
@@ -64,6 +65,7 @@ sub default_options {
         'gsc_data_directory' => $gsc_data_directory,
         'protein_sequences_fasta_path' => $protein_sequences_fasta_path,
         'gene_symbols_csv_path' => $gene_symbols_csv_path,
+        'filtered_assignments_csv_path' => $filtered_assignments_csv_path,
 
         'pipeline_db' => {
             -driver => 'mysql',
@@ -96,7 +98,7 @@ sub pipeline_analyses {
     return [
         {
             # input: Ensembl core db
-            # output: FASTA file
+            # output: FASTA file with protein coding genes canonical sequences
             -logic_name => 'dump_protein_sequences',
             -comment    => 'Retrieve the protein coding gene sequences from a Ensembl core database and store them as a FASTA file. The analysis is auto-seeded with a job for the target core database.',
             -module     => 'Bio::EnsEMBL::Hive::RunnableDB::SystemCmd',
@@ -111,13 +113,28 @@ sub pipeline_analyses {
         },
 
         {
-            # input: FASTA file
-            # output: CSV file
+            # input: FASTA file with protein coding genes canonical sequences
+            # output: CSV file with symbol assignments and metadata
             -logic_name => 'assign_gene_symbols',
             -comment    => 'Use a gene symbol classifier neural network to assign gene symbols to protein sequences in the FASTA file and save the assignments to a CSV file.',
             -module     => 'Bio::EnsEMBL::Hive::RunnableDB::SystemCmd',
             -parameters => {
-                'cmd' => 'if [ ! -e "'.$self->o('gene_symbols_csv_path').'" ]; then singularity run --bind '.$self->o('classifier_directory').':/app/checkpoints --bind '.$self->o('gsc_data_directory').':/app/data '.$self->o('singularity_image').' --checkpoint /app/checkpoints/'.$self->o('classifier_filename').' --sequences_fasta /app/data/'.$self->o('core_db_name').'_protein_sequences.fa --scientific_name "'.$self->o('scientific_name').'"; fi',
+                'cmd' => 'singularity run --bind '.$self->o('classifier_directory').':/app/checkpoints --bind '.$self->o('gsc_data_directory').':/app/data '.$self->o('singularity_image').' --checkpoint /app/checkpoints/'.$self->o('classifier_filename').' --sequences_fasta /app/data/'.$self->o('core_db_name').'_protein_sequences.fa --scientific_name "'.$self->o('scientific_name'),
+            },
+            -rc_name    => 'default',
+            -flow_into  => {
+                1 => 'filter_assignments',
+            },
+        },
+
+        {
+            # input: CSV file with symbol assignments and metadata
+            # output: CSV file with assignments to be loaded to the Ensembl core db
+            -logic_name => 'filter_assignments',
+            -comment    => 'Filter assignments using the threshold probability and save them to a separate CSV file.',
+            -module     => 'Bio::EnsEMBL::Hive::RunnableDB::SystemCmd',
+            -parameters => {
+                'cmd' => 'python filter_assignments.py --threshold '.$self->o('loading_threshold').' --symbol_assignments '.$self->o('gene_symbols_csv_path'),
             },
             -rc_name    => 'default',
             -flow_into  => {
@@ -126,13 +143,13 @@ sub pipeline_analyses {
         },
 
         {
-            # input: CSV file
-            # output: gene symbols added to Ensembl core db
+            # input: CSV file with assignments to be loaded to the Ensembl core db
+            # output: gene symbols loaded to the Ensembl core db
             -logic_name => 'load_gene_symbols',
             -comment    => 'Read gene symbols assignments from a CSV file and load them to the Ensembl core database.',
             -module     => 'Bio::EnsEMBL::Hive::RunnableDB::SystemCmd',
             -parameters => {
-                'cmd' => 'perl load_gene_symbols.pl --db_host '.$self->o('core_db_server_host').' --db_port '.$self->o('core_db_server_port').' --db_name '.$self->o('core_db_name').' --username '.$self->o('user').' --password '.$self->o('password').' --symbol_assignments '.$self->o('gene_symbols_csv_path'),
+                'cmd' => 'perl load_gene_symbols.pl --db_host '.$self->o('core_db_server_host').' --db_port '.$self->o('core_db_server_port').' --db_name '.$self->o('core_db_name').' --username '.$self->o('user').' --password '.$self->o('password').' --symbol_assignments '.$self->o('filtered_assignments_csv_path'),
             },
             -rc_name    => 'default',
         },
