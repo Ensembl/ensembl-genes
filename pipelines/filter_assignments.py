@@ -41,8 +41,6 @@ logging_format = "<green>{time:YYYY-MM-DD HH:mm:ss}</green> | <level>{message}</
 
 
 def filter_gene_symbols(symbol_assignments, threshold):
-    """
-    """
     gene_symbols_csv_path = pathlib.Path(symbol_assignments)
 
     all_symbols = pd.read_csv(gene_symbols_csv_path, sep="\t")
