@@ -40,7 +40,7 @@ from loguru import logger
 logging_format = "<green>{time:YYYY-MM-DD HH:mm:ss}</green> | <level>{message}</level>"
 
 
-def filter_gene_symbols(symbol_assignments, threshold):
+def filter_assignments(symbol_assignments, threshold):
     gene_symbols_csv_path = pathlib.Path(symbol_assignments)
 
     all_symbols = pd.read_csv(gene_symbols_csv_path, sep="\t")
@@ -77,7 +77,7 @@ def main():
     logger.add(sys.stderr, format=logging_format)
 
     if args.symbol_assignments:
-        filter_gene_symbols(args.symbol_assignments, args.threshold)
+        filter_assignments(args.symbol_assignments, args.threshold)
     else:
         print("Error: missing argument.")
         print(__doc__)
