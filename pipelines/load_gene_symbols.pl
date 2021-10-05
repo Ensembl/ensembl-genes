@@ -55,6 +55,24 @@ my $db_name;
 my $symbol_assignments;
 
 
+my %db_display_name_to_db_name = (
+    "Clone-based (Ensembl) gene" => "Clone_based_ensembl_gene",
+    "NCBI gene (formerly Entrezgene)" => "EntrezGene",
+    "FlyBase gene name" => "FlyBaseName_gene",
+    "FlyBase annotation" => "flybase_annotation_id",
+    "HGNC Symbol" => "HGNC",
+    "MGI Symbol" => "MGI",
+    "RGD Symbol" => "RGD",
+    "SGD gene name" => "SGD_GENE",
+    "UniProtKB Gene Name" => "Uniprot_gn",
+    "VGNC Symbol" => "VGNC",
+    "WormBase Gene Sequence-name" => "wormbase_gseqname",
+    "WormBase Locus" => "wormbase_locus",
+    "Xenbase" => "Xenbase",
+    "ZFIN" => "ZFIN_ID",
+);
+
+
 # parse command line arguments
 my $options = GetOptions (
     "db_host=s" => \$db_host,
@@ -98,6 +116,8 @@ while (my $line = <$symbol_assignments_file>) {
     my $stable_id = $fields[0];
     my $symbol = $fields[1];
     my $probability = $fields[2];
+    my $symbol_description = $fields[3];
+    my $symbol_source = $fields[4];
 
     # skip CSV header line
     if ($fields[0] eq "stable_id") {
@@ -114,36 +134,26 @@ while (my $line = <$symbol_assignments_file>) {
         next;
     }
 
-    # assign symbol for probability >= 0.7, skip assignments with lower probability
-    my $display_id;
-    if ($probability >= 0.7) {
-        $display_id = $symbol;
-    } else {
-        next;
-    }
-
     # generate Xref object
     my $score = 100 * sprintf("%.4f", $probability);
-    my $assignment_description = "Ensembl Gene Symbol Classifier prediction symbol ".$symbol." with score ".$score."%";
-    # TODO
-    # specify Xref external_db.db_display_name
-    my $xref_dbname = "HGNC";
+    my $assignment_description = "Ensembl NN prediction with score ".$score."%";
+    my $xref_dbname = $db_display_name_to_db_name{$symbol_source};
     my $xref_object = Bio::EnsEMBL::DBEntry->new(
-        -primary_id => $display_id,
-        -display_id => $display_id,
+        -primary_id => $symbol,
+        -display_id => $symbol,
         -dbname => $xref_dbname,
-        # TODO
-        # add gene symbol description
-        #-description => $symbol_description,
-        -info_text => $assignment_description,
+        -description => $symbol_description,
     );
+
+    my $gene_description = $symbol_description." [".$assignment_description."]";
 
     # store the Xref to the database and add it to the gene
     $xref_adaptor->store($xref_object, $gene->dbID, "Gene", 1);
     $gene->display_xref($xref_object);
+    $gene->description($gene_description);
     $gene_adaptor->update($gene);
 
-    say("added Xref display_id ".$display_id." for gene ".$stable_id);
+    say("added symbol ".$symbol.", ".$gene_description." for gene ".$stable_id);
 }
 
 close $symbol_assignments_file;
