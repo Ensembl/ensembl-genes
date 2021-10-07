@@ -45,12 +45,12 @@ def filter_assignments(symbol_assignments, threshold):
 
     all_symbols = pd.read_csv(gene_symbols_csv_path, sep="\t")
 
-    filtered_symbols = all_symbols.loc[all_symbols["probability"] >= threshold]
+    filtered_assignments = all_symbols.loc[all_symbols["probability"] >= threshold]
 
     filtered_symbols_csv_path = pathlib.Path(
         f"{gene_symbols_csv_path.parent}/{gene_symbols_csv_path.stem}_filtered.csv"
     )
-    filtered_symbols.to_csv(filtered_symbols_csv_path, sep="\t", index=False)
+    filtered_assignments.to_csv(filtered_symbols_csv_path, sep="\t", index=False)
     logger.info(f"filtered assignments saved at {filtered_symbols_csv_path}")
 
 
