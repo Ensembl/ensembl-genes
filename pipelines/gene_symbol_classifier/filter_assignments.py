@@ -85,7 +85,9 @@ def add_gene_description(assignments_csv):
         f"{assignments_path.parent}/{assignments_path.stem}_description.csv"
     )
     assignments.to_csv(assignments_with_description_path, sep="\t", index=False)
-    logger.info(f"assignments CSV with gene description saved at {assignments_with_description_path}")
+    logger.info(
+        f"assignments CSV with gene description saved at {assignments_with_description_path}"
+    )
 
 
 def main():
@@ -99,7 +101,6 @@ def main():
     )
     argument_parser.add_argument(
         "--threshold",
-        default=0.9,
         type=float,
         help="gene symbol assignment probability threshold for including to the core db",
     )
