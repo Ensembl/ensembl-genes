@@ -19,8 +19,10 @@
 
 
 """
-Filter the gene symbol assignments from the GSC network to create the subset of them
-to be loaded to the genome assembly core database.
+Filter gene symbol assignments from the Gene Symbol Classifier network by prediction
+probability threshold to create their subset to be loaded to the genome core database.
+
+Generate assignments CSV with gene description from an existing one.
 """
 
 
@@ -54,6 +56,38 @@ def filter_assignments(symbol_assignments, threshold):
     logger.info(f"filtered assignments saved at {filtered_symbols_csv_path}")
 
 
+def add_gene_description(assignments_csv):
+    assignments_path = pathlib.Path(assignments_csv)
+
+    assignments = pd.read_csv(assignments_path, sep="\t")
+
+    # generate gene description values
+    assignments["gene_description"] = [
+        "{} [Ensembl NN prediction with score {}%]".format(
+            row[4],
+            100 * round(row[3], 4),
+        )
+        for row in assignments.itertuples()
+    ]
+
+    # reorder dataframe columns
+    columns = [
+        "stable_id",
+        "symbol",
+        "gene_description",
+        "probability",
+        "description",
+        "source",
+    ]
+    assignments = assignments[columns]
+
+    assignments_with_description_path = pathlib.Path(
+        f"{assignments_path.parent}/{assignments_path.stem}_description.csv"
+    )
+    assignments.to_csv(assignments_with_description_path, sep="\t", index=False)
+    logger.info(f"assignments CSV with gene description saved at {assignments_with_description_path}")
+
+
 def main():
     """
     main function
@@ -76,8 +110,10 @@ def main():
     logger.remove()
     logger.add(sys.stderr, format=logging_format)
 
-    if args.symbol_assignments:
+    if args.symbol_assignments and args.threshold:
         filter_assignments(args.symbol_assignments, args.threshold)
+    elif args.symbol_assignments:
+        add_gene_description(args.symbol_assignments)
     else:
         print("Error: missing argument.")
         print(__doc__)
