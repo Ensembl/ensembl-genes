@@ -3,6 +3,14 @@
 eHive pipeline to run a trained [Gene Symbol Classifier](https://github.com/Ensembl/gene_symbol_classifier) network for an Ensembl core database.
 
 
+## run the pipeline
+
+initialize the pipeline
+```
+init_pipeline.pl gene_symbol_classifier_conf --pipe_db_server <pipeline MySQL server hostname> --pipe_db_port <pipeline MySQL server port> --user <username> --password <password> --user_r ensro --pipe_db_name <pipeline database name> --core_db_server_host <core database server hostname> --core_db_server_port <core database server port> --core_db_name <core database name> --annotation_data_directory <annotation data directory> --singularity_image <singularity image path> --classifier_directory <classifier checkpoint directory> --classifier_filename <classifier checkpoint filename> --scientific_name <assembly scientific name> --ehive_singularity_image <eHive pipeline singularity image path> --loading_threshold <loading symbols threshold probability>
+```
+
+
 ## generate Singularity image
 
 build Docker image
@@ -21,7 +29,7 @@ singularity pull docker://williamebi/gene_symbol_classifier_ehive_pipeline:<imag
 ```
 
 
-## run tasks with Singularity
+## run specific tasks with Singularity
 
 filter symbol assignments
 ```
