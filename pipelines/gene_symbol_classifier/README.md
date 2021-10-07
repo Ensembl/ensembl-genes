@@ -1,6 +1,6 @@
 # Gene Symbol Classifier eHive pipeline
 
-eHive pipeline to run the Gene Symbol Classifier on an Ensembl core database.
+eHive pipeline to run a trained [Gene Symbol Classifier](https://github.com/Ensembl/gene_symbol_classifier) network for an Ensembl core database.
 
 
 ## generate Singularity image
