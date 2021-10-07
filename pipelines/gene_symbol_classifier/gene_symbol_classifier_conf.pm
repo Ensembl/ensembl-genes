@@ -8,7 +8,7 @@ gene_symbol_classifier_conf;
 
 # pipeline initialization:
 
-> init_pipeline.pl gene_symbol_classifier_conf --pipe_db_server <pipeline MySQL server hostname> --pipe_db_port <pipeline MySQL server port> --user <username> --password <password> --user_r ensro --pipe_db_name <pipeline database name> --core_db_server_host <core database server hostname> --core_db_server_port <core database server port> --core_db_name <core database name> --annotation_data_directory <annotation data directory> --singularity_image <singularity image path> --classifier_directory <classifier checkpoint directory> --classifier_filename <classifier checkpoint filename> --scientific_name <assembly scientific name> --loading_threshold <loading symbols threshold probability>
+> init_pipeline.pl gene_symbol_classifier_conf --pipe_db_server <pipeline MySQL server hostname> --pipe_db_port <pipeline MySQL server port> --user <username> --password <password> --user_r ensro --pipe_db_name <pipeline database name> --core_db_server_host <core database server hostname> --core_db_server_port <core database server port> --core_db_name <core database name> --annotation_data_directory <annotation data directory> --singularity_image <singularity image path> --classifier_directory <classifier checkpoint directory> --classifier_filename <classifier checkpoint filename> --scientific_name <assembly scientific name> --ehive_singularity_image <eHive pipeline singularity image path> --loading_threshold <loading symbols threshold probability>
 
 =head1 DESCRIPTION
 
@@ -134,7 +134,7 @@ sub pipeline_analyses {
             -comment    => 'Filter assignments using the threshold probability and save them to a separate CSV file.',
             -module     => 'Bio::EnsEMBL::Hive::RunnableDB::SystemCmd',
             -parameters => {
-                'cmd' => 'python filter_assignments.py --threshold '.$self->o('loading_threshold').' --symbol_assignments '.$self->o('gene_symbols_csv_path'),
+                'cmd' => 'singularity run --bind '.$self->o('gsc_data_directory').':/app/data '.$self->o('ehive_singularity_image').' --symbol_assignments '.$self->o('gene_symbols_csv_path').' --threshold '.$self->o('loading_threshold'),
             },
             -rc_name    => 'default',
             -flow_into  => {
