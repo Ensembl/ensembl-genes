@@ -7,7 +7,7 @@ Links:
 [source code](https://github.com/Gaius-Augustus/BRAKER),
 [publication](https://academic.oup.com/nargab/article/3/1/lqaa108/6066535?login=true)
 
-###Notes
+### Notes
 The Docker image is not publicly available because a private licence is needed to run GeneMark. 
 Download GeneMark software `gmes_linux_64.tar` and license `gm_key_64.gz` from ['GeneMark'](http://topaz.gatech.edu/GeneMark/license_download.cgi) and store them in the same directory with the Dockerfile. 
 
@@ -27,7 +27,7 @@ Run the image (see [source code](https://github.com/Gaius-Augustus/BRAKER) to se
 docker run -v <working_dir> braker2:latest 
 ```
 
-##Run the Docker image as a  Singularity 
+## Run the Docker image as a  Singularity 
 
 Pull the Docker image from DockerHub in the `/hps/software/users/ensembl/genebuild/$USER/singularity` directory, it will be saved as a Singularity image
 ```

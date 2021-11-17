@@ -26,7 +26,7 @@ Run the image (see [source code](https://github.com/gao-lab/CPC2_standalone) to 
 docker -v <working_dir> run ftricomi/cpc2:latest python3 /CPC2_standalone-1.0.1/bin/CPC2.py -i input.fa --ORF -o out.txt
 ```
 
-##Run the Docker image as a  Singularity 
+## Run the Docker image as a  Singularity 
 
 Pull the Docker image from DockerHub in the `/hps/software/users/ensembl/genebuild/$USER/singularity` directory, it will be saved as a Singularity image
 ```

@@ -26,7 +26,7 @@ Run the image (see [source code](https://github.com/NBISweden/AGAT) to choose th
 docker -v <working_dir> run ftricomi/agat:latest 
 ```
 
-##Run the Docker image as a  Singularity 
+## Run the Docker image as a  Singularity 
 
 Pull the Docker image from DockerHub in the `/hps/software/users/ensembl/genebuild/$USER/singularity` directory, it will be saved as a Singularity image
 ```
@@ -35,5 +35,5 @@ singularity pull docker://ftricomi/agat:latest
 
 Submit a job for running the Singularity image on LFS
 ```
-bsub -M 4000 -R "rusage[mem=40000]" "singularity exec --bind <working_dir_absolute_path>:/data:rw /hps/software/users/ensembl/genebuild/$USER/singularity/agat.simg agat_sp_extract_sequences.pl --gff input.gtf -f /data/genome.fa -p  -o /data/output.fa
+bsub -M 4000 -R "rusage[mem=40000]" "singularity exec --bind <working_dir_absolute_path>:/data:rw /hps/software/users/ensembl/genebuild/$USER/singularity/agat.simg agat_sp_extract_sequences.pl --gff input.gtf -f /data/genome.fa -p  -o /data/output.fa"
 ```
