@@ -104,18 +104,6 @@
   ftp_dumps: http://ftp.ensembl.org/pub/release-105
   ensembl_link: https://www.ensembl.org/Scophthalmus_maximus/Info/Index
 
-- species: Scophthalmus maximus
-  submitted_by: CIGENE
-  accession: GCA_013347765.1
-  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Scophthalmus_maximus/GCA_013347765.1/geneset/2020_12/Scophthalmus_maximus-GCA_013347765.1-2020_12-genes.gff3.gz
-  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Scophthalmus_maximus/GCA_013347765.1/geneset/2020_12/Scophthalmus_maximus-GCA_013347765.1-2020_12-genes.gtf.gz
-  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Scophthalmus_maximus/GCA_013347765.1/geneset/2020_12/Scophthalmus_maximus-GCA_013347765.1-2020_12-pep.fa.gz
-  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Scophthalmus_maximus/GCA_013347765.1/geneset/2020_12/Scophthalmus_maximus-GCA_013347765.1-2020_12-cdna.fa.gz
-  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Scophthalmus_maximus/GCA_013347765.1/genome/Scophthalmus_maximus-GCA_013347765.1-softmasked.fa.gz
-  repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/scophthalmus_maximus/GCA_013347765.1.repeatmodeler.fa
-  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Scophthalmus_maximus/GCA_013347765.1
-  ensembl_link: https://www.ensembl.org/Scophthalmus_maximus/Info/Index
-
 - species: Sparus aurata
   submitted_by: SC
   accession: GCA_900880675.1
