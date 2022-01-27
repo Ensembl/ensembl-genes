@@ -238,7 +238,7 @@ class Repeatmask_Red(eHive.BaseRunnable):
         rpt_files = list(rpt_path.iterdir())
         rpt_file = Path(rpt_files[0]) # we know there is only one file
         fixed_rpt_file = Path(f'{rpt_file}.fixed')
-        with open(rpt_file, encoding="utf8") as f_in, open(fixed_rpt_file, encoding="utf8") as f_out:
+        with open(rpt_file, encoding="utf8") as f_in, open(fixed_rpt_file,'w',encoding="utf8") as f_out:
             for line in f_in:
                 columns = line.split()
 
