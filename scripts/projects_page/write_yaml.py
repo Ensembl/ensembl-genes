@@ -60,6 +60,7 @@ def write_yaml(info_dict, icon, yaml_out, project, use_server):
     assembly_name = info_dict["assembly.name"].replace(" ", "_")
     date = info_dict["genebuild.last_geneset_update"].replace("-", "_")
     species_name = info_dict["species.scientific_name"].replace(" ", "_")
+    rm_species_name = (info_dict["species.scientific_name"].replace(" ", "_")).lower() # set this before adding strain/breed for the repeatmodeler ftp path
     if "species.strain" in info_dict:
         if info_dict["species.strain"] != "reference":
             info_dict["species.scientific_name"] = (
@@ -180,7 +181,7 @@ def write_yaml(info_dict, icon, yaml_out, project, use_server):
         )
 
         rm_file = check_for_repeatmodeler(
-            lc_species_name, info_dict["assembly.accession"]
+            rm_species_name, info_dict["assembly.accession"]
         )
         if rm_file:
             yaml += "  repeat_library: " + rm_file + "\n"
