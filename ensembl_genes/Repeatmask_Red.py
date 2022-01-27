@@ -46,6 +46,8 @@ class Repeatmask_Red(eHive.BaseRunnable):
         """ It fetches the input parameters and it checks that they are correct. """
 
         # get new temporary directory name in the default path with prefix gnm_ (eg '/scratch/gnm_nar4nry8')
+        # disable Pylint warning R1732 (consider-using-with) on the following line
+        # pylint: disable=consider-using-with
         temp_gnm_dir = tempfile.TemporaryDirectory(prefix='gnm_').name
 
         genome_file = self.param_required('genome_file')
@@ -236,7 +238,7 @@ class Repeatmask_Red(eHive.BaseRunnable):
         rpt_files = list(rpt_path.iterdir())
         rpt_file = Path(rpt_files[0]) # we know there is only one file
         fixed_rpt_file = Path(f'{rpt_file}.fixed')
-        with rpt_file.open('r') as f_in,fixed_rpt_file.open('w') as f_out:
+        with open(rpt_file, encoding="utf8") as f_in, open(fixed_rpt_file, encoding="utf8") as f_out:
             for line in f_in:
                 columns = line.split()
 
