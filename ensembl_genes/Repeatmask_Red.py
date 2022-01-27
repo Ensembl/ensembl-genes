@@ -18,7 +18,6 @@
 import os
 import errno
 import subprocess
-import tempfile
 import shutil
 import sqlalchemy as db
 from pathlib import Path
@@ -45,10 +44,8 @@ class Repeatmask_Red(eHive.BaseRunnable):
     def fetch_input(self):
         """ It fetches the input parameters and it checks that they are correct. """
 
-        # get new temporary directory name in the default path with prefix gnm_ (eg '/scratch/gnm_nar4nry8')
-        # disable Pylint warning R1732 (consider-using-with) on the following line
-        # pylint: disable=consider-using-with
-        temp_gnm_dir = tempfile.TemporaryDirectory(prefix='gnm_').name
+        # get new temporary directory name with suffix '_gnm_tmp_dir'
+        temp_gnm_dir = f'{self.param_required("genome_file")}_gnm_tmp_dir'
 
         genome_file = self.param_required('genome_file')
         gnm = self.param('gnm',temp_gnm_dir)
@@ -60,7 +57,15 @@ class Repeatmask_Red(eHive.BaseRunnable):
 
         # make the temporary directory 'gnm' and copy the genome file into it
         # in this way we make sure that the only .fa file to be processed is the one we want
+        # delete it if it exists from a previous (failed) run
         gnm_path = Path(gnm)
+
+        if gnm_path.exists():
+            try:
+                shutil.rmtree(gnm_path)
+            except OSError as e:
+                print(f'Error: {gnm} : {e.strerror}')
+
         try:
             gnm_path.mkdir()
         except PermissionError:
