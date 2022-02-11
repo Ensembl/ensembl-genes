@@ -24,104 +24,146 @@
     on the junction file
 
 Examples:
-    star2introns.py --num_cpus 12 --species salmo_salar
-        --intron_db mysql+pymysql://rw_user:password@genebuild6:3306/salmo_salar_gca905237065v2_introns_104
-        --csv_file /hps/nobackup/genebuild/salmon/rnaseq/salmo_salar.csv
-        --junctions_dir /hps/nobackup/genebuild/salmon/rnaseq/output --verbose
+    star2introns --csv_file /hps/nobackup/genebuild/salmon/rnaseq/salmo_salar.csv
+        --intron_db mysql+pymysql://rw_user:password@genebuild6:3306/salmo_salar_gca905237065v2_104
+        --junctions_dir /hps/nobackup/genebuild/salmon/rnaseq/output
+        --species salmo_salar --verbose
 
 """
 
-from typing import Dict
+from typing import Dict, Optional
 import sys
 import logging
 import argparse
-from multiprocessing import Pool
-from multiprocessing.pool import AsyncResult
 from re import search
 from pathlib import Path
 from math import ceil
 import csv
 import sqlalchemy as db
+from sqlalchemy.engine import Engine  # Needed for typing
 
 
 def get_analyses(csv_file: str, species: str) -> Dict[str, str]:
     """Parse the csv_file to generate the logic names.
-    If there is only one sample, it does not create
-    the merged analysis"""
+
+    Args:
+        csv_file: Tabulated separated file where row[0] is the sample id and row[1] is the file id.
+        species: scientific name of the species, joined by underscores.
+
+    Returns:
+        A dictionary where key is the file id and value is the logic_name.
+    """
+
     with open(csv_file, newline="") as csvfile:
         samplereader = csv.reader(csvfile, delimiter="\t")
-        unique_analyses = {}
         analyses = {}
         for row in samplereader:
             logic_name = "_".join([species, row[0], "rnaseq_daf"])
-            unique_analyses[logic_name] = logic_name
             analyses[row[1]] = logic_name
-        if len(unique_analyses.values()) > 1:
-            analyses["merged"] = "_".join([species, "merged", "rnaseq_daf"])
     return analyses
 
 
-def fetch_slice_ids(intron_db: str) -> Dict[str, int]:
-    """ Retrieve the seq_region names and dbIDs """
+def fetch_slice_ids(engine: Engine) -> Dict[str, int]:
+    """Retrieve the seq_region names and dbIDs.
+
+    Args:
+        engine: SQLAlchemy Engine object to connect to the database.
+
+    Returns
+        A dictionary where key is the sequence name and value is its dbID.
+    """
+
     slice_ids = {}
-    engine = db.create_engine(intron_db)
     with engine.connect() as connection:
         rows = connection.execute(
             db.text(
                 "SELECT sr.seq_region_id, sr.name"
-                + " FROM seq_region sr, seq_region_attrib sra"
-                + " WHERE sr.seq_region_id = sra.seq_region_id AND sra.attrib_type_id = 6"
+                + " FROM seq_region sr, seq_region_attrib sra, attrib_type at"
+                + " WHERE sr.seq_region_id = sra.seq_region_id"
+                + " AND sra.attrib_type_id = at.attrib_type_id"
+                + " AND at.code = 'toplevel'"
             )
         )
         for row in rows:
             slice_ids[row[1]] = row[0]
-    engine.dispose()
     return slice_ids
 
 
 def process_file(
-        filename: str, analyses: Dict[str, str]
-        ) -> Dict[str, Dict[str, Dict[str, int]]]:
-    """Parse a junctions file and store the information in
-    a dictionary structure: seq_region->position->logic_name"""
+    filename: Path,
+    analyses: Dict[str, str],
+    daf_table: Optional[Dict[str, Dict[str, Dict[str, int]]]] = None,
+) -> Dict[str, Dict[str, Dict[str, int]]]:
+    """Parses a STAR junctions file
+
+    It stores the information in a complex dictionary structure:
+    seq_region->position->logic_name
+
+    Args:
+        filename: Path of file to process.
+        analyses: Dictionary of logic_name to assign depending on the filename.
+        daf_table: Dictionary for storing the depth of the intron depending on the sample.
+
+    Returns:
+        A structure of dictionaries storing the intron information:
+            dict[seq_region,
+                dict[intron_id,
+                    dict[analysis, depth]
+                    ]
+                ]
+    """
+
+    logging.debug("Processing %s", filename.name)
     file_id = search("^([^_]+)", filename.name)
-    daf_table = {}
+    if daf_table is None:
+        daf_table = {}
     if file_id:
-        logic_name = analyses[file_id.group(1)]
-        if "merged" in analyses:
-            has_merged_analysis = analyses["merged"]
-        with open(filename, newline="") as csvfile:
-            intronreader = csv.reader(csvfile, delimiter="\t")
-            for row in intronreader:
-                seq_region = row[0]
-                intron_id = ":".join(row[1:5])
-                depth = int(row[6]) + ceil(int(row[7]) / 2)
-                if seq_region in daf_table and intron_id in daf_table[seq_region]:
-                    daf_table[seq_region][intron_id][logic_name] += depth
-                    if has_merged_analysis:
-                        daf_table[seq_region][intron_id][has_merged_analysis] += depth
-                else:
+        try:
+            logic_name = analyses[file_id.group(1)]
+            with open(filename, newline="") as csvfile:
+                intronreader = csv.reader(csvfile, delimiter="\t")
+                for row in intronreader:
+                    seq_region = row[0]
+                    if row[3] == "2":
+                        intron_strand = -1
+                    else:
+                        intron_strand = 1
+                    intron_id = f"{row[1]}:{row[2]}:{intron_strand}:{row[4]}"
+                    depth = int(row[6]) + ceil(int(row[7]) / 2)
                     if seq_region not in daf_table:
                         daf_table[seq_region] = {}
-                    if has_merged_analysis:
-                        daf_table[seq_region][intron_id] = {
-                            logic_name: depth,
-                            has_merged_analysis: depth,
-                        }
+                    if intron_id not in daf_table[seq_region]:
+                        daf_table[seq_region][intron_id] = {}
+                    if logic_name in daf_table[seq_region][intron_id]:
+                        daf_table[seq_region][intron_id][logic_name] += depth
                     else:
                         daf_table[seq_region][intron_id] = {logic_name: depth}
+        except KeyError:
+            logging.error("Could not find analysis for file %s", filename)
+
     return daf_table
 
 
-def write_output(
-        intron_db: str,
-        analyses: Dict[str, str],
-        slices: Dict[str, int],
-        daf_table: Dict[str, Dict[str, Dict[str, int]]],
-        batch_size: int,
-    ) -> None:
-    """ Stores the analyses and the junction information into an Ensembl database """
-    engine = db.create_engine(intron_db)
+def write_output(  # pylint: disable=too-many-locals
+    engine: Engine,
+    analyses: Dict[str, str],
+    slices: Dict[str, int],
+    daf_table: Dict[str, Dict[str, Dict[str, int]]],
+    batch_size: int,
+) -> None:
+    """Stores the analyses and the junction information into an Ensembl database.
+
+    Before inserting the data into the dna_align_feature table we disable the indexes
+    to speed up the load. The indexes are enabled after all the rows have been inserted.
+
+    Args:
+        engine: SQLAlchemy Engine object to connect to the database.
+        analyses: Dictionary where key is the file id and value is the logic_name.
+        slices: Dictionary where key is the sequence name and value is the dbID.
+        daf_table: Dictionary with the data to store in the dna_align_feature table.
+        batch_size: The number of rows of data for each insert.
+    """
+
     metadata = db.MetaData()
 
     analysis_table = db.Table("analysis", metadata, autoload=True, autoload_with=engine)
@@ -129,7 +171,7 @@ def write_output(
         "dna_align_feature", metadata, autoload=True, autoload_with=engine
     )
     with engine.connect() as connection:
-        logging.debug("Inserting analyses")
+        logging.info("Inserting analyses")
         analyses_id = {}
         analysis_insert = (
             analysis_table.insert(bind=db.bindparam("logic_name"))
@@ -147,21 +189,16 @@ def write_output(
             ).fetchall()
             analyses_id[analyses[analysis]] = analysis_results[0][0]
 
-        logging.debug("Preparing daf stuff")
         daf_insert = dna_align_feature_table.insert()
         counter = 1
         daf_values = []
         logging.debug("Disable KEYS")
         connection.execute(db.text("ALTER TABLE dna_align_feature DISABLE KEYS"))
-        logging.debug("Loading daf stuff")
+        logging.info("Loading daf stuff")
         for seq_region in daf_table.keys():
             for intron_id in daf_table[seq_region].keys():
                 seq_region_data = intron_id.split(":")
                 for logic_name in daf_table[seq_region][intron_id].keys():
-                    if seq_region_data[2] == "-1":
-                        seq_region_data[2] = -1
-                    else:
-                        seq_region_data[2] = 1
                     if int(seq_region_data[3]) > 0:
                         hit_name = f"{counter}:canon"
                     else:
@@ -181,9 +218,7 @@ def write_output(
                             "align_type": "ensembl",
                             "analysis_id": analyses_id[logic_name],
                             "score": daf_table[seq_region][intron_id][logic_name],
-                            "cigar_line": "{:d}M".format(
-                                (int(seq_region_data[2]) - int(seq_region_data[1]) + 1)
-                            ),
+                            "cigar_line": f"{int(seq_region_data[2])-int(seq_region_data[1])+1}M",
                         }
                     )
                     if (counter % batch_size) == 0:
@@ -194,30 +229,16 @@ def write_output(
         if daf_values:
             connection.execute(daf_insert, daf_values)
             daf_values = []
-        logging.debug("Stored %d daf stuff", counter)
+        logging.info("Stored %d daf stuff", counter)
         connection.execute(db.text("ALTER TABLE dna_align_feature ENABLE KEYS"))
         logging.debug("KEYS enabled")
 
-    engine.dispose()
-
-
-def work_done(results: AsyncResult) -> None:
-    """Print 'Successful X objects' when all files have been parsed successfully and
-    --verbose was specified on the command line"""
-    logging.debug("Successful %d objects", len(results))
-
-
-def work_failed(error: BaseException) -> None:
-    """ Print the error reported by one of the process and exits """
-    logging.error(error)
-    sys.exit()
-
 
 def main() -> None:
-    """It will prepare the analyses, then fetch the seq_region ids.
-    Then it will create a pool of worker to prcoess as many files as
-    there is cores assigned.
-    Finally it will collapse the results and write the results into a database"""
+    """Retrieve splice site information for database storage.
+
+    It will retrieve the possible analyses based on the TSV file provided. Then it will
+    process all the STAR junctions files in the directory provided and """
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--junctions_dir",
@@ -225,7 +246,7 @@ def main() -> None:
         help="directory with the files describing junctions found by STAR and me",
     )
     parser.add_argument(
-        "--csv_file",
+        "--tsv_file",
         type=str,
         help="Tabulated file containing the sample names and the sample ids",
     )
@@ -233,9 +254,6 @@ def main() -> None:
         "--species",
         type=str,
         help="Species name, used to construct the logic_name of the analysis",
-    )
-    parser.add_argument(
-        "--num_cpus", type=int, help="Number of cores to use", default=1
     )
     parser.add_argument(
         "--intron_db", type=str, help="URI to database using 'mysql+pymysql'"
@@ -258,50 +276,20 @@ def main() -> None:
     logging.basicConfig(format=log_format, level=log_level, datefmt="%H:%M:%S")
 
     analyses = get_analyses(args.csv_file, args.species)
-    files = []
+
+    daf_table = {}
     for filename in Path(args.junctions_dir).glob("*SJ.out.tab"):
-        files.append([filename, analyses])
+        process_file(filename, analyses, daf_table)
 
-    if len(files) > 0:
-        slices = fetch_slice_ids(args.intron_db)
+    if len(daf_table) > 0:
+        engine = db.create_engine(args.intron_db)
+        slices = fetch_slice_ids(engine)
+        write_output(engine, analyses, slices, daf_table, args.batch_size)
+        # I'm not sure the dispose() is needed
+        engine.dispose()
     else:
-        logging.error("Could not find any files")
+        logging.error("Could not load any data")
         sys.exit()
-
-    with Pool(processes=args.num_cpus) as executor:
-        logging.debug("Starting")
-        results = executor.starmap_async(process_file, files, 1, work_done, work_failed)
-        executor.close()
-        executor.join()
-        daf_table = {}
-        index = 1
-        logging.debug("Process results")
-        for item in results.get():
-            index += 1
-            for seq_region in item.keys():
-                if seq_region not in daf_table:
-                    daf_table[seq_region] = {}
-                for intron_id in item[seq_region].keys():
-                    for logic_name in item[seq_region][intron_id].keys():
-                        if (
-                            intron_id in daf_table[seq_region]
-                            and logic_name in daf_table[seq_region][intron_id]
-                        ):
-                            daf_table[seq_region][intron_id][logic_name] += item[
-                                seq_region
-                            ][intron_id][logic_name]
-                        else:
-                            if intron_id in daf_table[seq_region]:
-                                daf_table[seq_region][intron_id][logic_name] = item[
-                                    seq_region
-                                ][intron_id][logic_name]
-                            else:
-                                daf_table[seq_region][intron_id] = {
-                                    logic_name: item[seq_region][intron_id][logic_name]
-                                }
-
-    logging.debug("Write to database")
-    write_output(args.intron_db, analyses, slices, daf_table, args.batch_size)
 
 
 if __name__ == "__main__":
