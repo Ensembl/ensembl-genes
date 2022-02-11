@@ -2,7 +2,15 @@
 name = "ensembl-genes"
 version = "0.1.0"
 description = "Tools for genome annotation"
-authors = ["Thibaut Hourlier <thibaut@ebi.ac.uk>"]
+authors = ["Ensembl <dev@ensembl.org>"]
+maintainers = [
+    "Carlos Garcia Giron",
+    "Leanne Haggerty
+    "Thibaut Hourlier",
+    "Denye Ogeh",
+    "William Stark",
+    "Francesca Tricomi",
+]
 license = "Apache 2.0"
 repository = "https://github.com/Ensembl/ensembl-genes"
 classifiers = [
