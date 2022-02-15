@@ -30,7 +30,7 @@ env:
 
 jobs:
   allow_failures:
-  - if: env(TRAVIS_PYTHON_VERSION) = nightly
+  - python: "nightly"
     env: TESTENV=pylint
 
 before_install:
