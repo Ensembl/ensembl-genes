@@ -47,4 +47,4 @@ install:
 script:
     - if [[ "$TESTENV" == "code" ]]; then poetry run pytest ensembl_genes; fi
     - if [[ "$TESTENV" == "docs" ]]; then poetry run make html; fi
-    - if [[ "$TESTENV" == "pylint" ]]; then poetry run pylint ensembl_genes; fi
+    - if [[ "$TESTENV" == "pylint" ]]; then poetry run pylint --disable=line-too-long ensembl_genes; fi
