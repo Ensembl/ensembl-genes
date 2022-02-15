@@ -31,6 +31,7 @@ env:
 jobs:
   allow_failures:
   - if: env(TRAVIS_PYTHON_VERSION) = nightly
+    env: TESTENV=pylint
 
 before_install:
     - git clone --branch master --depth 1 https://github.com/Ensembl/ensembl-hive.git
