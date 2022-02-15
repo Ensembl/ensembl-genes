@@ -45,6 +45,6 @@ install:
 
 # command to run tests
 script:
-    - if [[ "$TESTENV" == "code" ]]; then pytest ensembl_genes; fi
-    - if [[ "$TESTENV" == "docs" ]]; then ./scripts/travis/docs_harness.sh; fi
-    - if [[ "$TESTENV" == "pylint" ]]; then ./scripts/travis/pylint_harness.sh; fi
+    - if [[ "$TESTENV" == "code" ]]; then poetry run pytest ensembl_genes; fi
+    - if [[ "$TESTENV" == "docs" ]]; then poetry run make html; fi
+    - if [[ "$TESTENV" == "pylint" ]]; then poetry run pylint ensembl_genes; fi
