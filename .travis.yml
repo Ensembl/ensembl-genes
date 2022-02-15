@@ -40,7 +40,7 @@ before_install:
 # command to install dependencies
 install:
     - poetry install
-    - if [[ "$TRAVIS_PYTHON_VERSION" = "nightly" ]]; then poetry remove pylint; poetry add pylint@latest; fi
+    - if [[ "$TRAVIS_PYTHON_VERSION" = "nightly" ]]; then poetry remove --dev pylint; poetry add --dev pylint@latest; fi
 
 # command to run tests
 script:
