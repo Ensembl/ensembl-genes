@@ -54,7 +54,7 @@ def get_analyses(csv_file: str, species: str) -> Dict[str, str]:
         A dictionary where key is the file id and value is the logic_name.
     """
 
-    with open(csv_file, newline="") as csvfile:
+    with open(csv_file, newline="", encoding="utf-8") as csvfile:
         samplereader = csv.reader(csvfile, delimiter="\t")
         analyses = {}
         for row in samplereader:
@@ -120,7 +120,7 @@ def process_file(
     if file_id:
         try:
             logic_name = analyses[file_id.group(1)]
-            with open(filename, newline="") as csvfile:
+            with open(filename, newline="", encoding="utf-8") as csvfile:
                 intronreader = csv.reader(csvfile, delimiter="\t")
                 for row in intronreader:
                     seq_region = row[0]
