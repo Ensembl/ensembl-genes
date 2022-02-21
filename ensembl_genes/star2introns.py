@@ -275,7 +275,7 @@ def main() -> None:
         log_level = logging.DEBUG
     logging.basicConfig(format=log_format, level=log_level, datefmt="%H:%M:%S")
 
-    analyses = get_analyses(args.csv_file, args.species)
+    analyses = get_analyses(args.tsv_file, args.species)
 
     daf_table = {}
     for filename in Path(args.junctions_dir).glob("*SJ.out.tab"):
