@@ -10,6 +10,18 @@
   ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Abrostola_tripartita/GCA_905340225.1
   rapid_link: https://rapid.ensembl.org/Abrostola_tripartita_gca905340225v1/Info/Index
 
+- species: Adalia bipunctata
+  image: Metazoa.png
+  accession: GCA_910592335.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Adalia_bipunctata/GCA_910592335.1/geneset/2021_12/Adalia_bipunctata-GCA_910592335.1-2021_12-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Adalia_bipunctata/GCA_910592335.1/geneset/2021_12/Adalia_bipunctata-GCA_910592335.1-2021_12-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Adalia_bipunctata/GCA_910592335.1/geneset/2021_12/Adalia_bipunctata-GCA_910592335.1-2021_12-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Adalia_bipunctata/GCA_910592335.1/geneset/2021_12/Adalia_bipunctata-GCA_910592335.1-2021_12-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Adalia_bipunctata/GCA_910592335.1/genome/Adalia_bipunctata-GCA_910592335.1-softmasked.fa.gz
+  repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/adalia_bipunctata/GCA_910592335.1.repeatmodeler.fa
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Adalia_bipunctata/GCA_910592335.1
+  rapid_link: https://rapid.ensembl.org/Adalia_bipunctata_gca910592335v1/Info/Index
+
 - species: Amphipyra berbera
   image: Lepidoptera.png
   accession: GCA_910594945.1
@@ -90,6 +102,7 @@
   proteins: http://ftp.ensembl.org/pub/rapid-release/species/Aquila_chrysaetos_chrysaetos/GCA_900496995.2/geneset/2019_07/Aquila_chrysaetos_chrysaetos-GCA_900496995.2-2019_07-pep.fa.gz
   transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Aquila_chrysaetos_chrysaetos/GCA_900496995.2/geneset/2019_07/Aquila_chrysaetos_chrysaetos-GCA_900496995.2-2019_07-cdna.fa.gz
   softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Aquila_chrysaetos_chrysaetos/GCA_900496995.2/genome/Aquila_chrysaetos_chrysaetos-GCA_900496995.2-softmasked.fa.gz
+  repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/aquila_chrysaetos_chrysaetos/GCA_900496995.2.repeatmodeler.fa
   ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Aquila_chrysaetos_chrysaetos/GCA_900496995.2
   ensembl_link: https://www.ensembl.org/Aquila_chrysaetos_chrysaetos/Info/Index
 
@@ -308,6 +321,18 @@
   ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Cerceris_rybyensis/GCA_910591515.1
   rapid_link: https://rapid.ensembl.org/Cerceris_rybyensis_gca910591515v1/Info/Index
 
+- species: Chrysotoxum bicinctum
+  image: Metazoa.png
+  accession: GCA_911387755.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Chrysotoxum_bicinctum/GCA_911387755.1/geneset/2021_12/Chrysotoxum_bicinctum-GCA_911387755.1-2021_12-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Chrysotoxum_bicinctum/GCA_911387755.1/geneset/2021_12/Chrysotoxum_bicinctum-GCA_911387755.1-2021_12-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Chrysotoxum_bicinctum/GCA_911387755.1/geneset/2021_12/Chrysotoxum_bicinctum-GCA_911387755.1-2021_12-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Chrysotoxum_bicinctum/GCA_911387755.1/geneset/2021_12/Chrysotoxum_bicinctum-GCA_911387755.1-2021_12-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Chrysotoxum_bicinctum/GCA_911387755.1/genome/Chrysotoxum_bicinctum-GCA_911387755.1-softmasked.fa.gz
+  repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/chrysotoxum_bicinctum/GCA_911387755.1.repeatmodeler.fa
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Chrysotoxum_bicinctum/GCA_911387755.1
+  rapid_link: https://rapid.ensembl.org/Chrysotoxum_bicinctum_gca911387755v1/Info/Index
+
 - species: Clostera curtula
   image: Lepidoptera.png
   accession: GCA_905475355.1
@@ -320,6 +345,18 @@
   ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Clostera_curtula/GCA_905475355.1
   rapid_link: https://rapid.ensembl.org/Clostera_curtula_gca905475355v1/Info/Index
 
+- species: Coccinella septempunctata
+  image: Metazoa.png
+  accession: GCA_907165205.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Coccinella_septempunctata/GCA_907165205.1/geneset/2021_12/Coccinella_septempunctata-GCA_907165205.1-2021_12-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Coccinella_septempunctata/GCA_907165205.1/geneset/2021_12/Coccinella_septempunctata-GCA_907165205.1-2021_12-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Coccinella_septempunctata/GCA_907165205.1/geneset/2021_12/Coccinella_septempunctata-GCA_907165205.1-2021_12-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Coccinella_septempunctata/GCA_907165205.1/geneset/2021_12/Coccinella_septempunctata-GCA_907165205.1-2021_12-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Coccinella_septempunctata/GCA_907165205.1/genome/Coccinella_septempunctata-GCA_907165205.1-softmasked.fa.gz
+  repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/coccinella_septempunctata/GCA_907165205.1.repeatmodeler.fa
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Coccinella_septempunctata/GCA_907165205.1
+  rapid_link: https://rapid.ensembl.org/Coccinella_septempunctata_gca907165205v1/Info/Index
+
 - species: Colias croceus
   image: Lepidoptera.png
   accession: GCA_905220415.1
@@ -331,6 +368,18 @@
   repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/colias_croceus/GCA_905220415.1.repeatmodeler.fa
   ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Colias_croceus/GCA_905220415.1
   rapid_link: https://rapid.ensembl.org/Colias_croceus_gca905220415v1/Info/Index
+
+- species: Coremacera marginata
+  image: Metazoa.png
+  accession: GCA_914767935.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Coremacera_marginata/GCA_914767935.1/geneset/2021_12/Coremacera_marginata-GCA_914767935.1-2021_12-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Coremacera_marginata/GCA_914767935.1/geneset/2021_12/Coremacera_marginata-GCA_914767935.1-2021_12-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Coremacera_marginata/GCA_914767935.1/geneset/2021_12/Coremacera_marginata-GCA_914767935.1-2021_12-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Coremacera_marginata/GCA_914767935.1/geneset/2021_12/Coremacera_marginata-GCA_914767935.1-2021_12-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Coremacera_marginata/GCA_914767935.1/genome/Coremacera_marginata-GCA_914767935.1-softmasked.fa.gz
+  repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/coremacera_marginata/GCA_914767935.1.repeatmodeler.fa
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Coremacera_marginata/GCA_914767935.1
+  rapid_link: https://rapid.ensembl.org/Coremacera_marginata_gca914767935v1/Info/Index
 
 - species: Craniophora ligustri
   image: Lepidoptera.png
@@ -428,6 +477,54 @@
   ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Ennomos_quercinarius/GCA_910589525.1
   rapid_link: https://rapid.ensembl.org/Ennomos_quercinarius_gca910589525v1/Info/Index
 
+- species: Eristalis arbustorum
+  image: Metazoa.png
+  accession: GCA_916610145.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Eristalis_arbustorum/GCA_916610145.1/geneset/2021_12/Eristalis_arbustorum-GCA_916610145.1-2021_12-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Eristalis_arbustorum/GCA_916610145.1/geneset/2021_12/Eristalis_arbustorum-GCA_916610145.1-2021_12-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Eristalis_arbustorum/GCA_916610145.1/geneset/2021_12/Eristalis_arbustorum-GCA_916610145.1-2021_12-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Eristalis_arbustorum/GCA_916610145.1/geneset/2021_12/Eristalis_arbustorum-GCA_916610145.1-2021_12-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Eristalis_arbustorum/GCA_916610145.1/genome/Eristalis_arbustorum-GCA_916610145.1-softmasked.fa.gz
+  repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/eristalis_arbustorum/GCA_916610145.1.repeatmodeler.fa
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Eristalis_arbustorum/GCA_916610145.1
+  rapid_link: https://rapid.ensembl.org/Eristalis_arbustorum_gca916610145v1/Info/Index
+
+- species: Eristalis pertinax
+  image: Metazoa.png
+  accession: GCA_907269125.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Eristalis_pertinax/GCA_907269125.1/geneset/2021_12/Eristalis_pertinax-GCA_907269125.1-2021_12-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Eristalis_pertinax/GCA_907269125.1/geneset/2021_12/Eristalis_pertinax-GCA_907269125.1-2021_12-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Eristalis_pertinax/GCA_907269125.1/geneset/2021_12/Eristalis_pertinax-GCA_907269125.1-2021_12-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Eristalis_pertinax/GCA_907269125.1/geneset/2021_12/Eristalis_pertinax-GCA_907269125.1-2021_12-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Eristalis_pertinax/GCA_907269125.1/genome/Eristalis_pertinax-GCA_907269125.1-softmasked.fa.gz
+  repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/eristalis_pertinax/GCA_907269125.1.repeatmodeler.fa
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Eristalis_pertinax/GCA_907269125.1
+  rapid_link: https://rapid.ensembl.org/Eristalis_pertinax_gca907269125v1/Info/Index
+
+- species: Eristalis tenax
+  image: Metazoa.png
+  accession: GCA_905231855.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Eristalis_tenax/GCA_905231855.1/geneset/2021_12/Eristalis_tenax-GCA_905231855.1-2021_12-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Eristalis_tenax/GCA_905231855.1/geneset/2021_12/Eristalis_tenax-GCA_905231855.1-2021_12-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Eristalis_tenax/GCA_905231855.1/geneset/2021_12/Eristalis_tenax-GCA_905231855.1-2021_12-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Eristalis_tenax/GCA_905231855.1/geneset/2021_12/Eristalis_tenax-GCA_905231855.1-2021_12-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Eristalis_tenax/GCA_905231855.1/genome/Eristalis_tenax-GCA_905231855.1-softmasked.fa.gz
+  repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/eristalis_tenax/GCA_905231855.1.repeatmodeler.fa
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Eristalis_tenax/GCA_905231855.1
+  rapid_link: https://rapid.ensembl.org/Eristalis_tenax_gca905231855v1/Info/Index
+
+- species: Eupeodes latifasciatus
+  image: Metazoa.png
+  accession: GCA_920104205.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Eupeodes_latifasciatus/GCA_920104205.1/geneset/2021_12/Eupeodes_latifasciatus-GCA_920104205.1-2021_12-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Eupeodes_latifasciatus/GCA_920104205.1/geneset/2021_12/Eupeodes_latifasciatus-GCA_920104205.1-2021_12-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Eupeodes_latifasciatus/GCA_920104205.1/geneset/2021_12/Eupeodes_latifasciatus-GCA_920104205.1-2021_12-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Eupeodes_latifasciatus/GCA_920104205.1/geneset/2021_12/Eupeodes_latifasciatus-GCA_920104205.1-2021_12-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Eupeodes_latifasciatus/GCA_920104205.1/genome/Eupeodes_latifasciatus-GCA_920104205.1-softmasked.fa.gz
+  repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/eupeodes_latifasciatus/GCA_920104205.1.repeatmodeler.fa
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Eupeodes_latifasciatus/GCA_920104205.1
+  rapid_link: https://rapid.ensembl.org/Eupeodes_latifasciatus_gca920104205v1/Info/Index
+
 - species: Euproctis similis
   image: Lepidoptera.png
   accession: GCA_905147225.1
@@ -451,6 +548,18 @@
   repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/fabriciana_adippe/GCA_905404265.1.repeatmodeler.fa
   ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Fabriciana_adippe/GCA_905404265.1
   rapid_link: https://rapid.ensembl.org/Fabriciana_adippe_gca905404265v1/Info/Index
+
+- species: Gymnosoma rotundatum
+  image: Metazoa.png
+  accession: GCA_916610165.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Gymnosoma_rotundatum/GCA_916610165.1/geneset/2021_12/Gymnosoma_rotundatum-GCA_916610165.1-2021_12-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Gymnosoma_rotundatum/GCA_916610165.1/geneset/2021_12/Gymnosoma_rotundatum-GCA_916610165.1-2021_12-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Gymnosoma_rotundatum/GCA_916610165.1/geneset/2021_12/Gymnosoma_rotundatum-GCA_916610165.1-2021_12-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Gymnosoma_rotundatum/GCA_916610165.1/geneset/2021_12/Gymnosoma_rotundatum-GCA_916610165.1-2021_12-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Gymnosoma_rotundatum/GCA_916610165.1/genome/Gymnosoma_rotundatum-GCA_916610165.1-softmasked.fa.gz
+  repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/gymnosoma_rotundatum/GCA_916610165.1.repeatmodeler.fa
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Gymnosoma_rotundatum/GCA_916610165.1
+  rapid_link: https://rapid.ensembl.org/Gymnosoma_rotundatum_gca916610165v1/Info/Index
 
 - species: Hecatera dysodea
   image: Lepidoptera.png
@@ -654,6 +763,18 @@
   ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Maniola_jurtina/GCA_905333105.1
   rapid_link: https://rapid.ensembl.org/Maniola_jurtina_gca905333105v1/Info/Index
 
+- species: Melanostoma mellinum
+  image: Metazoa.png
+  accession: GCA_914767635.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Melanostoma_mellinum/GCA_914767635.1/geneset/2021_12/Melanostoma_mellinum-GCA_914767635.1-2021_12-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Melanostoma_mellinum/GCA_914767635.1/geneset/2021_12/Melanostoma_mellinum-GCA_914767635.1-2021_12-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Melanostoma_mellinum/GCA_914767635.1/geneset/2021_12/Melanostoma_mellinum-GCA_914767635.1-2021_12-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Melanostoma_mellinum/GCA_914767635.1/geneset/2021_12/Melanostoma_mellinum-GCA_914767635.1-2021_12-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Melanostoma_mellinum/GCA_914767635.1/genome/Melanostoma_mellinum-GCA_914767635.1-softmasked.fa.gz
+  repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/melanostoma_mellinum/GCA_914767635.1.repeatmodeler.fa
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Melanostoma_mellinum/GCA_914767635.1
+  rapid_link: https://rapid.ensembl.org/Melanostoma_mellinum_gca914767635v1/Info/Index
+
 - species: Melitaea cinxia
   image: Lepidoptera.png
   accession: GCA_905220565.1
@@ -773,6 +894,18 @@
   repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/ochlodes_sylvanus/GCA_905404295.1.repeatmodeler.fa
   ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Ochlodes_sylvanus/GCA_905404295.1
   rapid_link: https://rapid.ensembl.org/Ochlodes_sylvanus_gca905404295v1/Info/Index
+
+- species: Ocypus olens
+  image: Metazoa.png
+  accession: GCA_910593695.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Ocypus_olens/GCA_910593695.1/geneset/2021_12/Ocypus_olens-GCA_910593695.1-2021_12-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Ocypus_olens/GCA_910593695.1/geneset/2021_12/Ocypus_olens-GCA_910593695.1-2021_12-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Ocypus_olens/GCA_910593695.1/geneset/2021_12/Ocypus_olens-GCA_910593695.1-2021_12-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Ocypus_olens/GCA_910593695.1/geneset/2021_12/Ocypus_olens-GCA_910593695.1-2021_12-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Ocypus_olens/GCA_910593695.1/genome/Ocypus_olens-GCA_910593695.1-softmasked.fa.gz
+  repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/ocypus_olens/GCA_910593695.1.repeatmodeler.fa
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Ocypus_olens/GCA_910593695.1
+  rapid_link: https://rapid.ensembl.org/Ocypus_olens_gca910593695v1/Info/Index
 
 - species: Osmia bicornis bicornis
   image: Arthropods.png
