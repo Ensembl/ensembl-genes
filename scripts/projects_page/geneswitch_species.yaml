@@ -10,6 +10,18 @@
   ftp_dumps: http://ftp.ensembl.org/pub/release-102
   ensembl_link: https://e102.ensembl.org/Sus_scrofa/Info/Index
 
+- species: Sus scrofa (Ensembl annotation v2)
+  submitted_by: The Swine Genome Sequencing Consortium (SGSC)
+  accession: GCA_000003025.6
+  annotation_gtf: https://ftp.ensembl.org/pub/rapid-release/species/Sus_scrofa/GCA_000003025.6/geneset/2022_02/Sus_scrofa-GCA_000003025.6-2022_02-genes.gtf.gz
+  annotation_gff3: https://ftp.ensembl.org/pub/rapid-release/species/Sus_scrofa/GCA_000003025.6/geneset/2022_02/Sus_scrofa-GCA_000003025.6-2022_02-genes.gff3.gz
+  proteins: https://ftp.ensembl.org/pub/rapid-release/species/Sus_scrofa/GCA_000003025.6/geneset/2022_02/Sus_scrofa-GCA_000003025.6-2022_02-pep.fa.gz
+  transcripts: https://ftp.ensembl.org/pub/rapid-release/species/Sus_scrofa/GCA_000003025.6/geneset/2022_02/Sus_scrofa-GCA_000003025.6-2022_02-cdna.fa.gz
+  softmasked_genome: https://ftp.ensembl.org/pub/rapid-release/species/Sus_scrofa/GCA_000003025.6/genome/Sus_scrofa-GCA_000003025.6-softmasked.fa.gz
+  repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/sus_scrofa/GCA_000003025.6.repeatmodeler.fa
+  ftp_dumps: https://ftp.ensembl.org/pub/rapid-release/species/Sus_scrofa/GCA_000003025.6/
+  rapid_link: https://rapid.ensembl.org/Sus_scrofa_GCA_000003025.6/Info/Index
+
 - species: Gallus gallus
   submitted_by: Genome Reference Consortium
   accession: GCA_000002315.5
@@ -21,6 +33,41 @@
   repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/gallus_gallus/GCA_000002315.5.repeatmodeler.fa
   ftp_dumps: http://ftp.ensembl.org/pub/release-102
   ensembl_link: https://e102.ensembl.org/Gallus_gallus/Info/Index
+
+- species: Gallus gallus (Ensembl annotation v2)
+  submitted_by: Genome Reference Consortium
+  accession: GCA_000002315.5
+  annotation_gtf: https://ftp.ensembl.org/pub/rapid-release/species/Gallus_gallus/GCA_000002315.5/geneset/2022_01/Gallus_gallus-GCA_000002315.5-2022_01-genes.gtf.gz 
+  annotation_gff3: https://ftp.ensembl.org/pub/rapid-release/species/Gallus_gallus/GCA_000002315.5/geneset/2022_01/Gallus_gallus-GCA_000002315.5-2022_01-genes.gff3.gz
+  proteins: https://ftp.ensembl.org/pub/rapid-release/species/Gallus_gallus/GCA_000002315.5/geneset/2022_01/Gallus_gallus-GCA_000002315.5-2022_01-pep.fa.gz
+  transcripts: https://ftp.ensembl.org/pub/rapid-release/species/Gallus_gallus/GCA_000002315.5/geneset/2022_01/Gallus_gallus-GCA_000002315.5-2022_01-cdna.fa.gz
+  softmasked_genome: https://ftp.ensembl.org/pub/rapid-release/species/Gallus_gallus/GCA_000002315.5/genome/Gallus_gallus-GCA_000002315.5-softmasked.fa.gz
+  repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/gallus_gallus/GCA_000002315.5.repeatmodeler.fa
+  ftp_dumps: https://ftp.ensembl.org/pub/rapid-release/species/Gallus_gallus/GCA_000002315.5/
+  rapid_link: https://rapid.ensembl.org/Gallus_gallus_GCA_000002315.5/Info/Index
+
+- species: Gallus gallus (maternal broiler)
+  submitted_by: Vertebrate Genomes Project
+  accession: GCA_016699485.1
+  annotation_gtf: https://ftp.ensembl.org/pub/rapid-release/species/Gallus_gallus/GCA_016699485.1/geneset/2022_01/Gallus_gallus-GCA_016699485.1-2022_01-genes.gtf.gz
+  annotation_gff3: https://ftp.ensembl.org/pub/rapid-release/species/Gallus_gallus/GCA_016699485.1/geneset/2022_01/Gallus_gallus-GCA_016699485.1-2022_01-genes.gff3.gz
+  proteins: https://ftp.ensembl.org/pub/rapid-release/species/Gallus_gallus/GCA_016699485.1/geneset/2022_01/Gallus_gallus-GCA_016699485.1-2022_01-pep.fa.gz
+  transcripts: https://ftp.ensembl.org/pub/rapid-release/species/Gallus_gallus/GCA_016699485.1/geneset/2022_01/Gallus_gallus-GCA_016699485.1-2022_01-cdna.fa.gz
+  softmasked_genome: https://ftp.ensembl.org/pub/rapid-release/species/Gallus_gallus/GCA_016699485.1/genome/Gallus_gallus-GCA_016699485.1-softmasked.fa.gz
+  repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/gallus_gallus/GCA_016699485.1.repeatmodeler.fa
+  ftp_dumps: https://ftp.ensembl.org/pub/rapid-release/species/Gallus_gallus/GCA_016699485.1/
+  rapid_link: https://rapid.ensembl.org/Gallus_gallus_GCA_016699485.1/Info/Index
+
+- species: Gallus gallus (paternal white leghorn layer)
+  submitted_by:	Vertebrate Genomes Project
+  accession: GCA_016700215.2
+  annotation_gtf: https://ftp.ensembl.org/pub/rapid-release/species/Gallus_gallus/GCA_016700215.2/geneset/2022_01/Gallus_gallus-GCA_016700215.2-2022_01-genes.gtf.gz
+  annotation_gff3: https://ftp.ensembl.org/pub/rapid-release/species/Gallus_gallus/GCA_016700215.2/geneset/2022_01/Gallus_gallus-GCA_016700215.2-2022_01-genes.gff3.gz
+  proteins: https://ftp.ensembl.org/pub/rapid-release/species/Gallus_gallus/GCA_016700215.2/geneset/2022_01/Gallus_gallus-GCA_016700215.2-2022_01-pep.fa.gz
+  transcripts: https://ftp.ensembl.org/pub/rapid-release/species/Gallus_gallus/GCA_016700215.2/geneset/2022_01/Gallus_gallus-GCA_016700215.2-2022_01-cdna.fa.gz
+  softmasked_genome: https://ftp.ensembl.org/pub/rapid-release/species/Gallus_gallus/GCA_016700215.2/genome/Gallus_gallus-GCA_016700215.2-softmasked.fa.gz
+  ftp_dumps: https://ftp.ensembl.org/pub/rapid-release/species/Gallus_gallus/GCA_016700215.2/
+  rapid_link: https://rapid.ensembl.org/Gallus_gallus_GCA_016700215.2/Info/Index
 
 - species: Sus scrofa (bamei)
   submitted_by: Novogene
