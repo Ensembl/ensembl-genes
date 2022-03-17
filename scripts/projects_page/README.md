@@ -2,6 +2,8 @@
 
 Code for updating the ensembl projects pages
 
+## GENESWICTH PROJECTS PAGE CURRENTLY HAS A CUSTOM FORMAT, DO NOT RUN THE SRIPT FOR THIS PROJECT - SEE LEANNE FOR DETAILS!
+
 ## Running write_yaml.py
 
 **python write_yaml.py -h**
