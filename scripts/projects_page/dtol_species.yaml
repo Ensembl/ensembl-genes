@@ -11,7 +11,7 @@
   rapid_link: https://rapid.ensembl.org/Abrostola_tripartita_gca905340225v1/Info/Index
 
 - species: Adalia bipunctata
-  image: Metazoa.png
+  image: Arthropods.png
   accession: GCA_910592335.1
   annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Adalia_bipunctata/GCA_910592335.1/geneset/2021_12/Adalia_bipunctata-GCA_910592335.1-2021_12-genes.gff3.gz
   annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Adalia_bipunctata/GCA_910592335.1/geneset/2021_12/Adalia_bipunctata-GCA_910592335.1-2021_12-genes.gtf.gz
@@ -322,7 +322,7 @@
   rapid_link: https://rapid.ensembl.org/Cerceris_rybyensis_gca910591515v1/Info/Index
 
 - species: Chrysotoxum bicinctum
-  image: Metazoa.png
+  image: Arthropods.png
   accession: GCA_911387755.1
   annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Chrysotoxum_bicinctum/GCA_911387755.1/geneset/2021_12/Chrysotoxum_bicinctum-GCA_911387755.1-2021_12-genes.gff3.gz
   annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Chrysotoxum_bicinctum/GCA_911387755.1/geneset/2021_12/Chrysotoxum_bicinctum-GCA_911387755.1-2021_12-genes.gtf.gz
@@ -346,7 +346,7 @@
   rapid_link: https://rapid.ensembl.org/Clostera_curtula_gca905475355v1/Info/Index
 
 - species: Coccinella septempunctata
-  image: Metazoa.png
+  image: Arthropods.png
   accession: GCA_907165205.1
   annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Coccinella_septempunctata/GCA_907165205.1/geneset/2021_12/Coccinella_septempunctata-GCA_907165205.1-2021_12-genes.gff3.gz
   annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Coccinella_septempunctata/GCA_907165205.1/geneset/2021_12/Coccinella_septempunctata-GCA_907165205.1-2021_12-genes.gtf.gz
@@ -370,7 +370,7 @@
   rapid_link: https://rapid.ensembl.org/Colias_croceus_gca905220415v1/Info/Index
 
 - species: Coremacera marginata
-  image: Metazoa.png
+  image: Arthropods.png
   accession: GCA_914767935.1
   annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Coremacera_marginata/GCA_914767935.1/geneset/2021_12/Coremacera_marginata-GCA_914767935.1-2021_12-genes.gff3.gz
   annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Coremacera_marginata/GCA_914767935.1/geneset/2021_12/Coremacera_marginata-GCA_914767935.1-2021_12-genes.gtf.gz
@@ -478,7 +478,7 @@
   rapid_link: https://rapid.ensembl.org/Ennomos_quercinarius_gca910589525v1/Info/Index
 
 - species: Eristalis arbustorum
-  image: Metazoa.png
+  image: Arthropods.png
   accession: GCA_916610145.1
   annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Eristalis_arbustorum/GCA_916610145.1/geneset/2021_12/Eristalis_arbustorum-GCA_916610145.1-2021_12-genes.gff3.gz
   annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Eristalis_arbustorum/GCA_916610145.1/geneset/2021_12/Eristalis_arbustorum-GCA_916610145.1-2021_12-genes.gtf.gz
@@ -490,7 +490,7 @@
   rapid_link: https://rapid.ensembl.org/Eristalis_arbustorum_gca916610145v1/Info/Index
 
 - species: Eristalis pertinax
-  image: Metazoa.png
+  image: Arthropods.png
   accession: GCA_907269125.1
   annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Eristalis_pertinax/GCA_907269125.1/geneset/2021_12/Eristalis_pertinax-GCA_907269125.1-2021_12-genes.gff3.gz
   annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Eristalis_pertinax/GCA_907269125.1/geneset/2021_12/Eristalis_pertinax-GCA_907269125.1-2021_12-genes.gtf.gz
@@ -502,7 +502,7 @@
   rapid_link: https://rapid.ensembl.org/Eristalis_pertinax_gca907269125v1/Info/Index
 
 - species: Eristalis tenax
-  image: Metazoa.png
+  image: Arthropods.png
   accession: GCA_905231855.1
   annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Eristalis_tenax/GCA_905231855.1/geneset/2021_12/Eristalis_tenax-GCA_905231855.1-2021_12-genes.gff3.gz
   annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Eristalis_tenax/GCA_905231855.1/geneset/2021_12/Eristalis_tenax-GCA_905231855.1-2021_12-genes.gtf.gz
@@ -514,7 +514,7 @@
   rapid_link: https://rapid.ensembl.org/Eristalis_tenax_gca905231855v1/Info/Index
 
 - species: Eupeodes latifasciatus
-  image: Metazoa.png
+  image: Arthropods.png
   accession: GCA_920104205.1
   annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Eupeodes_latifasciatus/GCA_920104205.1/geneset/2021_12/Eupeodes_latifasciatus-GCA_920104205.1-2021_12-genes.gff3.gz
   annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Eupeodes_latifasciatus/GCA_920104205.1/geneset/2021_12/Eupeodes_latifasciatus-GCA_920104205.1-2021_12-genes.gtf.gz
@@ -550,7 +550,7 @@
   rapid_link: https://rapid.ensembl.org/Fabriciana_adippe_gca905404265v1/Info/Index
 
 - species: Gymnosoma rotundatum
-  image: Metazoa.png
+  image: Arthropods.png
   accession: GCA_916610165.1
   annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Gymnosoma_rotundatum/GCA_916610165.1/geneset/2021_12/Gymnosoma_rotundatum-GCA_916610165.1-2021_12-genes.gff3.gz
   annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Gymnosoma_rotundatum/GCA_916610165.1/geneset/2021_12/Gymnosoma_rotundatum-GCA_916610165.1-2021_12-genes.gtf.gz
@@ -764,7 +764,7 @@
   rapid_link: https://rapid.ensembl.org/Maniola_jurtina_gca905333105v1/Info/Index
 
 - species: Melanostoma mellinum
-  image: Metazoa.png
+  image: Arthropods.png
   accession: GCA_914767635.1
   annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Melanostoma_mellinum/GCA_914767635.1/geneset/2021_12/Melanostoma_mellinum-GCA_914767635.1-2021_12-genes.gff3.gz
   annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Melanostoma_mellinum/GCA_914767635.1/geneset/2021_12/Melanostoma_mellinum-GCA_914767635.1-2021_12-genes.gtf.gz
@@ -896,7 +896,7 @@
   rapid_link: https://rapid.ensembl.org/Ochlodes_sylvanus_gca905404295v1/Info/Index
 
 - species: Ocypus olens
-  image: Metazoa.png
+  image: Arthropods.png
   accession: GCA_910593695.1
   annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Ocypus_olens/GCA_910593695.1/geneset/2021_12/Ocypus_olens-GCA_910593695.1-2021_12-genes.gff3.gz
   annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Ocypus_olens/GCA_910593695.1/geneset/2021_12/Ocypus_olens-GCA_910593695.1-2021_12-genes.gtf.gz
