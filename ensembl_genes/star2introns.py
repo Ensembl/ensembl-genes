@@ -238,7 +238,8 @@ def main() -> None:
     """Retrieve splice site information for database storage.
 
     It will retrieve the possible analyses based on the TSV file provided. Then it will
-    process all the STAR junctions files in the directory provided and """
+    process all the STAR junctions files in the directory provided and store the information
+    in the database provided"""
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--junctions_dir",
