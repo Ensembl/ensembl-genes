@@ -23,28 +23,39 @@ python:
     - "nightly"
 
 env:
-    matrix:
-        - TESTENV=docs
-        - TESTENV=code
-        - TESTENV=pylint
+  global:
+    - POETRY_VIRTUALENVS_IN_PROJECT="true"
+  jobs:
+    - TESTENV=code
+    - TESTENV=pylint
+    - TESTENV=black
+    - TESTENV=doc
 
 jobs:
-  allow_failures:
-  - python: "nightly"
-    env: TESTENV=pylint
+    exclude:
+    - python: 3.8
+      env: TESTENV=pylint
+    - python: nightly
+      env: TESTENV=doc
+    - python: 3.8
+      env: TESTENV=doc
+    allow_failures:
+    - python: nightly
+      env: TESTENV=pylint
 
 before_install:
     - git clone --branch master --depth 1 https://github.com/Ensembl/ensembl-hive.git
     - export PYTHONPATH=$PYTHONPATH:$(pwd)/ensembl-hive/wrappers/python3/
-    - pip install poetry
+    - python -m pip install poetry
 
 # command to install dependencies
 install:
+    - if [[ "$TESTENV" == "pylint" ]] && [[ "$TRAVIS_PYTHON_VERSION" = "nightly" ]]; then poetry add --dev pylint@latest; fi
     - poetry install
-    - if [[ "$TRAVIS_PYTHON_VERSION" = "nightly" ]]; then poetry add --dev pylint@latest; fi
 
 # command to run tests
-script:
-    - if [[ "$TESTENV" == "code" ]]; then poetry run pytest ensembl_genes; fi
-    - if [[ "$TESTENV" == "docs" ]]; then poetry run make html; fi
-    - if [[ "$TESTENV" == "pylint" ]]; then poetry run pylint --disable=line-too-long ensembl_genes; fi
+script: >
+    if [[ "$TESTENV" == "code" ]]; then poetry run pytest ensembl_genes;
+    elif [[ "$TESTENV" == "docs" ]]; then poetry run make html;
+    elif [[ "$TESTENV" == "pylint" ]]; then poetry run pylint --disable=line-too-long ensembl_genes;
+    elif [[ "$TESTENV" == "black" ]]; then poetry run black --check ensembl_genes_api; fi
