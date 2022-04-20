@@ -44,7 +44,7 @@ jobs:
       env: TESTENV=pylint
 
 before_install:
-    - git clone --branch master --depth 1 https://github.com/Ensembl/ensembl-hive.git
+    - git clone --branch main --depth 1 https://github.com/Ensembl/ensembl-hive.git
     - export PYTHONPATH=$PYTHONPATH:$(pwd)/ensembl-hive/wrappers/python3/
     - python -m pip install poetry
 
@@ -57,5 +57,5 @@ install:
 script: >
     if [[ "$TESTENV" == "code" ]]; then poetry run pytest ensembl_genes;
     elif [[ "$TESTENV" == "docs" ]]; then poetry run make html;
-    elif [[ "$TESTENV" == "pylint" ]]; then poetry run pylint --disable=line-too-long ensembl_genes;
-    elif [[ "$TESTENV" == "black" ]]; then poetry run black --check ensembl_genes_api; fi
+    elif [[ "$TESTENV" == "pylint" ]]; then poetry run pylint --disable=fixme ensembl_genes;
+    elif [[ "$TESTENV" == "black" ]]; then poetry run black --check ensembl_genes; fi
