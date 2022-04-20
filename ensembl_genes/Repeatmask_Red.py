@@ -14,6 +14,7 @@
 
 """ Module to run Red to find repeats and store them in the given Ensembl core database """
 
+# pylint: disable=wrong-import-position,wrong-import-order,invalid-name
 import os
 import errno
 import subprocess
@@ -34,7 +35,7 @@ import eHive
 class Repeatmask_Red(eHive.BaseRunnable):
     """Runnable that runs Red to find repeats and store them in the target database."""
 
-    def param_defaults(self):
+    def param_defaults(self):  # pylint: disable=no-self-use
         """It sets the parameters default values."""
         return {
             "logic_name": "repeatdetector",
@@ -46,7 +47,9 @@ class Repeatmask_Red(eHive.BaseRunnable):
     def fetch_input(self):
         """It fetches the input parameters and it checks that they are correct."""
 
-        # get new temporary directory name in the default path with prefix gnm_ (eg '/scratch/gnm_nar4nry8')
+        # pylint: disable=too-many-locals,too-many-statements
+        # get new temporary directory name in the default path with prefix gnm_
+        # (eg '/scratch/gnm_nar4nry8')
         temp_gnm_dir = tempfile.TemporaryDirectory(prefix="gnm_").name
 
         genome_file = self.param_required("genome_file")
@@ -81,7 +84,7 @@ class Repeatmask_Red(eHive.BaseRunnable):
 
         # check that the Red binary exists
         red_path_obj = Path(red_path)
-        if not (red_path_obj.exists()):
+        if not red_path_obj.exists():
             raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), red_path)
 
         # connect to the target database and fetch the seq_region_ids required later
@@ -90,19 +93,28 @@ class Repeatmask_Red(eHive.BaseRunnable):
         if connection:
             metadata = db.MetaData()
 
-            sr = db.Table("seq_region", metadata, autoload=True, autoload_with=engine)
+            seq_region = db.Table(
+                "seq_region", metadata, autoload=True, autoload_with=engine
+            )
             sra = db.Table(
                 "seq_region_attrib", metadata, autoload=True, autoload_with=engine
             )
-            at = db.Table("attrib_type", metadata, autoload=True, autoload_with=engine)
-
-            query = db.select([sr.columns.seq_region_id, sr.columns.name])
-            query = query.select_from(
-                sr.join(
-                    sra, sr.columns.seq_region_id == sra.columns.seq_region_id
-                ).join(at, at.columns.attrib_type_id == sra.columns.attrib_type_id)
+            attrib_type = db.Table(
+                "attrib_type", metadata, autoload=True, autoload_with=engine
             )
-            query = query.where(at.columns.code == "toplevel")
+
+            query = db.select(
+                [seq_region.columns.seq_region_id, seq_region.columns.name]
+            )
+            query = query.select_from(
+                seq_region.join(
+                    sra, seq_region.columns.seq_region_id == sra.columns.seq_region_id
+                ).join(
+                    attrib_type,
+                    attrib_type.columns.attrib_type_id == sra.columns.attrib_type_id,
+                )
+            )
+            query = query.where(attrib_type.columns.code == "toplevel")
 
             results = connection.execute(query).fetchall()
 
@@ -124,15 +136,15 @@ class Repeatmask_Red(eHive.BaseRunnable):
         if msk_path.exists():
             try:
                 shutil.rmtree(msk)
-            except OSError as e:
-                print(f"Error: {msk} : {e.strerror}")
+            except OSError as error:
+                print(f"Error: {msk} : {error.strerror}")
 
         rpt_path = Path(rpt)
         if rpt_path.exists():
             try:
                 shutil.rmtree(rpt)
-            except OSError as e:
-                print(f"Error: {rpt} : {e.strerror}")
+            except OSError as error:
+                print(f"Error: {rpt} : {error.strerror}")
 
         try:
             msk_path.mkdir()
@@ -171,6 +183,7 @@ class Repeatmask_Red(eHive.BaseRunnable):
     def write_output(self):
         """It parses the Red's program output and inserts it into
         the given Ensembl core database."""
+        # pylint: disable=too-many-locals
         engine = db.create_engine(self.param("target_db_url"))
         connection = engine.connect()
         metadata = db.MetaData()
@@ -266,12 +279,13 @@ class Repeatmask_Red(eHive.BaseRunnable):
         # delete temporary directory and its contents
         try:
             shutil.rmtree(self.param("gnm"))
-        except OSError as e:
-            print(f'Error: {self.param("gnm")} : {e.strerror}')
+        except OSError as error:
+            print(f'Error: {self.param("gnm")} : {error.strerror}')
 
     def parse_repeats(self, rpt, repeat_consensus_id, analysis_id):
         """It parses the Red's program output and it converts it into
         a tsv file which can be loaded into an Ensembl core repeat_feature table."""
+        # pylint: disable=too-many-locals
         # Required 1 file in rpt dir and it ends with .rpt
         # Red's rpt output file contains ">" which needs to be removed from each line
         # and we need to replace the seq region name with seq region id and
@@ -293,7 +307,7 @@ class Repeatmask_Red(eHive.BaseRunnable):
                 seq_region_start = int(columns[1]) + 1  # Red's start is zero-based
                 seq_region_end = int(columns[2]) - 1  # Red's end is exclusive
                 seq_region_id = seq_region[name]
-                # seq_region_id seq_region_start seq_region_end repeat_start repeat_end repeat_consensus_id analysis_id
+                # seq_region_id seq_region_start seq_region_end repeat_start repeat_end repeat_consensus_id analysis_id # pylint: disable=line-too-long
                 print(
                     str(seq_region_id)
                     + "\t"
