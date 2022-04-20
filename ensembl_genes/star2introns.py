@@ -137,7 +137,7 @@ def process_file(
                     if logic_name in daf_table[seq_region][intron_id]:
                         daf_table[seq_region][intron_id][logic_name] += depth
                     else:
-                        daf_table[seq_region][intron_id] = {logic_name: depth}
+                        daf_table[seq_region][intron_id][logic_name] = depth
         except KeyError:
             logging.error("Could not find analysis for file %s", filename)
 
@@ -212,13 +212,13 @@ def write_output(  # pylint: disable=too-many-locals
                             "hit_name": hit_name,
                             "hit_start": 1,
                             "hit_end": (
-                                int(seq_region_data[2]) - int(seq_region_data[1]) + 1
+                                int(seq_region_data[1]) - int(seq_region_data[0]) + 1
                             ),
                             "hit_strand": 1,
                             "align_type": "ensembl",
                             "analysis_id": analyses_id[logic_name],
                             "score": daf_table[seq_region][intron_id][logic_name],
-                            "cigar_line": f"{int(seq_region_data[2])-int(seq_region_data[1])+1}M",
+                            "cigar_line": f"{int(seq_region_data[1])-int(seq_region_data[0])+1}M",
                         }
                     )
                     if (counter % batch_size) == 0:
