@@ -24,7 +24,7 @@
     on the junction file
 
 Examples:
-    star2introns --csv_file /hps/nobackup/genebuild/salmon/rnaseq/salmo_salar.csv
+    star2introns --tsv_file /hps/nobackup/genebuild/salmon/rnaseq/salmo_salar.tsv
         --intron_db mysql+pymysql://rw_user:password@genebuild6:3306/salmo_salar_gca905237065v2_104
         --junctions_dir /hps/nobackup/genebuild/salmon/rnaseq/output
         --species salmo_salar --verbose
