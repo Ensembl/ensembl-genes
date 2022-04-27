@@ -1,5 +1,5 @@
-pylint
 pytest
-sphinx
-sqlalchemy
-pymysql
+pylint
+Sphinx
+pymysql==1.0.2
+sqlalchemy==1.4.9
