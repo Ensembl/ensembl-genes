@@ -21,7 +21,7 @@ limitations under the License.
 
 =head1 NAME
 
-Bio::EnsEMBL::Production::Pipeline::PipeConfig::GeneSymbolClassifier_conf
+GeneSymbolClassifier_production_conf
 
 =head1 DESCRIPTION
 
@@ -29,12 +29,14 @@ eHive pipeline to assign gene symbols to the protein coding gene sequences in an
 
 =cut
 
-package Bio::EnsEMBL::Production::Pipeline::PipeConfig::GeneSymbolClassifier_conf;
+package GeneSymbolClassifier_production_conf;
 
 use strict;
 use warnings;
 
 use base ('Bio::EnsEMBL::Production::Pipeline::PipeConfig::Base_conf');
+
+use Bio::EnsEMBL::Registry;
 
 use Bio::EnsEMBL::ApiVersion qw/software_version/;
 use Bio::EnsEMBL::Hive::Version 2.5;
@@ -46,29 +48,31 @@ sub default_options {
   # inherited from the Base pipeline config
   my $gsc_data_directory = $self->o('pipeline_dir');
 
-  my $core_db_name = $self->o('core_db_name');
+  #my $pipeline_name => $self->o('pipeline_name') || 'GeneSymbolClassifier_production';
+  my $pipeline_name => 'GeneSymbolClassifier_production';
+  my $pipe_db_name = $ENV{USER}.$pipeline_name;
 
-  my $pipeline_name => $self-o('pipeline_name') || 'GeneSymbolClassifier_production';
-  my $pipe_db_name = $ENV{USER}.$self->o('pipeline_name');
+  #my $gsc_scripts_directory = $ENV{ENSCODE}.'/ensembl-genes/pipelines/gene_symbol_classifier';
+  my $gsc_scripts_directory = '/nfs/production/flicek/ensembl/genebuild/william/gene-symbol-classifier/production-pipeline/ensembl-genes/pipelines/gene_symbol_classifier';
 
-  my $gsc_scripts_directory = $ENV{ENSCODE}.'/ensembl-genes/pipelines/gene_symbol_classifier';
-
-  my $protein_sequences_fasta_path = "${gsc_data_directory}/${core_db_name}_protein_sequences.fa";
-  my $gene_symbols_csv_path = "${gsc_data_directory}/${core_db_name}_protein_sequences_symbols.csv";
-  my $filtered_assignments_csv_path = "${gsc_data_directory}/${core_db_name}_protein_sequences_symbols_filtered.csv";
+  #my $protein_sequences_fasta_path = "${gsc_data_directory}/${core_db_name}_protein_sequences.fa";
+  #my $gene_symbols_csv_path = "${gsc_data_directory}/${core_db_name}_protein_sequences_symbols.csv";
+  #my $filtered_assignments_csv_path = "${gsc_data_directory}/${core_db_name}_protein_sequences_symbols_filtered.csv";
 
   return {
     %{$self->SUPER::default_options},
 
     species      => [],
+    #taxon        => [],
     division     => [],
     run_all      => 0,
     antispecies  => [],
+    #antitaxons   => [],
     meta_filters => {},
 
     history_file => undef,
 
-    pipeline_name => $self->o('pipeline_name'),
+    pipeline_name => $pipeline_name,
 
     pipeline_db => {
       -driver => 'mysql',
@@ -85,9 +89,12 @@ sub default_options {
 
     gsc_scripts_directory => $gsc_scripts_directory,
     gsc_data_directory => $gsc_data_directory,
-    protein_sequences_fasta_path => $protein_sequences_fasta_path,
-    gene_symbols_csv_path => $gene_symbols_csv_path,
-    filtered_assignments_csv_path => $filtered_assignments_csv_path,
+    #protein_sequences_fasta_path => $protein_sequences_fasta_path,
+    #gene_symbols_csv_path => $gene_symbols_csv_path,
+    #filtered_assignments_csv_path => $filtered_assignments_csv_path,
+
+    #core_db_server_host => $core_db_server_host,
+    #core_db_server_port => $core_db_server_port,
   };
 }
 
@@ -118,25 +125,27 @@ sub pipeline_analyses {
 
   return [
     {
-      -logic_name      => 'InitialisePipeline',
+      -logic_name      => 'InitializePipeline',
       -module          => 'Bio::EnsEMBL::Hive::RunnableDB::Dummy',
       -input_ids       => [ {} ],
       -max_retry_count => 1,
       -flow_into       => {
-        '1->A' => ['SpeciesFactory_All'],
+        '1->A' => ['get_core_db_names'],
         'A->1' => ['Notify'],
       },
       -rc_name         => 'normal',
     },
 
     {
-      -logic_name      => 'SpeciesFactory_All',
-      -module          => 'Bio::EnsEMBL::Production::Pipeline::Common::SpeciesFactory',
+      -logic_name      => 'get_core_db_names',
+      -module          => 'Bio::EnsEMBL::Production::Pipeline::Common::DbFactory',
       -parameters      => {
         species      => $self->o('species'),
+        #taxon     => $self->o('taxon'),
         division     => $self->o('division'),
         run_all      => $self->o('run_all'),
         antispecies  => $self->o('antispecies'),
+        #antitaxons  => $self->o('antitaxons'),
         meta_filters => $self->o('meta_filters'),
       },
       -max_retry_count => 1,
@@ -153,7 +162,9 @@ sub pipeline_analyses {
       -comment    => 'Retrieve the protein coding gene sequences from a Ensembl core database and store them as a FASTA file. The analysis is auto-seeded with a job for the target core database.',
       -module     => 'Bio::EnsEMBL::Hive::RunnableDB::SystemCmd',
       -parameters => {
-        'cmd' => 'perl '.$self->o('gsc_scripts_directory').'/dump_protein_sequences.pl --db_host '.$self->o('core_db_server_host').' --db_port '.$self->o('core_db_server_port').' --db_name '.$self->o('core_db_name').' --output_file '.$self->o('protein_sequences_fasta_path'),
+        #'cmd' => 'echo "dump_protein_sequences: "#dbname#, #species#, #group#',
+        #'cmd' => 'perl '.$self->o('gsc_scripts_directory').'/dump_protein_sequences.pl --db_host '.$self->o('core_db_server_host').' --db_port '.$self->o('core_db_server_port').' --db_name #dbname# --output_file '.$self->o('gsc_data_directory').'/'.'#dbname#'.'_protein_sequences.fa',
+        'cmd' => 'perl '.$self->o('gsc_scripts_directory').'/dump_protein_sequences.pl --db_name #dbname# --output_file '.$self->o('gsc_data_directory').'/#dbname#_protein_sequences.fa',
       },
       -rc_name    => 'default',
       -flow_into  => {
@@ -168,7 +179,8 @@ sub pipeline_analyses {
       -comment    => 'Use a gene symbol classifier neural network to assign gene symbols to protein sequences in the FASTA file and save the assignments to a CSV file.',
       -module     => 'Bio::EnsEMBL::Hive::RunnableDB::SystemCmd',
       -parameters => {
-        'cmd' => 'singularity run --bind '.$self->o('classifier_directory').':/app/checkpoints --bind '.$self->o('gsc_data_directory').':/app/data '.$self->o('singularity_image').' --checkpoint /app/checkpoints/'.$self->o('classifier_filename').' --sequences_fasta /app/data/'.$self->o('core_db_name').'_protein_sequences.fa --scientific_name "'.$self->o('scientific_name').'"',
+        'cmd' => 'echo "assign_gene_symbols"',
+        #'cmd' => 'singularity run --bind '.$self->o('classifier_directory').':/app/checkpoints --bind '.$self->o('gsc_data_directory').':/app/data '.$self->o('singularity_image').' --checkpoint /app/checkpoints/'.$self->o('classifier_filename').' --sequences_fasta /app/data/'.$self->o('core_db_name').'_protein_sequences.fa --scientific_name "'.$self->o('scientific_name').'"',
       },
       -rc_name    => 'default',
       -flow_into  => {
@@ -183,7 +195,8 @@ sub pipeline_analyses {
       -comment    => 'Filter assignments using the threshold probability and save them to a separate CSV file.',
       -module     => 'Bio::EnsEMBL::Hive::RunnableDB::SystemCmd',
       -parameters => {
-        'cmd' => 'singularity run --bind '.$self->o('gsc_data_directory').':/app/data '.$self->o('ehive_singularity_image').' --symbol_assignments '.$self->o('gene_symbols_csv_path').' --threshold '.$self->o('loading_threshold'),
+        'cmd' => 'echo "filter_assignments"',
+        #'cmd' => 'singularity run --bind '.$self->o('gsc_data_directory').':/app/data '.$self->o('ehive_singularity_image').' --symbol_assignments '.$self->o('gene_symbols_csv_path').' --threshold '.$self->o('loading_threshold'),
       },
       -rc_name    => 'default',
       -flow_into  => {
@@ -198,7 +211,8 @@ sub pipeline_analyses {
       -comment    => 'Read gene symbols assignments from a CSV file and load them to the Ensembl core database.',
       -module     => 'Bio::EnsEMBL::Hive::RunnableDB::SystemCmd',
       -parameters => {
-        'cmd' => 'perl '.$self->o('gsc_scripts_directory').'/load_gene_symbols.pl --db_host '.$self->o('core_db_server_host').' --db_port '.$self->o('core_db_server_port').' --db_name '.$self->o('core_db_name').' --username '.$self->o('user').' --password '.$self->o('password').' --symbol_assignments '.$self->o('filtered_assignments_csv_path'),
+        'cmd' => 'echo "load_gene_symbols"',
+        #'cmd' => 'perl '.$self->o('gsc_scripts_directory').'/load_gene_symbols.pl --db_host '.$self->o('core_db_server_host').' --db_port '.$self->o('core_db_server_port').' --db_name '.$self->o('core_db_name').' --username '.$self->o('user').' --password '.$self->o('password').' --symbol_assignments '.$self->o('filtered_assignments_csv_path'),
       },
       -rc_name    => 'default',
       -flow_into  => {

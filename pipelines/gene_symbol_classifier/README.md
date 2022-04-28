@@ -1,9 +1,9 @@
-# Gene Symbol Classifier eHive pipeline
+# GSC eHive pipelines
 
-eHive pipeline to run a trained [Gene Symbol Classifier](https://github.com/Ensembl/gene_symbol_classifier) network for an Ensembl core database.
+eHive pipelines to run a [GSC](https://github.com/Ensembl/gene_symbol_classifier) classifier on an Ensembl core database, or for Ensembl Rapid Release assemblies.
 
 
-## run the pipeline
+## standalone pipeline
 
 initialize the pipeline
 ```
