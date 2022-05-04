@@ -7,7 +7,7 @@ eHive pipelines to run a [GSC](https://github.com/Ensembl/gene_symbol_classifier
 
 initialize the pipeline
 ```
-init_pipeline.pl GeneSymbolClassifier_conf --pipe_db_server <pipeline MySQL server hostname> --pipe_db_port <pipeline MySQL server port> --user <username> --password <password> --user_r ensro --pipe_db_name <pipeline database name> --core_db_server_host <core database server hostname> --core_db_server_port <core database server port> --core_db_name <core database name> --annotation_data_directory <annotation data directory> --singularity_image <Singularity image path> --classifier_directory <classifier checkpoint directory> --classifier_filename <classifier checkpoint filename> --scientific_name <assembly scientific name> --ehive_singularity_image <eHive pipeline singularity image path> --loading_threshold <loading symbols threshold probability>
+init_pipeline.pl GeneSymbolClassifier_conf --pipe_db_server <pipeline MySQL server hostname> --pipe_db_port <pipeline MySQL server port> --user <username> --password <password> --user_r ensro --pipe_db_name <pipeline database name> --core_db_server_host <core database server hostname> --core_db_server_port <core database server port> --core_db_name <core database name> --annotation_data_directory <annotation data directory> --singularity_image <Singularity image path> --classifier_directory <saved classifier directory> --classifier_filename <saved classifier filename> --scientific_name <assembly scientific name> --ehive_singularity_image <eHive pipeline Singularity image path> --loading_threshold <loading symbols probability threshold>
 ```
 
 
