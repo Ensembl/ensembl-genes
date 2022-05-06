@@ -1,13 +1,13 @@
 [tool.poetry]
-name = "gene_symbol_classifier_ehive_pipeline"
-version = "0.2.0"
-description = ""
+name = "gsc_pipeline"
+version = "0.3.0"
+description = "GSC (Gene Symbol Classifier) eHive pipeline"
 authors = ["William Stark <william@ebi.ac.uk>"]
 license = "Apache-2.0"
 
 [tool.poetry.dependencies]
 python = "^3.9"
-pandas = "^1.3.3"
+pandas = "^1.4.2"
 loguru = "^0.5.3"
 
 [tool.poetry.dev-dependencies]
