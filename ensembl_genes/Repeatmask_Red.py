@@ -68,8 +68,8 @@ class Repeatmask_Red(eHive.BaseRunnable):
         if gnm_path.exists():
             try:
                 shutil.rmtree(gnm_path)
-            except OSError as e:
-                print(f"Error: {gnm} : {e.strerror}")
+            except OSError as ex:
+                print(f"Error: {gnm} : {ex.strerror}")
 
         try:
             gnm_path.mkdir()
@@ -92,7 +92,7 @@ class Repeatmask_Red(eHive.BaseRunnable):
 
         # check that the Red binary exists
         red_path_obj = Path(red_path)
-        if not (red_path_obj.exists()):
+        if not red_path_obj.exists():
             raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), red_path)
 
         # connect to the target database and fetch the seq_region_ids required later
@@ -101,25 +101,31 @@ class Repeatmask_Red(eHive.BaseRunnable):
         if connection:
             metadata = db.MetaData()
 
-            sr = db.Table("seq_region", metadata, autoload=True, autoload_with=engine)
-            sra = db.Table(
+            sr_table = db.Table(
+                "seq_region", metadata, autoload=True, autoload_with=engine
+            )
+            sra_table = db.Table(
                 "seq_region_attrib", metadata, autoload=True, autoload_with=engine
             )
-            at = db.Table("attrib_type", metadata, autoload=True, autoload_with=engine)
+            at_table = db.Table(
+                "attrib_type", metadata, autoload=True, autoload_with=engine
+            )
 
-            query = db.select([sr.columns.seq_region_id, sr.columns.name])
+            query = db.select([sr_table.columns.seq_region_id, sr_table.columns.name])
             query = query.select_from(
-                sr.join(sra, sr.columns.seq_region_id == sra.columns.seq_region_id).join(
-                    at, at.columns.attrib_type_id == sra.columns.attrib_type_id
+                sr_table.join(
+                    sra_table,
+                    sr_table.columns.seq_region_id == sra_table.columns.seq_region_id,
+                ).join(
+                    at_table,
+                    at_table.columns.attrib_type_id == sra_table.columns.attrib_type_id,
                 )
             )
-            query = query.where(at.columns.code == "toplevel")
+            query = query.where(at_table.columns.code == "toplevel")
 
             results = connection.execute(query).fetchall()
 
-            seq_region = {}
-            for seq_region_id, name in results:
-                seq_region[name] = seq_region_id
+            seq_region = {name: seq_region_id for seq_region_id, name in results}
             self.param("seq_region", seq_region)
 
             connection.close()
@@ -133,15 +139,15 @@ class Repeatmask_Red(eHive.BaseRunnable):
         if msk_path.exists():
             try:
                 shutil.rmtree(msk)
-            except OSError as e:
-                print(f"Error: {msk} : {e.strerror}")
+            except OSError as ex:
+                print(f"Error: {msk} : {ex.strerror}")
 
         rpt_path = Path(rpt)
         if rpt_path.exists():
             try:
                 shutil.rmtree(rpt)
-            except OSError as e:
-                print(f"Error: {rpt} : {e.strerror}")
+            except OSError as ex:
+                print(f"Error: {rpt} : {ex.strerror}")
 
         try:
             msk_path.mkdir()
@@ -275,8 +281,8 @@ class Repeatmask_Red(eHive.BaseRunnable):
         # delete temporary directory and its contents
         try:
             shutil.rmtree(self.param("gnm"))
-        except OSError as e:
-            print(f'Error: {self.param("gnm")} : {e.strerror}')
+        except OSError as ex:
+            print(f'Error: {self.param("gnm")} : {ex.strerror}')
 
     def parse_repeats(self, rpt, repeat_consensus_id, analysis_id):
         """It parses the Red's program output and it converts it into
@@ -304,20 +310,16 @@ class Repeatmask_Red(eHive.BaseRunnable):
                 seq_region_start = int(columns[1]) + 1  # Red's start is zero-based
                 seq_region_end = int(columns[2]) - 1  # Red's end is exclusive
                 seq_region_id = seq_region[name]
-                # seq_region_id seq_region_start seq_region_end repeat_start repeat_end repeat_consensus_id analysis_id
+                repeat_start = seq_region_end - seq_region_start + 1
                 print(
-                    str(seq_region_id)
-                    + "\t"
-                    + str(seq_region_start)
-                    + "\t"
-                    + str(seq_region_end)
-                    + "\t"
-                    + "1\t"
-                    + str(seq_region_end - seq_region_start + 1)
-                    + "\t"
-                    + str(repeat_consensus_id)
-                    + "\t"
-                    + str(analysis_id),
+                    "{}\t{}\t{}\t1\t{}\t{}\t{}".format(
+                        seq_region_id,
+                        seq_region_start,
+                        seq_region_end,
+                        repeat_start,
+                        repeat_consensus_id,
+                        analysis_id,
+                    ),
                     file=f_out,
                 )
 
