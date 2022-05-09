@@ -58,4 +58,4 @@ script: >
     if [[ "$TESTENV" == "code" ]]; then poetry run pytest ensembl_genes;
     elif [[ "$TESTENV" == "docs" ]]; then poetry run make html;
     elif [[ "$TESTENV" == "pylint" ]]; then poetry run pylint --disable=fixme ensembl_genes;
-    elif [[ "$TESTENV" == "black" ]]; then poetry run black --check ensembl_genes; fi
+    elif [[ "$TESTENV" == "black" ]]; then poetry run black --line-length 90 --check ensembl_genes; fi
