@@ -15,20 +15,22 @@
 
 """ Module to run Red to find repeats and store them in the given Ensembl core database """
 
-import os
 import errno
-import subprocess
+import os
 import shutil
-import sqlalchemy as db
+import subprocess
+
 from pathlib import Path
 
 # sqlalchemy requires MySQLdb but MySQLdb doesn't support Python 3.x
 # pymysql can be imported and used instead
 import pymysql
-
-pymysql.install_as_MySQLdb()
+import sqlalchemy as db
 
 import eHive
+
+
+pymysql.install_as_MySQLdb()
 
 
 class Repeatmask_Red(eHive.BaseRunnable):
