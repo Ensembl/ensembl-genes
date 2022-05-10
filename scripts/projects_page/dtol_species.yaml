@@ -9,6 +9,18 @@
   repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/abrostola_tripartita/GCA_905340225.1.repeatmodeler.fa
   ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Abrostola_tripartita/GCA_905340225.1
   rapid_link: https://rapid.ensembl.org/Abrostola_tripartita_gca905340225v1/Info/Index
+  busco_score: http://ftp.ebi.ac.uk/pub/databases/ensembl/dtol/busco_scores/abrostola_tripartita_GCA_905340225.1/abrostola_tripartita_gca905340225v1_busco_short_summary.txt
+
+- species: Abrostola tripartita (alternate haplotype)
+  image: Lepidoptera.png
+  accession: GCA_905340255.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Abrostola_tripartita/GCA_905340255.1/geneset/2021_11/Abrostola_tripartita-GCA_905340255.1-2021_11-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Abrostola_tripartita/GCA_905340255.1/geneset/2021_11/Abrostola_tripartita-GCA_905340255.1-2021_11-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Abrostola_tripartita/GCA_905340255.1/geneset/2021_11/Abrostola_tripartita-GCA_905340255.1-2021_11-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Abrostola_tripartita/GCA_905340255.1/geneset/2021_11/Abrostola_tripartita-GCA_905340255.1-2021_11-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Abrostola_tripartita/GCA_905340255.1/genome/Abrostola_tripartita-GCA_905340255.1-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Abrostola_tripartita/GCA_905340255.1
+  rapid_link: https://rapid.ensembl.org/Abrostola_tripartita_gca905340255v1/Info/Index
 
 - species: Adalia bipunctata
   image: Arthropods.png
@@ -21,6 +33,7 @@
   repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/adalia_bipunctata/GCA_910592335.1.repeatmodeler.fa
   ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Adalia_bipunctata/GCA_910592335.1
   rapid_link: https://rapid.ensembl.org/Adalia_bipunctata_gca910592335v1/Info/Index
+  busco_score: http://ftp.ebi.ac.uk/pub/databases/ensembl/dtol/busco_scores/adalia_bipunctata_GCA_910592335.1/adalia_bipunctata_gca910592335v1_busco_short_summary.txt
 
 - species: Amphipyra berbera
   image: Lepidoptera.png
@@ -33,6 +46,30 @@
   repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/amphipyra_berbera/GCA_910594945.1.repeatmodeler.fa
   ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Amphipyra_berbera/GCA_910594945.1
   rapid_link: https://rapid.ensembl.org/Amphipyra_berbera_gca910594945v1/Info/Index
+  busco_score: http://ftp.ebi.ac.uk/pub/databases/ensembl/dtol/busco_scores/amphipyra_berbera_GCA_910594945.1/amphipyra_berbera_gca910594945v1_busco_short_summary.txt
+
+- species: Amphipyra berbera (alternate haplotype)
+  image: Lepidoptera.png
+  accession: GCA_910595045.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Amphipyra_berbera/GCA_910595045.1/geneset/2021_11/Amphipyra_berbera-GCA_910595045.1-2021_11-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Amphipyra_berbera/GCA_910595045.1/geneset/2021_11/Amphipyra_berbera-GCA_910595045.1-2021_11-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Amphipyra_berbera/GCA_910595045.1/geneset/2021_11/Amphipyra_berbera-GCA_910595045.1-2021_11-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Amphipyra_berbera/GCA_910595045.1/geneset/2021_11/Amphipyra_berbera-GCA_910595045.1-2021_11-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Amphipyra_berbera/GCA_910595045.1/genome/Amphipyra_berbera-GCA_910595045.1-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Amphipyra_berbera/GCA_910595045.1
+  rapid_link: https://rapid.ensembl.org/Amphipyra_berbera_gca910595045v1/Info/Index
+
+- species: Amphipyra tragopoginis (alternate haplotype)
+  image: Lepidoptera.png
+  accession: GCA_905220425.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Amphipyra_tragopoginis/GCA_905220425.1/geneset/2021_11/Amphipyra_tragopoginis-GCA_905220425.1-2021_11-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Amphipyra_tragopoginis/GCA_905220425.1/geneset/2021_11/Amphipyra_tragopoginis-GCA_905220425.1-2021_11-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Amphipyra_tragopoginis/GCA_905220425.1/geneset/2021_11/Amphipyra_tragopoginis-GCA_905220425.1-2021_11-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Amphipyra_tragopoginis/GCA_905220425.1/geneset/2021_11/Amphipyra_tragopoginis-GCA_905220425.1-2021_11-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Amphipyra_tragopoginis/GCA_905220425.1/genome/Amphipyra_tragopoginis-GCA_905220425.1-softmasked.fa.gz
+  repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/amphipyra_tragopoginis/GCA_905220425.1.repeatmodeler.fa
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Amphipyra_tragopoginis/GCA_905220425.1
+  rapid_link: https://rapid.ensembl.org/Amphipyra_tragopoginis_gca905220425v1/Info/Index
 
 - species: Amphipyra tragopoginis
   image: Lepidoptera.png
@@ -45,6 +82,7 @@
   repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/amphipyra_tragopoginis/GCA_905220435.1.repeatmodeler.fa
   ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Amphipyra_tragopoginis/GCA_905220435.1
   rapid_link: https://rapid.ensembl.org/Amphipyra_tragopoginis_gca905220435v1/Info/Index
+  busco_score: http://ftp.ebi.ac.uk/pub/databases/ensembl/dtol/busco_scores/amphipyra_tragopoginis_GCA_905220435.1/amphipyra_tragopoginis_gca905220435v1_busco_short_summary.txt
 
 - species: Ancistrocerus nigricornis
   image: Arthropods.png
@@ -57,6 +95,18 @@
   repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/ancistrocerus_nigricornis/GCA_916049575.1.repeatmodeler.fa
   ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Ancistrocerus_nigricornis/GCA_916049575.1
   rapid_link: https://rapid.ensembl.org/Ancistrocerus_nigricornis_gca916049575v1/Info/Index
+  busco_score: http://ftp.ebi.ac.uk/pub/databases/ensembl/dtol/busco_scores/ancistrocerus_nigricornis_GCA_916049575.1/ancistrocerus_nigricornis_gca916049575v1_busco_short_summary.txt
+
+- species: Ancistrocerus nigricornis (alternate haplotype)
+  image: Arthropods.png
+  accession: GCA_916050135.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Ancistrocerus_nigricornis/GCA_916050135.1/geneset/2021_11/Ancistrocerus_nigricornis-GCA_916050135.1-2021_11-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Ancistrocerus_nigricornis/GCA_916050135.1/geneset/2021_11/Ancistrocerus_nigricornis-GCA_916050135.1-2021_11-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Ancistrocerus_nigricornis/GCA_916050135.1/geneset/2021_11/Ancistrocerus_nigricornis-GCA_916050135.1-2021_11-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Ancistrocerus_nigricornis/GCA_916050135.1/geneset/2021_11/Ancistrocerus_nigricornis-GCA_916050135.1-2021_11-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Ancistrocerus_nigricornis/GCA_916050135.1/genome/Ancistrocerus_nigricornis-GCA_916050135.1-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Ancistrocerus_nigricornis/GCA_916050135.1
+  rapid_link: https://rapid.ensembl.org/Ancistrocerus_nigricornis_gca916050135v1/Info/Index
 
 - species: Andrena haemorrhoa
   image: Arthropods.png
@@ -69,6 +119,7 @@
   repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/andrena_haemorrhoa/GCA_910592295.1.repeatmodeler.fa
   ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Andrena_haemorrhoa/GCA_910592295.1
   rapid_link: https://rapid.ensembl.org/Andrena_haemorrhoa_gca910592295v1/Info/Index
+  busco_score: http://ftp.ebi.ac.uk/pub/databases/ensembl/dtol/busco_scores/andrena_haemorrhoa_GCA_910592295.1/andrena_haemorrhoa_gca910592295v1_busco_short_summary.txt
 
 - species: Anthocharis cardamines
   image: Lepidoptera.png
@@ -82,6 +133,17 @@
   ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Anthocharis_cardamines/GCA_905404175.1
   rapid_link: https://rapid.ensembl.org/Anthocharis_cardamines_gca905404175v1/Info/Index
 
+- species: Anthocharis cardamines (alternate haplotype)
+  image: Lepidoptera.png
+  accession: GCA_905404305.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Anthocharis_cardamines/GCA_905404305.1/geneset/2021_11/Anthocharis_cardamines-GCA_905404305.1-2021_11-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Anthocharis_cardamines/GCA_905404305.1/geneset/2021_11/Anthocharis_cardamines-GCA_905404305.1-2021_11-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Anthocharis_cardamines/GCA_905404305.1/geneset/2021_11/Anthocharis_cardamines-GCA_905404305.1-2021_11-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Anthocharis_cardamines/GCA_905404305.1/geneset/2021_11/Anthocharis_cardamines-GCA_905404305.1-2021_11-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Anthocharis_cardamines/GCA_905404305.1/genome/Anthocharis_cardamines-GCA_905404305.1-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Anthocharis_cardamines/GCA_905404305.1
+  rapid_link: https://rapid.ensembl.org/Anthocharis_cardamines_gca905404305v1/Info/Index
+
 - species: Aporia crataegi
   image: Lepidoptera.png
   accession: GCA_912999735.1
@@ -93,6 +155,18 @@
   repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/aporia_crataegi/GCA_912999735.1.repeatmodeler.fa
   ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Aporia_crataegi/GCA_912999735.1
   rapid_link: https://rapid.ensembl.org/Aporia_crataegi_gca912999735v1/Info/Index
+  busco_score: http://ftp.ebi.ac.uk/pub/databases/ensembl/dtol/busco_scores/aporia_crataegi_GCA_912999735.1/aporia_crataegi_gca912999735v1_busco_short_summary.txt
+
+- species: Aporia crataegi (alternate haplotype)
+  image: Lepidoptera.png
+  accession: GCA_912999795.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Aporia_crataegi/GCA_912999795.1/geneset/2021_11/Aporia_crataegi-GCA_912999795.1-2021_11-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Aporia_crataegi/GCA_912999795.1/geneset/2021_11/Aporia_crataegi-GCA_912999795.1-2021_11-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Aporia_crataegi/GCA_912999795.1/geneset/2021_11/Aporia_crataegi-GCA_912999795.1-2021_11-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Aporia_crataegi/GCA_912999795.1/geneset/2021_11/Aporia_crataegi-GCA_912999795.1-2021_11-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Aporia_crataegi/GCA_912999795.1/genome/Aporia_crataegi-GCA_912999795.1-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Aporia_crataegi/GCA_912999795.1
+  rapid_link: https://rapid.ensembl.org/Aporia_crataegi_gca912999795v1/Info/Index
 
 - species: Aquila chrysaetos chrysaetos
   image: Birds.png
@@ -117,6 +191,7 @@
   repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/aricia_agestis/GCA_905147365.1.repeatmodeler.fa
   ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Aricia_agestis/GCA_905147365.1
   rapid_link: https://rapid.ensembl.org/Aricia_agestis_gca905147365v1/Info/Index
+  busco_score: http://ftp.ebi.ac.uk/pub/databases/ensembl/dtol/busco_scores/aricia_agestis_GCA_905147365.1/aricia_agestis_gca905147365v1_busco_short_summary.txt
 
 - species: Arvicola amphibius
   image: Mammals.png
@@ -133,10 +208,10 @@
 - species: Asterias rubens
   image: Metazoa.png
   accession: GCA_902459465.3
-  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Asterias_rubens/GCA_902459465.3/geneset/2020_11/Asterias_rubens-GCA_902459465.3-2020_11-genes.gff3.gz
-  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Asterias_rubens/GCA_902459465.3/geneset/2020_11/Asterias_rubens-GCA_902459465.3-2020_11-genes.gtf.gz
-  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Asterias_rubens/GCA_902459465.3/geneset/2020_11/Asterias_rubens-GCA_902459465.3-2020_11-pep.fa.gz
-  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Asterias_rubens/GCA_902459465.3/geneset/2020_11/Asterias_rubens-GCA_902459465.3-2020_11-cdna.fa.gz
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Asterias_rubens/GCA_902459465.3/geneset/2022_03/Asterias_rubens-GCA_902459465.3-2022_03-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Asterias_rubens/GCA_902459465.3/geneset/2022_03/Asterias_rubens-GCA_902459465.3-2022_03-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Asterias_rubens/GCA_902459465.3/geneset/2022_03/Asterias_rubens-GCA_902459465.3-2022_03-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Asterias_rubens/GCA_902459465.3/geneset/2022_03/Asterias_rubens-GCA_902459465.3-2022_03-cdna.fa.gz
   softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Asterias_rubens/GCA_902459465.3/genome/Asterias_rubens-GCA_902459465.3-softmasked.fa.gz
   repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/asterias_rubens/GCA_902459465.3.repeatmodeler.fa
   ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Asterias_rubens/GCA_902459465.3
@@ -153,6 +228,18 @@
   repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/athalia_rosae/GCA_917208135.1.repeatmodeler.fa
   ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Athalia_rosae/GCA_917208135.1
   rapid_link: https://rapid.ensembl.org/Athalia_rosae_gca917208135v1/Info/Index
+  busco_score: http://ftp.ebi.ac.uk/pub/databases/ensembl/dtol/busco_scores/athalia_rosae_GCA_917208135.1/athalia_rosae_gca917208135v1_busco_short_summary.txt
+
+- species: Autographa gamma (alternate haplotype)
+  image: Lepidoptera.png
+  accession: GCA_905146835.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Autographa_gamma/GCA_905146835.1/geneset/2021_11/Autographa_gamma-GCA_905146835.1-2021_11-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Autographa_gamma/GCA_905146835.1/geneset/2021_11/Autographa_gamma-GCA_905146835.1-2021_11-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Autographa_gamma/GCA_905146835.1/geneset/2021_11/Autographa_gamma-GCA_905146835.1-2021_11-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Autographa_gamma/GCA_905146835.1/geneset/2021_11/Autographa_gamma-GCA_905146835.1-2021_11-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Autographa_gamma/GCA_905146835.1/genome/Autographa_gamma-GCA_905146835.1-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Autographa_gamma/GCA_905146835.1
+  rapid_link: https://rapid.ensembl.org/Autographa_gamma_gca905146835v1/Info/Index
 
 - species: Autographa pulchrina
   image: Lepidoptera.png
@@ -166,6 +253,17 @@
   ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Autographa_pulchrina/GCA_905475315.1
   rapid_link: https://rapid.ensembl.org/Autographa_pulchrina_gca905475315v1/Info/Index
 
+- species: Autographa pulchrina (alternate haplotype)
+  image: Lepidoptera.png
+  accession: GCA_905475435.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Autographa_pulchrina/GCA_905475435.1/geneset/2021_11/Autographa_pulchrina-GCA_905475435.1-2021_11-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Autographa_pulchrina/GCA_905475435.1/geneset/2021_11/Autographa_pulchrina-GCA_905475435.1-2021_11-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Autographa_pulchrina/GCA_905475435.1/geneset/2021_11/Autographa_pulchrina-GCA_905475435.1-2021_11-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Autographa_pulchrina/GCA_905475435.1/geneset/2021_11/Autographa_pulchrina-GCA_905475435.1-2021_11-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Autographa_pulchrina/GCA_905475435.1/genome/Autographa_pulchrina-GCA_905475435.1-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Autographa_pulchrina/GCA_905475435.1
+  rapid_link: https://rapid.ensembl.org/Autographa_pulchrina_gca905475435v1/Info/Index
+
 - species: Bembecia ichneumoniformis
   image: Lepidoptera.png
   accession: GCA_910589475.1
@@ -177,6 +275,17 @@
   repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/bembecia_ichneumoniformis/GCA_910589475.1.repeatmodeler.fa
   ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Bembecia_ichneumoniformis/GCA_910589475.1
   rapid_link: https://rapid.ensembl.org/Bembecia_ichneumoniformis_gca910589475v1/Info/Index
+
+- species: Bembecia ichneumoniformis (alternate haplotype)
+  image: Lepidoptera.png
+  accession: GCA_910589565.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Bembecia_ichneumoniformis/GCA_910589565.1/geneset/2021_11/Bembecia_ichneumoniformis-GCA_910589565.1-2021_11-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Bembecia_ichneumoniformis/GCA_910589565.1/geneset/2021_11/Bembecia_ichneumoniformis-GCA_910589565.1-2021_11-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Bembecia_ichneumoniformis/GCA_910589565.1/geneset/2021_11/Bembecia_ichneumoniformis-GCA_910589565.1-2021_11-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Bembecia_ichneumoniformis/GCA_910589565.1/geneset/2021_11/Bembecia_ichneumoniformis-GCA_910589565.1-2021_11-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Bembecia_ichneumoniformis/GCA_910589565.1/genome/Bembecia_ichneumoniformis-GCA_910589565.1-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Bembecia_ichneumoniformis/GCA_910589565.1
+  rapid_link: https://rapid.ensembl.org/Bembecia_ichneumoniformis_gca910589565v1/Info/Index
 
 - species: Biston betularia
   image: Lepidoptera.png
@@ -190,6 +299,28 @@
   ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Biston_betularia/GCA_905404145.1
   rapid_link: https://rapid.ensembl.org/Biston_betularia_gca905404145v1/Info/Index
 
+- species: Biston betularia (alternate haplotype)
+  image: Lepidoptera.png
+  accession: GCA_905404215.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Biston_betularia/GCA_905404215.1/geneset/2021_11/Biston_betularia-GCA_905404215.1-2021_11-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Biston_betularia/GCA_905404215.1/geneset/2021_11/Biston_betularia-GCA_905404215.1-2021_11-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Biston_betularia/GCA_905404215.1/geneset/2021_11/Biston_betularia-GCA_905404215.1-2021_11-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Biston_betularia/GCA_905404215.1/geneset/2021_11/Biston_betularia-GCA_905404215.1-2021_11-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Biston_betularia/GCA_905404215.1/genome/Biston_betularia-GCA_905404215.1-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Biston_betularia/GCA_905404215.1
+  rapid_link: https://rapid.ensembl.org/Biston_betularia_gca905404215v1/Info/Index
+
+- species: Blastobasis adustella (alternate haplotype)
+  image: Lepidoptera.png
+  accession: GCA_907269055.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Blastobasis_adustella/GCA_907269055.1/geneset/2021_11/Blastobasis_adustella-GCA_907269055.1-2021_11-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Blastobasis_adustella/GCA_907269055.1/geneset/2021_11/Blastobasis_adustella-GCA_907269055.1-2021_11-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Blastobasis_adustella/GCA_907269055.1/geneset/2021_11/Blastobasis_adustella-GCA_907269055.1-2021_11-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Blastobasis_adustella/GCA_907269055.1/geneset/2021_11/Blastobasis_adustella-GCA_907269055.1-2021_11-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Blastobasis_adustella/GCA_907269055.1/genome/Blastobasis_adustella-GCA_907269055.1-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Blastobasis_adustella/GCA_907269055.1
+  rapid_link: https://rapid.ensembl.org/Blastobasis_adustella_gca907269055v1/Info/Index
+
 - species: Blastobasis adustella
   image: Lepidoptera.png
   accession: GCA_907269095.1
@@ -201,6 +332,7 @@
   repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/blastobasis_adustella/GCA_907269095.1.repeatmodeler.fa
   ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Blastobasis_adustella/GCA_907269095.1
   rapid_link: https://rapid.ensembl.org/Blastobasis_adustella_gca907269095v1/Info/Index
+  busco_score: http://ftp.ebi.ac.uk/pub/databases/ensembl/dtol/busco_scores/blastobasis_adustella_GCA_907269095.1/blastobasis_adustella_gca907269095v1_busco_short_summary.txt
 
 - species: Blastobasis lacticolella
   image: Lepidoptera.png
@@ -213,6 +345,19 @@
   repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/blastobasis_lacticolella/GCA_905147135.1.repeatmodeler.fa
   ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Blastobasis_lacticolella/GCA_905147135.1
   rapid_link: https://rapid.ensembl.org/Blastobasis_lacticolella_gca905147135v1/Info/Index
+  busco_score: http://ftp.ebi.ac.uk/pub/databases/ensembl/dtol/busco_scores/blastobasis_lacticolella_GCA_905147135.1/blastobasis_lacticolella_gca905147135v1_busco_short_summary.txt
+
+- species: Blastobasis lacticolella (alternate haplotype)
+  image: Lepidoptera.png
+  accession: GCA_905147205.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Blastobasis_lacticolella/GCA_905147205.1/geneset/2021_11/Blastobasis_lacticolella-GCA_905147205.1-2021_11-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Blastobasis_lacticolella/GCA_905147205.1/geneset/2021_11/Blastobasis_lacticolella-GCA_905147205.1-2021_11-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Blastobasis_lacticolella/GCA_905147205.1/geneset/2021_11/Blastobasis_lacticolella-GCA_905147205.1-2021_11-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Blastobasis_lacticolella/GCA_905147205.1/geneset/2021_11/Blastobasis_lacticolella-GCA_905147205.1-2021_11-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Blastobasis_lacticolella/GCA_905147205.1/genome/Blastobasis_lacticolella-GCA_905147205.1-softmasked.fa.gz
+  repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/blastobasis_lacticolella/GCA_905147205.1.repeatmodeler.fa
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Blastobasis_lacticolella/GCA_905147205.1
+  rapid_link: https://rapid.ensembl.org/Blastobasis_lacticolella_gca905147205v1/Info/Index
 
 - species: Bombus campestris
   image: Arthropods.png
@@ -225,6 +370,7 @@
   repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/bombus_campestris/GCA_905333015.1.repeatmodeler.fa
   ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Bombus_campestris/GCA_905333015.1
   rapid_link: https://rapid.ensembl.org/Bombus_campestris_gca905333015v1/Info/Index
+  busco_score: http://ftp.ebi.ac.uk/pub/databases/ensembl/dtol/busco_scores/bombus_campestris_GCA_905333015.1/bombus_campestris_gca905333015v1_busco_short_summary.txt
 
 - species: Bombus hortorum
   image: Arthropods.png
@@ -237,6 +383,7 @@
   repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/bombus_hortorum/GCA_905332935.1.repeatmodeler.fa
   ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Bombus_hortorum/GCA_905332935.1
   rapid_link: https://rapid.ensembl.org/Bombus_hortorum_gca905332935v1/Info/Index
+  busco_score: http://ftp.ebi.ac.uk/pub/databases/ensembl/dtol/busco_scores/bombus_hortorum_GCA_905332935.1/bombus_hortorum_gca905332935v1_busco_short_summary.txt
 
 - species: Bombus hypnorum
   image: Arthropods.png
@@ -249,6 +396,7 @@
   repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/bombus_hypnorum/GCA_911387925.1.repeatmodeler.fa
   ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Bombus_hypnorum/GCA_911387925.1
   rapid_link: https://rapid.ensembl.org/Bombus_hypnorum_gca911387925v1/Info/Index
+  busco_score: http://ftp.ebi.ac.uk/pub/databases/ensembl/dtol/busco_scores/bombus_hypnorum_GCA_911387925.1/bombus_hypnorum_gca911387925v1_busco_short_summary.txt
 
 - species: Bombus pascuorum
   image: Arthropods.png
@@ -261,6 +409,18 @@
   repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/bombus_pascuorum/GCA_905332965.1.repeatmodeler.fa
   ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Bombus_pascuorum/GCA_905332965.1
   rapid_link: https://rapid.ensembl.org/Bombus_pascuorum_gca905332965v1/Info/Index
+  busco_score: http://ftp.ebi.ac.uk/pub/databases/ensembl/dtol/busco_scores/bombus_pascuorum_GCA_905332965.1/bombus_pascuorum_gca905332965v1_busco_short_summary.txt
+
+- species: Bombus pascuorum (alternate haplotype)
+  image: Arthropods.png
+  accession: GCA_905332995.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Bombus_pascuorum/GCA_905332995.1/geneset/2021_11/Bombus_pascuorum-GCA_905332995.1-2021_11-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Bombus_pascuorum/GCA_905332995.1/geneset/2021_11/Bombus_pascuorum-GCA_905332995.1-2021_11-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Bombus_pascuorum/GCA_905332995.1/geneset/2021_11/Bombus_pascuorum-GCA_905332995.1-2021_11-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Bombus_pascuorum/GCA_905332995.1/geneset/2021_11/Bombus_pascuorum-GCA_905332995.1-2021_11-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Bombus_pascuorum/GCA_905332995.1/genome/Bombus_pascuorum-GCA_905332995.1-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Bombus_pascuorum/GCA_905332995.1
+  rapid_link: https://rapid.ensembl.org/Bombus_pascuorum_gca905332995v1/Info/Index
 
 - species: Bombus sylvestris
   image: Arthropods.png
@@ -273,6 +433,7 @@
   repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/bombus_sylvestris/GCA_911622165.1.repeatmodeler.fa
   ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Bombus_sylvestris/GCA_911622165.1
   rapid_link: https://rapid.ensembl.org/Bombus_sylvestris_gca911622165v1/Info/Index
+  busco_score: http://ftp.ebi.ac.uk/pub/databases/ensembl/dtol/busco_scores/bombus_sylvestris_GCA_911622165.1/bombus_sylvestris_gca911622165v1_busco_short_summary.txt
 
 - species: Bombus terrestris
   image: Arthropods.png
@@ -284,6 +445,7 @@
   softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Bombus_terrestris/GCA_000214255.1/genome/Bombus_terrestris-GCA_000214255.1-softmasked.fa.gz
   ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Bombus_terrestris/GCA_000214255.1
   rapid_link: https://rapid.ensembl.org/Bombus_terrestris_gca000214255v1/Info/Index
+  busco_score: http://ftp.ebi.ac.uk/pub/databases/ensembl/dtol/busco_scores/bombus_terrestris_GCA_000214255.1/bombus_terrestris_gca000214255v1_busco_short_summary.txt
 
 - species: Bombus terrestris
   image: Arthropods.png
@@ -296,6 +458,18 @@
   repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/bombus_terrestris/GCA_910591885.1.repeatmodeler.fa
   ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Bombus_terrestris/GCA_910591885.1
   rapid_link: https://rapid.ensembl.org/Bombus_terrestris_gca910591885v1/Info/Index
+  busco_score: http://ftp.ebi.ac.uk/pub/databases/ensembl/dtol/busco_scores/bombus_terrestris_GCA_910591885.1/bombus_terrestris_gca910591885v1_busco_short_summary.txt
+
+- species: Celastrina argiolus (alternate haplotype)
+  image: Lepidoptera.png
+  accession: GCA_905147145.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Celastrina_argiolus/GCA_905147145.1/geneset/2021_05/Celastrina_argiolus-GCA_905147145.1-2021_05-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Celastrina_argiolus/GCA_905147145.1/geneset/2021_05/Celastrina_argiolus-GCA_905147145.1-2021_05-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Celastrina_argiolus/GCA_905147145.1/geneset/2021_05/Celastrina_argiolus-GCA_905147145.1-2021_05-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Celastrina_argiolus/GCA_905147145.1/geneset/2021_05/Celastrina_argiolus-GCA_905147145.1-2021_05-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Celastrina_argiolus/GCA_905147145.1/genome/Celastrina_argiolus-GCA_905147145.1-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Celastrina_argiolus/GCA_905147145.1
+  rapid_link: https://rapid.ensembl.org/Celastrina_argiolus_gca905147145v1/Info/Index
 
 - species: Celastrina argiolus
   image: Lepidoptera.png
@@ -320,6 +494,7 @@
   repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/cerceris_rybyensis/GCA_910591515.1.repeatmodeler.fa
   ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Cerceris_rybyensis/GCA_910591515.1
   rapid_link: https://rapid.ensembl.org/Cerceris_rybyensis_gca910591515v1/Info/Index
+  busco_score: http://ftp.ebi.ac.uk/pub/databases/ensembl/dtol/busco_scores/cerceris_rybyensis_GCA_910591515.1/cerceris_rybyensis_gca910591515v1_busco_short_summary.txt
 
 - species: Chrysotoxum bicinctum
   image: Arthropods.png
@@ -332,6 +507,18 @@
   repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/chrysotoxum_bicinctum/GCA_911387755.1.repeatmodeler.fa
   ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Chrysotoxum_bicinctum/GCA_911387755.1
   rapid_link: https://rapid.ensembl.org/Chrysotoxum_bicinctum_gca911387755v1/Info/Index
+  busco_score: http://ftp.ebi.ac.uk/pub/databases/ensembl/dtol/busco_scores/chrysotoxum_bicinctum_GCA_911387755.1/chrysotoxum_bicinctum_gca911387755v1_busco_short_summary.txt
+
+- species: Clostera curtula (alternate haplotype)
+  image: Lepidoptera.png
+  accession: GCA_905475325.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Clostera_curtula/GCA_905475325.1/geneset/2021_11/Clostera_curtula-GCA_905475325.1-2021_11-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Clostera_curtula/GCA_905475325.1/geneset/2021_11/Clostera_curtula-GCA_905475325.1-2021_11-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Clostera_curtula/GCA_905475325.1/geneset/2021_11/Clostera_curtula-GCA_905475325.1-2021_11-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Clostera_curtula/GCA_905475325.1/geneset/2021_11/Clostera_curtula-GCA_905475325.1-2021_11-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Clostera_curtula/GCA_905475325.1/genome/Clostera_curtula-GCA_905475325.1-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Clostera_curtula/GCA_905475325.1
+  rapid_link: https://rapid.ensembl.org/Clostera_curtula_gca905475325v1/Info/Index
 
 - species: Clostera curtula
   image: Lepidoptera.png
@@ -344,6 +531,7 @@
   repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/clostera_curtula/GCA_905475355.1.repeatmodeler.fa
   ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Clostera_curtula/GCA_905475355.1
   rapid_link: https://rapid.ensembl.org/Clostera_curtula_gca905475355v1/Info/Index
+  busco_score: http://ftp.ebi.ac.uk/pub/databases/ensembl/dtol/busco_scores/clostera_curtula_GCA_905475355.1/clostera_curtula_gca905475355v1_busco_short_summary.txt
 
 - species: Coccinella septempunctata
   image: Arthropods.png
@@ -356,6 +544,7 @@
   repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/coccinella_septempunctata/GCA_907165205.1.repeatmodeler.fa
   ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Coccinella_septempunctata/GCA_907165205.1
   rapid_link: https://rapid.ensembl.org/Coccinella_septempunctata_gca907165205v1/Info/Index
+  busco_score: http://ftp.ebi.ac.uk/pub/databases/ensembl/dtol/busco_scores/coccinella_septempunctata_GCA_907165205.1/coccinella_septempunctata_gca907165205v1_busco_short_summary.txt
 
 - species: Colias croceus
   image: Lepidoptera.png
@@ -369,6 +558,17 @@
   ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Colias_croceus/GCA_905220415.1
   rapid_link: https://rapid.ensembl.org/Colias_croceus_gca905220415v1/Info/Index
 
+- species: Colias croceus (alternate haplotype)
+  image: Lepidoptera.png
+  accession: GCA_905220445.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Colias_croceus/GCA_905220445.1/geneset/2021_05/Colias_croceus-GCA_905220445.1-2021_05-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Colias_croceus/GCA_905220445.1/geneset/2021_05/Colias_croceus-GCA_905220445.1-2021_05-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Colias_croceus/GCA_905220445.1/geneset/2021_05/Colias_croceus-GCA_905220445.1-2021_05-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Colias_croceus/GCA_905220445.1/geneset/2021_05/Colias_croceus-GCA_905220445.1-2021_05-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Colias_croceus/GCA_905220445.1/genome/Colias_croceus-GCA_905220445.1-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Colias_croceus/GCA_905220445.1
+  rapid_link: https://rapid.ensembl.org/Colias_croceus_gca905220445v1/Info/Index
+
 - species: Coremacera marginata
   image: Arthropods.png
   accession: GCA_914767935.1
@@ -380,6 +580,7 @@
   repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/coremacera_marginata/GCA_914767935.1.repeatmodeler.fa
   ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Coremacera_marginata/GCA_914767935.1
   rapid_link: https://rapid.ensembl.org/Coremacera_marginata_gca914767935v1/Info/Index
+  busco_score: http://ftp.ebi.ac.uk/pub/databases/ensembl/dtol/busco_scores/coremacera_marginata_GCA_914767935.1/coremacera_marginata_gca914767935v1_busco_short_summary.txt
 
 - species: Craniophora ligustri
   image: Lepidoptera.png
@@ -392,6 +593,29 @@
   repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/craniophora_ligustri/GCA_905163465.1.repeatmodeler.fa
   ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Craniophora_ligustri/GCA_905163465.1
   rapid_link: https://rapid.ensembl.org/Craniophora_ligustri_gca905163465v1/Info/Index
+  busco_score: http://ftp.ebi.ac.uk/pub/databases/ensembl/dtol/busco_scores/craniophora_ligustri_GCA_905163465.1/craniophora_ligustri_gca905163465v1_busco_short_summary.txt
+
+- species: Craniophora ligustri (alternate haplotype)
+  image: Lepidoptera.png
+  accession: GCA_905163585.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Craniophora_ligustri/GCA_905163585.1/geneset/2021_11/Craniophora_ligustri-GCA_905163585.1-2021_11-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Craniophora_ligustri/GCA_905163585.1/geneset/2021_11/Craniophora_ligustri-GCA_905163585.1-2021_11-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Craniophora_ligustri/GCA_905163585.1/geneset/2021_11/Craniophora_ligustri-GCA_905163585.1-2021_11-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Craniophora_ligustri/GCA_905163585.1/geneset/2021_11/Craniophora_ligustri-GCA_905163585.1-2021_11-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Craniophora_ligustri/GCA_905163585.1/genome/Craniophora_ligustri-GCA_905163585.1-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Craniophora_ligustri/GCA_905163585.1
+  rapid_link: https://rapid.ensembl.org/Craniophora_ligustri_gca905163585v1/Info/Index
+
+- species: Cydia splendana (alternate haplotype)
+  image: Lepidoptera.png
+  accession: GCA_910591525.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Cydia_splendana/GCA_910591525.1/geneset/2021_11/Cydia_splendana-GCA_910591525.1-2021_11-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Cydia_splendana/GCA_910591525.1/geneset/2021_11/Cydia_splendana-GCA_910591525.1-2021_11-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Cydia_splendana/GCA_910591525.1/geneset/2021_11/Cydia_splendana-GCA_910591525.1-2021_11-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Cydia_splendana/GCA_910591525.1/geneset/2021_11/Cydia_splendana-GCA_910591525.1-2021_11-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Cydia_splendana/GCA_910591525.1/genome/Cydia_splendana-GCA_910591525.1-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Cydia_splendana/GCA_910591525.1
+  rapid_link: https://rapid.ensembl.org/Cydia_splendana_gca910591525v1/Info/Index
 
 - species: Cydia splendana
   image: Lepidoptera.png
@@ -404,6 +628,7 @@
   repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/cydia_splendana/GCA_910591565.1.repeatmodeler.fa
   ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Cydia_splendana/GCA_910591565.1
   rapid_link: https://rapid.ensembl.org/Cydia_splendana_gca910591565v1/Info/Index
+  busco_score: http://ftp.ebi.ac.uk/pub/databases/ensembl/dtol/busco_scores/cydia_splendana_GCA_910591565.1/cydia_splendana_gca910591565v1_busco_short_summary.txt
 
 - species: Dolichovespula media
   image: Arthropods.png
@@ -416,6 +641,7 @@
   repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/dolichovespula_media/GCA_911387685.1.repeatmodeler.fa
   ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Dolichovespula_media/GCA_911387685.1
   rapid_link: https://rapid.ensembl.org/Dolichovespula_media_gca911387685v1/Info/Index
+  busco_score: http://ftp.ebi.ac.uk/pub/databases/ensembl/dtol/busco_scores/dolichovespula_media_GCA_911387685.1/dolichovespula_media_gca911387685v1_busco_short_summary.txt
 
 - species: Ectemnius continuus
   image: Arthropods.png
@@ -428,6 +654,7 @@
   repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/ectemnius_continuus/GCA_910591665.1.repeatmodeler.fa
   ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Ectemnius_continuus/GCA_910591665.1
   rapid_link: https://rapid.ensembl.org/Ectemnius_continuus_gca910591665v1/Info/Index
+  busco_score: http://ftp.ebi.ac.uk/pub/databases/ensembl/dtol/busco_scores/ectemnius_continuus_GCA_910591665.1/ectemnius_continuus_gca910591665v1_busco_short_summary.txt
 
 - species: Ectemnius lituratus
   image: Arthropods.png
@@ -440,6 +667,18 @@
   repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/ectemnius_lituratus/GCA_910593735.1.repeatmodeler.fa
   ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Ectemnius_lituratus/GCA_910593735.1
   rapid_link: https://rapid.ensembl.org/Ectemnius_lituratus_gca910593735v1/Info/Index
+  busco_score: http://ftp.ebi.ac.uk/pub/databases/ensembl/dtol/busco_scores/ectemnius_lituratus_GCA_910593735.1/ectemnius_lituratus_gca910593735v1_busco_short_summary.txt
+
+- species: Emmelina monodactyla (alternate haplotype)
+  image: Lepidoptera.png
+  accession: GCA_916618085.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Emmelina_monodactyla/GCA_916618085.1/geneset/2021_11/Emmelina_monodactyla-GCA_916618085.1-2021_11-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Emmelina_monodactyla/GCA_916618085.1/geneset/2021_11/Emmelina_monodactyla-GCA_916618085.1-2021_11-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Emmelina_monodactyla/GCA_916618085.1/geneset/2021_11/Emmelina_monodactyla-GCA_916618085.1-2021_11-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Emmelina_monodactyla/GCA_916618085.1/geneset/2021_11/Emmelina_monodactyla-GCA_916618085.1-2021_11-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Emmelina_monodactyla/GCA_916618085.1/genome/Emmelina_monodactyla-GCA_916618085.1-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Emmelina_monodactyla/GCA_916618085.1
+  rapid_link: https://rapid.ensembl.org/Emmelina_monodactyla_gca916618085v1/Info/Index
 
 - species: Emmelina monodactyla
   image: Lepidoptera.png
@@ -464,6 +703,29 @@
   repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/ennomos_fuscantarius/GCA_905220475.1.repeatmodeler.fa
   ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Ennomos_fuscantarius/GCA_905220475.1
   rapid_link: https://rapid.ensembl.org/Ennomos_fuscantarius_gca905220475v1/Info/Index
+  busco_score: http://ftp.ebi.ac.uk/pub/databases/ensembl/dtol/busco_scores/ennomos_fuscantarius_GCA_905220475.1/ennomos_fuscantarius_gca905220475v1_busco_short_summary.txt
+
+- species: Ennomos fuscantarius (alternate haplotype)
+  image: Lepidoptera.png
+  accession: GCA_905220485.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Ennomos_fuscantarius/GCA_905220485.1/geneset/2021_11/Ennomos_fuscantarius-GCA_905220485.1-2021_11-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Ennomos_fuscantarius/GCA_905220485.1/geneset/2021_11/Ennomos_fuscantarius-GCA_905220485.1-2021_11-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Ennomos_fuscantarius/GCA_905220485.1/geneset/2021_11/Ennomos_fuscantarius-GCA_905220485.1-2021_11-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Ennomos_fuscantarius/GCA_905220485.1/geneset/2021_11/Ennomos_fuscantarius-GCA_905220485.1-2021_11-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Ennomos_fuscantarius/GCA_905220485.1/genome/Ennomos_fuscantarius-GCA_905220485.1-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Ennomos_fuscantarius/GCA_905220485.1
+  rapid_link: https://rapid.ensembl.org/Ennomos_fuscantarius_gca905220485v1/Info/Index
+
+- species: Ennomos quercinarius (alternate haplotype)
+  image: Lepidoptera.png
+  accession: GCA_910589225.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Ennomos_quercinarius/GCA_910589225.1/geneset/2021_11/Ennomos_quercinarius-GCA_910589225.1-2021_11-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Ennomos_quercinarius/GCA_910589225.1/geneset/2021_11/Ennomos_quercinarius-GCA_910589225.1-2021_11-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Ennomos_quercinarius/GCA_910589225.1/geneset/2021_11/Ennomos_quercinarius-GCA_910589225.1-2021_11-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Ennomos_quercinarius/GCA_910589225.1/geneset/2021_11/Ennomos_quercinarius-GCA_910589225.1-2021_11-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Ennomos_quercinarius/GCA_910589225.1/genome/Ennomos_quercinarius-GCA_910589225.1-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Ennomos_quercinarius/GCA_910589225.1
+  rapid_link: https://rapid.ensembl.org/Ennomos_quercinarius_gca910589225v1/Info/Index
 
 - species: Ennomos quercinarius
   image: Lepidoptera.png
@@ -476,6 +738,7 @@
   repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/ennomos_quercinarius/GCA_910589525.1.repeatmodeler.fa
   ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Ennomos_quercinarius/GCA_910589525.1
   rapid_link: https://rapid.ensembl.org/Ennomos_quercinarius_gca910589525v1/Info/Index
+  busco_score: http://ftp.ebi.ac.uk/pub/databases/ensembl/dtol/busco_scores/ennomos_quercinarius_GCA_910589525.1/ennomos_quercinarius_gca910589525v1_busco_short_summary.txt
 
 - species: Eristalis arbustorum
   image: Arthropods.png
@@ -488,6 +751,7 @@
   repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/eristalis_arbustorum/GCA_916610145.1.repeatmodeler.fa
   ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Eristalis_arbustorum/GCA_916610145.1
   rapid_link: https://rapid.ensembl.org/Eristalis_arbustorum_gca916610145v1/Info/Index
+  busco_score: http://ftp.ebi.ac.uk/pub/databases/ensembl/dtol/busco_scores/eristalis_arbustorum_GCA_916610145.1/eristalis_arbustorum_gca916610145v1_busco_short_summary.txt
 
 - species: Eristalis pertinax
   image: Arthropods.png
@@ -500,6 +764,7 @@
   repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/eristalis_pertinax/GCA_907269125.1.repeatmodeler.fa
   ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Eristalis_pertinax/GCA_907269125.1
   rapid_link: https://rapid.ensembl.org/Eristalis_pertinax_gca907269125v1/Info/Index
+  busco_score: http://ftp.ebi.ac.uk/pub/databases/ensembl/dtol/busco_scores/eristalis_pertinax_GCA_907269125.1/eristalis_pertinax_gca907269125v1_busco_short_summary.txt
 
 - species: Eristalis tenax
   image: Arthropods.png
@@ -512,6 +777,7 @@
   repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/eristalis_tenax/GCA_905231855.1.repeatmodeler.fa
   ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Eristalis_tenax/GCA_905231855.1
   rapid_link: https://rapid.ensembl.org/Eristalis_tenax_gca905231855v1/Info/Index
+  busco_score: http://ftp.ebi.ac.uk/pub/databases/ensembl/dtol/busco_scores/eristalis_tenax_GCA_905231855.1/eristalis_tenax_gca905231855v1_busco_short_summary.txt
 
 - species: Eupeodes latifasciatus
   image: Arthropods.png
@@ -524,6 +790,7 @@
   repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/eupeodes_latifasciatus/GCA_920104205.1.repeatmodeler.fa
   ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Eupeodes_latifasciatus/GCA_920104205.1
   rapid_link: https://rapid.ensembl.org/Eupeodes_latifasciatus_gca920104205v1/Info/Index
+  busco_score: http://ftp.ebi.ac.uk/pub/databases/ensembl/dtol/busco_scores/eupeodes_latifasciatus_GCA_920104205.1/eupeodes_latifasciatus_gca920104205v1_busco_short_summary.txt
 
 - species: Euproctis similis
   image: Lepidoptera.png
@@ -536,6 +803,18 @@
   repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/euproctis_similis/GCA_905147225.1.repeatmodeler.fa
   ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Euproctis_similis/GCA_905147225.1
   rapid_link: https://rapid.ensembl.org/Euproctis_similis_gca905147225v1/Info/Index
+  busco_score: http://ftp.ebi.ac.uk/pub/databases/ensembl/dtol/busco_scores/euproctis_similis_GCA_905147225.1/euproctis_similis_gca905147225v1_busco_short_summary.txt
+
+- species: Fabriciana adippe (alternate haplotype)
+  image: Lepidoptera.png
+  accession: GCA_905404255.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Fabriciana_adippe/GCA_905404255.1/geneset/2021_11/Fabriciana_adippe-GCA_905404255.1-2021_11-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Fabriciana_adippe/GCA_905404255.1/geneset/2021_11/Fabriciana_adippe-GCA_905404255.1-2021_11-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Fabriciana_adippe/GCA_905404255.1/geneset/2021_11/Fabriciana_adippe-GCA_905404255.1-2021_11-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Fabriciana_adippe/GCA_905404255.1/geneset/2021_11/Fabriciana_adippe-GCA_905404255.1-2021_11-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Fabriciana_adippe/GCA_905404255.1/genome/Fabriciana_adippe-GCA_905404255.1-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Fabriciana_adippe/GCA_905404255.1
+  rapid_link: https://rapid.ensembl.org/Fabriciana_adippe_gca905404255v1/Info/Index
 
 - species: Fabriciana adippe
   image: Lepidoptera.png
@@ -560,6 +839,7 @@
   repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/gymnosoma_rotundatum/GCA_916610165.1.repeatmodeler.fa
   ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Gymnosoma_rotundatum/GCA_916610165.1
   rapid_link: https://rapid.ensembl.org/Gymnosoma_rotundatum_gca916610165v1/Info/Index
+  busco_score: http://ftp.ebi.ac.uk/pub/databases/ensembl/dtol/busco_scores/gymnosoma_rotundatum_GCA_916610165.1/gymnosoma_rotundatum_gca916610165v1_busco_short_summary.txt
 
 - species: Hecatera dysodea
   image: Lepidoptera.png
@@ -572,6 +852,19 @@
   repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/hecatera_dysodea/GCA_905332915.1.repeatmodeler.fa
   ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Hecatera_dysodea/GCA_905332915.1
   rapid_link: https://rapid.ensembl.org/Hecatera_dysodea_gca905332915v1/Info/Index
+  busco_score: http://ftp.ebi.ac.uk/pub/databases/ensembl/dtol/busco_scores/hecatera_dysodea_GCA_905332915.1/hecatera_dysodea_gca905332915v1_busco_short_summary.txt
+
+- species: Hedya salicella (alternate haplotype)
+  image: Lepidoptera.png
+  accession: GCA_905404235.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Hedya_salicella/GCA_905404235.1/geneset/2021_11/Hedya_salicella-GCA_905404235.1-2021_11-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Hedya_salicella/GCA_905404235.1/geneset/2021_11/Hedya_salicella-GCA_905404235.1-2021_11-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Hedya_salicella/GCA_905404235.1/geneset/2021_11/Hedya_salicella-GCA_905404235.1-2021_11-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Hedya_salicella/GCA_905404235.1/geneset/2021_11/Hedya_salicella-GCA_905404235.1-2021_11-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Hedya_salicella/GCA_905404235.1/genome/Hedya_salicella-GCA_905404235.1-softmasked.fa.gz
+  repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/hedya_salicella/GCA_905404235.1.repeatmodeler.fa
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Hedya_salicella/GCA_905404235.1
+  rapid_link: https://rapid.ensembl.org/Hedya_salicella_gca905404235v1/Info/Index
 
 - species: Hedya salicella
   image: Lepidoptera.png
@@ -584,6 +877,7 @@
   repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/hedya_salicella/GCA_905404275.1.repeatmodeler.fa
   ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Hedya_salicella/GCA_905404275.1
   rapid_link: https://rapid.ensembl.org/Hedya_salicella_gca905404275v1/Info/Index
+  busco_score: http://ftp.ebi.ac.uk/pub/databases/ensembl/dtol/busco_scores/hedya_salicella_GCA_905404275.1/hedya_salicella_gca905404275v1_busco_short_summary.txt
 
 - species: Hemaris fuciformis
   image: Lepidoptera.png
@@ -596,6 +890,18 @@
   repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/hemaris_fuciformis/GCA_907164795.1.repeatmodeler.fa
   ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Hemaris_fuciformis/GCA_907164795.1
   rapid_link: https://rapid.ensembl.org/Hemaris_fuciformis_gca907164795v1/Info/Index
+  busco_score: http://ftp.ebi.ac.uk/pub/databases/ensembl/dtol/busco_scores/hemaris_fuciformis_GCA_907164795.1/hemaris_fuciformis_gca907164795v1_busco_short_summary.txt
+
+- species: Hemaris fuciformis (alternate haplotype)
+  image: Lepidoptera.png
+  accession: GCA_907164865.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Hemaris_fuciformis/GCA_907164865.1/geneset/2021_11/Hemaris_fuciformis-GCA_907164865.1-2021_11-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Hemaris_fuciformis/GCA_907164865.1/geneset/2021_11/Hemaris_fuciformis-GCA_907164865.1-2021_11-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Hemaris_fuciformis/GCA_907164865.1/geneset/2021_11/Hemaris_fuciformis-GCA_907164865.1-2021_11-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Hemaris_fuciformis/GCA_907164865.1/geneset/2021_11/Hemaris_fuciformis-GCA_907164865.1-2021_11-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Hemaris_fuciformis/GCA_907164865.1/genome/Hemaris_fuciformis-GCA_907164865.1-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Hemaris_fuciformis/GCA_907164865.1
+  rapid_link: https://rapid.ensembl.org/Hemaris_fuciformis_gca907164865v1/Info/Index
 
 - species: Hypena proboscidalis
   image: Lepidoptera.png
@@ -608,6 +914,19 @@
   repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/hypena_proboscidalis/GCA_905147285.1.repeatmodeler.fa
   ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Hypena_proboscidalis/GCA_905147285.1
   rapid_link: https://rapid.ensembl.org/Hypena_proboscidalis_gca905147285v1/Info/Index
+  busco_score: http://ftp.ebi.ac.uk/pub/databases/ensembl/dtol/busco_scores/hypena_proboscidalis_GCA_905147285.1/hypena_proboscidalis_gca905147285v1_busco_short_summary.txt
+
+- species: Hypena proboscidalis (alternate haplotype)
+  image: Lepidoptera.png
+  accession: GCA_905147305.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Hypena_proboscidalis/GCA_905147305.1/geneset/2021_11/Hypena_proboscidalis-GCA_905147305.1-2021_11-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Hypena_proboscidalis/GCA_905147305.1/geneset/2021_11/Hypena_proboscidalis-GCA_905147305.1-2021_11-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Hypena_proboscidalis/GCA_905147305.1/geneset/2021_11/Hypena_proboscidalis-GCA_905147305.1-2021_11-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Hypena_proboscidalis/GCA_905147305.1/geneset/2021_11/Hypena_proboscidalis-GCA_905147305.1-2021_11-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Hypena_proboscidalis/GCA_905147305.1/genome/Hypena_proboscidalis-GCA_905147305.1-softmasked.fa.gz
+  repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/hypena_proboscidalis/GCA_905147305.1.repeatmodeler.fa
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Hypena_proboscidalis/GCA_905147305.1
+  rapid_link: https://rapid.ensembl.org/Hypena_proboscidalis_gca905147305v1/Info/Index
 
 - species: Ichneumon xanthorius
   image: Arthropods.png
@@ -620,6 +939,18 @@
   repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/ichneumon_xanthorius/GCA_917499995.1.repeatmodeler.fa
   ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Ichneumon_xanthorius/GCA_917499995.1
   rapid_link: https://rapid.ensembl.org/Ichneumon_xanthorius_gca917499995v1/Info/Index
+  busco_score: http://ftp.ebi.ac.uk/pub/databases/ensembl/dtol/busco_scores/ichneumon_xanthorius_GCA_917499995.1/ichneumon_xanthorius_gca917499995v1_busco_short_summary.txt
+
+- species: Idaea aversata (alternate haplotype)
+  image: Lepidoptera.png
+  accession: GCA_907269045.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Idaea_aversata/GCA_907269045.1/geneset/2021_11/Idaea_aversata-GCA_907269045.1-2021_11-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Idaea_aversata/GCA_907269045.1/geneset/2021_11/Idaea_aversata-GCA_907269045.1-2021_11-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Idaea_aversata/GCA_907269045.1/geneset/2021_11/Idaea_aversata-GCA_907269045.1-2021_11-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Idaea_aversata/GCA_907269045.1/geneset/2021_11/Idaea_aversata-GCA_907269045.1-2021_11-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Idaea_aversata/GCA_907269045.1/genome/Idaea_aversata-GCA_907269045.1-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Idaea_aversata/GCA_907269045.1
+  rapid_link: https://rapid.ensembl.org/Idaea_aversata_gca907269045v1/Info/Index
 
 - species: Idaea aversata
   image: Lepidoptera.png
@@ -632,6 +963,7 @@
   repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/idaea_aversata/GCA_907269075.1.repeatmodeler.fa
   ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Idaea_aversata/GCA_907269075.1
   rapid_link: https://rapid.ensembl.org/Idaea_aversata_gca907269075v1/Info/Index
+  busco_score: http://ftp.ebi.ac.uk/pub/databases/ensembl/dtol/busco_scores/idaea_aversata_GCA_907269075.1/idaea_aversata_gca907269075v1_busco_short_summary.txt
 
 - species: Inachis io
   image: Lepidoptera.png
@@ -645,6 +977,17 @@
   ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Inachis_io/GCA_905147045.1
   rapid_link: https://rapid.ensembl.org/Inachis_io_gca905147045v1/Info/Index
 
+- species: Inachis io (alternate haplotype)
+  image: Lepidoptera.png
+  accession: GCA_905147125.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Inachis_io/GCA_905147125.1/geneset/2021_05/Inachis_io-GCA_905147125.1-2021_05-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Inachis_io/GCA_905147125.1/geneset/2021_05/Inachis_io-GCA_905147125.1-2021_05-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Inachis_io/GCA_905147125.1/geneset/2021_05/Inachis_io-GCA_905147125.1-2021_05-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Inachis_io/GCA_905147125.1/geneset/2021_05/Inachis_io-GCA_905147125.1-2021_05-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Inachis_io/GCA_905147125.1/genome/Inachis_io-GCA_905147125.1-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Inachis_io/GCA_905147125.1
+  rapid_link: https://rapid.ensembl.org/Inachis_io_gca905147125v1/Info/Index
+
 - species: Laspeyria flexula
   image: Lepidoptera.png
   accession: GCA_905147015.1
@@ -656,6 +999,30 @@
   repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/laspeyria_flexula/GCA_905147015.1.repeatmodeler.fa
   ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Laspeyria_flexula/GCA_905147015.1
   rapid_link: https://rapid.ensembl.org/Laspeyria_flexula_gca905147015v1/Info/Index
+  busco_score: http://ftp.ebi.ac.uk/pub/databases/ensembl/dtol/busco_scores/laspeyria_flexula_GCA_905147015.1/laspeyria_flexula_gca905147015v1_busco_short_summary.txt
+
+- species: Laspeyria flexula (alternate haplotype)
+  image: Lepidoptera.png
+  accession: GCA_905147035.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Laspeyria_flexula/GCA_905147035.1/geneset/2021_11/Laspeyria_flexula-GCA_905147035.1-2021_11-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Laspeyria_flexula/GCA_905147035.1/geneset/2021_11/Laspeyria_flexula-GCA_905147035.1-2021_11-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Laspeyria_flexula/GCA_905147035.1/geneset/2021_11/Laspeyria_flexula-GCA_905147035.1-2021_11-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Laspeyria_flexula/GCA_905147035.1/geneset/2021_11/Laspeyria_flexula-GCA_905147035.1-2021_11-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Laspeyria_flexula/GCA_905147035.1/genome/Laspeyria_flexula-GCA_905147035.1-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Laspeyria_flexula/GCA_905147035.1
+  rapid_link: https://rapid.ensembl.org/Laspeyria_flexula_gca905147035v1/Info/Index
+
+- species: Leptidea sinapis (alternate haplotype)
+  image: Lepidoptera.png
+  accession: GCA_905404105.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Leptidea_sinapis/GCA_905404105.1/geneset/2021_11/Leptidea_sinapis-GCA_905404105.1-2021_11-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Leptidea_sinapis/GCA_905404105.1/geneset/2021_11/Leptidea_sinapis-GCA_905404105.1-2021_11-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Leptidea_sinapis/GCA_905404105.1/geneset/2021_11/Leptidea_sinapis-GCA_905404105.1-2021_11-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Leptidea_sinapis/GCA_905404105.1/geneset/2021_11/Leptidea_sinapis-GCA_905404105.1-2021_11-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Leptidea_sinapis/GCA_905404105.1/genome/Leptidea_sinapis-GCA_905404105.1-softmasked.fa.gz
+  repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/leptidea_sinapis/GCA_905404105.1.repeatmodeler.fa
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Leptidea_sinapis/GCA_905404105.1
+  rapid_link: https://rapid.ensembl.org/Leptidea_sinapis_gca905404105v1/Info/Index
 
 - species: Leptidea sinapis
   image: Lepidoptera.png
@@ -669,6 +1036,17 @@
   ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Leptidea_sinapis/GCA_905404315.1
   rapid_link: https://rapid.ensembl.org/Leptidea_sinapis_gca905404315v1/Info/Index
 
+- species: Limenitis camilla (alternate haplotype)
+  image: Lepidoptera.png
+  accession: GCA_905147315.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Limenitis_camilla/GCA_905147315.1/geneset/2021_11/Limenitis_camilla-GCA_905147315.1-2021_11-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Limenitis_camilla/GCA_905147315.1/geneset/2021_11/Limenitis_camilla-GCA_905147315.1-2021_11-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Limenitis_camilla/GCA_905147315.1/geneset/2021_11/Limenitis_camilla-GCA_905147315.1-2021_11-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Limenitis_camilla/GCA_905147315.1/geneset/2021_11/Limenitis_camilla-GCA_905147315.1-2021_11-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Limenitis_camilla/GCA_905147315.1/genome/Limenitis_camilla-GCA_905147315.1-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Limenitis_camilla/GCA_905147315.1
+  rapid_link: https://rapid.ensembl.org/Limenitis_camilla_gca905147315v1/Info/Index
+
 - species: Limenitis camilla
   image: Lepidoptera.png
   accession: GCA_905147385.1
@@ -680,8 +1058,21 @@
   repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/limenitis_camilla/GCA_905147385.1.repeatmodeler.fa
   ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Limenitis_camilla/GCA_905147385.1
   rapid_link: https://rapid.ensembl.org/Limenitis_camilla_gca905147385v1/Info/Index
+  busco_score: http://ftp.ebi.ac.uk/pub/databases/ensembl/dtol/busco_scores/limenitis_camilla_GCA_905147385.1/limenitis_camilla_gca905147385v1_busco_short_summary.txt
 
 - species: Lycaena phlaeas
+  image: Lepidoptera.png
+  accession: GCA_905333005.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Lycaena_phlaeas/GCA_905333005.1/geneset/2021_06/Lycaena_phlaeas-GCA_905333005.1-2021_06-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Lycaena_phlaeas/GCA_905333005.1/geneset/2021_06/Lycaena_phlaeas-GCA_905333005.1-2021_06-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Lycaena_phlaeas/GCA_905333005.1/geneset/2021_06/Lycaena_phlaeas-GCA_905333005.1-2021_06-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Lycaena_phlaeas/GCA_905333005.1/geneset/2021_06/Lycaena_phlaeas-GCA_905333005.1-2021_06-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Lycaena_phlaeas/GCA_905333005.1/genome/Lycaena_phlaeas-GCA_905333005.1-softmasked.fa.gz
+  repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/lycaena_phlaeas/GCA_905333005.1.repeatmodeler.fa
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Lycaena_phlaeas/GCA_905333005.1
+  rapid_link: https://rapid.ensembl.org/Lycaena_phlaeas_gca905333005v1/Info/Index
+
+- species: Lycaena phlaeas (alternate haplotype)
   image: Lepidoptera.png
   accession: GCA_905333065.1
   annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Lycaena_phlaeas/GCA_905333065.1/geneset/2021_06/Lycaena_phlaeas-GCA_905333065.1-2021_06-genes.gff3.gz
@@ -691,6 +1082,17 @@
   softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Lycaena_phlaeas/GCA_905333065.1/genome/Lycaena_phlaeas-GCA_905333065.1-softmasked.fa.gz
   ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Lycaena_phlaeas/GCA_905333065.1
   rapid_link: https://rapid.ensembl.org/Lycaena_phlaeas_gca905333065v1/Info/Index
+
+- species: Lysandra bellargus (alternate haplotype)
+  image: Lepidoptera.png
+  accession: GCA_905332955.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Lysandra_bellargus/GCA_905332955.1/geneset/2021_11/Lysandra_bellargus-GCA_905332955.1-2021_11-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Lysandra_bellargus/GCA_905332955.1/geneset/2021_11/Lysandra_bellargus-GCA_905332955.1-2021_11-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Lysandra_bellargus/GCA_905332955.1/geneset/2021_11/Lysandra_bellargus-GCA_905332955.1-2021_11-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Lysandra_bellargus/GCA_905332955.1/geneset/2021_11/Lysandra_bellargus-GCA_905332955.1-2021_11-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Lysandra_bellargus/GCA_905332955.1/genome/Lysandra_bellargus-GCA_905332955.1-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Lysandra_bellargus/GCA_905332955.1
+  rapid_link: https://rapid.ensembl.org/Lysandra_bellargus_gca905332955v1/Info/Index
 
 - species: Lysandra bellargus
   image: Lepidoptera.png
@@ -703,6 +1105,7 @@
   repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/lysandra_bellargus/GCA_905333045.1.repeatmodeler.fa
   ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Lysandra_bellargus/GCA_905333045.1
   rapid_link: https://rapid.ensembl.org/Lysandra_bellargus_gca905333045v1/Info/Index
+  busco_score: http://ftp.ebi.ac.uk/pub/databases/ensembl/dtol/busco_scores/lysandra_bellargus_GCA_905333045.1/lysandra_bellargus_gca905333045v1_busco_short_summary.txt
 
 - species: Lysandra coridon
   image: Lepidoptera.png
@@ -715,6 +1118,19 @@
   repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/lysandra_coridon/GCA_905220515.1.repeatmodeler.fa
   ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Lysandra_coridon/GCA_905220515.1
   rapid_link: https://rapid.ensembl.org/Lysandra_coridon_gca905220515v1/Info/Index
+  busco_score: http://ftp.ebi.ac.uk/pub/databases/ensembl/dtol/busco_scores/lysandra_coridon_GCA_905220515.1/lysandra_coridon_gca905220515v1_busco_short_summary.txt
+
+- species: Lysandra coridon (alternate haplotype)
+  image: Lepidoptera.png
+  accession: GCA_905220525.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Lysandra_coridon/GCA_905220525.1/geneset/2021_11/Lysandra_coridon-GCA_905220525.1-2021_11-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Lysandra_coridon/GCA_905220525.1/geneset/2021_11/Lysandra_coridon-GCA_905220525.1-2021_11-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Lysandra_coridon/GCA_905220525.1/geneset/2021_11/Lysandra_coridon-GCA_905220525.1-2021_11-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Lysandra_coridon/GCA_905220525.1/geneset/2021_11/Lysandra_coridon-GCA_905220525.1-2021_11-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Lysandra_coridon/GCA_905220525.1/genome/Lysandra_coridon-GCA_905220525.1-softmasked.fa.gz
+  repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/lysandra_coridon/GCA_905220525.1.repeatmodeler.fa
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Lysandra_coridon/GCA_905220525.1
+  rapid_link: https://rapid.ensembl.org/Lysandra_coridon_gca905220525v1/Info/Index
 
 - species: Macropis europaea
   image: Arthropods.png
@@ -727,6 +1143,7 @@
   repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/macropis_europaea/GCA_916610135.1.repeatmodeler.fa
   ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Macropis_europaea/GCA_916610135.1
   rapid_link: https://rapid.ensembl.org/Macropis_europaea_gca916610135v1/Info/Index
+  busco_score: http://ftp.ebi.ac.uk/pub/databases/ensembl/dtol/busco_scores/macropis_europaea_GCA_916610135.1/macropis_europaea_gca916610135v1_busco_short_summary.txt
 
 - species: Mamestra brassicae
   image: Lepidoptera.png
@@ -739,6 +1156,7 @@
   repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/mamestra_brassicae/GCA_905163435.1.repeatmodeler.fa
   ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Mamestra_brassicae/GCA_905163435.1
   rapid_link: https://rapid.ensembl.org/Mamestra_brassicae_gca905163435v1/Info/Index
+  busco_score: http://ftp.ebi.ac.uk/pub/databases/ensembl/dtol/busco_scores/mamestra_brassicae_GCA_905163435.1/mamestra_brassicae_gca905163435v1_busco_short_summary.txt
 
 - species: Maniola hyperantus
   image: Lepidoptera.png
@@ -751,8 +1169,21 @@
   repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/maniola_hyperantus/GCA_902806685.2.repeatmodeler.fa
   ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Maniola_hyperantus/GCA_902806685.2
   rapid_link: https://rapid.ensembl.org/Maniola_hyperantus_gca902806685v2/Info/Index
+  busco_score: http://ftp.ebi.ac.uk/pub/databases/ensembl/dtol/busco_scores/maniola_hyperantus_GCA_902806685.2/maniola_hyperantus_gca902806685v2_busco_short_summary.txt
 
 - species: Maniola jurtina
+  image: Lepidoptera.png
+  accession: GCA_905333055.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Maniola_jurtina/GCA_905333055.1/geneset/2021_06/Maniola_jurtina-GCA_905333055.1-2021_06-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Maniola_jurtina/GCA_905333055.1/geneset/2021_06/Maniola_jurtina-GCA_905333055.1-2021_06-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Maniola_jurtina/GCA_905333055.1/geneset/2021_06/Maniola_jurtina-GCA_905333055.1-2021_06-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Maniola_jurtina/GCA_905333055.1/geneset/2021_06/Maniola_jurtina-GCA_905333055.1-2021_06-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Maniola_jurtina/GCA_905333055.1/genome/Maniola_jurtina-GCA_905333055.1-softmasked.fa.gz
+  repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/maniola_jurtina/GCA_905333055.1.repeatmodeler.fa
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Maniola_jurtina/GCA_905333055.1
+  rapid_link: https://rapid.ensembl.org/Maniola_jurtina_gca905333055v1/Info/Index
+
+- species: Maniola jurtina (alternate haplotype)
   image: Lepidoptera.png
   accession: GCA_905333105.1
   annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Maniola_jurtina/GCA_905333105.1/geneset/2021_06/Maniola_jurtina-GCA_905333105.1-2021_06-genes.gff3.gz
@@ -774,6 +1205,18 @@
   repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/melanostoma_mellinum/GCA_914767635.1.repeatmodeler.fa
   ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Melanostoma_mellinum/GCA_914767635.1
   rapid_link: https://rapid.ensembl.org/Melanostoma_mellinum_gca914767635v1/Info/Index
+  busco_score: http://ftp.ebi.ac.uk/pub/databases/ensembl/dtol/busco_scores/melanostoma_mellinum_GCA_914767635.1/melanostoma_mellinum_gca914767635v1_busco_short_summary.txt
+
+- species: Melitaea cinxia (alternate haplotype)
+  image: Lepidoptera.png
+  accession: GCA_905220555.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Melitaea_cinxia/GCA_905220555.1/geneset/2021_05/Melitaea_cinxia-GCA_905220555.1-2021_05-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Melitaea_cinxia/GCA_905220555.1/geneset/2021_05/Melitaea_cinxia-GCA_905220555.1-2021_05-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Melitaea_cinxia/GCA_905220555.1/geneset/2021_05/Melitaea_cinxia-GCA_905220555.1-2021_05-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Melitaea_cinxia/GCA_905220555.1/geneset/2021_05/Melitaea_cinxia-GCA_905220555.1-2021_05-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Melitaea_cinxia/GCA_905220555.1/genome/Melitaea_cinxia-GCA_905220555.1-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Melitaea_cinxia/GCA_905220555.1
+  rapid_link: https://rapid.ensembl.org/Melitaea_cinxia_gca905220555v1/Info/Index
 
 - species: Melitaea cinxia
   image: Lepidoptera.png
@@ -786,6 +1229,18 @@
   repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/melitaea_cinxia/GCA_905220565.1.repeatmodeler.fa
   ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Melitaea_cinxia/GCA_905220565.1
   rapid_link: https://rapid.ensembl.org/Melitaea_cinxia_gca905220565v1/Info/Index
+
+- species: Mellicta athalia (alternate haplotype)
+  image: Lepidoptera.png
+  accession: GCA_905220535.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Mellicta_athalia/GCA_905220535.1/geneset/2021_06/Mellicta_athalia-GCA_905220535.1-2021_06-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Mellicta_athalia/GCA_905220535.1/geneset/2021_06/Mellicta_athalia-GCA_905220535.1-2021_06-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Mellicta_athalia/GCA_905220535.1/geneset/2021_06/Mellicta_athalia-GCA_905220535.1-2021_06-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Mellicta_athalia/GCA_905220535.1/geneset/2021_06/Mellicta_athalia-GCA_905220535.1-2021_06-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Mellicta_athalia/GCA_905220535.1/genome/Mellicta_athalia-GCA_905220535.1-softmasked.fa.gz
+  repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/mellicta_athalia/GCA_905220535.1.repeatmodeler.fa
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Mellicta_athalia/GCA_905220535.1
+  rapid_link: https://rapid.ensembl.org/Mellicta_athalia_gca905220535v1/Info/Index
 
 - species: Mellicta athalia
   image: Lepidoptera.png
@@ -810,6 +1265,30 @@
   repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/mythimna_ferrago/GCA_910589285.1.repeatmodeler.fa
   ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Mythimna_ferrago/GCA_910589285.1
   rapid_link: https://rapid.ensembl.org/Mythimna_ferrago_gca910589285v1/Info/Index
+  busco_score: http://ftp.ebi.ac.uk/pub/databases/ensembl/dtol/busco_scores/mythimna_ferrago_GCA_910589285.1/mythimna_ferrago_gca910589285v1_busco_short_summary.txt
+
+- species: Mythimna ferrago (alternate haplotype)
+  image: Lepidoptera.png
+  accession: GCA_910589535.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Mythimna_ferrago/GCA_910589535.1/geneset/2021_11/Mythimna_ferrago-GCA_910589535.1-2021_11-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Mythimna_ferrago/GCA_910589535.1/geneset/2021_11/Mythimna_ferrago-GCA_910589535.1-2021_11-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Mythimna_ferrago/GCA_910589535.1/geneset/2021_11/Mythimna_ferrago-GCA_910589535.1-2021_11-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Mythimna_ferrago/GCA_910589535.1/geneset/2021_11/Mythimna_ferrago-GCA_910589535.1-2021_11-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Mythimna_ferrago/GCA_910589535.1/genome/Mythimna_ferrago-GCA_910589535.1-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Mythimna_ferrago/GCA_910589535.1
+  rapid_link: https://rapid.ensembl.org/Mythimna_ferrago_gca910589535v1/Info/Index
+
+- species: Mythimna impura (alternate haplotype)
+  image: Lepidoptera.png
+  accession: GCA_905147275.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Mythimna_impura/GCA_905147275.1/geneset/2021_11/Mythimna_impura-GCA_905147275.1-2021_11-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Mythimna_impura/GCA_905147275.1/geneset/2021_11/Mythimna_impura-GCA_905147275.1-2021_11-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Mythimna_impura/GCA_905147275.1/geneset/2021_11/Mythimna_impura-GCA_905147275.1-2021_11-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Mythimna_impura/GCA_905147275.1/geneset/2021_11/Mythimna_impura-GCA_905147275.1-2021_11-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Mythimna_impura/GCA_905147275.1/genome/Mythimna_impura-GCA_905147275.1-softmasked.fa.gz
+  repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/mythimna_impura/GCA_905147275.1.repeatmodeler.fa
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Mythimna_impura/GCA_905147275.1
+  rapid_link: https://rapid.ensembl.org/Mythimna_impura_gca905147275v1/Info/Index
 
 - species: Mythimna impura
   image: Lepidoptera.png
@@ -822,6 +1301,7 @@
   repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/mythimna_impura/GCA_905147345.1.repeatmodeler.fa
   ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Mythimna_impura/GCA_905147345.1
   rapid_link: https://rapid.ensembl.org/Mythimna_impura_gca905147345v1/Info/Index
+  busco_score: http://ftp.ebi.ac.uk/pub/databases/ensembl/dtol/busco_scores/mythimna_impura_GCA_905147345.1/mythimna_impura_gca905147345v1_busco_short_summary.txt
 
 - species: Nomada fabriciana
   image: Arthropods.png
@@ -834,6 +1314,18 @@
   repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/nomada_fabriciana/GCA_907165295.1.repeatmodeler.fa
   ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Nomada_fabriciana/GCA_907165295.1
   rapid_link: https://rapid.ensembl.org/Nomada_fabriciana_gca907165295v1/Info/Index
+  busco_score: http://ftp.ebi.ac.uk/pub/databases/ensembl/dtol/busco_scores/nomada_fabriciana_GCA_907165295.1/nomada_fabriciana_gca907165295v1_busco_short_summary.txt
+
+- species: Nomada fabriciana (alternate haplotype)
+  image: Arthropods.png
+  accession: GCA_907165305.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Nomada_fabriciana/GCA_907165305.1/geneset/2021_11/Nomada_fabriciana-GCA_907165305.1-2021_11-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Nomada_fabriciana/GCA_907165305.1/geneset/2021_11/Nomada_fabriciana-GCA_907165305.1-2021_11-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Nomada_fabriciana/GCA_907165305.1/geneset/2021_11/Nomada_fabriciana-GCA_907165305.1-2021_11-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Nomada_fabriciana/GCA_907165305.1/geneset/2021_11/Nomada_fabriciana-GCA_907165305.1-2021_11-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Nomada_fabriciana/GCA_907165305.1/genome/Nomada_fabriciana-GCA_907165305.1-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Nomada_fabriciana/GCA_907165305.1
+  rapid_link: https://rapid.ensembl.org/Nomada_fabriciana_gca907165305v1/Info/Index
 
 - species: Notodonta dromedarius
   image: Lepidoptera.png
@@ -846,6 +1338,29 @@
   repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/notodonta_dromedarius/GCA_905147325.1.repeatmodeler.fa
   ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Notodonta_dromedarius/GCA_905147325.1
   rapid_link: https://rapid.ensembl.org/Notodonta_dromedarius_gca905147325v1/Info/Index
+  busco_score: http://ftp.ebi.ac.uk/pub/databases/ensembl/dtol/busco_scores/notodonta_dromedarius_GCA_905147325.1/notodonta_dromedarius_gca905147325v1_busco_short_summary.txt
+
+- species: Notodonta dromedarius (alternate haplotype)
+  image: Lepidoptera.png
+  accession: GCA_905147855.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Notodonta_dromedarius/GCA_905147855.1/geneset/2021_11/Notodonta_dromedarius-GCA_905147855.1-2021_11-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Notodonta_dromedarius/GCA_905147855.1/geneset/2021_11/Notodonta_dromedarius-GCA_905147855.1-2021_11-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Notodonta_dromedarius/GCA_905147855.1/geneset/2021_11/Notodonta_dromedarius-GCA_905147855.1-2021_11-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Notodonta_dromedarius/GCA_905147855.1/geneset/2021_11/Notodonta_dromedarius-GCA_905147855.1-2021_11-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Notodonta_dromedarius/GCA_905147855.1/genome/Notodonta_dromedarius-GCA_905147855.1-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Notodonta_dromedarius/GCA_905147855.1
+  rapid_link: https://rapid.ensembl.org/Notodonta_dromedarius_gca905147855v1/Info/Index
+
+- species: Nymphalis polychloros (alternate haplotype)
+  image: Lepidoptera.png
+  accession: GCA_905220575.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Nymphalis_polychloros/GCA_905220575.1/geneset/2021_11/Nymphalis_polychloros-GCA_905220575.1-2021_11-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Nymphalis_polychloros/GCA_905220575.1/geneset/2021_11/Nymphalis_polychloros-GCA_905220575.1-2021_11-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Nymphalis_polychloros/GCA_905220575.1/geneset/2021_11/Nymphalis_polychloros-GCA_905220575.1-2021_11-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Nymphalis_polychloros/GCA_905220575.1/geneset/2021_11/Nymphalis_polychloros-GCA_905220575.1-2021_11-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Nymphalis_polychloros/GCA_905220575.1/genome/Nymphalis_polychloros-GCA_905220575.1-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Nymphalis_polychloros/GCA_905220575.1
+  rapid_link: https://rapid.ensembl.org/Nymphalis_polychloros_gca905220575v1/Info/Index
 
 - species: Nymphalis polychloros
   image: Lepidoptera.png
@@ -858,6 +1373,18 @@
   repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/nymphalis_polychloros/GCA_905220585.1.repeatmodeler.fa
   ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Nymphalis_polychloros/GCA_905220585.1
   rapid_link: https://rapid.ensembl.org/Nymphalis_polychloros_gca905220585v1/Info/Index
+  busco_score: http://ftp.ebi.ac.uk/pub/databases/ensembl/dtol/busco_scores/nymphalis_polychloros_GCA_905220585.1/nymphalis_polychloros_gca905220585v1_busco_short_summary.txt
+
+- species: Nymphalis urticae (alternate haplotype)
+  image: Lepidoptera.png
+  accession: GCA_905147055.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Nymphalis_urticae/GCA_905147055.1/geneset/2021_11/Nymphalis_urticae-GCA_905147055.1-2021_11-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Nymphalis_urticae/GCA_905147055.1/geneset/2021_11/Nymphalis_urticae-GCA_905147055.1-2021_11-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Nymphalis_urticae/GCA_905147055.1/geneset/2021_11/Nymphalis_urticae-GCA_905147055.1-2021_11-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Nymphalis_urticae/GCA_905147055.1/geneset/2021_11/Nymphalis_urticae-GCA_905147055.1-2021_11-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Nymphalis_urticae/GCA_905147055.1/genome/Nymphalis_urticae-GCA_905147055.1-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Nymphalis_urticae/GCA_905147055.1
+  rapid_link: https://rapid.ensembl.org/Nymphalis_urticae_gca905147055v1/Info/Index
 
 - species: Nymphalis urticae
   image: Lepidoptera.png
@@ -870,6 +1397,7 @@
   repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/nymphalis_urticae/GCA_905147175.1.repeatmodeler.fa
   ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Nymphalis_urticae/GCA_905147175.1
   rapid_link: https://rapid.ensembl.org/Nymphalis_urticae_gca905147175v1/Info/Index
+  busco_score: http://ftp.ebi.ac.uk/pub/databases/ensembl/dtol/busco_scores/nymphalis_urticae_GCA_905147175.1/nymphalis_urticae_gca905147175v1_busco_short_summary.txt
 
 - species: Nysson spinosus
   image: Arthropods.png
@@ -882,6 +1410,18 @@
   repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/nysson_spinosus/GCA_910591585.1.repeatmodeler.fa
   ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Nysson_spinosus/GCA_910591585.1
   rapid_link: https://rapid.ensembl.org/Nysson_spinosus_gca910591585v1/Info/Index
+  busco_score: http://ftp.ebi.ac.uk/pub/databases/ensembl/dtol/busco_scores/nysson_spinosus_GCA_910591585.1/nysson_spinosus_gca910591585v1_busco_short_summary.txt
+
+- species: Ochlodes sylvanus (alternate haplotype)
+  image: Lepidoptera.png
+  accession: GCA_905404205.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Ochlodes_sylvanus/GCA_905404205.1/geneset/2021_11/Ochlodes_sylvanus-GCA_905404205.1-2021_11-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Ochlodes_sylvanus/GCA_905404205.1/geneset/2021_11/Ochlodes_sylvanus-GCA_905404205.1-2021_11-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Ochlodes_sylvanus/GCA_905404205.1/geneset/2021_11/Ochlodes_sylvanus-GCA_905404205.1-2021_11-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Ochlodes_sylvanus/GCA_905404205.1/geneset/2021_11/Ochlodes_sylvanus-GCA_905404205.1-2021_11-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Ochlodes_sylvanus/GCA_905404205.1/genome/Ochlodes_sylvanus-GCA_905404205.1-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Ochlodes_sylvanus/GCA_905404205.1
+  rapid_link: https://rapid.ensembl.org/Ochlodes_sylvanus_gca905404205v1/Info/Index
 
 - species: Ochlodes sylvanus
   image: Lepidoptera.png
@@ -894,6 +1434,7 @@
   repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/ochlodes_sylvanus/GCA_905404295.1.repeatmodeler.fa
   ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Ochlodes_sylvanus/GCA_905404295.1
   rapid_link: https://rapid.ensembl.org/Ochlodes_sylvanus_gca905404295v1/Info/Index
+  busco_score: http://ftp.ebi.ac.uk/pub/databases/ensembl/dtol/busco_scores/ochlodes_sylvanus_GCA_905404295.1/ochlodes_sylvanus_gca905404295v1_busco_short_summary.txt
 
 - species: Ocypus olens
   image: Arthropods.png
@@ -906,6 +1447,7 @@
   repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/ocypus_olens/GCA_910593695.1.repeatmodeler.fa
   ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Ocypus_olens/GCA_910593695.1
   rapid_link: https://rapid.ensembl.org/Ocypus_olens_gca910593695v1/Info/Index
+  busco_score: http://ftp.ebi.ac.uk/pub/databases/ensembl/dtol/busco_scores/ocypus_olens_GCA_910593695.1/ocypus_olens_gca910593695v1_busco_short_summary.txt
 
 - species: Osmia bicornis bicornis
   image: Arthropods.png
@@ -930,6 +1472,28 @@
   ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Papilio_machaon/GCA_912999745.1
   rapid_link: https://rapid.ensembl.org/Papilio_machaon_gca912999745v1/Info/Index
 
+- species: Papilio machaon (alternate haplotype)
+  image: Lepidoptera.png
+  accession: GCA_912999765.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Papilio_machaon/GCA_912999765.1/geneset/2021_11/Papilio_machaon-GCA_912999765.1-2021_11-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Papilio_machaon/GCA_912999765.1/geneset/2021_11/Papilio_machaon-GCA_912999765.1-2021_11-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Papilio_machaon/GCA_912999765.1/geneset/2021_11/Papilio_machaon-GCA_912999765.1-2021_11-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Papilio_machaon/GCA_912999765.1/geneset/2021_11/Papilio_machaon-GCA_912999765.1-2021_11-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Papilio_machaon/GCA_912999765.1/genome/Papilio_machaon-GCA_912999765.1-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Papilio_machaon/GCA_912999765.1
+  rapid_link: https://rapid.ensembl.org/Papilio_machaon_gca912999765v1/Info/Index
+
+- species: Parapoynx stratiotata (alternate haplotype)
+  image: Lepidoptera.png
+  accession: GCA_910589245.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Parapoynx_stratiotata/GCA_910589245.1/geneset/2021_11/Parapoynx_stratiotata-GCA_910589245.1-2021_11-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Parapoynx_stratiotata/GCA_910589245.1/geneset/2021_11/Parapoynx_stratiotata-GCA_910589245.1-2021_11-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Parapoynx_stratiotata/GCA_910589245.1/geneset/2021_11/Parapoynx_stratiotata-GCA_910589245.1-2021_11-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Parapoynx_stratiotata/GCA_910589245.1/geneset/2021_11/Parapoynx_stratiotata-GCA_910589245.1-2021_11-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Parapoynx_stratiotata/GCA_910589245.1/genome/Parapoynx_stratiotata-GCA_910589245.1-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Parapoynx_stratiotata/GCA_910589245.1
+  rapid_link: https://rapid.ensembl.org/Parapoynx_stratiotata_gca910589245v1/Info/Index
+
 - species: Parapoynx stratiotata
   image: Lepidoptera.png
   accession: GCA_910589355.1
@@ -953,6 +1517,18 @@
   repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/pararge_aegeria/GCA_905163445.1.repeatmodeler.fa
   ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Pararge_aegeria/GCA_905163445.1
   rapid_link: https://rapid.ensembl.org/Pararge_aegeria_gca905163445v1/Info/Index
+  busco_score: http://ftp.ebi.ac.uk/pub/databases/ensembl/dtol/busco_scores/pararge_aegeria_GCA_905163445.1/pararge_aegeria_gca905163445v1_busco_short_summary.txt
+
+- species: Pararge aegeria (alternate haplotype)
+  image: Lepidoptera.png
+  accession: GCA_905163545.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Pararge_aegeria/GCA_905163545.1/geneset/2021_05/Pararge_aegeria-GCA_905163545.1-2021_05-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Pararge_aegeria/GCA_905163545.1/geneset/2021_05/Pararge_aegeria-GCA_905163545.1-2021_05-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Pararge_aegeria/GCA_905163545.1/geneset/2021_05/Pararge_aegeria-GCA_905163545.1-2021_05-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Pararge_aegeria/GCA_905163545.1/geneset/2021_05/Pararge_aegeria-GCA_905163545.1-2021_05-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Pararge_aegeria/GCA_905163545.1/genome/Pararge_aegeria-GCA_905163545.1-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Pararge_aegeria/GCA_905163545.1
+  rapid_link: https://rapid.ensembl.org/Pararge_aegeria_gca905163545v1/Info/Index
 
 - species: Pheosia gnoma
   image: Lepidoptera.png
@@ -966,6 +1542,28 @@
   ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Pheosia_gnoma/GCA_905404115.1
   rapid_link: https://rapid.ensembl.org/Pheosia_gnoma_gca905404115v1/Info/Index
 
+- species: Pheosia gnoma (alternate haplotype)
+  image: Lepidoptera.png
+  accession: GCA_905404125.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Pheosia_gnoma/GCA_905404125.1/geneset/2021_11/Pheosia_gnoma-GCA_905404125.1-2021_11-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Pheosia_gnoma/GCA_905404125.1/geneset/2021_11/Pheosia_gnoma-GCA_905404125.1-2021_11-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Pheosia_gnoma/GCA_905404125.1/geneset/2021_11/Pheosia_gnoma-GCA_905404125.1-2021_11-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Pheosia_gnoma/GCA_905404125.1/geneset/2021_11/Pheosia_gnoma-GCA_905404125.1-2021_11-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Pheosia_gnoma/GCA_905404125.1/genome/Pheosia_gnoma-GCA_905404125.1-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Pheosia_gnoma/GCA_905404125.1
+  rapid_link: https://rapid.ensembl.org/Pheosia_gnoma_gca905404125v1/Info/Index
+
+- species: Pheosia tremula (alternate haplotype)
+  image: Lepidoptera.png
+  accession: GCA_905333115.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Pheosia_tremula/GCA_905333115.1/geneset/2021_11/Pheosia_tremula-GCA_905333115.1-2021_11-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Pheosia_tremula/GCA_905333115.1/geneset/2021_11/Pheosia_tremula-GCA_905333115.1-2021_11-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Pheosia_tremula/GCA_905333115.1/geneset/2021_11/Pheosia_tremula-GCA_905333115.1-2021_11-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Pheosia_tremula/GCA_905333115.1/geneset/2021_11/Pheosia_tremula-GCA_905333115.1-2021_11-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Pheosia_tremula/GCA_905333115.1/genome/Pheosia_tremula-GCA_905333115.1-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Pheosia_tremula/GCA_905333115.1
+  rapid_link: https://rapid.ensembl.org/Pheosia_tremula_gca905333115v1/Info/Index
+
 - species: Pheosia tremula
   image: Lepidoptera.png
   accession: GCA_905333125.1
@@ -977,6 +1575,19 @@
   repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/pheosia_tremula/GCA_905333125.1.repeatmodeler.fa
   ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Pheosia_tremula/GCA_905333125.1
   rapid_link: https://rapid.ensembl.org/Pheosia_tremula_gca905333125v1/Info/Index
+  busco_score: http://ftp.ebi.ac.uk/pub/databases/ensembl/dtol/busco_scores/pheosia_tremula_GCA_905333125.1/pheosia_tremula_gca905333125v1_busco_short_summary.txt
+
+- species: Phlogophora meticulosa (alternate haplotype)
+  image: Lepidoptera.png
+  accession: GCA_905147725.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Phlogophora_meticulosa/GCA_905147725.1/geneset/2021_11/Phlogophora_meticulosa-GCA_905147725.1-2021_11-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Phlogophora_meticulosa/GCA_905147725.1/geneset/2021_11/Phlogophora_meticulosa-GCA_905147725.1-2021_11-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Phlogophora_meticulosa/GCA_905147725.1/geneset/2021_11/Phlogophora_meticulosa-GCA_905147725.1-2021_11-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Phlogophora_meticulosa/GCA_905147725.1/geneset/2021_11/Phlogophora_meticulosa-GCA_905147725.1-2021_11-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Phlogophora_meticulosa/GCA_905147725.1/genome/Phlogophora_meticulosa-GCA_905147725.1-softmasked.fa.gz
+  repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/phlogophora_meticulosa/GCA_905147725.1.repeatmodeler.fa
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Phlogophora_meticulosa/GCA_905147725.1
+  rapid_link: https://rapid.ensembl.org/Phlogophora_meticulosa_gca905147725v1/Info/Index
 
 - species: Phlogophora meticulosa
   image: Lepidoptera.png
@@ -989,6 +1600,18 @@
   repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/phlogophora_meticulosa/GCA_905147745.1.repeatmodeler.fa
   ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Phlogophora_meticulosa/GCA_905147745.1
   rapid_link: https://rapid.ensembl.org/Phlogophora_meticulosa_gca905147745v1/Info/Index
+  busco_score: http://ftp.ebi.ac.uk/pub/databases/ensembl/dtol/busco_scores/phlogophora_meticulosa_GCA_905147745.1/phlogophora_meticulosa_gca905147745v1_busco_short_summary.txt
+
+- species: Pieris brassicae (alternate haplotype)
+  image: Lepidoptera.png
+  accession: GCA_905147085.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Pieris_brassicae/GCA_905147085.1/geneset/2021_05/Pieris_brassicae-GCA_905147085.1-2021_05-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Pieris_brassicae/GCA_905147085.1/geneset/2021_05/Pieris_brassicae-GCA_905147085.1-2021_05-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Pieris_brassicae/GCA_905147085.1/geneset/2021_05/Pieris_brassicae-GCA_905147085.1-2021_05-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Pieris_brassicae/GCA_905147085.1/geneset/2021_05/Pieris_brassicae-GCA_905147085.1-2021_05-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Pieris_brassicae/GCA_905147085.1/genome/Pieris_brassicae-GCA_905147085.1-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Pieris_brassicae/GCA_905147085.1
+  rapid_link: https://rapid.ensembl.org/Pieris_brassicae_gca905147085v1/Info/Index
 
 - species: Pieris brassicae
   image: Lepidoptera.png
@@ -1014,6 +1637,28 @@
   ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Pieris_napi/GCA_905231885.1
   rapid_link: https://rapid.ensembl.org/Pieris_napi_gca905231885v1/Info/Index
 
+- species: Pieris napi (alternate haplotype)
+  image: Lepidoptera.png
+  accession: GCA_905231895.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Pieris_napi/GCA_905231895.1/geneset/2021_05/Pieris_napi-GCA_905231895.1-2021_05-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Pieris_napi/GCA_905231895.1/geneset/2021_05/Pieris_napi-GCA_905231895.1-2021_05-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Pieris_napi/GCA_905231895.1/geneset/2021_05/Pieris_napi-GCA_905231895.1-2021_05-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Pieris_napi/GCA_905231895.1/geneset/2021_05/Pieris_napi-GCA_905231895.1-2021_05-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Pieris_napi/GCA_905231895.1/genome/Pieris_napi-GCA_905231895.1-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Pieris_napi/GCA_905231895.1
+  rapid_link: https://rapid.ensembl.org/Pieris_napi_gca905231895v1/Info/Index
+
+- species: Pieris napi (alternate haplotype)
+  image: Lepidoptera.png
+  accession: GCA_905475415.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Pieris_napi/GCA_905475415.1/geneset/2021_11/Pieris_napi-GCA_905475415.1-2021_11-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Pieris_napi/GCA_905475415.1/geneset/2021_11/Pieris_napi-GCA_905475415.1-2021_11-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Pieris_napi/GCA_905475415.1/geneset/2021_11/Pieris_napi-GCA_905475415.1-2021_11-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Pieris_napi/GCA_905475415.1/geneset/2021_11/Pieris_napi-GCA_905475415.1-2021_11-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Pieris_napi/GCA_905475415.1/genome/Pieris_napi-GCA_905475415.1-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Pieris_napi/GCA_905475415.1
+  rapid_link: https://rapid.ensembl.org/Pieris_napi_gca905475415v1/Info/Index
+
 - species: Pieris napi
   image: Lepidoptera.png
   accession: GCA_905475465.1
@@ -1025,6 +1670,17 @@
   repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/pieris_napi/GCA_905475465.1.repeatmodeler.fa
   ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Pieris_napi/GCA_905475465.1
   rapid_link: https://rapid.ensembl.org/Pieris_napi_gca905475465v1/Info/Index
+
+- species: Pieris rapae (alternate haplotype)
+  image: Lepidoptera.png
+  accession: GCA_905147735.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Pieris_rapae/GCA_905147735.1/geneset/2021_05/Pieris_rapae-GCA_905147735.1-2021_05-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Pieris_rapae/GCA_905147735.1/geneset/2021_05/Pieris_rapae-GCA_905147735.1-2021_05-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Pieris_rapae/GCA_905147735.1/geneset/2021_05/Pieris_rapae-GCA_905147735.1-2021_05-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Pieris_rapae/GCA_905147735.1/geneset/2021_05/Pieris_rapae-GCA_905147735.1-2021_05-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Pieris_rapae/GCA_905147735.1/genome/Pieris_rapae-GCA_905147735.1-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Pieris_rapae/GCA_905147735.1
+  rapid_link: https://rapid.ensembl.org/Pieris_rapae_gca905147735v1/Info/Index
 
 - species: Pieris rapae
   image: Lepidoptera.png
@@ -1049,6 +1705,28 @@
   repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/plebejus_argus/GCA_905404155.1.repeatmodeler.fa
   ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Plebejus_argus/GCA_905404155.1
   rapid_link: https://rapid.ensembl.org/Plebejus_argus_gca905404155v1/Info/Index
+
+- species: Plebejus argus (alternate haplotype)
+  image: Lepidoptera.png
+  accession: GCA_905404165.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Plebejus_argus/GCA_905404165.1/geneset/2021_11/Plebejus_argus-GCA_905404165.1-2021_11-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Plebejus_argus/GCA_905404165.1/geneset/2021_11/Plebejus_argus-GCA_905404165.1-2021_11-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Plebejus_argus/GCA_905404165.1/geneset/2021_11/Plebejus_argus-GCA_905404165.1-2021_11-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Plebejus_argus/GCA_905404165.1/geneset/2021_11/Plebejus_argus-GCA_905404165.1-2021_11-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Plebejus_argus/GCA_905404165.1/genome/Plebejus_argus-GCA_905404165.1-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Plebejus_argus/GCA_905404165.1
+  rapid_link: https://rapid.ensembl.org/Plebejus_argus_gca905404165v1/Info/Index
+
+- species: Pyrgus malvae (alternate haplotype)
+  image: Lepidoptera.png
+  accession: GCA_911387725.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Pyrgus_malvae/GCA_911387725.1/geneset/2021_11/Pyrgus_malvae-GCA_911387725.1-2021_11-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Pyrgus_malvae/GCA_911387725.1/geneset/2021_11/Pyrgus_malvae-GCA_911387725.1-2021_11-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Pyrgus_malvae/GCA_911387725.1/geneset/2021_11/Pyrgus_malvae-GCA_911387725.1-2021_11-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Pyrgus_malvae/GCA_911387725.1/geneset/2021_11/Pyrgus_malvae-GCA_911387725.1-2021_11-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Pyrgus_malvae/GCA_911387725.1/genome/Pyrgus_malvae-GCA_911387725.1-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Pyrgus_malvae/GCA_911387725.1
+  rapid_link: https://rapid.ensembl.org/Pyrgus_malvae_gca911387725v1/Info/Index
 
 - species: Pyrgus malvae
   image: Lepidoptera.png
@@ -1077,13 +1755,13 @@
 - species: Salmo trutta
   image: Fish.png
   accession: GCA_901001165.1
-  annotation_gtf: http://ftp.ensembl.org/pub/release-105/gtf/salmo_trutta/Salmo_trutta.fSalTru1.1.105.gtf.gz
-  annotation_gff3: http://ftp.ensembl.org/pub/release-105/gff3/salmo_trutta/Salmo_trutta.fSalTru1.1.105.gff3.gz
-  proteins: http://ftp.ensembl.org/pub/release-105/fasta/salmo_trutta/pep/Salmo_trutta.fSalTru1.1.pep.all.fa.gz
-  transcripts: http://ftp.ensembl.org/pub/release-105/fasta/salmo_trutta/cdna/Salmo_trutta.fSalTru1.1.cdna.all.fa.gz
-  softmasked_genome: http://ftp.ensembl.org/pub/release-105/fasta/salmo_trutta/dna/Salmo_trutta.fSalTru1.1.dna_sm.toplevel.fa.gz
+  annotation_gtf: http://ftp.ensembl.org/pub/release-106/gtf/salmo_trutta/Salmo_trutta.fSalTru1.1.106.gtf.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/release-106/gff3/salmo_trutta/Salmo_trutta.fSalTru1.1.106.gff3.gz
+  proteins: http://ftp.ensembl.org/pub/release-106/fasta/salmo_trutta/pep/Salmo_trutta.fSalTru1.1.pep.all.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/release-106/fasta/salmo_trutta/cdna/Salmo_trutta.fSalTru1.1.cdna.all.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/release-106/fasta/salmo_trutta/dna/Salmo_trutta.fSalTru1.1.dna_sm.toplevel.fa.gz
   repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/salmo_trutta/GCA_901001165.1.repeatmodeler.fa
-  ftp_dumps: http://ftp.ensembl.org/pub/release-105
+  ftp_dumps: http://ftp.ensembl.org/pub/release-106
   ensembl_link: https://www.ensembl.org/Salmo_trutta/Info/Index
 
 - species: Sciurus carolinensis
@@ -1133,6 +1811,18 @@
   repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/tenthredo_notha/GCA_914767705.1.repeatmodeler.fa
   ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Tenthredo_notha/GCA_914767705.1
   rapid_link: https://rapid.ensembl.org/Tenthredo_notha_gca914767705v1/Info/Index
+  busco_score: http://ftp.ebi.ac.uk/pub/databases/ensembl/dtol/busco_scores/tenthredo_notha_GCA_914767705.1/tenthredo_notha_gca914767705v1_busco_short_summary.txt
+
+- species: Thyatira batis (alternate haplotype)
+  image: Lepidoptera.png
+  accession: GCA_905147775.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Thyatira_batis/GCA_905147775.1/geneset/2021_05/Thyatira_batis-GCA_905147775.1-2021_05-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Thyatira_batis/GCA_905147775.1/geneset/2021_05/Thyatira_batis-GCA_905147775.1-2021_05-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Thyatira_batis/GCA_905147775.1/geneset/2021_05/Thyatira_batis-GCA_905147775.1-2021_05-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Thyatira_batis/GCA_905147775.1/geneset/2021_05/Thyatira_batis-GCA_905147775.1-2021_05-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Thyatira_batis/GCA_905147775.1/genome/Thyatira_batis-GCA_905147775.1-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Thyatira_batis/GCA_905147775.1
+  rapid_link: https://rapid.ensembl.org/Thyatira_batis_gca905147775v1/Info/Index
 
 - species: Thyatira batis
   image: Lepidoptera.png
@@ -1146,6 +1836,17 @@
   ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Thyatira_batis/GCA_905147785.1
   rapid_link: https://rapid.ensembl.org/Thyatira_batis_gca905147785v1/Info/Index
 
+- species: Thymelicus sylvestris (alternate haplotype)
+  image: Lepidoptera.png
+  accession: GCA_911387695.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Thymelicus_sylvestris/GCA_911387695.1/geneset/2021_11/Thymelicus_sylvestris-GCA_911387695.1-2021_11-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Thymelicus_sylvestris/GCA_911387695.1/geneset/2021_11/Thymelicus_sylvestris-GCA_911387695.1-2021_11-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Thymelicus_sylvestris/GCA_911387695.1/geneset/2021_11/Thymelicus_sylvestris-GCA_911387695.1-2021_11-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Thymelicus_sylvestris/GCA_911387695.1/geneset/2021_11/Thymelicus_sylvestris-GCA_911387695.1-2021_11-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Thymelicus_sylvestris/GCA_911387695.1/genome/Thymelicus_sylvestris-GCA_911387695.1-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Thymelicus_sylvestris/GCA_911387695.1
+  rapid_link: https://rapid.ensembl.org/Thymelicus_sylvestris_gca911387695v1/Info/Index
+
 - species: Thymelicus sylvestris
   image: Lepidoptera.png
   accession: GCA_911387775.1
@@ -1158,6 +1859,17 @@
   ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Thymelicus_sylvestris/GCA_911387775.1
   rapid_link: https://rapid.ensembl.org/Thymelicus_sylvestris_gca911387775v1/Info/Index
 
+- species: Tinea semifulvella (alternate haplotype)
+  image: Lepidoptera.png
+  accession: GCA_910589255.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Tinea_semifulvella/GCA_910589255.1/geneset/2021_11/Tinea_semifulvella-GCA_910589255.1-2021_11-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Tinea_semifulvella/GCA_910589255.1/geneset/2021_11/Tinea_semifulvella-GCA_910589255.1-2021_11-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Tinea_semifulvella/GCA_910589255.1/geneset/2021_11/Tinea_semifulvella-GCA_910589255.1-2021_11-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Tinea_semifulvella/GCA_910589255.1/geneset/2021_11/Tinea_semifulvella-GCA_910589255.1-2021_11-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Tinea_semifulvella/GCA_910589255.1/genome/Tinea_semifulvella-GCA_910589255.1-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Tinea_semifulvella/GCA_910589255.1
+  rapid_link: https://rapid.ensembl.org/Tinea_semifulvella_gca910589255v1/Info/Index
+
 - species: Tinea semifulvella
   image: Lepidoptera.png
   accession: GCA_910589645.1
@@ -1169,6 +1881,7 @@
   repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/tinea_semifulvella/GCA_910589645.1.repeatmodeler.fa
   ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Tinea_semifulvella/GCA_910589645.1
   rapid_link: https://rapid.ensembl.org/Tinea_semifulvella_gca910589645v1/Info/Index
+  busco_score: http://ftp.ebi.ac.uk/pub/databases/ensembl/dtol/busco_scores/tinea_semifulvella_GCA_910589645.1/tinea_semifulvella_gca910589645v1_busco_short_summary.txt
 
 - species: Tinea trinotella
   image: Lepidoptera.png
@@ -1181,6 +1894,18 @@
   repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/tinea_trinotella/GCA_905220615.1.repeatmodeler.fa
   ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Tinea_trinotella/GCA_905220615.1
   rapid_link: https://rapid.ensembl.org/Tinea_trinotella_gca905220615v1/Info/Index
+  busco_score: http://ftp.ebi.ac.uk/pub/databases/ensembl/dtol/busco_scores/tinea_trinotella_GCA_905220615.1/tinea_trinotella_gca905220615v1_busco_short_summary.txt
+
+- species: Tinea trinotella (alternate haplotype)
+  image: Lepidoptera.png
+  accession: GCA_905220625.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Tinea_trinotella/GCA_905220625.1/geneset/2021_11/Tinea_trinotella-GCA_905220625.1-2021_11-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Tinea_trinotella/GCA_905220625.1/geneset/2021_11/Tinea_trinotella-GCA_905220625.1-2021_11-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Tinea_trinotella/GCA_905220625.1/geneset/2021_11/Tinea_trinotella-GCA_905220625.1-2021_11-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Tinea_trinotella/GCA_905220625.1/geneset/2021_11/Tinea_trinotella-GCA_905220625.1-2021_11-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Tinea_trinotella/GCA_905220625.1/genome/Tinea_trinotella-GCA_905220625.1-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Tinea_trinotella/GCA_905220625.1
+  rapid_link: https://rapid.ensembl.org/Tinea_trinotella_gca905220625v1/Info/Index
 
 - species: Trachurus trachurus
   image: Fish.png
@@ -1193,6 +1918,28 @@
   repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/trachurus_trachurus/GCA_905171665.1.repeatmodeler.fa
   ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Trachurus_trachurus/GCA_905171665.1
   rapid_link: https://rapid.ensembl.org/Trachurus_trachurus_gca905171665v1/Info/Index
+
+- species: Vanessa atalanta (alternate haplotype)
+  image: Lepidoptera.png
+  accession: GCA_905147705.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Vanessa_atalanta/GCA_905147705.1/geneset/2021_05/Vanessa_atalanta-GCA_905147705.1-2021_05-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Vanessa_atalanta/GCA_905147705.1/geneset/2021_05/Vanessa_atalanta-GCA_905147705.1-2021_05-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Vanessa_atalanta/GCA_905147705.1/geneset/2021_05/Vanessa_atalanta-GCA_905147705.1-2021_05-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Vanessa_atalanta/GCA_905147705.1/geneset/2021_05/Vanessa_atalanta-GCA_905147705.1-2021_05-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Vanessa_atalanta/GCA_905147705.1/genome/Vanessa_atalanta-GCA_905147705.1-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Vanessa_atalanta/GCA_905147705.1
+  rapid_link: https://rapid.ensembl.org/Vanessa_atalanta_gca905147705v1/Info/Index
+
+- species: Vanessa atalanta (alternate haplotype)
+  image: Lepidoptera.png
+  accession: GCA_905147705.2
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Vanessa_atalanta/GCA_905147705.2/geneset/2021_11/Vanessa_atalanta-GCA_905147705.2-2021_11-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Vanessa_atalanta/GCA_905147705.2/geneset/2021_11/Vanessa_atalanta-GCA_905147705.2-2021_11-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Vanessa_atalanta/GCA_905147705.2/geneset/2021_11/Vanessa_atalanta-GCA_905147705.2-2021_11-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Vanessa_atalanta/GCA_905147705.2/geneset/2021_11/Vanessa_atalanta-GCA_905147705.2-2021_11-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Vanessa_atalanta/GCA_905147705.2/genome/Vanessa_atalanta-GCA_905147705.2-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Vanessa_atalanta/GCA_905147705.2
+  rapid_link: https://rapid.ensembl.org/Vanessa_atalanta_gca905147705v2/Info/Index
 
 - species: Vanessa atalanta
   image: Lepidoptera.png
@@ -1218,6 +1965,17 @@
   ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Vanessa_atalanta/GCA_905147765.2
   rapid_link: https://rapid.ensembl.org/Vanessa_atalanta_gca905147765v2/Info/Index
 
+- species: Vanessa cardui (alternate haplotype)
+  image: Lepidoptera.png
+  accession: GCA_905220355.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Vanessa_cardui/GCA_905220355.1/geneset/2021_05/Vanessa_cardui-GCA_905220355.1-2021_05-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Vanessa_cardui/GCA_905220355.1/geneset/2021_05/Vanessa_cardui-GCA_905220355.1-2021_05-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Vanessa_cardui/GCA_905220355.1/geneset/2021_05/Vanessa_cardui-GCA_905220355.1-2021_05-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Vanessa_cardui/GCA_905220355.1/geneset/2021_05/Vanessa_cardui-GCA_905220355.1-2021_05-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Vanessa_cardui/GCA_905220355.1/genome/Vanessa_cardui-GCA_905220355.1-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Vanessa_cardui/GCA_905220355.1
+  rapid_link: https://rapid.ensembl.org/Vanessa_cardui_gca905220355v1/Info/Index
+
 - species: Vanessa cardui
   image: Lepidoptera.png
   accession: GCA_905220365.1
@@ -1241,6 +1999,18 @@
   repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/vespa_velutina/GCA_912470025.1.repeatmodeler.fa
   ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Vespa_velutina/GCA_912470025.1
   rapid_link: https://rapid.ensembl.org/Vespa_velutina_gca912470025v1/Info/Index
+  busco_score: http://ftp.ebi.ac.uk/pub/databases/ensembl/dtol/busco_scores/vespa_velutina_GCA_912470025.1/vespa_velutina_gca912470025v1_busco_short_summary.txt
+
+- species: Vespula germanica (alternate haplotype)
+  image: Arthropods.png
+  accession: GCA_905340295.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Vespula_germanica/GCA_905340295.1/geneset/2021_11/Vespula_germanica-GCA_905340295.1-2021_11-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Vespula_germanica/GCA_905340295.1/geneset/2021_11/Vespula_germanica-GCA_905340295.1-2021_11-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Vespula_germanica/GCA_905340295.1/geneset/2021_11/Vespula_germanica-GCA_905340295.1-2021_11-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Vespula_germanica/GCA_905340295.1/geneset/2021_11/Vespula_germanica-GCA_905340295.1-2021_11-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Vespula_germanica/GCA_905340295.1/genome/Vespula_germanica-GCA_905340295.1-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Vespula_germanica/GCA_905340295.1
+  rapid_link: https://rapid.ensembl.org/Vespula_germanica_gca905340295v1/Info/Index
 
 - species: Vespula germanica
   image: Arthropods.png
@@ -1253,6 +2023,18 @@
   repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/vespula_germanica/GCA_905340365.1.repeatmodeler.fa
   ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Vespula_germanica/GCA_905340365.1
   rapid_link: https://rapid.ensembl.org/Vespula_germanica_gca905340365v1/Info/Index
+  busco_score: http://ftp.ebi.ac.uk/pub/databases/ensembl/dtol/busco_scores/vespula_germanica_GCA_905340365.1/vespula_germanica_gca905340365v1_busco_short_summary.txt
+
+- species: Vespula vulgaris (alternate haplotype)
+  image: Arthropods.png
+  accession: GCA_905404185.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Vespula_vulgaris/GCA_905404185.1/geneset/2021_11/Vespula_vulgaris-GCA_905404185.1-2021_11-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Vespula_vulgaris/GCA_905404185.1/geneset/2021_11/Vespula_vulgaris-GCA_905404185.1-2021_11-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Vespula_vulgaris/GCA_905404185.1/geneset/2021_11/Vespula_vulgaris-GCA_905404185.1-2021_11-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Vespula_vulgaris/GCA_905404185.1/geneset/2021_11/Vespula_vulgaris-GCA_905404185.1-2021_11-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Vespula_vulgaris/GCA_905404185.1/genome/Vespula_vulgaris-GCA_905404185.1-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Vespula_vulgaris/GCA_905404185.1
+  rapid_link: https://rapid.ensembl.org/Vespula_vulgaris_gca905404185v1/Info/Index
 
 - species: Vespula vulgaris
   image: Arthropods.png
@@ -1265,6 +2047,7 @@
   repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/vespula_vulgaris/GCA_905475345.1.repeatmodeler.fa
   ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Vespula_vulgaris/GCA_905475345.1
   rapid_link: https://rapid.ensembl.org/Vespula_vulgaris_gca905475345v1/Info/Index
+  busco_score: http://ftp.ebi.ac.uk/pub/databases/ensembl/dtol/busco_scores/vespula_vulgaris_GCA_905475345.1/vespula_vulgaris_gca905475345v1_busco_short_summary.txt
 
 - species: Xestia xanthographa
   image: Lepidoptera.png
@@ -1277,6 +2060,30 @@
   repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/xestia_xanthographa/GCA_905147715.1.repeatmodeler.fa
   ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Xestia_xanthographa/GCA_905147715.1
   rapid_link: https://rapid.ensembl.org/Xestia_xanthographa_gca905147715v1/Info/Index
+  busco_score: http://ftp.ebi.ac.uk/pub/databases/ensembl/dtol/busco_scores/xestia_xanthographa_GCA_905147715.1/xestia_xanthographa_gca905147715v1_busco_short_summary.txt
+
+- species: Xestia xanthographa (alternate haplotype)
+  image: Lepidoptera.png
+  accession: GCA_905147755.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Xestia_xanthographa/GCA_905147755.1/geneset/2021_11/Xestia_xanthographa-GCA_905147755.1-2021_11-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Xestia_xanthographa/GCA_905147755.1/geneset/2021_11/Xestia_xanthographa-GCA_905147755.1-2021_11-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Xestia_xanthographa/GCA_905147755.1/geneset/2021_11/Xestia_xanthographa-GCA_905147755.1-2021_11-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Xestia_xanthographa/GCA_905147755.1/geneset/2021_11/Xestia_xanthographa-GCA_905147755.1-2021_11-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Xestia_xanthographa/GCA_905147755.1/genome/Xestia_xanthographa-GCA_905147755.1-softmasked.fa.gz
+  repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/xestia_xanthographa/GCA_905147755.1.repeatmodeler.fa
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Xestia_xanthographa/GCA_905147755.1
+  rapid_link: https://rapid.ensembl.org/Xestia_xanthographa_gca905147755v1/Info/Index
+
+- species: Zygaena filipendulae (alternate haplotype)
+  image: Lepidoptera.png
+  accession: GCA_907165265.1
+  annotation_gtf: http://ftp.ensembl.org/pub/rapid-release/species/Zygaena_filipendulae/GCA_907165265.1/geneset/2021_11/Zygaena_filipendulae-GCA_907165265.1-2021_11-genes.gff3.gz
+  annotation_gff3: http://ftp.ensembl.org/pub/rapid-release/species/Zygaena_filipendulae/GCA_907165265.1/geneset/2021_11/Zygaena_filipendulae-GCA_907165265.1-2021_11-genes.gtf.gz
+  proteins: http://ftp.ensembl.org/pub/rapid-release/species/Zygaena_filipendulae/GCA_907165265.1/geneset/2021_11/Zygaena_filipendulae-GCA_907165265.1-2021_11-pep.fa.gz
+  transcripts: http://ftp.ensembl.org/pub/rapid-release/species/Zygaena_filipendulae/GCA_907165265.1/geneset/2021_11/Zygaena_filipendulae-GCA_907165265.1-2021_11-cdna.fa.gz
+  softmasked_genome: http://ftp.ensembl.org/pub/rapid-release/species/Zygaena_filipendulae/GCA_907165265.1/genome/Zygaena_filipendulae-GCA_907165265.1-softmasked.fa.gz
+  ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Zygaena_filipendulae/GCA_907165265.1
+  rapid_link: https://rapid.ensembl.org/Zygaena_filipendulae_gca907165265v1/Info/Index
 
 - species: Zygaena filipendulae
   image: Lepidoptera.png
@@ -1289,4 +2096,5 @@
   repeat_library: http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/zygaena_filipendulae/GCA_907165275.1.repeatmodeler.fa
   ftp_dumps: http://ftp.ensembl.org/pub/rapid-release/species/Zygaena_filipendulae/GCA_907165275.1
   rapid_link: https://rapid.ensembl.org/Zygaena_filipendulae_gca907165275v1/Info/Index
+  busco_score: http://ftp.ebi.ac.uk/pub/databases/ensembl/dtol/busco_scores/zygaena_filipendulae_GCA_907165275.1/zygaena_filipendulae_gca907165275v1_busco_short_summary.txt
 

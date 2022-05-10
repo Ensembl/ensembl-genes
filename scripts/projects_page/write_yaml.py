@@ -7,23 +7,30 @@ import re
 from collections import OrderedDict
 
 
-def check_for_repeatmodeler(species_name, accession):
-    ftp = FTP("ftp.ebi.ac.uk")
-    ftp.login()
-    try:
-        ftp.cwd(
+def check_for_file(species_name, prod_name, accession, file_type):
+    if file_type == "repeatmodeler":
+        path = (
             "pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/"
             + species_name
             + "/"
         )
-        if accession + ".repeatmodeler.fa" in ftp.nlst():
-            return (
-                "http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/"
-                + species_name
-                + "/"
-                + accession
-                + ".repeatmodeler.fa"
-            )
+        file_name = accession + ".repeatmodeler.fa"
+    elif file_type == "busco":
+        path = (
+            "pub/databases/ensembl/dtol/busco_scores/"
+            + species_name
+            + "_"
+            + accession
+            + "/"
+        )
+        file_name = prod_name + "_busco_short_summary.txt"
+
+    ftp = FTP("ftp.ebi.ac.uk")
+    ftp.login()
+    try:
+        ftp.cwd(path)
+        if file_name in ftp.nlst():
+            return "http://ftp.ebi.ac.uk/" + path + file_name
         else:
             return 0
     except:
@@ -60,7 +67,9 @@ def write_yaml(info_dict, icon, yaml_out, project, use_server):
     assembly_name = info_dict["assembly.name"].replace(" ", "_")
     date = info_dict["genebuild.last_geneset_update"].replace("-", "_")
     species_name = info_dict["species.scientific_name"].replace(" ", "_")
-    rm_species_name = (info_dict["species.scientific_name"].replace(" ", "_")).lower() # set this before adding strain/breed for the repeatmodeler ftp path
+    rm_species_name = (
+        info_dict["species.scientific_name"].replace(" ", "_")
+    ).lower()  # set this before adding strain/breed for the repeatmodeler ftp path
     if "species.strain" in info_dict:
         if info_dict["species.strain"] != "reference":
             info_dict["species.scientific_name"] = (
@@ -84,7 +93,7 @@ def write_yaml(info_dict, icon, yaml_out, project, use_server):
     else:
         submitter = "unknown"
     # for the chicken reference the submitter info is missing, set it manually
-    if info_dict["assembly.accession"] == 'GCA_000002315.5':
+    if info_dict["assembly.accession"] == "GCA_000002315.5":
         submitter = "Genome Reference Consortium"
 
     if use_server == "rapid":
@@ -180,8 +189,11 @@ def write_yaml(info_dict, icon, yaml_out, project, use_server):
             + "-softmasked.fa.gz\n"
         )
 
-        rm_file = check_for_repeatmodeler(
-            rm_species_name, info_dict["assembly.accession"]
+        rm_file = check_for_file(
+            rm_species_name,
+            info_dict["species.production_name"],
+            info_dict["assembly.accession"],
+            "repeatmodeler",
         )
         if rm_file:
             yaml += "  repeat_library: " + rm_file + "\n"
@@ -210,6 +222,17 @@ def write_yaml(info_dict, icon, yaml_out, project, use_server):
                 + uc_prod_name
                 + "/Info/Index\n"
             )
+
+        if project == "dtol":
+            # 10-05-22: Add column for busco score files for DToL only (the ftp will soon be moved from temp DToL FTP to RR FTP)
+            busco_file = check_for_file(
+                lc_species_name,
+                info_dict["species.production_name"],
+                info_dict["assembly.accession"],
+                "busco",
+            )
+            if busco_file:
+                yaml += "  busco_score: " + busco_file + "\n"
 
     elif use_server == "main":
         # 12-03-21: GENE-SWitCH project is frozen on Ensembl version 102 for the time being!
@@ -288,8 +311,11 @@ def write_yaml(info_dict, icon, yaml_out, project, use_server):
             + ".dna_sm.toplevel.fa.gz\n"
         )
 
-        rm_file = check_for_repeatmodeler(
-            lc_species_name, info_dict["assembly.accession"]
+        rm_file = check_for_file(
+            rm_species_name,
+            info_dict["species.production_name"],
+            info_dict["assembly.accession"],
+            "repeatmodeler",
         )
         if rm_file:
             yaml += "  repeat_library: " + rm_file + "\n"
@@ -314,6 +340,17 @@ def write_yaml(info_dict, icon, yaml_out, project, use_server):
                 + species_name
                 + "/Info/Index\n"
             )
+
+        if project == "dtol":
+            # 10-05-22: Add column for busco score files for DToL only (the ftp will soon be moved from temp DToL FTP to RR FTP)
+            busco_file = check_for_file(
+                lc_species_name,
+                info_dict["species.production_name"],
+                info_dict["assembly.accession"],
+                "busco",
+            )
+            if busco_file:
+                yaml += "  busco_score: " + busco_file + "\n"
 
     print(yaml, file=yaml_out)
 
@@ -413,7 +450,11 @@ if __name__ == "__main__":
             if exists_main:
                 use_server = "main"
             else:
-                raise Exception("Unable to find database " + db.strip() + " on rapid or main servers!")
+                raise Exception(
+                    "Unable to find database "
+                    + db.strip()
+                    + " on rapid or main servers!"
+                )
 
         if use_server:
             # retrieve the species name, assembly accession and assembly name from the database
