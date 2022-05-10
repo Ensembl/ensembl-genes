@@ -292,8 +292,7 @@ class Repeatmask_Red(eHive.BaseRunnable):
         # and we need to replace the seq region name with seq region id and
         # add some extra columns so it can be loaded directly
         seq_region = self.param("seq_region")
-        rpt_path = Path(rpt)
-        rpt_files = list(rpt_path.iterdir())
+        rpt_files = list(Path(rpt).iterdir())
         rpt_file = Path(rpt_files[0])  # we know there is only one file
         fixed_rpt_file = Path(f"{rpt_file}.fixed")
         with open(rpt_file, encoding="utf8") as f_in, open(
@@ -309,14 +308,12 @@ class Repeatmask_Red(eHive.BaseRunnable):
 
                 seq_region_start = int(columns[1]) + 1  # Red's start is zero-based
                 seq_region_end = int(columns[2]) - 1  # Red's end is exclusive
-                seq_region_id = seq_region[name]
-                repeat_start = seq_region_end - seq_region_start + 1
                 print(
                     "{}\t{}\t{}\t1\t{}\t{}\t{}".format(
-                        seq_region_id,
+                        seq_region[name], # seq_region_id
                         seq_region_start,
                         seq_region_end,
-                        repeat_start,
+                        seq_region_end - seq_region_start + 1, # repeat_start
                         repeat_consensus_id,
                         analysis_id,
                     ),
