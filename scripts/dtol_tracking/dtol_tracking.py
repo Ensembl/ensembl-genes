@@ -1,7 +1,10 @@
-import os.path, sys, getopt
 import argparse
-import requests
+import getopt
+import os.path
+import sys
+
 import pymysql
+import requests
 
 
 class text:
@@ -26,13 +29,8 @@ def mysql_fetch_data(query, database, host, port, user, password, multi):
             cursor.execute(query)
             info = cursor.fetchall()
 
-    except mysql.connector.Error as err:
-        if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
-            print("Something is wrong with your user name or password")
-        elif err.errno == errorcode.ER_BAD_DB_ERROR:
-            print("Database does not exist on the server")
-        else:
-            print(err)
+    except Exception as err:
+        sys.exit(err)
 
     cursor.close()
     conn.close()
@@ -76,22 +74,22 @@ if __name__ == "__main__":
         description="Track status of DToL assemblies in Ensembl."
     )
     parser.add_argument(
-        "-summary",
+        "--summary",
         help="Provide a summary of the status of DToL assemblies in Ensembl",
         required=False,
     )
     parser.add_argument(
-        "-in_progress",
+        "--in_progress",
         help="Provide a summary of the status of DToL assemblies in Ensembl",
         required=False,
     )
     parser.add_argument(
-        "-unannotated",
+        "--unannotated",
         help="Provide a list of GCAs for the DToL assemblies that have yet to be annotated.",
         required=False,
     )
     parser.add_argument(
-        "-projects_missing",
+        "--projects_missing",
         help="Provide a list of the core dbs for the Ensembl annotated DToL assemblies that have been release on rapid.ensembl.org",
         required=False,
     )
@@ -102,7 +100,12 @@ if __name__ == "__main__":
     unannotated = args.unannotated
     projects_missing = args.projects_missing
 
-    dtol_count_query = 'SELECT count(*) FROM assembly JOIN meta USING(assembly_id) WHERE meta.assembly_group="dtol";SELECT count(*) FROM assembly JOIN meta USING(assembly_id) WHERE meta.assembly_group="dtol" AND meta.assembly_name LIKE "%alternate%";SELECT count(*) FROM assembly JOIN meta USING(assembly_id) WHERE meta.assembly_group="dtol" AND assembly.annotated_status="ensembl";SELECT count(*) FROM assembly JOIN meta USING(assembly_id) WHERE meta.assembly_group="dtol" AND assembly.annotated_status="ensembl" AND meta.assembly_name LIKE "%alternate%";'
+    dtol_count_query = (
+        "SELECT count(*) FROM assembly JOIN meta USING(assembly_id) WHERE meta.assembly_group='dtol';"
+        + "SELECT count(*) FROM assembly JOIN meta USING(assembly_id) WHERE meta.assembly_group='dtol' AND meta.assembly_name LIKE '%alternate%';"
+        + "SELECT count(*) FROM assembly JOIN meta USING(assembly_id) WHERE meta.assembly_group='dtol' AND assembly.annotated_status='ensembl';"
+        + "SELECT count(*) FROM assembly JOIN meta USING(assembly_id) WHERE meta.assembly_group='dtol' AND assembly.annotated_status='ensembl' AND meta.assembly_name LIKE '%alternate%';"
+    )
     dtol_count_fetch = mysql_fetch_data(
         dtol_count_query,
         db_name,
@@ -117,7 +120,7 @@ if __name__ == "__main__":
     dtol_annotated = dtol_count_fetch[2][0][0]
     dtol_annotated_alternates = dtol_count_fetch[3][0][0]
 
-    dtol_annotated_gcas_query = 'SELECT assembly.chain, assembly.version FROM assembly JOIN meta USING (assembly_id) WHERE meta.assembly_group="dtol" AND assembly.annotated_status="ensembl";'
+    dtol_annotated_gcas_query = "SELECT assembly.chain, assembly.version FROM assembly JOIN meta USING (assembly_id) WHERE meta.assembly_group='dtol' AND assembly.annotated_status='ensembl';"
     dtol_annotated_gcas_return = mysql_fetch_data(
         dtol_annotated_gcas_query,
         db_name,
@@ -151,7 +154,7 @@ if __name__ == "__main__":
         )
 
     if in_progress:
-        dtol_in_progress_gcas_query = 'SELECT assembly.chain, assembly.version FROM assembly JOIN meta USING (assembly_id) JOIN genebuild_status USING (assembly_id) WHERE meta.assembly_group="dtol" AND genebuild_status.progress_status="in_progress";'
+        dtol_in_progress_gcas_query = "SELECT assembly.chain, assembly.version FROM assembly JOIN meta USING (assembly_id) JOIN genebuild_status USING (assembly_id) WHERE meta.assembly_group='dtol' AND genebuild_status.progress_status='in_progress';"
         dtol_in_progress_gcas_return = mysql_fetch_data(
             dtol_in_progress_gcas_query,
             db_name,
@@ -177,7 +180,7 @@ if __name__ == "__main__":
             print(gca)
 
     if unannotated:
-        dtol_unannotated_gcas_query = 'SELECT assembly.chain, assembly.version FROM assembly JOIN meta USING (assembly_id) WHERE meta.assembly_group="dtol" AND assembly.annotated_status="unannotated";'
+        dtol_unannotated_gcas_query = "SELECT assembly.chain, assembly.version FROM assembly JOIN meta USING (assembly_id) WHERE meta.assembly_group='dtol' AND assembly.annotated_status='unannotated';"
         dtol_unannotated_gcas_return = mysql_fetch_data(
             dtol_unannotated_gcas_query,
             db_name,
@@ -207,9 +210,9 @@ if __name__ == "__main__":
         unreleased_dbs = []
         for gca in projects_unreleased:
             unreleased_gca_query = (
-                'SELECT dbname FROM assembly JOIN genome USING (assembly_id) JOIN genome_database USING (genome_id) WHERE genome.data_release_id=(SELECT MAX(data_release_id) FROM genome) AND assembly.assembly_accession="'
+                "SELECT dbname FROM assembly JOIN genome USING (assembly_id) JOIN genome_database USING (genome_id) WHERE genome.data_release_id=(SELECT MAX(data_release_id) FROM genome) AND assembly.assembly_accession='"
                 + gca
-                + '";'
+                + "';"
             )
             unreleased_gca_return = mysql_fetch_data(
                 unreleased_gca_query,

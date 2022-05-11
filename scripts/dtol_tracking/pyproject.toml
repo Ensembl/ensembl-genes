@@ -1,9 +1,9 @@
 [tool.poetry]
-name = "scripts"
+name = "DToL tracking script"
 version = "0.1.0"
-description = ""
-authors = ["Your Name <you@example.com>"]
-license = "n"
+description = "Track status of DToL assemblies in Ensembl."
+authors = ["genebuild <ensembl-genebuild@ebi.ac.uk>"]
+license = "Apache-2.0"
 
 [tool.poetry.dependencies]
 python = "^3.8"
