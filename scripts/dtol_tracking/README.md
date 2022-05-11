@@ -20,5 +20,6 @@ optional arguments:
   --unannotated UNANNOTATED
                         Provide a list of GCAs for the DToL assemblies that have yet to be annotated.
   --projects_missing PROJECTS_MISSING
-                        Provide a list of the core dbs for the Ensembl annotated DToL assemblies that have been release on rapid.ensembl.org
+                        Provide a list of the core dbs for the Ensembl annotated DToL assemblies
+                        that have been release on rapid.ensembl.org
 ```
