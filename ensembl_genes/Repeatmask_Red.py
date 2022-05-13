@@ -46,7 +46,7 @@ class Repeatmask_Red(eHive.BaseRunnable): # pylint: disable=invalid-name
             "red_meta_key": 0,
         }
 
-        def fetch_input(self): # pylint: disable=too-many-locals, too-many-statements
+    def fetch_input(self): # pylint: disable=too-many-locals, too-many-statements
         """It fetches the input parameters and it checks that they are correct."""
 
         # get new temporary directory name with suffix '_gnm_tmp_dir'
