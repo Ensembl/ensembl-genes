@@ -16,6 +16,8 @@
 
 """ Module to run Red to find repeats and store them in the given Ensembl core database """
 
+# pylint: disable=invalid-name
+
 import errno
 import os
 import shutil
@@ -34,7 +36,7 @@ import eHive
 pymysql.install_as_MySQLdb()
 
 
-class Repeatmask_Red(eHive.BaseRunnable): # pylint: disable=invalid-name
+class Repeatmask_Red(eHive.BaseRunnable):
     """Runnable that runs Red to find repeats and store them in the target database."""
 
     def param_defaults(self):
