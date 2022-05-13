@@ -48,7 +48,7 @@ class Repeatmask_Red(eHive.BaseRunnable):
             "red_meta_key": 0,
         }
 
-    def fetch_input(self): # pylint: disable=too-many-locals, too-many-statements
+    def fetch_input(self):  # pylint: disable=too-many-locals, too-many-statements
         """It fetches the input parameters and it checks that they are correct."""
 
         # get new temporary directory name with suffix '_gnm_tmp_dir'
@@ -132,7 +132,9 @@ class Repeatmask_Red(eHive.BaseRunnable):
 
             connection.close()
         else:
-            raise ValueError(f"Could not connect to the target database {target_db_url}.")
+            raise ValueError(
+                f"Could not connect to the target database {target_db_url}."
+            )
 
         engine.dispose()
 
@@ -185,7 +187,7 @@ class Repeatmask_Red(eHive.BaseRunnable):
                 f'Could not run Red. Command: {" ".join(cmd)} Return code {str(err.returncode)}'
             )
 
-    def write_output(self): # pylint: disable=too-many-locals
+    def write_output(self):  # pylint: disable=too-many-locals
         """It parses the Red's program output and inserts it into
         the given Ensembl core database."""
         engine = db.create_engine(self.param("target_db_url"))
@@ -312,10 +314,10 @@ class Repeatmask_Red(eHive.BaseRunnable):
                 seq_region_end = int(columns[2]) - 1  # Red's end is exclusive
                 print(
                     "{}\t{}\t{}\t1\t{}\t{}\t{}".format(
-                        seq_region[name], # seq_region_id
+                        seq_region[name],  # seq_region_id
                         seq_region_start,
                         seq_region_end,
-                        seq_region_end - seq_region_start + 1, # repeat_start
+                        seq_region_end - seq_region_start + 1,  # repeat_start
                         repeat_consensus_id,
                         analysis_id,
                     ),
