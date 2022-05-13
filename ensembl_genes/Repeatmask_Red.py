@@ -34,7 +34,7 @@ import eHive
 pymysql.install_as_MySQLdb()
 
 
-class Repeatmask_Red(eHive.BaseRunnable):
+class Repeatmask_Red(eHive.BaseRunnable): # pylint: disable=invalid-name
     """Runnable that runs Red to find repeats and store them in the target database."""
 
     def param_defaults(self):
@@ -46,7 +46,7 @@ class Repeatmask_Red(eHive.BaseRunnable):
             "red_meta_key": 0,
         }
 
-    def fetch_input(self):
+        def fetch_input(self): # pylint: disable=too-many-locals, too-many-statements
         """It fetches the input parameters and it checks that they are correct."""
 
         # get new temporary directory name with suffix '_gnm_tmp_dir'
@@ -183,7 +183,7 @@ class Repeatmask_Red(eHive.BaseRunnable):
                 f'Could not run Red. Command: {" ".join(cmd)} Return code {str(err.returncode)}'
             )
 
-    def write_output(self):
+    def write_output(self): # pylint: disable=too-many-locals
         """It parses the Red's program output and inserts it into
         the given Ensembl core database."""
         engine = db.create_engine(self.param("target_db_url"))
