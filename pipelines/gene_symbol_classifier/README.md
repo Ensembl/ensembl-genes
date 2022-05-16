@@ -32,17 +32,17 @@ beekeeper.pl --url $EHIVE_URL --loop
 
 build Docker image
 ```
-docker image build --tag williamebi/gsc_pipeline:<image version> --file Dockerfile .
+docker image build --tag ensemblorg/gsc_pipeline:<image version> --file Dockerfile .
 ```
 
 upload Docker image to Docker Hub
 ```
-docker push williamebi/gsc_pipeline:<image version>
+docker push ensemblorg/gsc_pipeline:<image version>
 ```
 
 generate Singularity image from the Docker image
 ```
-singularity pull docker://williamebi/gsc_pipeline:<image version>
+singularity pull docker://ensemblorg/gsc_pipeline:<image version>
 ```
 
 
