@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "DToL tracking script"
+version = "0.1.0"
+description = "Track status of DToL assemblies in Ensembl."
+authors = ["genebuild <ensembl-genebuild@ebi.ac.uk>"]
+license = "Apache-2.0"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+PyMySQL = "^1.0.2"
+requests = "^2.27.1"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
