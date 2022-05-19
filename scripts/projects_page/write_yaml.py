@@ -35,7 +35,8 @@ def check_for_file(species_name, prod_name, accession, file_type):
             return 0
     except:
         return 0
-
+    ftp.close()
+    
 
 def mysql_fetch_data(query, database, host, port, user, password):
     try:
