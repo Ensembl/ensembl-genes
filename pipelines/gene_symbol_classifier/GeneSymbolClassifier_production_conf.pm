@@ -129,15 +129,16 @@ sub pipeline_analyses {
 
     {
       -logic_name      => 'get_core_db_names',
-      -module          => 'Bio::EnsEMBL::Production::Pipeline::Common::DbFactory',
+      -module          => 'Bio::EnsEMBL::Production::Pipeline::Common::SpeciesFactory',
       -parameters      => {
         species      => $self->o('species'),
-        #taxon     => $self->o('taxon'),
+        taxon     => $self->o('taxon'),
         division     => $self->o('division'),
         run_all      => $self->o('run_all'),
         antispecies  => $self->o('antispecies'),
-        #antitaxons  => $self->o('antitaxons'),
+        antitaxons  => $self->o('antitaxons'),
         meta_filters => $self->o('meta_filters'),
+        run_all => 1,
       },
       -max_retry_count => 1,
       -flow_into       => {
