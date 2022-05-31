@@ -96,7 +96,7 @@ my $production_name = $meta_adaptor->get_production_name;
 say $production_name." genome assembly";
 
 # open output FASTA file for writing
-open(my $sequences_fasta_file, ">", $output_file);
+open(my $sequences_fasta_file, ">", $output_file) or die("Could not open $output_file");
 
 # iterate slices and save protein coding genes stable ids and sequences to the output file
 foreach my $slice (@$slices) {
@@ -133,4 +133,4 @@ foreach my $slice (@$slices) {
     }
 }
 
-close $sequences_fasta_file;
+close $sequences_fasta_file or die("Could not close $output_file");

@@ -221,4 +221,4 @@ while (my $line = <$symbol_assignments_file>) {
     say("added symbol ".$symbol.", ".$gene_description." for gene ".$stable_id);
 }
 
-close $symbol_assignments_file;
+close $symbol_assignments_file or die("Could not close $symbol_assignments_file");
