@@ -240,10 +240,11 @@ sub pipeline_analyses {
 
     {
       -logic_name => 'Notify',
-      -module     => 'Bio::EnsEMBL::Production::Pipeline::Production::EmailSummaryCore',
+      -module     => 'Bio::EnsEMBL::Hive::RunnableDB::NotifyByEmail',
       -parameters => {
         email   => $self->o('email'),
         subject => $self->o('pipeline_name').' has finished',
+        text => 'All logs can be found in '.$self->o('pipeline_dir'),
       },
       -rc_name    => 'default',
     },
