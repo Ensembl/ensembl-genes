@@ -225,9 +225,12 @@ sub pipeline_analyses {
       -logic_name      => 'RunDataChecks',
       -module          => 'Bio::EnsEMBL::DataCheck::Pipeline::RunDataChecks',
       -parameters      => {
-        datacheck_names => [],
+        datacheck_groups => ['xref'],
         history_file    => $self->o('history_file'),
         failures_fatal  => 1,
+        output_file     => catfile('#pipeline_dir#', '#species#_dc.log'),
+        registry_file   => $self->o('registry'),
+        old_server_uri  => $self->o('old_server_uri'),
       },
       -max_retry_count => 1,
       -hive_capacity   => 50,
