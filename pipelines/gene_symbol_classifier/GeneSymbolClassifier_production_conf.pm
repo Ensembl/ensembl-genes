@@ -90,6 +90,15 @@ sub hive_meta_table {
   };
 }
 
+sub pipeline_wide_parameters {
+ my ($self) = @_;
+
+ return {
+   %{$self->SUPER::pipeline_wide_parameters},
+   pipeline_dir => $self->o('pipeline_dir'),
+ };
+}
+
 sub pipeline_create_commands {
     my ($self) = @_;
 
