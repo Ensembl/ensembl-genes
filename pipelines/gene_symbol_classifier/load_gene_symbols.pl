@@ -7,7 +7,11 @@
 
 # load gene symbols:
 
-> perl load_gene_symbols.pl --db_host <database server hostname> --db_port <database server port> --db_name <database name> --username <database user> --password <database user password> --symbol_assignments <gene symbol assignments file path>
+> perl load_gene_symbols.pl --db_host <database server hostname> --db_port <database server port> --db_name <database name> --username <database user> --password <database user password> --symbol_assignments <gene symbol assignments file path> --primary_ids_file <TSV file with dbprimary_acc>
+
+or
+
+> perl load_gene_symbols.pl --registry <registry file> --symbol_assignments <gene symbol assignments file path> --primary_ids_file <TSV file with dbprimary_acc>
 
 =head1 DESCRIPTION
 
@@ -54,6 +58,11 @@ my $password;
 my $db_name;
 my $symbol_assignments;
 
+my $group;
+my $species;
+my $registry;
+my $program_version = 'latest';
+my $primary_ids_file;
 
 my %db_display_name_to_db_name = (
     "Clone-based (Ensembl) gene" => "Clone_based_ensembl_gene",
@@ -72,6 +81,23 @@ my %db_display_name_to_db_name = (
     "ZFIN" => "ZFIN_ID",
 );
 
+my @priority_list = (
+  "HGNC",
+  "MGI",
+  "ZFIN_ID",
+  "RGD",
+  "Xenbase",
+  "SGD_GENE",
+  "wormbase_gseqname",
+  "wormbase_locus",
+  "FlyBaseName_gene",
+  "flybase_annotation_id",
+  "VGNC",
+  "EntrezGene",
+  "Uniprot_gn",
+  "Clone_based_ensembl_gene",
+);
+
 
 # parse command line arguments
 my $options = GetOptions (
@@ -83,18 +109,47 @@ my $options = GetOptions (
     "username=s" => \$username,
     "password=s" => \$password,
     "symbol_assignments=s" => \$symbol_assignments,
+    'group=s' => \$group,
+    'species=s' => \$species,
+    'registry=s' => \$registry,
+    'program_version=s', \$program_version,
+    'primary_ids_file=s' => \$primary_ids_file,
 );
 
 
 # create a database adaptor
-my $db = new Bio::EnsEMBL::DBSQL::DBAdaptor(
+my $db;
+if ($group and $species and $registry) {
+  Bio::EnsEMBL::Registry->load_all($registry);
+  $db = Bio::EnsEMBL::Registry->get_DBAdaptor($species, $group);
+}
+else {
+  $db = new Bio::EnsEMBL::DBSQL::DBAdaptor(
     -host   => $db_host,
     -port   => $db_port,
     -user   => $username,
     -pass   => $password,
-    -dbname => $db_name,
-);
+    -dbname => $db_name
+  );
+}
 
+my %primary_ids;
+open(FH, $primary_ids_file) or die("Could not open '$primary_ids_file' to read the dbprimary_acc of the symbol");
+while (my $line = <FH>) {
+  chomp($line);
+  my ($symbol, $db_name, $primary_id) = split('\t', $line);
+  $primary_ids{$symbol}{$db_name} = $primary_id;
+}
+close(FH) or die("Could not close '$primary_ids_file'");
+
+my $analysis = $db->get_AnalysisAdaptor->fetch_by_logic_name('gene_symbol_classifier');
+if (!$analysis) {
+  $analysis = Bio::EnsEMBL::Analysis->new(
+    -logic_name => 'gene_symbol_classifier',
+    -program_version => $program_version,
+  );
+  $db->get_AnalysisAdaptor->store($analysis);
+}
 
 # generate a gene adaptor
 my $gene_adaptor = $db->get_GeneAdaptor();
@@ -138,11 +193,21 @@ while (my $line = <$symbol_assignments_file>) {
     my $score = 100 * sprintf("%.4f", $probability);
     my $assignment_description = "Ensembl NN prediction with score ".$score."%";
     my $xref_dbname = $db_display_name_to_db_name{$symbol_source};
+    my $primary_id;
+    foreach my $dbname ($xref_dbname, @priority_list) {
+      if (exists $primary_ids{$symbol}{$dbname}) {
+        $primary_id = $primary_ids{$symbol}{$dbname};
+        $xref_dbname = $dbname;
+        last;
+      }
+    }
+    die("Could not find the correct db accession for $symbol from '$primary_ids_file'") unless ($primary_id);
     my $xref_object = Bio::EnsEMBL::DBEntry->new(
-        -primary_id => $symbol,
+        -primary_id => $primary_id,
         -display_id => $symbol,
         -dbname => $xref_dbname,
         -description => $symbol_description,
+        -analysis => $analysis,
     );
 
     my $gene_description = $symbol_description." [".$assignment_description."]";

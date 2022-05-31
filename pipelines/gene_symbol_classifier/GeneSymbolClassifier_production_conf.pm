@@ -154,9 +154,8 @@ sub pipeline_analyses {
       -comment    => 'Retrieve the protein coding gene sequences from a Ensembl core database and store them as a FASTA file. The analysis is auto-seeded with a job for the target core database.',
       -module     => 'Bio::EnsEMBL::Hive::RunnableDB::SystemCmd',
       -parameters => {
-        #'cmd' => 'echo "dump_protein_sequences: "#dbname#, #species#, #group#',
-        #'cmd' => 'perl '.$self->o('gsc_scripts_directory').'/dump_protein_sequences.pl --db_host '.$self->o('core_db_server_host').' --db_port '.$self->o('core_db_server_port').' --db_name #dbname# --output_file '.$self->o('gsc_data_directory').'/'.'#dbname#'.'_protein_sequences.fa',
-        'cmd' => 'perl '.$self->o('gsc_scripts_directory').'/dump_protein_sequences.pl --db_name #dbname# --output_file '.$self->o('gsc_data_directory').'/#dbname#_protein_sequences.fa',
+        cmd => 'perl '.$self->o('scripts_directory').'/dump_protein_sequences.pl --group #group# --species #species# --registry #registry# --output_file #pipeline_dir#/#species#_protein_sequences.fa',
+        registry => $self->o('registry'),
       },
       -rc_name    => 'default',
       -flow_into  => {
@@ -171,8 +170,7 @@ sub pipeline_analyses {
       -comment    => 'Use a gene symbol classifier neural network to assign gene symbols to protein sequences in the FASTA file and save the assignments to a CSV file.',
       -module     => 'Bio::EnsEMBL::Hive::RunnableDB::SystemCmd',
       -parameters => {
-        'cmd' => 'echo "assign_gene_symbols"',
-        #'cmd' => 'singularity run --bind '.$self->o('classifier_directory').':/app/checkpoints --bind '.$self->o('gsc_data_directory').':/app/data '.$self->o('singularity_image').' --checkpoint /app/checkpoints/'.$self->o('classifier_filename').' --sequences_fasta /app/data/'.$self->o('core_db_name').'_protein_sequences.fa --scientific_name "'.$self->o('scientific_name').'"',
+        cmd => 'singularity run --bind '.$self->o('classifier_data_dir').':/app/checkpoints --bind #pipeline_dir#:/app/data '.$self->o('gsc_image').' --checkpoint /app/checkpoints/'.$self->o('classifier_filename').q( --sequences_fasta /app/data/#species#_protein_sequences.fa --scientific_name "#expr(ucfirst(join(' ', grep {$_ !~ /gca\d+/} split('_', #species#))))expr#"),
       },
       -rc_name    => 'default',
       -flow_into  => {
@@ -187,8 +185,7 @@ sub pipeline_analyses {
       -comment    => 'Filter assignments using the threshold probability and save them to a separate CSV file.',
       -module     => 'Bio::EnsEMBL::Hive::RunnableDB::SystemCmd',
       -parameters => {
-        'cmd' => 'echo "filter_assignments"',
-        #'cmd' => 'singularity run --bind '.$self->o('gsc_data_directory').':/app/data '.$self->o('ehive_singularity_image').' --symbol_assignments '.$self->o('gene_symbols_csv_path').' --threshold '.$self->o('loading_threshold'),
+        cmd => 'singularity run --bind #pipeline_dir#:/app/data '.$self->o('filter_gsc_image').' --symbol_assignments /app/data/#species#_protein_sequences_symbols.csv --threshold '.$self->o('loading_threshold'),
       },
       -rc_name    => 'default',
       -flow_into  => {
@@ -203,8 +200,8 @@ sub pipeline_analyses {
       -comment    => 'Read gene symbols assignments from a CSV file and load them to the Ensembl core database.',
       -module     => 'Bio::EnsEMBL::Hive::RunnableDB::SystemCmd',
       -parameters => {
-        'cmd' => 'echo "load_gene_symbols"',
-        #'cmd' => 'perl '.$self->o('gsc_scripts_directory').'/load_gene_symbols.pl --db_host '.$self->o('core_db_server_host').' --db_port '.$self->o('core_db_server_port').' --db_name '.$self->o('core_db_name').' --username '.$self->o('user').' --password '.$self->o('password').' --symbol_assignments '.$self->o('filtered_assignments_csv_path'),
+        cmd => 'perl '.$self->o('scripts_directory').'/load_gene_symbols.pl --species #species# --group #group# --registry #registry# --symbol_assignments #pipeline_dir#/#species#_protein_sequences_symbols_filtered.csv --primary_ids_file '.$self->o('xref_primary_accession_file').' --program_version '.$self->o('gsc_image_version'),
+        registry => $self->o('registry'),
       },
       -rc_name    => 'default',
       -flow_into  => {

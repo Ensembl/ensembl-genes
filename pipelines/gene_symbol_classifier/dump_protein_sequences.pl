@@ -50,6 +50,9 @@ my $password;
 
 my $db_name;
 my $output_file;
+my $group;
+my $species;
+my $registry;
 
 
 # parse command line arguments
@@ -59,18 +62,29 @@ my $options = GetOptions (
     "username=s" => \$username,
     "password=s" => \$password,
     "db_name=s" => \$db_name,
-    "output_file=s" => \$output_file
+    "output_file=s" => \$output_file,
+    'group=s' => \$group,
+    'species=s' => \$species,
+    'registry=s' => \$registry,
+
 );
 
 
 # create a database adaptor
-my $db = new Bio::EnsEMBL::DBSQL::DBAdaptor(
-    -host   => $db_host,
-    -port   => $db_port,
-    -user   => $username,
-    -pass   => $password,
-    -dbname => $db_name
-);
+my $db;
+if ($group and $species and $registry) {
+  Bio::EnsEMBL::Registry->load_all($registry);
+  $db = Bio::EnsEMBL::Registry->get_DBAdaptor($species, $group);
+}
+else {
+  $db = new Bio::EnsEMBL::DBSQL::DBAdaptor(
+      -host   => $db_host,
+      -port   => $db_port,
+      -user   => $username,
+      -pass   => $password,
+      -dbname => $db_name
+  );
+}
 
 
 my $slice_adaptor = $db->get_SliceAdaptor();
