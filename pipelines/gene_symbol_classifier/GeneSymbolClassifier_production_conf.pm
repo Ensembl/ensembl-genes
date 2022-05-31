@@ -124,7 +124,7 @@ sub pipeline_analyses {
         '1->A' => ['get_core_db_names'],
         'A->1' => ['Notify'],
       },
-      -rc_name         => 'normal',
+      -rc_name         => 'default',
     },
 
     {
@@ -157,6 +157,9 @@ sub pipeline_analyses {
         cmd => 'perl '.$self->o('scripts_directory').'/dump_protein_sequences.pl --group #group# --species #species# --registry #registry# --output_file #pipeline_dir#/#species#_protein_sequences.fa',
         registry => $self->o('registry'),
       },
+      -max_retry_count => 1,
+      -hive_capacity   => 50,
+      -batch_size      => 1,
       -rc_name    => 'default',
       -flow_into  => {
         1 => 'assign_gene_symbols',
@@ -172,7 +175,10 @@ sub pipeline_analyses {
       -parameters => {
         cmd => 'singularity run --bind '.$self->o('classifier_data_dir').':/app/checkpoints --bind #pipeline_dir#:/app/data '.$self->o('gsc_image').' --checkpoint /app/checkpoints/'.$self->o('classifier_filename').q( --sequences_fasta /app/data/#species#_protein_sequences.fa --scientific_name "#expr(ucfirst(join(' ', grep {$_ !~ /gca\d+/} split('_', #species#))))expr#"),
       },
-      -rc_name    => 'default',
+      -max_retry_count => 1,
+      -hive_capacity   => 50,
+      -batch_size      => 60,
+      -rc_name    => 'normal',
       -flow_into  => {
         1 => 'filter_assignments',
       },
@@ -187,7 +193,10 @@ sub pipeline_analyses {
       -parameters => {
         cmd => 'singularity run --bind #pipeline_dir#:/app/data '.$self->o('filter_gsc_image').' --symbol_assignments /app/data/#species#_protein_sequences_symbols.csv --threshold '.$self->o('loading_threshold'),
       },
-      -rc_name    => 'default',
+      -max_retry_count => 1,
+      -hive_capacity   => 50,
+      -batch_size      => 100,
+      -rc_name    => 'normal',
       -flow_into  => {
         1 => 'load_gene_symbols',
       },
@@ -203,6 +212,9 @@ sub pipeline_analyses {
         cmd => 'perl '.$self->o('scripts_directory').'/load_gene_symbols.pl --species #species# --group #group# --registry #registry# --symbol_assignments #pipeline_dir#/#species#_protein_sequences_symbols_filtered.csv --primary_ids_file '.$self->o('xref_primary_accession_file').' --program_version '.$self->o('gsc_image_version'),
         registry => $self->o('registry'),
       },
+      -max_retry_count => 1,
+      -hive_capacity   => 50,
+      -batch_size      => 30,
       -rc_name    => 'default',
       -flow_into  => {
         1 => 'RunDataChecks',
@@ -230,7 +242,7 @@ sub pipeline_analyses {
         email   => $self->o('email'),
         subject => $self->o('pipeline_name').' has finished',
       },
-      -rc_name    => 'normal',
+      -rc_name    => 'default',
     },
 
   ];
@@ -241,8 +253,8 @@ sub resource_classes {
 
   return {
     %{$self->SUPER::resource_classes},
-    'default' => { 'LSF' => '-q production'},
-    'normal'  => { 'LSF' => '-q production -M 500 -R "rusage[mem=500]"'},
+    'normal' => { 'LSF' => ['-q production', $self->beekeeper_extra_cmdline_options]},
+    'default'  => { 'LSF' => ['-q production -M 500 -R "rusage[mem=500]"', $self->beekeeper_extra_cmdline_options]},
   }
 }
 
