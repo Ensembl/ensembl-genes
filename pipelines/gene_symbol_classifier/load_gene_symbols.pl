@@ -43,8 +43,6 @@ use feature "say";
 
 use Getopt::Long;
 
-use Data::Dump qw(dump);
-
 use Bio::EnsEMBL::DBEntry;
 use Bio::EnsEMBL::DBSQL::DBAdaptor;
 
@@ -163,21 +161,21 @@ open(my $symbol_assignments_file, "<", $symbol_assignments) or die "Could not op
 # read gene symbol assignments from the CSV file and load them to the core database
 while (my $line = <$symbol_assignments_file>) {
     # remove newline (line feed and carriage return) from the line
-    $line =~ s/\n//g;
-    $line =~ s/\r//g;
+    chomp($line);
 
     # get CSV field values
     my @fields = split(/\t/, $line);
+    # skip CSV header line
+    if ($fields[0] eq "stable_id") {
+        next;
+    }
     my $stable_id = $fields[0];
     my $symbol = $fields[1];
     my $probability = $fields[2];
     my $symbol_description = $fields[3];
     my $symbol_source = $fields[4];
 
-    # skip CSV header line
-    if ($fields[0] eq "stable_id") {
-        next;
-    }
+    die("Could not find the dbprimary_acc value for '$symbol' in '$primary_ids_file'") unless (exists $primary_ids{$symbol});
 
     # generate gene object for gene stable_id
     my $gene = $gene_adaptor->fetch_by_stable_id($stable_id);
