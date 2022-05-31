@@ -42,59 +42,41 @@ use Bio::EnsEMBL::ApiVersion qw/software_version/;
 use Bio::EnsEMBL::Hive::Version 2.5;
 use Bio::EnsEMBL::Hive::PipeConfig::HiveGeneric_conf;
 
+use File::Spec::Functions qw(catdir catfile);
+
 sub default_options {
   my ($self) = @_;
-
-  # inherited from the Base pipeline config
-  my $gsc_data_directory = $self->o('pipeline_dir');
-
-  #my $pipeline_name => $self->o('pipeline_name') || 'GeneSymbolClassifier_production';
-  my $pipeline_name => 'GeneSymbolClassifier_production';
-  my $pipe_db_name = $ENV{USER}.$pipeline_name;
-
-  #my $gsc_scripts_directory = $ENV{ENSCODE}.'/ensembl-genes/pipelines/gene_symbol_classifier';
-  my $gsc_scripts_directory = '/nfs/production/flicek/ensembl/genebuild/william/gene-symbol-classifier/production-pipeline/ensembl-genes/pipelines/gene_symbol_classifier';
-
-  #my $protein_sequences_fasta_path = "${gsc_data_directory}/${core_db_name}_protein_sequences.fa";
-  #my $gene_symbols_csv_path = "${gsc_data_directory}/${core_db_name}_protein_sequences_symbols.csv";
-  #my $filtered_assignments_csv_path = "${gsc_data_directory}/${core_db_name}_protein_sequences_symbols_filtered.csv";
 
   return {
     %{$self->SUPER::default_options},
 
     species      => [],
-    #taxon        => [],
+    taxon        => [],
     division     => [],
-    run_all      => 0,
+    run_all      => 1,
     antispecies  => [],
-    #antitaxons   => [],
+    antitaxons   => [],
     meta_filters => {},
 
     history_file => undef,
 
-    pipeline_name => $pipeline_name,
+    pipeline_name => 'GeneSymbolClassifier_production',
 
-    pipeline_db => {
-      -driver => 'mysql',
-      -host   => $self->o('host'),
-      -port   => $self->o('port'),
-      -user   => $self->o('user'),
-      -pass   => $self->o('password'),
-      -dbname => $self->o('pipe_db_name'),
-    },
+    loading_threshold => 0.7,
 
-    user_r => 'ensro',
-
-    loading_threshold => $self->o('loading_threshold'),
-
-    gsc_scripts_directory => $gsc_scripts_directory,
-    gsc_data_directory => $gsc_data_directory,
-    #protein_sequences_fasta_path => $protein_sequences_fasta_path,
-    #gene_symbols_csv_path => $gene_symbols_csv_path,
-    #filtered_assignments_csv_path => $filtered_assignments_csv_path,
-
-    #core_db_server_host => $core_db_server_host,
-    #core_db_server_port => $core_db_server_port,
+    old_server_uri => '',
+    ensembl_root_dir => $ENV{ENSEMBL_ROOT_DIR},
+    scripts_directory => catdir($self->o('ensembl_root_dir'), 'ensembl-genes', 'pipelines', 'gene_symbol_classifier'),
+    gsc_image_version => '0.12.1',
+    filter_gsc_image_version => '0.3.0',
+    classifier_filename => 'mlp_10_min_frequency_2022-01-29_03.08.32.ckpt',
+    classifier_root_dir => '/hps/software/users/ensembl/genebuild/gene_symbol_classifier',
+    classifier_img_dir => catdir($self->o('classifier_root_dir'), 'singularity'),
+    classifier_data_dir => catdir($self->o('classifier_root_dir'), 'data'),
+    xref_primary_accession_file => catfile($self->o('classifier_data_dir'), 'display_name_dbprimary_acc_105.dat'),
+    # These images can be replace with their docker equivalent 'docker://ensemblorg/gene_symbol_classifier:0.8.2'
+    gsc_image => catfile($self->o('classifier_img_dir'), 'gene_symbol_classifier_'.$self->o('gsc_image_version').'.sif'),
+    filter_gsc_image => catfile($self->o('classifier_img_dir'), 'gene_symbol_classifier_filter_'.$self->o('filter_gsc_image_version').'.sif'),
   };
 }
 
@@ -111,12 +93,12 @@ sub hive_meta_table {
 sub pipeline_create_commands {
     my ($self) = @_;
 
-    my $gsc_data_directory = $self->o('gsc_data_directory');
+    my $gsc_working_dir = $self->o('pipeline_dir');
 
     return [
         @{ $self->SUPER::pipeline_create_commands },
 
-        "mkdir --parents --verbose $gsc_data_directory",
+        "mkdir --parents --verbose $gsc_working_dir",
     ];
 }
 
