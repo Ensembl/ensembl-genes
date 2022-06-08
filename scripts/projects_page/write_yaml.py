@@ -108,6 +108,11 @@ def write_yaml(info_dict, icon, yaml_out, project, use_server):
             yaml += "  submitted_by: " + submitter + "\n"
 
         yaml += "  accession: " + info_dict["assembly.accession"] + "\n"
+
+        if project == "dtol":
+            # 07-06-22: Add column for "Annotation method" so user can clearly see whether Ensembl genebuild or BRAKER2 annotation
+            yaml += "  annotation_method: " + info_dict["genebuild.method_display"] + "\n"
+                
         yaml += (
             "  annotation_gtf: "
             + ftp_base
@@ -252,6 +257,11 @@ def write_yaml(info_dict, icon, yaml_out, project, use_server):
             yaml += "  submitted_by: " + submitter + "\n"
 
         yaml += "  accession: " + info_dict["assembly.accession"] + "\n"
+
+        if project == "dtol":
+            # 07-06-22: Add column for "Annotation method" so user can clearly see whether Ensembl genebuild or BRAKER2 annotation
+            yaml += "  annotation_method: Ensembl genebuild\n"
+
         yaml += (
             "  annotation_gtf: "
             + ftp_base
@@ -459,7 +469,7 @@ if __name__ == "__main__":
 
         if use_server:
             # retrieve the species name, assembly accession and assembly name from the database
-            info_query = "SELECT meta_key,meta_value FROM meta WHERE meta_key in ('species.scientific_name','assembly.accession','assembly.name','species.production_name','species.strain','schema_version','genebuild.last_geneset_update')"
+            info_query = "SELECT meta_key,meta_value FROM meta WHERE meta_key in ('species.scientific_name','assembly.accession','assembly.name','species.production_name','species.strain','schema_version','genebuild.last_geneset_update') OR meta_key like 'genebuild.method%'"
             info = mysql_fetch_data(
                 info_query,
                 db,
