@@ -61,7 +61,7 @@ def mysql_fetch_data(query, database, host, port, user, password):
     return info
 
 
-def write_yaml(info_dict, icon, yaml_out, project, use_server):
+def write_yaml(info_dict, icon, yaml_out, project, use_server, alternate):
     # there are species on main for which the upper case production name is used in the url instead of the upper case species name
     prod_url_list = ["bos_taurus_hybrid", "bos_indicus_hybrid"]
 
@@ -239,6 +239,10 @@ def write_yaml(info_dict, icon, yaml_out, project, use_server):
             )
             if busco_file:
                 yaml += "  busco_score: " + busco_file + "\n"
+            # 10-06-22: Add column for alternates (where available) for DToL only
+            if alternate:
+                alternate_url = "https://rapid.ensembl.org/" + alternate + "/Info/Index"
+                yaml += "  alternate: " + alternate_url + "\n"
 
     elif use_server == "main":
         # 12-03-21: GENE-SWitCH project is frozen on Ensembl version 102 for the time being!
@@ -362,7 +366,11 @@ def write_yaml(info_dict, icon, yaml_out, project, use_server):
             )
             if busco_file:
                 yaml += "  busco_score: " + busco_file + "\n"
-
+            # 10-06-22: Add column for alternates (where available) for DToL only
+            if alternate:
+                alternate_url = "https://rapid.ensembl.org/" + alternate + "/Info/Index"
+                yaml += "  alternate: " + alternate_url + "\n"
+                
     print(yaml, file=yaml_out)
 
 
@@ -376,8 +384,14 @@ if __name__ == "__main__":
             "db_pass": "",
         },
         "main": {
-            "db_host": "mysql-ens-mirror-1",
+            "db_host": "mysql-ens-mirror-1.ebi.ac.uk",
             "db_port": 4240,
+            "db_user": "ensro",
+            "db_pass": "",
+        },
+        "meta": {
+            "db_host": "mysql-ens-meta-prod-1.ebi.ac.uk",
+            "db_port": 4483,
             "db_user": "ensro",
             "db_pass": "",
         },
@@ -483,6 +497,24 @@ if __name__ == "__main__":
             for tuple in info:
                 info_dict[tuple[0]] = tuple[1]
 
+            # check if the assembly has an alternate via the metadata db
+            alternate_assembly_name = info_dict["assembly.name"]+"_alternate_haplotype"
+            alternate_query = (
+                "SELECT organism.url_name from assembly join genome using (assembly_id) join organism using (organism_id) where assembly.assembly_name='" + alternate_assembly_name + "' limit 1;"
+            )
+            alternate_fetch = mysql_fetch_data(
+                alternate_query,
+                "ensembl_metadata_qrp",
+                server_dict["meta"]["db_host"],
+                server_dict["meta"]["db_port"],
+                server_dict["meta"]["db_user"],
+                server_dict["meta"]["db_pass"],
+            )
+            try:
+                alternate = alternate_fetch[0][0]
+            except:
+                alternate = ""
+                
             # retrieve the species classification info from the database. in order to assign an icon
             class_query = (
                 "SELECT meta_value FROM meta WHERE meta_key='species.classification'"
@@ -513,7 +545,7 @@ if __name__ == "__main__":
             if chordate and icon == "Metazoa.png":
                 icon = "Chordates.png"
 
-            write_yaml(info_dict, icon, yaml_out, project, use_server)
+            write_yaml(info_dict, icon, yaml_out, project, use_server, alternate)
         else:
             print(
                 "Could not find database "
