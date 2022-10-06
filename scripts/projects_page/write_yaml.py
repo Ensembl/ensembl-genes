@@ -30,7 +30,7 @@ def check_for_file(species_name, prod_name, accession, file_type):
     try:
         ftp.cwd(path)
         if file_name in ftp.nlst():
-            return "http://ftp.ebi.ac.uk/" + path + file_name
+            return "https://ftp.ebi.ac.uk/" + path + file_name
         else:
             return 0
     except:
@@ -98,7 +98,7 @@ def write_yaml(info_dict, icon, yaml_out, project, use_server, alternate):
         submitter = "Genome Reference Consortium"
 
     if use_server == "rapid":
-        ftp_base = "http://ftp.ensembl.org/pub/rapid-release/species"
+        ftp_base = "https://ftp.ensembl.org/pub/rapid-release/species"
 
         yaml = "- species: " + info_dict["species.scientific_name"] + "\n"
 
@@ -252,7 +252,7 @@ def write_yaml(info_dict, icon, yaml_out, project, use_server, alternate):
         else:
             release = "release-" + info_dict["schema_version"]
             release_number = info_dict["schema_version"]
-        ftp_base = "http://ftp.ensembl.org/pub/" + release
+        ftp_base = "https://ftp.ensembl.org/pub/" + release
 
         yaml = "- species: " + info_dict["species.scientific_name"] + "\n"
         if project in ("vgp", "dtol"):
