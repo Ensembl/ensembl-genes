@@ -39,7 +39,7 @@ class Repeatmask_Red(eHive.BaseRunnable):
             'logic_name' : 'repeatdetector',
             'target_db_url' : '', # 'driver://user:pass@host:port/dbname'
             'red_path' : '',
-            'red_meta_key' : 0
+            'red_meta_key' : 1
         }
 
     def fetch_input(self):
