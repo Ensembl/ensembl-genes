@@ -45,7 +45,7 @@ class Repeatmask_Red(eHive.BaseRunnable):
             "logic_name": "repeatdetector",
             "target_db_url": "",  # 'driver://user:pass@host:port/dbname'
             "red_path": "",
-            "red_meta_key": 0,
+            "red_meta_key": 1,
         }
 
     def fetch_input(self):  # pylint: disable=too-many-locals, too-many-statements
@@ -228,7 +228,7 @@ class Repeatmask_Red(eHive.BaseRunnable):
         analysis_id = analysis_results[0][0]
 
         # insert repeat analysis meta keys
-        if self.param("red_meta_key"):
+        if self.param("red_meta_key") == 1:
             meta_insert = (
                 meta_table.insert(None)
                 .prefix_with("IGNORE")
