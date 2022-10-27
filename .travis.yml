@@ -41,6 +41,8 @@ jobs:
       env: TESTENV=doc
     allow_failures:
     - python: nightly
+      env: TESTENV=code
+    - python: nightly
       env: TESTENV=pylint
     - python: nightly
       env: TESTENV=black
