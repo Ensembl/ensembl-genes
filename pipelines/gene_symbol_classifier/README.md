@@ -1,6 +1,6 @@
-# GSC eHive pipelines
+# GST eHive pipelines
 
-eHive pipelines to run a [GSC](https://github.com/Ensembl/gene_symbol_classifier) classifier on an Ensembl core database, or Ensembl Rapid Release assemblies.
+eHive pipelines to run a [GST](https://github.com/Ensembl/gene_symbol_classifier) classifier on an Ensembl core database, or Ensembl Rapid Release assemblies.
 
 
 ## assign symbols with eHive pipeline

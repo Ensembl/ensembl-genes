@@ -19,7 +19,7 @@
 
 
 """
-Filter gene symbol assignments from the Gene Symbol Classifier network by prediction
+Filter gene symbol assignments from the Gene Symbol Transformer model by prediction
 probability threshold to create their subset to be loaded to the genome core database.
 
 Generate assignments CSV with gene description from an existing one.
