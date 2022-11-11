@@ -10,7 +10,7 @@ ENV \
 # Poetry installation environment variables
 ENV \
     POETRY_HOME="/opt/poetry" \
-    POETRY_VERSION=1.1.13 \
+    POETRY_VERSION=1.1.15 \
     POETRY_VIRTUALENVS_CREATE=false
 
 # add Poetry bin directory to PATH
@@ -25,7 +25,6 @@ WORKDIR /app
 # copy project dependencies files
 COPY \
     pyproject.toml \
-    poetry.lock \
     /app/
 
 # install project dependencies

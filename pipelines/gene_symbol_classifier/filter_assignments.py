@@ -19,7 +19,7 @@
 
 
 """
-Filter gene symbol assignments from the Gene Symbol Classifier network by prediction
+Filter gene symbol assignments from the Gene Symbol Transformer model by prediction
 probability threshold to create their subset to be loaded to the genome core database.
 
 Generate assignments CSV with gene description from an existing one.
@@ -47,7 +47,11 @@ def filter_assignments(symbol_assignments, threshold):
 
     all_symbols = pd.read_csv(gene_symbols_csv_path, sep="\t")
 
+    # select assignments with probability above threshold
     filtered_assignments = all_symbols.loc[all_symbols["probability"] >= threshold]
+
+    # round probability column to 4 decimal places
+    filtered_assignments = filtered_assignments.round({"probability": 4})
 
     filtered_symbols_csv_path = pathlib.Path(
         f"{gene_symbols_csv_path.parent}/{gene_symbols_csv_path.stem}_filtered.csv"

@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "gsc_pipeline"
-version = "0.3.0"
-description = "GSC (Gene Symbol Classifier) eHive pipeline"
+version = "0.4.0"
+description = "GST - Gene Symbol Transformer) eHive pipeline"
 authors = ["William Stark <william@ebi.ac.uk>"]
 license = "Apache-2.0"
 
