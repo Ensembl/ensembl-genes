@@ -225,7 +225,8 @@ sub pipeline_analyses {
       -logic_name      => 'RunDataChecks',
       -module          => 'Bio::EnsEMBL::DataCheck::Pipeline::RunDataChecks',
       -parameters      => {
-        datacheck_groups => ['xref'],
+        datacheck_groups => ['xref_gene_symbol_transformer'],
+        datacheck_types => ['critical'],
         history_file    => $self->o('history_file'),
         failures_fatal  => 1,
         output_file     => catfile('#pipeline_dir#', '#species#_dc.log'),
