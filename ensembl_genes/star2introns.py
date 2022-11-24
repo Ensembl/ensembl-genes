@@ -55,6 +55,28 @@ def get_engine(url: str) -> Engine:
     return db.create_engine(url)
 
 
+def fetch_species_name(engine: Engine) -> str:
+    """Retrieve the scientific name from the meta table.
+
+    Args:
+        engine: SQLAlchemy Engine object to connect to the database.
+
+    Returns:
+        A snakecase string of the species
+    """
+
+    with engine.connect() as connection:
+        rows = connection.execute(
+            db.text(
+                "SELECT meta_value FROM meta"
+                + " WHERE species_id = 1 AND meta_key = 'species.scientific_name'"
+            )
+        )
+        for row in rows:
+            species_name = row[0]
+            return species_name.replace(" ", "_")
+
+
 def get_analyses(csv_file: str, species: str) -> Dict[str, str]:
     """Parse the csv_file to generate the logic names.
 
