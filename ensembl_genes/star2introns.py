@@ -113,7 +113,8 @@ def process_file(
                 ]
     """
 
-    logging.debug("Processing %s", filename.name)
+    logger = logging.getLogger("star2introns")
+    logger.debug("Processing %s", filename.name)
     file_id = search("^([^_]+)", filename.name)
     if daf_table is None:
         daf_table = {}
@@ -139,7 +140,7 @@ def process_file(
                     else:
                         daf_table[seq_region][intron_id][logic_name] = depth
         except KeyError:
-            logging.error("Could not find analysis for file %s", filename)
+            logger.error("Could not find analysis for file %s", filename)
 
     return daf_table
 
@@ -170,8 +171,9 @@ def write_output(  # pylint: disable=too-many-locals
     dna_align_feature_table = db.Table(
         "dna_align_feature", metadata, autoload=True, autoload_with=engine
     )
+    logger = logging.getLogger("star2introns")
     with engine.connect() as connection:
-        logging.info("Inserting analyses")
+        logger.info("Inserting analyses")
         analyses_id = {}
         analysis_insert = (
             analysis_table.insert(bind=db.bindparam("logic_name"))
@@ -192,9 +194,9 @@ def write_output(  # pylint: disable=too-many-locals
         daf_insert = dna_align_feature_table.insert()
         counter = 1
         daf_values = []
-        logging.debug("Disable KEYS")
+        logger.debug("Disable KEYS")
         connection.execute(db.text("ALTER TABLE dna_align_feature DISABLE KEYS"))
-        logging.info("Loading daf stuff")
+        logger.info("Loading daf stuff")
         for seq_region in daf_table.keys():
             for intron_id in daf_table[seq_region].keys():
                 seq_region_data = intron_id.split(":")
@@ -224,14 +226,14 @@ def write_output(  # pylint: disable=too-many-locals
                     if (counter % batch_size) == 0:
                         connection.execute(daf_insert, daf_values)
                         daf_values = []
-                        logging.debug("Loading daf stuff %d", counter)
+                        logger.debug("Loading daf stuff %d", counter)
                     counter += 1
         if daf_values:
             connection.execute(daf_insert, daf_values)
             daf_values = []
-        logging.info("Stored %d daf stuff", counter)
+        logger.info("Stored %d daf stuff", counter)
         connection.execute(db.text("ALTER TABLE dna_align_feature ENABLE KEYS"))
-        logging.debug("KEYS enabled")
+        logger.debug("KEYS enabled")
 
 
 def main() -> None:
@@ -270,11 +272,10 @@ def main() -> None:
     )
     args = parser.parse_args()
 
-    log_format = "%(asctime)s: %(message)s"
-    log_level = logging.INFO
+    logger = logging.getLogger("star2introns")
+    logger.setLevel(logging.INFO)
     if args.verbose:
-        log_level = logging.DEBUG
-    logging.basicConfig(format=log_format, level=log_level, datefmt="%H:%M:%S")
+        logger.setLevel(logging.DEBUG)
 
     analyses = get_analyses(args.tsv_file, args.species)
 
@@ -289,9 +290,18 @@ def main() -> None:
         # I'm not sure the dispose() is needed
         engine.dispose()
     else:
-        logging.error("Could not load any data")
+        logger.error("Could not load any data")
         sys.exit()
 
+
+# Setting up the logger
+main_logger = logging.getLogger("star2introns")
+console_handler = logging.StreamHandler()
+console_format = logging.Formatter(
+    "%(asctime)s| %(levelname)s | %(module)s | %(message)s", datefmt="%Y-%m-%d %H:%M:%S"
+)
+console_handler.setFormatter(console_format)
+main_logger.addHandler(console_handler)
 
 if __name__ == "__main__":
     main()
