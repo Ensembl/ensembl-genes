@@ -43,6 +43,18 @@ import sqlalchemy as db
 from sqlalchemy.engine import Engine  # Needed for typing
 
 
+def get_engine(url: str) -> Engine:
+    """Create SQLAlchemy engine.
+
+    Args:
+        url: URI to the database.
+
+    Returns:
+        SQLAlchemy engine.
+    """
+    return db.create_engine(url)
+
+
 def get_analyses(csv_file: str, species: str) -> Dict[str, str]:
     """Parse the csv_file to generate the logic names.
 
@@ -284,7 +296,7 @@ def main() -> None:
         process_file(filename, analyses, daf_table)
 
     if len(daf_table) > 0:
-        engine = db.create_engine(args.intron_db)
+        engine = get_engine(args.intron_db)
         slices = fetch_slice_ids(engine)
         write_output(engine, analyses, slices, daf_table, args.batch_size)
         # I'm not sure the dispose() is needed
