@@ -25,7 +25,7 @@
 import logging
 import pathlib
 import eHive
-from . import star2introns
+import star2introns
 
 
 class StarIntrons(eHive.BaseRunnable):
