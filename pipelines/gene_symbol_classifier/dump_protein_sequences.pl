@@ -118,18 +118,22 @@ foreach my $slice (@$slices) {
             die "no canonical transcript for gene".$gene->stable_id;
         }
 
-        my $gene_stable_id = $gene->stable_id;
-        my $gene_version = $gene->version;
-        my $transcript_stable_id = $transcript->stable_id;
-        my $transcript_version = $transcript->version;
-
+        # If there is no translation, we loop through all transcripts and use
+        # the first transcript with translation. Otherwise we skip the gene
         my $translation = $transcript->translation;
-        my $translation_stable_id = $translation->stable_id;
-        my $translation_version = $translation->version;
-        my $protein_sequence = $translation->seq;
+        if (!$translation) {
+          foreach my $temp_transcript (@{$gene->get_all_Transcripts}) {
+            $translation = $temp_transcript->translation;
+            if ($translation) {
+              $transcript = $temp_transcript;
+              last;
+            }
+          }
+          next unless ($translation);
+        }
 
-        say $sequences_fasta_file ">$gene_stable_id.$gene_version transcript:$transcript_stable_id.$transcript_version translation:$translation_stable_id.$translation_version";
-        say $sequences_fasta_file $protein_sequence;
+        printf $sequences_fasta_file, ">%s transcript:%s translation:%s\n", $gene->stable_id_version, $transcript->stable_id_version, $translation->stable_id_version;
+        say $sequences_fasta_file $translation->seq;
     }
 }
 
