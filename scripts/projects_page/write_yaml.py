@@ -12,7 +12,7 @@ def check_for_file(species_name, prod_name, accession, source, file_type):
 #The repeatmodeler file, e.g. http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/abrostola_tripartita/GCA_905340225.1.repeatmodeler.fa
     if file_type == "repeatmodeler":
         ftp = FTP("ftp.ebi.ac.uk")
-        ftp_path = "http://ftp.ebi.ac.uk/"
+        ftp_path = "https://ftp.ebi.ac.uk/"
         path = (
             "pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/"
             + species_name
@@ -23,7 +23,7 @@ def check_for_file(species_name, prod_name, accession, source, file_type):
 #The BUSCO summary file, e.g. https://ftp.ensembl.org/pub/rapid-release/species/Abrostola_tripartita/GCA_905340225.1/statistics/abrostola_tripartita_gca905340225v1_busco_short_summary.txt
     elif file_type == "busco":
         ftp = FTP("ftp.ensembl.org")
-        ftp_path = "http://ftp.ensembl.org/"
+        ftp_path = "https://ftp.ensembl.org/"
         path = (
             "pub/rapid-release/species/"
             + species_name
