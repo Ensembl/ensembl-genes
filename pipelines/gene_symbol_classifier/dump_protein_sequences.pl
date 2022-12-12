@@ -132,7 +132,7 @@ foreach my $slice (@$slices) {
           next unless ($translation);
         }
 
-        printf $sequences_fasta_file, ">%s transcript:%s translation:%s\n", $gene->stable_id_version, $transcript->stable_id_version, $translation->stable_id_version;
+        printf $sequences_fasta_file ">%s transcript:%s translation:%s\n", $gene->stable_id_version, $transcript->stable_id_version, $translation->stable_id_version;
         say $sequences_fasta_file $translation->seq;
     }
 }
