@@ -7,30 +7,40 @@ import re
 from collections import OrderedDict
 
 
-def check_for_file(species_name, prod_name, accession, file_type):
+def check_for_file(species_name, prod_name, accession, source, file_type):
+#This checks for 2 different types of files in the FTP
+#The repeatmodeler file, e.g. http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/abrostola_tripartita/GCA_905340225.1.repeatmodeler.fa
     if file_type == "repeatmodeler":
+        ftp = FTP("ftp.ebi.ac.uk")
+        ftp_path = "https://ftp.ebi.ac.uk/"
         path = (
             "pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/"
             + species_name
             + "/"
         )
         file_name = accession + ".repeatmodeler.fa"
+
+#The BUSCO summary file, e.g. https://ftp.ensembl.org/pub/rapid-release/species/Abrostola_tripartita/GCA_905340225.1/statistics/abrostola_tripartita_gca905340225v1_busco_short_summary.txt
     elif file_type == "busco":
+        ftp = FTP("ftp.ensembl.org")
+        ftp_path = "https://ftp.ensembl.org/"
         path = (
-            "pub/databases/ensembl/dtol/busco_scores/"
+            "pub/rapid-release/species/"
             + species_name
-            + "_"
+            + "/"
             + accession
             + "/"
+            + source
+            + "/statistics/"
         )
-        file_name = prod_name + "_busco_short_summary.txt"
-
-    ftp = FTP("ftp.ebi.ac.uk")
+        file_name = prod_name  + "_busco_short_summary.txt"
+        print (path +" "+ file_name)
+        
     ftp.login()
     try:
         ftp.cwd(path)
         if file_name in ftp.nlst():
-            return "https://ftp.ebi.ac.uk/" + path + file_name
+            return ftp_path + path + file_name
         else:
             return 0
     except:
@@ -97,6 +107,12 @@ def write_yaml(info_dict, icon, yaml_out, project, use_server, alternate):
     if info_dict["assembly.accession"] == "GCA_000002315.5":
         submitter = "Genome Reference Consortium"
 
+    # 01-12-22: Add annotation source for new rapid FTP structur
+    if "species.annotation_source" in info_dict:
+        source = info_dict["species.annotation_source"]
+    else:
+        source = 'ensembl'
+
     if use_server == "rapid":
         ftp_base = "https://ftp.ensembl.org/pub/rapid-release/species"
 
@@ -111,7 +127,10 @@ def write_yaml(info_dict, icon, yaml_out, project, use_server, alternate):
 
         if project == "dtol":
             # 07-06-22: Add column for "Annotation method" so user can clearly see whether Ensembl genebuild or BRAKER2 annotation
-            yaml += "  annotation_method: " + info_dict["genebuild.method_display"] + "\n"
+            if "genebuild.method_display" in info_dict:
+                yaml += "  annotation_method: " + info_dict["genebuild.method_display"] + "\n"
+            else:
+                yaml += "  annotation_method: BRAKER2\n"
                 
         yaml += (
             "  annotation_gtf: "
@@ -120,23 +139,8 @@ def write_yaml(info_dict, icon, yaml_out, project, use_server, alternate):
             + species_name
             + "/"
             + info_dict["assembly.accession"]
-            + "/geneset/"
-            + date
             + "/"
-            + species_name
-            + "-"
-            + info_dict["assembly.accession"]
-            + "-"
-            + date
-            + "-genes.gff3.gz\n"
-        )
-        yaml += (
-            "  annotation_gff3: "
-            + ftp_base
-            + "/"
-            + species_name
-            + "/"
-            + info_dict["assembly.accession"]
+            + source
             + "/geneset/"
             + date
             + "/"
@@ -148,12 +152,33 @@ def write_yaml(info_dict, icon, yaml_out, project, use_server, alternate):
             + "-genes.gtf.gz\n"
         )
         yaml += (
+            "  annotation_gff3: "
+            + ftp_base
+            + "/"
+            + species_name
+            + "/"
+            + info_dict["assembly.accession"]
+            + "/"
+            + source
+            + "/geneset/"
+            + date
+            + "/"
+            + species_name
+            + "-"
+            + info_dict["assembly.accession"]
+            + "-"
+            + date
+            + "-genes.gff3.gz\n"
+        )
+        yaml += (
             "  proteins: "
             + ftp_base
             + "/"
             + species_name
             + "/"
             + info_dict["assembly.accession"]
+            + "/"
+            + source
             + "/geneset/"
             + date
             + "/"
@@ -171,6 +196,8 @@ def write_yaml(info_dict, icon, yaml_out, project, use_server, alternate):
             + species_name
             + "/"
             + info_dict["assembly.accession"]
+            + "/"
+            + source
             + "/geneset/"
             + date
             + "/"
@@ -188,6 +215,8 @@ def write_yaml(info_dict, icon, yaml_out, project, use_server, alternate):
             + species_name
             + "/"
             + info_dict["assembly.accession"]
+            + "/"
+            + source
             + "/genome/"
             + species_name
             + "-"
@@ -199,6 +228,7 @@ def write_yaml(info_dict, icon, yaml_out, project, use_server, alternate):
             rm_species_name,
             info_dict["species.production_name"],
             info_dict["assembly.accession"],
+            source,
             "repeatmodeler",
         )
         if rm_file:
@@ -211,6 +241,8 @@ def write_yaml(info_dict, icon, yaml_out, project, use_server, alternate):
             + species_name
             + "/"
             + info_dict["assembly.accession"]
+            + "/"
+            + source
             + "\n"
         )
 
@@ -232,9 +264,10 @@ def write_yaml(info_dict, icon, yaml_out, project, use_server, alternate):
         if project == "dtol":
             # 10-05-22: Add column for busco score files for DToL only (the ftp will soon be moved from temp DToL FTP to RR FTP)
             busco_file = check_for_file(
-                lc_species_name,
+                species_name,
                 info_dict["species.production_name"],
                 info_dict["assembly.accession"],
+                source,
                 "busco",
             )
             if busco_file:
@@ -266,6 +299,9 @@ def write_yaml(info_dict, icon, yaml_out, project, use_server, alternate):
             # 07-06-22: Add column for "Annotation method" so user can clearly see whether Ensembl genebuild or BRAKER2 annotation
             yaml += "  annotation_method: Ensembl genebuild\n"
 
+        # 01-12-22: Add annotation source for new rapid FTP structure (not needed for main, but is used in check_for_file function for retrieving BUSCO file - should clean this up!)
+        source = 'ensembl'
+            
         yaml += (
             "  annotation_gtf: "
             + ftp_base
@@ -330,6 +366,7 @@ def write_yaml(info_dict, icon, yaml_out, project, use_server, alternate):
             rm_species_name,
             info_dict["species.production_name"],
             info_dict["assembly.accession"],
+            source,
             "repeatmodeler",
         )
         if rm_file:
@@ -362,6 +399,7 @@ def write_yaml(info_dict, icon, yaml_out, project, use_server, alternate):
                 lc_species_name,
                 info_dict["species.production_name"],
                 info_dict["assembly.accession"],
+                source,
                 "busco",
             )
             if busco_file:
@@ -483,7 +521,7 @@ if __name__ == "__main__":
 
         if use_server:
             # retrieve the species name, assembly accession and assembly name from the database
-            info_query = "SELECT meta_key,meta_value FROM meta WHERE meta_key in ('species.scientific_name','assembly.accession','assembly.name','species.production_name','species.strain','schema_version','genebuild.last_geneset_update') OR meta_key like 'genebuild.method%'"
+            info_query = "SELECT meta_key,meta_value FROM meta WHERE meta_key in ('species.scientific_name','assembly.accession','assembly.name','species.production_name','species.strain','schema_version','genebuild.last_geneset_update','species.annotation_source') OR meta_key like 'genebuild.method%'"
             info = mysql_fetch_data(
                 info_query,
                 db,
