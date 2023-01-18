@@ -1,6 +1,6 @@
 [tool.poetry]
-name = "projects-pages"
-version = "0.1.0"
+name = "gb-projects-pages"
+version = "1.0.0"
 description = ""
 authors = ["leannehaggerty <leannehaggerty@gmail.com>"]
 license = "Apache-2.0"
