@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "gb-projects-pages"
-version = "1.0.3"
+version = "1.0.4"
 description = "CLI command for updating the Ensembl projects pages"
 authors = ["leannehaggerty <leannehaggerty@gmail.com>"]
 license = "Apache-2.0"
