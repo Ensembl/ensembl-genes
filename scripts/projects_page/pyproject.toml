@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "gb-projects-pages"
-version = "1.0.0"
-description = ""
+version = "1.0.3"
+description = "CLI command for updating the Ensembl projects pages"
 authors = ["leannehaggerty <leannehaggerty@gmail.com>"]
 license = "Apache-2.0"
 
@@ -14,6 +14,9 @@ PyMySQL = "^0.10.1"
 pysftp = "^0.2.9"
 
 [tool.poetry.dev-dependencies]
+
+[tool.poetry.scripts]
+gb_projects_pages = "gb_projects_pages.projects_pages:main"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

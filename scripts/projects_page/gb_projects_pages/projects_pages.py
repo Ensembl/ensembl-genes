@@ -408,12 +408,11 @@ def write_yaml(info_dict, icon, yaml_out, project, use_server, alternate):
             if alternate:
                 alternate_url = "https://rapid.ensembl.org/" + alternate + "/Info/Index"
                 yaml += "  alternate: " + alternate_url + "\n"
-                
+
     print(yaml, file=yaml_out)
 
 
-if __name__ == "__main__":
-
+def main():
     server_dict = {
         "rapid": {
             "db_host": "mysql-ens-sta-5.ebi.ac.uk",
@@ -590,3 +589,7 @@ if __name__ == "__main__":
                 + db.strip()
                 + " on mirror or rapid release servers!\n"
             )
+
+
+if __name__ == "__main__":
+    main()
