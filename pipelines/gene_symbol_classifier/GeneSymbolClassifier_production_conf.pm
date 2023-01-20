@@ -53,7 +53,7 @@ sub default_options {
     species      => [],
     taxon        => [],
     division     => [],
-    run_all      => 1,
+    run_all      => 0,
     antispecies  => [],
     antitaxons   => [],
     meta_filters => {},
