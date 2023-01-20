@@ -103,8 +103,8 @@ if __name__ == "__main__":
     dtol_count_query = (
         "SELECT count(*) FROM assembly WHERE pri_asm_group='dtol';"
         + "SELECT count(*) FROM assembly JOIN meta USING(assembly_id) WHERE assembly.pri_asm_group='dtol' AND meta.assembly_name LIKE '%alternate%';"
-        + "SELECT count(*) FROM assembly JOIN genebuild_status USING(assembly_id) WHERE assembly.pri_asm_group='dtol' AND genebuild_status.annotation_source='ensembl';"
-        + "SELECT count(*) FROM assembly JOIN genebuild_status USING(assembly_id) JOIN meta USING(assembly_id) WHERE assembly.pri_asm_group='dtol' AND genebuild_status.annotation_source='ensembl' AND meta.assembly_name LIKE '%alternate%';"
+        + "SELECT count(*) FROM assembly JOIN genebuild_status USING(assembly_id) WHERE assembly.pri_asm_group='dtol' AND genebuild_status.annotation_method='ensembl';"
+        + "SELECT count(*) FROM assembly JOIN genebuild_status USING(assembly_id) JOIN meta USING(assembly_id) WHERE assembly.pri_asm_group='dtol' AND genebuild_status.annotation_method='ensembl' AND meta.assembly_name LIKE '%alternate%';"
     )
     dtol_count_fetch = mysql_fetch_data(
         dtol_count_query,
@@ -120,7 +120,7 @@ if __name__ == "__main__":
     dtol_annotated = dtol_count_fetch[2][0][0]
     dtol_annotated_alternates = dtol_count_fetch[3][0][0]
 
-    dtol_annotated_gcas_query = "SELECT assembly.chain, assembly.version FROM assembly JOIN genebuild_status USING (assembly_id) WHERE assembly.pri_asm_group='dtol' AND genebuild_status.annotation_source='ensembl';"
+    dtol_annotated_gcas_query = "SELECT assembly.chain, assembly.version FROM assembly JOIN genebuild_status USING (assembly_id) WHERE assembly.pri_asm_group='dtol' AND genebuild_status.annotation_method='ensembl';"
     dtol_annotated_gcas_return = mysql_fetch_data(
         dtol_annotated_gcas_query,
         db_name,
