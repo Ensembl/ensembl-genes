@@ -20,7 +20,7 @@ classifiers = [
 ]
 
 [tool.poetry.dependencies]
-python = "^3.7"
+python = "^3.8"
 pymysql = "1.0.2"
 sqlalchemy = "1.4.9"
 
@@ -36,3 +36,10 @@ star2introns = "ensembl_genes.star2introns:main"
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.setuptools.packages.find]
+where = [“ensembl_genes”]
+[tool.setuptools]
+package-dir = {“” = “ensembl_genes”}
+
+requires-python = “>=3.8”
