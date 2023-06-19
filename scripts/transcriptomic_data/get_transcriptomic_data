@@ -1,0 +1,91 @@
+#!/usr/bin/python3
+import urllib.request
+import os.path, sys, getopt
+import requests
+import json
+
+
+def get_sample_info(accession):
+    biosample_url = "https://www.ebi.ac.uk/biosamples/samples/"+accession
+    biosample_return = requests.get(biosample_url).text
+    biosample_data = json.loads(biosample_return)
+
+    #sample name will be set as the tissue type or organism part fields from ENA BioSample
+    #if neither exist, sample name is "unknown"
+    #this requires a project for working out the best way to find sample names that make sense
+    try:
+        sample = biosample_data['characteristics']['tissue_type'][0]['text']
+    except KeyError:
+        try:
+            sample = biosample_data['characteristics']['organism_part'][0]['text']
+        except KeyError:
+            sample = "unknown"           
+
+    #description is pulled from ENA BioSample
+    #if the description does not exist, the sample accession is provided for tracibility 
+    try:
+        description = biosample_data['characteristics']['description'][0]['text']
+    except KeyError:
+        description = accession
+
+    #we will likely come across more characters that should be removed from sample names
+    #improvements on this should come with the sample names project
+    replace_chars = '()/\\'
+    for i in replace_chars:
+        sample = sample.replace(i, "")
+    sample = sample.replace(" ", "_")
+    return(sample, description)
+
+if __name__ == "__main__":
+    is_short_paired=0
+
+    class text:
+        BOLD = '\033[1m'
+        UNDERLINE = '\033[4m'
+        END = '\033[0m'
+       
+    opts, args = getopt.getopt(sys.argv[1:],"t:f:",["taxon_id=","csv_file="])
+    if not opts:
+        print("\nProgram: get_transcriptomic_data (create a csv file for transcriptomic data available in ENA)\nVersion: 1.0\n\nUSAGE:\nget_transcriptomic_data  -t <taxon_id> -f <path/csv_file_name> [options]\n\n-h\tShow this help and exit\n")
+        sys.exit()
+       
+    for opt, arg in opts:
+        if opt == '-h':
+            print("\nProgram: get_transcriptomic_data (create a csv file for transcriptomic data available in ENA)\nVersion: 1.0\n\nUSAGE:\nget_transcriptomic_data  -t <taxon_id> -f <path/csv_file_name> [options]\n\n-h\tShow this help and exit\n")
+            sys.exit()
+        elif opt in ("-t", "--taxon_id"):
+            taxon_id = arg
+        elif opt in ("-f", "--csv_file"):
+            csv_file = arg
+
+    short_paired_page = urllib.request.urlopen("https://www.ebi.ac.uk/ena/portal/api/search?display=report&query=%22tax_eq(" +str(taxon_id)+ ")%20AND%20instrument_platform=ILLUMINA%20AND%20library_layout=PAIRED%20AND%20library_source=TRANSCRIPTOMIC%22&domain=read&result=read_run&fields=sample_accession,run_accession,fastq_ftp,read_count")
+    short_paired_list = short_paired_page.readlines()
+
+    if len(short_paired_list) > 0:
+        short_paired_list.pop(0)
+        is_short_paired = 1
+        short_paired_runs = len(short_paired_list)
+   
+    if is_short_paired:
+        print (text.BOLD+"Short-read paired-end illumina data available! "+text.END+"Found "+str(short_paired_runs)+" runs.")
+        csv_out = open(csv_file, "w")
+        for row in (short_paired_list):
+            sample_accession = row.split()[1].decode('utf-8')
+            sample, description = get_sample_info(str(sample_accession))
+            run_accession = row.split()[0].decode('utf-8')
+            file1_ftp = row.split()[2].decode('utf-8').split(';')[0]
+            file1 = file1_ftp.split('/')[-1]
+            file2_ftp = row.split()[2].decode('utf-8').split(';')[1]
+            file2 = file2_ftp.split('/')[-1]
+            read_count = int(row.split()[3].decode('utf-8'))
+
+            #fields for the csv that we don't need any more but could break downstream things so we'll keep them for now
+            is_paired = "1" #we always used paire-end data
+            is_mate_1 = "-1"
+            read_length = "1" #this is always incorrect when calculated from ENA and is not needed with STAR anyway
+            is_plus_13 = "0" #outdated sequencing info
+            centre = "ENA" #we get everything from ENA anyway
+            platform = "illumina" #we only grab illumina short-read data
+
+            print (sample +"\t"+ run_accession +"\t"+ is_paired +"\t"+ file1 +"\t"+ is_mate_1 +"\t"+ read_length +"\t"+ is_plus_13 +"\t"+ centre +"\t"+ platform +"\t"+ description, file=csv_out)
+            print (sample +"\t"+ run_accession +"\t"+ is_paired +"\t"+ file2 +"\t"+ is_mate_1 +"\t"+ read_length +"\t"+ is_plus_13 +"\t"+ centre +"\t"+ platform +"\t"+ description, file=csv_out)
