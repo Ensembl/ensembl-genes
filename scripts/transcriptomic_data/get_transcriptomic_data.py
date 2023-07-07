@@ -113,13 +113,6 @@ def get_data_from_ena(# pylint: disable=too-many-locals
             )
     return csv_data
 
-class text:
-    """formatting set"""
-
-    BOLD = "\033[1m"
-    UNDERLINE = "\033[4m"
-    END = "\033[0m"
-
 
 class InputSchema(argparse.ArgumentParser):
     """Input arguments"""
