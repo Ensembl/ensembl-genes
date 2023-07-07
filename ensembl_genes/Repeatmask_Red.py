@@ -132,9 +132,7 @@ class Repeatmask_Red(eHive.BaseRunnable):
 
             connection.close()
         else:
-            raise ValueError(
-                f"Could not connect to the target database {target_db_url}."
-            )
+            raise ValueError(f"Could not connect to the target database {target_db_url}.")
 
         engine.dispose()
 
@@ -313,7 +311,7 @@ class Repeatmask_Red(eHive.BaseRunnable):
                 seq_region_start = int(columns[1]) + 1  # Red's start is zero-based
                 seq_region_end = int(columns[2]) - 1  # Red's end is exclusive
                 print(
-                    "{}\t{}\t{}\t1\t{}\t{}\t{}".format(
+                    "{}\t{}\t{}\t1\t{}\t{}\t{}".format(  # pylint:disable=consider-using-f-string
                         seq_region[name],  # seq_region_id
                         seq_region_start,
                         seq_region_end,
