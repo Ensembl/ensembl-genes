@@ -50,14 +50,10 @@ def get_sample_info(accession: str) -> List:
 
     # we will likely come across more characters that should be removed from sample names
     # improvements on this should come with the sample names project
-
-    replace_chars = "()/\\"
-    sample = "".join(
-        map(
-            lambda char: "_" if char == " " else "",
-            (sample.replace(char, "") for char in replace_chars),
-        )
-    )
+    replace_chars = '()/\\'
+    for i in replace_chars:
+         sample = sample.replace(i, "")
+    sample = sample.replace(" ", "_")
     return (sample, description)
 
 
@@ -66,7 +62,6 @@ def get_data_from_ena(# pylint: disable=too-many-locals
 ) -> List[str]:
     """Query ENA API to get short or long read data"""
     csv_data = []
-    
     query = f"tax_eq({taxon_id})"
     if read_type == "short":
         query += " AND instrument_platform=ILLUMINA AND library_layout=PAIRED"
@@ -142,7 +137,7 @@ def main() -> None:
 
     with open(Path(args.csv_file), "w", encoding="utf8") as csv_file:
         for row in csv_data:
-            line = "\t".join(str(item) for item in row[1:])
+            line = row[0] + "\t" + "\t".join(str(item) for item in row[1:])
             csv_file.write(line + "\n")
 
 if __name__ == "__main__":
