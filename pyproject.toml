@@ -4,12 +4,7 @@ version = "0.1.0"
 description = "Tools for genome annotation"
 authors = ["Ensembl <dev@ensembl.org>"]
 maintainers = [
-    "Carlos Garcia Giron <dev@ensembl.org>",
-    "Leanne Haggerty <dev@ensembl.org>",
-    "Thibaut Hourlier <dev@ensembl.org>",
-    "Denye Ogeh <dev@ensembl.org>",
-    "William Stark <dev@ensembl.org>",
-    "Francesca Tricomi <dev@ensembl.org>",
+    "<dev@ensembl.org>",
 ]
 license = "Apache 2.0"
 repository = "https://github.com/Ensembl/ensembl-genes"
