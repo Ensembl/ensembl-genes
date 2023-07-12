@@ -82,14 +82,18 @@ def get_data_from_ena(# pylint: disable=too-many-locals
     read_length = "1"
     is_plus_13 = "0"  # outdated sequencing info
     centre = "ENA"  # we get everything from ENA anyway
-
+    
     for row in results:
         row_data = row.split()
         run_accession = row_data[0]
         sample_accession = row_data[1]
         sample, description = get_sample_info(sample_accession)
-        read_count = int(row_data[3])
-        instrument_platform = row_data[4]
+        try:
+            read_count = int(row_data[3])
+            instrument_platform = row_data[4]
+        except ValueError:
+            read_count = "0" #read count not always available in meta data on ena so will set to 0 in these cases - we need a better solution for this!
+            instrument_platform = row_data[3]
         for file in row_data[2].split(";"):
             file_path=os.path.basename(file)
             csv_data.append(
