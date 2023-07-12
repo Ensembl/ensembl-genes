@@ -42,4 +42,4 @@ where = ["ensembl_genes"]
 [tool.setuptools]
 package-dir = {"" = "ensembl_genes"}
 
-requires-python = ">=3.8"
+requires-python = ">=3.7"
