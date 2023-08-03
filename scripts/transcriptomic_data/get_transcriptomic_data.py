@@ -137,12 +137,15 @@ def main() -> None:
     parser=InputSchema()
     args = parser.parse_args()
 
-    csv_data = get_data_from_ena(args.taxon_id, args.read_type)
+    if os.path.isfile(args.csv_file):
+        print ("File "+args.csv_file+" exists, will not overwrite!")
+        exit
+    else:
+        csv_data = get_data_from_ena(args.taxon_id, args.read_type)
 
-    with open(Path(args.csv_file), "w", encoding="utf8") as csv_file:
-        for row in csv_data:
-            line = row[0] + "\t" + "\t".join(str(item) for item in row[1:])
-            csv_file.write(line + "\n")
+        with open(Path(args.csv_file), "w", encoding="utf8") as csv_file:
+            for row in csv_data:
+                csv_file.write(line + "\n")
 
 if __name__ == "__main__":
     main()
