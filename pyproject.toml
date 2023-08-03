@@ -4,12 +4,7 @@ version = "0.1.0"
 description = "Tools for genome annotation"
 authors = ["Ensembl <dev@ensembl.org>"]
 maintainers = [
-    "Carlos Garcia Giron <dev@ensembl.org>",
-    "Leanne Haggerty <dev@ensembl.org>",
-    "Thibaut Hourlier <dev@ensembl.org>",
-    "Denye Ogeh <dev@ensembl.org>",
-    "William Stark <dev@ensembl.org>",
-    "Francesca Tricomi <dev@ensembl.org>",
+    "ensembl <dev@ensembl.org>",
 ]
 license = "Apache 2.0"
 repository = "https://github.com/Ensembl/ensembl-genes"
@@ -20,7 +15,7 @@ classifiers = [
 ]
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = "^3.7"
 pymysql = "1.0.2"
 sqlalchemy = "1.4.9"
 
@@ -42,4 +37,4 @@ where = ["ensembl_genes"]
 [tool.setuptools]
 package-dir = {"" = "ensembl_genes"}
 
-requires-python = ">=3.8"
+requires-python = ">=3.7"
