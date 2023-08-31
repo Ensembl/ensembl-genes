@@ -145,7 +145,7 @@ def main() -> None:
 
         with open(Path(args.csv_file), "w", encoding="utf8") as csv_file:
             for row in csv_data:
-                csv_file.write(line + "\n")
+                csv_file.write("\t".join(row) + "\n")
 
 if __name__ == "__main__":
     main()
