@@ -24,7 +24,6 @@ def get_sample_info(accession: str) -> List:
     """Get info about sample name and description for the run accession"""
     biosample_url = f"https://www.ebi.ac.uk/biosamples/samples/{accession}"
     biosample_data = requests.get(biosample_url).json()
-
     # sample name will be set as the tissue type or organism part fields from ENA BioSample
     # if neither exist, sample name is "unknown"
     # this requires a project for working out the best way to find sample names that make sense
@@ -94,25 +93,26 @@ def get_data_from_ena(# pylint: disable=too-many-locals
         except ValueError:
             read_count = "0" #read count not always available in meta data on ena so will set to 0 in these cases - we need a better solution for this!
             instrument_platform = row_data[3]
-        for file, md5_file in zip(row_data[2].split(";"), row_data[5].split(";")):
-            file_path=os.path.basename(file)
-            md5_file_value=md5_file
-            csv_data.append(
-                (
-                sample,
-                run_accession,
-                is_paired,
-                file_path,
-                is_mate_1,
-                read_length,
-                is_plus_13,
-                centre,
-                instrument_platform,
-                description,
-                file,
-                md5_file_value,
+        if "ftp" in row_data[2] and ";" in row_data[5]: # checking for ftp files and md5sum values which are separated by ;
+            for file, md5_file in zip(row_data[2].split(";"), row_data[5].split(";")):
+                file_path=os.path.basename(file)
+                md5_file_value=md5_file
+                csv_data.append(
+                    (
+                    sample,
+                    run_accession,
+                    is_paired,
+                    file_path,
+                    is_mate_1,
+                    read_length,
+                    is_plus_13,
+                    centre,
+                    instrument_platform,
+                    description,
+                    file,
+                    md5_file_value,
+                    )
                 )
-            )
     return csv_data
 
 
