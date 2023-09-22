@@ -26,12 +26,12 @@ def get_sample_info(accession: str) -> List:
     biosample_url = f"https://www.ebi.ac.uk/biosamples/samples/{accession}"
     biosample_data = None
     try:
-      req_res = requests.get(biosample_url)
-      biosample_data = req_res.json()
+        req_res = requests.get(biosample_url)
+        biosample_data = req_res.json()
     except json.decoder.JSONDecodeError as ex:
-      print(f"Got exception for {accession}: {ex} when parsing {req_res}", file = sys.stderr)
+        print(f"Got exception for {accession}: {ex} when parsing {req_res}", file = sys.stderr)
     if not biosample_data:
-      return ("failed", "failed")
+        return ("failed", "failed")
 
     # sample name will be set as the tissue type or organism part fields from ENA BioSample
     # if neither exist, sample name is "unknown"
