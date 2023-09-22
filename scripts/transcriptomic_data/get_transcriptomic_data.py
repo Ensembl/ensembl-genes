@@ -32,7 +32,7 @@ def get_sample_info(accession: str) -> List:
     except json.decoder.JSONDecodeError as ex:
         print(f"Got exception for {accession}: {ex} when parsing {req_res}", file = sys.stderr)
     if not biosample_data:
-        return ("failed", "failed")
+        return ("unknown", f"failed to get data for {accession}")
 
     # sample name will be set as the tissue type or organism part fields from ENA BioSample
     # if neither exist, sample name is "unknown"
