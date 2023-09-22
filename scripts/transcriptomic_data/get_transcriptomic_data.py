@@ -14,16 +14,26 @@
 # limitations under the License.
 """Download short and long read data from ENA website"""
 import os.path
+import sys
 from pathlib import Path
 from typing import List
 import argparse
 import requests
+import json
 
 
 def get_sample_info(accession: str) -> List:
     """Get info about sample name and description for the run accession"""
     biosample_url = f"https://www.ebi.ac.uk/biosamples/samples/{accession}"
-    biosample_data = requests.get(biosample_url).json()
+    biosample_data = None
+    try:
+        req_res = requests.get(biosample_url)
+        biosample_data = req_res.json()
+    except json.decoder.JSONDecodeError as ex:
+        print(f"Got exception for {accession}: {ex} when parsing {req_res}", file = sys.stderr)
+    if not biosample_data:
+        return ("failed", "failed")
+
     # sample name will be set as the tissue type or organism part fields from ENA BioSample
     # if neither exist, sample name is "unknown"
     # this requires a project for working out the best way to find sample names that make sense
