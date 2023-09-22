@@ -29,7 +29,7 @@ def get_sample_info(accession: str) -> List:
         response.raise_for_status()  # Raise an HTTPError if the request was not successful
 
         biosample_data = response.json()
-        print(biosample_data)
+        #print(biosample_data)
 
         if "characteristics" in biosample_data and "tissue" in biosample_data["characteristics"]:
             sample = biosample_data["characteristics"]["tissue"][0]["text"]
@@ -68,10 +68,10 @@ def get_data_from_ena(taxon_id: int, read_type: str) -> List[str]:
 
     search_url = f"https://www.ebi.ac.uk/ena/portal/api/search?display=report&query={query}&domain=read&result=read_run&fields=sample_accession,run_accession,fastq_ftp,read_count,instrument_platform,fastq_md5"
 
-    print(search_url)
+    #print(search_url)
     search_result = requests.get(search_url)
     results = search_result.text.strip().split("\n")[1:]
-    print(results)
+    #print(results)
 
     is_paired = "1"
     is_mate_1 = "-1"
