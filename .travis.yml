@@ -49,6 +49,7 @@ jobs:
 before_install:
     - git clone --branch main --depth 1 https://github.com/Ensembl/ensembl-hive.git
     - export PYTHONPATH=$PYTHONPATH:$(pwd)/ensembl-hive/wrappers/python3/
+    - sudo apt-get install -y libssl1.1
     - curl -sSL https://install.python-poetry.org | python3 -
     - poetry run python -c "import ssl; print(ssl.OPENSSL_VERSION)"
 
