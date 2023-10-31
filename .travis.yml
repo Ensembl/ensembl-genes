@@ -49,10 +49,10 @@ jobs:
 before_install:
     - git clone --branch main --depth 1 https://github.com/Ensembl/ensembl-hive.git
     - export PYTHONPATH=$PYTHONPATH:$(pwd)/ensembl-hive/wrappers/python3/
-    - python3 -m pip install --upgrade pip setuptools wheel
-    - python3 -m pip install --upgrade requests
-    - python3 -m pip install --upgrade urllib3==1.26.15 
-    - curl -sSL https://install.python-poetry.org | python3 -
+    - python -m pip install --upgrade pip setuptools wheel
+    - python -m pip install --upgrade requests
+    - python -m pip install --upgrade urllib3==1.26.15 
+    - python -m pip install poetry
 
 
 # command to install dependencies
