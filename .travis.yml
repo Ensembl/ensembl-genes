@@ -53,7 +53,7 @@ before_install:
     - python3 -m pip install --upgrade requests
     - python3 -m pip install --upgrade urllib3==1.26.15 
     - curl -sSL https://install.python-poetry.org | python3 -
-    - poetry run python -c "import ssl; print(ssl.OPENSSL_VERSION)"
+
 
 # command to install dependencies
 install:
