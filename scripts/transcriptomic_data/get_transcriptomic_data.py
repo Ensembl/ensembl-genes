@@ -29,7 +29,7 @@ def get_sample_info(accession: str) -> List:
         response.raise_for_status()  # Raise an HTTPError if the request was not successful
 
         biosample_data = response.json()
-        
+
         if "characteristics" in biosample_data and "tissue" in biosample_data["characteristics"]:
             sample = biosample_data["characteristics"]["tissue"][0]["text"]
         elif "characteristics" in biosample_data and "organism_part" in biosample_data["characteristics"]:
@@ -38,7 +38,11 @@ def get_sample_info(accession: str) -> List:
             sample = accession
 
         if "characteristics" in biosample_data and "description" in biosample_data["characteristics"]:
-            description = biosample_data["characteristics"]["description"][0]["text"]
+            # Refrain to use description if it contains extraction protocols
+            if "Protocols:" in biosample_data["characteristics"]["description"][0]["text"]:
+                description = accession
+            else:
+                description = biosample_data["characteristics"]["description"][0]["text"]
         else:
             description = accession
 
@@ -46,6 +50,15 @@ def get_sample_info(accession: str) -> List:
         for i in replace_chars:
             sample = sample.replace(i, "")
         sample = sample.replace(";", "_")
+
+        # Check length of description, anything >300 chars likely protocol or overly complicated desc
+        if (len(description) > 300):
+            description = accession
+        # Check length of description, anything >150 reduce by selecting first sentence
+        elif(len(description) >= 150):
+            tmp_desc = (description.split(".")[0])+"."
+            description = tmp_desc
+
         return (sample, description)
 
     except (RequestException, HTTPError, ConnectionError, Timeout) as e:
