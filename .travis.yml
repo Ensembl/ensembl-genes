@@ -51,6 +51,7 @@ before_install:
     - export PYTHONPATH=$PYTHONPATH:$(pwd)/ensembl-hive/wrappers/python3/
     - python -m pip install poetry
 
+
 # command to install dependencies
 install:
     - if [[ "$TESTENV" == "pylint" ]] && [[ "$TRAVIS_PYTHON_VERSION" = "nightly" ]]; then poetry add --dev pylint@latest; fi
