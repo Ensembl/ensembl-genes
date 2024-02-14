@@ -57,11 +57,15 @@ def get_sample_info(accession: str) -> List:
         # Handle the error here, you can log it or take other appropriate actions.
         return ("unknown", "unknown")
 
-def get_data_from_ena(taxon_id: int, read_type: str) -> List[str]:
+def get_data_from_ena(taxon_id: int, read_type: str, tree) -> List[str]:
     """Query ENA API to get short or long read data"""
     csv_data = []
-    query = f"tax_eq({taxon_id})"
 
+    if tree:
+        query = f"tax_tree({taxon_id})"
+    else:
+        query = f"tax_eq({taxon_id})"
+        
     if read_type == "short":
         query += " AND instrument_platform=ILLUMINA AND library_layout=PAIRED"
     else:
@@ -130,6 +134,12 @@ class InputSchema(argparse.ArgumentParser):
             "-t", "--taxon_id", type=int, required=True, help="Taxon id"
         )
         self.add_argument(
+            "--tree",
+            action='store_true',
+            required=False,
+            help="Turn on the 'Include subordinate taxa' option in your query to ENA",
+        )
+        self.add_argument(
             "-f", "--csv_file", type=str, required=True, help="Output file path (csv format)"
         )
         self.add_argument(
@@ -155,7 +165,7 @@ def main() -> None:
         exit
     else:
         try:
-            csv_data = get_data_from_ena(args.taxon_id, args.read_type)
+            csv_data = get_data_from_ena(args.taxon_id, args.read_type, args.tree)
 
             if args.limit:
                 csv_data = csv_data[:(args.limit * 2)]
