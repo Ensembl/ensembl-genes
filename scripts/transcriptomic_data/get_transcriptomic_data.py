@@ -57,7 +57,7 @@ def get_sample_info(accession: str) -> List:
         # Handle the error here, you can log it or take other appropriate actions.
         return ("unknown", "unknown")
 
-def get_data_from_ena(taxon_id: int, read_type: str, tree) -> List[str]:
+def get_data_from_ena(taxon_id: int, read_type: str, tree: bool) -> List[str]:
     """Query ENA API to get short or long read data"""
     csv_data = []
 
@@ -136,6 +136,7 @@ class InputSchema(argparse.ArgumentParser):
         self.add_argument(
             "--tree",
             action='store_true',
+            type=bool,
             required=False,
             help="Turn on the 'Include subordinate taxa' option in your query to ENA",
         )
