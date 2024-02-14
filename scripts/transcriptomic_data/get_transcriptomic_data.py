@@ -32,13 +32,17 @@ def get_sample_info(accession: str) -> List:
         
         if "characteristics" in biosample_data and "tissue" in biosample_data["characteristics"]:
             sample = biosample_data["characteristics"]["tissue"][0]["text"]
+            sample = sample.replace(" ", "_")
         elif "characteristics" in biosample_data and "organism_part" in biosample_data["characteristics"]:
             sample = biosample_data["characteristics"]["organism_part"][0]["text"]
+            sample = sample.replace(" ", "_")
         else:
             sample = accession
 
         if "characteristics" in biosample_data and "description" in biosample_data["characteristics"]:
             description = biosample_data["characteristics"]["description"][0]["text"]
+            if len(description) > 250:
+                description = accession
         else:
             description = accession
 
@@ -53,11 +57,15 @@ def get_sample_info(accession: str) -> List:
         # Handle the error here, you can log it or take other appropriate actions.
         return ("unknown", "unknown")
 
-def get_data_from_ena(taxon_id: int, read_type: str) -> List[str]:
+def get_data_from_ena(taxon_id: int, read_type: str, tree: bool) -> List[str]:
     """Query ENA API to get short or long read data"""
     csv_data = []
-    query = f"tax_eq({taxon_id})"
 
+    if tree:
+        query = f"tax_tree({taxon_id})"
+    else:
+        query = f"tax_eq({taxon_id})"
+        
     if read_type == "short":
         query += " AND instrument_platform=ILLUMINA AND library_layout=PAIRED"
     else:
@@ -80,8 +88,13 @@ def get_data_from_ena(taxon_id: int, read_type: str) -> List[str]:
         row_data = row.split('\t')
         sample_accession = row_data[0]
         run_accession = row_data[1]
-        sample, description = get_sample_info(sample_accession)
 
+        multi_samples = sample_accession.split(';')
+        if len(multi_samples) > 1:
+            sample, description = "multiple", "multiple"
+        else:
+            sample, description = get_sample_info(sample_accession)
+        
         try:
             read_count = int(row_data[3])
             instrument_platform = row_data[4]
@@ -121,27 +134,43 @@ class InputSchema(argparse.ArgumentParser):
             "-t", "--taxon_id", type=int, required=True, help="Taxon id"
         )
         self.add_argument(
+            "--tree",
+            action='store_true',
+            type=bool,
+            required=False,
+            help="Turn on the 'Include subordinate taxa' option in your query to ENA",
+        )
+        self.add_argument(
             "-f", "--csv_file", type=str, required=True, help="Output file path (csv format)"
         )
         self.add_argument(
-            "--read_type",
+            "-r", "--read_type",
             choices=["short", "long"],
             required=True,
             help="Specify the type of transcriptomic data to download ['short', 'long']",
         )
-
+        self.add_argument(
+            "-l", "--limit",
+            type=int,
+            required=False,
+            help="The number of runs to be included in your csv file - consider that 1 run = 2 files, so setting '-l 50' will result in 100 lines in your csv (WARNING: this limit does not consider quality of data, it is a simple subsampling)",
+        )
+        
 def main() -> None:
     """Entrypoint"""
     parser = InputSchema()
     args = parser.parse_args()
 
-    if os.path.isfile(args.csv_file):
-        print("File " + args.csv_file + " exists, will not overwrite!")
+    if os.path.isfile(args.csv_file) and os.stat(args.csv_file).st_size > 0:
+        print("File " + args.csv_file + " exists, and is not empty, will not overwrite!")
         exit
     else:
         try:
-            csv_data = get_data_from_ena(args.taxon_id, args.read_type)
+            csv_data = get_data_from_ena(args.taxon_id, args.read_type, args.tree)
 
+            if args.limit:
+                csv_data = csv_data[:(args.limit * 2)]
+            
             with open(Path(args.csv_file), "w", encoding="utf8") as csv_file:
                 for row in csv_data:
                     csv_file.write("\t".join(row) + "\n")
