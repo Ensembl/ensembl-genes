@@ -136,7 +136,6 @@ class InputSchema(argparse.ArgumentParser):
         self.add_argument(
             "--tree",
             action='store_true',
-            type=bool,
             required=False,
             help="Turn on the 'Include subordinate taxa' option in your query to ENA",
         )
