@@ -26,15 +26,20 @@ def ena_rest_api(query:str)->int:
     return len(results)
 
 def check_data_from_ena(# pylint: disable=too-many-locals
-    taxon_id: int
+        taxon_id: int,
+        tree: bool
 ) -> None:
     """Query ENA API to get short or long read data"""
 
+    if tree:
+        query = f"tax_tree({taxon_id})"
+    else:
+        query = f"tax_eq({taxon_id})"
     
-    query_short_paired=f"tax_eq({taxon_id}) AND instrument_platform=ILLUMINA AND library_layout=PAIRED AND library_source=TRANSCRIPTOMIC"
-    query_short_single=f"tax_eq({taxon_id}) AND instrument_platform=ILLUMINA AND library_layout=SINGLE AND library_source=TRANSCRIPTOMIC"
-    query_pacbio=f"tax_eq({taxon_id}) AND instrument_platform=PACBIO_SMRT AND library_source=TRANSCRIPTOMIC"
-    query_onp=f"tax_eq({taxon_id}) AND instrument_platform=OXFORD_NANOPORE AND library_source=TRANSCRIPTOMIC"
+    query_short_paired=query+f" AND instrument_platform=ILLUMINA AND library_layout=PAIRED AND library_source=TRANSCRIPTOMIC"
+    query_short_single=query+f" AND instrument_platform=ILLUMINA AND library_layout=SINGLE AND library_source=TRANSCRIPTOMIC"
+    query_pacbio=query+f" AND instrument_platform=PACBIO_SMRT AND library_source=TRANSCRIPTOMIC"
+    query_onp=query+f" AND instrument_platform=OXFORD_NANOPORE AND library_source=TRANSCRIPTOMIC"
     
     short_paired_runs=ena_rest_api(query_short_paired)
     short_single_runs=ena_rest_api(query_short_single)
@@ -64,12 +69,16 @@ class InputSchema(argparse.ArgumentParser):
             "-t", "--taxon_id", type=str, required=True, help="Taxon id"
         )
 
+        self.add_argument(
+            "--tree", action='store_true', required=False, help="Turn on the 'Include subordinate taxa' option in your query to ENA"
+        )
+                
 def main() -> None:
     """Entrypoint"""
     parser=InputSchema()
     args = parser.parse_args()
 
-    check_data_from_ena(args.taxon_id)
+    check_data_from_ena(args.taxon_id, args.tree)
 
 if __name__ == "__main__":
     main()
