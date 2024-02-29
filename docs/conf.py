@@ -68,7 +68,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'Ensembl Genes'
-copyright = '2020, EMBL-European Bioinformatics Institute'
+copyright = '2024, EMBL-European Bioinformatics Institute'
 author = 'Ensembl Genebuild team and contributors'
 
 # The version info for the project you're documenting, acts as replacement for
