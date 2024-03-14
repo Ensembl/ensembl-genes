@@ -75,7 +75,7 @@ def get_assembly_accessions(bioproject_id: str, only_haploid: bool = False) -> L
     Returns:
     list: A list of assembly accessions.
     """
-    base_url = "https://api.ncbi.nlm.nih.gov/datasets/v2alpha/genome/bioproject"
+    base_url = config["urls"]["datasets"]["bioproject"]
     next_page_token = None
     assembly_accessions = {}
     

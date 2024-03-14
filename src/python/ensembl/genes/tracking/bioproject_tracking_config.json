@@ -5,5 +5,10 @@
 	    "db_user" : "ensro",
 	    "db_port" : 4483
 	}
+    },
+    "urls" : {
+	"datasets" : {
+	    "bioproject" : "https://api.ncbi.nlm.nih.gov/datasets/v2alpha/genome/bioproject"
+	}
     }
 }
