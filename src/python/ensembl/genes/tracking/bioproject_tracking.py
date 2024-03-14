@@ -19,11 +19,12 @@ import pymysql
 import json
 from pathlib import Path
 from collections import Counter
+from typing import List, Tuple, Any, Dict
 
 with open("./bioproject_tracking_config.json", "r") as f:
     config = json.load(f)
 
-def mysql_fetch_data(query, database, host, port, user):
+def mysql_fetch_data(query: str, database: str, host: str, port: int, user: str) -> List[Tuple[Any, ...]]:
     """
     Executes a given SQL query on a MySQL database and fetches the result.
 
@@ -62,8 +63,8 @@ def mysql_fetch_data(query, database, host, port, user):
     cursor.close()
     conn.close()
     return info
-    
-def get_assembly_accessions(bioproject_id, only_haploid=False):
+
+def get_assembly_accessions(bioproject_id: str, only_haploid: bool = False) -> List[str]:
     """
     Fetches assembly accessions from a given NCBI BioProject ID.
 
@@ -104,7 +105,7 @@ def get_assembly_accessions(bioproject_id, only_haploid=False):
 
     return assembly_accessions
 
-def get_ensembl_live(bioproject_accessions_taxon):
+def get_ensembl_live(bioproject_accessions_taxon: Dict[str, Dict[str, int]]) -> Dict[str, Dict[str, str]]:
     """
     Retrieves live Ensembl database names for a set of bioproject accessions.
 
@@ -155,8 +156,12 @@ def get_ensembl_live(bioproject_accessions_taxon):
         live_annotations[accession] = bioproject_accessions_taxon[accession]
         live_annotations[accession].update(live_info)
     return(live_annotations)
-    
-def get_taxonomy_info(live_annotations, bioproject_accessions_taxon, rank):
+
+def get_taxonomy_info(
+            live_annotations: Dict[str, Dict[str, str]],
+            bioproject_accessions_taxon: Dict[str, Dict[str, int]],
+            rank: str
+        ) -> Dict[str, Dict[str, str]]:
     """
     Updates the live_annotations dictionary with taxonomy information for a specified rank.
     
