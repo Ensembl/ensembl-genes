@@ -225,11 +225,11 @@ def main():
     """
     Main function to handle command-line arguments and output the result.
     """
-    parser = argparse.ArgumentParser(description='Fetch assembly accessions from NCBI BioProject.')
+    parser = argparse.ArgumentParser(description='Fetch assembly accessions from NCBI BioProject and report the number of corresponding annotations in rapid.ensembl.org.')
     parser.add_argument('bioproject_id', type=str, help='NCBI BioProject ID')
     parser.add_argument('--haploid', action='store_true', help='Fetch only haploid assemblies')
     parser.add_argument('--report_file', type=str, help='Where to write report to', default='./report_file.csv')
-    parser.add_argument('--rank', type=str, help='Taoxnomic rank to classify', default='order')
+    parser.add_argument('--rank', type=str, help='Taxonomic rank to classify', default='order')
     
     args = parser.parse_args()
 
@@ -237,8 +237,8 @@ def main():
     live_annotations = get_ensembl_live(bioproject_accessions_taxon)
     live_annotations_classified = get_taxonomy_info(live_annotations, bioproject_accessions_taxon, args.rank)
     unique_taxon_ids = {details['taxon_id'] for details in live_annotations.values()}
-    print("Found " +  str(len(bioproject_accessions_taxon)) + " assemblies under BioProject ID " + args.bioproject_id)
-    print("Found " + str(len(live_annotations)) + " annotations in rapid.ensembl.org for " + str(len(unique_taxon_ids)) + " unique species")
+    print(f"Found {len(bioproject_accessions_taxon)} assemblies under BioProject ID {args.bioproject_id}")
+    print(f"Found {len(live_annotations)} annotations in rapid.ensembl.org for {len(unique_taxon_ids)} unique species")
 
     rank_values = [details[args.rank] for details in live_annotations.values()]
     rank_counts = Counter(rank_values)
