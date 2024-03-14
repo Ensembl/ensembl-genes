@@ -78,33 +78,41 @@ def get_assembly_accessions(bioproject_id: str, only_haploid: bool = False) -> L
     base_url = "https://api.ncbi.nlm.nih.gov/datasets/v2alpha/genome/bioproject"
     next_page_token = None
     assembly_accessions = {}
-
+    
     while True:
         url = f"{base_url}/{bioproject_id}/dataset_report"
         if next_page_token:
             url += f"?page_token={next_page_token}"
-
-        response = requests.get(url)
-        response.raise_for_status()
-        data = response.json()
-
-        assemblies = data.get('reports', [])
-        for assembly in assemblies:
-            assembly_info = assembly.get('assembly_info', {})
-            if only_haploid and assembly_info.get('assembly_type') != 'haploid':
-                continue
-            assembly_accession = assembly.get('accession')
-            taxon_id = assembly.get('organism').get('tax_id')
-            if assembly_accession:
-                assembly_accessions[assembly_accession] = {"taxon_id" : taxon_id}
-
-        # Check for the next page token or equivalent
-        next_page_token = data.get('next_page_token')
-        if not next_page_token:
-            break
-
+            
+        try:
+            response = requests.get(url)
+            response.raise_for_status()  # This will raise an exception for 4XX and 5XX errors
+            data = response.json()
+            
+            assemblies = data.get('reports', [])
+            for assembly in assemblies:
+                assembly_info = assembly.get('assembly_info', {})
+                if only_haploid and assembly_info.get('assembly_type') != 'haploid':
+                    continue
+                assembly_accession = assembly.get('accession')
+                taxon_id = assembly.get('organism').get('tax_id')
+                if assembly_accession:
+                    assembly_accessions[assembly_accession] = {"taxon_id": taxon_id}
+                    
+                # Check for the next page token or equivalent
+            next_page_token = data.get('next_page_token')
+            if not next_page_token:
+                break
+            
+        except requests.HTTPError as http_err:
+            print(f"HTTP error occurred: {http_err}")
+            break  # Or handle it in some other way, e.g., retry
+        except Exception as err:
+            print(f"An error occurred: {err}")
+            break  # Or handle it differently, maybe a retry logic
+        
     return assembly_accessions
-
+    
 def get_ensembl_live(bioproject_accessions_taxon: Dict[str, Dict[str, int]]) -> Dict[str, Dict[str, str]]:
     """
     Retrieves live Ensembl database names for a set of bioproject accessions.
