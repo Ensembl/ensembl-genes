@@ -1,0 +1,17 @@
+{
+    "server_details" : {
+	"meta": {
+	    "rapid" : {
+		"db_name" : "ensembl_metadata_qrp",
+		"db_host" : "mysql-ens-meta-prod-1",
+		"db_user" : "ensro",
+		"db_port" : 4483
+	    }
+	}
+    },
+    "urls" : {
+	"datasets" : {
+	    "bioproject" : "https://api.ncbi.nlm.nih.gov/datasets/v2alpha/genome/bioproject"
+	}
+    }
+}
