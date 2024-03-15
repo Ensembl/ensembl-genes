@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import sys
 import argparse
 import requests
 import pymysql
@@ -62,7 +63,12 @@ def mysql_fetch_data(query: str, database: str, host: str, port: int, user: str)
 
     cursor.close()
     conn.close()
-    return info
+    try: 
+        return info
+    except UnboundLocalError:
+        print(f"\nNothing returned for SQL query: {query}\n")
+        sys.exit()
+    
 
 def get_assembly_accessions(bioproject_id: str, only_haploid: bool = False) -> List[str]:
     """
@@ -152,10 +158,10 @@ def get_ensembl_live(bioproject_accessions_taxon: Dict[str, Dict[str, int]]) -> 
     )
     data_fetch = mysql_fetch_data(
         data_query,
-        'ensembl_metadata_qrp',
-        config["server_details"]["meta"]["db_host"],
-        config["server_details"]["meta"]["db_port"],
-        config["server_details"]["meta"]["db_user"],
+        config["server_details"]["meta"]["rapid"]["db_name"],
+        config["server_details"]["meta"]["rapid"]["db_host"],
+        config["server_details"]["meta"]["rapid"]["db_port"],
+        config["server_details"]["meta"]["rapid"]["db_user"],
     )
     live_annotations = {}
     for tuple in data_fetch:
