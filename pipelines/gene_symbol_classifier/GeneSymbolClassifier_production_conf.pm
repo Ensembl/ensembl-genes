@@ -258,8 +258,14 @@ sub resource_classes {
 
   return {
     %{$self->SUPER::resource_classes},
-    'normal' => { 'LSF' => ['-q production', $self->beekeeper_extra_cmdline_options]},
-    'default'  => { 'LSF' => ['-q production -M 500 -R "rusage[mem=500]"', $self->beekeeper_extra_cmdline_options]},
+	'normal' => {
+	    'LSF' => ['-q production', $self->beekeeper_extra_cmdline_options],
+	    'SLURM' => ['--mem=900 --time=7-00:00:00', $self->beekeeper_extra_cmdline_options],
+    },
+	'default'  => {
+	    'LSF' => ['-q production -M 500 -R "rusage[mem=500]"', $self->beekeeper_extra_cmdline_options],
+            'SLURM' => ['--mem=900 --time=7-00:00:00', $self->beekeeper_extra_cmdline_options],
+    },
   }
 }
 
