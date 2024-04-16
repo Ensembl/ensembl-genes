@@ -19,6 +19,7 @@ from typing import List
 import argparse
 import requests
 from requests.exceptions import RequestException, HTTPError, ConnectionError, Timeout
+import re
 
 def get_sample_info(accession: str) -> List:
     """Get info about sample name and description for the run accession"""
@@ -32,10 +33,8 @@ def get_sample_info(accession: str) -> List:
         
         if "characteristics" in biosample_data and "tissue" in biosample_data["characteristics"]:
             sample = biosample_data["characteristics"]["tissue"][0]["text"]
-            sample = sample.replace(" ", "_")
         elif "characteristics" in biosample_data and "organism_part" in biosample_data["characteristics"]:
             sample = biosample_data["characteristics"]["organism_part"][0]["text"]
-            sample = sample.replace(" ", "_")
         else:
             sample = accession
 
@@ -46,10 +45,16 @@ def get_sample_info(accession: str) -> List:
         else:
             description = accession
 
+        sample = sample.replace(" ", "_")
+        sample = sample.replace(";", "_")
         replace_chars = '()/\\'
         for i in replace_chars:
             sample = sample.replace(i, "")
-        sample = sample.replace(";", "_")
+
+        multi_tissuesREGEX = ("([a-zA-Z]+\,)+")
+        if re.search(multi_tissuesREGEX, sample):
+            sample = "mixed_tissues"
+        
         return (sample, description)
 
     except (RequestException, HTTPError, ConnectionError, Timeout) as e:
