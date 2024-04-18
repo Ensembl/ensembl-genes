@@ -70,7 +70,7 @@ def mysql_fetch_data(query: str, database: str, host: str, port: int, user: str)
         sys.exit()
     
 
-def get_assembly_accessions(bioproject_id: str, only_haploid: bool = False) -> List[str]:
+def get_assembly_accessions(query_id: str, query_type: str, only_haploid: bool = False) -> List[str]:
     """
     Fetches assembly accessions from a given NCBI BioProject ID.
 
@@ -81,12 +81,16 @@ def get_assembly_accessions(bioproject_id: str, only_haploid: bool = False) -> L
     Returns:
     list: A list of assembly accessions.
     """
-    base_url = config["urls"]["datasets"]["bioproject"]
+    if (query_type == 'bioproject'):
+        base_url = config["urls"]["datasets"]["bioproject"]
+    elif (query_type == 'taxon'):
+        base_url = config["urls"]["datasets"]["taxon"]
+    
     next_page_token = None
     assembly_accessions = {}
     
     while True:
-        url = f"{base_url}/{bioproject_id}/dataset_report"
+        url = f"{base_url}/{query_id}/dataset_report"
         if next_page_token:
             url += f"?page_token={next_page_token}"
             
@@ -119,7 +123,7 @@ def get_assembly_accessions(bioproject_id: str, only_haploid: bool = False) -> L
         
     return assembly_accessions
     
-def get_ensembl_live(bioproject_accessions_taxon: Dict[str, Dict[str, int]]) -> Dict[str, Dict[str, str]]:
+def get_ensembl_live(accessions_taxon: Dict[str, Dict[str, int]]) -> Dict[str, Dict[str, str]]:
     """
     Retrieves live Ensembl database names for a set of bioproject accessions.
 
@@ -130,7 +134,7 @@ def get_ensembl_live(bioproject_accessions_taxon: Dict[str, Dict[str, int]]) -> 
     'dbname'.
 
     Args:
-        bioproject_accessions_taxon (dict): A dictionary where keys are assembly accessions and values are dictionaries 
+        accessions_taxon (dict): A dictionary where keys are assembly accessions and values are dictionaries 
                                             containing taxonomy information for those accessions.
 
     Returns:
@@ -142,8 +146,8 @@ def get_ensembl_live(bioproject_accessions_taxon: Dict[str, Dict[str, int]]) -> 
         - The `mysql_fetch_data` function to execute the query and fetch data.
 
     Example:
-        >>> bioproject_accessions_taxon = {'GCA_123456.1': {'taxon_id': 9606}}
-        >>> live_annotations = get_ensembl_live(bioproject_accessions_taxon)
+        >>> accessions_taxon = {'GCA_123456.1': {'taxon_id': 9606}}
+        >>> live_annotations = get_ensembl_live(accessions_taxon)
         >>> print(live_annotations)
         {'GCA_123456.1': {'taxon_id': 9606, 'dbname': 'homo_sapiens_core_104_38'}}
 
@@ -151,7 +155,7 @@ def get_ensembl_live(bioproject_accessions_taxon: Dict[str, Dict[str, int]]) -> 
         The configuration for the database connection (`config`) must be defined externally with keys for 
         'db_host', 'db_port', and 'db_user' within a nested 'server_details'->'meta' structure.
     """
-    accessions = list(bioproject_accessions_taxon.keys())
+    accessions = list(accessions_taxon.keys())
     formatted_accessions = ",".join(f'"{item}"' for item in accessions)
     data_query = (
         "SELECT assembly.assembly_accession, dbname FROM assembly JOIN genome USING (assembly_id) JOIN genome_database USING (genome_id) WHERE genome.data_release_id=(SELECT MAX(data_release_id) FROM genome) AND assembly.assembly_accession in (" + formatted_accessions + ") AND dbname like '%core%';"
@@ -167,13 +171,13 @@ def get_ensembl_live(bioproject_accessions_taxon: Dict[str, Dict[str, int]]) -> 
     for tuple in data_fetch:
         accession = tuple[0]
         live_info = {"dbname" : tuple[1]}
-        live_annotations[accession] = bioproject_accessions_taxon[accession]
+        live_annotations[accession] = accessions_taxon[accession]
         live_annotations[accession].update(live_info)
     return(live_annotations)
 
 def get_taxonomy_info(
             live_annotations: Dict[str, Dict[str, str]],
-            bioproject_accessions_taxon: Dict[str, Dict[str, int]],
+            accessions_taxon: Dict[str, Dict[str, int]],
             rank: str
         ) -> Dict[str, Dict[str, str]]:
     """
@@ -186,7 +190,7 @@ def get_taxonomy_info(
     Args:
         live_annotations (dict): A dictionary where each key is an accession number and its value is another 
                                   dictionary with various annotation details. This dictionary is updated in-place.
-        bioproject_accessions_taxon (dict): A dictionary mapping accession numbers to their respective taxon 
+        accessions_taxon (dict): A dictionary mapping accession numbers to their respective taxon 
                                             information, including taxon IDs.
         rank (str): The taxonomic rank for which the name should be retrieved and added to live_annotations 
                     (e.g., 'order', 'family').
@@ -205,14 +209,14 @@ def get_taxonomy_info(
 
     Example:
         >>> live_annotations = {'accession1': {'some_annotation': 'value'}}
-        >>> bioproject_accessions_taxon = {'accession1': {'taxon_id': '12345'}}
+        >>> accessions_taxon = {'accession1': {'taxon_id': '12345'}}
         >>> rank = 'order'
-        >>> updated_annotations = get_taxonomy_info(live_annotations, bioproject_accessions_taxon, rank)
+        >>> updated_annotations = get_taxonomy_info(live_annotations, accessions_taxon, rank)
         >>> print(updated_annotations)
         {'accession1': {'some_annotation': 'value', 'order': 'SomeOrderName'}}
     """
     for accession in live_annotations:
-        taxon_id = bioproject_accessions_taxon[accession]["taxon_id"]
+        taxon_id = accessions_taxon[accession]["taxon_id"]
         url = f"https://api.ncbi.nlm.nih.gov/datasets/v2alpha/taxonomy/taxon/{taxon_id}/dataset_report"
         
         try:
@@ -243,22 +247,38 @@ def write_report(live_annotations, report_file, rank):
 def main():
     """
     Main function to handle command-line arguments and output the result.
+    Description of the script's functionality can be elaborated here.
     """
-    parser = argparse.ArgumentParser(description='Fetch assembly accessions from NCBI BioProject and report the number of corresponding annotations in rapid.ensembl.org.')
-    parser.add_argument('bioproject_id', type=str, help='NCBI BioProject ID')
-    parser.add_argument('--haploid', action='store_true', help='Fetch only haploid assemblies')
-    parser.add_argument('--report_file', type=str, help='Where to write report to', default='./report_file.csv')
-    parser.add_argument('--rank', type=str, help='Taxonomic rank to classify', default='order')
-    
+    parser = argparse.ArgumentParser(description='This script fetches assembly accessions from NCBI BioProject and reports the number of corresponding annotations in rapid.ensembl.org. It handles various command-line options to specify the type of data to fetch and how to report it.')
+    parser.add_argument('--bioproject_id', type=str, help='Specify the NCBI BioProject ID to fetch data for.')
+    parser.add_argument('--taxon_id', type=str, help='Specify the Taxonomy ID to fetch data for.')
+    parser.add_argument('--haploid', action='store_true', help='Set this flag to fetch only haploid assemblies.')
+    parser.add_argument('--report_file', type=str, help='Path to the output file where the report will be written. Defaults to "./report_file.csv".', default='./report_file.csv')
+    parser.add_argument('--rank', type=str, help='Taxonomic rank to classify. Default is "order".', default='order')
+   
     args = parser.parse_args()
-
-    bioproject_accessions_taxon = get_assembly_accessions(args.bioproject_id, args.haploid)
-    live_annotations = get_ensembl_live(bioproject_accessions_taxon)
-    live_annotations_classified = get_taxonomy_info(live_annotations, bioproject_accessions_taxon, args.rank)
+    
+    if (args.bioproject_id):
+        query_id = args.bioproject_id
+        query_type = 'bioproject'
+    elif (args.taxon_id):
+        query_id = args.taxon_id
+        query_type = 'taxon'
+    else:
+        parser.print_help()
+        return
+    
+    accessions_taxon = get_assembly_accessions(query_id, query_type, args.haploid)
+    
+    live_annotations = get_ensembl_live(accessions_taxon)
+    live_annotations_classified = get_taxonomy_info(live_annotations, accessions_taxon, args.rank)
     unique_taxon_ids = {details['taxon_id'] for details in live_annotations.values()}
-    print(f"Found {len(bioproject_accessions_taxon)} assemblies under BioProject ID {args.bioproject_id}")
+    if (args.bioproject_id):
+        print(f"Found {len(accessions_taxon)} assemblies under BioProject ID {args.bioproject_id}")
+    elif (args.taxon_id):
+        print(f"Found {len(accessions_taxon)} assemblies for taxon ID {args.taxon_id}")
     print(f"Found {len(live_annotations)} annotations in rapid.ensembl.org for {len(unique_taxon_ids)} unique species")
-
+   
     rank_values = [details[args.rank] for details in live_annotations.values()]
     rank_counts = Counter(rank_values)
     print("\nBreakdown:")
