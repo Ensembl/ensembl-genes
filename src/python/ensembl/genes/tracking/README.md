@@ -8,15 +8,15 @@
 ```
 **python bioproject_tracking.py  -h**
 
-usage: bioproject_tracking.py [-h] [--haploid] [--report_file REPORT_FILE] [--rank RANK] bioproject_id
+usage: bioproject_tracking.py [-h] [--bioproject_id BIOPROJECT_ID] [--taxon_id TAXON_ID] [--haploid] [--report_file REPORT_FILE] [--rank RANK]
 
-Fetch assembly accessions from NCBI BioProject and report the number of corresponding annotations in rapid.ensembl.org.
 
-positional arguments:
-  bioproject_id         NCBI BioProject ID
+This script fetches assembly accessions from NCBI BioProject and reports the number of corresponding annotations in rapid.ensembl.org. It handles various command-line options to specify the type of data to fetch and how to report it.
 
 optional arguments:
   -h, --help                 show this help message and exit
+  --bioproject_id         NCBI BioProject ID
+  --taxon_id TAXON_ID   Specify the Taxonomy ID to fetch data for.
   --haploid                  Fetch only haploid assemblies
   --report_file REPORT_FILE  Where to write report to
   --rank RANK                Taxonomic rank to classify
