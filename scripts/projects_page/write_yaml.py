@@ -118,14 +118,14 @@ def write_yaml(info_dict, icon, yaml_out, project, use_server, alternate):
 
         yaml = "- species: " + info_dict["species.scientific_name"] + "\n"
 
-        if project in ("vgp", "dtol", "erga", "cbp"):
+        if project in ("vgp", "dtol", "erga", "cbp", "bge"):
             yaml += "  image: " + icon + "\n"
         else:
             yaml += "  submitted_by: " + submitter + "\n"
 
         yaml += "  accession: " + info_dict["assembly.accession"] + "\n"
 
-        if project in ("dtol", "erga", "cbp"):
+        if project in ("dtol", "erga", "cbp", "bge"):
             # 07-06-22: Add column for "Annotation method" so user can clearly see whether Ensembl genebuild or BRAKER2 annotation
             if "genebuild.method_display" in info_dict:
                 yaml += "  annotation_method: " + info_dict["genebuild.method_display"] + "\n"
@@ -261,7 +261,7 @@ def write_yaml(info_dict, icon, yaml_out, project, use_server, alternate):
                 + "/Info/Index\n"
             )
 
-        if project in ("dtol", "erga", "cbp"):
+        if project in ("dtol", "erga", "cbp", "bge"):
             # 10-05-22: Add column for busco score files for DToL only (the ftp will soon be moved from temp DToL FTP to RR FTP)
             busco_file = check_for_file(
                 species_name,
@@ -288,14 +288,14 @@ def write_yaml(info_dict, icon, yaml_out, project, use_server, alternate):
         ftp_base = "https://ftp.ensembl.org/pub/" + release
 
         yaml = "- species: " + info_dict["species.scientific_name"] + "\n"
-        if project in ("vgp", "dtol", "erga", "cbp"):
+        if project in ("vgp", "dtol", "erga", "cbp", "bge"):
             yaml += "  image: " + icon + "\n"
         else:
             yaml += "  submitted_by: " + submitter + "\n"
 
         yaml += "  accession: " + info_dict["assembly.accession"] + "\n"
 
-        if project in ("dtol", "erga", "cbp"):
+        if project in ("dtol", "erga", "cbp", "bge"):
             # 07-06-22: Add column for "Annotation method" so user can clearly see whether Ensembl genebuild or BRAKER2 annotation
             yaml += "  annotation_method: Ensembl genebuild\n"
 
@@ -393,7 +393,7 @@ def write_yaml(info_dict, icon, yaml_out, project, use_server, alternate):
                 + "/Info/Index\n"
             )
 
-        if project in ("dtol", "erga", "cbp"):
+        if project in ("dtol", "erga", "cbp", "bge"):
             # 10-05-22: Add column for busco score files for DToL only (the ftp will soon be moved from temp DToL FTP to RR FTP)
             busco_file = check_for_file(
                 lc_species_name,
@@ -452,7 +452,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "-p",
         "--project",
-        choices=["aquafaang", "bovreg", "cbp", "dtol", "erga", "geneswitch", "vgp"],
+        choices=["aquafaang", "bge", "bovreg", "cbp", "dtol", "erga", "geneswitch", "vgp"],
         help="Name of the project this set of database belongs to",
         required=True,
     )
