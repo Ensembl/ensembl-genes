@@ -45,12 +45,9 @@ def get_sample_info(accession: str) -> List:
         else:
             description = accession
 
-        sample = sample.replace(" ", "_")
-        sample = sample.replace(";", "_")
-        replace_chars = '()/\\'
-        for i in replace_chars:
-            sample = sample.replace(i, "")
-
+        sample = re.sub(r'[ ;\(\)\/\\]', '_', sample)
+        #remove punctuation
+        sample = re.sub(r'[!\"#$%&()*\+,\-\'.\/:;<=>?@\[\]^`{|}~]', '', sample)
         multi_tissuesREGEX = ("([a-zA-Z]+\,)+")
         if re.search(multi_tissuesREGEX, sample):
             sample = "mixed_tissues"
