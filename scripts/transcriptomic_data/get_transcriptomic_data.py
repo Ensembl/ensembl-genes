@@ -32,9 +32,9 @@ def get_sample_info(accession: str) -> List:
         biosample_data = response.json()
         
         if "characteristics" in biosample_data and "tissue" in biosample_data["characteristics"]:
-            sample = biosample_data["characteristics"]["tissue"][0]["text"]
+            sample = biosample_data["characteristics"]["tissue"][0]["text"].lower()
         elif "characteristics" in biosample_data and "organism_part" in biosample_data["characteristics"]:
-            sample = biosample_data["characteristics"]["organism_part"][0]["text"]
+            sample = biosample_data["characteristics"]["organism_part"][0]["text"].lower()
         else:
             sample = accession
 
@@ -79,7 +79,7 @@ def get_data_from_ena(taxon_id: int, read_type: str, tree: bool) -> List[str]:
 
     search_result = requests.get(search_url)
     results = search_result.text.strip().split("\n")[1:]
-
+    
     is_paired = "1"
     is_mate_1 = "-1"
     read_length = "1"
@@ -103,26 +103,43 @@ def get_data_from_ena(taxon_id: int, read_type: str, tree: bool) -> List[str]:
         except ValueError:
             read_count = "0"
             instrument_platform = row_data[3]
-        if "ftp" in row_data[2] and ";" in row_data[5]:
-            for file, md5_file in zip(row_data[2].split(";"), row_data[5].split(";")):
-                file_path = os.path.basename(file)
-                md5_file_value = md5_file
-                csv_data.append(
-                    (
-                        sample,
-                        run_accession,
-                        is_paired,
-                        file_path,
-                        is_mate_1,
-                        read_length,
-                        is_plus_13,
-                        centre,
-                        instrument_platform,
-                        description,
-                        file,
-                        md5_file_value,
+
+        file_entries = row_data[2].split(";")
+        md5_entries = row_data[5].split(";")
+
+        if len(file_entries) == 2:
+            pass  # Nothing special to do, continue as normal
+        elif len(file_entries) == 3:
+            # Identify the unwanted entry and remove it
+            file_entries = [f for f in file_entries if "_1.fastq.gz" in f or "_2.fastq.gz" in f]
+            # Assuming the order of md5 corresponds to files and the unwanted file is in the middle
+            md5_entries = [md5_entries[i] for i, f in enumerate(row_data[2].split(";")) if "_1.fastq.gz" in f or "_2.fastq.gz" in f]
+        else:
+            print("Warning: Unexpected number of file entries, skipping "+run_accession)
+            next  # Skip further processing for this row
+
+        # Only proceed if we have exactly 2 entries after any necessary filtering
+        if len(file_entries) == 2:
+            if "ftp" in row_data[2] and ";" in row_data[5]:
+                for file, md5_file in zip(file_entries, md5_entries):
+                    file_path = os.path.basename(file)
+                    md5_file_value = md5_file
+                    csv_data.append(
+                        (
+                            sample,
+                            run_accession,
+                            is_paired,
+                            file_path,
+                            is_mate_1,
+                            read_length,
+                            is_plus_13,
+                            centre,
+                            instrument_platform,
+                            description,
+                            file,
+                            md5_file_value,
+                        )
                     )
-                )
 
     return csv_data
 
