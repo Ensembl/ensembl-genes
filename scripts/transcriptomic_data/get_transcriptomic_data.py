@@ -87,58 +87,59 @@ def get_data_from_ena(taxon_id: int, read_type: str, tree: bool) -> List[str]:
     centre = "ENA"
 
     for row in results:
-        row_data = row.split('\t')
-        sample_accession = row_data[0]
-        run_accession = row_data[1]
+        if(len(row.split('\t'))==6):
+            row_data = row.split('\t')
+            sample_accession = row_data[0]
+            run_accession = row_data[1]
 
-        multi_samples = sample_accession.split(';')
-        if len(multi_samples) > 1:
-            sample, description = "multiple", "multiple"
-        else:
-            sample, description = get_sample_info(sample_accession)
-        
-        try:
-            read_count = int(row_data[3])
-            instrument_platform = row_data[4]
-        except ValueError:
-            read_count = "0"
-            instrument_platform = row_data[3]
+            multi_samples = sample_accession.split(';')
+            if len(multi_samples) > 1:
+                sample, description = "multiple", "multiple"
+            else:
+                sample, description = get_sample_info(sample_accession)
+            
+            try:
+                read_count = int(row_data[3])
+                instrument_platform = row_data[4]
+            except ValueError:
+                read_count = "0"
+                instrument_platform = row_data[3]
 
-        file_entries = row_data[2].split(";")
-        md5_entries = row_data[5].split(";")
+            file_entries = row_data[2].split(";")
+            md5_entries = row_data[5].split(";")
 
-        if len(file_entries) == 2:
-            pass  # Nothing special to do, continue as normal
-        elif len(file_entries) == 3:
-            # Identify the unwanted entry and remove it
-            file_entries = [f for f in file_entries if "_1.fastq.gz" in f or "_2.fastq.gz" in f]
-            # Assuming the order of md5 corresponds to files and the unwanted file is in the middle
-            md5_entries = [md5_entries[i] for i, f in enumerate(row_data[2].split(";")) if "_1.fastq.gz" in f or "_2.fastq.gz" in f]
-        else:
-            print("Warning: Unexpected number of file entries, skipping "+run_accession)
-            next  # Skip further processing for this row
+            if len(file_entries) == 2:
+                pass  # Nothing special to do, continue as normal
+            elif len(file_entries) == 3:
+                # Identify the unwanted entry and remove it
+                file_entries = [f for f in file_entries if "_1.fastq.gz" in f or "_2.fastq.gz" in f]
+                # Assuming the order of md5 corresponds to files and the unwanted file is in the middle
+                md5_entries = [md5_entries[i] for i, f in enumerate(row_data[2].split(";")) if "_1.fastq.gz" in f or "_2.fastq.gz" in f]
+            else:
+                print("Warning: Unexpected number of file entries, skipping "+run_accession)
+                next  # Skip further processing for this row
 
-        # Only proceed if we have exactly 2 entries after any necessary filtering
-        if len(file_entries) == 2:
-            if "ftp" in row_data[2] and ";" in row_data[5]:
-                for file, md5_file in zip(file_entries, md5_entries):
-                    file_path = os.path.basename(file)
-                    md5_file_value = md5_file
-                    csv_data.append(
-                        (
-                            sample,
-                            run_accession,
-                            is_paired,
-                            file_path,
-                            is_mate_1,
-                            read_length,
-                            is_plus_13,
-                            centre,
-                            instrument_platform,
-                            description,
-                            file,
-                            md5_file_value,
-                        )
+            # Only proceed if we have exactly 2 entries after any necessary filtering
+            if len(file_entries) == 2:
+                if "ftp" in row_data[2] and ";" in row_data[5]:
+                    for file, md5_file in zip(file_entries, md5_entries):
+                        file_path = os.path.basename(file)
+                        md5_file_value = md5_file
+                        csv_data.append(
+                            (
+                                sample,
+                                run_accession,
+                                is_paired,
+                                file_path,
+                                is_mate_1,
+                                read_length,
+                                is_plus_13,
+                                centre,
+                                instrument_platform,
+                                description,
+                                file,
+                                md5_file_value,
+                            )
                     )
 
     return csv_data
