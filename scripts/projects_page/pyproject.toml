@@ -9,7 +9,7 @@ license = "Apache-2.0"
 python = "^3.8"
 mysql-connector = "^2.2.9"
 mysql-connector-python = "^8.0.22"
-requests = "^2.25.0"
+requests = "^2.32.0"
 PyMySQL = "^0.10.1"
 pysftp = "^0.2.9"
 
