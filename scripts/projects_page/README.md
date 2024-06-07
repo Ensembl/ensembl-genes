@@ -8,7 +8,7 @@ Code for updating the ensembl projects pages
 
 **python write_yaml.py -h**
 
-usage: write_yaml.py [-h] -f DB_FILE -p {aquafaang,bovreg,dtol,geneswitch,vgp}
+usage: write_yaml.py [-h] -f DB_FILE -p {aquafaang,bge,bovreg,cbp,dtol,erga,geneswitch,vgp}
 
 Create species.yaml file for a given project page.
 
@@ -16,7 +16,7 @@ optional arguments:
   -h, --help            show this help message and exit
   -f DB_FILE, --db_file DB_FILE
                         Name for file containing list of VGP databases on the Rapid Release or Main server
-  -p {aquafaang,bovreg,dtol,geneswitch,vgp}, --project {aquafaang,bovreg,dtol,geneswitch,vgp}
+  -p {aquafaang,bge,bovreg,cbp,dtol,erga,geneswitch,vgp}, --project {aquafaang,bge,bovreg,cbp,dtol,erga,geneswitch,vgp}
                         Name of the project this set of database belongs to
 
 ## Updating the DB_FILE
