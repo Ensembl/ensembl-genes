@@ -155,10 +155,24 @@ def get_ensembl_live(accessions_taxon: Dict[str, Dict[str, int]]) -> Dict[str, D
         The configuration for the database connection (`config`) must be defined externally with keys for 
         'db_host', 'db_port', and 'db_user' within a nested 'server_details'->'meta' structure.
     """
+    #pick up the most recent rapid release data_release_id
+    release_query=(
+        "SELECT data_release_id FROM data_release WHERE is_current=1; "
+    )
+    release_fetch = mysql_fetch_data(
+        release_query,
+        config["server_details"]["meta"]["rapid"]["db_name"],
+        config["server_details"]["meta"]["rapid"]["db_host"],
+        config["server_details"]["meta"]["rapid"]["db_port"],
+        config["server_details"]["meta"]["rapid"]["db_user"],
+    )
+    data_release_id = release_fetch[0][0]
+
+    #get the live databases
     accessions = list(accessions_taxon.keys())
     formatted_accessions = ",".join(f'"{item}"' for item in accessions)
     data_query = (
-        "SELECT assembly.assembly_accession, dbname FROM assembly JOIN genome USING (assembly_id) JOIN genome_database USING (genome_id) WHERE genome.data_release_id=(SELECT MAX(data_release_id) FROM genome) AND assembly.assembly_accession in (" + formatted_accessions + ") AND dbname like '%core%';"
+        "SELECT assembly.assembly_accession, dbname FROM assembly JOIN genome USING (assembly_id) JOIN genome_database USING (genome_id) WHERE genome.data_release_id=" + str(data_release_id)  + " AND assembly.assembly_accession in (" + formatted_accessions + ") AND dbname like '%core%';"
     )
     data_fetch = mysql_fetch_data(
         data_query,
@@ -173,7 +187,21 @@ def get_ensembl_live(accessions_taxon: Dict[str, Dict[str, int]]) -> Dict[str, D
         live_info = {"dbname" : tuple[1]}
         live_annotations[accession] = accessions_taxon[accession]
         live_annotations[accession].update(live_info)
-    return(live_annotations)
+
+    #get the number of annotations staged to go live
+    staged_query = (
+        "SELECT count(*) FROM assembly JOIN genome USING (assembly_id) JOIN genome_database USING (genome_id) WHERE genome.data_release_id=(SELECT MAX(data_release_id) FROM genome) AND assembly.assembly_accession in (" + formatted_accessions + ") AND dbname like '%core%';"
+    )
+    staged_fetch = mysql_fetch_data(
+        staged_query,
+        config["server_details"]["meta"]["rapid"]["db_name"],
+        config["server_details"]["meta"]["rapid"]["db_host"],
+        config["server_details"]["meta"]["rapid"]["db_port"],
+        config["server_details"]["meta"]["rapid"]["db_user"],
+    )
+    sta5_annotations = staged_fetch[0][0]
+        
+    return(live_annotations, sta5_annotations)
 
 def get_taxonomy_info(
             live_annotations: Dict[str, Dict[str, str]],
@@ -270,7 +298,8 @@ def main():
     
     accessions_taxon = get_assembly_accessions(query_id, query_type, args.haploid)
     
-    live_annotations = get_ensembl_live(accessions_taxon)
+    live_annotations, sta5_annotations = get_ensembl_live(accessions_taxon)
+    staged_annotations = sta5_annotations - len(live_annotations)
     live_annotations_classified = get_taxonomy_info(live_annotations, accessions_taxon, args.rank)
     unique_taxon_ids = {details['taxon_id'] for details in live_annotations.values()}
     if (args.bioproject_id):
@@ -278,6 +307,7 @@ def main():
     elif (args.taxon_id):
         print(f"Found {len(accessions_taxon)} assemblies for taxon ID {args.taxon_id}")
     print(f"Found {len(live_annotations)} annotations in rapid.ensembl.org for {len(unique_taxon_ids)} unique species")
+    print(f"There are also {staged_annotations} additional annotations ready for release in rapid.ensembl.org")
    
     rank_values = [details[args.rank] for details in live_annotations.values()]
     rank_counts = Counter(rank_values)
