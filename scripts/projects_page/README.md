@@ -19,33 +19,23 @@ optional arguments:
   -p {aquafaang,bge,bovreg,cbp,dtol,erga,geneswitch,vgp}, --project {aquafaang,bge,bovreg,cbp,dtol,erga,geneswitch,vgp}
                         Name of the project this set of database belongs to
 
-## Updating the DB_FILE
-
-- The DB_FILEs in this repo (aquafaang_dbs.txt, bovreg_dbs.txt, dtol_dbs.txt, geneswitch_dbs.txt) should contain all the core databases for everything that is represented on the corresponding project page. 
-- These databases can be found on the mirror server (mysql-ens-mirror-1) if on the main site or on the staging server (mysql-ens-sta-5) if on the rapid site.
-- To add new annotations to a project page you must add the corresponding core database names to the apropriate DB_FILE.
-- The database version must match the current live release version. If you run this script after a live release update you will need to update the versions of the exitsing core databases in the DB_FILE you are using (otherwise they will not be found on the servers).
-
-NOTE:
-Don't forget to push updated DB_FILEs to this repo.
+## Creating the DB_FILE
+- The DB_FILE should contain a list of all databases that should be included on the project page
+- You can create a list of database using BioPorject IDs or Taxon IDs, using [this script](https://github.com/Ensembl/ensembl-genes/blob/main/src/python/ensembl/genes/tracking/bioproject_tracking.py)
 
 ## Newly created species.yaml files
 
-- The species.yaml files in this repo (aquafaang_species.yaml, bovreg_species.yaml, dtol_species.yaml, geneswitch_species.yaml) should contain all the core databases for everything that is represented on the corresponding project page.
-- When you run write_yaml.py you will create a species.yaml file for the given project - this will overwrite the existing species.yaml file.
+- When you run write_yaml.py you will create a species.yaml file for the given project.
 - You should check this file, add it to [Ensembl projects repo](https://github.com/Ensembl/projects.ensembl.org/tree/master/_data) in the appropriate data folder and create a Pull Request for the new species.yaml file to be merged.
-
-NOTE:
-Don't forget to push updated species.yaml to this repo. 
 
 ## Adding new image icons
 
-- Images used for the VGP and DToL projects pages are stored in the [Ensembl projects repo](https://github.com/Ensembl/projects.ensembl.org/tree/master/) at /img/vgp/ 
-- The file, icons.txt, in this repo contains a list of species classifications that have already been added to the VGP or DToL pages
+- Images used for many of the project pages are stored in the [Ensembl projects repo](https://github.com/Ensembl/projects.ensembl.org/tree/master/) at /img/vgp/ 
+- The file, icons.txt, in this repo contains a list of species classifications that have already been added to the pages
 - If you are adding a species that does not fall into one of these classifications, then you will need to update the file 
    - check the species.classification keys in the meta table in the core db and choose a classification level that is appropriate
    - add the classification and image name to the icons.txt file
-   - make sure the image exists in the [Ensembl projects repo](https://github.com/Ensembl/projects.ensembl.org/tree/master/) at /img/vgp/ - if it does not, you will need to add it (you should take the image from the rapid release, if it exists, otherwise, you should talk to Anne from web about getting a new appropriate image)
+   - make sure the image exists in the [Ensembl projects repo](https://github.com/Ensembl/projects.ensembl.org/tree/master/) at /img/vgp/ - if it does not, you will need to add it (you should take the image from the rapid release, if it exists, otherwise, you should talk to someone from the Web team about getting a new appropriate image)
 
 ## Things to note in write_yaml.py
 
