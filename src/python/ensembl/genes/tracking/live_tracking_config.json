@@ -1,0 +1,19 @@
+{
+    "server_details" : {
+	"meta": {
+	    "rapid" : {
+		"db_name" : "ensembl_metadata_qrp",
+		"db_host" : "mysql-ens-meta-prod-1",
+		"db_user" : "ensro",
+		"db_port" : 4483
+	    }
+	},
+	"genebuild": {
+	    "prod_1" : {
+		"db_host": "mysql-ens-genebuild-prod-1",
+		"db_user": "ensro",
+		"db_port" : 4527
+	    }
+	}
+    }
+}
