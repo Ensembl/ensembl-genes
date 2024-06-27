@@ -1,8 +1,9 @@
 import json
 import pymysql
 from typing import List, Tuple, Any, Dict
+from pathlib import Path
 
-with open("./live_tracking_config.json", "r") as f:
+with open(Path(__file__).parent/"/live_tracking_config.json", "r") as f:
         config = json.load(f)
 
 import pymysql
