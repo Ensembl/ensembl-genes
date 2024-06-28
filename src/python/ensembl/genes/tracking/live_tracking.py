@@ -1,13 +1,19 @@
 import json
 import pymysql
 from typing import List, Tuple, Any, Dict
+from pathlib import Path
 
-with open("./live_tracking_config.json", "r") as f:
+with open(Path(__file__).parent/"live_tracking_config.json", "r") as f:
         config = json.load(f)
 
 import pymysql
 from typing import List, Tuple, Any
 import sys
+import re
+
+def extract_identifier(db_name):
+    match = re.search(r'_(gca\d+v\d+)_', db_name)
+    return match.group(1) if match else None
 
 def mysql_fetch_data(query: str, database: str, host: str, port: int, user: str) -> List[Tuple[Any, ...]]:
     """
@@ -82,11 +88,12 @@ def clean_server():
         config["server_details"]["meta"]["rapid"]["db_port"],
         config["server_details"]["meta"]["rapid"]["db_user"],
     )
-    rapid_databases = [rrdb[0] for rrdb in rapid_fetch]
+    rapid_databases = [extract_identifier(rrdb[0]) for rrdb in rapid_fetch]
     
-    cores_query = (
-        "SHOW DATABASES like '%core%';"
-    )
+    #cores_query = (
+    #    "SHOW DATABASES like '%core%';"
+    #)
+    cores_query = ("SHOW DATABASES;")
     cores_fetch = mysql_fetch_data(
         cores_query,
         '',
@@ -96,7 +103,8 @@ def clean_server():
     )
     
     for core_db in ([db[0] for db in cores_fetch]):
-        if core_db in rapid_databases:
+        identifier = extract_identifier(core_db)
+        if identifier in rapid_databases:
             live_databases.append(core_db)
             
     return live_databases
