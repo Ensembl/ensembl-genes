@@ -11,3 +11,4 @@ Coleoptera	Arthropods.png
 Hemiptera	Arthropods.png
 Trichoptera	Arthropods.png
 Neoptera	Arthropods.png
+Viridiplantae	Plants.png
