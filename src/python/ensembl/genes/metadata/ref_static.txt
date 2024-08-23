@@ -1,0 +1,43 @@
+Escherichia coli str. K-12 substr. MG1655 str. K12	GCA_000005845.2
+Plasmodium falciparum 3D7	GCA_000002765.2
+Pan troglodytes	GCA_000001515.5
+Capra hircus	GCA_001704415.1
+Hordeum vulgare subsp. vulgare	GCA_904849725.1
+Aegilops tauschii subsp. strangulata	GCA_002575655.1
+Drosophila melanogaster	GCA_000001215.4
+Triticum aestivum	GCA_900519105.1
+Solanum lycopersicum	GCA_000188115.3
+Zea mays	GCA_902167145.1
+Homo sapiens	GCA_000001405.29
+Xenopus tropicalis	GCA_000004195.4
+Brassica rapa	GCA_000309985.1
+Equus caballus	GCA_002863925.1
+Felis catus	GCA_000181335.4
+Vitis vinifera	GCA_910591555.1
+Oryzias latipes	GCA_002234675.1
+Brassica oleracea var. oleracea	GCA_000695525.1
+Astyanax mexicanus	GCA_000372685.2
+Ovis aries	GCA_002742125.1
+Cricetulus griseus	GCA_900186095.1
+Brassica napus	GCA_000751015.1
+Canis lupus familiaris	GCA_014441545.1
+Oryza sativa Japonica Group	GCA_001433935.1
+Macaca mulatta	GCA_003339765.3
+Bos taurus	GCA_002263795.2
+Mus musculus	GCA_000001635.9
+Sus scrofa	GCA_000003025.6
+Sorghum bicolor	GCA_000003195.3
+Triticum turgidum subsp. durum	GCA_900231445.1
+Arabidopsis thaliana	GCA_000001735.1
+Salmo salar	GCA_905237065.2
+Oryctolagus cuniculus	GCA_000003625.1
+Pan paniscus	GCA_000258655.2
+Saccharomyces cerevisiae S288c	GCA_000146045.2
+Caenorhabditis elegans	GCA_000002985.3
+Glycine max	GCA_000004515.4
+Oreochromis niloticus	GCA_001858045.3
+Gallus gallus	GCA_016699485.1
+Rattus norvegicus	GCA_015227675.2
+Danio rerio	GCA_000002035.4
+Solanum tuberosum	GCA_000226075.1
+Medicago truncatula	GCA_000219495.2
