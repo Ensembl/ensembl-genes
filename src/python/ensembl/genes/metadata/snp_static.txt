@@ -1,0 +1,28 @@
+Aegilops tauschii subsp. strangulata	Goatgrass
+Arabidopsis thaliana	Thale cress
+Bos taurus	Cow
+Brassica napus	Canola
+Brassica oleracea var. oleracea	Cabbage
+Brassica rapa	Field mustard
+Caenorhabditis elegans	Roundworm
+Escherichia coli str. K-12 substr. MG1655 str. K12	E coli K 12
+Felis catus	Cat
+Glycine max	Soybean
+Homo sapiens	Human
+Hordeum vulgare subsp. vulgare	Barley
+Mus musculus castaneus	Mouse
+Mus musculus domesticus	Mouse
+Mus musculus	Mouse
+Mus musculus musculus	Mouse
+Oryza sativa aromatic subgroup	Rice
+Oryza sativa aus subgroup	Rice
+Oryza sativa Indica Group	Rice
+Oryza sativa Japonica Group	Rice
+Oryza sativa tropical japonica subgroup	Rice
+Saccharomyces cerevisiae S288c	Bakers yeast
+Solanum lycopersicum	Tomato
+Solanum tuberosum	Potato
+Sorghum bicolor	Great Millet
+Triticum aestivum	Wheat
+Vitis vinifera	Grape
+Zea mays	Maize
