@@ -3,50 +3,75 @@ import pymysql
 import requests
 import argparse
 from ftplib import FTP
+from ftplib import error_temp
 import re
 from collections import OrderedDict
 
+class EnsemblFTP:
+    def __init__(self):
+        self.ftp = FTP("ftp.ensembl.org")
+        self.ftp.login()
+        self.ftp_path = "https://ftp.ensembl.org/"
 
-def check_for_file(species_name, prod_name, accession, source, file_type):
-#This checks for 2 different types of files in the FTP
-#The repeatmodeler file, e.g. http://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/abrostola_tripartita/GCA_905340225.1.repeatmodeler.fa
-    if file_type == "repeatmodeler":
-        ftp = FTP("ftp.ebi.ac.uk")
-        ftp_path = "https://ftp.ebi.ac.uk/"
-        path = (
-            "pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/"
-            + species_name
-            + "/"
-        )
-        file_name = accession + ".repeatmodeler.fa"
-
-#The BUSCO summary file, e.g. https://ftp.ensembl.org/pub/rapid-release/species/Abrostola_tripartita/GCA_905340225.1/statistics/abrostola_tripartita_gca905340225v1_busco_short_summary.txt
-    elif file_type == "busco":
-        ftp = FTP("ftp.ensembl.org")
-        ftp_path = "https://ftp.ensembl.org/"
-        path = (
-            "pub/rapid-release/species/"
-            + species_name
-            + "/"
-            + accession
-            + "/"
-            + source
-            + "/statistics/"
-        )
-        file_name = prod_name  + "_busco_short_summary.txt"
-        print (path +" "+ file_name)
+    def connect(self):
+        # Initialize FTP connection if it's not already connected
+        if not self.ftp:
+            self.ftp = FTP(self.host)
+            self.ftp.login()
         
-    ftp.login()
-    try:
-        ftp.cwd(path)
-        if file_name in ftp.nlst():
-            return ftp_path + path + file_name
-        else:
+    def check_for_file(self, species_name, prod_name, accession, source, file_type):
+        self.connect()  # Ensure that we are connected before checking
+
+        if file_type == "repeatmodeler":
+            ftp_path = "https://ftp.ebi.ac.uk/"
+            path = (
+                "pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/"
+                + species_name
+                + "/"
+            )
+            file_name = accession + ".repeatmodeler.fa"
+
+        elif file_type == "busco":
+            ftp_path = "https://ftp.ensembl.org/"
+            path = (
+                "pub/rapid-release/species/"
+                + species_name
+                + "/"
+                + accession
+                + "/"
+                + source
+                + "/statistics/"
+            )
+            file_name = prod_name + "_busco_short_summary.txt"
+
+        try:
+            self.ftp.cwd(path)  # Change to the desired directory
+            if file_name in self.ftp.nlst():
+                return ftp_path + path + file_name
+            else:
+                return 0
+        except error_perm as e:
+            # Ignore the "550 Failed to change directory." error, silently return 0
+            if "550" in str(e) and "Failed to change directory" in str(e):
+                return 0
+            else:
+                print(f"FTP permission error: {e}")
+                return 0
+        except error_temp as e:
+            if "421" in str(e):
+                print("Too many users connected. Retrying...")
+                time.sleep(5)  # Wait for 5 seconds before retrying
+                self.connect()  # Reconnect and retry
+                return self.check_for_file(species_name, prod_name, accession, source, file_type)
+            else:
+                print(f"FTP temporary error: {e}")
+                return 0
+        except Exception as e:
+            print(f"Error: {e}")
             return 0
-    except:
-        return 0
-    ftp.close()
-    
+
+    def close_connection(self):
+        self.ftp.quit()
 
 def mysql_fetch_data(query, database, host, port, user, password):
     try:
@@ -71,7 +96,7 @@ def mysql_fetch_data(query, database, host, port, user, password):
     return info
 
 
-def write_yaml(info_dict, icon, yaml_out, project, use_server, alternate):
+def write_yaml(info_dict, icon, yaml_out, project, use_server, alternate, ftp_client):
     # there are species on main for which the upper case production name is used in the url instead of the upper case species name
     prod_url_list = ["bos_taurus_hybrid", "bos_indicus_hybrid"]
 
@@ -223,8 +248,7 @@ def write_yaml(info_dict, icon, yaml_out, project, use_server, alternate):
             + info_dict["assembly.accession"]
             + "-softmasked.fa.gz\n"
         )
-
-        rm_file = check_for_file(
+        rm_file = ftp_client.check_for_file(
             rm_species_name,
             info_dict["species.production_name"],
             info_dict["assembly.accession"],
@@ -263,7 +287,7 @@ def write_yaml(info_dict, icon, yaml_out, project, use_server, alternate):
 
         if project in ("dtol", "erga", "cbp", "bge", "asg"):
             # 10-05-22: Add column for busco score files for DToL only (the ftp will soon be moved from temp DToL FTP to RR FTP)
-            busco_file = check_for_file(
+            busco_file = ftp_client.check_for_file(
                 species_name,
                 info_dict["species.production_name"],
                 info_dict["assembly.accession"],
@@ -361,8 +385,7 @@ def write_yaml(info_dict, icon, yaml_out, project, use_server, alternate):
             + assembly_name
             + ".dna_sm.toplevel.fa.gz\n"
         )
-
-        rm_file = check_for_file(
+        rm_file = ftp_client.check_for_file(
             rm_species_name,
             info_dict["species.production_name"],
             info_dict["assembly.accession"],
@@ -395,7 +418,7 @@ def write_yaml(info_dict, icon, yaml_out, project, use_server, alternate):
 
         if project in ("dtol", "erga", "cbp", "bge", "asg"):
             # 10-05-22: Add column for busco score files for DToL only (the ftp will soon be moved from temp DToL FTP to RR FTP)
-            busco_file = check_for_file(
+            busco_file = ftp_client.check_for_file(
                 lc_species_name,
                 info_dict["species.production_name"],
                 info_dict["assembly.accession"],
@@ -481,6 +504,9 @@ if __name__ == "__main__":
         for db in sorted_db_list:
             if "sus_scrofa_core" in db or "gallus_gallus_core" in db:
                 sorted_db_list.insert(0, sorted_db_list.pop(sorted_db_list.index(db)))
+
+    #open the FTP connection
+    ftp_client = EnsemblFTP()
 
     for db in sorted_db_list:
         db = db.strip()
@@ -583,10 +609,11 @@ if __name__ == "__main__":
             if chordate and icon == "Metazoa.png":
                 icon = "Chordates.png"
 
-            write_yaml(info_dict, icon, yaml_out, project, use_server, alternate)
+            write_yaml(info_dict, icon, yaml_out, project, use_server, alternate, ftp_client)
         else:
             print(
                 "Could not find database "
                 + db.strip()
                 + " on mirror or rapid release servers!\n"
             )
+    ftp_client.close_connection()
