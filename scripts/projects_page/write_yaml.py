@@ -3,75 +3,76 @@ import pymysql
 import requests
 import argparse
 from ftplib import FTP
-from ftplib import error_temp
+from ftplib import error_temp, error_perm
 import re
 from collections import OrderedDict
 
 class EnsemblFTP:
-    def __init__(self):
-        self.ftp = FTP("ftp.ensembl.org")
-        self.ftp.login()
-        self.ftp_path = "https://ftp.ensembl.org/"
+   def __init__(self, host="ftp.ensembl.org"):
+      self.host = host
+      self.ftp = FTP(self.host)
+      self.ftp.login()
+      self.ftp_path = "https://ftp.ensembl.org/"
+      self.root_path = "/"  # Root path for FTP server
+      
+   def return_to_root(self):
+      """Return to the root directory to reset the FTP session state."""
+      self.ftp.cwd(self.root_path)
 
-    def connect(self):
-        # Initialize FTP connection if it's not already connected
-        if not self.ftp:
-            self.ftp = FTP(self.host)
-            self.ftp.login()
-        
-    def check_for_file(self, species_name, prod_name, accession, source, file_type):
-        self.connect()  # Ensure that we are connected before checking
+   def check_for_file(self, species_name, prod_name, accession, source, file_type):
+      # Ensure we are connected and in the root directory
+      self.return_to_root()
 
-        if file_type == "repeatmodeler":
-            ftp_path = "https://ftp.ebi.ac.uk/"
-            path = (
-                "pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/"
-                + species_name
-                + "/"
-            )
-            file_name = accession + ".repeatmodeler.fa"
-
-        elif file_type == "busco":
-            ftp_path = "https://ftp.ensembl.org/"
-            path = (
-                "pub/rapid-release/species/"
-                + species_name
-                + "/"
-                + accession
-                + "/"
-                + source
-                + "/statistics/"
-            )
-            file_name = prod_name + "_busco_short_summary.txt"
-
-        try:
-            self.ftp.cwd(path)  # Change to the desired directory
-            if file_name in self.ftp.nlst():
-                return ftp_path + path + file_name
-            else:
-                return 0
-        except error_perm as e:
-            # Ignore the "550 Failed to change directory." error, silently return 0
-            if "550" in str(e) and "Failed to change directory" in str(e):
-                return 0
-            else:
-                print(f"FTP permission error: {e}")
-                return 0
-        except error_temp as e:
-            if "421" in str(e):
-                print("Too many users connected. Retrying...")
-                time.sleep(5)  # Wait for 5 seconds before retrying
-                self.connect()  # Reconnect and retry
-                return self.check_for_file(species_name, prod_name, accession, source, file_type)
-            else:
-                print(f"FTP temporary error: {e}")
-                return 0
-        except Exception as e:
-            print(f"Error: {e}")
+      if file_type == "repeatmodeler":
+         ftp_path = "https://ftp.ebi.ac.uk/"
+         path = (
+            "pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/"
+            + species_name
+            + "/"
+         )
+         file_name = accession + ".repeatmodeler.fa"
+         
+      elif file_type == "busco":
+         ftp_path = "https://ftp.ensembl.org/"
+         path = (
+            "pub/rapid-release/species/"
+            + species_name
+            + "/"
+            + accession
+            + "/"
+            + source
+            + "/statistics/"
+         )
+         file_name = prod_name + "_busco_short_summary.txt"
+            
+      try:
+         self.ftp.cwd(path)  # Change to the desired directory
+         if file_name in self.ftp.nlst():
+            return ftp_path + path + file_name
+         else:
             return 0
-
-    def close_connection(self):
-        self.ftp.quit()
+      except error_perm as e:
+         # Ignore the "550 Failed to change directory." error, silently return 0
+         if "550" in str(e) and "Failed to change directory" in str(e):
+            return 0
+         else:
+            print(f"FTP permission error: {e}")
+            return 0
+      except error_temp as e:
+         if "421" in str(e):
+            print("Too many users connected. Retrying...")
+            time.sleep(5)  # Wait for 5 seconds before retrying
+            self.connect()  # Reconnect and retry
+            return self.check_for_file(species_name, prod_name, accession, source, file_type)
+         else:
+            print(f"FTP temporary error: {e}")
+            return 0
+      except Exception as e:
+         print(f"Error: {e}")
+         return 0
+      
+   def close_connection(self):
+      self.ftp.quit()
 
 def mysql_fetch_data(query, database, host, port, user, password):
     try:
