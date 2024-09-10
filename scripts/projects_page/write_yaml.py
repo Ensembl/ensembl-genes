@@ -48,7 +48,7 @@ class EnsemblFTP:
             )
             file_name = prod_name + "_busco_short_summary.txt"
         
-        print(f"Checking path: {path}")  # Debugging to check the path
+#        print(f"Checking path: {path}")  # Debugging to check the path
 
         try:
             # Ensure the FTP connection is in the root directory before changing to the desired directory
