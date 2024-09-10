@@ -102,7 +102,7 @@ def get_assembly_accessions(query_id: str, query_type: str, only_haploid: bool =
             assemblies = data.get('reports', [])
             for assembly in assemblies:
                 assembly_info = assembly.get('assembly_info', {})
-                if only_haploid and assembly_info.get('assembly_type') != 'haploid':
+                if only_haploid and assembly_info.get('assembly_type') != 'haploid' and 'alternate' not in assembly_info.get('title'):
                     continue
                 assembly_accession = assembly.get('accession')
                 taxon_id = assembly.get('organism').get('tax_id')
