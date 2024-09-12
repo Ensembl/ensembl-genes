@@ -46,7 +46,7 @@ class EnsemblFTP:
                 + source
                 + "/statistics/"
             )
-            file_name = prod_name + "_busco_short_summary.txt"
+            file_name = prod_name + "_protein_busco_short_summary.txt"
         
 #        print(f"Checking path: {path}")  # Debugging to check the path
 
