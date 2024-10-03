@@ -10,12 +10,12 @@ It will also produce a log file with any CRITICAL all WARNING messages, <databas
 
 **python core_meta_data.py -h**
 
-usage: core_meta_data.py [-h] [-o OUTPUT_DIR] -d DB_NAME -s HOST -p PORT
+usage: core_meta_data.py [-h] [-o OUTPUT_DIR] -d DB_NAME -s HOST -p PORT -t TEAM
 
 Prepare SQL updates for core dbs
 
 optional arguments:
-  -h, --help            show this help message and exit	
+  -h, --help            show this help message and exit
 
   -o OUTPUT_DIR, --output_dir OUTPUT_DIR
      Path where the output and temp files will write to. Uses current dir by default
@@ -27,6 +27,10 @@ optional arguments:
 
   -p PORT, --port PORT  Host server port
 
+  -v, --verbose         Enable verbose output (check that all required keys are not NULL/ empty)
+
+  -t TEAM, --team TEAM  Team responsible for the database
+
 **NOTE**
 
-This script doesn't currently deal with collections, species_ids are hardcoded at **LN:207**. This should be updated, but for now, if you are dealing with a colleciotn db, please hardcode the species_id.
+This script doesn't currently deal with collections, species_ids are hardcoded at **LN:207**. This should be updated, but for now, if you are dealing with a collection db, please hardcode the `species_id`.
