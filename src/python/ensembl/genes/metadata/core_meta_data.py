@@ -508,7 +508,7 @@ if __name__ == "__main__":
         if meta_key not in core_dict:
             if truth_dict[meta_key]:
                 print(
-                    f"INSERT INTO meta (species_id, meta_key, meta_value) VALUES({species_id}, '{meta_key}', '{truth_dict[meta_key]}');",
+                    f"INSERT IGNORE INTO meta (species_id, meta_key, meta_value) VALUES({species_id}, '{meta_key}', '{truth_dict[meta_key]}');",
                     file=sql_out,
                 )
         elif truth_dict[meta_key] != core_dict[meta_key] and truth_dict[meta_key] != "":

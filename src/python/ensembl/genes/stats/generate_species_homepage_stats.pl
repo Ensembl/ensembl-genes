@@ -377,22 +377,22 @@ my $ftp_base = 'ftp://ftp.ncbi.nlm.nih.gov/genomes/all';
   print SQLOUT "USE " . $dbname .";\n"; 
   foreach(keys %coding_stats_hash) {
     if ($coding_stats_hash{$_} ne ''){
-      print SQLOUT "INSERT INTO meta (species_id, meta_key, meta_value) VALUES(". $species_id .", '". $_ ."', ". $coding_stats_hash{$_} .");\n";
+      print SQLOUT "INSERT IGNORE INTO meta (species_id, meta_key, meta_value) VALUES(". $species_id .", '". $_ ."', ". $coding_stats_hash{$_} .");\n";
     }
   }
   foreach(keys %noncoding_stats_hash) {
     if ($noncoding_stats_hash{$_} ne ''){
-      print SQLOUT "INSERT INTO meta (species_id, meta_key, meta_value) VALUES(". $species_id .", '". $_ ."', ". $noncoding_stats_hash{$_} .");\n";
+      print SQLOUT "INSERT IGNORE INTO meta (species_id, meta_key, meta_value) VALUES(". $species_id .", '". $_ ."', ". $noncoding_stats_hash{$_} .");\n";
     }
   }
   foreach(keys %pseudogene_stats_hash) {
     if ($pseudogene_stats_hash{$_} ne ''){
-      print SQLOUT "INSERT INTO meta (species_id, meta_key, meta_value) VALUES(". $species_id .", '". $_ ."', ". $pseudogene_stats_hash{$_} .");\n";
+      print SQLOUT "INSERT IGNORE INTO meta (species_id, meta_key, meta_value) VALUES(". $species_id .", '". $_ ."', ". $pseudogene_stats_hash{$_} .");\n";
     }
   }
 foreach(keys %assembly_stats_hash) {
     if ($assembly_stats_hash{$_} ne ''){
-      print SQLOUT "INSERT INTO meta (species_id, meta_key, meta_value) VALUES(". $species_id .", '". $_ ."', ". $assembly_stats_hash{$_} .");\n";
+      print SQLOUT "INSERT IGNORE INTO meta (species_id, meta_key, meta_value) VALUES(". $species_id .", '". $_ ."', ". $assembly_stats_hash{$_} .");\n";
     }
   }
   close SQLOUT;
