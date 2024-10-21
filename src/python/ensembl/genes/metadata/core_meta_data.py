@@ -1,6 +1,7 @@
 import requests
 import xmltodict
 import json
+import datetime
 import argparse
 import pymysql
 import re
@@ -202,7 +203,7 @@ if __name__ == "__main__":
 
     db = args.db_name
     output_dir = Path(args.output_dir)
-    output_dir.mkdir(exist_ok=True)
+    output_dir.mkdir(parents=True, exist_ok=True)
     sql_out = open(output_dir / f"{db}.sql", "w")
 
     print(f"Working on database: {db}")
