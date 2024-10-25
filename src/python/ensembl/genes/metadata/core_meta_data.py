@@ -500,7 +500,7 @@ if __name__ == "__main__":
         logger.critical(" | SPECIES.PRODUCTION_NAME | No species.production_name could be found in the core db, this is a required key!")
 
     # Set the team responsible for this genome
-    truth_dict["team_responsible"] = args.team
+    truth_dict["genebuild.team_responsible"] = args.team
         
     # if the expected meta_key does not exist in the core metadata but there is a truth value, INSERT
     # if the expected meta_key exists in the core metadata but the meta_value does not match the truth value and truth value is not NULL, UPDATE
