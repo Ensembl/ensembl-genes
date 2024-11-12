@@ -256,10 +256,12 @@ if __name__ == "__main__":
         gca_accession = core_dict["assembly.alt_accession"]
         truth_dict["assembly.alt_accession"] = core_dict["assembly.alt_accession"]
         truth_dict["assembly.accession_refseq"] = core_dict["assembly.accession"]
+        truth_dict["assembly.accession_body"] = "RefSeq"
     elif "assembly.accession_refseq" in core_dict:
         # if the core comes from the main site, we need to put the GCF back as the main accession
         truth_dict["assembly.alt_accession"] = core_dict["assembly.alt_accession"]
         core_dict["assembly.accession"] = core_dict["assembly.accession_refseq"]
+        truth_dict["assembly.accession_body"] =	"RefSeq"
 
     # Some goddamn ENA assembly records do not have the BioSample ID, so I'm hardcoding them, I swear to jaysus, I'm so done with metadata!!!
     if db == "caenorhabditis_elegans_core_57_110_282":
