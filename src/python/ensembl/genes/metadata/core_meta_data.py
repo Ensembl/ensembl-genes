@@ -508,15 +508,18 @@ if __name__ == "__main__":
     # if the expected meta_key exists in the core metadata but the meta_value does not match the truth value and truth value is not NULL, UPDATE
     # if the expected meta_key exists in the core metadata and matches the truth value, NO ACTION
     for meta_key in truth_dict:
+        # Escape single quotes in truth_dict[meta_key]
+        meta_value = truth_dict[meta_key].replace("'", "''") if truth_dict[meta_key] else None
+        
         if meta_key not in core_dict:
             if truth_dict[meta_key]:
                 print(
-                    f"INSERT IGNORE INTO meta (species_id, meta_key, meta_value) VALUES({species_id}, '{meta_key}', '{truth_dict[meta_key]}');",
+                    f"INSERT IGNORE INTO meta (species_id, meta_key, meta_value) VALUES({species_id}, '{meta_key}', '{meta_value}');",
                     file=sql_out,
                 )
         elif truth_dict[meta_key] != core_dict[meta_key] and truth_dict[meta_key] != "":
             print(
-                f"UPDATE meta SET meta_value='{truth_dict[meta_key]}' WHERE meta_key='{meta_key}';",
+                f"UPDATE meta SET meta_value='{meta_value}' WHERE meta_key='{meta_key}';",
                 file=sql_out,
             )
 
