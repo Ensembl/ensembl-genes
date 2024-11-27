@@ -276,6 +276,8 @@ if __name__ == "__main__":
         truth_dict["organism.biosample_id"] = "SAMEA3184125"
     elif db == "mus_musculus_core_110_39":
         truth_dict["organism.biosample_id"] = "SAMN26853311"
+    elif db == "bos_taurus_core_110_1":
+        truth_dict["organism.biosample_id"] = "SAMN03145444"
 
     # get metadata from ENA records
     try:
