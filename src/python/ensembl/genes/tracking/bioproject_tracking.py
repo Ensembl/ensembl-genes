@@ -263,15 +263,70 @@ def get_taxonomy_info(
             print(f"An error occurred: {err}")
            
     return(live_annotations)
-        
-def write_report(live_annotations, report_file, rank):
-    with open(Path(report_file), "w", encoding="utf8") as report_file:
-        for accession in live_annotations:
+
+def add_ftp(live_annotations):
+    for accession in live_annotations:
+        db_name = live_annotations[accession]["dbname"]
+        #note: should update this query for beta AND to work for different annotation_source values
+        data_query = ("SELECT meta_value from meta where meta_key in ('species.scientific_name', 'genebuild.last_geneset_update');")
+        data_fetch = mysql_fetch_data(
+            data_query,
+            db_name,
+            config["server_details"]["data"]["rapid"]["db_host"],
+            config["server_details"]["data"]["rapid"]["db_port"],
+            config["server_details"]["data"]["rapid"]["db_user"],
+        )
+        date = data_fetch[0][0]
+        date = date.replace("-", "_")
+        scientific_name = data_fetch[1][0]
+        scientific_name = scientific_name.replace(" ", "_")
+        #note: currently the script is using rapid servers and info, but these links are for beta in anticipation of the next update (coming december 2024)
+        ftp_info = {"ftp" : "https://ftp.ebi.ac.uk/pub/ensemblorganisms/" + scientific_name + "/" + accession + "/ensembl/geneset/" + date + "/"}
+        live_annotations[accession].update(ftp_info)
+            
+    return(live_annotations)
+
+def write_report(
+    live_annotations: Dict[str, Dict[str, str]], 
+    report_file: str, 
+    rank: str, 
+    add_ftp: bool = False
+) -> Dict[str, Dict[str, str]]:
+    """
+    Writes a report file containing live annotations for accessions.
+
+    Args:
+        live_annotations (Dict[str, Dict[str, str]]): A dictionary of annotations where
+            each key is an accession string and the value is another dictionary containing 
+            annotation details such as database name, rank, and optional FTP information.
+        report_file (str): Path to the file where the report will be written.
+        rank (str): The key to extract the rank-specific annotation from the inner dictionary.
+        add_ftp (bool, optional): If True, includes the 'ftp' field in the report (if available).
+            Defaults to False.
+
+    Returns:
+        Dict[str, Dict[str, str]]: The original live_annotations dictionary.
+
+    Notes:
+        - If the rank-specific annotation is missing or invalid, 'unknown' is written in its place.
+        - If `add_ftp` is True but the 'ftp' field is missing, this may raise a KeyError.
+
+    """
+    with open(Path(report_file), "w", encoding="utf-8") as file:
+        for accession, details in live_annotations.items():
             try:
-                report_file.write(accession + '\t' + live_annotations[accession]["dbname"] + '\t' + live_annotations[accession][rank] + '\n')
-            except TypeError:
-                report_file.write(accession + '\t' + live_annotations[accession]["dbname"] + '\t unknown \n')
-                print(live_annotations[accession])
+                db_name = details["dbname"]
+                rank_value = details.get(rank, "unknown")
+                if add_ftp:
+                    ftp_info = details.get("ftp", "")
+                    file.write(f"{accession}\t{db_name}\t{rank_value}\t{ftp_info}\n")
+                else:
+                    file.write(f"{accession}\t{db_name}\t{rank_value}\n")
+            except KeyError as e:
+                # Handle missing keys gracefully
+                file.write(f"{accession}\t{details.get('dbname', 'unknown')}\tunknown\n")
+    return live_annotations
+
 def main():
     """
     Main function to handle command-line arguments and output the result.
@@ -283,7 +338,8 @@ def main():
     parser.add_argument('--haploid', action='store_true', help='Set this flag to fetch only haploid assemblies.')
     parser.add_argument('--report_file', type=str, help='Path to the output file where the report will be written. Defaults to "./report_file.csv".', default='./report_file.csv')
     parser.add_argument('--rank', type=str, help='Taxonomic rank to classify. Default is "order".', default='order')
-   
+    parser.add_argument('--ftp', action='store_true', help='Set this flag to report beta ftp links for the live genomes.')
+    
     args = parser.parse_args()
     
     if (args.bioproject_id):
@@ -313,7 +369,9 @@ def main():
     rank_counts = Counter(rank_values)
     print("\nBreakdown:")
     print(rank_counts)
-    write_report(live_annotations, args.report_file, args.rank)
+    if (args.ftp):
+        add_ftp(live_annotations)
+    write_report(live_annotations, args.report_file, args.rank, args.ftp)
     
 if __name__ == "__main__":
     main()
