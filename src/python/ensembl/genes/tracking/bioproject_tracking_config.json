@@ -7,7 +7,16 @@
 		"db_user" : "ensro",
 		"db_port" : 4483
 	    }
+	},
+	"data": {
+	    "rapid" : {
+                "db_name" : "",
+                "db_host" : "mysql-ens-sta-5",
+                "db_user" : "ensro",
+                "db_port" : 4684
+	    }
 	}
+	
     },
     "urls" : {
 	"datasets" : {
