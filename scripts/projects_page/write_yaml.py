@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import argparse
+import json
 import os
 import re
 import sys
@@ -10,6 +11,7 @@ from typing import Dict, List, Tuple, Optional
 
 import pymysql
 import requests
+
 
 class EnsemblFTP:
     """
@@ -40,11 +42,11 @@ class EnsemblFTP:
         ftp_connection.cwd("/")
 
     def check_for_file(
-        self, 
-        species_name: str, 
-        prod_name: str, 
-        accession: str, 
-        source: str, 
+        self,
+        species_name: str,
+        prod_name: str,
+        accession: str,
+        source: str,
         file_type: str
     ) -> str:
         """
@@ -131,11 +133,11 @@ class EnsemblFTP:
 
 
 def mysql_fetch_data(
-    query: str, 
-    database: str, 
-    host: str, 
-    port: int, 
-    user: str, 
+    query: str,
+    database: str,
+    host: str,
+    port: int,
+    user: str,
     password: str
 ) -> Tuple:
     """
@@ -218,7 +220,7 @@ def write_yaml(
     assembly_report_url = f"https://www.ncbi.nlm.nih.gov/assembly/{info_dict['assembly.accession']}"
     assembly_report_response = requests.get(assembly_report_url)
     submitter_match = re.search(
-        "Submitter: </dt><dd>([^<]*)</dd><dt>", assembly_report_response.text
+        r"Submitter: </dt><dd>([^<]*)</dd><dt>", assembly_report_response.text
     )
     submitter = submitter_match.group(1) if submitter_match else "unknown"
     if info_dict["assembly.accession"] == "GCA_000002315.5":
@@ -265,8 +267,11 @@ def write_yaml(
             f"{species_name}-{info_dict['assembly.accession']}-softmasked.fa.gz\n"
         )
         rm_file = ftp_client.check_for_file(
-            rm_species_name, info_dict["species.production_name"],
-            info_dict["assembly.accession"], source, "repeatmodeler"
+            rm_species_name,
+            info_dict["species.production_name"],
+            info_dict["assembly.accession"],
+            source,
+            "repeatmodeler"
         )
         if rm_file:
             yaml += f"  repeat_library: {rm_file}\n"
@@ -282,8 +287,11 @@ def write_yaml(
 
         if project in ("dtol", "erga", "cbp", "bge", "asg"):
             busco_file = ftp_client.check_for_file(
-                species_name, info_dict["species.production_name"],
-                info_dict["assembly.accession"], source, "busco"
+                species_name,
+                info_dict["species.production_name"],
+                info_dict["assembly.accession"],
+                source,
+                "busco"
             )
             if busco_file:
                 yaml += f"  busco_score: {busco_file}\n"
@@ -336,8 +344,11 @@ def write_yaml(
             f"{uc_prod_name}.{assembly_name}.dna_sm.toplevel.fa.gz\n"
         )
         rm_file = ftp_client.check_for_file(
-            rm_species_name, info_dict["species.production_name"],
-            info_dict["assembly.accession"], source, "repeatmodeler"
+            rm_species_name,
+            info_dict["species.production_name"],
+            info_dict["assembly.accession"],
+            source,
+            "repeatmodeler"
         )
         if rm_file:
             yaml += f"  repeat_library: {rm_file}\n"
@@ -353,8 +364,11 @@ def write_yaml(
 
         if project in ("dtol", "erga", "cbp", "bge", "asg"):
             busco_file = ftp_client.check_for_file(
-                lc_species_name, info_dict["species.production_name"],
-                info_dict["assembly.accession"], source, "busco"
+                lc_species_name,
+                info_dict["species.production_name"],
+                info_dict["assembly.accession"],
+                source,
+                "busco"
             )
             if busco_file:
                 yaml += f"  busco_score: {busco_file}\n"
@@ -367,29 +381,9 @@ def write_yaml(
 
 def main() -> None:
     """
-    Main function that parses arguments, queries MySQL databases, and writes YAML content.
+    Main function that parses arguments, reads server config from JSON,
+    queries MySQL databases, and writes YAML content.
     """
-    server_dict = {
-        "rapid": {
-            "db_host": "mysql-ens-sta-5.ebi.ac.uk",
-            "db_port": 4684,
-            "db_user": "ensro",
-            "db_pass": "",
-        },
-        "main": {
-            "db_host": "mysql-ens-mirror-1.ebi.ac.uk",
-            "db_port": 4240,
-            "db_user": "ensro",
-            "db_pass": "",
-        },
-        "meta": {
-            "db_host": "mysql-ens-meta-prod-1.ebi.ac.uk",
-            "db_port": 4483,
-            "db_user": "ensro",
-            "db_pass": "",
-        },
-    }
-
     parser = argparse.ArgumentParser(
         description="Create a species.yaml file for a given project page."
     )
@@ -406,8 +400,18 @@ def main() -> None:
         help="Name of the project this set of databases belongs to",
         required=True,
     )
+    parser.add_argument(
+        "-c",
+        "--config_file",
+        help="Path to the JSON configuration file containing server connection details",
+        required=True,
+    )
     args = parser.parse_args()
     project = args.project
+
+    # Load server connection details from JSON
+    with open(args.config_file) as config_f:
+        server_dict = json.load(config_f)
 
     # Read icons
     icon_dict = {}
@@ -442,8 +446,10 @@ def main() -> None:
             if "sus_scrofa_core" in db or "gallus_gallus_core" in db:
                 sorted_db_list.insert(0, sorted_db_list.pop(sorted_db_list.index(db)))
 
+    # Initialize FTP connection
     ftp_client = EnsemblFTP()
 
+    # Open the output YAML file
     with open(f"{project}_species.yaml", "w") as yaml_out:
         for db in sorted_db_list:
             db = db.strip()
@@ -486,11 +492,12 @@ def main() -> None:
 
             # Retrieve metadata from the chosen server
             info_query = (
-                "SELECT meta_key,meta_value FROM meta WHERE meta_key in "
+                "SELECT meta_key, meta_value FROM meta "
+                "WHERE meta_key IN "
                 "('species.scientific_name','assembly.accession','assembly.name',"
                 "'species.production_name','species.strain','schema_version',"
                 "'genebuild.last_geneset_update','species.annotation_source') "
-                "OR meta_key like 'genebuild.method%'"
+                "OR meta_key LIKE 'genebuild.method%'"
             )
             info = mysql_fetch_data(
                 info_query,
