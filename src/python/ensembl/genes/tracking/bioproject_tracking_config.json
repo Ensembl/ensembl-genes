@@ -6,7 +6,13 @@
 		"db_host" : "mysql-ens-meta-prod-1",
 		"db_user" : "ensro",
 		"db_port" : 4483
-	    }
+	    },
+	    "beta" : {
+                "db_name" : "ensembl_genome_metadata",
+                "db_host" : "mysql-ens-production-1",
+                "db_user" : "ensro",
+                "db_port" : 4721
+            }
 	},
 	"data": {
 	    "rapid" : {
