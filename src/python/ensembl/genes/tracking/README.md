@@ -8,18 +8,28 @@
 ```
 **python bioproject_tracking.py  -h**
 
-usage: bioproject_tracking.py [-h] [--bioproject_id BIOPROJECT_ID] [--taxon_id TAXON_ID] [--haploid] [--report_file REPORT_FILE] [--rank RANK]
+usage: bioproject_tracking.py [-h] [--bioproject_id BIOPROJECT_ID]
+                              [--taxon_id TAXON_ID] [--haploid]
+                              [--report_file REPORT_FILE] [--rank RANK]
+                              [--ftp]
 
-
-This script fetches assembly accessions from NCBI BioProject and reports the number of corresponding annotations in rapid.ensembl.org. It handles various command-line options to specify the type of data to fetch and how to report it.
+This script fetches assembly accessions from NCBI BioProject and reports the
+number of corresponding annotations in rapid.ensembl.org. It handles various
+command-line options to specify the type of data to fetch and how to report
+it.
 
 optional arguments:
-  -h, --help                 show this help message and exit
-  --bioproject_id         NCBI BioProject ID
+  -h, --help            show this help message and exit
+  --bioproject_id BIOPROJECT_ID
+                        Specify the NCBI BioProject ID to fetch data for.
   --taxon_id TAXON_ID   Specify the Taxonomy ID to fetch data for.
-  --haploid                  Fetch only haploid assemblies
-  --report_file REPORT_FILE  Where to write report to
-  --rank RANK                Taxonomic rank to classify
+  --haploid             Set this flag to fetch only haploid assemblies.
+  --report_file REPORT_FILE
+                        Path to the output file where the report will be
+                        written. Defaults to "./report_file.csv".
+  --rank RANK           Taxonomic rank to classify. Default is "order".
+  --ftp                 Set this flag to report beta ftp links for the live
+                        genomes.
 ```
 
 ## Example Usage
