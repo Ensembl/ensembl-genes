@@ -169,11 +169,11 @@ my $ftp_base = 'ftp://ftp.ncbi.nlm.nih.gov/genomes/all';
     $assembly_name = $assembly_maps->{$dbname};
   }
 
-  my $strain = $meta_adaptor->single_value_by_key('species.strain');
+  #my $strain = $meta_adaptor->single_value_by_key('species.strain');
 
-  unless($strain) {
-    $strain = '';
-  }
+  #unless($strain) {
+    #$strain = '';
+  #}
 
   my $scientific_name = $meta_adaptor->single_value_by_key('species.scientific_name');
   my $taxon_id = $meta_adaptor->single_value_by_key('species.taxonomy_id');
@@ -290,7 +290,7 @@ my $ftp_base = 'ftp://ftp.ncbi.nlm.nih.gov/genomes/all';
   my $non_coding_stats = process_non_coding_genes($non_coding_genes,$scientific_name);
   my $pseudogene_stats = process_pseudogenes($pseudogenes,$scientific_name);
   my $gc_percent = sprintf("%.2f", ($total_gc_count/$total_sequence_length) * 100);
-
+  my $strain='';
   my $assembly_stats = [$scientific_name,
                         $stats_keys->{'sex'},
                         $strain,
