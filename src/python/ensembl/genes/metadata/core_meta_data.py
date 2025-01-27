@@ -299,6 +299,7 @@ if __name__ == "__main__":
     except IndexError:  # not everything has a genbank common name
         truth_dict["organism.common_name"] = ""
     s_name_query = f"SELECT name FROM ncbi_taxa_name WHERE taxon_id={truth_dict['organism.taxonomy_id']} AND name_class='scientific name';"
+    print("query%s",s_name_query)
     s_name_info = mysql_fetch_data(
         s_name_query,
         host=server_info["meta"]["db_host"],
