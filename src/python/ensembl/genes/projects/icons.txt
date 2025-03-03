@@ -1,0 +1,14 @@
+Teleostei	Fish.png
+Actinopterygii	Fish.png
+Mammalia	Mammals.png
+Testudines	Reptiles.png
+Aves		Birds.png
+Serpentes	Reptiles.png
+Lepidoptera	Lepidoptera.png
+Hymenoptera	Arthropods.png
+Diptera		Arthropods.png
+Coleoptera	Arthropods.png
+Hemiptera	Arthropods.png
+Trichoptera	Arthropods.png
+Neoptera	Arthropods.png
+Viridiplantae	Plants.png
