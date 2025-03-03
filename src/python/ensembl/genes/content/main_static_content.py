@@ -139,6 +139,6 @@ if __name__ == "__main__":
 
     # Get assembly info and write content files
     assembly_info = get_assembly_info(core_dict['assembly.accession'])
-    url_name = core_dict['species.url_name']
+    url_name = core_dict['species.url']
 
     write_content(assembly_info, output_dir, url_name)
