@@ -310,20 +310,24 @@ def write_report(
         include_ftp (bool, optional): If True, the FTP link is appended to each row.
             Defaults to False.
     """
-    with open(Path(report_file), "w", encoding="utf-8") as file:
+    report_path = Path(report_file)
+    with open(report_path, "w", encoding="utf-8") as file:
         for accession, details in live_annotations.items():
+            # Convert each value to string and replace None with a fallback value
             row = [
-                accession,
-                details.get("guuid", "unknown"),
-                details.get("dbname", "unknown"),
-                details.get(rank, "unknown"),
+                str(accession),
+                str(details.get("guuid") or "unknown"),
+                str(details.get("dbname") or "unknown"),
+                str(details.get(rank) or "unknown"),
             ]
             if include_ftp:
-                row.append(details.get("ftp", "N/A"))
-
+                row.append(str(details.get("ftp") or "N/A"))
+                
             file.write("\t".join(row) + "\n")
 
-
+    logging.info(f"Report written to {report_path.resolve()}.")
+                
+                
 def main():
     """
     Main entry point of the script.
