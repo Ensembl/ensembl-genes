@@ -82,7 +82,7 @@ def write_content(assembly_info, output_dir, url_name, strain):
     """
     with open(output_dir / f"{url_name}_assembly.html", "w") as assembly_out:
         print(
-            f"<p>The assembly for {strain} was generated as part of <a href=\"https://www.mousegenomes.org/\">The Mouse Genomes Project "
+            f"<p>The assembly for {strain} was generated as part of <a href=\"https://www.mousegenomes.org/\">The Mouse Genomes Project"
             f"</a>, additional strains can be found in <a href=\"https://www.ensembl.org/Mus_musculus/Info/Strains\">Ensembl</a>.</p>"
             f"<p>The assembly is on the {assembly_info['assembly.level']} "
             f"level, consisting of {assembly_info['contig.count']} contigs assembled into {assembly_info['scaffold.count']} scaffolds. "
@@ -141,9 +141,9 @@ if __name__ == "__main__":
 
     # Get assembly info and write content files
     core_dict = {meta_pair[0]: meta_pair[1] for meta_pair in core_meta}
-    
+
     assembly_info = get_assembly_info(core_dict['assembly.accession'])
     url_name = core_dict['species.url']
     strain = core_dict['species.strain']
-    
+
     write_content(assembly_info, output_dir, url_name, strain)

@@ -71,16 +71,16 @@ def get_assembly_info(accession):
     return return_dict
 
 
-def write_content(assembly_info, output_dir, production_name):
+def write_content(assembly_info, output_dir, url_name):
     """
     Write assembly and annotation content to HTML files.
 
     Args:
         assembly_info (dict): Assembly information to be written.
         output_dir (Path): Directory path for output files.
-        production_name (str): Name used to title the output files.
+        url_name (str): Name used to title the output files.
     """
-    with open(output_dir / f"{production_name}_assembly.html", "w") as assembly_out:
+    with open(output_dir / f"{url_name}_assembly.html", "w") as assembly_out:
         print(
             f"<p>The {assembly_info['assembly.name']} assembly was submitted by {assembly_info['assembly.submitter']} "
             f"and last updated on {assembly_info['assembly.date']}. The assembly is on the {assembly_info['assembly.level']} "
@@ -90,7 +90,7 @@ def write_content(assembly_info, output_dir, production_name):
             file=assembly_out
         )
 
-    with open(output_dir / f"{production_name}_annotation.html", "w") as annotation_out:
+    with open(output_dir / f"{url_name}_annotation.html", "w") as annotation_out:
         print(
             "<p>Genome annotation was generated using the "
             "<a href=\"https://beta.ensembl.org/help/articles/vertebrate-genome-annotation\">Ensembl vertebrate annotation pipeline</a>. "
@@ -125,7 +125,7 @@ if __name__ == "__main__":
     # Fetch assembly accession and production name from the core database
     core_query = (
         "SELECT meta_key, meta_value FROM meta WHERE meta_key IN "
-        "('assembly.accession', 'species.production_name');"
+        "('assembly.accession', 'species.url');"
     )
     core_meta = mysql_fetch_data(
         core_query,
@@ -136,8 +136,9 @@ if __name__ == "__main__":
     )
 
     core_dict = {meta_pair[0]: meta_pair[1] for meta_pair in core_meta}
-    upper_production_name = core_dict['species.production_name'].capitalize()
 
     # Get assembly info and write content files
     assembly_info = get_assembly_info(core_dict['assembly.accession'])
-    write_content(assembly_info, output_dir, upper_production_name)
+    url_name = core_dict['species.url_name']
+
+    write_content(assembly_info, output_dir, url_name)
