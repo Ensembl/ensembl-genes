@@ -1,377 +1,390 @@
-# See the NOTICE file distributed with this work for additional information #pylint: disable=missing-module-docstring
-# regarding copyright ownership.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
-import sys
 import argparse
 import requests
 import pymysql
 import json
+import logging
 from pathlib import Path
 from collections import Counter
 from typing import List, Tuple, Any, Dict
 
+# Enable logging for debugging
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+
+# Load configuration
 with open("./bioproject_tracking_config.json", "r") as f:
     config = json.load(f)
 
-def mysql_fetch_data(query: str, database: str, host: str, port: int, user: str) -> List[Tuple[Any, ...]]:
-    """
-    Executes a given SQL query on a MySQL database and fetches the result.
 
-    This function establishes a connection to the MySQL database using provided connection details.
-    It then executes the given query using a cursor obtained from the connection. After executing the query,
-    it fetches all the rows of the query result and returns them. The function handles any errors that might
-    occur during the process and ensures that the database connection is closed before returning the result.
+def mysql_fetch_data(query: str, params: Tuple = ()) -> List[Tuple[Any, ...]]:
+    """
+    Executes a SQL query with optional parameters to fetch results from the MySQL database.
+
+    This function connects to a MySQL database using the credentials specified in the
+    global `config` variable. It then executes the provided SQL query (along with any
+    parameters) and returns all of the fetched results as a list of tuples. If an error
+    occurs during the database operation, the error is logged and an empty list is returned.
 
     Args:
         query (str): The SQL query to be executed.
-        database (str): The name of the database to connect to.
-        host (str): The host name or IP address of the MySQL server.
-        port (int): The port number to use for the connection.
-        user (str): The username to use for the database connection.
+        params (Tuple, optional): A tuple of parameters to be used with the query.
+            Defaults to an empty tuple ().
 
     Returns:
-        tuple: A tuple of tuples containing the rows returned by the query execution.
-
-    Note:
-        This function does not handle database password authentication. Ensure that the provided user
-        has the necessary permissions and that the database is configured to allow password-less connections
-        from the given host.
+        List[Tuple[Any, ...]]: A list of tuples containing the rows returned by the query.
+        If an error occurs or no data is found, an empty list is returned.
     """
     try:
         conn = pymysql.connect(
-            host=host, user=user, port=port, database=database.strip()
+            host=config["server_details"]["meta"]["beta"]["db_host"],
+            user=config["server_details"]["meta"]["beta"]["db_user"],
+            port=config["server_details"]["meta"]["beta"]["db_port"],
+            database=config["server_details"]["meta"]["beta"]["db_name"],
         )
-
-        cursor = conn.cursor()
-        cursor.execute(query)
-        info = cursor.fetchall()
-
+        with conn.cursor() as cursor:
+            cursor.execute(query, params)
+            result = cursor.fetchall()
+        conn.close()
+        return result
     except pymysql.Error as err:
-        print(err)
+        logging.error(f"MySQL Error: {err}")
+        return []
 
-    cursor.close()
-    conn.close()
-    try: 
-        return info
-    except UnboundLocalError:
-        print(f"\nNothing returned for SQL query: {query}\n")
-        sys.exit()
-    
 
-def get_assembly_accessions(query_id: str, query_type: str, only_haploid: bool = False) -> List[str]:
+def get_assembly_accessions(query_id: str, query_type: str, only_haploid: bool = False) -> Dict[str, Dict[str, int]]:
     """
-    Fetches assembly accessions from a given NCBI BioProject ID.
+    Fetches assembly accessions from NCBI API.
+
+    This function queries the NCBI Datasets API to retrieve assembly accessions for the
+    provided `query_id`. The `query_type` indicates whether the ID belongs to a
+    "bioproject" or a "taxon". The function supports pagination by automatically requesting
+    subsequent pages using the `next_page_token`. If `only_haploid` is True, only assemblies
+    of type "haploid" will be included.
 
     Args:
-    bioproject_id (str): The NCBI BioProject ID.
-    only_haploid (bool): If True, fetch only haploid assemblies. Defaults to False.
-
-    Returns:
-    list: A list of assembly accessions.
-    """
-    if (query_type == 'bioproject'):
-        base_url = config["urls"]["datasets"]["bioproject"]
-    elif (query_type == 'taxon'):
-        base_url = config["urls"]["datasets"]["taxon"]
-    
-    next_page_token = None
-    assembly_accessions = {}
-    
-    while True:
-        url = f"{base_url}/{query_id}/dataset_report"
-        if next_page_token:
-            url += f"?page_token={next_page_token}"
-            
-        try:
-            response = requests.get(url)
-            response.raise_for_status()  # This will raise an exception for 4XX and 5XX errors
-            data = response.json()
-            
-            assemblies = data.get('reports', [])
-            for assembly in assemblies:
-                assembly_info = assembly.get('assembly_info', {})
-                if only_haploid and assembly_info.get('assembly_type') != 'haploid' and 'alternate' not in assembly_info.get('title'):
-                    continue
-                assembly_accession = assembly.get('accession')
-                taxon_id = assembly.get('organism').get('tax_id')
-                if assembly_accession:
-                    assembly_accessions[assembly_accession] = {"taxon_id": taxon_id}
-                    
-                # Check for the next page token or equivalent
-            next_page_token = data.get('next_page_token')
-            if not next_page_token:
-                break
-            
-        except requests.HTTPError as http_err:
-            print(f"HTTP error occurred: {http_err}")
-            break  # Or handle it in some other way, e.g., retry
-        except Exception as err:
-            print(f"An error occurred: {err}")
-            break  # Or handle it differently, maybe a retry logic
-        
-    return assembly_accessions
-    
-def get_ensembl_live(accessions_taxon: Dict[str, Dict[str, int]]) -> Dict[str, Dict[str, str]]:
-    """
-    Retrieves live Ensembl database names for a set of bioproject accessions.
-
-    This function constructs and executes a SQL query to fetch the latest Ensembl database names (denoted as 'dbname')
-    associated with a list of assembly accessions. The query selects databases where the assembly accession matches
-    those provided and filters for 'core' databases in the latest data release. The information is then used to
-    update and return a dictionary mapping each accession to its corresponding taxonomy information and live Ensembl 
-    'dbname'.
-
-    Args:
-        accessions_taxon (dict): A dictionary where keys are assembly accessions and values are dictionaries 
-                                            containing taxonomy information for those accessions.
-
-    Returns:
-        dict: A dictionary where each key is an assembly accession, and each value is a dictionary with the original 
-              taxonomy information plus a 'dbname' key containing the name of the live Ensembl database for that accession.
-
-    Requires:
-        - A working connection to the Ensembl metadata database specified by the configuration in `config`.
-        - The `mysql_fetch_data` function to execute the query and fetch data.
-
-    Example:
-        >>> accessions_taxon = {'GCA_123456.1': {'taxon_id': 9606}}
-        >>> live_annotations = get_ensembl_live(accessions_taxon)
-        >>> print(live_annotations)
-        {'GCA_123456.1': {'taxon_id': 9606, 'dbname': 'homo_sapiens_core_104_38'}}
-
-    Note:
-        The configuration for the database connection (`config`) must be defined externally with keys for 
-        'db_host', 'db_port', and 'db_user' within a nested 'server_details'->'meta' structure.
-    """
-    #pick up the most recent rapid release data_release_id
-#    release_query=(
-#        "SELECT data_release_id FROM data_release WHERE is_current=1; "
-#    )
-#    release_fetch = mysql_fetch_data(
-#        release_query,
-#        config["server_details"]["meta"]["rapid"]["db_name"],
-#        config["server_details"]["meta"]["rapid"]["db_host"],
-#        config["server_details"]["meta"]["rapid"]["db_port"],
-#        config["server_details"]["meta"]["rapid"]["db_user"],
-#    )
-#    data_release_id = release_fetch[0][0]
-
-    #get the live databases
-    accessions = list(accessions_taxon.keys())
-    formatted_accessions = ",".join(f'"{item}"' for item in accessions)
-#    data_query = (
-#        "SELECT assembly.assembly_accession, dbname FROM assembly JOIN genome USING (assembly_id) JOIN genome_database USING (genome_id) WHERE genome.data_release_id=" + str(data_release_id)  + " AND assembly.assembly_accession in (" + formatted_accessions + ") AND dbname like '%core%';"
-#    )
-#    data_fetch = mysql_fetch_data(
-#        data_query,
-#        config["server_details"]["meta"]["rapid"]["db_name"],
-#        config["server_details"]["meta"]["rapid"]["db_host"],
-#        config["server_details"]["meta"]["rapid"]["db_port"],
-#        config["server_details"]["meta"]["rapid"]["db_user"],
-#    )
-
-    data_query = (
-"SELECT assembly.accession, genome.genome_uuid FROM genome JOIN assembly ON genome.assembly_id = assembly.assembly_id JOIN genome_dataset ON genome.genome_id = genome_dataset.genome_id JOIN dataset ON genome_dataset.dataset_id = dataset.dataset_id JOIN dataset_source ON dataset.dataset_source_id = dataset_source.dataset_source_id JOIN genome_release ON genome.genome_id = genome_release.genome_id JOIN ensembl_release ON genome_release.release_id = ensembl_release.release_id WHERE dataset.name = 'assembly' AND assembly.accession IN (" + formatted_accessions + ");"
-    )
-    data_fetch = mysql_fetch_data(
-        data_query,
-        config["server_details"]["meta"]["beta"]["db_name"],
-        config["server_details"]["meta"]["beta"]["db_host"],
-        config["server_details"]["meta"]["beta"]["db_port"],
-        config["server_details"]["meta"]["beta"]["db_user"],
-    )
-    live_annotations = {}
-    for tuple in data_fetch:
-        accession = tuple[0]
-        live_info = {"guiid" : tuple[1]}
-        live_annotations[accession] = accessions_taxon[accession]
-        live_annotations[accession].update(live_info)
-
-    return(live_annotations)
-
-def get_taxonomy_info(
-            live_annotations: Dict[str, Dict[str, str]],
-            accessions_taxon: Dict[str, Dict[str, int]],
-            rank: str
-        ) -> Dict[str, Dict[str, str]]:
-    """
-    Updates the live_annotations dictionary with taxonomy information for a specified rank.
-    
-    This function iterates over each accession in live_annotations, retrieves the corresponding taxon ID,
-    and makes a request to the NCBI Datasets API to fetch taxonomy information. It then updates the 
-    live_annotations dictionary with the name of the specified rank (e.g., 'order', 'family') for each accession.
-    
-    Args:
-        live_annotations (dict): A dictionary where each key is an accession number and its value is another 
-                                  dictionary with various annotation details. This dictionary is updated in-place.
-        accessions_taxon (dict): A dictionary mapping accession numbers to their respective taxon 
-                                            information, including taxon IDs.
-        rank (str): The taxonomic rank for which the name should be retrieved and added to live_annotations 
-                    (e.g., 'order', 'family').
-
-    Returns:
-        dict: The updated live_annotations dictionary with the added taxonomy information for the specified rank.
+        query_id (str): The BioProject ID or Taxonomy ID to query.
+        query_type (str): The type of the query ("bioproject" or "taxon").
+        only_haploid (bool, optional): If True, only haploid assemblies are fetched.
+            Defaults to False.
 
     Raises:
-        requests.HTTPError: If an HTTP error occurs during the API request.
-        Exception: If any other error occurs during the function's operation.
+        ValueError: If an invalid `query_type` is passed.
 
-    Note:
-        The function updates live_annotations in-place and also returns it for convenience. Each accession in 
-        live_annotations is updated with a new key-value pair, where the key is the specified rank and the value 
-        is the name of that rank from the taxonomy data.
+    Returns:
+        Dict[str, Dict[str, int]]: A dictionary where keys are assembly accession strings,
+        and values are dictionaries with relevant information (currently just "taxon_id").
+        Example:
+            {
+                "GCA_000001405.39": {"taxon_id": 9606},
+                ...
+            }
+    """
+    base_url = config["urls"]["datasets"].get(query_type)
+    if not base_url:
+        raise ValueError("Invalid query_type. Must be 'bioproject' or 'taxon'.")
 
-    Example:
-        >>> live_annotations = {'accession1': {'some_annotation': 'value'}}
-        >>> accessions_taxon = {'accession1': {'taxon_id': '12345'}}
-        >>> rank = 'order'
-        >>> updated_annotations = get_taxonomy_info(live_annotations, accessions_taxon, rank)
-        >>> print(updated_annotations)
-        {'accession1': {'some_annotation': 'value', 'order': 'SomeOrderName'}}
+    assembly_accessions = {}
+    page_size = 5000
+    next_page_token = None
+
+    while True:
+        url = f"{base_url}/{query_id}/dataset_report?page_size={page_size}"
+        if next_page_token:
+            url += f"&page_token={next_page_token}"
+
+        try:
+            response = requests.get(url)
+            response.raise_for_status()
+            data = response.json()
+
+            for assembly in data.get("reports", []):
+                assembly_info = assembly.get("assembly_info", {})
+                if only_haploid and assembly_info.get("assembly_type") != "haploid":
+                    continue
+
+                accession = assembly.get("accession")
+                taxon_id = assembly.get("organism", {}).get("tax_id")
+
+                if accession:
+                    assembly_accessions[assembly["accession"]] = {"taxon_id": taxon_id}
+
+            next_page_token = data.get("next_page_token")
+            if not next_page_token:
+                break
+        except requests.RequestException as e:
+            logging.error(f"API error: {e}")
+            break
+
+    return assembly_accessions
+
+
+def get_ensembl_live(accessions_taxon: Dict[str, Dict[str, int]]) -> Dict[str, Dict[str, str]]:
+    """
+    Fetches Ensembl live database names for a list of assembly accessions.
+
+    This function queries a local MySQL database (using `mysql_fetch_data`) to find
+    Ensembl release information that corresponds to each given assembly accession.
+    It then merges the returned data (genome UUID and database name) with the existing
+    taxon information, storing them under the keys "guuid" and "dbname".
+
+    Args:
+        accessions_taxon (Dict[str, Dict[str, int]]): A dictionary where keys are
+            assembly accessions, and values contain taxonomic information such
+            as "taxon_id". Example:
+            {
+                "GCA_000001405.39": {"taxon_id": 9606},
+                ...
+            }
+
+    Returns:
+        Dict[str, Dict[str, str]]: A dictionary with assembly accessions as keys and
+        updated values that contain "guuid", "dbname", and existing taxon info. Example:
+            {
+                "GCA_000001405.39": {
+                    "taxon_id": 9606,
+                    "guuid": "some-uuid",
+                    "dbname": "ensembl_core"
+                },
+                ...
+            }
+        If no accessions are found or an error occurs, an empty dictionary is returned.
+    """
+    accessions = list(accessions_taxon.keys())
+    if not accessions:
+        return {}
+
+    query = """
+        SELECT assembly.accession, genome.genome_uuid, dataset_source.name AS database_name
+        FROM genome
+        JOIN assembly ON genome.assembly_id = assembly.assembly_id
+        JOIN genome_dataset ON genome.genome_id = genome_dataset.genome_id
+        JOIN dataset ON genome_dataset.dataset_id = dataset.dataset_id
+        JOIN dataset_source ON dataset.dataset_source_id = dataset_source.dataset_source_id
+        JOIN genome_release ON genome.genome_id = genome_release.genome_id
+        JOIN ensembl_release ON genome_release.release_id = ensembl_release.release_id
+        WHERE dataset.name = 'assembly'
+        AND assembly.accession IN ({})
+    """.format(", ".join(["%s"] * len(accessions)))
+
+    data_fetch = mysql_fetch_data(query, tuple(accessions))
+
+    live_annotations = {}
+    for accession, guuid, dbname in data_fetch:
+        live_annotations[accession] = accessions_taxon[accession]
+        live_annotations[accession].update({"guuid": guuid, "dbname": dbname})
+
+    return live_annotations
+
+
+def get_taxonomy_info(
+    live_annotations: Dict[str, Dict[str, str]],
+    accessions_taxon: Dict[str, Dict[str, int]],
+    rank: str
+) -> Dict[str, Dict[str, str]]:
+    """
+    Fetches taxonomy information for a given rank from the NCBI Datasets API.
+
+    For each accession in `live_annotations`, this function retrieves its `taxon_id`
+    and queries the NCBI taxonomy endpoint to get the classification at the specified rank.
+    The retrieved rank name is then added to the corresponding annotation data.
+
+    Args:
+        live_annotations (Dict[str, Dict[str, str]]): A dictionary where each key is
+            an assembly accession and its value contains annotation details (including
+            at least "taxon_id").
+        accessions_taxon (Dict[str, Dict[str, int]]): A dictionary mapping accessions
+            to basic taxon information, such as {"GCA_000001405.39": {"taxon_id": 9606}}.
+        rank (str): The taxonomic rank to retrieve (e.g., "order", "class", "phylum").
+
+    Returns:
+        Dict[str, Dict[str, str]]: The updated `live_annotations` dictionary with an
+        additional key for the requested rank. For example:
+            {
+                "GCA_000001405.39": {
+                    "taxon_id": 9606,
+                    "guuid": "some-uuid",
+                    "dbname": "ensembl_core",
+                    "order": "Primates"
+                },
+                ...
+            }
+        If the API query fails or the rank is not found, the value for that rank is not added
+        (or set to None/unknown).
     """
     for accession in live_annotations:
         taxon_id = accessions_taxon[accession]["taxon_id"]
         url = f"https://api.ncbi.nlm.nih.gov/datasets/v2alpha/taxonomy/taxon/{taxon_id}/dataset_report"
-        
+
         try:
             response = requests.get(url)
-            response.raise_for_status()  # Raises an HTTPError if the response status code is 4XX or 5XX
+            response.raise_for_status()
             data = response.json()
+
             taxonomies = data.get('reports', [])
             for taxonomy in taxonomies:
                 rank_name = taxonomy.get('taxonomy', {}).get('classification', {}).get(rank, {}).get('name')
-                taxonomy_info = {rank : rank_name}
+                taxonomy_info = {rank: rank_name}
                 live_annotations[accession].update(taxonomy_info)
-                
+
         except requests.HTTPError as http_err:
-            print(f"HTTP error occurred: {http_err}")
+            logging.error(f"HTTP error occurred: {http_err}")
         except Exception as err:
-            print(f"An error occurred: {err}")
-           
-    return(live_annotations)
+            logging.error(f"An error occurred: {err}")
 
-def add_ftp(live_annotations):
-    for accession in live_annotations:
-        guiid = live_annotations[accession]["guiid"]
-        #note: should update this query for beta AND to work for different annotation_source values
-#        data_query = ("SELECT meta_value from meta where meta_key in ('species.scientific_name', 'genebuild.last_geneset_update');")
-#        data_fetch = mysql_fetch_data(
-#            data_query,
-#            db_name,
-#            config["server_details"]["data"]["rapid"]["db_host"],
-#            config["server_details"]["data"]["rapid"]["db_port"],
-#            config["server_details"]["data"]["rapid"]["db_user"],
-#        )
-        data_query = ("SELECT genome.genebuild_date, organism.scientific_name from genome JOIN organism using(organism_id) where genome.genome_uuid='" + guiid + "'")
-        date = data_fetch[0][0]
-        date = date.replace("-", "_")
-        scientific_name = data_fetch[1][0]
-        scientific_name = scientific_name.replace(" ", "_")
-        #note: this will keep chaging as the FTP is updated
-        ftp_info = {"ftp" : "https://ftp.ebi.ac.uk/pub/ensemblorganisms/" + scientific_name + "/" + accession + "/ensembl/geneset/" + date + "/"}
-        live_annotations[accession].update(ftp_info)
-            
-    return(live_annotations)
+    return live_annotations
 
-def write_report(
-    live_annotations: Dict[str, Dict[str, str]], 
-    report_file: str, 
-    rank: str, 
-    add_ftp: bool = False
-) -> Dict[str, Dict[str, str]]:
+
+def add_ftp(live_annotations: Dict[str, Dict[str, str]]) -> Dict[str, Dict[str, str]]:
     """
-    Writes a report file containing live annotations for accessions.
+    Adds FTP links to the live annotations dictionary.
+
+    This function queries the local MySQL database (using `mysql_fetch_data`) to retrieve
+    `genebuild_date` and `scientific_name` for each genome UUID. Using this information, it
+    constructs an FTP link for the relevant Ensembl data and adds it to the `live_annotations`
+    under the key "ftp".
 
     Args:
-        live_annotations (Dict[str, Dict[str, str]]): A dictionary of annotations where
-            each key is an accession string and the value is another dictionary containing 
-            annotation details such as database name, rank, and optional FTP information.
-        report_file (str): Path to the file where the report will be written.
-        rank (str): The key to extract the rank-specific annotation from the inner dictionary.
-        add_ftp (bool, optional): If True, includes the 'ftp' field in the report (if available).
-            Defaults to False.
+        live_annotations (Dict[str, Dict[str, str]]): A dictionary where each key is
+            an assembly accession, and its value contains annotation details (including
+            at least "guuid").
 
     Returns:
-        Dict[str, Dict[str, str]]: The original live_annotations dictionary.
+        Dict[str, Dict[str, str]]: The updated `live_annotations` with the "ftp" key.
+        Example:
+            {
+                "GCA_000001405.39": {
+                    "taxon_id": 9606,
+                    "guuid": "some-uuid",
+                    "dbname": "ensembl_core",
+                    "ftp": "https://ftp.ebi.ac.uk/pub/ensemblorganisms/Homo_sapiens/..."
+                },
+                ...
+            }
+        If no matching information is found for a UUID, the "ftp" key is not added.
+    """
+    for accession in live_annotations:
+        guuid = live_annotations[accession]["guuid"]
 
-    Notes:
-        - If the rank-specific annotation is missing or invalid, 'unknown' is written in its place.
-        - If `add_ftp` is True but the 'ftp' field is missing, this may raise a KeyError.
+        query = """
+            SELECT genome.genebuild_date, organism.scientific_name
+            FROM genome
+            JOIN organism USING(organism_id)
+            WHERE genome.genome_uuid = %s
+        """
+        data_fetch = mysql_fetch_data(query, (guuid,))
 
+        if data_fetch:
+            date, scientific_name = data_fetch[0]
+            date = date.replace("-", "_")
+            scientific_name = scientific_name.replace(" ", "_")
+
+            # Construct FTP link
+            ftp_link = f"https://ftp.ebi.ac.uk/pub/ensemblorganisms/{scientific_name}/{accession}/ensembl/geneset/{date}/"
+            live_annotations[accession]["ftp"] = ftp_link
+
+    return live_annotations
+
+
+def write_report(
+    live_annotations: Dict[str, Dict[str, str]],
+    report_file: str,
+    rank: str,
+    include_ftp: bool = False
+):
+    """
+    Writes the report file with annotations.
+
+    This function takes the final dictionary of `live_annotations`, iterates through each
+    accession, and writes a row of annotation data to the specified `report_file`.
+    By default, the columns include:
+      - Accession
+      - Genome UUID (guuid)
+      - Database name (dbname)
+      - Taxonomic rank (e.g., order)
+    If `include_ftp` is True, it also appends the constructed FTP link.
+
+    Args:
+        live_annotations (Dict[str, Dict[str, str]]): A dictionary containing annotation
+            information (keys are accessions, values include guuid, dbname, and rank info).
+        report_file (str): Path to the output file where the report should be written.
+        rank (str): The taxonomic rank to include in the report (e.g., "order").
+        include_ftp (bool, optional): If True, the FTP link is appended to each row.
+            Defaults to False.
     """
     with open(Path(report_file), "w", encoding="utf-8") as file:
         for accession, details in live_annotations.items():
-            try:
-                guiid = details["guiid"]
-                rank_value = details.get(rank, "unknown")
-                if add_ftp:
-                    ftp_info = details.get("ftp", "")
-                    file.write(f"{accession}\t{guiid}\t{rank_value}\t{ftp_info}\n")
-                else:
-                    file.write(f"{accession}\t{guiid}\t{rank_value}\n")
-            except KeyError as e:
-                # Handle missing keys gracefully
-                file.write(f"{accession}\t{details.get('guiid', 'unknown')}\tunknown\n")
-    return live_annotations
+            row = [
+                accession,
+                details.get("guuid", "unknown"),
+                details.get("dbname", "unknown"),
+                details.get(rank, "unknown"),
+            ]
+            if include_ftp:
+                row.append(details.get("ftp", "N/A"))
+
+            file.write("\t".join(row) + "\n")
+
 
 def main():
     """
-    Main function to handle command-line arguments and output the result.
-    Description of the script's functionality can be elaborated here.
+    Main entry point of the script.
+
+    Parses command-line arguments to determine if a BioProject ID or Taxon ID is provided,
+    whether to filter only haploid assemblies, the desired output file path, the taxonomic
+    rank to retrieve, and whether to include FTP links. It then:
+
+      1. Fetches assembly accessions from the NCBI API based on the provided ID.
+      2. Fetches corresponding Ensembl live database information from the local MySQL database.
+      3. Retrieves taxonomy information for the specified rank from the NCBI API.
+      4. Optionally adds FTP links if requested.
+      5. Writes all collected data into a tab-separated report file.
+
+    Usage Example:
+        python script_name.py --bioproject_id PRJNA12345 --haploid --rank order --ftp
+
+    Returns:
+        None
     """
-    parser = argparse.ArgumentParser(description='This script fetches assembly accessions from NCBI BioProject and reports the number of corresponding annotations in rapid.ensembl.org. It handles various command-line options to specify the type of data to fetch and how to report it.')
-    parser.add_argument('--bioproject_id', type=str, help='Specify the NCBI BioProject ID to fetch data for.')
-    parser.add_argument('--taxon_id', type=str, help='Specify the Taxonomy ID to fetch data for.')
-    parser.add_argument('--haploid', action='store_true', help='Set this flag to fetch only haploid assemblies.')
-    parser.add_argument('--report_file', type=str, help='Path to the output file where the report will be written. Defaults to "./report_file.csv".', default='./report_file.csv')
-    parser.add_argument('--rank', type=str, help='Taxonomic rank to classify. Default is "order".', default='order')
-    parser.add_argument('--ftp', action='store_true', help='Set this flag to report beta ftp links for the live genomes.')
-    
+    parser = argparse.ArgumentParser(description="Fetch assembly data and report annotations.")
+    parser.add_argument("--bioproject_id", type=str, help="NCBI BioProject ID")
+    parser.add_argument("--taxon_id", type=str, help="Taxonomy ID")
+    parser.add_argument("--haploid", action="store_true", help="Fetch only haploid assemblies")
+    parser.add_argument("--report_file", type=str, default="./report_file.csv")
+    parser.add_argument("--rank", type=str, default="order")
+    parser.add_argument("--ftp", action="store_true", help="Include FTP links in the report")
+
     args = parser.parse_args()
-    
-    if (args.bioproject_id):
-        query_id = args.bioproject_id
-        query_type = 'bioproject'
-    elif (args.taxon_id):
-        query_id = args.taxon_id
-        query_type = 'taxon'
-    else:
-        parser.print_help()
-        return
-    
-    accessions_taxon = get_assembly_accessions(query_id, query_type, args.haploid)
-    
-    #live_annotations, sta5_annotations = get_ensembl_live(accessions_taxon)
+
+    # Determine which ID is provided and which query type is relevant
+    accessions_taxon = get_assembly_accessions(
+        args.bioproject_id or args.taxon_id,
+        "bioproject" if args.bioproject_id else "taxon",
+        args.haploid
+    )
+
+    # Fetch additional annotations
     live_annotations = get_ensembl_live(accessions_taxon)
-    #staged_annotations = sta5_annotations - len(live_annotations)
     live_annotations_classified = get_taxonomy_info(live_annotations, accessions_taxon, args.rank)
+
+    # Optionally add FTP links
+    if args.ftp:
+        live_annotations = add_ftp(live_annotations)
+
     unique_taxon_ids = {details['taxon_id'] for details in live_annotations.values()}
     if (args.bioproject_id):
         print(f"Found {len(accessions_taxon)} assemblies under BioProject ID {args.bioproject_id}")
+        
     elif (args.taxon_id):
         print(f"Found {len(accessions_taxon)} assemblies for taxon ID {args.taxon_id}")
-    print(f"Found {len(live_annotations)} annotations in rapid.ensembl.org for {len(unique_taxon_ids)} unique species")
-    #print(f"There are also {staged_annotations} additional annotations ready for release in rapid.ensembl.org")
-   
+    print(f"Found {len(live_annotations)} annotations in beta.ensembl.org for {len(unique_taxon_ids)} unique species")
+        
     rank_values = [details[args.rank] for details in live_annotations.values()]
     rank_counts = Counter(rank_values)
     print("\nBreakdown:")
     print(rank_counts)
-    if (args.ftp):
-        add_ftp(live_annotations)
-    write_report(live_annotations, args.report_file, args.rank, args.ftp)
-    
+            
+    # Write final report
+    write_report(live_annotations, args.report_file, args.rank, include_ftp=args.ftp)
+
+
 if __name__ == "__main__":
     main()

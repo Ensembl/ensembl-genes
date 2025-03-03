@@ -92,8 +92,6 @@ class EnsemblFTP:
                 + "/statistics/"
             )
             file_name = prod_name + "_protein_busco_short_summary.txt"
-        else:
-            return ""
 
         try:
             # Reset FTP directory state
@@ -132,6 +130,8 @@ class EnsemblFTP:
             self.ebi_ftp.quit()
 
 
+
+            
 def mysql_fetch_data(
     query: str,
     database: str,
@@ -173,14 +173,31 @@ def mysql_fetch_data(
     conn.close()
     return info
 
+def check_url_status(url):
+    """
+    Checks if a given URL is reachable.
+    
+    Args:
+        url (str): The URL to check.
+    
+    Returns:
+        bool: True if the URL returns a 200 status code, False otherwise.
+    """
+    try:
+        response = requests.head(url, allow_redirects=True, timeout=5)  # Use HEAD for efficiency
+        return response.status_code == 200
+    except requests.RequestException as e:
+        print(f"Error checking URL {url}: {e}")
+        return False
 
 def write_yaml(
-    info_dict: Dict[str, str],
+        info_dict: Dict[str, str],
     icon: str,
     yaml_out,
     project: str,
     use_server: str,
     alternate: str,
+        guuid: str,
     ftp_client: EnsemblFTP
 ) -> None:
     """
@@ -197,7 +214,7 @@ def write_yaml(
     project : str
         The project name (e.g., 'aquafaang', 'asg', 'bge', ...).
     use_server : str
-        Which server the data was fetched from ('rapid' or 'main').
+        Which server the data was fetched from ('st5', 'st6' or 'main').
     alternate : str
         Alternate assembly name, if available.
     ftp_client : EnsemblFTP
@@ -231,8 +248,8 @@ def write_yaml(
     # Start building YAML content
     yaml = f"- species: {info_dict['species.scientific_name']}\n"
 
-    if use_server == "rapid":
-        ftp_base = "https://ftp.ensembl.org/pub/rapid-release/species"
+    if use_server == "st5" or use_server == "st6":
+        ftp_base = "https://ftp.ebi.ac.uk/pub/ensemblorganisms"
 
         if project in ("vgp", "dtol", "erga", "cbp", "bge", "asg"):
             yaml += f"  image: {icon}\n"
@@ -248,23 +265,23 @@ def write_yaml(
 
         yaml += (
             f"  annotation_gtf: {ftp_base}/{species_name}/{info_dict['assembly.accession']}/"
-            f"{source}/geneset/{date}/{species_name}-{info_dict['assembly.accession']}-{date}-genes.gtf.gz\n"
+            f"{source}/geneset/{date}/genes.gtf.gz\n"
         )
         yaml += (
             f"  annotation_gff3: {ftp_base}/{species_name}/{info_dict['assembly.accession']}/"
-            f"{source}/geneset/{date}/{species_name}-{info_dict['assembly.accession']}-{date}-genes.gff3.gz\n"
+            f"{source}/geneset/{date}/genes.gff3\n"
         )
         yaml += (
             f"  proteins: {ftp_base}/{species_name}/{info_dict['assembly.accession']}/{source}/geneset/{date}/"
-            f"{species_name}-{info_dict['assembly.accession']}-{date}-pep.fa.gz\n"
+            f"pep.fa.gz\n"
         )
         yaml += (
             f"  transcripts: {ftp_base}/{species_name}/{info_dict['assembly.accession']}/{source}/geneset/{date}/"
-            f"{species_name}-{info_dict['assembly.accession']}-{date}-cdna.fa.gz\n"
+            f"cdna.fa.gz\n"
         )
         yaml += (
-            f"  softmasked_genome: {ftp_base}/{species_name}/{info_dict['assembly.accession']}/{source}/genome/"
-            f"{species_name}-{info_dict['assembly.accession']}-softmasked.fa.gz\n"
+            f"  softmasked_genome: {ftp_base}/{species_name}/{info_dict['assembly.accession']}/genome/"
+            f"softmasked.fa.gz\n"
         )
         rm_file = ftp_client.check_for_file(
             rm_species_name,
@@ -276,25 +293,32 @@ def write_yaml(
         if rm_file:
             yaml += f"  repeat_library: {rm_file}\n"
 
-        yaml += f"  ftp_dumps: {ftp_base}/{species_name}/{info_dict['assembly.accession']}/{source}\n"
+        yaml += f"  ftp_dumps: {ftp_base}/{species_name}/{info_dict['assembly.accession']}/\n"
 
         main_species_url = "http://www.ensembl.org/info/about/species.html"
         main_species_response = requests.get(main_species_url)
         if info_dict["assembly.accession"] in main_species_response.text:
             yaml += f"  ensembl_link: https://www.ensembl.org/{species_name}/Info/Index\n"
         else:
-            yaml += f"  rapid_link: https://rapid.ensembl.org/{uc_prod_name}/Info/Index\n"
+            beta_link = f"https://beta.ensembl.org/species/{guuid}"
+            if check_url_status(beta_link):
+                yaml += f"  beta_link: https://beta.ensembl.org/species/{guuid}\n"
+            else:
+                yaml += f"  beta_link: Coming soon!\n"
 
         if project in ("dtol", "erga", "cbp", "bge", "asg"):
-            busco_file = ftp_client.check_for_file(
-                species_name,
-                info_dict["species.production_name"],
-                info_dict["assembly.accession"],
-                source,
-                "busco"
-            )
-            if busco_file:
-                yaml += f"  busco_score: {busco_file}\n"
+            try:
+                yaml += f"  busco_score: {info_dict['genebuild.busco']}\n"
+            except KeyError:
+                busco_file = ftp_client.check_for_file(
+                    species_name,
+                    info_dict["species.production_name"],
+                    info_dict["assembly.accession"],
+                    source,
+                    "busco"
+                )
+                if busco_file:
+                    yaml += f"  busco_score: {busco_file}\n"
             if alternate:
                 alternate_url = f"https://rapid.ensembl.org/{alternate}/Info/Index"
                 yaml += f"  alternate: {alternate_url}\n"
@@ -363,22 +387,82 @@ def write_yaml(
             yaml += f"  ensembl_link: https://www.ensembl.org/{species_name}/Info/Index\n"
 
         if project in ("dtol", "erga", "cbp", "bge", "asg"):
-            busco_file = ftp_client.check_for_file(
-                lc_species_name,
-                info_dict["species.production_name"],
-                info_dict["assembly.accession"],
-                source,
-                "busco"
-            )
-            if busco_file:
-                yaml += f"  busco_score: {busco_file}\n"
+            try:
+                yaml += f"  busco_score: {info_dict['genebuild.busco']}\n"
+            except KeyError:
+                busco_file = ftp_client.check_for_file(
+                    lc_species_name,
+                    info_dict["species.production_name"],
+                    info_dict["assembly.accession"],
+                    source,
+                    "busco"
+                )
+                if busco_file:
+                    yaml += f"  busco_score: {busco_file}\n"
             if alternate:
                 alternate_url = f"https://rapid.ensembl.org/{alternate}/Info/Index"
                 yaml += f"  alternate: {alternate_url}\n"
 
     print(yaml, file=yaml_out)
 
+import pymysql
+import json
 
+def check_database_on_server(db, server_key, server_dict):
+    """
+    Checks if a database exists on a given server.
+
+    Args:
+        db (str): The name of the database to check.
+        server_key (str): The key of the server in the config.
+        server_dict (dict): Dictionary containing server connection details.
+
+    Returns:
+        bool: True if the database exists, False otherwise.
+    """
+    print("trying "+server_key)
+    try:
+        conn = pymysql.connect(
+            host=server_dict[server_key]["db_host"],
+            user=server_dict[server_key]["db_user"],
+            passwd=server_dict[server_key]["db_pass"],
+            port=server_dict[server_key]["db_port"],
+        )
+        with conn.cursor() as cur:
+            cur.execute("SHOW DATABASES LIKE %s", (db,))
+            return cur.fetchone() is not None  # Returns True if the database exists
+    except pymysql.MySQLError as e:
+        print(f"Error connecting to {server_key}: {e}")
+        return False
+    finally:
+        if 'conn' in locals() and conn:
+            conn.close()
+            
+            
+def find_database_server(db, server_dict):
+    """
+    Determines which server the given database exists on.
+    
+    Args:
+        db (str): The name of the database to check.
+        server_dict (dict): Dictionary containing server connection details from the config file.
+
+    Returns:
+        str: The name of the server where the database is found.
+
+    Raises:
+        Exception: If the database is not found on any of the servers.
+    """
+    # Check servers in order: st5 -> st6 -> main
+    for server_key in ["st5", "st6", "main"]:
+        if check_database_on_server(db, server_key, server_dict):
+            print(f"USING SERVER: {server_key}")
+            return server_key
+        
+    # If no server found, raise an error
+    raise Exception(f"Unable to find database {db} on any configured servers!")
+        
+    
 def main() -> None:
     """
     Main function that parses arguments, reads server config from JSON,
@@ -390,7 +474,7 @@ def main() -> None:
     parser.add_argument(
         "-f",
         "--db_file",
-        help="Name of the file containing list of databases on Rapid Release or Main server",
+        help="Name of the file containing list of databases on Beta or Main servers and their Genome UUIDs",
         required=True,
     )
     parser.add_argument(
@@ -451,52 +535,23 @@ def main() -> None:
 
     # Open the output YAML file
     with open(f"{project}_species.yaml", "w") as yaml_out:
-        for db in sorted_db_list:
-            db = db.strip()
+        #will replace with guiid eventually
+        for line in sorted_db_list:
+            db = line.split('\t')[0]
+            guuid = line.split('\t')[1]
+            print("Working on db "+db)
+            use_server = find_database_server(db, server_dict)
 
-            # Check if db is on rapid server
-            conn = pymysql.connect(
-                host=server_dict["rapid"]["db_host"],
-                user=server_dict["rapid"]["db_user"],
-                passwd=server_dict["rapid"]["db_pass"],
-                port=server_dict["rapid"]["db_port"],
-            )
-            cur = conn.cursor()
-            exists_query = f"SHOW DATABASES LIKE '{db}'"
-            exists_rapid = cur.execute(exists_query)
-            cur.close()
-            conn.close()
-
-            if exists_rapid:
-                use_server = "rapid"
-            else:
-                # Check main server
-                conn = pymysql.connect(
-                    host=server_dict["main"]["db_host"],
-                    user=server_dict["main"]["db_user"],
-                    passwd=server_dict["main"]["db_pass"],
-                    port=server_dict["main"]["db_port"],
-                )
-                cur = conn.cursor()
-                exists_query = f"SHOW DATABASES LIKE '{db}'"
-                exists_main = cur.execute(exists_query)
-                cur.close()
-                conn.close()
-
-                if exists_main:
-                    use_server = "main"
-                else:
-                    raise Exception(
-                        f"Unable to find database {db} on rapid or main servers!"
-                    )
+            print("USING SERVER: "+use_server)
 
             # Retrieve metadata from the chosen server
+            # update this with query from the metadata db
             info_query = (
                 "SELECT meta_key, meta_value FROM meta "
                 "WHERE meta_key IN "
                 "('species.scientific_name','assembly.accession','assembly.name',"
                 "'species.production_name','species.strain','schema_version',"
-                "'genebuild.last_geneset_update','species.annotation_source') "
+                "'genebuild.last_geneset_update','species.annotation_source','genebuild.busco') "
                 "OR meta_key LIKE 'genebuild.method%'"
             )
             info = mysql_fetch_data(
@@ -511,6 +566,7 @@ def main() -> None:
             info_dict = {row[0]: row[1] for row in info}
 
             # Check if assembly has an alternate
+            # update this with query from the metadata db
             alternate_assembly_name = info_dict["assembly.name"] + "_alternate_haplotype"
             alternate_query = (
                 "SELECT organism.url_name "
@@ -530,6 +586,7 @@ def main() -> None:
             alternate = alternate_fetch[0][0] if alternate_fetch else ""
 
             # Retrieve classification info
+            # replace this with call to datasets
             class_query = "SELECT meta_value FROM meta WHERE meta_key='species.classification'"
             classifications = mysql_fetch_data(
                 class_query,
@@ -552,7 +609,7 @@ def main() -> None:
             if chordate and icon == "Metazoa.png":
                 icon = "Chordates.png"
 
-            write_yaml(info_dict, icon, yaml_out, project, use_server, alternate, ftp_client)
+            write_yaml(info_dict, icon, yaml_out, project, use_server, alternate, guuid, ftp_client)
 
     ftp_client.close_connections()
 

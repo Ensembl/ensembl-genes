@@ -26,8 +26,8 @@
     },
     "urls" : {
 	"datasets" : {
-	    "bioproject" : "https://api.ncbi.nlm.nih.gov/datasets/v2alpha/genome/bioproject",
-	    "taxon" : "https://api.ncbi.nlm.nih.gov/datasets/v2alpha/genome/taxon"
+	    "bioproject" : "https://api.ncbi.nlm.nih.gov/datasets/v2/genome/bioproject",
+	    "taxon" : "https://api.ncbi.nlm.nih.gov/datasets/v2/genome/taxon"
 	}
     }
 }

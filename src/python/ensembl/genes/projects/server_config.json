@@ -16,5 +16,18 @@
     "db_port": 4483,
     "db_user": "ensro",
     "db_pass": ""
+  },
+  "st5": {
+      "db_host": "mysql-ens-sta-5.ebi.ac.uk",
+      "db_port": 4684,
+      "db_user": "ensro",
+      "db_pass": ""
+  },
+  "st6": {
+      "db_host": "mysql-ens-sta-6.ebi.ac.uk",
+      "db_port": 4695,
+      "db_user": "ensro",
+      "db_pass": ""
   }
+    
 }
