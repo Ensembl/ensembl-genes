@@ -420,7 +420,6 @@ def check_database_on_server(db, server_key, server_dict):
     Returns:
         bool: True if the database exists, False otherwise.
     """
-    print("trying "+server_key)
     try:
         conn = pymysql.connect(
             host=server_dict[server_key]["db_host"],
@@ -456,7 +455,6 @@ def find_database_server(db, server_dict):
     # Check servers in order: st5 -> st6 -> main
     for server_key in ["st5", "st6", "main"]:
         if check_database_on_server(db, server_key, server_dict):
-            print(f"USING SERVER: {server_key}")
             return server_key
         
     # If no server found, raise an error
@@ -539,10 +537,7 @@ def main() -> None:
         for line in sorted_db_list:
             db = line.split('\t')[0]
             guuid = line.split('\t')[1]
-            print("Working on db "+db)
             use_server = find_database_server(db, server_dict)
-
-            print("USING SERVER: "+use_server)
 
             # Retrieve metadata from the chosen server
             # update this with query from the metadata db
