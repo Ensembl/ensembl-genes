@@ -42,33 +42,33 @@ class EnsemblFTP:
         ftp_connection.cwd("/")
 
     def check_for_file(
-        self,
-        species_name: str,
-        prod_name: str,
-        accession: str,
-        source: str,
-        file_type: str
+            self,
+            species_name: str,
+            prod_name: str,
+            accession: str,
+            source: str,
+            file_type: str
     ) -> str:
         """
         Check if a specific file (repeatmodeler or busco) is present on the FTP site.
-
+        
         Parameters
         ----------
         species_name : str
-            The species scientific name (used in paths).
+        The species scientific name (used in paths).
         prod_name : str
-            The production name of the species (used in file naming for busco).
+        The production name of the species (used in file naming for busco).
         accession : str
-            The assembly accession ID.
+        The assembly accession ID.
         source : str
-            Annotation source ('ensembl' or other).
+        Annotation source ('ensembl' or other).
         file_type : str
-            The type of file to check: 'repeatmodeler' or 'busco'.
-
+        The type of file to check: 'repeatmodeler' or 'busco'.
+        
         Returns
         -------
         str
-            The full FTP URL if the file is found, otherwise an empty string.
+        The full FTP URL if the file is found, otherwise an empty string.
         """
         if file_type == "repeatmodeler":
             ftp_connection = self.ebi_ftp
@@ -91,16 +91,36 @@ class EnsemblFTP:
                 + source
                 + "/statistics/"
             )
-            file_name = prod_name + "_protein_busco_short_summary.txt"
-
+            # Two possible file name formats:
+            file_name_protein = prod_name + "_protein_busco_short_summary.txt"
+            file_name_alternative = prod_name + "_busco_short_summary.txt"
+        else:
+            return ""
+    
+        # For logging/debugging, print the expected primary file name URL
+        if file_type == "busco":
+            print(ftp_path + path + file_name_protein)
+        else:
+            print(ftp_path + path + file_name)
+        
         try:
             # Reset FTP directory state
             self.return_to_root(ftp_connection)
             ftp_connection.cwd(path)
-            if file_name in ftp_connection.nlst():
-                return ftp_path + path + file_name
+            files_list = ftp_connection.nlst()
+            
+            if file_type == "busco":
+                if file_name_protein in files_list:
+                    return ftp_path + path + file_name_protein
+                elif file_name_alternative in files_list:
+                    return ftp_path + path + file_name_alternative
+                else:
+                    return ""
             else:
-                return ""
+                if file_name in files_list:
+                    return ftp_path + path + file_name
+                else:
+                    return ""
         except error_perm as e:
             # If directory doesn't exist, just return empty string
             if "550" in str(e) and "Failed to change directory" in str(e):
@@ -119,6 +139,7 @@ class EnsemblFTP:
         except Exception as e:
             print(f"Error while checking FTP file: {e}", file=sys.stderr)
             return ""
+                                                            
 
     def close_connections(self) -> None:
         """
