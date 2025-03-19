@@ -283,7 +283,6 @@ def add_ftp(live_annotations: Dict[str, Dict[str, str]]) -> Dict[str, Dict[str, 
 
     return live_annotations
 
-
 def write_report(
     live_annotations: Dict[str, Dict[str, str]],
     report_file: str,
@@ -293,24 +292,40 @@ def write_report(
     """
     Writes the report file with annotations.
 
-    This function takes the final dictionary of `live_annotations`, iterates through each
-    accession, and writes a row of annotation data to the specified `report_file`.
-    By default, the columns include:
+    This function takes the final dictionary of live_annotations and writes each 
+    annotation to a tab-separated report file specified by the report_file path.
+    Each row in the file contains the following columns:
       - Accession
       - Genome UUID (guuid)
       - Database name (dbname)
-      - Taxonomic rank (e.g., order)
-    If `include_ftp` is True, it also appends the constructed FTP link.
+      - The specified taxonomic rank (e.g., "order", "class", etc.)
+    Optionally, if include_ftp is True, an additional column is added for the FTP link.
 
-    Args:
-        live_annotations (Dict[str, Dict[str, str]]): A dictionary containing annotation
-            information (keys are accessions, values include guuid, dbname, and rank info).
-        report_file (str): Path to the output file where the report should be written.
-        rank (str): The taxonomic rank to include in the report (e.g., "order").
-        include_ftp (bool, optional): If True, the FTP link is appended to each row.
-            Defaults to False.
+    Each value is converted to a string. If a value is missing (i.e., is None or falsy),
+    it will be replaced by a default value:
+      - For guuid, dbname, and the rank column, the default is "unknown".
+      - For the FTP link, the default is "N/A".
+
+    Parameters
+    ----------
+    live_annotations : Dict[str, Dict[str, str]]
+        A dictionary where each key is an assembly accession and its value is a dictionary
+        containing annotation details (including at least "guuid", "dbname", and the taxonomic rank).
+    report_file : str
+        The file path where the report should be written.
+    rank : str
+        The taxonomic rank to be included in the report (e.g., "order", "class").
+    include_ftp : bool, optional
+        If True, an additional column with FTP links is added to each row (default is False).
+
+    Returns
+    -------
+    None
+        The function writes the report directly to the specified file and logs the output.
     """
     report_path = Path(report_file)
+    lines_written = 0
+
     with open(report_path, "w", encoding="utf-8") as file:
         for accession, details in live_annotations.items():
             # Convert each value to string and replace None with a fallback value
@@ -322,8 +337,13 @@ def write_report(
             ]
             if include_ftp:
                 row.append(str(details.get("ftp") or "N/A"))
-                
+
             file.write("\t".join(row) + "\n")
+            lines_written += 1
+
+    logging.info(f"Report written to {report_path.resolve()} with {lines_written} lines.")
+
+
 
     logging.info(f"Report written to {report_path.resolve()}.")
                 
