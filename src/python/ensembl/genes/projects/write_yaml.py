@@ -98,10 +98,10 @@ class EnsemblFTP:
             return ""
     
         # For logging/debugging, print the expected primary file name URL
-        if file_type == "busco":
-            print(ftp_path + path + file_name_protein)
-        else:
-            print(ftp_path + path + file_name)
+        #if file_type == "busco":
+        #    print(ftp_path + path + file_name_protein)
+        #else:
+        #    print(ftp_path + path + file_name)
         
         try:
             # Reset FTP directory state
