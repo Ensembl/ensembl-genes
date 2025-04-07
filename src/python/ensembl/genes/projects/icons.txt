@@ -6,7 +6,7 @@ Aves		Birds.png
 Serpentes	Reptiles.png
 Lepidoptera	Lepidoptera.png
 Hymenoptera	Arthropods.png
-Diptera 	Arthropods.png
+Diptera		Arthropods.png
 Coleoptera	Arthropods.png
 Hemiptera	Arthropods.png
 Trichoptera	Arthropods.png
