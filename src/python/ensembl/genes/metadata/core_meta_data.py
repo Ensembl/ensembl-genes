@@ -546,6 +546,8 @@ if __name__ == "__main__":
                 logger.critical(f"You are missing required meta key: {required_key}")
 
     # report if there has been a change in common name
+    if "species.common_name" not in core_dict:
+        core_dict["species.common_name"] = ''
     if core_dict["species.common_name"].lower() != truth_dict["organism.common_name"].lower():
         logger.warning(
             ' | COMMON NAME | The value for species.common_name in your meta table: "'
