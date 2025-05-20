@@ -449,8 +449,12 @@ def check_database_on_server(db, server_key, server_dict):
             port=server_dict[server_key]["db_port"],
         )
         with conn.cursor() as cur:
-            cur.execute("SHOW DATABASES LIKE %s", (db,))
-            return cur.fetchone() is not None  # Returns True if the database exists
+            #print(f"Checking for DB '{db}' on server '{server_key}'", file=sys.stderr)
+            cur.execute("SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = %s", (db,))
+            result = cur.fetchone()
+            #print(f"Query result on {server_key}: {result}", file=sys.stderr)
+            return result is not None
+        
     except pymysql.MySQLError as e:
         print(f"Error connecting to {server_key}: {e}")
         return False
@@ -556,8 +560,8 @@ def main() -> None:
     with open(f"{project}_species.yaml", "w") as yaml_out:
         #will replace with guiid eventually
         for line in sorted_db_list:
-            db = line.split('\t')[0]
-            guuid = line.split('\t')[1]
+            db = line.split('\t')[0].strip()
+            guuid = line.split('\t')[1].strip()
             use_server = find_database_server(db, server_dict)
 
             # Retrieve metadata from the chosen server
