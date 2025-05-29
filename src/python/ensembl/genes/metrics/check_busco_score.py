@@ -87,13 +87,13 @@ def evaluate_busco(genome_json_path: str, protein_json_path: str) -> bool:
         print(f"Protein BUSCO completeness {protein_busco_score}% is above threshold (70%)")
         sys.exit(0)
     if 50 < protein_busco_score < 70:
-        difference = protein_busco_score - genome_busco_score
+        difference = abs(protein_busco_score - genome_busco_score)
         print(f"Difference (protein - genome): {difference:.2f}%")
         if difference >= 10:
             sys.exit(0)
         else:
             sys.exit(42)
-    print(f"❌ Protein BUSCO completeness {protein_busco_score}% is too low")
+    print(f"Protein BUSCO completeness {protein_busco_score}% is too low")
     sys.exit(42)
 
 def main():
@@ -106,7 +106,6 @@ def main():
 
     try: # pylint: disable=broad-except
         result = evaluate_busco(args.genome, args.protein)
-        # print("✅ Result: Significant difference" if result else "❌ Result: No significant difference")
         print(result)
     except Exception as e: # pylint: disable=broad-except
         print(f"ERROR: {e}")
