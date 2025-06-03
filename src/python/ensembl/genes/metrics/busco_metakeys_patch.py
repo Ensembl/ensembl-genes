@@ -165,10 +165,18 @@ def generate_sql_patches(
     return "\n".join(sql_statements)
 
 
-def process_busco_file(busco_file, db, output_dir,assembly_id=""):
+def process_busco_file(busco_file:str, db:str, output_dir:str,assembly_id:str ="")->str:
     """
     Parses the BUSCO file, generates a JSON, writes it to an output file,
     and generates SQL patches.
+    Args:
+        busco_file (str): Busco file to process
+        db (str) : db name
+        output_dir (str): Output directory path
+        assembly_id (str, optional): Metadata used in downstream analyses.
+
+    Returns:
+        str: list of Mysql patches
     """
     # Parse the BUSCO file and generate the JSON
     busco_data = parse_busco_file(busco_file, db)
