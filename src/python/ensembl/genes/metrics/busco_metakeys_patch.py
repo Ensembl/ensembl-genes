@@ -31,7 +31,7 @@ def parse_busco_file(file_path: str, db: str) -> Dict[str, Union[str, int]]:
         db(str): Core db name.
 
     Returns:
-        Dict[str, str]: A dictionary containing parsed BUSCO data, including the dataset,
+        Dict[str, Union[str, int]]: A dictionary containing parsed BUSCO data, including the dataset,
                         completeness values, and mode (proteins or genome).
     """
 
