@@ -26,8 +26,10 @@ def extract_completeness(busco_str) -> float:
     "C:99.2%[S:98.4%,D:0.8%],F:0.6%,M:0.2%,n:3640"
     and return it as a float.
     If the format is invalid, raise a ValueError.
-    :param busco_str: The BUSCO string to parse.
-    :return: The completeness percentage as a float.
+    
+    Args:
+        busco_str (str): The BUSCO string to parse.
+    Return: The completeness percentage as a float.
     """
     match = re.search(r"C:([\d.]+)%", busco_str)
     if match:
@@ -50,12 +52,15 @@ def evaluate_busco(genome_json_path: str, protein_json_path: str, min_range_prot
     Args:
         genome_json_path (str): _path to the genome BUSCO JSON file_
         protein_json_path (str): _path to the protein BUSCO JSON file_
+        min_range_protein_score (int): Lowest threshold to analyse busco score in protein mode
+        max_range_protein_score (int): Highest threshold to analyse busco score in protein mode
+        diff_prot_gen_mode (int): Max difference between Busco in protein and in genome mode
 
     Raises:
         KeyError: If the expected '.busco' key is not found in either JSON file.
 
     Returns:
-        bool: True if the protein BUSCO score is significantly higher than the genome BUSCO score,
+        exit 0 if the protein BUSCO score soddisfy criteria, otherwise exit 42
     """
     try:
         with open(genome_json_path) as g_file:
