@@ -35,7 +35,7 @@ def extract_completeness(busco_str) -> float:
     raise ValueError(f"Invalid BUSCO format: {busco_str}")
 
 
-def evaluate_busco(genome_json_path: str, protein_json_path: str) -> bool:
+def evaluate_busco(genome_json_path: str, protein_json_path: str, min_range_protein_score:int, max_range_protein_score:int, diff_prot_gen_mode:int) -> bool:
     """Evaluate BUSCO scores from genome and protein JSON files.
     This function loads the BUSCO JSON files for genome and protein,
     extracts the completeness scores, and compares them to determine
@@ -83,13 +83,13 @@ def evaluate_busco(genome_json_path: str, protein_json_path: str) -> bool:
     print(f"Genome BUSCO completeness: {genome_busco_score}%")
     print(f"Protein BUSCO completeness: {protein_busco_score}%")
 
-    if protein_busco_score >= 70:
+    if protein_busco_score >= max_range_protein_score:
         print(f"Protein BUSCO completeness {protein_busco_score}% is above threshold (70%)")
         sys.exit(0)
-    if 50 < protein_busco_score < 70:
-        difference = abs(protein_busco_score - genome_busco_score)
+    if min_range_protein_score < protein_busco_score < max_range_protein_score:
+        difference = protein_busco_score - genome_busco_score
         print(f"Difference (protein - genome): {difference:.2f}%")
-        if difference >= 10:
+        if difference >= diff_prot_gen_mode:
             sys.exit(0)
         else:
             sys.exit(42)
@@ -101,11 +101,13 @@ def main():
     parser = argparse.ArgumentParser(description="Evaluate BUSCO scores from genome and protein JSON files.")
     parser.add_argument("--genome", required=True, help="Path to genome BUSCO JSON file")
     parser.add_argument("--protein", required=True, help="Path to protein BUSCO JSON file")
-
+    parser.add_argument("--min_range_protein_score", required=False, default=50,  help="Lowest threshold to analyse busco score in protein mode")
+    parser.add_argument("--max_range_protein_score", required=False, default-70, help="Highest threshold to analyse busco score in protein mode")
+    parser.add_argument("--diff_prot_gen_mode", required=False, default=10, help="Max difference between Busco in protein and in genome mode")
     args = parser.parse_args()
 
     try: # pylint: disable=broad-except
-        result = evaluate_busco(args.genome, args.protein)
+        result = evaluate_busco(args.genome, args.protein, args.min_range_protein_score, args.max_range_protein_score, args.diff_prot_gen_mode)
         print(result)
     except Exception as e: # pylint: disable=broad-except
         print(f"ERROR: {e}")
