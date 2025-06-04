@@ -260,15 +260,15 @@ def main():
 
     # Set up argument parser
     parser = argparse.ArgumentParser(description="Parse a BUSCO result file and generate JSON output.")
-    parser.add_argument("-file", type=str, help="Path to the BUSCO result file")
-    parser.add_argument("-db", type=str, help="Core db")
+    parser.add_argument("-file",  type=str, help="Path to the BUSCO result file")
+    parser.add_argument("-db", required=True, type=str, help="Core db")
     parser.add_argument("-input_dir", type=str, help="Path for directory containing the busco output files")
-    parser.add_argument("-output_dir", type=str, help="Path for output directory")
+    parser.add_argument("-output_dir", required=True, type=str, help="Path for output directory")
     parser.add_argument("-run_query", type=str, choices=['true', 'false'], help="Add busco metakeys to the db")
-    parser.add_argument("-host", type=str, help="Server host")
-    parser.add_argument("-port", type=str, help="Server port")
-    parser.add_argument("-user", type=str, help="Db user with writable permission")
-    parser.add_argument("-password", type=str, help="Server password")
+    parser.add_argument("-host", required=True, type=str, help="Server host")
+    parser.add_argument("-port", required=True,type=str, help="Server port")
+    parser.add_argument("-user", required=True,type=str, help="Db user with writable permission")
+    parser.add_argument("-password", required=True,type=str, help="Server password")
     parser.add_argument("-assembly_id", type=str, help="Registry assembly id")
     # Parse arguments
     args = parser.parse_args()
