@@ -231,17 +231,6 @@ if __name__ == "__main__":
     )
     logger = logging.getLogger()
     logger.propagate = False
-    # Dealing with collection dbs - this should be done better!!!
-    #if db == "bacteria_0_collection_core_57_110_1":
-    #    species_id = "99"
-    #elif db == "fungi_ascomycota2_collection_core_57_110_1":
-    #    species_id = "19"
-    #elif db == "protists_choanoflagellida1_collection_core_57_110_1":
-    #    species_id = "2"
-    #elif db == "protists_ichthyosporea1_collection":
-    #    species_id = "1"
-    #else:
-    #    species_id = "1"
 
     core_dict = {}
     if (args.production_name):
@@ -273,7 +262,7 @@ if __name__ == "__main__":
     )
     for meta_pair in core_meta:
         core_dict[meta_pair[0]] = meta_pair[1]
-    print(core_dict)
+
         
     # get the assembly metadata from the sources of truth (sources of truth in parentheses)
     # expected assembly meta_keys: assembly.accession (from core), assembly.date (from ena), assembly.is_reference (static), assembly.name (ena), assembly.provider_name (core or default), assembly.provider_url (core or default), assembly.level (ena), assembly.tolid (biosample), assembly.ucsc_alias (ncbi), assembly.long_name, assembly.url_name (static)
