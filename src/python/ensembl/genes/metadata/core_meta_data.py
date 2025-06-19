@@ -1,7 +1,7 @@
 import requests
 import xmltodict
 import json
-import datetime
+from datetime import datetime
 import argparse
 import pymysql
 import re
@@ -169,6 +169,12 @@ if __name__ == "__main__":
         required=True,
     )
     parser.add_argument(
+        "-n",
+        "--production_name",
+        help="species.production_name",
+        required=False,
+    )
+    parser.add_argument(
         "-t", "--team", required=True, type=lambda x: x.capitalize(), help="Team responsible for the database"
     )
 
@@ -204,13 +210,19 @@ if __name__ == "__main__":
     db = args.db_name
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
-    sql_out = open(output_dir / f"{db}.sql", "w")
-
+    if (args.production_name):
+        sql_out = open(output_dir / f"{args.production_name}.sql", "w")
+    else:
+        sql_out = open(output_dir / f"{db}.sql", "w")
+        
     print(f"Working on database: {db}")
     print(f"USE {db};", file=sql_out)
 
     # set up logger
-    log_file_path = output_dir / f"{db}_metadata.log"
+    if (args.production_name):
+        log_file_path = output_dir / f"{args.production_name}_metadata.log"
+    else:
+        log_file_path = output_dir / f"{db}_metadata.log"
     log_ini_path = metadata_dir / "logging.conf"
     logging.config.fileConfig(
         log_ini_path,
@@ -220,19 +232,38 @@ if __name__ == "__main__":
     logger = logging.getLogger()
     logger.propagate = False
     # Dealing with collection dbs - this should be done better!!!
-    if db == "bacteria_0_collection_core_57_110_1":
-        species_id = "99"
-    elif db == "fungi_ascomycota2_collection_core_57_110_1":
-        species_id = "19"
-    elif db == "protists_choanoflagellida1_collection_core_57_110_1":
-        species_id = "2"
-    elif db == "protists_ichthyosporea1_collection":
-        species_id = "1"
-    else:
-        species_id = "1"
+    #if db == "bacteria_0_collection_core_57_110_1":
+    #    species_id = "99"
+    #elif db == "fungi_ascomycota2_collection_core_57_110_1":
+    #    species_id = "19"
+    #elif db == "protists_choanoflagellida1_collection_core_57_110_1":
+    #    species_id = "2"
+    #elif db == "protists_ichthyosporea1_collection":
+    #    species_id = "1"
+    #else:
+    #    species_id = "1"
 
+    core_dict = {}
+    if (args.production_name):
+        core_dict['species.production_name'] = args.production_name
+        #getting species_id via the production_name
+        species_query = f"SELECT species_id FROM meta WHERE meta_key='species.production_name' AND meta_value='{core_dict['species.production_name']}';"
+        species_meta = mysql_fetch_data(
+            species_query,
+            host=server_info["staging"]["db_host"],
+            user=server_info["staging"]["db_user"],
+            port=server_info["staging"]["db_port"],
+            database=db,
+        )
+        species_id = species_meta[0][0]
+        print("species ID: "+str(species_id))
+    else:
+        species_id = 1
+        print("WARNING: no production_name provided, using default species ID ="+str(species_id))
+        
     # get all existing assembly, species and genebuild metadata from the core db
-    core_query = f"SELECT meta_key,meta_value FROM meta WHERE species_id = {species_id} AND meta_key LIKE 'assembly%' OR meta_key LIKE 'species%' OR meta_key LIKE 'genebuild%' OR meta_key LIKE 'organism%' OR meta_key LIKE 'sample%' OR meta_key LIKE 'annotation%' OR meta_key LIKE 'gencode%';"
+    core_query = f"SELECT meta_key,meta_value FROM meta WHERE species_id = {species_id} AND (meta_key LIKE 'assembly%' OR meta_key LIKE 'species%' OR meta_key LIKE 'genebuild%' OR meta_key LIKE 'organism%' OR meta_key LIKE 'sample%' OR meta_key LIKE 'annotation%' OR meta_key LIKE 'gencode%');"
+    print(core_query)
     core_meta = mysql_fetch_data(
         core_query,
         host=server_info["staging"]["db_host"],
@@ -240,10 +271,10 @@ if __name__ == "__main__":
         port=server_info["staging"]["db_port"],
         database=db,
     )
-    core_dict = {}
     for meta_pair in core_meta:
         core_dict[meta_pair[0]] = meta_pair[1]
-
+    print(core_dict)
+        
     # get the assembly metadata from the sources of truth (sources of truth in parentheses)
     # expected assembly meta_keys: assembly.accession (from core), assembly.date (from ena), assembly.is_reference (static), assembly.name (ena), assembly.provider_name (core or default), assembly.provider_url (core or default), assembly.level (ena), assembly.tolid (biosample), assembly.ucsc_alias (ncbi), assembly.long_name, assembly.url_name (static)
     # expected organism meta_keys: organism.taxonomy_id (ena), organism.species_taxonomy_id (taxonomy db), organism.common_name (taxonomy db), organism.strain (biosample), organism.scientific_name (taxonomy db), organism.scientific_parlance_name (static), organism.strain_type (biosample), organism.sample_accession (ena)
@@ -448,24 +479,25 @@ if __name__ == "__main__":
             if "genebuild.version" not in core_dict:
                 truth_dict["genebuild.version"] = "EXT01"
             # try to get the annotation source
-            if "species.annotation_source" in core_dict:
+            if "species.annotation_source" in core_dict and "genebuild.annotation_source" not in core_dict:
                 truth_dict["genebuild.annotation_source"] = core_dict["species.annotation_source"]
-
+            elif "genebuild.annotation_source" not in core_dict:
+                logger.critical(" | GENEBUILD_PROVIDER_URL | No genebuild.annotation_source could be found in the core db, this is a required key!")
             # try to get the annotation provider name from core
-            if "annotation.provider_name" in core_dict:
+            if "annotation.provider_name" in core_dict and "genebuild.provider_name" not in core_dict:
                 truth_dict["genebuild.provider_name"] = core_dict["annotation.provider_name"]
             #otherwise get it from provider_static.txt
-            elif core_dict["species.production_name"] in provider_dict:
+            elif core_dict["species.production_name"] in provider_dict and "genebuild.provider_name" not in core_dict:
                 truth_dict["genebuild.provider_name"] = provider_dict[core_dict["species.production_name"]["name"]]
-            else:
+            elif "genebuild.provider_name" not in core_dict:
                 logger.critical(" | GENEBUILD_PROVIDER_NAME | No genebuild.provider_name could be found either in the core db or in provider_static.txt, this is a required key!")    
             # try to get the annotation provider url from core                    
-            if "annotation.provider_url" in core_dict:
+            if "annotation.provider_url" in core_dict and "genebuild.provider_url" not in core_dict:
                 truth_dict["genebuild.provider_url"] = core_dict["annotation.provider_url"]
             #otherwise get it from provider_static.txt
-            elif core_dict["species.production_name"] in provider_dict:
+            elif core_dict["species.production_name"] in provider_dict and "genebuild.provider_url" not in core_dict:
                 truth_dict["genebuild.provider_url"] = provider_dict[core_dict["species.production_name"]["url"]]
-            else:
+            elif "genebuild.provider_url" not in core_dict:
                 logger.critical(" | GENEBUILD_PROVIDER_URL | No genebuild.provider_url could be found either in the core db or in provider_static.txt, this is a required key!")
                  
     else:
@@ -533,6 +565,9 @@ if __name__ == "__main__":
         "assembly.accession",
         "assembly.name",
         "genebuild.version",
+        "genebuild.method",
+        "genebuild.start_date",
+        "genebuild.annotation_source",
         "genebuild.provider_name",
         "genebuild.provider_url",
         "genebuild.sample_gene",
@@ -546,16 +581,15 @@ if __name__ == "__main__":
                 logger.critical(f"You are missing required meta key: {required_key}")
 
     # report if there has been a change in common name
-    if "species.common_name" not in core_dict:
-        core_dict["species.common_name"] = ''
-    if core_dict["species.common_name"].lower() != truth_dict["organism.common_name"].lower():
-        logger.warning(
-            ' | COMMON NAME | The value for species.common_name in your meta table: "'
-            + core_dict["species.common_name"]
-            + '" does not match the value that I am assigning to organism.common_name: "'
-            + truth_dict["organism.common_name"]
-            + '"'
-        )
+    if "species.common_name" in core_dict:
+        if core_dict["species.common_name"].lower() != truth_dict["organism.common_name"].lower():
+            logger.warning(
+                ' | COMMON NAME | The value for species.common_name in your meta table: "'
+                + core_dict["species.common_name"]
+                + '" does not match the value that I am assigning to organism.common_name: "'
+                + truth_dict["organism.common_name"]
+                + '"'
+            )
 
     if args.verbose:
         # Print with the 'required' column if -v flag is present
