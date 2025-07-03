@@ -5,9 +5,9 @@ from pathlib import Path
 from src.python.ensembl.genes.info_from_registry.mysql_helper import mysql_update
 
 
-def update_registry_path_and_create_entry(param, server_info):
-    new_registry_file = Path(param["base_output_dir"]) / "Databases.pm"
-    registry_file = re.sub(r"/+", "/", param["registry_file"])
+def update_registry_path_and_create_entry(server_info, base_output_dir, registry_file):
+    new_registry_file = base_output_dir / "Databases.pm"
+    registry_file = re.sub(r"/+", "/", registry_file)
 
     if not new_registry_file.exists():
         shutil.copy(registry_file, new_registry_file)
@@ -33,9 +33,9 @@ def update_registry_path_and_create_entry(param, server_info):
         print("Failed to update registry path.")
 
 
-def create_registry_entry(param, server_info, adaptors):
-    update_registry_path_and_create_entry(param, server_info)
-    registry_path = Path(param["base_output_dir"]) / "Databases.pm"
+def create_registry_entry(server_info, adaptors, base_output_dir, registry_file):
+    update_registry_path_and_create_entry(server_info, base_output_dir, registry_file)
+    registry_path = base_output_dir / "Databases.pm"
 
     if not registry_path.exists():
         raise FileNotFoundError(f"A registry file was not found at: {registry_path}")

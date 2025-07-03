@@ -8,6 +8,30 @@ from pathlib import Path
 import sys
 import json
 import pymysql
+import logging
+
+
+class StdoutFilter(logging.Filter):
+    def filter(self, record):
+        # Only pass messages below ERROR to stdout
+        return record.levelno < logging.ERROR
+
+logger = logging.getLogger()
+logger.setLevel(logging.DEBUG)
+
+stdout_handler = logging.StreamHandler(sys.stdout)
+stdout_handler.setLevel(logging.DEBUG)
+stdout_handler.addFilter(StdoutFilter())
+stdout_formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+stdout_handler.setFormatter(stdout_formatter)
+
+stderr_handler = logging.StreamHandler(sys.stderr)
+stderr_handler.setLevel(logging.ERROR)
+stderr_formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+stderr_handler.setFormatter(stderr_formatter)
+
+logger.addHandler(stdout_handler)
+logger.addHandler(stderr_handler)
 
 from src.python.ensembl.genes.info_from_registry.build_anno_commands import (
     build_annotation_commands,
@@ -102,7 +126,7 @@ def get_metadata_from_registry(server_info, assembly_accession, param):
         return None
 
     except pymysql.Error as err:
-        print(f"MySQL error: {err}")
+        logger.error(f"MySQL error: {err}")
         return {}
 
 
@@ -117,17 +141,13 @@ def add_generated_data(server_info, assembly_accession, param):
     registry_info["clade"] = clade
     registry_info["genus_taxon_id"] = genus_id
 
-    print("=== CLADE METADATA ===")
-    print(json.dumps(clade_metadata, indent=2, default=str))
-    print("======================")
+
 
     if clade_metadata:
         registry_info.update(clade_metadata)
 
     info_dict = registry_info
-    print("=== INFO DICT ===")
-    print(json.dumps(info_dict, indent=2, default=str))
-    print("======================")
+
     # Create variables for pipeline
     info_dict["strain_type"] = "strain"
 
@@ -244,7 +264,7 @@ def custom_loading(param):
     if init_file.exists():
         try:
             with init_file.open("r") as f:
-                print("Using custom loading .ini file.")
+                logger.info("Using custom loading .ini file.")
                 custom_loading = True
 
                 for line in f:
@@ -252,12 +272,12 @@ def custom_loading(param):
 
                     if "=" in line:
                         key, value = map(str.strip, line.split("=", 1))
-                        print(f"Found key/value pair: {key} => {value}")
+                        logger.info(f"Found key/value pair: {key} => {value}")
                         custom_dict[key] = value
                     elif line == "":
                         continue
                     else:
-                        print(f"Line format not recognised. Skipping line:\n{line}")
+                        logger.error(f"Line format not recognised. Skipping line:\n{line}")
 
         except OSError as e:
             raise Exception(f"Could not open or read {init_file}") from e
@@ -275,93 +295,131 @@ def create_dir(path, mode=None):
 
 
 def main():
-    # Inherit params from perl
-    param = json.load(sys.stdin)
-    assembly_accession = param["assembly_accession"]
-    # dna_db_name = f"{param['dbowner']}_{param['production_name']}{param['production_name_modifier']}_core_{param['release_number']}"
-    param.update(
-        {
-            "pipe_db_name": f"{param['dbowner']}_{param['pipeline_name']}_pipe_{param['release_number']}",
-            "core_dbname": f"{param['dbowner']}_{param['production_gca']}_core_{param['ensembl_release']}_1"        }
-    )
+    logger.info("Starting main function.")
+    try: 
+        # Inherit params from perl
+        #param = json.load(sys.stdin)
+        #logger.debug(f"Loaded parameters: {param}")
 
-    # Create server info dictionary
-    server_info = {
-        "registry": {
-            "db_host": os.environ.get("GBS1"),
-            "db_user": param["user_r"],
-            "db_port": int(os.environ.get("GBP1")),
-        },
-        "pipeline_db": {
-            "db_host": os.environ.get("GBS7"),
-            "db_user": param["user"],
-            "db_port": int(os.environ.get("GBP7")),
-            "db_password": param["password"],
-            "db_name": param["pipe_db_name"],
-        },
-        "core_db": {
-            "db_host": os.environ.get("GBP6"),
-            "db_user": param["user"],
-            "db_port": int(os.environ.get("GBP6")),
-            "db_password": param["password"],
-            "db_name": param["core_dbname"],
+        raw = sys.stdin.read()
+        logger.debug(f"RAW STDIN: {repr(raw)}")
+        param = json.loads(raw)
+        logger.debug(f"Parsed parameters: {param}")  # Log parsed JSON
+
+
+        assembly_accession = param["assembly_accession"]
+        logger.info(f"Processing assembly accession: {assembly_accession}")
+
+        param.update(
+            {
+                "pipe_db_name": f"{param['dbowner']}_{param['pipeline_name']}_pipe_{param['release_number']}",
+                "core_dbname": f"{param['dbowner']}_{param['production_gca']}_core_{param['ensembl_release']}_1"        }
+        )
+        logger.debug(f"Updated params with pipeline and core db names: {param}")
+
+
+
+        # Create server info dictionary
+        server_info = {
+            "registry": {
+                "db_host": os.environ.get("GBS1"),
+                "db_user": param["user_r"],
+                "db_port": int(os.environ.get("GBP1")),
+            },
+            "pipeline_db": {
+                "db_host": param["pipe_db"]["host"],
+                "db_user": param["user"],
+                "db_port": param["pipe_db"]["port"],
+                "db_password": param["password"],
+                "db_name": param["pipe_db_name"],
+            },
+            "core_db": {
+                "db_host": param["core_db"]["host"],
+                "db_user": param["user"],
+                "db_port": param["core_db"]["port"],
+                "db_password": param["password"],
+                "db_name": param["core_dbname"],
+            }
         }
-    }
 
-    # Check if GCA annotation exists for GCA and stop the pipeline if it does (unless custom loading)
-    if param.get("init_file") and os.path.isfile(param["init_file"]):
-        check_if_annotated(assembly_accession, server_info)
+        # Check if GCA annotation exists for GCA and stop the pipeline if it does (unless custom loading)
+        if param.get("init_file") and os.path.isfile(param["init_file"]):
+            logger.info("Init file detected, checking if annotated.")
+            check_if_annotated(assembly_accession, server_info)
 
-    # Create output params
-    info_dict = add_generated_data(server_info, assembly_accession, param)
-    info_dict["core_db"] = server_info["core_db"]
-    output_params = get_info_from_params(param, info_dict)
+        # Create output params
+        info_dict = add_generated_data(server_info, assembly_accession, param)
+        logger.debug(f"Generated info dict: {info_dict}")
 
-
-    # Create directories
-    dirs_to_create = []
-    # Create output dir with 775 permissions this was for BRAKER
-    create_dir(info_dict["output_path"], mode=0o775)
+        info_dict["core_db"] = server_info["core_db"]
+        output_params = get_info_from_params(param, info_dict)
+        logger.debug(f"Output params prepared: {output_params}")
 
 
-    # Add other dirs to the list
-    dirs_to_create.extend(
-        [
-            info_dict["genome_files_dir"],
-            info_dict["short_read_dir"],
-            info_dict["long_read_dir"],
-            info_dict["gst_dir"],
-        ]
-    )
-    # Create the other directories without changing mode (default permissions)
-    for dir_path in dirs_to_create:
-        create_dir(dir_path)
 
-    # Add db adaptors to pipeline registry
-    adaptors = {
-        "core_string": {
-            "host": os.environ.get("GBS7"),
-            "port": int(os.environ.get("GBP7")),
-            "dbname": param["core_dbname"],
-            "user": param["user_r"],
-            "pass": param["password"],
-            "species": info_dict["production_name"],
-            "group": "core",
-        },
-    }
-
-    # Create a local copy of the registry and update the pipeline's resources with the new path
-    registry_path = create_registry_entry(param, server_info, adaptors)
-    output_params["registry_file"] = str(registry_path)
+        # Create directories
+        logger.info("Creating directories.")
+        dirs_to_create = []
+        # Create output dir with 775 permissions this was for BRAKER
+        create_dir(info_dict["output_path"], mode=0o775)
 
 
-    # Build anno commands and add to dictionary
-    build_annotation_commands(adaptors, output_params)
+        # Add other dirs to the list
+        dirs_to_create.extend(
+            [
+                info_dict["genome_files_dir"],
+                info_dict["short_read_dir"],
+                info_dict["long_read_dir"],
+                info_dict["gst_dir"],
+            ]
+        )
+        # Create the other directories without changing mode (default permissions)
+        for dir_path in dirs_to_create:
+            create_dir(dir_path)
+            logger.debug(f"Created directory: {dir_path}")
 
-    return output_params
+
+        # Add db adaptors to pipeline registry
+        adaptors = {
+            "core_string": {
+                "host": param["core_db"]["host"],
+                "port": param["core_db"]["port"],
+                "dbname": param["core_dbname"],
+                "user": param["user_r"],
+                "pass": param["password"],
+                "species": info_dict["production_name"],
+                "group": "core",
+            },
+        }
+
+        # Create a local copy of the registry and update the pipeline's resources with the new path
+        registry_path = create_registry_entry(param, server_info, adaptors)
+        output_params["registry_file"] = str(registry_path)
+        logger.info(f"Registry entry created at: {registry_path}")
+
+
+
+        # Build anno commands and add to dictionary
+        build_annotation_commands(adaptors, output_params)
+        logger.info("Built annotation commands.")
+
+
+        return output_params
+
+    except Exception as e:
+        logger.exception("An unhandled exception occurred in main.")
+        raise
 
 
 
 if __name__ == "__main__":
-    result = main()
-    print(json.dumps(result))
+    try:
+        result = main()
+        print(json.dumps(result))
+        sys.stdout.flush()
+        sys.stderr.flush()
+        sys.exit(0)
+    except Exception:
+        logger.exception("Unhandled exception, exiting with failure.")
+        sys.stderr.flush()
+        sys.exit(1)

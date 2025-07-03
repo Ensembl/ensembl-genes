@@ -1,4 +1,4 @@
-from src.python.ensembl.genes.content.main_static_content import mysql_fetch_data
+from src.python.ensembl.genes.info_from_registry.mysql_helper import mysql_fetch_data
 
 
 def check_if_annotated(assembly_accession, server_info):

@@ -23,6 +23,7 @@ def create_tax_dictionary_from_registry(server_info, registry_info):
             user=server_info["registry"]["db_user"],
             port=server_info["registry"]["db_port"],
             database="gb_assembly_metadata",
+            password="",
             params=taxon_id,
         )
 
@@ -48,19 +49,19 @@ def create_tax_dictionary_from_registry(server_info, registry_info):
         return {}
 
 
-def load_clade_data():
+def load_clade_data(clade_settings_path):
     """Hardcoded path for clade settings."""
-    json_file = "src/python/ensembl/genes/info_from_registry/clade_settings.json"
+    json_file = clade_settings_path
     with open(json_file, "r") as f:
         logging.info("Loading clade settings json file.")
         return json.load(f)
 
 
-def assign_clade(server_info, registry_info):
+def assign_clade(server_info, registry_info, clade_settings_path):
     """
     Given a lowest taxon ID, assign the clade and return clade details and genus_taxon_id.
     """
-    clade_data = load_clade_data()
+    clade_data = load_clade_data(clade_settings_path)
     taxonomy_dict = create_tax_dictionary_from_registry(server_info, registry_info)
 
     # Accept both int and str keys
@@ -68,7 +69,7 @@ def assign_clade(server_info, registry_info):
     taxonomy_hierarchy = taxonomy_dict.get(str(lowest_taxon_id)) or taxonomy_dict.get(lowest_taxon_id, [])
 
     if not taxonomy_hierarchy:
-        logging.warning(f"Taxonomy hierarchy not found for taxon ID {registry_info["taxon_id"]}")
+        logging.warning(f"Taxonomy hierarchy not found for taxon ID {registry_info['taxon_id']}")
         return "Unassigned", None, None
 
     internal_clade = "Unassigned"
@@ -86,7 +87,7 @@ def assign_clade(server_info, registry_info):
         if clade_taxon_id == lowest_taxon_id:
             internal_clade = clade_name
             clade_details = {k: v for k, v in details.items() if k != "taxon_id"}
-            logging.info(f"Exact match: Assigned clade '{internal_clade}' for taxon {registry_info["taxon_id"]}")
+            logging.info(f"Exact match: Assigned clade '{internal_clade}' for taxon {registry_info['taxon_id']}")
             return internal_clade, genus_taxon_id, clade_details
 
     # Step 2: Walk up the taxonomy hierarchy
@@ -107,7 +108,7 @@ def assign_clade(server_info, registry_info):
                 return internal_clade, genus_taxon_id, clade_details
 
     # No match found
-    logging.warning(f"No clade found for taxon {registry_info["taxon_id"]} in full hierarchy.")
+    logging.warning(f"No clade found for taxon {registry_info['taxon_id']} in full hierarchy.")
     return "Unassigned", genus_taxon_id, None
 
 
