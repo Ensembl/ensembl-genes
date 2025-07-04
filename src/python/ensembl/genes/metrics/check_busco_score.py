@@ -106,9 +106,9 @@ def main():
     parser = argparse.ArgumentParser(description="Evaluate BUSCO scores from genome and protein JSON files.")
     parser.add_argument("--genome", required=True, help="Path to genome BUSCO JSON file")
     parser.add_argument("--protein", required=True, help="Path to protein BUSCO JSON file")
-    parser.add_argument("--min_range_protein_score", required=False, default=50,  help="Lowest threshold to analyse busco score in protein mode")
-    parser.add_argument("--max_range_protein_score", required=False, default=70, help="Highest threshold to analyse busco score in protein mode")
-    parser.add_argument("--diff_prot_gen_mode", required=False, default=10, help="Max difference between Busco in protein and in genome mode")
+    parser.add_argument("--min_range_protein_score",type=int, required=False, default=50,  help="Lowest threshold to analyse busco score in protein mode")
+    parser.add_argument("--max_range_protein_score", type=int, required=False, default=70, help="Highest threshold to analyse busco score in protein mode")
+    parser.add_argument("--diff_prot_gen_mode", type=int, required=False, default=10, help="Max difference between Busco in protein and in genome mode")
     args = parser.parse_args()
 
     try: # pylint: disable=broad-except
