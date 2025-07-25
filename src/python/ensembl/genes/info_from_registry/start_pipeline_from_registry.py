@@ -165,8 +165,7 @@ def get_metadata_from_registry(server_info, assembly_accession, settings):
                 a.release_date AS assembly_date,
                 s.scientific_name AS species_name,
                 a.assembly_id, 
-                mb.bioproject_name AS assembly_group,
-                CONCAT(a.gca_chain, '.', a.gca_version) AS assembly_accession,
+                mb.bioproject_name AS assembly_group
             FROM assembly a
             JOIN bioproject b ON a.assembly_id = b.assembly_id
             JOIN species s ON a.lowest_taxon_id = s.lowest_taxon_id
@@ -231,11 +230,9 @@ def add_generated_data(server_info, assembly_accession, settings):
     parts = species_name.split("_")
     if len(parts) >= 2:
         p1, p2 = parts[:2]
-        binomial_species_name = f"{p1}_{p2}"
         max_len = 15
         production_name = f"{p1[:max_len]}_{p2[:max_len]}"
     else:
-        binomial_species_name = ""
         production_name = ""
 
     production_gca = assembly_accession.replace('.', 'v').replace('_', '').lower()
@@ -282,6 +279,7 @@ def get_info_for_pipeline(settings, info_dict, assembly_accession, anno_settings
     diamond_validation_db = Path(anno_settings["diamond_validation_db"])
     current_genebuild = settings["current_genebuild"]
     num_threads = anno_settings["num_threads"]
+    ensembl_release = settings["release_number"]
 
 
     # Add values back to dictionary
@@ -301,6 +299,7 @@ def get_info_for_pipeline(settings, info_dict, assembly_accession, anno_settings
             "current_genebuild": current_genebuild,
             "assembly_accession": str(assembly_accession),
             "num_threads":str(num_threads),
+            "ensembl_release": ensembl_release
         }
     )
 
@@ -368,7 +367,6 @@ def main(gcas, pipeline, settings_file):
         # Fill in basic info
         gca_dict[gca]["assembly_accession"] = gca
         gca_dict[gca]["pipe_db_name"] = f"{settings['dbowner']}_{settings['pipeline_name']}_pipe_{settings['release_number']}"
-        gca_dict[gca]["ensembl_release"] = settings["release_number"]
 
         # Get server settings
         server_info = get_server_settings(settings)
@@ -398,7 +396,6 @@ def main(gcas, pipeline, settings_file):
         server_info.setdefault("core_db", {})["db_name"] = info_dict["core_dbname"]
         info_dict["core_db"] = server_info["core_db"]
 
-
         if pipeline == "anno":
             logger.info("Anno setting detected")
             anno_settings = load_anno_settings()
@@ -421,14 +418,14 @@ def main(gcas, pipeline, settings_file):
 
             # Create the other directories without changing mode (default permissions)
             for dir_path in dirs_to_create:
-                    create_dir(dir_path)
+                create_dir(dir_path)
             logger.info("Created directories")
 
             # Add db adaptors to pipeline registry
             core_adaptor = {
                 "host": server_info["core_db"]["db_host"],
                 "port": server_info["core_db"]["db_port"],
-                "dbname": gca_dict[gca]["core_dbname"],
+                "dbname": info_dict["core_dbname"],
                 "user": settings["user_r"],
                 "pass": settings["password"],
                 "species": info_dict["production_name"],
@@ -438,7 +435,6 @@ def main(gcas, pipeline, settings_file):
             # Create a local copy of the registry and update the pipeline's resources with the new path
             registry_path = create_registry_entry(settings, server_info, core_adaptor)
             output_params["registry_file"] = Path(registry_path)
-
             # Build anno commands and add to dictionary
             build_annotation_commands(core_adaptor, output_params, anno_settings, settings)
             logger.info(f"Created anno commands for {gca_dict[gca]['assembly_accession']}")
@@ -449,8 +445,7 @@ def main(gcas, pipeline, settings_file):
 
 
     # Save all_output_params to output directory
-    #output_json_path = Path(settings["base_output_dir"]) / "non_vert_pipeline_params.json"
-    output_json_path = Path('/Users/lazar/Desktop') / "all_output_params.json"
+    output_json_path = Path(settings["base_output_dir"]) / "non_vert_pipeline_params.json"
 
     try:
         with output_json_path.open("w") as f:
@@ -492,4 +487,4 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     results = main(args.gcas, args.pipeline, args.settings_file)
-    print("\n=== RUN SEED NONVERT SCRIPT ===")
+    print("\n=== RUN SEED NONVERT ===")
