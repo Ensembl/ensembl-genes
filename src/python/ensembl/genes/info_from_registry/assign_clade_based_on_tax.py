@@ -96,7 +96,7 @@ def assign_clade(server_info, registry_info):
         if clade_taxon_id == lowest_taxon_id:
             internal_clade = clade_name
             clade_details = {k: v for k, v in details.items() if k != "taxon_id"}
-            logging.info(f"Exact match: Assigned clade '{internal_clade}' for taxon {registry_info["taxon_id"]}")
+            logging.info(f"Exact match: Assigned clade '{internal_clade}' for taxon {registry_info['taxon_id']}")
             return internal_clade, genus_taxon_id, clade_details
 
     # Step 2: Walk up the taxonomy hierarchy
@@ -117,7 +117,7 @@ def assign_clade(server_info, registry_info):
                 return internal_clade, genus_taxon_id, clade_details
 
     # No match found
-    logging.error(f"No clade found for taxon {registry_info["taxon_id"]} in full hierarchy.")
+    logging.error(f"No clade found for taxon {registry_info['taxon_id']} in full hierarchy.")
     return "Unassigned", genus_taxon_id, None
 
 
