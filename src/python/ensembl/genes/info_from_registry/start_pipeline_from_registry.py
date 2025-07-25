@@ -447,7 +447,7 @@ def main(gcas, pipeline, settings_file):
 
 
     # Save all_output_params to output directory
-    output_json_path = Path(settings["base_output_dir"] / "non_vert_pipeline_params.json")
+    output_json_path = Path(settings["base_output_dir"]) / "non_vert_pipeline_params.json"
 
     try:
         with output_json_path.open("w") as f:
