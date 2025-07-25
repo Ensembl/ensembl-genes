@@ -1,3 +1,5 @@
+import os
+
 import pymysql
 import json
 from mysql_helper import mysql_fetch_data
@@ -60,7 +62,17 @@ def create_tax_dictionary_from_registry(server_info, registry_info):
 
 def load_clade_data():
     """Hardcoded path for clade settings."""
-    json_file = "src/python/ensembl/genes/info_from_registry/clade_settings.json"
+    json_file = os.path.join(
+        os.environ.get("ENSCODE"),
+        "ensembl-genes",
+        "src",
+        "python",
+        "ensembl",
+        "genes",
+        "info_from_registry",
+        "clade_settings.json"
+    )
+
     with open(json_file, "r") as f:
         logging.info("Loading clade settings json file.")
         return json.load(f)

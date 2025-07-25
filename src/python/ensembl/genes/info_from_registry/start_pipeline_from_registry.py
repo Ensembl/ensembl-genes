@@ -37,7 +37,16 @@ def load_settings(settings_file):
 def load_anno_settings():
     """Hardcoded path for anno settings."""
     logger.info("Loading anno settings json")
-    settings = "src/python/ensembl/genes/info_from_registry/anno_settings.json"
+    settings = os.path.join(
+        os.environ.get("ENSCODE"),
+        "ensembl-genes",
+        "src",
+        "python",
+        "ensembl",
+        "genes",
+        "info_from_registry",
+        "anno_settings.json"
+    )
     with open(settings, "r") as f:
         return json.load(f)
 
