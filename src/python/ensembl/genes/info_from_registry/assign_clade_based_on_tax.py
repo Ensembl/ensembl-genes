@@ -34,6 +34,7 @@ def create_tax_dictionary_from_registry(server_info, registry_info):
             user=server_info["registry"]["db_user"],
             port=server_info["registry"]["db_port"],
             database=server_info["registry"]["registry_db"],
+            password= "",
             params=taxon_id,
         )
 
@@ -77,7 +78,7 @@ def assign_clade(server_info, registry_info):
     taxonomy_hierarchy = taxonomy_dict.get(str(lowest_taxon_id)) or taxonomy_dict.get(lowest_taxon_id, [])
 
     if not taxonomy_hierarchy:
-        logging.warning(f"Taxonomy hierarchy not found for taxon ID {registry_info["taxon_id"]}")
+        logging.warning(f"Taxonomy hierarchy not found for taxon ID {registry_info['taxon_id']}")
         return "Unassigned", None, None
 
     internal_clade = "Unassigned"

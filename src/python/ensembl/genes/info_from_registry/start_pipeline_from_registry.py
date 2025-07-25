@@ -11,7 +11,6 @@ import argparse
 import logging
 from build_anno_commands import (build_annotation_commands)
 from check_if_annotated import (check_if_annotated)
-from create_pipe_reg import (create_registry_entry)
 from mysql_helper import mysql_fetch_data
 from assign_clade_based_on_tax import (assign_clade,assign_clade_info_custom_loading)
 
@@ -26,11 +25,13 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-def load_settings():
+def load_settings(settings_file):
     """Hardcoded path for settings."""
-    logger.info("Loading settings json")
-    settings = "src/python/ensembl/genes/info_from_registry/non_vert_pipeline_settings.json"
-    with open(settings, "r") as f:
+    logger.info(f"Loading settings from: {settings_file}")
+    settings_path = Path(settings_file)
+    if not settings_path.exists():
+        raise FileNotFoundError(f"Settings file not found: {settings_path}")
+    with open(settings_path, "r") as f:
         return json.load(f)
 
 def load_anno_settings():
@@ -169,6 +170,7 @@ def get_metadata_from_registry(server_info, assembly_accession, settings):
             user=server_info["registry"]["db_user"],
             port=server_info["registry"]["db_port"],
             database=server_info["registry"]["registry_db"],
+            password= "",
             params=assembly_accessions,
         )
         if registry_info:
@@ -336,9 +338,9 @@ def create_dir(path, mode=None):
     except Exception as e:
         raise RuntimeError(f"Failed to create dir: {path}") from e
 
-def main(gcas, pipeline):
+def main(gcas, pipeline, settings_file):
     # Load settings
-    settings = load_settings()
+    settings = load_settings(settings_file)
 
     # Read in GCAs from file
     with open(gcas, "r") as f:
@@ -469,9 +471,16 @@ if __name__ == "__main__":
         help="Pipeline type to initialize (e.g., 'anno')."
     )
 
+    parser.add_argument(
+        "--settings_file",
+        type=str,
+        required=True,
+        help="Path to file containing edited settings."
+    )
+
     args = parser.parse_args()
 
-    results = main(args.gcas, args.pipeline)
+    results = main(args.gcas, args.pipeline, args.settings_file)
     print("\n=== Pipeline Setup Complete ===")
     for gca, params in results.items():
         print(f"{gca}: {params}")
