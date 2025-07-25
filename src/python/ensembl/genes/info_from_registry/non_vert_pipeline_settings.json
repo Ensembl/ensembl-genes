@@ -1,13 +1,13 @@
 {
   "current_genebuild": "0",
-  "dbowner": "lazar",
-  "base_output_dir": "output/dir",
-  "release_number": "114",
-  "pipeline_name": "pipeline_trial",
-  "password": "ensembl",
-  "user": "ensadmin",
-  "user_r": "ensro",
-  "server_set": "2",
+  "dbowner": "",
+  "base_output_dir": "",
+  "release_number": "",
+  "pipeline_name": "",
+  "password": "",
+  "user": "",
+  "user_r": "",
+  "server_set": "",
   "init_file": "",
   "custom_server":
     {
