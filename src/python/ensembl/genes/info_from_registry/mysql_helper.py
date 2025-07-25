@@ -2,12 +2,13 @@ import pymysql
 import logging
 
 
-def mysql_fetch_data(query, database, host, port, user, params=None):
+def mysql_fetch_data(query, database, host, port, user, password, params=None):
     try:
         conn = pymysql.connect(
             host=host,
             user=user,
             port=port,
+            password=password,
             database=database.strip(),
             cursorclass=pymysql.cursors.DictCursor,
         )
