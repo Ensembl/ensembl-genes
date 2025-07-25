@@ -139,7 +139,31 @@ class EnsemblFTP:
         except Exception as e:
             print(f"Error while checking FTP file: {e}", file=sys.stderr)
             return ""
-                                                            
+
+
+    def check_pre_release_file(
+        self,
+        species_name: str,
+        accession: str,
+        extension: str
+    ) -> str:
+        """
+        Look in the 'pre-release' FTP folder for first file ending in `extension`
+        (e.g. '.gtf.gz', '.gff3.gz', '.dna.softmasked.fa.gz').
+        Return its HTTPS URL or empty string.
+        """
+        ftp = self.ebi_ftp
+        base = self.ebi_ftp_path
+        path = f"pub/databases/ensembl/pre-release/{species_name}/{accession}/"
+        try:
+            self.return_to_root(ftp)
+            ftp.cwd(path)
+            for fname in ftp.nlst():
+                if fname.lower().endswith(extension):
+                    return base + path + fname
+        except error_perm:
+            return ""
+        return ""
 
     def close_connections(self) -> None:
         """
@@ -284,26 +308,66 @@ def write_yaml(
             method = info_dict.get("genebuild.method_display", "BRAKER2")
             yaml += f"  annotation_method: {method}\n"
 
-        yaml += (
-            f"  annotation_gtf: {ftp_base}/{species_name}/{info_dict['assembly.accession']}/"
-            f"{source}/geneset/{date}/genes.gtf.gz\n"
+        # ==== annotation_gtf ====
+        gtf = f"{ftp_base}/{species_name}/{info_dict['assembly.accession']}/" \
+              f"{source}/geneset/{date}/genes.gtf.gz"
+        if check_url_status(gtf):
+            yaml += f"  annotation_gtf: {gtf}\n"
+        else:
+            fb = ftp_client.check_pre_release_file(species_name,
+                                                  info_dict["assembly.accession"],
+                                                  ".gtf.gz")
+            if fb:
+                yaml += f"  annotation_gtf: {fb}\n"
+        # ==== annotation_gff3: try gzipped, then uncompressed, then pre‑release ====
+        gff_gz = (
+            f"{ftp_base}/{species_name}/{info_dict['assembly.accession']}/"
+            f"{source}/geneset/{date}/genes.gff3.gz"
         )
-        yaml += (
-            f"  annotation_gff3: {ftp_base}/{species_name}/{info_dict['assembly.accession']}/"
-            f"{source}/geneset/{date}/genes.gff3\n"
+        gff    = (
+            f"{ftp_base}/{species_name}/{info_dict['assembly.accession']}/"
+            f"{source}/geneset/{date}/genes.gff3"
         )
-        yaml += (
-            f"  proteins: {ftp_base}/{species_name}/{info_dict['assembly.accession']}/{source}/geneset/{date}/"
-            f"pep.fa.gz\n"
-        )
-        yaml += (
-            f"  transcripts: {ftp_base}/{species_name}/{info_dict['assembly.accession']}/{source}/geneset/{date}/"
-            f"cdna.fa.gz\n"
-        )
-        yaml += (
-            f"  softmasked_genome: {ftp_base}/{species_name}/{info_dict['assembly.accession']}/genome/"
-            f"softmasked.fa.gz\n"
-        )
+        if check_url_status(gff_gz):
+            yaml += f"  annotation_gff3: {gff_gz}\n"
+        elif check_url_status(gff):
+            yaml += f"  annotation_gff3: {gff}\n"
+        else:
+            # fallback: look in pre‑release for gzipped first, then uncompressed
+            fb = ftp_client.check_pre_release_file(
+                species_name,
+                info_dict["assembly.accession"],
+                ".gff3.gz"
+            )
+            if not fb:
+                fb = ftp_client.check_pre_release_file(
+                    species_name,
+                    info_dict["assembly.accession"],
+                    ".gff3"
+                )
+            if fb:
+                yaml += f"  annotation_gff3: {fb}\n"
+        # ==== proteins ====
+        pep = f"{ftp_base}/{species_name}/{info_dict['assembly.accession']}/" \
+              f"{source}/geneset/{date}/pep.fa.gz"
+        if check_url_status(pep):
+            yaml += f"  proteins: {pep}\n"
+        # ==== transcripts ====
+        cdna = f"{ftp_base}/{species_name}/{info_dict['assembly.accession']}/" \
+               f"{source}/geneset/{date}/cdna.fa.gz"
+        if check_url_status(cdna):
+            yaml += f"  transcripts: {cdna}\n"
+        # ==== softmasked genome ====
+        soft = f"{ftp_base}/{species_name}/{info_dict['assembly.accession']}/genome/" \
+               f"softmasked.fa.gz"
+        if check_url_status(soft):
+            yaml += f"  softmasked_genome: {soft}\n"
+        else:
+            fb = ftp_client.check_pre_release_file(species_name,
+                                                  info_dict["assembly.accession"],
+                                                  ".dna.softmasked.fa.gz")
+            if fb:
+                yaml += f"  softmasked_genome: {fb}\n"
         rm_file = ftp_client.check_for_file(
             rm_species_name,
             info_dict["species.production_name"],

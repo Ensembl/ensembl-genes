@@ -580,6 +580,16 @@ if __name__ == "__main__":
                 + '"'
             )
 
+    meta_keys_to_remove = [
+        "species.strain",
+        "strain.type",
+        ]
+    for remove_key in meta_keys_to_remove:
+        print(
+            f"DELETE from meta WHERE meta_key='{remove_key}';",
+            file=sql_out,
+        )
+            
     if args.verbose:
         # Print with the 'required' column if -v flag is present
         print("\n".join(f"{key:<28}   {val:<20}   {'required' if key in required_meta_keys else ''}" 
