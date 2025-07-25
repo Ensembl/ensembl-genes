@@ -13,6 +13,7 @@ from build_anno_commands import (build_annotation_commands)
 from check_if_annotated import (check_if_annotated)
 from mysql_helper import mysql_fetch_data
 from assign_clade_based_on_tax import (assign_clade,assign_clade_info_custom_loading)
+from create_pipe_reg import create_registry_entry
 
 # Configure logging
 logging.basicConfig(
@@ -406,7 +407,7 @@ def main(gcas, pipeline, settings_file):
             # Create directories
             dirs_to_create = []
             # Create output dir with 775 permissions this was for BRAKER
-            #create_dir(info_dict["output_path"], mode=0o775)
+            create_dir(info_dict["output_path"], mode=0o775)
 
             # Add other dirs to the list
             dirs_to_create.extend(
@@ -419,9 +420,9 @@ def main(gcas, pipeline, settings_file):
             )
 
             # Create the other directories without changing mode (default permissions)
-           # for dir_path in dirs_to_create:
-            #    create_dir(dir_path)
-            #logger.info("Created directories")
+            for dir_path in dirs_to_create:
+                    create_dir(dir_path)
+            logger.info("Created directories")
 
             # Add db adaptors to pipeline registry
             core_adaptor = {
@@ -435,8 +436,9 @@ def main(gcas, pipeline, settings_file):
             }
 
             # Create a local copy of the registry and update the pipeline's resources with the new path
-            #registry_path = create_registry_entry(settings, server_info, core_adaptor)
-            #output_params["registry_file"] = Path(registry_path)
+            registry_path = create_registry_entry(settings, server_info, core_adaptor)
+            output_params["registry_file"] = Path(registry_path)
+
             # Build anno commands and add to dictionary
             build_annotation_commands(core_adaptor, output_params, anno_settings, settings)
             logger.info(f"Created anno commands for {gca_dict[gca]['assembly_accession']}")
