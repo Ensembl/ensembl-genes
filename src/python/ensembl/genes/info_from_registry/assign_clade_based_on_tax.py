@@ -1,7 +1,18 @@
 import pymysql
 import json
-from src.python.ensembl.genes.info_from_registry.mysql_helper import mysql_fetch_data
+from mysql_helper import mysql_fetch_data
 import logging
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(message)s",
+    handlers=[
+        logging.FileHandler("pipeline_setup.log"),
+        logging.StreamHandler()
+    ]
+)
+logger = logging.getLogger(__name__)
 
 
 def create_tax_dictionary_from_registry(server_info, registry_info):
@@ -22,11 +33,9 @@ def create_tax_dictionary_from_registry(server_info, registry_info):
             host=server_info["registry"]["db_host"],
             user=server_info["registry"]["db_user"],
             port=server_info["registry"]["db_port"],
-            database="gb_assembly_metadata",
+            database=server_info["registry"]["registry_db"],
             params=taxon_id,
         )
-
-
 
         taxonomy_dict = {}
         for row in taxonomy_info:
@@ -40,11 +49,11 @@ def create_tax_dictionary_from_registry(server_info, registry_info):
                 }
             )
 
-
+        logger.info(f"Found taxonomy for {taxon_id}")
         return taxonomy_dict
 
     except pymysql.Error as err:
-        print(f"MySQL error: {err}")
+        logger.error("Error while fetching taxonomy info: %s", err)
         return {}
 
 
@@ -107,7 +116,7 @@ def assign_clade(server_info, registry_info):
                 return internal_clade, genus_taxon_id, clade_details
 
     # No match found
-    logging.warning(f"No clade found for taxon {registry_info["taxon_id"]} in full hierarchy.")
+    logging.error(f"No clade found for taxon {registry_info["taxon_id"]} in full hierarchy.")
     return "Unassigned", genus_taxon_id, None
 
 
@@ -128,7 +137,7 @@ def assign_clade_info_custom_loading(registry_info):
     clade_name = registry_info.get("clade")
 
     if not clade_name:
-        logging.warning("No 'clade' key found in provided dictionary")
+        logging.error("No 'clade' key found in provided dictionary")
         return None
 
     # Look for the specific clade in the dictionary

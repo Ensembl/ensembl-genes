@@ -1,13 +1,23 @@
 import re
 import shutil
 from pathlib import Path
+import os
 
-from src.python.ensembl.genes.info_from_registry.mysql_helper import mysql_update
+
+from mysql_helper import mysql_update
 
 
-def update_registry_path_and_create_entry(param, server_info):
-    new_registry_file = Path(param["base_output_dir"]) / "Databases.pm"
-    registry_file = re.sub(r"/+", "/", param["registry_file"])
+def update_registry_path_and_create_entry(settings, server_info):
+    new_registry_file = Path(settings["base_output_dir"]) / "Databases.pm"
+    registry_file = os.path.join(
+        os.environ.get("ENSCODE"),
+        "ensembl-analysis",
+        "scripts",
+        "genebuild",
+        "gbiab",
+        "support_files",
+        "Databases.pm"
+    )
 
     if not new_registry_file.exists():
         shutil.copy(registry_file, new_registry_file)
@@ -33,9 +43,9 @@ def update_registry_path_and_create_entry(param, server_info):
         print("Failed to update registry path.")
 
 
-def create_registry_entry(param, server_info, adaptors):
-    update_registry_path_and_create_entry(param, server_info)
-    registry_path = Path(param["base_output_dir"]) / "Databases.pm"
+def create_registry_entry(settings, server_info, core_adaptor):
+    update_registry_path_and_create_entry(settings, server_info)
+    registry_path = Path(settings["base_output_dir"]) / "Databases.pm"
 
     if not registry_path.exists():
         raise FileNotFoundError(f"A registry file was not found at: {registry_path}")
@@ -54,7 +64,7 @@ def create_registry_entry(param, server_info, adaptors):
         )
 
     # Generate registry entries
-    core_string = db_string(adaptors["core_string"])
+    core_string = db_string(core_adaptor)
 
     # Read the original registry content
     lines = registry_path.read_text().splitlines(keepends=True)

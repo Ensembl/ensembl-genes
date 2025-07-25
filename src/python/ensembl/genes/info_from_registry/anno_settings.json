@@ -1,0 +1,4 @@
+{
+  "diamond_validation_db": "/hps/nobackup/flicek/ensembl/genebuild/blastdb/uniprot_euk_diamond/uniprot_euk.fa.dmnd",
+  "num_threads": "20"
+}

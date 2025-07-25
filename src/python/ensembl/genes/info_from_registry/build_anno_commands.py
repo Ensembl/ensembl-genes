@@ -1,10 +1,9 @@
-def build_annotation_commands(adaptors, output_params):
-    core_db = adaptors["core_string"]
+def build_annotation_commands(core_adaptor, output_params, anno_settings, settings):
     get = lambda k: output_params.get(k, "")  # Short helper
 
     anno_commandline = (
         f" --genome_file {get('reheadered_toplevel_genome_file')}"
-        f" --db_details {core_db['dbname']},{core_db['host']},{core_db['port']},{core_db['user']},{core_db['pass']}"
+        f" --db_details {core_adaptor['dbname']},{core_adaptor['host']},{core_adaptor['port']},{core_adaptor['user']},{core_adaptor['pass']}"
         f" --output_dir {get('output_path')}"
         f" --short_read_fastq_dir {get('short_read_dir')}"
         f" --long_read_fastq_dir {get('long_read_dir')}"
@@ -12,17 +11,17 @@ def build_annotation_commands(adaptors, output_params):
         f" --protein_file {get('protein_file')}"
         f" --busco_protein_file {get('busco_protein_file')}"
         f" --rfam_accessions_file {get('rfam_accessions_file')}"
-        f" --num_threads {get('num_threads')}"
+        f" --num_threads {anno_settings['num_threads']}"
     )
 
-    if output_params.get("repeatmodeler_library"):
+    if settings.get("use_existing_repeatmodeler_library"):
         anno_commandline += (
-            f" --repeatmasker_library {output_params['repeatmodeler_library']}"
+            f" --repeatmasker_library {settings['use_existing_repeatmodeler_library']}"
         )
 
-    if output_params.get("diamond_validation_db"):
+    if anno_settings.get("diamond_validation_db"):
         anno_commandline += (
-            f" --diamond_validation_db {output_params['diamond_validation_db']}"
+            f" --diamond_validation_db {anno_settings['diamond_validation_db']}"
         )
 
     if output_params.get("validation_type"):
@@ -32,7 +31,7 @@ def build_annotation_commands(adaptors, output_params):
 
     anno_red_commandline = (
         f" --genome_file {get('reheadered_toplevel_genome_file')}"
-        f" --db_details {core_db['dbname']},{core_db['host']},{core_db['port']},{core_db['user']},{core_db['pass']}"
+        f" --db_details {core_adaptor['dbname']},{core_adaptor['host']},{core_adaptor['port']},{core_adaptor['user']},{core_adaptor['pass']}"
         f" --output_dir {get('output_path')}"
         f" --num_threads {get('num_threads')}"
         " --run_masking --run_repeats --run_simple_features --load_to_ensembl_db"

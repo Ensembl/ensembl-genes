@@ -1,0 +1,26 @@
+{
+  "current_genebuild": "0",
+  "dbowner": "lazar",
+  "base_output_dir": "output/dir",
+  "release_number": "114",
+  "pipeline_name": "pipeline_trial",
+  "password": "ensembl",
+  "user": "ensadmin",
+  "user_r": "ensro",
+  "server_set": "2",
+  "init_file": "",
+  "custom_server":
+    {
+      "pipeline_db_host": "",
+      "pipeline_db_port": "",
+      "core_db_host": "",
+      "core_db_port": ""
+    },
+  "use_existing_short_read_dir": "",
+  "use_existing_repeatmodeler_library": "",
+  "rnaseq_main_file_min_lines": "20",
+  "rnaseq_genus_file_min_lines": "10",
+  "busco_threshold": "70",
+  "busco_lower_threshold": "50",
+  "busco_difference_threshold": "10"
+}
