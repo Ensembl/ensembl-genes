@@ -1,22 +1,22 @@
-import os
 import json
 import subprocess
 import argparse
 
-ANALYSIS_ID = 1  # Change as appropriate
-
 def dict_to_perl_hash(d):
-    # Recursively convert a Python dictionary to a Perl hash string with single quotes
+    """Recursively convert a Python dict to a Perl hash string."""
     items = []
     for k, v in d.items():
+        key_str = f"'{k}'"
         if isinstance(v, dict):
-            v_str = dict_to_perl_hash(v)
+            val_str = dict_to_perl_hash(v)
         elif isinstance(v, str):
-            v_str = f"'{v}'"
+            val_str = f"'{v}'"
+        elif v is None:
+            val_str = "undef"
         else:
-            v_str = str(v)
-        items.append(f"'{k}' => {v_str}")
-    return "{" + ", ".join(items) + "}"
+            val_str = str(v)
+        items.append(f"{key_str} => {val_str}")
+    return "{{{}}}".format(", ".join(items))
 
 def main():
     parser = argparse.ArgumentParser(description="Seed eHive pipeline jobs from a JSON file")
@@ -28,26 +28,27 @@ def main():
     parser.add_argument(
         "-a", "--analysis_id",
         type=int,
-        default=ANALYSIS_ID,
-        help=f"Analysis ID to seed (default: {ANALYSIS_ID})"
+        default=1,
+        help=f"Analysis ID to seed (default: 1)"
+    )
+
+    parser.add_argument(
+        "-u", "--url",
+        required=True,
+        help="EHIVE URL"
     )
 
     args = parser.parse_args()
-
     json_file = args.json_file
     analysis_id = args.analysis_id
+    ehive_url = args.url
 
+    # Load job parameters from JSON
     with open(json_file) as f:
         params = json.load(f)
 
-    ehive_url = os.environ.get("EHIVE_URL")
-    if not ehive_url:
-        raise RuntimeError("EHIVE_URL environment variable not set")
-
     for input_id, param_dict in params.items():
         perl_hash = dict_to_perl_hash(param_dict)
-        # Optionally include the input_id itself as a parameter:
-        # perl_hash = dict_to_perl_hash({**param_dict, "input_id": input_id})
         cmd = [
             "seed_pipeline.pl",
             "-analysis_id", str(analysis_id),

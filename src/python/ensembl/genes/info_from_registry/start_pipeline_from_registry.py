@@ -166,7 +166,7 @@ def get_metadata_from_registry(server_info, assembly_accession, settings):
                 s.scientific_name AS species_name,
                 a.assembly_id, 
                 mb.bioproject_name AS assembly_group,
-                CONCAT(a.gca_chain, '.', a.gca_version) AS gca
+                CONCAT(a.gca_chain, '.', a.gca_version) AS assembly_accession,
             FROM assembly a
             JOIN bioproject b ON a.assembly_id = b.assembly_id
             JOIN species s ON a.lowest_taxon_id = s.lowest_taxon_id
@@ -243,7 +243,6 @@ def add_generated_data(server_info, assembly_accession, settings):
 
     # Update dictionary
     info_dict["species_name"] = species_name
-    info_dict["binomial_species_name"] = binomial_species_name
     info_dict["production_name"] = production_name
     info_dict["species_strain_group"] = production_name
     logger.info(f"Values formatted for {assembly_accession}")
@@ -369,7 +368,6 @@ def main(gcas, pipeline, settings_file):
         # Fill in basic info
         gca_dict[gca]["assembly_accession"] = gca
         gca_dict[gca]["pipe_db_name"] = f"{settings['dbowner']}_{settings['pipeline_name']}_pipe_{settings['release_number']}"
-        gca_dict[gca]["core_dbname"] = f"{settings['dbowner']}_{settings['pipeline_name']}_pipe_{settings['release_number']}_1"
         gca_dict[gca]["ensembl_release"] = settings["release_number"]
 
         # Get server settings
@@ -385,7 +383,6 @@ def main(gcas, pipeline, settings_file):
 
         # Assign database names
         server_info.setdefault("pipeline_db", {})["db_name"] = gca_dict[gca]["pipe_db_name"]
-        server_info.setdefault("core_db", {})["db_name"] = gca_dict[gca]["core_dbname"]
 
         # Check if GCA is annotated
         logger.info(f"Checking {gca_dict[gca]['assembly_accession']} annotation status")
@@ -397,7 +394,10 @@ def main(gcas, pipeline, settings_file):
 
         # Create output params
         info_dict = add_generated_data(server_info, gca_dict[gca]["assembly_accession"], settings)
+        info_dict["core_dbname"] = f"{settings['dbowner']}_{info_dict['production_name']}_pipe_{settings['release_number']}_1"
+        server_info.setdefault("core_db", {})["db_name"] = info_dict["core_dbname"]
         info_dict["core_db"] = server_info["core_db"]
+
 
         if pipeline == "anno":
             logger.info("Anno setting detected")
@@ -449,7 +449,8 @@ def main(gcas, pipeline, settings_file):
 
 
     # Save all_output_params to output directory
-    output_json_path = Path(settings["base_output_dir"]) / "non_vert_pipeline_params.json"
+    #output_json_path = Path(settings["base_output_dir"]) / "non_vert_pipeline_params.json"
+    output_json_path = Path('/Users/lazar/Desktop') / "all_output_params.json"
 
     try:
         with output_json_path.open("w") as f:
@@ -491,6 +492,4 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     results = main(args.gcas, args.pipeline, args.settings_file)
-    print("\n=== Pipeline Setup Complete ===")
-    for gca, params in results.items():
-        print(f"{gca}: {params}")
+    print("\n=== RUN SEED NONVERT SCRIPT ===")
