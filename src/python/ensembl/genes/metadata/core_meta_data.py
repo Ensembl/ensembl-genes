@@ -464,7 +464,9 @@ if __name__ == "__main__":
                 truth_dict["genebuild.provider_url"] = "https://beta.ensembl.org/help/articles/vertebrate-genome-annotation"
                 truth_dict["genebuild.method_display"] = "Mapping from reference"
         # for non-genebuilds, I don't have a set of rules (as above), so I rely on the core meta keys and the static
-        else:
+        elif core_dict["genebuild.method"] == "import":
+            if "genebuild.method_display" not in core_dict:
+                truth_dict["genebuild.method_display"] = "Import"
             if "genebuild.version" not in core_dict:
                 truth_dict["genebuild.version"] = "EXT01"
             # try to get the annotation source
@@ -488,6 +490,7 @@ if __name__ == "__main__":
                 truth_dict["genebuild.provider_url"] = provider_dict[core_dict["species.production_name"]["url"]]
             elif "genebuild.provider_url" not in core_dict:
                 logger.critical(" | GENEBUILD_PROVIDER_URL | No genebuild.provider_url could be found either in the core db or in provider_static.txt, this is a required key!")
+            
                  
     else:
         logger.warning(" | GENEBUILD_METHOD | No genebuild.method, assuming this is an Ensembl annotation")
@@ -555,6 +558,7 @@ if __name__ == "__main__":
         "assembly.name",
         "genebuild.version",
         "genebuild.method",
+        "genebuild.method_display",
         "genebuild.start_date",
         "genebuild.annotation_source",
         "genebuild.provider_name",
