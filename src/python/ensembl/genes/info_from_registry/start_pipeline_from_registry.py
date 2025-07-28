@@ -14,6 +14,7 @@ from check_if_annotated import (check_if_annotated)
 from mysql_helper import mysql_fetch_data
 from assign_clade_based_on_tax import (assign_clade,assign_clade_info_custom_loading)
 from create_pipe_reg import create_registry_entry
+from create_config import edit_config
 
 # Configure logging
 logging.basicConfig(
@@ -246,6 +247,21 @@ def add_generated_data(server_info, assembly_accession, settings):
 
     return info_dict
 
+def get_rna_and_busco_check_threshold(settings):
+    rnaseq_main_file_min_lines = settings["rnaseq_main_file_min_lines"]
+    rnaseq_genus_file_min_lines = settings["rnaseq_genus_file_min_lines"]
+    busco_threshold = settings["busco_threshold"]
+    busco_lower_threshold = settings["busco_lower_threshold"]
+    busco_difference_threshold = settings["busco_difference_threshold"]
+
+    return {
+    "busco_threshold": settings["busco_threshold"],
+    "busco_lower_threshold": settings["busco_lower_threshold"],
+    "busco_difference_threshold": settings["busco_difference_threshold"],
+    "rnaseq_main_file_min_lines": settings["rnaseq_main_file_min_lines"],
+    "rnaseq_genus_file_min_lines": settings["rnaseq_genus_file_min_lines"],
+}
+
 
 def get_info_for_pipeline(settings, info_dict, assembly_accession, anno_settings):
     logger.info("Getting info for pipeline settings for GCA %s", assembly_accession)
@@ -398,6 +414,9 @@ def main(gcas, pipeline, settings_file):
 
         if pipeline == "anno":
             logger.info("Anno setting detected")
+            logger.info("Copy and modify pipeline config")
+            edit_config(settings)
+
             anno_settings = load_anno_settings()
             output_params = get_info_for_pipeline(settings, info_dict, gca_dict[gca]["assembly_accession"], anno_settings)
 
@@ -439,9 +458,15 @@ def main(gcas, pipeline, settings_file):
             build_annotation_commands(core_adaptor, output_params, anno_settings, settings)
             logger.info(f"Created anno commands for {gca_dict[gca]['assembly_accession']}")
 
+            logger.info("RNA and BUSCO thresholds")
+            rna_busco_settings = get_rna_and_busco_check_threshold(settings)
+            output_params.update(rna_busco_settings)
+
             # Store the output_params for this GCA
             all_output_params[gca] = output_params
             logger.info(f"Finished with {gca_dict[gca]['assembly_accession']}")
+
+
 
 
     # Save all_output_params to output directory
@@ -487,4 +512,5 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     results = main(args.gcas, args.pipeline, args.settings_file)
-    print("\n=== RUN SEED NONVERT ===")
+    print("\n=== NEXT STEP INITIALISE PIPELINE ===")
+    print("\n=== FINALLY RUN SEED NONVERT ===")
