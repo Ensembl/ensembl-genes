@@ -1,33 +1,40 @@
 {
-    "server_details" : {
+    "server_details": {
 	"meta": {
-	    "rapid" : {
-		"db_name" : "ensembl_metadata_qrp",
-		"db_host" : "mysql-ens-meta-prod-1",
-		"db_user" : "ensro",
-		"db_port" : 4483
+	    "rapid": {
+		"db_name": "ensembl_metadata_qrp",
+		"db_host": "mysql-ens-meta-prod-1",
+		"db_user": "ensro",
+		"db_port": 4483
 	    },
-	    "beta" : {
-                "db_name" : "ensembl_genome_metadata",
-                "db_host" : "mysql-ens-production-1",
-                "db_user" : "ensro",
-                "db_port" : 4721
-            }
+	    "beta": {
+		"db_name": "ensembl_genome_metadata",
+		"db_host": "mysql-ens-production-1",
+		"db_user": "ensro",
+		"db_port": 4721
+	    }
 	},
 	"data": {
-	    "rapid" : {
-                "db_name" : "",
-                "db_host" : "mysql-ens-sta-5",
-                "db_user" : "ensro",
-                "db_port" : 4684
+	    "rapid": {
+		"db_name": "",
+		"db_host": "mysql-ens-sta-5",
+		"db_user": "ensro",
+		"db_port": 4684
+	    }
+	},
+	"pre-release": {
+	    "gb1": {
+		"db_name": "",
+		"db_host": "mysql-ens-genebuild-prod-1",
+		"db_user": "ensro",
+		"db_port": 4527
 	    }
 	}
-	
     },
-    "urls" : {
-	"datasets" : {
-	    "bioproject" : "https://api.ncbi.nlm.nih.gov/datasets/v2/genome/bioproject",
-	    "taxon" : "https://api.ncbi.nlm.nih.gov/datasets/v2/genome/taxon"
+    "urls": {
+	"datasets": {
+	    "bioproject": "https://api.ncbi.nlm.nih.gov/datasets/v2/genome/bioproject",
+	    "taxon": "https://api.ncbi.nlm.nih.gov/datasets/v2/genome/taxon"
 	}
     }
 }
