@@ -35,7 +35,7 @@ def create_tax_dictionary_from_registry(server_info, registry_info):
             host=server_info["registry"]["db_host"],
             user=server_info["registry"]["db_user"],
             port=server_info["registry"]["db_port"],
-            database=server_info["registry"]["registry_db"],
+            database=server_info["registry"]["db_name"],
             password= "",
             params=taxon_id,
         )
