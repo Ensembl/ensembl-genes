@@ -1,6 +1,18 @@
 import os
 import shutil
 import re
+import logging
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(message)s",
+    handlers=[
+        logging.FileHandler("pipeline_setup.log"),
+        logging.StreamHandler()
+    ]
+)
+logger = logging.getLogger(__name__)
 
 
 def copy_config(settings):
@@ -20,7 +32,7 @@ def copy_config(settings):
 
     try:
         shutil.copy2(original_config, local_config)
-        print(f"Copied file from {original_config} to {local_config}")
+        logging.info(f"Copied file from {original_config} to {local_config}")
     except Exception as e:
         raise RuntimeError(f"Error copying file: {e}")
 
