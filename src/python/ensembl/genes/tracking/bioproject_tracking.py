@@ -3,9 +3,10 @@ import requests
 import pymysql
 import json
 import logging
+import re
 from pathlib import Path
 from collections import Counter
-from typing import List, Tuple, Any, Dict
+from typing import List, Tuple, Any, Dict, Optional
 
 # Enable logging for debugging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
@@ -15,39 +16,52 @@ with open("./bioproject_tracking_config.json", "r") as f:
     config = json.load(f)
 
 
-def mysql_fetch_data(query: str, params: Tuple = ()) -> List[Tuple[Any, ...]]:
+def mysql_fetch_data(
+            query: str,
+            params: Tuple = (),
+            server_group: str = "meta",
+            server_name: str = "beta",
+            db_name: Optional[str] = None
+        ) -> List[Tuple[Any, ...]]:
     """
-    Executes a SQL query with optional parameters to fetch results from the MySQL database.
+    Executes a SQL query with optional parameters to fetch results from a specified MySQL server.
 
-    This function connects to a MySQL database using the credentials specified in the
-    global `config` variable. It then executes the provided SQL query (along with any
-    parameters) and returns all of the fetched results as a list of tuples. If an error
-    occurs during the database operation, the error is logged and an empty list is returned.
+    The function supports dynamic selection of MySQL servers based on the `config` structure,
+    which organizes server credentials under groups like "meta", "data", or "pre-release".
 
     Args:
-        query (str): The SQL query to be executed.
-        params (Tuple, optional): A tuple of parameters to be used with the query.
-            Defaults to an empty tuple ().
+        query (str): The SQL query to execute.
+        params (Tuple, optional): Parameters to substitute into the SQL query. Default is ().
+        server_group (str): The group of servers to use (e.g., "meta", "data", "pre-release").
+        server_name (str): The specific server key within the group (e.g., "beta", "gb1").
+        db_name (Optional[str]): Optional explicit database name. If not provided, uses the one
+                                 from the config (if available).
 
     Returns:
-        List[Tuple[Any, ...]]: A list of tuples containing the rows returned by the query.
-        If an error occurs or no data is found, an empty list is returned.
+        List[Tuple[Any, ...]]: Fetched query results. Returns an empty list on error or no data.
     """
     try:
-        conn = pymysql.connect(
-            host=config["server_details"]["meta"]["beta"]["db_host"],
-            user=config["server_details"]["meta"]["beta"]["db_user"],
-            port=config["server_details"]["meta"]["beta"]["db_port"],
-            database=config["server_details"]["meta"]["beta"]["db_name"],
+        server_config = config["server_details"][server_group][server_name]
+        
+        connection = pymysql.connect(
+            host=server_config["db_host"],
+            user=server_config["db_user"],
+            port=server_config["db_port"],
+            database=db_name or server_config.get("db_name", ""),  # allow empty db if not needed
         )
-        with conn.cursor() as cursor:
+        with connection.cursor() as cursor:
             cursor.execute(query, params)
             result = cursor.fetchall()
-        conn.close()
-        return result
-    except pymysql.Error as err:
-        logging.error(f"MySQL Error: {err}")
-        return []
+            connection.close()
+            return result
+        
+    except KeyError as key_err:
+        logging.error(f"Invalid server group or name in config: {key_err}")
+    except pymysql.Error as sql_err:
+        logging.error(f"MySQL Error: {sql_err}")
+
+    return []
+                        
 
 
 def get_assembly_accessions(query_id: str, query_type: str, only_haploid: bool = False) -> Dict[str, Dict[str, int]]:
@@ -172,7 +186,9 @@ def get_ensembl_live(accessions_taxon: Dict[str, Dict[str, int]]) -> Dict[str, D
         live_annotations[accession] = accessions_taxon[accession]
         live_annotations[accession].update({"guuid": guuid, "dbname": dbname})
 
-    return live_annotations
+    # Compute accessions that were not annotated
+    missing_annotations = [acc for acc in accessions if acc not in live_annotations]
+    return live_annotations, missing_annotations
 
 
 def get_taxonomy_info(
@@ -233,56 +249,126 @@ def get_taxonomy_info(
     return live_annotations
 
 
-def add_ftp(live_annotations: Dict[str, Dict[str, str]]) -> Dict[str, Dict[str, str]]:
-    """
-    Adds FTP links to the live annotations dictionary.
-
-    This function queries the local MySQL database (using `mysql_fetch_data`) to retrieve
-    `genebuild_date` and `scientific_name` for each genome UUID. Using this information, it
-    constructs an FTP link for the relevant Ensembl data and adds it to the `live_annotations`
-    under the key "ftp".
-
-    Args:
-        live_annotations (Dict[str, Dict[str, str]]): A dictionary where each key is
-            an assembly accession, and its value contains annotation details (including
-            at least "guuid").
-
-    Returns:
-        Dict[str, Dict[str, str]]: The updated `live_annotations` with the "ftp" key.
-        Example:
-            {
-                "GCA_000001405.39": {
-                    "taxon_id": 9606,
-                    "guuid": "some-uuid",
-                    "dbname": "ensembl_core",
-                    "ftp": "https://ftp.ebi.ac.uk/pub/ensemblorganisms/Homo_sapiens/..."
-                },
-                ...
-            }
-        If no matching information is found for a UUID, the "ftp" key is not added.
-    """
-    for accession in live_annotations:
-        guuid = live_annotations[accession]["guuid"]
-
-        query = """
+def add_ftp(
+        annotations: Dict[str, Dict[str, str]],
+        release_type: str = "live"
+) -> Dict[str, Dict[str, str]]:
+    for accession, annotation in annotations.items():
+        if release_type == "pre":
+            dbname = annotation.get("dbname")
+            if not dbname:
+                continue  # Can't query without db name
+            
+            # Query the pre-release DB itself for scientific name
+            query = """
+            SELECT meta_value 
+            FROM meta 
+            WHERE meta_key = 'organism.scientific_name'
+            """
+            result = mysql_fetch_data(
+                query,
+                (),
+                server_group="pre-release",
+                server_name="gb1",
+                db_name=dbname
+            )
+                
+            if not result:
+                continue
+            
+            scientific_name = result[0][0].replace(" ", "_")
+            ftp_link = f"https://ftp.ebi.ac.uk/pub/databases/ensembl/pre-release/{scientific_name}/{accession}"
+            annotation["ftp"] = ftp_link
+                
+        elif release_type == "live":
+            guuid = annotation.get("guuid")
+            if not guuid or guuid == "unknown":
+                continue
+            
+            query = """
             SELECT genome.genebuild_date, organism.scientific_name
             FROM genome
             JOIN organism USING(organism_id)
             WHERE genome.genome_uuid = %s
-        """
-        data_fetch = mysql_fetch_data(query, (guuid,))
-
-        if data_fetch:
+            """
+            data_fetch = mysql_fetch_data(query, (guuid,))
+            
+            if not data_fetch:
+                continue
+            
             date, scientific_name = data_fetch[0]
             date = date.replace("-", "_")
             scientific_name = scientific_name.replace(" ", "_")
-
-            # Construct FTP link
+            
             ftp_link = f"https://ftp.ebi.ac.uk/pub/ensemblorganisms/{scientific_name}/{accession}/ensembl/geneset/{date}/"
-            live_annotations[accession]["ftp"] = ftp_link
+            annotation["ftp"] = ftp_link
+                
+    return annotations
 
-    return live_annotations
+def get_pre_release(missing_annotations: List[str]) -> Dict[str, Dict[str, str]]:
+    """
+    Checks for the existence of pre-release Ensembl database schemas for a list of missing accessions.
 
+    This function takes a list of GenBank/RefSeq assembly accessions that were not found in the
+    Ensembl live database lookup (e.g., from `get_ensembl_live`). It reformats each accession
+    to match the expected pre-release Ensembl database schema naming convention (e.g.,
+    'GCA_000001405.39' → 'gca000001405v39') and queries the MySQL server's 
+    `information_schema.schemata` table to check if a database with that name exists.
+
+    If such a schema is found, the function records the corresponding accession and
+    database name in the returned dictionary.
+
+    Args:
+        missing_annotations (List[str]): A list of assembly accessions (e.g., 'GCA_000001405.39')
+            for which no live annotation database was found.
+
+    Returns:
+        Dict[str, Dict[str, str]]: A dictionary mapping each accession with a found pre-release
+        database to a nested dictionary containing:
+            - "dbname": The name of the pre-release schema (e.g., 'gca000001405v39').
+
+        Example:
+            {
+                "GCA_000001405.39": {
+                    "dbname": "gca000001405v39"
+                },
+                ...
+            }
+
+    Notes:
+        - Only accessions matching the pattern 'GCA/GCF_XXXXXXXXX.XX' are processed.
+        - If no matching schema is found for an accession, it is omitted from the result.
+        - The function uses `mysql_fetch_data` to query the MySQL server's schema metadata.
+    """
+    pre_release_annotations = {}
+
+    for accession in missing_annotations:
+        match = re.match(r"(GCA|GCF)_(\d+)\.(\d+)", accession)
+        if not match:
+            continue  # skip malformed accession
+        
+        prefix, number, version = match.groups()
+        lookup_string = f"%{prefix.lower()}{number}v{version}%"
+        
+        query = """
+        SELECT SCHEMA_NAME
+        FROM information_schema.schemata
+        WHERE SCHEMA_NAME like %s
+        """
+        result = mysql_fetch_data(
+            query,
+            (lookup_string,),
+            server_group="pre-release",
+            server_name="gb1"
+        )
+            
+        if result:
+            pre_release_annotations[accession] = {
+                "guiid": 'unknown',
+                "dbname": result[0][0]  # extract the SCHEMA_NAME from the tuple
+            }
+    return pre_release_annotations
+            
 def write_report(
     live_annotations: Dict[str, Dict[str, str]],
     report_file: str,
@@ -375,6 +461,7 @@ def main():
     parser.add_argument("--report_file", type=str, default="./report_file.csv")
     parser.add_argument("--rank", type=str, default="order")
     parser.add_argument("--ftp", action="store_true", help="Include FTP links in the report")
+    parser.add_argument("--pre_release", action="store_true", help="Include list of pre-release databases in the report")
 
     args = parser.parse_args()
 
@@ -385,15 +472,34 @@ def main():
         args.haploid
     )
 
-    # Fetch additional annotations
-    live_annotations = get_ensembl_live(accessions_taxon)
-    live_annotations_classified = get_taxonomy_info(live_annotations, accessions_taxon, args.rank)
-
+    # Fetch annotations
+    live_annotations, missing_annotations = get_ensembl_live(accessions_taxon)
+    # Ensure taxonomic rank is added before any logic that depends on it
+    get_taxonomy_info(live_annotations, accessions_taxon, args.rank)
+    
     # Optionally add FTP links
     if args.ftp:
-        live_annotations = add_ftp(live_annotations)
+        live_annotations = add_ftp(live_annotations, 'live')
 
     unique_taxon_ids = {details['taxon_id'] for details in live_annotations.values()}
+
+    # Optionally add Pre-release data
+    if args.pre_release:
+        pre_release_annotations = get_pre_release(missing_annotations)
+
+        for accession in pre_release_annotations:
+            if accession in accessions_taxon:
+                pre_release_annotations[accession]["taxon_id"] = accessions_taxon[accession]["taxon_id"]
+        get_taxonomy_info(pre_release_annotations, accessions_taxon, args.rank)
+
+        if args.ftp:
+            pre_release_annotations = add_ftp(pre_release_annotations, 'pre')
+
+        all_annotations = {**live_annotations, **pre_release_annotations}
+
+    else:
+        all_annotations = live_annotations
+        
     if (args.bioproject_id):
         print(f"Found {len(accessions_taxon)} assemblies under BioProject ID {args.bioproject_id}")
         
@@ -407,7 +513,8 @@ def main():
     print(rank_counts)
             
     # Write final report
-    write_report(live_annotations, args.report_file, args.rank, include_ftp=args.ftp)
+    write_report(all_annotations, args.report_file, args.rank, include_ftp=args.ftp)
+    
 
 
 if __name__ == "__main__":
