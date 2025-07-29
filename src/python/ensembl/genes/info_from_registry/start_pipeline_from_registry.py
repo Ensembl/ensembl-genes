@@ -214,9 +214,6 @@ def add_generated_data(server_info, assembly_accession, settings):
     if not registry_info.get("common_name"):
         info_dict["common_name"] = "NA"
 
-    info_dict["species_url"] = (
-        f"{registry_info['species_name']}_{assembly_accession}"
-    )
     info_dict["species_display_name"] = (
         f"{registry_info['species_name']} ({registry_info['common_name']}) - {assembly_accession}"
     )
@@ -243,6 +240,11 @@ def add_generated_data(server_info, assembly_accession, settings):
     info_dict["species_name"] = species_name
     info_dict["production_name"] = production_name
     info_dict["species_strain_group"] = production_name
+    info_dict["species_url"] = (
+        f"{registry_info['species_name'].capitalize()}_{assembly_accession}"
+    )
+    info_dict["core_dbname"] = f"{settings['dbowner']}_{production_gca}_core_{settings['release_number']}_1"
+
     logger.info(f"Values formatted for {assembly_accession}")
 
     return info_dict
@@ -408,7 +410,6 @@ def main(gcas, pipeline, settings_file):
 
         # Create output params
         info_dict = add_generated_data(server_info, gca_dict[gca]["assembly_accession"], settings)
-        info_dict["core_dbname"] = f"{settings['dbowner']}_{info_dict['production_name']}_pipe_{settings['release_number']}_1"
         server_info.setdefault("core_db", {})["db_name"] = info_dict["core_dbname"]
         info_dict["core_db"] = server_info["core_db"]
 
