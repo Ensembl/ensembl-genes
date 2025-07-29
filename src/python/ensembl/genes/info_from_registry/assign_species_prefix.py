@@ -173,7 +173,8 @@ def get_species_prefix(taxon_id:int, server_info: dict) -> Optional[str]:
             database="gb_assembly_registry",
             password=""
         )
-        logger.info(f"Prefix found in old registry: {output_registry}")
+        if not output_registry.empty:
+            logger.info(f"Prefix found in old registry: {output_registry}")
 
         prefix_metadata_query = f"SELECT DISTINCT prefix FROM species_prefix WHERE lowest_taxon_id = {taxon_id}"
         output_metadata = mysql_fetch_data(
@@ -184,11 +185,11 @@ def get_species_prefix(taxon_id:int, server_info: dict) -> Optional[str]:
             database=server_info["registry"]["db_name"],
             password=""
         )
-        logger.info(f"Prefix found in new metadata registry: {output_metadata}")
+        if not output_metadata.empty:
+            logger.info(f"Prefix found in new metadata registry: {output_metadata}")
         
         # Combine output and get list of unique values
         output = [list(item.values())[0] for item in list(output_registry) + list(output_metadata)]
-        logger.info(f"Ouptut: {output}")
         prefix_list = list(set(output))
 
         # no prefix, create new prefix
