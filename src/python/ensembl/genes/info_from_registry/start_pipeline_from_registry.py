@@ -463,7 +463,7 @@ def main(gcas, pipeline, settings_file):
             build_annotation_commands(core_adaptor, output_params, anno_settings, settings)
             logger.info(f"Created anno commands for {gca_dict[gca]['assembly_accession']}")
 
-            logger.info("RNA and BUSCO thresholds")
+            logger.info("Getting RNA and BUSCO thresholds")
             rna_busco_settings = get_rna_and_busco_check_threshold(settings)
             output_params.update(rna_busco_settings)
 
@@ -489,7 +489,7 @@ def main(gcas, pipeline, settings_file):
 
     logger.info("DONE")
 
-    return all_output_params
+    return all_output_params, output_json_path
 
 
 if __name__ == "__main__":
@@ -519,6 +519,6 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    results = main(args.gcas, args.pipeline, args.settings_file)
+    results, output_json_path = main(args.gcas, args.pipeline, args.settings_file)
     print("\n=== NEXT STEP INITIALISE PIPELINE ===")
     print("\n=== FINALLY RUN SEED NONVERT ===")

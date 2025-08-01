@@ -1,6 +1,19 @@
 import json
+import logging
 import subprocess
 import argparse
+from typing import Union
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(message)s",
+    handlers=[
+        logging.FileHandler("pipeline_setup.log"),
+        logging.StreamHandler()
+    ]
+)
+logger = logging.getLogger(__name__)
 
 def dict_to_perl_hash(d):
     """Recursively convert a Python dict to a Perl hash string."""
@@ -18,6 +31,32 @@ def dict_to_perl_hash(d):
         items.append(f"{key_str} => {val_str}")
     return "{{{}}}".format(", ".join(items))
 
+
+def seed_jobs_from_json(
+    json_file: Union[str, dict],
+    analysis_id: int,
+    ehive_url: str,
+):
+    """Seed eHive pipeline jobs using a JSON file or dictionary."""
+    
+    if isinstance(json_file, str):
+        with open(json_file) as f:
+            params = json.load(f)
+    else:
+        params = json_file  # assume dict already
+
+    for input_id, param_dict in params.items():
+        perl_hash = dict_to_perl_hash(param_dict)
+        cmd = [
+            "seed_pipeline.pl",
+            "-analysis_id", str(analysis_id),
+            "-input_id", perl_hash,
+            "-url", ehive_url
+        ]
+        subprocess.run(cmd, check=True)
+        logging.info("Seeding complete")
+
+
 def main():
     parser = argparse.ArgumentParser(description="Seed eHive pipeline jobs from a JSON file")
     parser.add_argument(
@@ -31,32 +70,18 @@ def main():
         default=1,
         help=f"Analysis ID to seed (default: 1)"
     )
-
     parser.add_argument(
         "-u", "--url",
         required=True,
         help="EHIVE URL"
     )
-
     args = parser.parse_args()
-    json_file = args.json_file
-    analysis_id = args.analysis_id
-    ehive_url = args.url
 
-    # Load job parameters from JSON
-    with open(json_file) as f:
-        params = json.load(f)
-
-    for input_id, param_dict in params.items():
-        perl_hash = dict_to_perl_hash(param_dict)
-        cmd = [
-            "seed_pipeline.pl",
-            "-analysis_id", str(analysis_id),
-            "-input_id", perl_hash,
-            "-url", ehive_url
-        ]
-        print("Running:", " ".join(cmd))
-        subprocess.run(cmd, check=True)
+    seed_jobs_from_json(
+        json_file=args.json_file,
+        analysis_id=args.analysis_id,
+        ehive_url=args.url
+    )
 
 if __name__ == "__main__":
     main()
