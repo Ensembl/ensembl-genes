@@ -86,9 +86,9 @@ def get_server_settings(settings):
                 "db_password": settings["password"],
             },
             "core_db": {
-                "db_host": os.environ.get("GBP"),
+                "db_host": os.environ.get("GBP3"),
                 "db_user": settings["user"],
-                "db_port": int(os.environ.get("GBP")),
+                "db_port": int(os.environ.get("GBP3")),
                 "db_password": settings["password"]}
             }
 
