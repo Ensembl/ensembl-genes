@@ -28,7 +28,8 @@ def check_if_annotated(assembly_accession, server_info):
         host=server_info["registry"]["db_host"],
         user=server_info["registry"]["db_user"],
         port=server_info["registry"]["db_port"],
-        database="gb_assembly_metadata",
+        database=server_info["registry"]["db_name"],
+        password="",
         params=(assembly_accession,),
     )
 

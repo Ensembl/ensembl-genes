@@ -2,9 +2,21 @@ import re
 import shutil
 from pathlib import Path
 import os
+import logging
 
 
 from mysql_helper import mysql_update
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(message)s",
+    handlers=[
+        logging.FileHandler("pipeline_setup.log"),
+        logging.StreamHandler()
+    ]
+)
+logger = logging.getLogger(__name__)
 
 
 def update_registry_path_and_create_entry(settings, server_info):
@@ -38,9 +50,9 @@ def update_registry_path_and_create_entry(settings, server_info):
     )
 
     if success:
-        print("Registry path updated successfully.")
+        logger.info("Registry path updated successfully.")
     else:
-        print("Failed to update registry path.")
+        logger.error("Failed to update registry path.")
 
 
 def create_registry_entry(settings, server_info, core_adaptor):

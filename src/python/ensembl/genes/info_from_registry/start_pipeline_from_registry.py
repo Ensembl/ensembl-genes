@@ -6,7 +6,7 @@ and initializes annotation pipelines based on predefined configurations.
 import os
 from pathlib import Path
 import json
-import pymysql
+import pymysql # type: ignore
 import argparse
 import logging
 from build_anno_commands import (build_annotation_commands)
@@ -15,6 +15,7 @@ from mysql_helper import mysql_fetch_data
 from assign_clade_based_on_tax import (assign_clade,assign_clade_info_custom_loading)
 from create_pipe_reg import create_registry_entry
 from create_config import edit_config
+from assign_species_prefix import get_species_prefix # type: ignore
 
 # Configure logging
 logging.basicConfig(
@@ -179,7 +180,7 @@ def get_metadata_from_registry(server_info, assembly_accession, settings):
             host=server_info["registry"]["db_host"],
             user=server_info["registry"]["db_user"],
             port=server_info["registry"]["db_port"],
-            database=server_info["registry"]["registry_db"],
+            database=server_info["registry"]["db_name"],
             password= "",
             params=assembly_accessions,
         )
@@ -393,8 +394,10 @@ def main(gcas, pipeline, settings_file):
         server_info["registry"] = {
             "db_host": os.environ.get("GBS1"),
             "db_user": settings["user_r"],
+            "db_user_w": settings["user"],
             "db_port": int(os.environ.get("GBP1")),
-            "registry_db": "gb_assembly_metadata"
+            "db_name": "gb_assembly_metadata",
+            "password": settings["password"]
         }
 
         # Assign database names
@@ -403,7 +406,7 @@ def main(gcas, pipeline, settings_file):
         # Check if GCA is annotated
         logger.info(f"Checking {gca_dict[gca]['assembly_accession']} annotation status")
         if not has_init_file:
-            if settings["current_genebuild"] == 0:
+            if int(settings["current_genebuild"]) == 0:
                 check_if_annotated(gca_dict[gca]["assembly_accession"], server_info)
             else:
                 logger.info(f"Skipping annotation check {gca_dict[gca]['assembly_accession']}")
@@ -412,6 +415,7 @@ def main(gcas, pipeline, settings_file):
         info_dict = add_generated_data(server_info, gca_dict[gca]["assembly_accession"], settings)
         server_info.setdefault("core_db", {})["db_name"] = info_dict["core_dbname"]
         info_dict["core_db"] = server_info["core_db"]
+        info_dict["registry_db"] = server_info["registry"]
 
         if pipeline == "anno":
             logger.info("Anno setting detected")
@@ -459,9 +463,12 @@ def main(gcas, pipeline, settings_file):
             build_annotation_commands(core_adaptor, output_params, anno_settings, settings)
             logger.info(f"Created anno commands for {gca_dict[gca]['assembly_accession']}")
 
-            logger.info("RNA and BUSCO thresholds")
+            logger.info("Getting RNA and BUSCO thresholds")
             rna_busco_settings = get_rna_and_busco_check_threshold(settings)
             output_params.update(rna_busco_settings)
+
+            #Assign species prefix
+            output_params["species_prefix"] = get_species_prefix(output_params["taxon_id"], server_info)
 
             # Store the output_params for this GCA
             all_output_params[gca] = output_params
@@ -482,7 +489,7 @@ def main(gcas, pipeline, settings_file):
 
     logger.info("DONE")
 
-    return all_output_params
+    return all_output_params, output_json_path
 
 
 if __name__ == "__main__":
@@ -512,6 +519,6 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    results = main(args.gcas, args.pipeline, args.settings_file)
+    results, output_json_path = main(args.gcas, args.pipeline, args.settings_file)
     print("\n=== NEXT STEP INITIALISE PIPELINE ===")
     print("\n=== FINALLY RUN SEED NONVERT ===")
