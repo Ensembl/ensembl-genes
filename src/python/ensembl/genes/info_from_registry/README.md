@@ -50,12 +50,13 @@ The script will create a non_vert_params.json for all provided GCAs. This file w
 Contains basic settings for anno command generation.
 
 `assing_clade_based_on_tax.py`
-Created a taxonomy dictionary based on information stored in the taxonomy table in the registry.
+Created a taxonomy dictionary based on information stored in the taxonomy table in the registry. Args: server_info (dict): MySQL connection information under 'registry', registry_info (dict): Dictionary with at least a 'taxon_id' key.
 
 `assign_species_prefix.py`
 
 `build_anno_commands.py`
-Creates anno command based on information gathered from the registry and the clade settings.
+Creates anno command based on information gathered from the registry and the clade settings. Args: core_adaptor (dict): Contains database connection info with keys: 'dbname', 'host', 'port', 'user', 'pass', output_params (dict): Dictionary where input/output file paths and directories are specified. The final command strings are added here.
+anno_settings (dict): Annotation settings such as number of threads and diamond validation DB path. settings (dict): General pipeline settings, including repeat library usage.
 
 `check_if_annotated.py`
 Checks if a GCA has already been annotated and gives back an error message if it has been.
@@ -67,7 +68,7 @@ Holds pipeline settings based on clade/taxon ID.
 Copies and edits config file specified in non_vert_settings.json.
 
 `genebuild_nonvert.py`
-Main script that initialises and seeds pipeline after gathering all information.
+Main script that initialises and seeds pipeline after gathering all information. Args: gcas (str): Path to file containing GCA accessions (one per line), pipeline (str): Pipeline type to initialise (e.g., "anno"), settings_file (str): Path to settings file (JSON).
 
 `mysql_helper.py`
 Script to access and edit information in the registry.

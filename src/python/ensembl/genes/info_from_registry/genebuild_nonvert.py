@@ -1,3 +1,16 @@
+"""
+Script to extract metadata, initialise an annotation pipeline using eHive,
+and seed the pipeline with jobs based on a generated JSON file.
+
+Modules used:
+    - start_pipeline_from_registry.py (main)
+    - seed_nonvert.py (seed_jobs_from_json)
+
+Usage:
+    python genebuild_nonvert.py --gcas path/to/gcas.txt --pipeline anno --settings_file non_vert_pipeline_params.json
+"""
+
+
 import argparse
 import logging
 import re
@@ -21,11 +34,18 @@ logger = logging.getLogger(__name__)
 
 def init_pipeline(config_file: str, hive_force_init: int = 1) -> str:
     """
-    Run the eHive init_pipeline.pl command with the given config file.
+    Initialize an eHive pipeline using a given config file.
 
     Args:
-        config_file (str): Path to the .pm configuration file (e.g. EnsemblAnnoHelixer_conf.pm)
-        hive_force_init (int): Set to 1 to force initialization (default).
+        config_file (str): Path to the .pm configuration file (e.g. EnsemblAnnoHelixer_conf.pm).
+        hive_force_init (int): Whether to force initialization (default is 1).
+
+    Returns:
+        str: Extracted eHive database URL if successful.
+
+    Raises:
+        subprocess.CalledProcessError: If the `init_pipeline.pl` command fails.
+        RuntimeError: If the expected MySQL URL is not found in the output.
     """
     cmd = [
         "init_pipeline.pl",
@@ -47,7 +67,20 @@ def init_pipeline(config_file: str, hive_force_init: int = 1) -> str:
         raise
     
 
-def main(gcas, pipeline, settings_file):
+def main(gcas: str, pipeline: str, settings_file: str):
+    """
+    Main execution logic: extract metadata, initialize the pipeline, and seed jobs.
+
+    Args:
+        gcas (str): Path to file containing GCA accessions (one per line).
+        pipeline (str): Pipeline type to initialize (e.g., "anno").
+        settings_file (str): Path to settings file (JSON).
+
+    Raises:
+        FileNotFoundError: If no config file is found.
+        RuntimeError: If multiple config files are found.
+    """
+
     #Get info and create input JSON
     all_output_params, output_json_path = info(gcas, pipeline, settings_file)
 

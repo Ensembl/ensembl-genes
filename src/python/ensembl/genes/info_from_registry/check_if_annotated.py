@@ -1,3 +1,11 @@
+"""
+check_if_annotated.py
+
+This module defines a function to verify if a given genome assembly accession
+is already annotated in the genebuild registry. It logs annotation status and raises
+an error if any assembly has already been annotated.
+"""
+
 from mysql_helper import mysql_fetch_data
 import logging
 
@@ -14,6 +22,32 @@ logger = logging.getLogger(__name__)
 
 
 def check_if_annotated(assembly_accession, server_info):
+    """
+     Check if a genome assembly is already annotated in the genebuild registry.
+
+     Parameters:
+     ----------
+     assembly_accession : str
+         The GCA accession of the assembly to check (e.g., "GCA_000001405.28").
+
+     server_info : dict
+         Dictionary containing server connection details, with a 'registry' key
+         pointing to another dict with the following keys:
+             - db_host : str
+             - db_user : str
+             - db_port : int
+             - db_name : str
+
+     Raises:
+     ------
+     RuntimeError
+         If the given assembly accession is already present in the registry.
+
+     Returns:
+     -------
+     None
+     """
+
     registry_query = f"""
         SELECT 
             gca_accession, 

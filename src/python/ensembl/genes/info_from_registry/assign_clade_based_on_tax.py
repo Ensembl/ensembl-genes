@@ -1,5 +1,16 @@
-import os
+"""
+Module to assign clade information based on taxonomy data retrieved
+from a registry MySQL database and static JSON configuration.
 
+Functions:
+    - create_tax_dictionary_from_registry: Fetches taxonomy hierarchy from the registry.
+    - load_clade_data: Loads clade definitions from a static JSON file.
+    - assign_clade: Matches a taxon to a clade based on hierarchy.
+    - assign_clade_info_custom_loading: Loads clade details by name from JSON config.
+"""
+
+
+import os
 import pymysql
 import json
 from mysql_helper import mysql_fetch_data
@@ -18,7 +29,17 @@ logger = logging.getLogger(__name__)
 
 
 def create_tax_dictionary_from_registry(server_info, registry_info):
-    """Get taxonomy info for the single taxon_id from the registry_info dict."""
+    """
+    Query the registry MySQL database to construct taxonomy hierarchy for a given taxon ID.
+
+    Args:
+        server_info (dict): Dictionary containing MySQL connection parameters under 'registry' key.
+        registry_info (dict): Dictionary containing the 'taxon_id' key.
+
+    Returns:
+        dict: A dictionary mapping taxon IDs to a list of taxonomy class information,
+              or an empty dictionary if query fails.
+    """
 
     taxon_id = registry_info["taxon_id"]
 
@@ -61,7 +82,17 @@ def create_tax_dictionary_from_registry(server_info, registry_info):
 
 
 def load_clade_data():
-    """Hardcoded path for clade settings."""
+    """
+    Load clade definitions from a static JSON file.
+
+    Returns:
+        dict: Dictionary containing clade configuration data.
+
+    Raises:
+        FileNotFoundError: If the JSON file cannot be located.
+        json.JSONDecodeError: If the JSON is malformed.
+    """
+
     json_file = os.path.join(
         os.environ.get("ENSCODE"),
         "ensembl-genes",
@@ -80,8 +111,19 @@ def load_clade_data():
 
 def assign_clade(server_info, registry_info):
     """
-    Given a lowest taxon ID, assign the clade and return clade details and genus_taxon_id.
-    """
+        Assign a clade to a given taxon based on clade data and taxonomy hierarchy.
+
+        Args:
+            server_info (dict): MySQL connection information under 'registry'.
+            registry_info (dict): Dictionary with at least a 'taxon_id' key.
+
+        Returns:
+            tuple:
+                - internal_clade (str): Name of the assigned clade (or 'Unassigned').
+                - genus_taxon_id (int or None): Genus-level taxon ID, if found.
+                - clade_details (dict or None): Dictionary of clade properties excluding taxon_id.
+     """
+
     clade_data = load_clade_data()
     taxonomy_dict = create_tax_dictionary_from_registry(server_info, registry_info)
 
