@@ -25,6 +25,25 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
+def mysql_get_connection(database, host, port, user, password):
+    """
+    Establish a connection to the MySQL database.
+    """
+    try:
+        conn = pymysql.connect(
+            host=host,
+            user=user,
+            port=port,
+            password=password,
+            database=database.strip(),
+            cursorclass=pymysql.cursors.DictCursor,
+        )
+        return conn
+    except pymysql.Error as err:
+        print(f"MySQL error: {err}")
+        return None
+
+
 def mysql_fetch_data(query, database, host, port, user, password, params=None):
     """
     Execute a SELECT query on the specified MySQL database and return results.
