@@ -133,7 +133,7 @@ def get_server_settings(settings: dict) -> dict:
                 "db_password": settings["password"],
             },
             "core_db": {
-                "db_host": os.environ.get("GBP3"),
+                "db_host": os.environ.get("GBS3"),
                 "db_user": settings["user"],
                 "db_port": int(os.environ.get("GBP3")),
                 "db_password": settings["password"]}
