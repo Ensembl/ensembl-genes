@@ -80,6 +80,7 @@ def insert_new_record(
     annotation_method,
     current_date,
     release_type,
+    genebuild_version,
     dev,
 ):
     """
@@ -94,20 +95,22 @@ def insert_new_record(
         annotation_source (str): Annotation source
         annotation_method (str): Annotation method
         current_date (str): Current date
-        release_type (str): Release type (default: "not available")
+        release_type (str): Release type (default: "not_available")
         dev (bool): If True, only print SQL without executing
     """
     # date completed is being used to track the last time this record was updated
     # so we set it to the current date 
-    date_completed = current_date 
+    date_status_update = current_date 
 
     # Add not avaialable for release type
     query = """
     INSERT INTO genebuild_status (
         assembly_id, gca_accession, gb_status, last_attempt, 
-        genebuilder, annotation_source, annotation_method, date_started, date_completed, release_type
+        genebuilder, annotation_source, annotation_method,
+        date_started, date_status_update, release_type,
+        genebuild_version
     )
-    VALUES (%s, %s, %s, 1, %s, %s, %s, %s, %s, %s)
+    VALUES (%s, %s, %s, 1, %s, %s, %s, %s, %s, %s, %s)
     """
 
     params = (
@@ -118,8 +121,9 @@ def insert_new_record(
         annotation_source,
         annotation_method,
         current_date,
-        date_completed,
+        date_status_update,
         release_type,
+        genebuild_version,
     )
 
     if dev:
@@ -137,7 +141,7 @@ def update_existing_record(connection, record_id, status, current_date, dev):
 
     Args:
         connection: MySQL connection object
-        record_id (int): genebuild_status_id to update
+        record_id (int): genebuild_id to update
         status (str): New status
         current_date (str): Current date
         dev (bool): If True, only print SQL without executing
@@ -146,7 +150,7 @@ def update_existing_record(connection, record_id, status, current_date, dev):
     # so we set it to the current date
     query = """
     UPDATE genebuild_status 
-    SET gb_status = %s, date_completed = %s
+    SET gb_status = %s, date_status_update = %s
     WHERE genebuild_status_id = %s
     """
     params = (status, current_date, record_id)
@@ -193,6 +197,8 @@ def main(
     genebuilder,
     annotation_source,
     annotation_method,
+    release_type,
+    genebuild_version,
     dev=False,
 ):
     """
@@ -209,6 +215,8 @@ def main(
         genebuilder (str): Genebuilder name
         annotation_source (str): Annotation source
         annotation_method (str): Annotation method
+        release_type (str): Release type (default: "not_available")
+        genebuild_version (str): Genebuild version
         dev (bool): If True, only print SQL statements without executing
     """
     connection = None
@@ -253,7 +261,8 @@ def main(
                 annotation_source,
                 annotation_method,
                 current_date,
-                "not available",  # Default release type
+                release_type,
+                genebuild_version,
                 dev,
             )
 
@@ -270,7 +279,7 @@ def main(
                 return
 
             # Map status names to match schema enum values
-            terminal_statuses = ["completed", "pre-released", "handed_over", "archive"]
+            terminal_statuses = ["completed", "pre_released", "handed_over", "archive"]
             active_statuses = ["insufficient_data", "in_progress", "check_busco"]
 
             if current_status in terminal_statuses:
@@ -289,7 +298,8 @@ def main(
                     annotation_source,
                     annotation_method,
                     current_date,
-                    "not available",  # Default release type
+                    release_type,
+                    genebuild_version,
                     dev,
                 )
 
@@ -329,16 +339,16 @@ if __name__ == "__main__":
         description="Update the status of a genebuild in the registry database.",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
-Status values should match the gb_status enum:
-  in_progress, insufficient_data, check_busco, completed, 
-  pre-released, handed_over, archive
+            Status values should match the gb_status enum:
+            in_progress, insufficient_data, check_busco, completed, 
+            pre_released, handed_over, archive
 
-Examples:
-  %(prog)s --host localhost --user myuser --password mypass --database registry 
-           --assembly GCA_123456789.1 --status completed --genebuilder john_doe
+            Examples:
+            %(prog)s --host localhost --user myuser --password mypass --database registry 
+                    --assembly GCA_123456789.1 --status completed --genebuilder john_doe
 
-  %(prog)s --host localhost --user myuser --password mypass --database registry 
-           --assembly GCA_123456789.1 --status in_progress --genebuilder jane_smith --dev
+            %(prog)s --host localhost --user myuser --password mypass --database registry 
+                    --assembly GCA_123456789.1 --status in_progress --genebuilder jane_smith --dev
         """,
     )
 
@@ -360,7 +370,7 @@ Examples:
             "insufficient_data",
             "check_busco",
             "completed",
-            "pre-released",
+            "pre_released",
             "handed_over",
             "archive",
         ],
@@ -410,6 +420,19 @@ Examples:
         help="Annotation method (default: pending)",
     )
 
+    parser.add_argument(
+        "--release_type",
+        default="not_available",
+        choices=['main','beta','not_available'],
+        help="Release type (default: not_available)",
+    )
+
+    parser.add_argument(
+        "--genebuild_version",
+        default="ENS01",
+        help="Genebuild version (default: ENS01)",
+    )
+
     args = parser.parse_args()
 
     main(
@@ -423,5 +446,7 @@ Examples:
         genebuilder=args.genebuilder,
         annotation_source=args.annotation_source,
         annotation_method=args.annotation_method,
+        release_type=args.release_type,
+        genebuild_version=args.genebuild_version,
         dev=args.dev,
     )

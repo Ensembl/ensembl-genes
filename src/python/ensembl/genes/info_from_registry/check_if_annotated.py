@@ -16,11 +16,11 @@ logger = logging.getLogger(__name__)
 def check_if_annotated(assembly_accession, server_info):
     registry_query = f"""
         SELECT 
-            gca_accession, 
-            gb_status, 
+            assembly_accession, 
+            progress_status, 
             genebuilder
-        FROM genebuild 
-        WHERE gca_accession =  %s
+        FROM genebuild_status 
+        WHERE assembly_accession =  %s
     """
 
     registry_rows = mysql_fetch_data(
