@@ -1,3 +1,17 @@
+"""
+seed_nonvert.py
+
+This script allows you to seed jobs into an eHive pipeline using a JSON file or a dictionary of job parameters.
+It converts Python dictionaries to Perl hash syntax and invokes the `seed_pipeline.pl` script via subprocess.
+
+Typical usage example:
+    python seed_jobs.py -j jobs.json -a 1 -u mysql://user:pass@host/db
+
+Functions:
+    - dict_to_perl_hash: Recursively converts a Python dictionary into a Perl-style hash string.
+    - seed_jobs_from_json: Loads parameters and invokes eHive seeding commands.
+    - main: Parses command-line arguments and calls the seeding function.
+"""
 import json
 import logging
 import subprocess
@@ -16,7 +30,15 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 def dict_to_perl_hash(d):
-    """Recursively convert a Python dict to a Perl hash string."""
+    """
+    Recursively convert a Python dictionary to a Perl hash string.
+
+    Args:
+        d (dict): Python dictionary to convert.
+
+    Returns:
+        str: A string representing the dictionary in Perl hash format.
+    """
     items = []
     for k, v in d.items():
         key_str = f"'{k}'"
@@ -37,8 +59,18 @@ def seed_jobs_from_json(
     analysis_id: int,
     ehive_url: str,
 ):
-    """Seed eHive pipeline jobs using a JSON file or dictionary."""
-    
+    """
+    Seed jobs in an eHive pipeline using job parameters from a JSON file or dictionary.
+
+    Args:
+        json_file (Union[str, dict]): Path to a JSON file or a Python dictionary with job parameters.
+        analysis_id (int): eHive analysis ID to assign jobs to.
+        ehive_url (str): URL of the eHive database (e.g., mysql://user:pass@host/db).
+
+    Raises:
+        subprocess.CalledProcessError: If the seeding script fails.
+    """
+
     if isinstance(json_file, str):
         with open(json_file) as f:
             params = json.load(f)

@@ -1,4 +1,27 @@
-def build_annotation_commands(core_adaptor, output_params, anno_settings, settings):
+def build_annotation_commands(core_adaptor: dict, output_params: dict, anno_settings: dict, settings: dict) -> None:
+    """
+    Construct and store command-line strings for genome annotation and repeat analysis.
+
+    This function builds two command-line strings based on the provided configuration:
+    - `anno_commandline`: full annotation pipeline
+    - `anno_red_commandline`: repeat and masking pipeline
+
+    The resulting command strings are stored in the `output_params` dictionary under
+    the keys "anno_commandline" and "anno_red_commandline".
+
+    Args:
+        core_adaptor (dict): Contains database connection info with keys:
+            'dbname', 'host', 'port', 'user', 'pass'.
+        output_params (dict): Dictionary where input/output file paths and
+            directories are specified. The final command strings are added here.
+        anno_settings (dict): Annotation settings such as number of threads and
+            diamond validation DB path.
+        settings (dict): General pipeline settings, including repeat library usage.
+
+    Returns:
+        None: Modifies `output_params` in place by adding two command strings.
+    """
+
     get = lambda k: output_params.get(k, "")  # Short helper
 
     anno_commandline = (

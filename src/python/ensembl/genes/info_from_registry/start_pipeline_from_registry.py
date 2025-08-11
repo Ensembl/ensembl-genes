@@ -1,6 +1,13 @@
 """
-This script connects to the registry, extracts information,
+This script connects to a genomic assembly registry, extracts assembly metadata,
 and initializes annotation pipelines based on predefined configurations.
+
+It supports both database-driven metadata retrieval and custom INI file loading,
+handles directory setup, and creates necessary configuration and command files
+for running genome annotation pipelines.
+
+Typical usage:
+    python start_pipeline_from_registry.py --gcas gca_list.txt --pipeline anno --settings_file settings.json
 """
 
 import os
@@ -28,8 +35,21 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-def load_settings(settings_file):
-    """Hardcoded path for settings."""
+def load_settings(settings_file) -> dict:
+    """
+    Load JSON-formatted pipeline settings from a given file path.
+
+    Args:
+        settings_file (str): Path to the JSON settings file.
+
+    Returns:
+        dict: Parsed settings dictionary.
+
+    Raises:
+        FileNotFoundError: If the settings file does not exist.
+        json.JSONDecodeError: If the file contents are not valid JSON.
+    """
+
     logger.info(f"Loading settings from: {settings_file}")
     settings_path = Path(settings_file)
     if not settings_path.exists():
@@ -37,8 +57,18 @@ def load_settings(settings_file):
     with open(settings_path, "r") as f:
         return json.load(f)
 
-def load_anno_settings():
-    """Hardcoded path for anno settings."""
+def load_anno_settings() -> dict:
+    """
+    Load the annotation-specific settings from a hardcoded path relative to
+    the environment variable 'ENSCODE'.
+
+    Returns:
+        dict: Parsed annotation settings dictionary.
+
+    Raises:
+        FileNotFoundError: If the anno_settings.json file is not found.
+        json.JSONDecodeError: If the file contents are not valid JSON.
+    """
     logger.info("Loading anno settings json")
     settings = os.path.join(
         os.environ.get("ENSCODE"),
@@ -53,7 +83,24 @@ def load_anno_settings():
     with open(settings, "r") as f:
         return json.load(f)
 
-def get_server_settings(settings):
+def get_server_settings(settings: dict) -> dict:
+    """
+    Determine and return server connection settings for pipeline and core databases.
+
+    Uses either custom server settings from the configuration or falls back
+    to environment-variable-based defaults depending on the 'server_set' parameter.
+
+    Args:
+        settings (dict): The pipeline settings dictionary.
+
+    Returns:
+        dict: Nested dictionary with keys 'pipeline_db' and 'core_db', each containing
+              connection parameters like 'db_host', 'db_user', 'db_port', and 'db_password'.
+
+    Raises:
+        ValueError: If the 'server_set' value is unknown or unsupported.
+    """
+
     logger.info("Getting server settings")
     custom = settings.get("custom_server", {})
     # Check if all custom_server values are non-empty (you can change logic if needed)
@@ -86,9 +133,9 @@ def get_server_settings(settings):
                 "db_password": settings["password"],
             },
             "core_db": {
-                "db_host": os.environ.get("GBP"),
+                "db_host": os.environ.get("GBP3"),
                 "db_user": settings["user"],
-                "db_port": int(os.environ.get("GBP")),
+                "db_port": int(os.environ.get("GBP3")),
                 "db_password": settings["password"]}
             }
 
@@ -111,31 +158,28 @@ def get_server_settings(settings):
             raise ValueError(f"Unknown server_set value: {server_set}")
 
 
-def get_metadata_from_registry(server_info, assembly_accession, settings):
-    """
-    Retrieves registry metadata for a given genome assembly accession.
 
-    This function supports two modes of operation:
-    1. If a custom `init_file` is provided in `param`, it loads registry metadata using custom logic
-       (e.g., from an INI file).
-    2. Otherwise, it queries a MySQL registry database to fetch metadata related to the given
-       `assembly_accession` or list of accessions.
+def get_metadata_from_registry(server_info: dict, assembly_accession, settings: dict) -> dict | None:
+    """
+    Retrieve registry metadata for a given genome assembly accession or list of accessions.
+
+    Supports two modes:
+    - If 'init_file' is specified in settings, loads registry info via custom INI file parsing.
+    - Otherwise, queries the MySQL database for metadata matching the accession(s).
 
     Args:
-        server_info (dict): A dictionary containing MySQL server connection info under the
-                            key 'registry', including 'db_host', 'db_user', and 'db_port'.
-        assembly_accession (str or list): A single GCA accession (as a string) or a list of accessions
-                                          to query from the registry.
-        settings (dict): A dictionary of additional parameters. If it includes a valid 'init_file' path,
-                      custom loading is used instead of database queries.
+        server_info (dict): MySQL server connection info with 'registry' key.
+        assembly_accession (str or list): Single GCA accession or list of GCAs.
+        settings (dict): Additional parameters, may include 'init_file'.
 
     Returns:
-        dict or None: A dictionary containing assembly metadata if found, or `None` if no matching
-                      assembly is found. If an error occurs, an empty dictionary is returned.
+        dict or None: Assembly metadata dictionary if found, None if no record matches,
+                      or empty dict if an error occurs.
 
     Raises:
-        FileNotFoundError: If the provided 'init_file' path does not exist.
+        FileNotFoundError: If 'init_file' is specified but not found.
     """
+
     # Check if using custom init file
     if "init_file" in settings and settings["init_file"]:
         logger.info("Initialization file detected")
@@ -193,8 +237,19 @@ def get_metadata_from_registry(server_info, assembly_accession, settings):
         logger.error("MySQL error: %s", err)
         return {}
 
+def add_generated_data(server_info: dict, assembly_accession: str, settings: dict) -> dict:
+    """
+    Enrich registry metadata with clade assignments and derived pipeline variables.
 
-def add_generated_data(server_info, assembly_accession, settings):
+    Args:
+        server_info (dict): Server connection details.
+        assembly_accession (str): Genome assembly accession.
+        settings (dict): Pipeline settings.
+
+    Returns:
+        dict: Enriched metadata dictionary with added fields for pipeline usage.
+    """
+
     registry_info = get_metadata_from_registry(server_info, assembly_accession, settings)
     logger.info(f"Data collected from registry {assembly_accession}")
     clade, genus_id, clade_metadata = assign_clade(server_info,registry_info)
@@ -250,12 +305,18 @@ def add_generated_data(server_info, assembly_accession, settings):
 
     return info_dict
 
-def get_rna_and_busco_check_threshold(settings):
-    rnaseq_main_file_min_lines = settings["rnaseq_main_file_min_lines"]
-    rnaseq_genus_file_min_lines = settings["rnaseq_genus_file_min_lines"]
-    busco_threshold = settings["busco_threshold"]
-    busco_lower_threshold = settings["busco_lower_threshold"]
-    busco_difference_threshold = settings["busco_difference_threshold"]
+def get_rna_and_busco_check_threshold(settings: dict) -> dict:
+    """
+    Extract thresholds for RNA-seq and BUSCO checks from the pipeline settings.
+
+    Args:
+        settings (dict): Pipeline settings dictionary.
+
+    Returns:
+        dict: Dictionary with keys 'busco_threshold', 'busco_lower_threshold',
+              'busco_difference_threshold', 'rnaseq_main_file_min_lines',
+              and 'rnaseq_genus_file_min_lines'.
+    """
 
     return {
     "busco_threshold": settings["busco_threshold"],
@@ -266,7 +327,20 @@ def get_rna_and_busco_check_threshold(settings):
 }
 
 
-def get_info_for_pipeline(settings, info_dict, assembly_accession, anno_settings):
+def get_info_for_pipeline(settings: dict, info_dict: dict, assembly_accession: str, anno_settings: dict) -> dict:
+    """
+    Prepare and add file paths and pipeline-specific parameters needed for running annotation.
+
+    Args:
+        settings (dict): Pipeline settings.
+        info_dict (dict): Metadata dictionary for the assembly.
+        assembly_accession (str): Assembly accession string.
+        anno_settings (dict): Annotation-specific settings.
+
+    Returns:
+        dict: Updated info_dict with added file paths and pipeline parameters.
+    """
+
     logger.info("Getting info for pipeline settings for GCA %s", assembly_accession)
     output_path = Path(settings["base_output_dir"]) / assembly_accession
     genome_files_dir = output_path / "genome_files"
@@ -326,6 +400,22 @@ def get_info_for_pipeline(settings, info_dict, assembly_accession, anno_settings
 
 
 def custom_loading(settings):
+    """
+    Load custom key-value pairs from an INI-style initialization file specified in settings.
+
+    Reads the file line-by-line, extracting key=value pairs into a dictionary.
+    Lines that do not conform to key=value format or are blank are skipped with a message.
+
+    Args:
+        settings (dict): Pipeline settings dictionary that must include
+                         the key 'init_file' pointing to the INI file path.
+
+    Returns:
+        dict: Dictionary containing key-value pairs loaded from the INI file.
+
+    Raises:
+        Exception: If the file cannot be opened or read.
+    """
     logger.info("Custom loading started")
     init_file = Path(settings["init_file"])
 
@@ -358,6 +448,20 @@ def custom_loading(settings):
 
 
 def create_dir(path, mode=None):
+    """
+    Create a directory and optionally set its permissions.
+
+    This function creates the directory at 'path' including any necessary
+    parent directories. If 'mode' is provided, it changes the directory's permissions.
+
+    Args:
+        path (str or Path): The directory path to create.
+        mode (int, optional): File system permissions mode (e.g., 0o775). Defaults to None.
+
+    Raises:
+        RuntimeError: If the directory creation or permission change fails.
+    """
+
     try:
         os.makedirs(path, exist_ok=True)
         if mode is not None:
@@ -366,6 +470,19 @@ def create_dir(path, mode=None):
         raise RuntimeError(f"Failed to create dir: {path}") from e
 
 def main(gcas, pipeline, settings_file):
+    """
+    Create a directory and optionally set its permissions.
+
+    This function creates the directory at 'path' including any necessary
+    parent directories. If 'mode' is provided, it changes the directory's permissions.
+
+    Args:
+        path (str or Path): The directory path to create.
+        mode (int, optional): File system permissions mode (e.g., 0o775). Defaults to None.
+
+    Raises:
+        RuntimeError: If the directory creation or permission change fails.
+    """
     # Load settings
     settings = load_settings(settings_file)
 
