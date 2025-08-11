@@ -1,4 +1,20 @@
-import re
+"""
+create_pipe_reg.py
+
+This module updates the Ensembl pipeline registry configuration and inserts
+the appropriate database adaptor entries for use in a genebuild pipeline.
+
+It performs two key tasks:
+1. Updates references to the shared registry file within the pipeline's resource
+   description to use a copied, local version.
+2. Appends new database connection entries into the copied registry file for use
+   by Hive pipeline workers.
+
+Functions:
+----------
+- update_registry_path_and_create_entry: Updates resource_description in pipeline DB.
+- create_registry_entry: Adds new DBAdaptor entries into the local registry file.
+"""
 import shutil
 from pathlib import Path
 import os
@@ -20,6 +36,26 @@ logger = logging.getLogger(__name__)
 
 
 def update_registry_path_and_create_entry(settings, server_info):
+    """
+    Updates the resource_description table in the pipeline database by replacing
+    the shared registry path with a local copy. This ensures worker nodes access
+    the correct local registry.
+
+    Parameters:
+    ----------
+    settings : dict
+        Must contain:
+            - 'base_output_dir': Path to where the new registry will be copied.
+
+    server_info : dict
+        Connection info for the pipeline database under:
+            - server_info["pipeline_db"]["db_host"]
+            - server_info["pipeline_db"]["db_user"]
+            - server_info["pipeline_db"]["db_port"]
+            - server_info["pipeline_db"]["db_password"]
+            - server_info["pipeline_db"]["db_name"]
+    """
+
     new_registry_file = Path(settings["base_output_dir"]) / "Databases.pm"
     registry_file = os.path.join(
         os.environ.get("ENSCODE"),
@@ -56,6 +92,35 @@ def update_registry_path_and_create_entry(settings, server_info):
 
 
 def create_registry_entry(settings, server_info, core_adaptor):
+    """
+        Updates the local registry file with new DBAdaptor connection details for a
+        core database, using the provided connection settings.
+
+        Parameters:
+        ----------
+        settings : dict
+            Must contain:
+                - 'base_output_dir': str, where the local Databases.pm file is placed.
+
+        server_info : dict
+            Used to pass to `update_registry_path_and_create_entry`.
+
+        core_adaptor : dict
+            Must contain:
+                - 'host', 'port', 'dbname', 'user', 'pass', 'species', 'group'
+
+        Returns:
+        -------
+        Path to the modified local registry file (Databases.pm)
+
+        Raises:
+        ------
+        FileNotFoundError:
+            If the registry file does not exist after copying.
+
+        RuntimeError:
+            If there is an error overwriting the original registry file.
+        """
     update_registry_path_and_create_entry(settings, server_info)
     registry_path = Path(settings["base_output_dir"]) / "Databases.pm"
 
