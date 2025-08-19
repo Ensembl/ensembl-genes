@@ -18,18 +18,20 @@
 import urllib.request
 import argparse
 from pathlib import Path
-from typing import Any, List
-#import requests
+from typing import Any, Dict, Optional
+
+# import requests
 import json
 
-def get_dataset_match(ncbi_url: str, dataset: list) -> List[Any]:
+
+def get_dataset_match(ncbi_url: str, dataset: Dict[str, Any]) -> Optional[Any]:
     """
     Get taxonomy tree from ncbi taxonomy datasets and find the closest match with the input list
 
 
     Args:
         ncbi_url (str): Ncbi dataset url
-        dataset (list): list of data to match
+        dataset (dict): list of data to match
 
     Returns:
         str: closest match in the dataset list
@@ -44,7 +46,7 @@ def get_dataset_match(ncbi_url: str, dataset: list) -> List[Any]:
         # Fetch data from the URL
         with urllib.request.urlopen(ncbi_url, timeout=10) as response:
             # Read the response and decode it
-            data = response.read().decode('utf-8')
+            data = response.read().decode("utf-8")
             # Parse the JSON data
             json_data = json.loads(data)
 
@@ -58,12 +60,12 @@ def get_dataset_match(ncbi_url: str, dataset: list) -> List[Any]:
                 parent_id_str = str(parent_id)
                 if parent_id_str in dataset:
                     matched_value = dataset[parent_id_str]
-                    break       
+                    break
     except urllib.error.URLError as url_err:
         print(f"URL error occurred: {url_err}")
     except json.JSONDecodeError as json_err:
         print(f"Error decoding JSON: {json_err}")
-    #print (matched_value)    
+    # print (matched_value)
     return matched_value
 
 
@@ -94,8 +96,8 @@ def main():
 
     ncbi_url = f"{args.ncbi_url}/{args.taxon_id}/dataset_report"
 
-    with open(Path(args.datasets), "r") as file:
-        #datasets = [line[: max(line.find(" "), 0) or None] for line in file]
+    with open(Path(args.datasets), "r") as file:  # pylint:disable=unspecified-encoding
+        # datasets = [line[: max(line.find(" "), 0) or None] for line in file]
         datasets = json.load(file)
     clade_match = get_dataset_match(ncbi_url, datasets)
 
@@ -103,16 +105,14 @@ def main():
         raise ValueError("No match found")
 
     if args.output == "stdout":  # pylint:disable=no-else-return
-        #print(clade_match[0].strip("\n"))
+        # print(clade_match[0].strip("\n"))
         print(clade_match)
     else:
-        with open(args.output, "w+") as output:
+        with open(args.output, "w+") as output:  # pylint:disable=unspecified-encoding
             if clade_match[0] == args.species:
                 output.write(clade_match[1])
             else:
                 output.write(clade_match[0])
-
-    return None
 
 
 if __name__ == "__main__":
