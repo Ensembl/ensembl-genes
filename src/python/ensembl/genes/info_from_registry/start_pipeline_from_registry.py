@@ -133,7 +133,7 @@ def get_server_settings(settings: dict) -> dict:
                 "db_password": settings["password"],
             },
             "core_db": {
-                "db_host": os.environ.get("GBP3"),
+                "db_host": os.environ.get("GBS3"),
                 "db_user": settings["user"],
                 "db_port": int(os.environ.get("GBP3")),
                 "db_password": settings["password"]}
@@ -513,9 +513,10 @@ def main(gcas, pipeline, settings_file):
             "db_user": settings["user_r"],
             "db_user_w": settings["user"],
             "db_port": int(os.environ.get("GBP1")),
-            "db_name": "gb_assembly_metadata",
+            "db_name": "gb_assembly_metadata_status_test",
             "password": settings["password"]
         }
+        print(server_info["registry"])
 
         # Assign database names
         server_info.setdefault("pipeline_db", {})["db_name"] = gca_dict[gca]["pipe_db_name"]

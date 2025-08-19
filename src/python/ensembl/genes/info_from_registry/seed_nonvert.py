@@ -32,6 +32,7 @@ logger = logging.getLogger(__name__)
 def dict_to_perl_hash(d):
     """
     Recursively convert a Python dictionary to a Perl hash string.
+    Automatically converts database connection parameters to Ensembl format.
 
     Args:
         d (dict): Python dictionary to convert.
@@ -39,11 +40,47 @@ def dict_to_perl_hash(d):
     Returns:
         str: A string representing the dictionary in Perl hash format.
     """
+    def convert_db_keys(dictionary):
+        """Convert db_* keys to Ensembl format if this looks like a DB connection."""
+        if not isinstance(dictionary, dict):
+            return dictionary
+            
+        # Check if this looks like a database connection dictionary
+        db_keys = {'db_host', 'db_user', 'db_port', 'db_password', 'db_name'}
+        if any(key in dictionary for key in db_keys):
+            converted = {}
+            key_mapping = {
+                'db_host': '-host',
+                'db_user': '-user', 
+                'db_port': '-port',
+                'db_password': '-pass',
+                'db_name': '-dbname'
+            }
+            
+            for k, v in dictionary.items():
+                if k in key_mapping:
+                    converted[key_mapping[k]] = v
+                else:
+                    converted[k] = v
+            
+            # Add driver if not present
+            if '-driver' not in converted and any(k.startswith('-') for k in converted.keys()):
+                converted['-driver'] = 'mysql'
+                
+            return converted
+        
+        return dictionary
+    
+    # Convert database keys if needed
+    d = convert_db_keys(d)
+    
     items = []
     for k, v in d.items():
         key_str = f"'{k}'"
         if isinstance(v, dict):
-            val_str = dict_to_perl_hash(v)
+            # Recursively convert nested dictionaries and check for DB format
+            converted_v = convert_db_keys(v)
+            val_str = dict_to_perl_hash(converted_v)
         elif isinstance(v, str):
             val_str = f"'{v}'"
         elif v is None:

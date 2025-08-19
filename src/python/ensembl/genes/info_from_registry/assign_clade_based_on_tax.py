@@ -150,6 +150,8 @@ def assign_clade(server_info, registry_info):
         if clade_taxon_id == lowest_taxon_id:
             internal_clade = clade_name
             clade_details = {k: v for k, v in details.items() if k != "taxon_id"}
+            clade_details['helixer_lineage'] = clade_details.get('helixer_lineage', '')
+
             logging.info(f"Exact match: Assigned clade '{internal_clade}' for taxon {registry_info['taxon_id']}")
             return internal_clade, genus_taxon_id, clade_details
 
@@ -167,6 +169,8 @@ def assign_clade(server_info, registry_info):
             if clade_taxon_id == current_taxon_id:
                 internal_clade = clade_name
                 clade_details = {k: v for k, v in details.items() if k != "taxon_id"}
+                clade_details['helixer_lineage'] = clade_details.get('helixer_lineage', '')
+
                 logging.info(f"Hierarchy match: Assigned clade '{internal_clade}' via {taxon_class} taxon_id {current_taxon_id}")
                 return internal_clade, genus_taxon_id, clade_details
 
@@ -200,6 +204,8 @@ def assign_clade_info_custom_loading(registry_info):
         details = clade_data[clade_name]
         # Return all details except taxon_id
         clade_details = {k: v for k, v in details.items() if k != "taxon_id"}
+        clade_details['helixer_lineage'] = clade_details.get('helixer_lineage', '')
+
         return clade_details
     else:
         logging.warning(f"Clade '{clade_name}' not found in clade data")
