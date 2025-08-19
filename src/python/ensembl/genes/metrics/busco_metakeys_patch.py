@@ -16,13 +16,17 @@
 # limitations under the License.
 import argparse
 import json
-import pymysql
 import re
 from pathlib import Path
 from typing import Dict, Optional, Union
+import pymysql
 
 
-def parse_busco_file(file_path: str, db: str) -> Dict[str, Union[str, int]]:
+def parse_busco_file(
+    file_path: str,
+) -> Dict[
+    str, Union[str, int, float]
+]:  # pylint: disable =too-many-locals, too-many-statements
     """
     Parses a BUSCO result file and extracts relevant data into a dictionary.
 
@@ -31,30 +35,42 @@ def parse_busco_file(file_path: str, db: str) -> Dict[str, Union[str, int]]:
         db(str): Core db name.
 
     Returns:
-        Dict[str, Union[str, int]]: A dictionary containing parsed BUSCO data, including the dataset,
-                        completeness values, and mode (proteins or genome).
+        Dict[str, Union[str, int]]: A dictionary containing parsed BUSCO data,
+        including the dataset, completeness values, and mode (proteins or genome).
     """
 
     # Declare the dictionary to accept str as keys and str or float as values
-    data: Dict[str, Union[str, int]] = {}
-    #data["core_db"] = db
+    data: Dict[str, Union[str, int, float]] = {}
+    # data["core_db"] = db
     # Open and read the file
-    with open(file_path, "r") as file:
+    with open(file_path, "r") as file:  # pylint: disable =unspecified-encoding
         content = file.read()
 
     # Define regular expressions to match the relevant numbers
-    version_pattern : Optional[re.Match[str]] = re.search(r"BUSCO version is: ((\d+\.\d+.\d+))", content)
-    dataset_pattern : Optional[re.Match[str]] = re.search(r"The lineage dataset is: ([\w_]+)", content)
-    mode_pattern: Optional[re.Match[str]] = re.search(r"BUSCO was run in mode: ([\w_]+)", content)
-    completeness_pattern: Optional[re.Match[str]] = re.search(r"(\d+)\s+Complete BUSCOs \(C\)", content)
+    version_pattern: Optional[re.Match[str]] = re.search(
+        r"BUSCO version is: ((\d+\.\d+.\d+))", content
+    )
+    dataset_pattern: Optional[re.Match[str]] = re.search(
+        r"The lineage dataset is: ([\w_]+)", content
+    )
+    mode_pattern: Optional[re.Match[str]] = re.search(
+        r"BUSCO was run in mode: ([\w_]+)", content
+    )
+    completeness_pattern: Optional[re.Match[str]] = re.search(
+        r"(\d+)\s+Complete BUSCOs \(C\)", content
+    )
     single_copy_pattern: Optional[re.Match[str]] = re.search(
         r"(\d+)\s+Complete and single-copy BUSCOs \(S\)", content
     )
     duplicates_pattern: Optional[re.Match[str]] = re.search(
         r"(\d+)\s+Complete and duplicated BUSCOs \(D\)", content
     )
-    fragmented_pattern: Optional[re.Match[str]] = re.search(r"(\d+)\s+Fragmented BUSCOs \(F\)", content)
-    missing_pattern: Optional[re.Match[str]] = re.search(r"(\d+)\s+Missing BUSCOs \(M\)", content)
+    fragmented_pattern: Optional[re.Match[str]] = re.search(
+        r"(\d+)\s+Fragmented BUSCOs \(F\)", content
+    )
+    missing_pattern: Optional[re.Match[str]] = re.search(
+        r"(\d+)\s+Missing BUSCOs \(M\)", content
+    )
 
     # Initialize mode_match as None or str
     mode_match: Optional[str] = None
@@ -85,7 +101,8 @@ def parse_busco_file(file_path: str, db: str) -> Dict[str, Union[str, int]]:
         )
     else:
         score_match = re.search(
-            r"C:(\d+\.\d+)%\[S:(\d+\.\d+)%.*,D:(\d+\.\d+)%\],F:(\d+\.\d+)%.*,M:(\d+\.\d+)%,n:(\d+)", content
+            r"C:(\d+\.\d+)%\[S:(\d+\.\d+)%.*,D:(\d+\.\d+)%\],F:(\d+\.\d+)%.*,M:(\d+\.\d+)%,n:(\d+)",
+            content,
         )
 
     if score_match:
@@ -134,7 +151,10 @@ def parse_busco_file(file_path: str, db: str) -> Dict[str, Union[str, int]]:
 
 # Function to generate SQL patches
 def generate_sql_patches(
-        db_name: str, json_data: Dict[str, Union[str, float]], species_id: int = 1, table_name: str = "meta"
+    db_name: str,
+    json_data: Dict[str, Union[str, int, float]],
+    species_id: int = 1,
+    table_name: str = "meta",
 ) -> str:  # pylint: disable=line-too-long
     """Creat Sql patch for database
 
@@ -165,13 +185,15 @@ def generate_sql_patches(
     return "\n".join(sql_statements)
 
 
-def process_busco_file(busco_file:str, db:str, output_dir:str,assembly_id:str ="")->str:
+def process_busco_file(
+    busco_file: str, dbname: str, output_dir: str, assembly_id: str = ""
+) -> str:
     """
     Parses the BUSCO file, generates a JSON, writes it to an output file,
     and generates SQL patches.
     Args:
         busco_file (str): Busco file to process
-        db (str) : db name
+        dbname (str) : db name
         output_dir (str): Output directory path
         assembly_id (str, optional): Metadata used in downstream analyses.
 
@@ -179,7 +201,7 @@ def process_busco_file(busco_file:str, db:str, output_dir:str,assembly_id:str ="
         str: list of Mysql patches
     """
     # Parse the BUSCO file and generate the JSON
-    busco_data = parse_busco_file(busco_file, db)
+    busco_data = parse_busco_file(busco_file)
 
     # Determine the file name based on the mode (protein or genome)
     for key, value in busco_data.items():
@@ -187,35 +209,36 @@ def process_busco_file(busco_file:str, db:str, output_dir:str,assembly_id:str ="
             busco_mode = value
             break  # Exit the loop once we find the first match
 
-    output_file_name = f"{db}_busco_{busco_mode}_metakey.json"
-    busco_data_json =busco_data.copy()
-    busco_data_json['core_db']=db
-    busco_data_json['assembly_id']=assembly_id
+    output_file_name = f"{dbname}_busco_{busco_mode}_metakey.json"
+    busco_data_json = busco_data.copy()
+    busco_data_json["core_db"] = dbname
+    busco_data_json["assembly_id"] = assembly_id
     # Convert the dictionary to a JSON object
     busco_json = json.dumps(busco_data_json, indent=4)
 
     # Write the JSON output to the dynamically named file
     output_path = Path(output_dir) / output_file_name
-    with open(output_path, "w") as outfile:
+    with open(output_path, "w") as outfile:  # pylint: disable =unspecified-encoding
         outfile.write(busco_json)
 
     # Output the JSON
     print(busco_json)
 
     # Generate SQL patches from the JSON
-    sql_patches = generate_sql_patches(db, busco_data)
+    sql_patches = generate_sql_patches(dbname, busco_data)
 
     # Return SQL patches to write them to an SQL file later
     return sql_patches
 
-def execute_sql_patches(
+
+def execute_sql_patches(  # pylint: disable=too-many-arguments, too-many-locals
     db_name: str,
-    sql_statements: Dict[str, Union[str, float]],
+    sql_statements: str,
     host: str,
     user: str,
     password: str,
-    port: int
-) -> str:  # pylint: disable=line-too-long
+    port: int,
+) -> None:  # pylint: disable=line-too-long
     """Create SQL patch for database and execute it
 
     Args:
@@ -227,28 +250,24 @@ def execute_sql_patches(
         port (int, optional): MySQL port.
 
     """
-    sql_statements = sql_statements.strip().split(';\n')
+    statements = sql_statements.strip().split(";\n")
     connection = None  # Initialize connection variable
     # Connect to the database and execute the SQL statements
     try:
         connection = pymysql.connect(
-            host=host,
-            user=user,
-            password=password,
-            database=db_name,
-            port=int(port)
+            host=host, user=user, password=password, database=db_name, port=int(port)
         )
         with connection.cursor() as cursor:
-            for statement in sql_statements:
+            for statement in statements:
                 print(statement.strip())
-                statement=statement.strip()
+                statement = statement.strip()
                 cursor.execute(statement)  # Execute each SQL statement
             connection.commit()  # Commit the changes
-    except pymysql.MySQLError as e:
-        print(f"Error while executing SQL: {e}")
+    except pymysql.MySQLError as err_msg:
+        print(f"Error while executing SQL: {err_msg}")
     finally:
-        connection.close()  # Close the database connection
-
+        if connection is not None:
+            connection.close()  # Close the database connection
 
 
 def main():
@@ -259,38 +278,62 @@ def main():
     """
 
     # Set up argument parser
-    parser = argparse.ArgumentParser(description="Parse a BUSCO result file and generate JSON output.")
-    parser.add_argument("-file",  type=str, help="Path to the BUSCO result file")
+    parser = argparse.ArgumentParser(
+        description="Parse a BUSCO result file and generate JSON output."
+    )
+    parser.add_argument("-file", type=str, help="Path to the BUSCO result file")
     parser.add_argument("-db", required=True, type=str, help="Core db")
-    parser.add_argument("-input_dir", type=str, help="Path for directory containing the busco output files")
-    parser.add_argument("-output_dir", required=True, type=str, help="Path for output directory")
-    parser.add_argument("-run_query", type=str, choices=['true', 'false'], help="Add busco metakeys to the db")
+    parser.add_argument(
+        "-input_dir",
+        type=str,
+        help="Path for directory containing the busco output files",
+    )
+    parser.add_argument(
+        "-output_dir", required=True, type=str, help="Path for output directory"
+    )
+    parser.add_argument(
+        "-run_query",
+        type=str,
+        choices=["true", "false"],
+        help="Add busco metakeys to the db",
+    )
     parser.add_argument("-host", required=True, type=str, help="Server host")
-    parser.add_argument("-port", required=True,type=str, help="Server port")
-    parser.add_argument("-user", required=True,type=str, help="Db user with writable permission")
-    parser.add_argument("-password", required=True,type=str, help="Server password")
+    parser.add_argument("-port", required=True, type=str, help="Server port")
+    parser.add_argument(
+        "-user", required=True, type=str, help="Db user with writable permission"
+    )
+    parser.add_argument("-password", required=True, type=str, help="Server password")
     parser.add_argument("-assembly_id", type=str, help="Registry assembly id")
     # Parse arguments
     args = parser.parse_args()
     if args.file:
         # Process the single file and write to JSON and SQL
-        sql_patches = process_busco_file(args.file, args.db, args.output_dir, args.assembly_id)
-        with open(Path(args.output_dir) / f"{args.db}.sql", "a") as f:
-            f.write(sql_patches)
+        sql_patches = process_busco_file(
+            args.file, args.db, args.output_dir, args.assembly_id
+        )
+        with open(
+            Path(args.output_dir) / f"{args.db}.sql", "a"
+        ) as f_in:  # pylint: disable =unspecified-encoding
+            f_in.write(sql_patches)
 
     elif args.input_dir:
         # Process all files that end with 'busco_short_summary'
         busco_files = list(Path(args.input_dir).rglob("*busco_short_summary.txt"))
 
-        with open(Path(args.output_dir) / f"{args.db}.sql", "a") as f:
+        with open(
+            Path(args.output_dir) / f"{args.db}.sql", "a"
+        ) as f:  # pylint: disable =unspecified-encoding
             for file in busco_files:
                 print(f"Processing file: {file}")
-                sql_patches = process_busco_file(file, args.db, args.output_dir, args.assembly_id)
+                sql_patches = process_busco_file(
+                    file, args.db, args.output_dir, args.assembly_id
+                )
                 f.write(sql_patches)
-    if args.run_query == 'true':
-        execute_sql_patches(args.db, sql_patches, args.host, args.user, args.password, int(args.port))
+    if args.run_query == "true":
+        execute_sql_patches(
+            args.db, sql_patches, args.host, args.user, args.password, int(args.port)
+        )
 
 
 if __name__ == "__main__":
     main()
-
