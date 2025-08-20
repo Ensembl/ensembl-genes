@@ -18,7 +18,7 @@
         "busco_group": "endopterygota_odb12"
     },
     "polyneoptera": {
-        "taxon_id": 30263,
+        "taxon_id": 33340,
         "max_intron_length": 100000,
         "protein_file": "/nfs/production/flicek/ensembl/genebuild/genebuild_virtual_user/protein_sets/polyneoptera_uniprot_proteins.fa",
         "busco_protein_file": "/nfs/production/flicek/ensembl/genebuild/genebuild_virtual_user/protein_sets/hexapoda_orthodb11v0_proteins.fa",
@@ -34,15 +34,6 @@
         "rfam_accessions_file": "/hps/nobackup/flicek/ensembl/genebuild/blastdb/ncrna/Rfam_14.1/clade_accessions/rfam_plasmodium_ids.txt",
         "species_division": "EnsemblProtists",
         "busco_group": "plasmodium_odb12"
-    },
-    "teleostei": {
-        "taxon_id": 32443,
-        "max_intron_length": 100000,
-        "protein_file": "/nfs/production/flicek/ensembl/genebuild/genebuild_virtual_user/protein_sets/teleostei_uniprot_proteins.fa",
-        "busco_protein_file": "/nfs/production/flicek/ensembl/genebuild/genebuild_virtual_user/protein_sets/actinopterygii_orthodb_proteins.fa",
-        "rfam_accessions_file": "/hps/nobackup/flicek/ensembl/genebuild/blastdb/ncrna/Rfam_14.1/clade_accessions/rfam_teleostei_ids.txt",
-        "species_division": "EnsemblVertebrates",
-        "busco_group": "actinopterygii_odb12"
     },
     "hymenoptera": {
         "taxon_id": 7399,
@@ -90,7 +81,7 @@
         "busco_group": "mollusca_odb12"
     },
     "hemiptera": {
-        "taxon_id": 6447,
+        "taxon_id": 7524,
         "max_intron_length": 100000,
         "protein_file": "/nfs/production/flicek/ensembl/genebuild/genebuild_virtual_user/protein_sets/hemiptera_uniprot_proteins.fa",
         "busco_protein_file": "/nfs/production/flicek/ensembl/genebuild/genebuild_virtual_user/protein_sets/hemiptera_orthodb_proteins.fa",
@@ -309,6 +300,5 @@
         "busco_group": "mucoromycota_odb12",
         "helixer_lineage": "fungi"
     }
-
 }
 
