@@ -273,8 +273,8 @@
     "ascomycota": {
         "taxon_id": 4890,
         "max_intron_length": 1000,
-        "protein_file": "/nfs/production/flicek/ensembl/genebuild/genebuild_virtual_user/protein_sets/fungi_uniprot_proteins.fa",
-        "busco_protein_file": "/nfs/production/flicek/ensembl/genebuild/genebuild_virtual_user/protein_sets/ascomycota_orthodb_proteins.fa",
+        "protein_file": "/nfs/production/flicek/ensembl/genebuild/genebuild_virtual_user/protein_sets/ascomycota_uniprot_proteins.fa",
+        "busco_protein_file": "/nfs/production/flicek/ensembl/genebuild/genebuild_virtual_user/protein_sets/ascomycota_fungidb_proteins.fa",
         "rfam_accessions_file": "/hps/nobackup/flicek/ensembl/genebuild/blastdb/ncrna/Rfam_14.1/clade_accessions/rfam_fungi_ids.txt",
         "species_division": "EnsemblFungi",
         "busco_group": "ascomycota_odb12",
@@ -283,8 +283,8 @@
     "basidiomycota": {
         "taxon_id": 5204,
         "max_intron_length": 1000,
-        "protein_file": "/nfs/production/flicek/ensembl/genebuild/genebuild_virtual_user/protein_sets/fungi_uniprot_proteins.fa",
-        "busco_protein_file": "/nfs/production/flicek/ensembl/genebuild/genebuild_virtual_user/protein_sets/basidiomycota_orthodb_proteins.fa",
+        "protein_file": "/nfs/production/flicek/ensembl/genebuild/genebuild_virtual_user/protein_sets/basidiomycota_uniprot_proteins.fa",
+        "busco_protein_file": "/nfs/production/flicek/ensembl/genebuild/genebuild_virtual_user/protein_sets/basidiomycota_fungidb_proteins.fa",
         "rfam_accessions_file": "/hps/nobackup/flicek/ensembl/genebuild/blastdb/ncrna/Rfam_14.1/clade_accessions/rfam_fungi_ids.txt",
         "species_division": "EnsemblFungi",
         "busco_group": "basidiomycota_odb12",
@@ -293,8 +293,38 @@
     "mucoromycota": {
         "taxon_id": 1913637,
         "max_intron_length": 1000,
-        "protein_file": "/nfs/production/flicek/ensembl/genebuild/genebuild_virtual_user/protein_sets/fungi_uniprot_proteins.fa",
-        "busco_protein_file": "/nfs/production/flicek/ensembl/genebuild/genebuild_virtual_user/protein_sets/mucoromycota_orthodb_proteins.fa",
+        "protein_file": "/nfs/production/flicek/ensembl/genebuild/genebuild_virtual_user/protein_sets/mucoromycota_uniprot_proteins.fa",
+        "busco_protein_file": "/nfs/production/flicek/ensembl/genebuild/genebuild_virtual_user/protein_sets/mucoromycota_fungidb_proteins.fa",
+        "rfam_accessions_file": "/hps/nobackup/flicek/ensembl/genebuild/blastdb/ncrna/Rfam_14.1/clade_accessions/rfam_fungi_ids.txt",
+        "species_division": "EnsemblFungi",
+        "busco_group": "mucoromycota_odb12",
+        "helixer_lineage": "fungi"
+    },
+    "oomycota": {
+        "taxon_id": 4762,
+        "max_intron_length": 1000,
+        "protein_file": "/nfs/production/flicek/ensembl/genebuild/genebuild_virtual_user/protein_sets/oomycota_uniprot_proteins.fa",
+        "busco_protein_file": "/nfs/production/flicek/ensembl/genebuild/genebuild_virtual_user/protein_sets/oomycota_fungidb_proteins.fa",
+        "rfam_accessions_file": "/hps/nobackup/flicek/ensembl/genebuild/blastdb/ncrna/Rfam_14.1/clade_accessions/rfam_fungi_ids.txt",
+        "species_division": "EnsemblFungi",
+        "busco_group": "mucoromycota_odb12",
+        "helixer_lineage": "fungi"
+    },
+    "blastocladiomycota": {
+        "taxon_id": 451459,
+        "max_intron_length": 1000,
+        "protein_file": "/nfs/production/flicek/ensembl/genebuild/genebuild_virtual_user/protein_sets/blastocladiomycota_uniprot_proteins.fa",
+        "busco_protein_file": "/nfs/production/flicek/ensembl/genebuild/genebuild_virtual_user/protein_sets/blastocladiomycota_fungidb_proteins.fa",
+        "rfam_accessions_file": "/hps/nobackup/flicek/ensembl/genebuild/blastdb/ncrna/Rfam_14.1/clade_accessions/rfam_fungi_ids.txt",
+        "species_division": "EnsemblFungi",
+        "busco_group": "mucoromycota_odb12",
+        "helixer_lineage": "fungi"
+    },
+    "chytridiomycota": {
+        "taxon_id": 4761,
+        "max_intron_length": 1000,
+        "protein_file": "/nfs/production/flicek/ensembl/genebuild/genebuild_virtual_user/protein_sets/chytridiomycota_uniprot_proteins.fa",
+        "busco_protein_file": "/nfs/production/flicek/ensembl/genebuild/genebuild_virtual_user/protein_sets/chytridiomycota_fungidb_proteins.fa",
         "rfam_accessions_file": "/hps/nobackup/flicek/ensembl/genebuild/blastdb/ncrna/Rfam_14.1/clade_accessions/rfam_fungi_ids.txt",
         "species_division": "EnsemblFungi",
         "busco_group": "mucoromycota_odb12",
