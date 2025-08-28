@@ -23,6 +23,7 @@ from assign_clade_based_on_tax import (assign_clade,assign_clade_info_custom_loa
 from create_pipe_reg import create_registry_entry
 from create_config import edit_config
 from assign_species_prefix import get_species_prefix # type: ignore
+from assign_stable_space import get_stable_space
 
 # Configure logging
 logging.basicConfig(
@@ -70,16 +71,17 @@ def load_anno_settings() -> dict:
         json.JSONDecodeError: If the file contents are not valid JSON.
     """
     logger.info("Loading anno settings json")
-    settings = os.path.join(
-        os.environ.get("ENSCODE"),
-        "ensembl-genes",
-        "src",
-        "python",
-        "ensembl",
-        "genes",
-        "info_from_registry",
-        "anno_settings.json"
-    )
+    settings = "src/python/ensembl/genes/info_from_registry/anno_settings.json"
+    # settings = os.path.join(
+    #     os.environ.get("ENSCODE"),
+    #     "ensembl-genes",
+    #     "src",
+    #     "python",
+    #     "ensembl",
+    #     "genes",
+    #     "info_from_registry",
+    #     "anno_settings.json"
+    # )
     with open(settings, "r") as f:
         return json.load(f)
 
@@ -538,7 +540,7 @@ def main(gcas, pipeline, settings_file):
         if pipeline == "anno":
             logger.info("Anno setting detected")
             logger.info("Copy and modify pipeline config")
-            edit_config(settings)
+            #edit_config(settings)
 
             anno_settings = load_anno_settings()
             output_params = get_info_for_pipeline(settings, info_dict, gca_dict[gca]["assembly_accession"], anno_settings)
@@ -546,7 +548,7 @@ def main(gcas, pipeline, settings_file):
             # Create directories
             dirs_to_create = []
             # Create output dir with 775 permissions this was for BRAKER
-            create_dir(info_dict["output_path"], mode=0o775)
+            #create_dir(info_dict["output_path"], mode=0o775)
 
             # Add other dirs to the list
             dirs_to_create.extend(
@@ -559,8 +561,8 @@ def main(gcas, pipeline, settings_file):
             )
 
             # Create the other directories without changing mode (default permissions)
-            for dir_path in dirs_to_create:
-                create_dir(dir_path)
+            #for dir_path in dirs_to_create:
+            #    create_dir(dir_path)
             logger.info("Created directories")
 
             # Add db adaptors to pipeline registry
@@ -575,8 +577,8 @@ def main(gcas, pipeline, settings_file):
             }
 
             # Create a local copy of the registry and update the pipeline's resources with the new path
-            registry_path = create_registry_entry(settings, server_info, core_adaptor)
-            output_params["registry_file"] = Path(registry_path)
+            #registry_path = create_registry_entry(settings, server_info, core_adaptor)
+            #output_params["registry_file"] = Path(registry_path)
             # Build anno commands and add to dictionary
             build_annotation_commands(core_adaptor, output_params, anno_settings, settings)
             logger.info(f"Created anno commands for {gca_dict[gca]['assembly_accession']}")
@@ -586,14 +588,15 @@ def main(gcas, pipeline, settings_file):
             output_params.update(rna_busco_settings)
 
             #Assign species prefix
-            output_params["species_prefix"] = get_species_prefix(output_params["taxon_id"], server_info)
+            output_params["stable_id_prefix"] = get_species_prefix(output_params["taxon_id"], server_info)
+            logger.info(f"✅ Assigned prefix {output_params['stable_id_prefix']} for taxon {output_params.get('taxon_id')}")
+
+            #Assign stable ID
+            output_params["stable_id_start"] = get_stable_space(output_params["taxon_id"], gca_dict[gca]['assembly_accession'], output_params["assembly_id"], server_info)
 
             # Store the output_params for this GCA
             all_output_params[gca] = output_params
             logger.info(f"Finished with {gca_dict[gca]['assembly_accession']}")
-
-
-
 
     # Save all_output_params to output directory
     output_json_path = Path(settings["base_output_dir"]) / "non_vert_pipeline_params.json"

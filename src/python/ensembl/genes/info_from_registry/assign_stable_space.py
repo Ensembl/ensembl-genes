@@ -2,6 +2,7 @@ import logging
 from typing import Any
 import pymysql # type: ignore
 from mysql_helper import mysql_fetch_data
+from check_stable_space_old_registry import get_old_stable_space_info
 
 # Configure logging
 logging.basicConfig(
@@ -51,12 +52,46 @@ def stable_space_per_taxon(taxon_id: int, server_info: dict) -> int:
     )
 
     stable_space_tmp = output_query[0].get('max_stable_id', None)
-    if stable_space_tmp is None:
-        stable_space_id = 1
-        logger.info(f"No stable space found for taxon ID {taxon_id}. Assigning new stable space ID {stable_space_id}.")
-    else:
-        stable_space_id = stable_space_tmp + 1
-        logger.info(f"Found existing stable space ID {stable_space_tmp} for taxon ID {taxon_id}. Assigning next available ID {stable_space_id}.")
+
+    ####################
+    # remove when all pipelines have moved to the new registry:
+    old_stable_space_info = get_old_stable_space_info(taxon_id, server_info)
+    ####################
+
+    if old_stable_space_info is None:
+        if stable_space_tmp is None:
+            stable_space_id = 1
+            logger.info(
+                f"No stable space found for taxon ID {taxon_id}. "
+                f"Assigning new stable space ID {stable_space_id}."
+            )
+        else:
+            stable_space_id = stable_space_tmp + 1
+            logger.info(
+                f"No old stable space for taxon ID {taxon_id}. "
+                f"Using tmp value {stable_space_tmp}, assigning new ID {stable_space_id}."
+            )
+
+    else:  # old_stable_space_info is not None
+        if stable_space_tmp is None:
+            stable_space_id = old_stable_space_info + 1
+            logger.info(
+                f"Found old stable space {old_stable_space_info} for taxon ID {taxon_id}. "
+                f"Assigning new ID {stable_space_id}."
+            )
+        elif stable_space_tmp == old_stable_space_info:
+            stable_space_id = stable_space_tmp + 1
+            logger.info(
+                f"Stable space {stable_space_tmp} matches old record for taxon ID {taxon_id}. "
+                f"Assigning new ID {stable_space_id}."
+            )
+        else:
+            msg = (
+                f"Conflicting stable space for taxon ID {taxon_id}: "
+                f"{old_stable_space_info} != {stable_space_tmp}"
+            )
+            logger.error(msg)
+            raise Exception(msg)
 
     return stable_space_id
 
@@ -109,14 +144,14 @@ def stable_space_range(stable_space_id:int, server_info: dict) -> bool:
                 host=server_info["registry"]["db_host"],
                 user=server_info["registry"]["db_user_w"],
                 port=server_info["registry"]["db_port"],
-                password=server_info["registry"]["db_password"],
+                password=server_info["registry"]["password"],
                 database=server_info["registry"]["db_name"]
             )
             
             if insert_to_db(insert_query, conn, store_new_registry=True):
                 logger.info(f"Successfully created stable space range for ID {stable_space_id}.")
                 conn.close()
-                return True
+                return new_start
             else:
                 logger.error(f"Failed to insert stable space range for ID {stable_space_id}.")
                 return False
@@ -124,7 +159,8 @@ def stable_space_range(stable_space_id:int, server_info: dict) -> bool:
             logger.error(f"Failed to create stable space range for ID {stable_space_id}. Previous space ID {previous_space_id} not found.")
             return False       
         
-def assign_stable_id(taxon_id:int, gca_accession: str, assembly_id:int, server_info:dict) -> tuple[bool,int|None]:
+def assign_stable_id(taxon_id:int, gca_accession: str, assembly_id:int, server_info:dict) -> tuple[bool, int, int] | \
+                                                                                             tuple[bool, None, None]:
     """Assign a stable space ID for a given taxon and GCA accession.
 
     Args:
@@ -134,12 +170,14 @@ def assign_stable_id(taxon_id:int, gca_accession: str, assembly_id:int, server_i
         server_info (dict): The server information for database connection.
 
     Returns:
-        tuple[bool, int|None]: A tuple containing a success flag and the assigned stable space ID or None if failed.
+        tuple[bool, int|None, int|None]: A tuple containing a success flag and the assigned stable space ID or None if failed.
     """
     
     stable_space_id = stable_space_per_taxon(taxon_id, server_info)
     # Check if stable space range exists
-    if stable_space_range(stable_space_id, server_info):
+    stable_space_start = stable_space_range(stable_space_id, server_info)
+
+    if stable_space_start is not False:
         logger.info(f"Assigned stable space ID {stable_space_id} for GCA {gca_accession} and taxon ID {taxon_id}.") 
         
         insert_query = f"""INSERT INTO stable_space_species_log (stable_space_id, lowest_taxon_id, gca_accession, assembly_id) 
@@ -149,20 +187,20 @@ def assign_stable_id(taxon_id:int, gca_accession: str, assembly_id:int, server_i
             host=server_info["registry"]["db_host"],
             user=server_info["registry"]["db_user_w"],
             port=server_info["registry"]["db_port"],
-            password=server_info["registry"]["db_password"],
+            password=server_info["registry"]["password"],
             database=server_info["registry"]["db_name"]
         )
         
         if insert_to_db(insert_query, conn, store_new_registry=True):
             logger.info(f"Successfully inserted stable space ID {stable_space_id} for GCA {gca_accession}.")
             conn.close()
-            return True, stable_space_id
+            return True, stable_space_id, stable_space_start
         else:
             logger.error(f"Failed to insert stable space ID {stable_space_id} for GCA {gca_accession}.")
-            return False, None
+            return False, None, None
     else:
         logger.error(f"Failed to assign stable space ID {stable_space_id} for GCA {gca_accession}.")
-        return False, None
+        return False, None, None
 
 def get_stable_space(taxon_id:int, gca_accession:str, assembly_id:int, server_info: dict) -> int:
     """Get the stable space ID for a given taxon and GCA accession.
@@ -178,7 +216,7 @@ def get_stable_space(taxon_id:int, gca_accession:str, assembly_id:int, server_in
     """
 
     # Check if GCA already has assigned a stable space
-    space_gca_query = f"SELECT stable_space_id FROM stable_space_species_log WHERE gca_accession = '{gca_accession}';"
+    space_gca_query = f"SELECT stable_space_id, stable_space_start FROM stable_space_species_log WHERE gca_accession = '{gca_accession}';"
     output_query = mysql_fetch_data(
         space_gca_query,
         host=server_info["registry"]["db_host"],
@@ -190,8 +228,9 @@ def get_stable_space(taxon_id:int, gca_accession:str, assembly_id:int, server_in
     
     if output_query:
         stable_space_id = output_query[0].get('stable_space_id')
+        stable_space_start = output_query[0].get('stable_space_start')
         logger.info(f"Stable space {stable_space_id} already assigned for GCA {gca_accession}.")
-        return stable_space_id
+        return stable_space_start
     
     else:
         logger.info(f"No stable space found for assembly {gca_accession}. Checking taxon ID {taxon_id} for existing stable space.")
@@ -199,6 +238,6 @@ def get_stable_space(taxon_id:int, gca_accession:str, assembly_id:int, server_in
         success = False
         while not success:
             logger.info(f"Assigning stable space for taxon ID {taxon_id} and GCA {gca_accession}.")
-            success, stable_space_id = assign_stable_id(taxon_id, gca_accession, assembly_id, server_info) 
-        
-        return int(stable_space_id)
+            success, stable_space_id, stable_space_start = assign_stable_id(taxon_id, gca_accession, assembly_id, server_info)
+
+        return int(stable_space_start)

@@ -50,11 +50,11 @@ def check_if_annotated(assembly_accession, server_info):
 
     registry_query = f"""
         SELECT 
-            assembly_accession, 
-            progress_status, 
+            gca_accession, 
+            gb_status, 
             genebuilder
         FROM genebuild_status 
-        WHERE assembly_accession =  %s
+        WHERE gca_accession =  %s
     """
 
     registry_rows = mysql_fetch_data(

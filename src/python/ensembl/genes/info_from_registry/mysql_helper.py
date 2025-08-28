@@ -71,7 +71,6 @@ def mysql_fetch_data(query, database, host, port, user, password, params=None):
             cursorclass=pymysql.cursors.DictCursor,
         )
         with conn.cursor() as cursor:
-            logger.info(f"Executing query on {database}: {query}")
             cursor.execute(query, params or ())
             results = cursor.fetchall()
         conn.close()
@@ -109,7 +108,6 @@ def mysql_update(query, database, host, port, user, password, params=None):
             cursorclass=pymysql.cursors.DictCursor,
         )
         with conn.cursor() as cursor:
-            logger.info(f"Executing update on {database}: {query}")
             cursor.execute(query, params or ())
             conn.commit()
         conn.close()
