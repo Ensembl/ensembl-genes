@@ -33,20 +33,6 @@ SERVERS = {
         'port': 4695,
         'name': 'sta6'
     },
-    'gb6': {
-        'host': 'mysql-ens-genebuild-prod-6',
-        'user': 'ensro',
-        'password': '',
-        'port': 4532,
-        'name': 'gb6'
-    },
-    'gb5': {
-        'host': 'mysql-ens-genebuild-prod-5',
-        'user': 'ensro',
-        'password': '',
-        'port': 4531,
-        'name': 'gb5'
-    },
 }
 
 def get_databases_with_keywords(cursor, keywords):
