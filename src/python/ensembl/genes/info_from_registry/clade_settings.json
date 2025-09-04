@@ -108,8 +108,35 @@
         "species_division": "EnsemblMetazoa",
         "busco_group": "metazoa_odb12"
     },
-    "lophotrochozoa": {
-        "taxon_id": 1206795,
+    "platyhelminthes": {
+        "taxon_id": 6157,
+        "max_intron_length": 100000,
+        "protein_file": "/nfs/production/flicek/ensembl/genebuild/genebuild_virtual_user/protein_sets/lophotrochozoa_uniprot_proteins.fa",
+        "busco_protein_file": "/nfs/production/flicek/ensembl/genebuild/genebuild_virtual_user/protein_sets/lophotrochozoa_orthodb11v0_proteins.fa",
+        "rfam_accessions_file": "/hps/nobackup/flicek/ensembl/genebuild/blastdb/ncrna/Rfam_14.1/clade_accessions/rfam_lophotrochozoa_ids.txt",
+        "species_division": "EnsemblMetazoa",
+        "busco_group": "metazoa_odb12"
+    },
+    "nemertea": {
+        "taxon_id": 6157,
+        "max_intron_length": 100000,
+        "protein_file": "/nfs/production/flicek/ensembl/genebuild/genebuild_virtual_user/protein_sets/lophotrochozoa_uniprot_proteins.fa",
+        "busco_protein_file": "/nfs/production/flicek/ensembl/genebuild/genebuild_virtual_user/protein_sets/lophotrochozoa_orthodb11v0_proteins.fa",
+        "rfam_accessions_file": "/hps/nobackup/flicek/ensembl/genebuild/blastdb/ncrna/Rfam_14.1/clade_accessions/rfam_lophotrochozoa_ids.txt",
+        "species_division": "EnsemblMetazoa",
+        "busco_group": "metazoa_odb12"
+    },
+    "annelida": {
+        "taxon_id": 6157,
+        "max_intron_length": 100000,
+        "protein_file": "/nfs/production/flicek/ensembl/genebuild/genebuild_virtual_user/protein_sets/lophotrochozoa_uniprot_proteins.fa",
+        "busco_protein_file": "/nfs/production/flicek/ensembl/genebuild/genebuild_virtual_user/protein_sets/lophotrochozoa_orthodb11v0_proteins.fa",
+        "rfam_accessions_file": "/hps/nobackup/flicek/ensembl/genebuild/blastdb/ncrna/Rfam_14.1/clade_accessions/rfam_lophotrochozoa_ids.txt",
+        "species_division": "EnsemblMetazoa",
+        "busco_group": "metazoa_odb12"
+    },
+    "brachiopoda": {
+        "taxon_id": 6157,
         "max_intron_length": 100000,
         "protein_file": "/nfs/production/flicek/ensembl/genebuild/genebuild_virtual_user/protein_sets/lophotrochozoa_uniprot_proteins.fa",
         "busco_protein_file": "/nfs/production/flicek/ensembl/genebuild/genebuild_virtual_user/protein_sets/lophotrochozoa_orthodb11v0_proteins.fa",
@@ -118,7 +145,52 @@
         "busco_group": "metazoa_odb12"
     },
     "bryozoa": {
-        "taxon_id": 10205,
+        "taxon_id": 6157,
+        "max_intron_length": 100000,
+        "protein_file": "/nfs/production/flicek/ensembl/genebuild/genebuild_virtual_user/protein_sets/lophotrochozoa_uniprot_proteins.fa",
+        "busco_protein_file": "/nfs/production/flicek/ensembl/genebuild/genebuild_virtual_user/protein_sets/lophotrochozoa_orthodb11v0_proteins.fa",
+        "rfam_accessions_file": "/hps/nobackup/flicek/ensembl/genebuild/blastdb/ncrna/Rfam_14.1/clade_accessions/rfam_lophotrochozoa_ids.txt",
+        "species_division": "EnsemblMetazoa",
+        "busco_group": "metazoa_odb12"
+    },
+    "acanthocephala": {
+        "taxon_id": 6157,
+        "max_intron_length": 100000,
+        "protein_file": "/nfs/production/flicek/ensembl/genebuild/genebuild_virtual_user/protein_sets/lophotrochozoa_uniprot_proteins.fa",
+        "busco_protein_file": "/nfs/production/flicek/ensembl/genebuild/genebuild_virtual_user/protein_sets/lophotrochozoa_orthodb11v0_proteins.fa",
+        "rfam_accessions_file": "/hps/nobackup/flicek/ensembl/genebuild/blastdb/ncrna/Rfam_14.1/clade_accessions/rfam_lophotrochozoa_ids.txt",
+        "species_division": "EnsemblMetazoa",
+        "busco_group": "metazoa_odb12"
+    },
+    "gastrotricha": {
+        "taxon_id": 6157,
+        "max_intron_length": 100000,
+        "protein_file": "/nfs/production/flicek/ensembl/genebuild/genebuild_virtual_user/protein_sets/lophotrochozoa_uniprot_proteins.fa",
+        "busco_protein_file": "/nfs/production/flicek/ensembl/genebuild/genebuild_virtual_user/protein_sets/lophotrochozoa_orthodb11v0_proteins.fa",
+        "rfam_accessions_file": "/hps/nobackup/flicek/ensembl/genebuild/blastdb/ncrna/Rfam_14.1/clade_accessions/rfam_lophotrochozoa_ids.txt",
+        "species_division": "EnsemblMetazoa",
+        "busco_group": "metazoa_odb12"
+    },
+    "entoprocta": {
+        "taxon_id": 6157,
+        "max_intron_length": 100000,
+        "protein_file": "/nfs/production/flicek/ensembl/genebuild/genebuild_virtual_user/protein_sets/lophotrochozoa_uniprot_proteins.fa",
+        "busco_protein_file": "/nfs/production/flicek/ensembl/genebuild/genebuild_virtual_user/protein_sets/lophotrochozoa_orthodb11v0_proteins.fa",
+        "rfam_accessions_file": "/hps/nobackup/flicek/ensembl/genebuild/blastdb/ncrna/Rfam_14.1/clade_accessions/rfam_lophotrochozoa_ids.txt",
+        "species_division": "EnsemblMetazoa",
+        "busco_group": "metazoa_odb12"
+    },
+    "cycliophora": {
+        "taxon_id": 6157,
+        "max_intron_length": 100000,
+        "protein_file": "/nfs/production/flicek/ensembl/genebuild/genebuild_virtual_user/protein_sets/lophotrochozoa_uniprot_proteins.fa",
+        "busco_protein_file": "/nfs/production/flicek/ensembl/genebuild/genebuild_virtual_user/protein_sets/lophotrochozoa_orthodb11v0_proteins.fa",
+        "rfam_accessions_file": "/hps/nobackup/flicek/ensembl/genebuild/blastdb/ncrna/Rfam_14.1/clade_accessions/rfam_lophotrochozoa_ids.txt",
+        "species_division": "EnsemblMetazoa",
+        "busco_group": "metazoa_odb12"
+    },
+    "phoronida": {
+        "taxon_id": 6157,
         "max_intron_length": 100000,
         "protein_file": "/nfs/production/flicek/ensembl/genebuild/genebuild_virtual_user/protein_sets/lophotrochozoa_uniprot_proteins.fa",
         "busco_protein_file": "/nfs/production/flicek/ensembl/genebuild/genebuild_virtual_user/protein_sets/lophotrochozoa_orthodb11v0_proteins.fa",
