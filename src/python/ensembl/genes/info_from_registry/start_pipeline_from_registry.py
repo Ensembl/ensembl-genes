@@ -255,6 +255,11 @@ def add_generated_data(server_info: dict, assembly_accession: str, settings: dic
     registry_info = get_metadata_from_registry(server_info, assembly_accession, settings)
     logger.info(f"Data collected from registry {assembly_accession}")
     clade, genus_id, clade_metadata = assign_clade(server_info,registry_info)
+    if clade == "Unassigned":
+        error_msg = f"No clade assigned for {assembly_accession}. Please check before proceeding. Taxon ID: {registry_info['taxon_id']}"
+        logger.error(error_msg)
+        raise RuntimeError(error_msg)
+
     registry_info["clade"] = clade
     registry_info["genus_taxon_id"] = genus_id
 
@@ -560,6 +565,7 @@ def main(gcas, pipeline, settings_file):
                 ]
             )
 
+            # Create the other directories without changing mode (default permissions)
             # Create the other directories without changing mode (default permissions)
             #for dir_path in dirs_to_create:
             #    create_dir(dir_path)
