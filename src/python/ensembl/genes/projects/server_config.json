@@ -28,6 +28,12 @@
       "db_port": 4695,
       "db_user": "ensro",
       "db_pass": ""
-  }
+  },
+  "gb1": {
+      "db_host": "mysql-ens-genebuild-prod-1.ebi.ac.uk",
+      "db_port": 4527,
+      "db_user": "ensro",
+      "db_pass": ""
+   }
     
 }

@@ -7,6 +7,8 @@ import re
 from pathlib import Path
 from collections import Counter
 from typing import List, Tuple, Any, Dict, Optional
+import subprocess
+import shutil
 
 # Enable logging for debugging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
@@ -63,73 +65,109 @@ def mysql_fetch_data(
     return []
                         
 
-
-def get_assembly_accessions(query_id: str, query_type: str, only_haploid: bool = False) -> Dict[str, Dict[str, int]]:
+def get_assembly_accessions(
+            query_id: str,
+            query_type: str,
+            only_haploid: bool = False
+        ) -> Dict[str, Dict[str, int]]:
     """
-    Fetches assembly accessions from NCBI API.
-
-    This function queries the NCBI Datasets API to retrieve assembly accessions for the
-    provided `query_id`. The `query_type` indicates whether the ID belongs to a
-    "bioproject" or a "taxon". The function supports pagination by automatically requesting
-    subsequent pages using the `next_page_token`. If `only_haploid` is True, only assemblies
-    of type "haploid" will be included.
-
-    Args:
-        query_id (str): The BioProject ID or Taxonomy ID to query.
-        query_type (str): The type of the query ("bioproject" or "taxon").
-        only_haploid (bool, optional): If True, only haploid assemblies are fetched.
-            Defaults to False.
-
-    Raises:
-        ValueError: If an invalid `query_type` is passed.
-
-    Returns:
-        Dict[str, Dict[str, int]]: A dictionary where keys are assembly accession strings,
-        and values are dictionaries with relevant information (currently just "taxon_id").
-        Example:
-            {
-                "GCA_000001405.39": {"taxon_id": 9606},
-                ...
-            }
+    Prefer NCBI Datasets CLI (all versions) and fall back to Datasets API (latest only).
+    Supports query_type in {"bioproject", "taxon"}.
+    Always returns a dict (possibly empty).
     """
-    base_url = config["urls"]["datasets"].get(query_type)
-    if not base_url:
-        raise ValueError("Invalid query_type. Must be 'bioproject' or 'taxon'.")
-
-    assembly_accessions = {}
-    page_size = 5000
-    next_page_token = None
-
-    while True:
-        url = f"{base_url}/{query_id}/dataset_report?page_size={page_size}"
-        if next_page_token:
-            url += f"&page_token={next_page_token}"
-
+    
+    def _parse_reports(lines: List[str]) -> Dict[str, Dict[str, int]]:
+        accs: Dict[str, Dict[str, int]] = {}
+        for line in lines:
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                obj = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+            report = obj.get("report", obj)  # JSONL sometimes nests under "report"
+            assembly_info = report.get("assembly_info") or {}
+            if only_haploid and assembly_info.get("assembly_type") != "haploid":
+                continue
+            accession = report.get("accession")
+            taxon_id = (report.get("organism") or {}).get("tax_id")
+            if accession:
+                accs[accession] = {"taxon_id": taxon_id}
+        return accs
+            
+    # --- 1) Try CLI (gets ALL versions) ---
+    datasets_cli = shutil.which("datasets")
+    if datasets_cli:
         try:
-            response = requests.get(url)
-            response.raise_for_status()
-            data = response.json()
-
-            for assembly in data.get("reports", []):
-                assembly_info = assembly.get("assembly_info", {})
-                if only_haploid and assembly_info.get("assembly_type") != "haploid":
-                    continue
-
-                accession = assembly.get("accession")
-                taxon_id = assembly.get("organism", {}).get("tax_id")
-
-                if accession:
-                    assembly_accessions[assembly["accession"]] = {"taxon_id": taxon_id}
-
-            next_page_token = data.get("next_page_token")
-            if not next_page_token:
+            if query_type == "bioproject":
+                cmd = [
+                    datasets_cli, "summary", "genome", "accession", str(query_id),
+                    "--assembly-version", "all",
+                    "--as-json-lines",
+                ]
+            elif query_type == "taxon":
+                cmd = [
+                    datasets_cli, "summary", "genome", "taxon", str(query_id),
+                    "--assembly-version", "all",
+                    "--as-json-lines",
+                ]
+            else:
+                logging.error(f"Invalid query_type '{query_type}'")
+                return {}
+                    
+            result = subprocess.run(cmd, capture_output=True, text=True, check=True)
+            parsed = _parse_reports(result.stdout.splitlines())
+            if parsed:
+                logging.info(f"[Datasets CLI] Retrieved {len(parsed)} assemblies (all versions).")
+                return parsed
+            else:
+                logging.warning("[Datasets CLI] Parsed zero rows from stdout; falling back to API.")
+        except subprocess.CalledProcessError as e:
+            logging.warning(f"[Datasets CLI] Exit {e.returncode}. STDERR:\n{e.stderr}\nFalling back to API.")
+        except Exception as e:
+            logging.warning(f"[Datasets CLI] Unexpected error: {e}. Falling back to API.")
+                    
+    # --- 2) Fallback: API (latest only) ---
+    try:
+        base_url = config["urls"]["datasets"].get(query_type)
+    except Exception:
+        base_url = None
+        if not base_url:
+            logging.error("[Datasets API] Base URL not found in config; returning empty set.")
+            return {}
+        
+        assembly_accessions: Dict[str, Dict[str, int]] = {}
+        page_size = 5000
+        next_page_token = None
+        
+        while True:
+            url = f"{base_url}/{query_id}/dataset_report?page_size={page_size}"
+            if next_page_token:
+                url += f"&page_token={next_page_token}"
+            try:
+                response = requests.get(url)
+                response.raise_for_status()
+                data = response.json()
+                for assembly in data.get("reports", []):
+                    assembly_info = assembly.get("assembly_info", {}) or {}
+                    if only_haploid and assembly_info.get("assembly_type") != "haploid":
+                        continue
+                    accession = assembly.get("accession")
+                    taxon_id = (assembly.get("organism") or {}).get("tax_id")
+                    if accession:
+                        assembly_accessions[accession] = {"taxon_id": taxon_id}
+                    next_page_token = data.get("next_page_token")
+                    if not next_page_token:
+                        break
+            except requests.RequestException as e:
+                logging.error(f"[Datasets API] Error: {e}")
                 break
-        except requests.RequestException as e:
-            logging.error(f"API error: {e}")
-            break
-
-    return assembly_accessions
-
+                
+        logging.info(f"[Datasets API] Retrieved {len(assembly_accessions)} assemblies (latest only).")
+        return assembly_accessions  # always a dict, even if empty
+                            
+                                                        
 
 def get_ensembl_live(accessions_taxon: Dict[str, Dict[str, int]]) -> Dict[str, Dict[str, str]]:
     """
