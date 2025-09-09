@@ -440,6 +440,13 @@ if __name__ == "__main__":
             truth_dict["genebuild.annotation_source"] = "braker"
             truth_dict["genebuild.provider_name"] = "Ensembl"
             truth_dict["genebuild.provider_url"] = "https://beta.ensembl.org/help/articles/braker-2-genome-annotation"
+        elif "HELIXER" in core_dict["sample.gene_text"]:
+            truth_dict["genebuild.version"] = "HLX01"
+            truth_dict["genebuild.method"] = "helixer"
+            truth_dict["genebuild.method_display"] = "Helixer"
+            truth_dict["genebuild.annotation_source"] = "helixer"
+            truth_dict["genebuild.provider_name"] = "Ensembl"
+            truth_dict["genebuild.provider_url"] = "https://beta.ensembl.org/info/genome/helixer-genome-annotation"
         # otherwise check the genebuild.method for annotation key updates/additions
         elif core_dict["genebuild.method"] == "full_genebuild":
             truth_dict["genebuild.version"] = "ENS01"
