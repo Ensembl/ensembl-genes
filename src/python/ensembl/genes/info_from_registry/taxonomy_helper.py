@@ -92,17 +92,16 @@ def load_clade_data():
         FileNotFoundError: If the JSON file cannot be located.
         json.JSONDecodeError: If the JSON is malformed.
     """
-    json_file = "src/python/ensembl/genes/info_from_registry/clade_settings.json"
-    # json_file = os.path.join(
-    #     os.environ.get("ENSCODE"),
-    #     "ensembl-genes",
-    #     "src",
-    #     "python",
-    #     "ensembl",
-    #     "genes",
-    #     "info_from_registry",
-    #     "clade_settings.json"
-    # )
+    json_file = os.path.join(
+        os.environ.get("ENSCODE"),
+        "ensembl-genes",
+         "src",
+         "python",
+         "ensembl",
+         "genes",
+         "info_from_registry",
+         "clade_settings.json"
+     )
 
     with open(json_file, "r") as f:
         logging.info("Loading clade settings json file.")
@@ -210,3 +209,43 @@ def assign_clade_info_custom_loading(registry_info):
     else:
         logging.warning(f"Clade '{clade_name}' not found in clade data")
         return None
+
+def get_parent_taxon(server_info, species_taxon_id):
+    """
+    Fetch the parent taxon name from the taxonomy table for a given taxon ID.
+
+    Args:
+        server_info (dict): Server connection info with keys 'db_host', 'db_user', 'db_port', 'db_name'.
+        species_taxon_id (int): The taxon ID for which to find the parent taxon.
+
+    Returns:
+        str: Parent taxon name.
+
+    Raises:
+        ValueError: If the taxon is not found.
+    """
+    parent_query = """
+        SELECT taxon_class_name
+        FROM taxonomy
+        WHERE taxon_class_id = %s;
+    """
+
+    try:
+        result = mysql_fetch_data(
+            parent_query,
+            host=server_info["registry"]["db_host"],
+            user=server_info["registry"]["db_user"],
+            port=server_info["registry"]["db_port"],
+            database=server_info["registry"]["db_name"],
+            password="",
+            params=(species_taxon_id,)  # must be a tuple
+        )
+
+        if not result:
+            raise ValueError(f"No parent taxon found for taxon ID {species_taxon_id}")
+
+        # Return as a single string
+        return str(result[0]['taxon_class_name'])
+
+    except Exception as e:
+        raise RuntimeError(f"Error fetching parent taxon: {e}")

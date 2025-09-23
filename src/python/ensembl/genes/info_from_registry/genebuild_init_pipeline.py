@@ -7,7 +7,7 @@ Modules used:
     - seed_nonvert.py (seed_jobs_from_json)
 
 Usage:
-    python genebuild_nonvert.py --gcas path/to/gcas.txt --pipeline anno --settings_file non_vert_pipeline_params.json
+    python genebuild_init_pipeline.py --gcas path/to/gcas.txt --settings_file path/to/user_pipeline_settings.json
 """
 
 
@@ -65,15 +65,15 @@ def init_pipeline(config_file: str, hive_force_init: int = 1) -> str:
     except subprocess.CalledProcessError as e:
         logger.error(f"Error running init_pipeline.pl: {e.stdout}")
         raise
+
     
 
-def main(gcas: str, pipeline: str, settings_file: str):
+def main(gcas: str, settings_file: str):
     """
     Main execution logic: extract metadata, initialize the pipeline, and seed jobs.
 
     Args:
         gcas (str): Path to file containing GCA accessions (one per line).
-        pipeline (str): Pipeline type to initialize (e.g., "anno").
         settings_file (str): Path to settings file (JSON).
 
     Raises:
@@ -82,10 +82,13 @@ def main(gcas: str, pipeline: str, settings_file: str):
     """
 
     #Get info and create input JSON
-    all_output_params, output_json_path = info(gcas, pipeline, settings_file)
+    all_output_params, saved_paths = info(gcas, settings_file)
+
+    #Save EHIVE URLs
+    ehive_urls = {}
 
     #Initialise pipeline
-    if pipeline == "anno":
+    if saved_paths.get("anno"):
         first_key = next(iter(all_output_params))
         output_path = Path(all_output_params[first_key]["output_path"])
         parent_dir = output_path.parent
@@ -99,30 +102,54 @@ def main(gcas: str, pipeline: str, settings_file: str):
         conf_path = conf_files[0]
 
         ehive_url = init_pipeline(conf_path)
+        ehive_urls["anno"] = ehive_url
         logger.info(f"Extracted EHIVE_URL: {ehive_url}")
     
         #Seed pipeline
+        json_file = saved_paths["anno"]  # Path object
+        logger.info(f"Seeding non-vertebrate pipeline from {json_file}")
         seed_jobs_from_json(
-            json_file=str(output_json_path),
+            json_file=json_file,
             analysis_id=1,
             ehive_url=ehive_url)
 
+
+    # --- Handle main (one JSON per GCA) ---
+    if saved_paths.get("main"):
+        ehive_urls["main"] = {}
+        for gca, json_path in saved_paths["main"].items():
+            logger.info(f"Initialising vertebrate pipeline for {gca} from {json_path}")
+
+            output_path = Path(all_output_params[gca]["output_path"])
+            parent_dir = output_path.parent
+            conf_files = list(parent_dir.glob("*_conf.pm"))
+
+            if not conf_files:
+                raise FileNotFoundError(f"No .conf file found in {parent_dir}")
+            elif len(conf_files) > 1:
+                raise RuntimeError(f"Multiple .conf files found in {parent_dir}: {conf_files}")
+
+            conf_path = conf_files[0]
+
+            ehive_url = init_pipeline(str(conf_path))
+            ehive_urls["main"][gca] = ehive_url
+            logger.info(f"Extracted EHIVE_URL for {gca}: {ehive_url}")
+
+
+    print("EHIVE_URL:", ehive_urls)
+    logger.info(f"Initalised pipelines. EHIVE_URL(s): {ehive_urls}")
+
+    return ehive_urls
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        description="Extract metadata, initialize annotation pipeline and seed pipeline."
+        description="Extract metadata, initialize and seed annotation pipelines."
     )
     parser.add_argument(
         "--gcas",
         type=str,
         required=True,
         help="Path to file containing GCA accessions (one per line)."
-    )
-    parser.add_argument(
-        "--pipeline",
-        type=str,
-        choices=["anno", "main"],  # Add more valid pipeline types as needed
-        required=True,
-        help="Pipeline type to initialize (e.g., 'anno')."
     )
 
     parser.add_argument(
@@ -134,5 +161,5 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    results = main(args.gcas, args.pipeline, args.settings_file)
+    ehive_urls = main(args.gcas, args.settings_file)
 

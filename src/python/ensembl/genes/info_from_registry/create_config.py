@@ -27,6 +27,8 @@ import os
 import shutil
 import re
 import logging
+import json
+from pathlib import Path
 
 # Configure logging
 logging.basicConfig(
@@ -40,7 +42,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-def copy_config(settings):
+def copy_config(settings, info_dict, pipeline):
     """
     Copies a configuration file from the ENSCODE environment into a local output directory.
 
@@ -74,7 +76,12 @@ def copy_config(settings):
         settings["config"],
     )
 
-    local_config = os.path.join(settings["base_output_dir"], settings["config"])
+    if pipeline == "anno":
+        local_config = os.path.join(settings["base_output_dir"], settings["config"])
+    elif pipeline == "main":
+        local_config = os.path.join(info_dict["output_path"], settings["config"])
+    else:
+        raise ValueError(f"Unknown pipeline type: {pipeline}. Can't copy config. Please check taxon ID.")
 
     try:
         shutil.copy2(original_config, local_config)
@@ -85,7 +92,7 @@ def copy_config(settings):
     return local_config
 
 
-def edit_config(settings):
+def edit_config_anno(settings, info_dict, pipeline):
     """
         Edits specific parameter values in a copied Ensembl Hive config file.
 
@@ -111,6 +118,7 @@ def edit_config(settings):
                 - 'user': str
                 - 'user_r': str
                 - 'release_number': str or int
+        pipeline : str
 
         Raises:
         ------
@@ -119,7 +127,7 @@ def edit_config(settings):
         KeyError
             If required settings keys are missing.
         """
-    local_config = copy_config(settings)
+    local_config = copy_config(settings, info_dict,  pipeline)
 
     with open(local_config, "r") as f:
         content = f.read()
@@ -164,3 +172,76 @@ def edit_config(settings):
 
     with open(local_config, "w") as f:
         f.write(content)
+
+
+def edit_config_main(settings, info_dict, pipeline):
+    """
+        Edits specific parameter values in a copied Ensembl Hive config file.
+
+        The function performs in-place substitution of key parameters such as:
+        - current_genebuild
+        - dbowner
+        - pipeline_name
+        - password
+        - user
+        - user_r
+        - release_number
+
+        Parameters:
+        ----------
+        settings : dict
+        pipeline : str
+        info_dictionary: dict
+
+        Raises:
+        ------
+        FileNotFoundError
+            If the copied file cannot be opened.
+        KeyError
+            If required settings keys are missing.
+        """
+    local_config = copy_config(settings, info_dict, pipeline)
+
+    # Marker lines to make sure we don't accidentally overwrite values
+    stop_marker = "# No option below this mark should be modified"
+
+    with open(local_config, "r") as f:
+        lines = f.readlines()
+
+    # Prepare regex pattern for matching keys
+    pattern_template = r"^\s*{key}\s*=>\s*(.*),"
+
+    new_lines = []
+    stop_modifying = False
+    for line in lines:
+        # Check if we've reached the "no modification" marker
+        if stop_marker in line:
+            stop_modifying = True
+
+        if not stop_modifying:
+            updated = False
+            for key, value in info_dict.items():
+                pattern = pattern_template.format(key=re.escape(key))
+                if re.match(pattern, line):
+                    # Convert Python value to Perl representation
+                    if isinstance(value, str):
+                        perl_value = f"'{value}'"
+                    elif isinstance(value, bool):
+                        perl_value = "1" if value else "0"
+                    else:
+                        perl_value = str(value)
+
+                    # Replace the value in the line
+                    new_line = re.sub(pattern, f"{key} => {perl_value},", line)
+                    new_lines.append(new_line)
+                    updated = True
+                    break
+            if not updated:
+                new_lines.append(line)
+        else:
+            # After the marker, leave all lines untouched
+            new_lines.append(line)
+
+    # Write back the updated config
+    with open(local_config, "w") as f:
+        f.writelines(new_lines)
