@@ -1,4 +1,4 @@
 {
   "replace_repbase_with_red_to_mask": 0,
-  "config": "Genome_annotation.pm"
+  "config": "Genome_annotation_conf.pm"
 }

@@ -32,7 +32,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-def init_pipeline(config_file: str, hive_force_init: int = 1) -> str:
+def init_pipeline_anno(config_file: str, hive_force_init: int = 1) -> str:
     """
     Initialize an eHive pipeline using a given config file.
 
@@ -66,6 +66,52 @@ def init_pipeline(config_file: str, hive_force_init: int = 1) -> str:
         logger.error(f"Error running init_pipeline.pl: {e.stdout}")
         raise
 
+def init_pipeline_main(config_file: str, hive_force_init: int = 1) -> str:
+    """
+    Initialize an eHive pipeline using a given config file.
+
+    Args:
+        config_file (str): Path to the .pm configuration file.
+        hive_force_init (int): Whether to force initialization (default is 1).
+
+    Returns:
+        str: Extracted eHive database URL if successful.
+
+    Raises:
+        subprocess.CalledProcessError: If the `init_pipeline.pl` command fails.
+        RuntimeError: If the expected MySQL URL is not found in the output.
+    """
+    config_path = Path(config_file)
+    config_dir = config_path.parent
+    config_name = config_path.stem  # Gets filename without .pm extension
+    
+    cmd = [
+        "init_pipeline.pl",
+        config_name,  # Just the module name, not the full path
+        "--hive_force_init", str(hive_force_init)
+    ]
+
+    logger.info("Running: %s", " ".join(str(x) for x in cmd))
+    logger.info(f"Working directory: {config_dir}")
+    
+    try:
+        result = subprocess.run(
+            cmd, 
+            check=True, 
+            stdout=subprocess.PIPE, 
+            stderr=subprocess.STDOUT, 
+            text=True,
+            cwd=str(config_dir)  # Run from the config directory
+        )
+        output = result.stdout
+        for line in output.splitlines():
+            match = re.search(r"(mysql://[^\s]+)", line)
+            if match:
+                return match.group(1)
+        return None
+    except subprocess.CalledProcessError as e:
+        logger.error(f"Error running init_pipeline.pl: {e.stdout}")
+        raise
     
 
 def main(gcas: str, settings_file: str):
@@ -101,7 +147,7 @@ def main(gcas: str, settings_file: str):
         
         conf_path = conf_files[0]
 
-        ehive_url = init_pipeline(conf_path)
+        ehive_url = init_pipeline_anno(conf_path)
         ehive_urls["anno"] = ehive_url
         logger.info(f"Extracted EHIVE_URL: {ehive_url}")
     
@@ -121,8 +167,7 @@ def main(gcas: str, settings_file: str):
             logger.info(f"Initialising vertebrate pipeline for {gca} from {json_path}")
 
             output_path = Path(all_output_params[gca]["output_path"])
-            parent_dir = output_path.parent
-            conf_files = list(parent_dir.glob("*_conf.pm"))
+            conf_files = list(output_path.glob("*_conf.pm"))
 
             if not conf_files:
                 raise FileNotFoundError(f"No .conf file found in {parent_dir}")
@@ -131,7 +176,7 @@ def main(gcas: str, settings_file: str):
 
             conf_path = conf_files[0]
 
-            ehive_url = init_pipeline(str(conf_path))
+            ehive_url = init_pipeline_main(str(conf_path))
             ehive_urls["main"][gca] = ehive_url
             logger.info(f"Extracted EHIVE_URL for {gca}: {ehive_url}")
 

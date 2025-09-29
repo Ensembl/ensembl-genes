@@ -76,8 +76,10 @@ def copy_config(settings, info_dict, pipeline):
         settings["config"],
     )
 
+
     if pipeline == "anno":
-        local_config = os.path.join(settings["base_output_dir"], settings["config"])
+        anno_parent = str(Path(info_dict["output_path"]).parent)
+        local_config = os.path.join(anno_parent, settings["config"])
     elif pipeline == "main":
         local_config = os.path.join(info_dict["output_path"], settings["config"])
     else:
@@ -92,7 +94,7 @@ def copy_config(settings, info_dict, pipeline):
     return local_config
 
 
-def edit_config_anno(settings, info_dict, pipeline):
+def edit_config_anno(anno_settings, settings, info_dict, pipeline):
     """
         Edits specific parameter values in a copied Ensembl Hive config file.
 
@@ -107,6 +109,7 @@ def edit_config_anno(settings, info_dict, pipeline):
 
         Parameters:
         ----------
+        anno_settings: dict
         settings : dict
             Dictionary with required keys:
                 - 'config': str, name of the config file (e.g., 'MyConfig.pm')
@@ -118,6 +121,7 @@ def edit_config_anno(settings, info_dict, pipeline):
                 - 'user': str
                 - 'user_r': str
                 - 'release_number': str or int
+        info_dict : dict
         pipeline : str
 
         Raises:
@@ -127,7 +131,7 @@ def edit_config_anno(settings, info_dict, pipeline):
         KeyError
             If required settings keys are missing.
         """
-    local_config = copy_config(settings, info_dict,  pipeline)
+    local_config = copy_config(anno_settings, info_dict,  pipeline)
 
     with open(local_config, "r") as f:
         content = f.read()
@@ -176,53 +180,64 @@ def edit_config_anno(settings, info_dict, pipeline):
 
 def edit_config_main(settings, info_dict, pipeline):
     """
-        Edits specific parameter values in a copied Ensembl Hive config file.
+    Edits specific parameter values in a copied Ensembl Hive config file safely,
+    preserving comments and avoiding Perl syntax errors.
 
-        The function performs in-place substitution of key parameters such as:
-        - current_genebuild
-        - dbowner
-        - pipeline_name
-        - password
-        - user
-        - user_r
-        - release_number
+    Parameters
+    ----------
+    settings : dict
+        Must contain 'config' and 'base_output_dir'.
+    info_dict : dict
+        Keys and values to replace in the config. Keys with value None are skipped.
+    pipeline : str
+        Type of pipeline, e.g., "anno" or "main".
 
-        Parameters:
-        ----------
-        settings : dict
-        pipeline : str
-        info_dictionary: dict
+    Raises
+    ------
+    FileNotFoundError
+        If the copied config file cannot be found.
+    ValueError
+        If pipeline type is unknown.
+    """
 
-        Raises:
-        ------
-        FileNotFoundError
-            If the copied file cannot be opened.
-        KeyError
-            If required settings keys are missing.
-        """
     local_config = copy_config(settings, info_dict, pipeline)
 
-    # Marker lines to make sure we don't accidentally overwrite values
     stop_marker = "# No option below this mark should be modified"
 
     with open(local_config, "r") as f:
         lines = f.readlines()
 
-    # Prepare regex pattern for matching keys
-    pattern_template = r"^\s*{key}\s*=>\s*(.*),"
-
     new_lines = []
     stop_modifying = False
+
     for line in lines:
-        # Check if we've reached the "no modification" marker
+        # Replace the package declaration at the top
+        if line.strip().startswith("package Bio::EnsEMBL::Analysis::Hive::Config::"):
+            line = "package Genome_annotation_conf;\n"
+
         if stop_marker in line:
             stop_modifying = True
 
         if not stop_modifying:
             updated = False
             for key, value in info_dict.items():
-                pattern = pattern_template.format(key=re.escape(key))
+                # Skip keys with None value
+                if value is None:
+                    continue
+
+                # Pattern matches key => old_value, optionally with spaces and comments
+                pattern = rf"^\s*{re.escape(key)}\s*=>\s*[^,]*,"
+
                 if re.match(pattern, line):
+                    # Preserve comment if present
+                    if '#' in line:
+                        parts = line.split('#', 1)
+                        line_content = parts[0]
+                        comment = '#' + parts[1].rstrip('\n')
+                    else:
+                        line_content = line
+                        comment = ''
+
                     # Convert Python value to Perl representation
                     if isinstance(value, str):
                         perl_value = f"'{value}'"
@@ -231,17 +246,25 @@ def edit_config_main(settings, info_dict, pipeline):
                     else:
                         perl_value = str(value)
 
-                    # Replace the value in the line
-                    new_line = re.sub(pattern, f"{key} => {perl_value},", line)
+                    # Replace only the value before the comma
+                    new_line = re.sub(r"=>\s*[^,]*,", f"=> {perl_value},", line_content)
+                    if comment:
+                        new_line = new_line.rstrip() + ' ' + comment + '\n'
+                    else:
+                        new_line = new_line.rstrip() + '\n'
+
                     new_lines.append(new_line)
                     updated = True
                     break
+
             if not updated:
                 new_lines.append(line)
         else:
-            # After the marker, leave all lines untouched
             new_lines.append(line)
 
-    # Write back the updated config
+    # Write back the updated config safely
     with open(local_config, "w") as f:
         f.writelines(new_lines)
+
+    logging.info(f"Config edited successfully: {local_config}")
+    return local_config

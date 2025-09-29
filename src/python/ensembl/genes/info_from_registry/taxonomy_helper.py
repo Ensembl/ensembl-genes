@@ -226,7 +226,7 @@ def get_parent_taxon(server_info, species_taxon_id):
     """
     parent_query = """
         SELECT taxon_class_name
-        FROM taxonomy
+        FROM taxonomy_name
         WHERE taxon_class_id = %s;
     """
 

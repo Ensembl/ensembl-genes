@@ -337,7 +337,7 @@ def get_metadata_from_registry(server_info: dict, assembly_accession, settings: 
             FROM assembly a
             JOIN bioproject b ON a.assembly_id = b.assembly_id
             JOIN species s ON a.lowest_taxon_id = s.lowest_taxon_id
-            JOIN main_bioproject mb ON b.bioproject_id = mb.bioproject_id
+            LEFT JOIN main_bioproject mb ON b.bioproject_id = mb.bioproject_id
             WHERE CONCAT(a.gca_chain, '.', a.gca_version) IN ({placeholders})
         """
 
@@ -350,10 +350,11 @@ def get_metadata_from_registry(server_info: dict, assembly_accession, settings: 
             password= "",
             params=assembly_accessions,
         )
-        if registry_info:
-            return registry_info[0]
+        if not registry_info:
+            raise ValueError(f"No registry data found for accessions: {assembly_accessions}")
 
-        return None
+        logger.info(f"Registry query successful for {assembly_accessions}")
+        return registry_info[0]
 
     except pymysql.Error as err:
         logger.error("MySQL error: %s", err)
@@ -538,14 +539,25 @@ def get_info_for_pipeline_main(settings: dict, info_dict: dict, assembly_accessi
     rnaseq_dir = output_path / "rnaseq"
     long_read_dir = output_path / "long_read"
     gst_dir = output_path / "gst"
-    rnaseq_summary_file = output_path / "rnaseq_dir" / f"{info_dict['species_name']}.csv"
-    rnaseq_summary_file_genus = output_path / "rnaseq_dir" / f"{info_dict['species_name']}_gen.csv"
+    rnaseq_summary_file = rnaseq_dir / f"{info_dict['species_name']}.csv"
+    rnaseq_summary_file_genus = rnaseq_dir / f"{info_dict['species_name']}_gen.csv"
     long_read_fastq_dir = long_read_dir / "input"
     current_genebuild = settings["current_genebuild"]
     registry_file = output_path / "Databases.pm"
     release_number = settings["release_number"]
     dbname_accession = assembly_accession.replace('.', 'v').replace('_', '').lower()
     email_address = settings["email"]
+    dbowner = settings["dbowner"]
+    user_r = settings["user_r"]
+    user = settings["user"]
+    password = settings["password"]
+    server_set = settings["server_set"]
+    pipeline_name = settings["pipeline_name"]
+    long_read_summary_file = long_read_dir / f"{info_dict['species_name']}_long_read.csv"
+    long_read_summary_file_genus = long_read_dir / f"{info_dict['species_name']}_long_read_gen.csv"
+    pipe_db_name = f"{dbowner}_{dbname_accession}_pipe_{release_number}"
+
+
 
     # Add values back to dictionary
     info_dict.update(
@@ -562,7 +574,16 @@ def get_info_for_pipeline_main(settings: dict, info_dict: dict, assembly_accessi
             "assembly_accession": str(assembly_accession),
             "release_number": release_number,
             "dbname_accession": str(dbname_accession),
-            "email_address":str(email_address)
+            "email_address":str(email_address),
+            "dbowner": str(dbowner),
+            "user_r": str(user_r),
+            "user": str(user),
+            "password": str(password),
+            "server_set": server_set,
+            "pipeline_name": str(pipeline_name),
+            "long_read_summary_file": str(long_read_summary_file),
+            "long_read_summary_file_genus": str(long_read_summary_file_genus),
+            "pipe_db_name": str(pipe_db_name)
         }
     )
 
@@ -738,7 +759,7 @@ def main(gcas, settings_file):
                 "db_user": settings["user_r"],
                 "db_user_w": settings["user"],
                 "db_port": int(os.environ.get("GBP1")),
-                "db_name": "gb_assembly_metadata",
+                "db_name": "gb_metadata_start_test",
                 "password": settings["password"]
             }
         }
@@ -759,11 +780,16 @@ def main(gcas, settings_file):
             server_info.update(server_settings)
             main_settings = load_main_settings()
 
-            info_dict["dna_db_name"] = info_dict["core_dbname"]
-            info_dict["databases_host"] = server_info["databases_host"]
+            info_dict["databases_host"] = server_info["databases"]["db_host"]
+            info_dict["databases_port"] = server_info["databases"]["db_port"]
             info_dict["registry_host"] = server_info["registry"]["db_host"]
             info_dict["registry_port"] = server_info["registry"]["db_port"]
             info_dict["registry_db"] = server_info["registry"]["db_name"]
+            info_dict["pipe_db_host"] = server_info["pipeline_db"]["db_host"]
+            info_dict["pipe_db_port"] = server_info["pipeline_db"]["db_port"]
+            info_dict["dna_db_host"] = server_info["core_db"]["db_host"]
+            info_dict["dna_db_port"] = server_info["core_db"]["db_port"]
+
 
             if main_settings.get("replace_repbase_with_red_to_mask") == 1:
                 info_dict["first_choice_repeat"] = "repeatdetector"
@@ -780,17 +806,22 @@ def main(gcas, settings_file):
             # RepeatModeler library
             parent_name = get_parent_taxon(server_info, info_dict["species_taxon_id"])
             parent_name = parent_name.lower().replace(" ", "_")
-            info_dict["repeatmodeler_file"] = os.path.join(
+            info_dict["repeatmodeler_library"] = os.path.join(
                 os.environ["REPEATMODELER_DIR"], "species", parent_name, f"{parent_name}.repeatmodeler.fa"
             )
 
             output_params = get_info_for_pipeline_main(settings, info_dict, gca)
+            create_dir(output_params["output_path"])
             edit_config_main(main_settings, output_params, pipeline_type)
             output_params["projection_source_db_name"] = current_projection_source_db(
                 output_params["projection_source_production_name"], settings["user_r"]
             )
+            output_params["stable_id_prefix"] = get_species_prefix(output_params["taxon_id"], server_info)
+            output_params["stable_id_start"] = get_stable_space(
+                output_params["taxon_id"], gca, output_params["assembly_id"], server_info
+            )
+            edit_config_main(main_settings, output_params, pipeline_type)
             copy_general_module()
-            create_dir(output_params["output_dir"])
 
         else:
             # Non-vertebrate (anno) pipeline
@@ -805,9 +836,9 @@ def main(gcas, settings_file):
             info_dict["registry_db"] = server_info["registry"]
 
             anno_settings = load_anno_settings()
-            edit_config_anno(anno_settings, info_dict, pipeline_type)
 
             output_params = get_info_for_pipeline_anno(settings, info_dict, gca, anno_settings)
+            edit_config_anno(anno_settings, settings, output_params, pipeline_type)
 
             # Create directories
             create_dir(info_dict["output_path"], mode=0o775)
