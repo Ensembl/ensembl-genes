@@ -35,7 +35,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-def update_registry_path_and_create_entry(settings, server_info):
+def update_registry_path_in_pipedb(parent_dir, server_info):
     """
     Updates the resource_description table in the pipeline database by replacing
     the shared registry path with a local copy. This ensures worker nodes access
@@ -55,8 +55,7 @@ def update_registry_path_and_create_entry(settings, server_info):
             - server_info["pipeline_db"]["db_password"]
             - server_info["pipeline_db"]["db_name"]
     """
-
-    new_registry_file = Path(settings["base_output_dir"]) / "Databases.pm"
+    logger.info("Updating registry path in pipeline DB")
     registry_file = os.path.join(
         os.environ.get("ENSCODE"),
         "ensembl-analysis",
@@ -66,9 +65,13 @@ def update_registry_path_and_create_entry(settings, server_info):
         "support_files",
         "Databases.pm"
     )
+    logger.debug(f"parennt_dir : {parent_dir}")
+    new_registry_file = Path(parent_dir).resolve() / "Databases.pm"
 
     if not new_registry_file.exists():
-        shutil.copy(registry_file, new_registry_file)
+        raise OSError(f"Registry file doesn't exist: {new_registry_file}")
+
+    logger.info(f"Registry file exist at {new_registry_file}")
 
     update_resources_query = """
 		UPDATE resource_description 
@@ -88,6 +91,7 @@ def update_registry_path_and_create_entry(settings, server_info):
     if success:
         logger.info("Registry path updated successfully.")
     else:
+        raise RuntimeError(f"Failed to update registry path.")
         logger.error("Failed to update registry path.")
 
 
@@ -121,8 +125,19 @@ def create_registry_entry(settings, server_info, core_adaptor):
         RuntimeError:
             If there is an error overwriting the original registry file.
         """
-    update_registry_path_and_create_entry(settings, server_info)
     registry_path = Path(settings["base_output_dir"]) / "Databases.pm"
+    registry_file = os.path.join(
+        os.environ.get("ENSCODE"),
+        "ensembl-analysis",
+        "scripts",
+        "genebuild",
+        "gbiab",
+        "support_files",
+        "Databases.pm"
+    )
+
+    if not registry_path.exists():
+        shutil.copy(registry_file, registry_path)
 
     if not registry_path.exists():
         raise FileNotFoundError(f"A registry file was not found at: {registry_path}")

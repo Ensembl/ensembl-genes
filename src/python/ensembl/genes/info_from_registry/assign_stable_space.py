@@ -40,7 +40,7 @@ def stable_space_per_taxon(taxon_id: int, server_info: dict) -> int:
     Returns:
         int: The next available stable space ID.
     """
-    
+    logger.info(f"Get the next stable space ID for taxon ID {taxon_id}")
     space_query = f"SELECT MAX(stable_space_id) as max_stable_id FROM stable_space_species_log WHERE lowest_taxon_id = {taxon_id};"
     output_query = mysql_fetch_data(
         space_query,
@@ -105,7 +105,7 @@ def stable_space_range(stable_space_id:int, server_info: dict) -> bool:
     Returns:
         bool: True if the stable space range exists, False otherwise.
     """
-    
+    logger.info(f"Get stable space renage for {stable_space_id}")
     query = f"SELECT * FROM stable_space WHERE stable_space_id = '{stable_space_id}';"
     output_query = mysql_fetch_data(
         query,
@@ -175,6 +175,7 @@ def assign_stable_id(taxon_id:int, gca_accession: str, assembly_id:int, server_i
     
     stable_space_id = stable_space_per_taxon(taxon_id, server_info)
     # Check if stable space range exists
+    logger.info(f"Check if stable space range exists {stable_space_id}")
     stable_space_start = stable_space_range(stable_space_id, server_info)
 
     if stable_space_start is not False:
@@ -216,7 +217,8 @@ def get_stable_space(taxon_id:int, gca_accession:str, assembly_id:int, server_in
     """
 
     # Check if GCA already has assigned a stable space
-    space_gca_query = f"SELECT stable_space_id, stable_space_start FROM stable_space_species_log WHERE gca_accession = '{gca_accession}';"
+    logger.info(f"Check if {gca_accession} already has assigned a stable space")
+    space_gca_query = f"SELECT stable_space_species_log.stable_space_id, stable_space.stable_space_start FROM stable_space_species_log JOIN stable_space ON stable_space.stable_space_id = stable_space_species_log.stable_space_id  WHERE stable_space_species_log.gca_accession = '{gca_accession}';"
     output_query = mysql_fetch_data(
         space_gca_query,
         host=server_info["registry"]["db_host"],
@@ -237,7 +239,7 @@ def get_stable_space(taxon_id:int, gca_accession:str, assembly_id:int, server_in
         
         success = False
         while not success:
-            logger.info(f"Assigning stable space for taxon ID {taxon_id} and GCA {gca_accession}.")
+            logger.info(f"Assigning stable space for taxon ID {taxon_id} and {gca_accession}.")
             success, stable_space_id, stable_space_start = assign_stable_id(taxon_id, gca_accession, assembly_id, server_info)
 
         return int(stable_space_start)

@@ -837,15 +837,6 @@ def main(gcas, settings_file):
 
             anno_settings = load_anno_settings()
 
-            output_params = get_info_for_pipeline_anno(settings, info_dict, gca, anno_settings)
-            edit_config_anno(anno_settings, settings, output_params, pipeline_type)
-
-            # Create directories
-            create_dir(info_dict["output_path"], mode=0o775)
-            for dir_path in [info_dict["genome_files_dir"], info_dict["short_read_dir"],
-                             info_dict["long_read_dir"], info_dict["gst_dir"]]:
-                create_dir(dir_path)
-
             # DB adaptors
             core_adaptor = {
                 "host": server_info["core_db"]["db_host"],
@@ -857,7 +848,12 @@ def main(gcas, settings_file):
                 "group": "core",
             }
             registry_path = create_registry_entry(settings, server_info, core_adaptor)
+
+            output_params = get_info_for_pipeline_anno(settings, info_dict, gca, anno_settings)
             output_params["registry_file"] = Path(registry_path)
+            
+            edit_config_anno(anno_settings, settings, output_params, pipeline_type, server_settings)
+
             build_annotation_commands(core_adaptor, output_params, anno_settings, settings)
 
             rna_busco_settings = get_rna_and_busco_check_threshold(anno_settings)
@@ -909,7 +905,7 @@ def main(gcas, settings_file):
         print(msg)
 
     logger.info("DONE")
-    return all_output_params, saved_paths
+    return server_info, all_output_params, saved_paths
 
 
 if __name__ == "__main__":
@@ -932,6 +928,6 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    results, output_json_path = main(args.gcas, args.settings_file)
+    server_info, all_output_params, saved_paths = main(args.gcas, args.settings_file)
     print("\n=== NEXT STEP INITIALISE PIPELINE ===")
     print("\n=== FINALLY RUN SEED IF NONVERT ===")
