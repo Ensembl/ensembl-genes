@@ -29,7 +29,7 @@ def get_old_stable_space_info(taxon_id, server_info):
         Returns:
             int: Assigned stable space.
     """
-
+    logger.info(f"Check if taxon ID {taxon_id} has stable space in old registry")
     space_query = (f"SELECT MAX(stable_id_space_id) as old_stable_id "
                    f"FROM assembly "
                    f"WHERE taxonomy = {taxon_id};")

@@ -94,7 +94,7 @@ def copy_config(settings, info_dict, pipeline):
     return local_config
 
 
-def edit_config_anno(anno_settings, settings, info_dict, pipeline):
+def edit_config_anno(anno_settings, settings, info_dict, pipeline, server_settings):
     """
         Edits specific parameter values in a copied Ensembl Hive config file.
 
@@ -171,6 +171,34 @@ def edit_config_anno(anno_settings, settings, info_dict, pipeline):
     content = re.sub(
         r"'release_number'\s*=>\s*[^,]+,",
         f"'release_number'                     => '{settings['release_number']}',",
+        content,
+    )
+
+    content = re.sub(
+        r"'pipe_db_server'\s*=>\s*[^,]+,",
+        f"'pipe_db_server'                     => '{server_settings['pipeline_db']['db_host']}',",
+        content,
+    )
+
+    content = re.sub(
+        r"'pipe_db_port'\s*=>\s*[^,]+,",
+        f"'pipe_db_port'                     => '{server_settings['pipeline_db']['db_port']}',",
+        content,
+    )
+    content = re.sub(
+        r"'dna_db_server'\s*=>\s*[^,]+,",
+        f"'dna_db_server'                     => '{server_settings['core_db']['db_host']}',",
+        content,
+    )
+    content = re.sub(
+        r"'dna_db_port'\s*=>\s*[^,]+,",
+        f"'dna_db_port'                     => '{server_settings['core_db']['db_port']}',",
+        content,
+    )
+
+    content = re.sub(
+        r"'registry_file'\s*=>\s*[^,]+,",
+        f"'registry_file'                     => '{info_dict['registry_file']}',",
         content,
     )
 

@@ -18,6 +18,8 @@ from start_pipeline_from_registry import main as info
 from seed_nonvert import seed_jobs_from_json
 import subprocess
 from pathlib import Path
+from create_pipe_reg import update_registry_path_in_pipedb
+import json
 
 
 
@@ -128,7 +130,7 @@ def main(gcas: str, settings_file: str):
     """
 
     #Get info and create input JSON
-    all_output_params, saved_paths = info(gcas, settings_file)
+    server_info, all_output_params, saved_paths = info(gcas, settings_file)
 
     #Save EHIVE URLs
     ehive_urls = {}
@@ -150,12 +152,20 @@ def main(gcas: str, settings_file: str):
         ehive_url = init_pipeline_anno(conf_path)
         ehive_urls["anno"] = ehive_url
         logger.info(f"Extracted EHIVE_URL: {ehive_url}")
+
+        #Update registry path in pipeline DB
+        update_registry_path_in_pipedb(parent_dir, server_info)
+
     
         #Seed pipeline
         json_file = saved_paths["anno"]  # Path object
+
         logger.info(f"Seeding non-vertebrate pipeline from {json_file}")
+        with open(json_file) as f:
+            params = json.load(f)
+
         seed_jobs_from_json(
-            json_file=json_file,
+            json_file=params,
             analysis_id=1,
             ehive_url=ehive_url)
 
