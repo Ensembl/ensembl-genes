@@ -8,151 +8,173 @@ import sys
 import time
 from ftplib import FTP, error_perm, error_temp
 from typing import Dict, List, Tuple, Optional
-
 import pymysql
 import requests
+import socket
 
 
 class EnsemblFTP:
     """
-    A class to handle FTP connections and file lookups on Ensembl FTP servers.
+    Robust FTP client for Ensembl/EBI with reconnect + tolerant shutdown.
     """
 
-    def __init__(self) -> None:
-        """
-        Initialize FTP connections to the Ensembl and EBI servers.
-        """
-        self.ensembl_ftp = FTP("ftp.ensembl.org")
-        self.ensembl_ftp.login()
-        self.ebi_ftp = FTP("ftp.ebi.ac.uk")
-        self.ebi_ftp.login()
+    def __init__(self, timeout: int = 30, max_retries: int = 2, retry_sleep: float = 3.0) -> None:
+        self.timeout = timeout
+        self.max_retries = max_retries
+        self.retry_sleep = retry_sleep
+
+        self.ensembl_ftp = None
+        self.ebi_ftp = None
+
+        self._connect_ensembl()
+        self._connect_ebi()
 
         self.ensembl_ftp_path = "https://ftp.ensembl.org/"
         self.ebi_ftp_path = "https://ftp.ebi.ac.uk/"
 
-    def return_to_root(self, ftp_connection: FTP) -> None:
-        """
-        Return to the root directory of the FTP connection to reset its state.
-        
-        Parameters
-        ----------
-        ftp_connection : FTP
-            The FTP connection object.
-        """
-        ftp_connection.cwd("/")
+    # ---- connections ----
+    def _connect_ensembl(self):
+        try:
+            self.ensembl_ftp = FTP("ftp.ensembl.org", timeout=self.timeout)
+            self.ensembl_ftp.set_pasv(True)
+            self.ensembl_ftp.login()
+        except Exception:
+            self.ensembl_ftp = None
+            raise
 
+    def _connect_ebi(self):
+        try:
+            self.ebi_ftp = FTP("ftp.ebi.ac.uk", timeout=self.timeout)
+            self.ebi_ftp.set_pasv(True)
+            self.ebi_ftp.login()
+        except Exception:
+            self.ebi_ftp = None
+            raise
+
+    def _retry(self, fn, which: str, *args, **kwargs):
+        """
+        Retry FTP operation; on failure, reconnect that endpoint and try again.
+        """
+        last_exc = None
+        for _ in range(self.max_retries):
+            try:
+                return fn(*args, **kwargs)
+            except (ConnectionResetError, EOFError, OSError, error_temp, socket.timeout) as e:
+                last_exc = e
+                try:
+                    if which == "ensembl":
+                        self._connect_ensembl()
+                    else:
+                        self._connect_ebi()
+                except Exception:
+                    pass
+                time.sleep(self.retry_sleep)
+        raise last_exc
+
+    # ---- utils ----
+    def return_to_root(self, ftp_connection: FTP) -> None:
+        which = "ensembl" if ftp_connection is self.ensembl_ftp else "ebi"
+        self._retry(ftp_connection.cwd, which, "/")
+
+    # ---- lookups ----
     def check_for_file(
-            self,
-            species_name: str,
-            prod_name: str,
-            accession: str,
-            source: str,
-            file_type: str
+        self,
+        species_name: str,
+        prod_name: str,
+        accession: str,
+        source: str,
+        file_type: str
     ) -> str:
-        """
-        Check if a specific file (repeatmodeler or busco) is present on the FTP site.
-        
-        Parameters
-        ----------
-        species_name : str
-        The species scientific name (used in paths).
-        prod_name : str
-        The production name of the species (used in file naming for busco).
-        accession : str
-        The assembly accession ID.
-        source : str
-        Annotation source ('ensembl' or other).
-        file_type : str
-        The type of file to check: 'repeatmodeler' or 'busco'.
-        
-        Returns
-        -------
-        str
-        The full FTP URL if the file is found, otherwise an empty string.
-        """
         if file_type == "repeatmodeler":
             ftp_connection = self.ebi_ftp
+            which = "ebi"
             ftp_path = self.ebi_ftp_path
             path = (
                 "pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/"
-                + species_name
-                + "/"
+                + species_name + "/"
             )
             file_name = accession + ".repeatmodeler.fa"
         elif file_type == "busco":
             ftp_connection = self.ensembl_ftp
+            which = "ensembl"
             ftp_path = self.ensembl_ftp_path
             path = (
                 "pub/rapid-release/species/"
-                + species_name
-                + "/"
-                + accession
-                + "/"
-                + source
-                + "/statistics/"
+                + species_name + "/"
+                + accession + "/"
+                + source + "/statistics/"
             )
-            # Two possible file name formats:
             file_name_protein = prod_name + "_protein_busco_short_summary.txt"
             file_name_alternative = prod_name + "_busco_short_summary.txt"
         else:
             return ""
-    
-        # For logging/debugging, print the expected primary file name URL
-        #if file_type == "busco":
-        #    print(ftp_path + path + file_name_protein)
-        #else:
-        #    print(ftp_path + path + file_name)
-        
+
         try:
-            # Reset FTP directory state
             self.return_to_root(ftp_connection)
-            ftp_connection.cwd(path)
-            files_list = ftp_connection.nlst()
-            
+            self._retry(ftp_connection.cwd, which, path)
+            files_list = self._retry(ftp_connection.nlst, which)
+
             if file_type == "busco":
                 if file_name_protein in files_list:
                     return ftp_path + path + file_name_protein
-                elif file_name_alternative in files_list:
+                if file_name_alternative in files_list:
                     return ftp_path + path + file_name_alternative
-                else:
-                    return ""
+                return ""
             else:
-                if file_name in files_list:
-                    return ftp_path + path + file_name
-                else:
-                    return ""
+                return ftp_path + path + file_name if file_name in files_list else ""
         except error_perm as e:
-            # If directory doesn't exist, just return empty string
-            if "550" in str(e) and "Failed to change directory" in str(e):
+            if "550" in str(e):
                 return ""
-            else:
-                print(f"FTP permission error: {e}", file=sys.stderr)
-                return ""
+            print(f"FTP permission error: {e}", file=sys.stderr)
+            return ""
         except error_temp as e:
-            if "421" in str(e):
-                print("Too many users connected. Retrying...", file=sys.stderr)
-                time.sleep(5)
-                return self.check_for_file(species_name, prod_name, accession, source, file_type)
-            else:
-                print(f"FTP temporary error: {e}", file=sys.stderr)
-                return ""
+            print(f"FTP temporary error: {e}", file=sys.stderr)
+            return ""
         except Exception as e:
             print(f"Error while checking FTP file: {e}", file=sys.stderr)
             return ""
-                                                            
+
+    def check_pre_release_file(
+        self,
+        species_name: str,
+        accession: str,
+        extension: str
+    ) -> str:
+        ftp = self.ebi_ftp
+        which = "ebi"
+        base = self.ebi_ftp_path
+        path = f"pub/databases/ensembl/pre-release/{species_name}/{accession}/"
+        try:
+            self.return_to_root(ftp)
+            self._retry(ftp.cwd, which, path)
+            for fname in self._retry(ftp.nlst, which):
+                if fname.lower().endswith(extension):
+                    return base + path + fname
+        except error_perm:
+            return ""
+        except Exception as e:
+            print(f"Error while checking pre-release file: {e}", file=sys.stderr)
+        return ""
 
     def close_connections(self) -> None:
         """
-        Close both FTP connections.
+        Best-effort shutdown: if QUIT fails because the server dropped us,
+        fall back to close() and never raise.
         """
-        if self.ensembl_ftp:
-            self.ensembl_ftp.quit()
-        if self.ebi_ftp:
-            self.ebi_ftp.quit()
+        for conn in (self.ensembl_ftp, self.ebi_ftp):
+            if not conn:
+                continue
+            try:
+                conn.quit()
+            except Exception:
+                try:
+                    conn.close()
+                except Exception:
+                    pass
 
 
 
-            
+
 def mysql_fetch_data(
     query: str,
     database: str,
@@ -197,10 +219,10 @@ def mysql_fetch_data(
 def check_url_status(url):
     """
     Checks if a given URL is reachable.
-    
+
     Args:
         url (str): The URL to check.
-    
+
     Returns:
         bool: True if the URL returns a 200 status code, False otherwise.
     """
@@ -244,8 +266,12 @@ def write_yaml(
     prod_url_list = ["bos_taurus_hybrid", "bos_indicus_hybrid"]
 
     assembly_name = info_dict["assembly.name"].replace(" ", "_")
-    date = info_dict["genebuild.last_geneset_update"].replace("-", "_")
+    try:
+        date = info_dict["genebuild.last_geneset_update"].replace("-", "_")
+    except KeyError:
+        date = ''
     species_name = info_dict["species.scientific_name"].replace(" ", "_")
+
     rm_species_name = species_name.lower()
 
     if "species.strain" in info_dict and info_dict["species.strain"] != "reference":
@@ -284,26 +310,66 @@ def write_yaml(
             method = info_dict.get("genebuild.method_display", "BRAKER2")
             yaml += f"  annotation_method: {method}\n"
 
-        yaml += (
-            f"  annotation_gtf: {ftp_base}/{species_name}/{info_dict['assembly.accession']}/"
-            f"{source}/geneset/{date}/genes.gtf.gz\n"
+        # ==== annotation_gtf ====
+        gtf = f"{ftp_base}/{species_name}/{info_dict['assembly.accession']}/" \
+              f"{source}/geneset/{date}/genes.gtf.gz"
+        if check_url_status(gtf):
+            yaml += f"  annotation_gtf: {gtf}\n"
+        else:
+            fb = ftp_client.check_pre_release_file(species_name,
+                                                  info_dict["assembly.accession"],
+                                                  ".gtf.gz")
+            if fb:
+                yaml += f"  annotation_gtf: {fb}\n"
+        # ==== annotation_gff3: try gzipped, then uncompressed, then pre‑release ====
+        gff_gz = (
+            f"{ftp_base}/{species_name}/{info_dict['assembly.accession']}/"
+            f"{source}/geneset/{date}/genes.gff3.gz"
         )
-        yaml += (
-            f"  annotation_gff3: {ftp_base}/{species_name}/{info_dict['assembly.accession']}/"
-            f"{source}/geneset/{date}/genes.gff3\n"
+        gff    = (
+            f"{ftp_base}/{species_name}/{info_dict['assembly.accession']}/"
+            f"{source}/geneset/{date}/genes.gff3"
         )
-        yaml += (
-            f"  proteins: {ftp_base}/{species_name}/{info_dict['assembly.accession']}/{source}/geneset/{date}/"
-            f"pep.fa.gz\n"
-        )
-        yaml += (
-            f"  transcripts: {ftp_base}/{species_name}/{info_dict['assembly.accession']}/{source}/geneset/{date}/"
-            f"cdna.fa.gz\n"
-        )
-        yaml += (
-            f"  softmasked_genome: {ftp_base}/{species_name}/{info_dict['assembly.accession']}/genome/"
-            f"softmasked.fa.gz\n"
-        )
+        if check_url_status(gff_gz):
+            yaml += f"  annotation_gff3: {gff_gz}\n"
+        elif check_url_status(gff):
+            yaml += f"  annotation_gff3: {gff}\n"
+        else:
+            # fallback: look in pre‑release for gzipped first, then uncompressed
+            fb = ftp_client.check_pre_release_file(
+                species_name,
+                info_dict["assembly.accession"],
+                ".gff3.gz"
+            )
+            if not fb:
+                fb = ftp_client.check_pre_release_file(
+                    species_name,
+                    info_dict["assembly.accession"],
+                    ".gff3"
+                )
+            if fb:
+                yaml += f"  annotation_gff3: {fb}\n"
+        # ==== proteins ====
+        pep = f"{ftp_base}/{species_name}/{info_dict['assembly.accession']}/" \
+              f"{source}/geneset/{date}/pep.fa.gz"
+        if check_url_status(pep):
+            yaml += f"  proteins: {pep}\n"
+        # ==== transcripts ====
+        cdna = f"{ftp_base}/{species_name}/{info_dict['assembly.accession']}/" \
+               f"{source}/geneset/{date}/cdna.fa.gz"
+        if check_url_status(cdna):
+            yaml += f"  transcripts: {cdna}\n"
+        # ==== softmasked genome ====
+        soft = f"{ftp_base}/{species_name}/{info_dict['assembly.accession']}/genome/" \
+               f"softmasked.fa.gz"
+        if check_url_status(soft):
+            yaml += f"  softmasked_genome: {soft}\n"
+        else:
+            fb = ftp_client.check_pre_release_file(species_name,
+                                                  info_dict["assembly.accession"],
+                                                  ".dna.softmasked.fa.gz")
+            if fb:
+                yaml += f"  softmasked_genome: {fb}\n"
         rm_file = ftp_client.check_for_file(
             rm_species_name,
             info_dict["species.production_name"],
@@ -313,9 +379,13 @@ def write_yaml(
         )
         if rm_file:
             yaml += f"  repeat_library: {rm_file}\n"
-
-        yaml += f"  ftp_dumps: {ftp_base}/{species_name}/{info_dict['assembly.accession']}/\n"
-
+        # ==== ftp dumps ====
+        dumps =  f"{ftp_base}/{species_name}/{info_dict['assembly.accession']}"
+        if check_url_status(dumps):
+            yaml += f"  ftp_dumps: {ftp_base}/{species_name}/{info_dict['assembly.accession']}/\n"
+        else:
+            yaml += f"  ftp_dumps: https://ftp.ebi.ac.uk/pub/databases/ensembl/pre-release/{species_name}/{info_dict['assembly.accession']}/\n"
+            
         main_species_url = "http://www.ensembl.org/info/about/species.html"
         main_species_response = requests.get(main_species_url)
         if info_dict["assembly.accession"] in main_species_response.text:
@@ -426,9 +496,6 @@ def write_yaml(
 
     print(yaml, file=yaml_out)
 
-import pymysql
-import json
-
 def check_database_on_server(db, server_key, server_dict):
     """
     Checks if a database exists on a given server.
@@ -454,19 +521,19 @@ def check_database_on_server(db, server_key, server_dict):
             result = cur.fetchone()
             #print(f"Query result on {server_key}: {result}", file=sys.stderr)
             return result is not None
-        
+
     except pymysql.MySQLError as e:
         print(f"Error connecting to {server_key}: {e}")
         return False
     finally:
         if 'conn' in locals() and conn:
             conn.close()
-            
-            
+
+
 def find_database_server(db, server_dict):
     """
     Determines which server the given database exists on.
-    
+
     Args:
         db (str): The name of the database to check.
         server_dict (dict): Dictionary containing server connection details from the config file.
@@ -481,11 +548,11 @@ def find_database_server(db, server_dict):
     for server_key in ["st5", "st6", "main"]:
         if check_database_on_server(db, server_key, server_dict):
             return server_key
-        
+
     # If no server found, raise an error
     raise Exception(f"Unable to find database {db} on any configured servers!")
-        
-    
+
+
 def main() -> None:
     """
     Main function that parses arguments, reads server config from JSON,
@@ -554,7 +621,7 @@ def main() -> None:
                 sorted_db_list.insert(0, sorted_db_list.pop(sorted_db_list.index(db)))
 
     # Initialize FTP connection
-    ftp_client = EnsemblFTP()
+    ftp_client = EnsemblFTP(timeout=30, max_retries=2, retry_sleep=3.0)
 
     # Open the output YAML file
     with open(f"{project}_species.yaml", "w") as yaml_out:
@@ -562,7 +629,10 @@ def main() -> None:
         for line in sorted_db_list:
             db = line.split('\t')[0].strip()
             guuid = line.split('\t')[1].strip()
-            use_server = find_database_server(db, server_dict)
+            if guuid == 'unknown':
+                use_server = 'gb1'
+            else:
+                use_server = find_database_server(db, server_dict)
 
             # Retrieve metadata from the chosen server
             # update this with query from the metadata db
