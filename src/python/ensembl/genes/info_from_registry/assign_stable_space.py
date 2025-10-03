@@ -179,7 +179,7 @@ def assign_stable_id(taxon_id:int, gca_accession: str, assembly_id:int, server_i
     stable_space_start = stable_space_range(stable_space_id, server_info)
 
     if stable_space_start is not False:
-        logger.info(f"Assigned stable space ID {stable_space_id} for GCA {gca_accession} and taxon ID {taxon_id}.") 
+        logger.info(f"Assigned stable space ID {stable_space_id} for {gca_accession} and taxon ID {taxon_id}.") 
         
         insert_query = f"""INSERT INTO stable_space_species_log (stable_space_id, lowest_taxon_id, gca_accession, assembly_id) 
             VALUES ({stable_space_id}, {taxon_id}, '{gca_accession}', {assembly_id});

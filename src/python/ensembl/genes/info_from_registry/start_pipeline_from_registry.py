@@ -13,6 +13,7 @@ Typical usage:
 import os
 from pathlib import Path
 import json
+import sys
 from typing import Optional, Dict, Any
 import shutil
 import pymysql # type: ignore
@@ -26,6 +27,8 @@ from create_pipe_reg import create_registry_entry
 from create_config import edit_config_anno, edit_config_main
 from assign_species_prefix import get_species_prefix # type: ignore
 from assign_stable_space import get_stable_space
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from metrics.busco_lineage_selector import get_dataset_match
 
 # Configure logging
 logging.basicConfig(
@@ -464,7 +467,7 @@ def get_info_for_pipeline_anno(settings: dict, info_dict: dict, assembly_accessi
         dict: Updated info_dict with added file paths and pipeline parameters.
     """
 
-    logger.info("Getting info for pipeline settings for GCA %s", assembly_accession)
+    logger.info("Getting info for pipeline settings for %s", assembly_accession)
     output_path = Path(settings["base_output_dir"]) / assembly_accession
     genome_files_dir = output_path / "genome_files"
     toplevel_genome_file = (
@@ -834,7 +837,32 @@ def main(gcas, settings_file):
             server_info.setdefault("core_db", {})["db_name"] = info_dict["core_dbname"]
             info_dict["core_db"] = server_info["core_db"]
             info_dict["registry_db"] = server_info["registry"]
+            
+            # Assign BUSCO lineage
+            busco_lineage_file = os.path.join(
+            os.environ.get("ENSCODE"),
+            "ensembl-genes",
+            "src",
+            "python",
+            "ensembl",
+            "genes",
+            "metrics",
+            "busco_lineage.json")
 
+            with open(busco_lineage_file, "r") as f:
+                dataset = json.load(f)
+
+            ncbi_url = f"https://api.ncbi.nlm.nih.gov/datasets/v2alpha/taxonomy/taxon/{info_dict['taxon_id']}/dataset_report"
+
+            busco_group_find = get_dataset_match(ncbi_url, dataset)
+
+            if busco_group_find is not None:
+                logger.info(f"Closest BUSCO lineage identified as {busco_group_find} for taxon ID {info_dict['taxon_id']}")
+                info_dict["busco_group"] = busco_group_find
+            else:
+                logger.info(f"Falling back on BUSCO lineage from clade settings {info_dict['busco_group']}")
+
+            # Load anno settings
             anno_settings = load_anno_settings()
 
             # DB adaptors
