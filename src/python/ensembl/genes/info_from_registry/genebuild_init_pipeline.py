@@ -49,6 +49,7 @@ def init_pipeline_anno(config_file: str, hive_force_init: int = 1) -> str:
         subprocess.CalledProcessError: If the `init_pipeline.pl` command fails.
         RuntimeError: If the expected MySQL URL is not found in the output.
     """
+    logger.info("Innitialising anno pipeline")
     cmd = [
         "init_pipeline.pl",
         config_file,
@@ -148,6 +149,7 @@ def main(gcas: str, settings_file: str):
             raise RuntimeError(f"Multiple .conf files found in {parent_dir}: {conf_files}")
         
         conf_path = conf_files[0]
+        logger.info(f"Config found at {conf_path}")
 
         ehive_url = init_pipeline_anno(conf_path)
         ehive_urls["anno"] = ehive_url

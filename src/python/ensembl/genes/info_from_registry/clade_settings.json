@@ -97,7 +97,8 @@
         "rfam_accessions_file": "/hps/nobackup/flicek/ensembl/genebuild/blastdb/ncrna/Rfam_14.1/clade_accessions/rfam_eudicotyledons_ids.txt",
         "species_division": "EnsemblPlants",
         "busco_group": "viridiplantae_odb12",
-        "helixer_lineage": "land_plant"
+        "helixer_lineage": "land_plant",
+        "helixer_param": "--subsequence-length 64152 --overlap-offset 32076 --overlap-core-length 48114"
     },
     "porifera": {
         "taxon_id": 6040,
@@ -278,7 +279,8 @@
         "rfam_accessions_file": "/hps/nobackup/flicek/ensembl/genebuild/blastdb/ncrna/Rfam_14.1/clade_accessions/rfam_fungi_ids.txt",
         "species_division": "EnsemblFungi",
         "busco_group": "ascomycota_odb12",
-        "helixer_lineage": "fungi"
+        "helixer_lineage": "fungi",
+        "helixer_param": "--subsequence-length 21384 --overlap-offset 10692 --overlap-core-length 16038"
     },
     "basidiomycota": {
         "taxon_id": 5204,
@@ -288,7 +290,8 @@
         "rfam_accessions_file": "/hps/nobackup/flicek/ensembl/genebuild/blastdb/ncrna/Rfam_14.1/clade_accessions/rfam_fungi_ids.txt",
         "species_division": "EnsemblFungi",
         "busco_group": "basidiomycota_odb12",
-        "helixer_lineage": "fungi"
+        "helixer_lineage": "fungi",
+        "helixer_param": "--subsequence-length 21384 --overlap-offset 10692 --overlap-core-length 16038"
     },
     "mucoromycota": {
         "taxon_id": 1913637,
@@ -298,7 +301,8 @@
         "rfam_accessions_file": "/hps/nobackup/flicek/ensembl/genebuild/blastdb/ncrna/Rfam_14.1/clade_accessions/rfam_fungi_ids.txt",
         "species_division": "EnsemblFungi",
         "busco_group": "mucoromycota_odb12",
-        "helixer_lineage": "fungi"
+        "helixer_lineage": "fungi",
+        "helixer_param": "--subsequence-length 21384 --overlap-offset 10692 --overlap-core-length 16038"
     },
     "oomycota": {
         "taxon_id": 4762,
@@ -308,7 +312,8 @@
         "rfam_accessions_file": "/hps/nobackup/flicek/ensembl/genebuild/blastdb/ncrna/Rfam_14.1/clade_accessions/rfam_fungi_ids.txt",
         "species_division": "EnsemblFungi",
         "busco_group": "mucoromycota_odb12",
-        "helixer_lineage": "fungi"
+        "helixer_lineage": "fungi",
+        "helixer_param": "--subsequence-length 21384 --overlap-offset 10692 --overlap-core-length 16038"
     },
     "blastocladiomycota": {
         "taxon_id": 451459,
@@ -318,7 +323,8 @@
         "rfam_accessions_file": "/hps/nobackup/flicek/ensembl/genebuild/blastdb/ncrna/Rfam_14.1/clade_accessions/rfam_fungi_ids.txt",
         "species_division": "EnsemblFungi",
         "busco_group": "mucoromycota_odb12",
-        "helixer_lineage": "fungi"
+        "helixer_lineage": "fungi",
+        "helixer_param": "--subsequence-length 21384 --overlap-offset 10692 --overlap-core-length 16038"
     },
     "chytridiomycota": {
         "taxon_id": 4761,
@@ -328,7 +334,8 @@
         "rfam_accessions_file": "/hps/nobackup/flicek/ensembl/genebuild/blastdb/ncrna/Rfam_14.1/clade_accessions/rfam_fungi_ids.txt",
         "species_division": "EnsemblFungi",
         "busco_group": "mucoromycota_odb12",
-        "helixer_lineage": "fungi"
+        "helixer_lineage": "fungi",
+        "helixer_param": "--subsequence-length 21384 --overlap-offset 10692 --overlap-core-length 16038"
     },
     "primates": {
         "taxon_id": 1758,

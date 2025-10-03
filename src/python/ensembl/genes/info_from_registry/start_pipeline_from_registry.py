@@ -851,8 +851,6 @@ def main(gcas, settings_file):
 
             output_params = get_info_for_pipeline_anno(settings, info_dict, gca, anno_settings)
             output_params["registry_file"] = Path(registry_path)
-            
-            edit_config_anno(anno_settings, settings, output_params, pipeline_type, server_settings)
 
             build_annotation_commands(core_adaptor, output_params, anno_settings, settings)
 
@@ -875,7 +873,19 @@ def main(gcas, settings_file):
 
     # Save anno GCAs as a single file
     anno_params = {g: p for g, p in all_output_params.items() if p["pipeline"] == "anno"}
+
+    #Edit anno config
     if anno_params:
+        # Call edit_config_anno ONCE here with only the generic settings
+        first_gca_params = next(iter(anno_params.values()))
+        edit_config_anno(
+            anno_settings, 
+            settings, 
+            first_gca_params,   # just need a representative dict with registry_file, db names, etc.
+            "anno", 
+            server_settings
+        )
+
         anno_json_path = Path(settings["base_output_dir"]) / "non_vert_pipeline_params.json"
         anno_json_path.parent.mkdir(parents=True, exist_ok=True)
         with anno_json_path.open("w") as f:

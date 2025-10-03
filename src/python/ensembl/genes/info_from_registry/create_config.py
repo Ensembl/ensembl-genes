@@ -202,6 +202,7 @@ def edit_config_anno(anno_settings, settings, info_dict, pipeline, server_settin
         content,
     )
 
+
     with open(local_config, "w") as f:
         f.write(content)
 
