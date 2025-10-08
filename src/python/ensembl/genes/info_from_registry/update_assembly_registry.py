@@ -371,6 +371,7 @@ if __name__ == "__main__":
             "completed",
             "pre_released",
             "handed_over",
+            "live",
             "archive",
         ],
         help="Status to update to",
