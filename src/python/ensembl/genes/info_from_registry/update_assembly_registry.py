@@ -42,7 +42,7 @@ def fetch_current_record(connection, assembly):
     """
 
     with connection.cursor() as cursor:
-        cursor.execute(query, (assembly))
+        cursor.execute(query, (assembly,))
         result = cursor.fetchone()
 
     return result
@@ -135,29 +135,22 @@ def insert_new_record(
         print(f"Inserted new record for GCA {assembly} with status '{status}'")
 
 
-def update_existing_record(connection, record_id, status, current_date, dev):
-    """
-    Update an existing genebuild status record.
-
-    Args:
-        connection: MySQL connection object
-        record_id (int): genebuild_id to update
-        status (str): New status
-        current_date (str): Current date
-        dev (bool): If True, only print SQL without executing
-    """
-    # date completed is being used to track the last time this record was updated
-    # so we set it to the current date
-    query = """
-    UPDATE genebuild_status 
-    SET gb_status = %s, date_status_update = %s
-    WHERE genebuild_status_id = %s
-    """
-    params = (status, current_date, record_id)
+def update_existing_record(connection, record_id, status, current_date, dev, annotation_method=None):
+    query_parts = ["gb_status = %s", "date_status_update = %s"]
+    params = [status, current_date]
+    if annotation_method:
+        query_parts.append("annotation_method = %s")
+        params.append(annotation_method)
+    query = f"""
+UPDATE genebuild_status
+SET {', '.join(query_parts)}
+WHERE genebuild_status_id = %s
+"""
+    params.append(record_id)
 
     if dev:
         print("Would execute:")
-        print(query % params)
+        print(query, params)
     else:
         with connection.cursor() as cursor:
             cursor.execute(query, params)
@@ -274,13 +267,19 @@ def main(
             print(f"Found existing record for {assembly} by {genebuilder}")
             print(f"Current status: '{current_status}', requested status: '{status}'")
 
-            if current_status == status:
-                print(f"Status is already '{status}'. No changes needed.")
-                return
-
             # Map status names to match schema enum values
             terminal_statuses = ["completed", "pre_released", "handed_over", "archive"]
             active_statuses = ["insufficient_data", "in_progress", "check_busco"]
+
+            if current_status == status:
+                if current_status in active_statuses:
+                    print("Status unchanged and active; updating method/timestamp if provided.")
+                    update_existing_record(
+                        connection, record_id, status, current_date, dev, annotation_method
+                    )
+                else:
+                    print(f"Status is already '{status}'. No changes needed.")
+                return
 
             if current_status in terminal_statuses:
                 # Terminal status - create new attempt
@@ -309,7 +308,7 @@ def main(
                     f"Current status '{current_status}' is active. Updating existing record."
                 )
 
-                update_existing_record(connection, record_id, status, current_date, dev)
+                update_existing_record(connection, record_id, status, current_date, dev, annotation_method)
 
             else:
                 print(
