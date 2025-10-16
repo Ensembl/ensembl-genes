@@ -3,8 +3,10 @@ Utility to update the status of a genebuild in the registry db
 """
 
 from mysql_helper import mysql_get_connection
+from registry_helper import fetch_assembly_id, fetch_current_genebuild_record
 import argparse
 from datetime import datetime
+import sys
 
 
 def ensure_genebuilder_exists(connection, genebuilder):
@@ -25,49 +27,7 @@ def ensure_genebuilder_exists(connection, genebuilder):
             )
 
 
-def fetch_current_record(connection, assembly):
-    """
-    Fetch the current genebuild record for a given assembly.
-
-    Args:
-        connection: MySQL connection object
-        assembly (str): Assembly Accession (GCA)
-    Returns:
-        dict: Record with genebuild_status_id and gb_status if found, else None
-    """
-    query = """
-    SELECT genebuild_status_id, gb_status 
-    FROM genebuild_status 
-    WHERE gca_accession = %s AND last_attempt = 1
-    """
-
-    with connection.cursor() as cursor:
-        cursor.execute(query, (assembly,))
-        result = cursor.fetchone()
-
-    return result
-
-
-def fetch_assembly_id(connection, assembly):
-    """
-    Fetch the assembly ID for a given assembly accession.
-
-    Args:
-        connection: MySQL connection object
-        assembly (str): Assembly Accession (GCA format like GCA_123456789.1)
-    Returns:
-        int: Assembly ID if found, else None
-    """
-    query = """
-    SELECT assembly_id FROM assembly
-    WHERE CONCAT(gca_chain, '.', gca_version) = %s
-    """
-
-    with connection.cursor() as cursor:
-        cursor.execute(query, (assembly,))
-        result = cursor.fetchone()
-
-    return result["assembly_id"] if result else None
+# fetch_current_record is now fetch_current_genebuild_record imported from registry_helper
 
 
 def insert_new_record(
@@ -226,24 +186,22 @@ def main(
         # Start transaction
         connection.begin()
 
-        # Ensure genebuilder exists
         ensure_genebuilder_exists(connection, genebuilder)
 
-        # Get assembly_id
         assembly_id = fetch_assembly_id(connection, assembly)
         if not assembly_id:
             raise Exception(f"Assembly not found for GCA: {assembly}")
 
-        # Get current date
         current_date = datetime.now().strftime("%Y-%m-%d")
-
-        # Check for existing current record
-        existing_record = fetch_current_record(connection, assembly)
+        existing_record = fetch_current_genebuild_record(connection, assembly)
 
         if not existing_record:
             # No existing record - INSERT new
             print(f"No existing record found for {assembly}")
             print(f"Creating new record with status: {status}")
+
+            # Use "pending" as default for new records if not specified
+            method_to_insert = annotation_method if annotation_method else "pending"
 
             insert_new_record(
                 connection,
@@ -252,7 +210,7 @@ def main(
                 genebuilder,
                 status,
                 annotation_source,
-                annotation_method,
+                method_to_insert,
                 current_date,
                 release_type,
                 genebuild_version,
@@ -272,20 +230,17 @@ def main(
             active_statuses = ["insufficient_data", "in_progress", "check_busco"]
 
             if current_status == status:
-                if current_status in active_statuses:
-                    print("Status unchanged and active; updating method/timestamp if provided.")
-                    update_existing_record(
-                        connection, record_id, status, current_date, dev, annotation_method
-                    )
-                else:
-                    print(f"Status is already '{status}'. No changes needed.")
-                return
+                print(f"Status is already '{status}'. No changes needed.")
+                sys.exit(0)
 
             if current_status in terminal_statuses:
                 # Terminal status - create new attempt
                 print(
                     f"Current status '{current_status}' is terminal. Creating new attempt."
                 )
+
+                # Use "pending" as default for new attempts if not specified
+                method_to_insert = annotation_method if annotation_method else "pending"
 
                 set_old_record_historical(connection, record_id, dev)
                 insert_new_record(
@@ -295,7 +250,7 @@ def main(
                     genebuilder,
                     status,
                     annotation_source,
-                    annotation_method,
+                    method_to_insert,
                     current_date,
                     release_type,
                     genebuild_version,
@@ -303,7 +258,6 @@ def main(
                 )
 
             elif current_status in active_statuses:
-                # Active status - update existing record
                 print(
                     f"Current status '{current_status}' is active. Updating existing record."
                 )
@@ -311,8 +265,8 @@ def main(
                 update_existing_record(connection, record_id, status, current_date, dev, annotation_method)
 
             else:
-                print(
-                    f"Unexpected current status: '{current_status}'. No action taken."
+                raise ValueError(
+                    f"Unexpected current status: '{current_status}'. Not in terminal or active status lists."
                 )
 
         if not dev:
@@ -325,12 +279,14 @@ def main(
     except Exception as e:
         if connection:
             connection.rollback()
-        print(f"Error occurred: {str(e)}")
-        raise
+        print(f"ERROR: {str(e)}", file=sys.stderr)
+        sys.exit(1)
 
     finally:
         if connection:
             connection.close()
+
+    sys.exit(0)
 
 
 if __name__ == "__main__":
@@ -405,7 +361,7 @@ if __name__ == "__main__":
 
     parser.add_argument(
         "--annotation_method",
-        default="pending",
+        default=None,
         choices=[
             "pending",
             "full_genebuild",
@@ -417,7 +373,7 @@ if __name__ == "__main__":
             "import",
             "external_annotation_import",
         ],
-        help="Annotation method (default: pending)",
+        help="Annotation method (default: preserve existing value)",
     )
 
     parser.add_argument(
