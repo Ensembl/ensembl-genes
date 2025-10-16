@@ -227,7 +227,7 @@ def main(
 
             # Map status names to match schema enum values
             terminal_statuses = ["live", "pre_released", "handed_over", "archive"]
-            active_statuses = ["insufficient_data", "in_progress", "check_busco"]
+            active_statuses = ["insufficient_data", "in_progress", "check_busco", "completed"]
 
             if current_status == status:
                 print(f"Status is already '{status}'. No changes needed.")
