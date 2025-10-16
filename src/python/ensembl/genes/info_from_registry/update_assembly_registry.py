@@ -226,7 +226,7 @@ def main(
             print(f"Current status: '{current_status}', requested status: '{status}'")
 
             # Map status names to match schema enum values
-            terminal_statuses = ["completed", "pre_released", "handed_over", "archive"]
+            terminal_statuses = ["live", "pre_released", "handed_over", "archive"]
             active_statuses = ["insufficient_data", "in_progress", "check_busco"]
 
             if current_status == status:
