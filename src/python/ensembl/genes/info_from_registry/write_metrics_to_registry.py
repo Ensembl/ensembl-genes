@@ -156,6 +156,7 @@ def main(
     core_db,
     assembly,
     species_id,
+    genebuilder,
     dev,
 ):
     """
@@ -166,6 +167,7 @@ def main(
         core_host, core_port, core_user, core_password, core_db: Core DB connection
         assembly (str): Assembly Accession (GCA format)
         species_id (int): Species ID in core meta table
+        genebuilder (str): Genebuilder name to identify which genebuild record to update
         dev (bool): If True, only print SQL statements without executing
     """
     registry_connection = None
@@ -197,8 +199,8 @@ def main(
         # Start transaction on registry
         registry_connection.begin()
 
-        print(f"Fetching registry IDs for assembly {assembly}...")
-        assembly_id, genebuild_status_id = fetch_registry_ids(registry_connection, assembly)
+        print(f"Fetching registry IDs for assembly {assembly} and genebuilder {genebuilder}...")
+        assembly_id, genebuild_status_id = fetch_registry_ids(registry_connection, assembly, genebuilder)
         print(f"Found assembly_id: {assembly_id}, genebuild_status_id: {genebuild_status_id}")
 
         print(f"Fetching metrics from core database...")
@@ -248,11 +250,13 @@ if __name__ == "__main__":
             Examples:
             %(prog)s --registry_host localhost --registry_user myuser --registry_password mypass \\
                      --registry_db registry --core_host corehost --core_user myuser \\
-                     --core_password mypass --core_db my_core_db --assembly GCA_123456789.1
+                     --core_password mypass --core_db my_core_db --assembly GCA_123456789.1 \\
+                     --genebuilder john_doe
 
             %(prog)s --registry_host localhost --registry_user myuser --registry_password mypass \\
                      --registry_db registry --core_host corehost --core_user myuser \\
-                     --core_password mypass --core_db my_core_db --assembly GCA_123456789.1 --dev
+                     --core_password mypass --core_db my_core_db --assembly GCA_123456789.1 \\
+                     --genebuilder john_doe --dev
         """,
     )
 
@@ -275,6 +279,11 @@ if __name__ == "__main__":
         "--assembly",
         required=True,
         help="Assembly Accession (GCA format, e.g., GCA_123456789.1)",
+    )
+    parser.add_argument(
+        "--genebuilder",
+        required=True,
+        help="Genebuilder name (person who owns the genebuild record)",
     )
     parser.add_argument(
         "--species_id",
@@ -304,6 +313,7 @@ if __name__ == "__main__":
         core_password=args.core_password,
         core_db=args.core_db,
         assembly=args.assembly,
+        genebuilder=args.genebuilder,
         species_id=args.species_id,
         dev=args.dev,
     )

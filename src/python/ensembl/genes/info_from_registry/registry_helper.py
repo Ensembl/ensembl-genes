@@ -28,24 +28,34 @@ def fetch_assembly_id(connection, assembly):
     return result["assembly_id"] if result else None
 
 
-def fetch_current_genebuild_record(connection, assembly):
+def fetch_current_genebuild_record(connection, assembly, genebuilder=None):
     """
     Fetch the full current genebuild record for a given assembly.
 
     Args:
         connection: MySQL connection object
         assembly (str): Assembly Accession (GCA format)
+        genebuilder (str, optional): Genebuilder name to filter by. If None, fetches any active record.
     Returns:
-        dict: Record with genebuild_status_id, gb_status, and other fields if found, else None
+        dict: Record with genebuild_status_id, gb_status, genebuilder, annotation_method, and other fields if found, else None
     """
-    query = """
-    SELECT genebuild_status_id, gb_status
-    FROM genebuild_status
-    WHERE gca_accession = %s AND last_attempt = 1
-    """
+    if genebuilder:
+        query = """
+        SELECT genebuild_status_id, gb_status, genebuilder, annotation_method
+        FROM genebuild_status
+        WHERE gca_accession = %s AND genebuilder = %s AND last_attempt = 1
+        """
+        params = (assembly, genebuilder)
+    else:
+        query = """
+        SELECT genebuild_status_id, gb_status, genebuilder, annotation_method
+        FROM genebuild_status
+        WHERE gca_accession = %s AND last_attempt = 1
+        """
+        params = (assembly,)
 
     with connection.cursor() as cursor:
-        cursor.execute(query, (assembly,))
+        cursor.execute(query, params)
         result = cursor.fetchone()
 
     return result
@@ -65,13 +75,15 @@ def fetch_genebuild_status_id(connection, assembly):
     return record["genebuild_status_id"] if record else None
 
 
-def fetch_registry_ids(connection, assembly):
+def fetch_registry_ids(connection, assembly, genebuilder=None):
     """
     Fetch both assembly_id and genebuild_status_id for a given assembly.
 
     Args:
         connection: MySQL connection object
         assembly (str): Assembly Accession (GCA format)
+        genebuilder (str, optional): Genebuilder name to filter by. If None and multiple
+                                     active records exist, returns the first one found.
     Returns:
         tuple: (assembly_id, genebuild_status_id) where genebuild_status_id may be None
     Raises:
@@ -81,6 +93,7 @@ def fetch_registry_ids(connection, assembly):
     if not assembly_id:
         raise ValueError(f"Assembly not found in registry: {assembly}")
 
-    genebuild_status_id = fetch_genebuild_status_id(connection, assembly)
+    record = fetch_current_genebuild_record(connection, assembly, genebuilder)
+    genebuild_status_id = record["genebuild_status_id"] if record else None
 
     return assembly_id, genebuild_status_id

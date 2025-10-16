@@ -193,11 +193,11 @@ def main(
             raise Exception(f"Assembly not found for GCA: {assembly}")
 
         current_date = datetime.now().strftime("%Y-%m-%d")
-        existing_record = fetch_current_genebuild_record(connection, assembly)
+        existing_record = fetch_current_genebuild_record(connection, assembly, genebuilder)
 
         if not existing_record:
-            # No existing record - INSERT new
-            print(f"No existing record found for {assembly}")
+            # No existing record for this genebuilder - INSERT new
+            print(f"No existing record found for {assembly} by {genebuilder}")
             print(f"Creating new record with status: {status}")
 
             # Use "pending" as default for new records if not specified
@@ -218,8 +218,9 @@ def main(
             )
 
         else:
-            # Existing record found
+            # Existing record found for this genebuilder
             current_status = existing_record["gb_status"]
+            current_method = existing_record.get("annotation_method")
             record_id = existing_record["genebuild_status_id"]
 
             print(f"Found existing record for {assembly} by {genebuilder}")
@@ -230,8 +231,17 @@ def main(
             active_statuses = ["insufficient_data", "in_progress", "check_busco", "completed"]
 
             if current_status == status:
-                print(f"Status is already '{status}'. No changes needed.")
-                sys.exit(0)
+                # Check if annotation_method is provided and different
+                if annotation_method and annotation_method != current_method:
+                    print(f"Status is already '{status}', but updating method from '{current_method}' to '{annotation_method}'")
+                    if current_status in active_statuses:
+                        update_existing_record(connection, record_id, status, current_date, dev, annotation_method)
+                    else:
+                        print(f"Cannot update method for terminal status '{current_status}'")
+                        sys.exit(1)
+                else:
+                    print(f"Status is already '{status}'. No changes needed.")
+                    sys.exit(0)
 
             if current_status in terminal_statuses:
                 # Terminal status - create new attempt
