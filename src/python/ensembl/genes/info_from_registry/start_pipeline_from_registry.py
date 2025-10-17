@@ -612,43 +612,49 @@ def copy_general_module():
     else:
         logger.info(f"{general_file} already exists, nothing to do.")
 
-def current_projection_source_db(projection_source_production_name, user):
+def current_projection_source_db(projection_source_production_name):
     """
-    Find the latest core database for the given projection_source_production_name on mysql-ens-mirror-1.
+    Find the reference core database and server info for the given projection_source_production_name.
     If not found, fall back to homo_sapiens core.
     Args:
         projection_source_production_name (str): Name to look for in core name (comes from clade_settings).
-        user (str): Read-only username.
-    Returns:
-        str: Projection source db name.
+    Returns a dictionary with keys: db_name, server, port
     Raises:
         RuntimeError: If database could not be found.
 
     """
-    conn = pymysql.connect(
-        host="mysql-ens-mirror-1",
-        user=user,
-        password="",
-        port=4240
-    )
+    projection_json = os.path.join(
+         os.environ.get("ENSCODE"),
+         "ensembl-genes",
+         "src",
+         "python",
+         "ensembl",
+         "genes",
+         "info_from_registry",
+         "projection_source.json"
+     )
     try:
-        with conn.cursor() as cur:
-            # First try the species-specific database
-            cur.execute("SHOW DATABASES LIKE %s", (f"{projection_source_production_name}_core%",))
-            out = [row[0] for row in cur.fetchall()]
+        with open(projection_json, "r") as f:
+            data = json.load(f)
+    except Exception as e:
+        raise RuntimeError(f"Failed to read JSON file {projection_json}: {e}")
 
-            # If none, fall back to human core
-            if not out:
-                logger.info(f"No core DB for {projection_source_production_name}, falling back to Homo sapiens")
-                cur.execute("SHOW DATABASES LIKE 'homo_sapiens_core%'")
-                out = [row[0] for row in cur.fetchall()]
+    # Find a matching nested dictionary
+    matched_key = None
+    for key, subdict in data.items():
+        if isinstance(subdict, dict) and projection_source_production_name in subdict.values():
+            matched_key = key
+            break
 
-        if out:
-            return out[-1]  # return the last (most recent) DB
-        else:
-            raise RuntimeError("No suitable projection database found.")
-    finally:
-        conn.close()
+    # Fallback logic
+    if matched_key:
+        logger.info(f"Match found for '{projection_source_production_name}' in '{matched_key}'")
+        return data[matched_key]
+    elif "homo_sapiens" in data:
+        logger.warning(f"No match for '{projection_source_production_name}'. Falling back to 'homo_sapiens'.")
+        return data["homo_sapiens"]
+    else:
+        raise RuntimeError(f"No match for '{projection_source_production_name}' and 'homo_sapiens' not found in {json_path}.")
 
 
 def custom_loading(settings):
@@ -816,9 +822,10 @@ def main(gcas, settings_file):
             output_params = get_info_for_pipeline_main(settings, info_dict, gca)
             create_dir(output_params["output_path"])
             edit_config_main(main_settings, output_params, pipeline_type)
-            output_params["projection_source_db_name"] = current_projection_source_db(
-                output_params["projection_source_production_name"], settings["user_r"]
-            )
+
+            projection_source_info = current_projection_source_db(output_params["projection_source_db_name"])
+            output_params.update(projection_source_info)  # Adds db_name, server, port to output_params
+
             output_params["stable_id_prefix"] = get_species_prefix(output_params["taxon_id"], server_info)
             output_params["stable_id_start"] = get_stable_space(
                 output_params["taxon_id"], gca, output_params["assembly_id"], server_info
