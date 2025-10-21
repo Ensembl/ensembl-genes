@@ -276,7 +276,6 @@ def add_ftp(
         matches = annotation.get("matches") or []
 
         if release_type == "pre":
-            # Use dbname(s) to fetch scientific name
             dbnames = set(m.get("dbname") for m in matches if m.get("dbname"))
             if annotation.get("dbname"):
                 dbnames.add(annotation["dbname"])
@@ -294,9 +293,11 @@ def add_ftp(
                     server_name="gb1",
                     db_name=dbname
                 )
+
                 if not result:
-                    continue
-                scientific_name = result[0][0].replace(" ", "_")
+                    continue  # skip if no scientific name found
+
+                scientific_name = result[0][0].replace(" ", "_").replace(".", "")
                 ftp_link = f"https://ftp.ebi.ac.uk/pub/databases/ensembl/pre-release/{scientific_name}/{accession}"
 
                 # attach to matching entries
@@ -305,6 +306,7 @@ def add_ftp(
                         m["ftp"] = ftp_link
                 if annotation.get("dbname") == dbname:
                     annotation["ftp"] = ftp_link  # top-level
+
 
         elif release_type == "live":
             # Build map guuid->match for easy updates
@@ -331,7 +333,7 @@ def add_ftp(
 
                 date, scientific_name, source = data_fetch[0]
                 date = str(date).replace("-", "_")
-                scientific_name = scientific_name.replace(" ", "_")
+                scientific_name = scientific_name.replace(" ", "_").replace(".", "")
                 source = source.lower()
                 ftp_link = f"https://ftp.ebi.ac.uk/pub/ensemblorganisms/{scientific_name}/{accession}/{source}/geneset/{date}/"
 
