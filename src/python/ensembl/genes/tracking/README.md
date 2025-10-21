@@ -47,7 +47,7 @@ optional arguments:
   --taxon_id TAXON_ID   Taxonomy ID
   --haploid             Fetch only haploid assemblies
   --report_file REPORT_FILE
-  --classification      Provide breakdown of taxonomic classification
+  --classification      Provide breakdown of taxonomic classification [note: this will significantly slow down the script, only use if needed]
   --rank RANK
   --ftp                 Include FTP links in the report
   --pre_release         Include list of pre-release databases in the report
