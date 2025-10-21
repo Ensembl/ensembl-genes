@@ -221,62 +221,90 @@ def main(
             # Existing record found for this genebuilder
             current_status = existing_record["gb_status"]
             current_method = existing_record.get("annotation_method")
+            current_version = existing_record.get("genebuild_version")
             record_id = existing_record["genebuild_status_id"]
 
             print(f"Found existing record for {assembly} by {genebuilder}")
             print(f"Current status: '{current_status}', requested status: '{status}'")
 
-            # Map status names to match schema enum values
+            # Status categories
             terminal_statuses = ["live", "pre_released", "handed_over", "archive"]
-            active_statuses = ["insufficient_data", "in_progress", "check_busco", "completed"]
+            active_statuses = ["insufficient_data", "in_progress", "check_busco"]
+            completed_status = "completed" # terminal-like status
 
+            # Determine if method should be updated (preserve existing if not specified)
+            method_to_update = annotation_method if annotation_method is not None else current_method
+
+            # Same status - check for method/release_type changes
             if current_status == status:
                 # Check if annotation_method is provided and different
                 if annotation_method and annotation_method != current_method:
                     print(f"Status is already '{status}', but updating method from '{current_method}' to '{annotation_method}'")
-                    if current_status in active_statuses:
-                        update_existing_record(connection, record_id, status, current_date, dev, annotation_method)
-                    else:
-                        print(f"Cannot update method for terminal status '{current_status}'")
-                        sys.exit(1)
+                    update_existing_record(connection, record_id, status, current_date, dev, annotation_method)
                 else:
                     print(f"Status is already '{status}'. No changes needed.")
                     sys.exit(0)
 
-            if current_status in terminal_statuses:
-                # Terminal status - create new attempt
-                print(
-                    f"Current status '{current_status}' is terminal. Creating new attempt."
-                )
+            # Block backwards transitions from completed
+            elif current_status == completed_status and status in active_statuses:
+                print(f"ERROR: Cannot move backwards from 'completed' to '{status}'")
+                print(f"Completed is a terminal-like status. To restart work, use a new genebuild_version.")
+                sys.exit(1)
 
-                # Use "pending" as default for new attempts if not specified
-                method_to_insert = annotation_method if annotation_method else "pending"
+            # Block backwards transitions from terminal statuses
+            elif current_status in terminal_statuses and status in (active_statuses + [completed_status]):
+                # Check if version changed - if so, allow new attempt
+                if genebuild_version != current_version:
+                    print(f"Moving from terminal status '{current_status}' to '{status}' with new version {genebuild_version}")
+                    print(f"Creating new attempt.")
 
-                set_old_record_historical(connection, record_id, dev)
-                insert_new_record(
-                    connection,
-                    assembly_id,
-                    assembly,
-                    genebuilder,
-                    status,
-                    annotation_source,
-                    method_to_insert,
-                    current_date,
-                    release_type,
-                    genebuild_version,
-                    dev,
-                )
+                    method_to_insert = annotation_method if annotation_method else "pending"
 
-            elif current_status in active_statuses:
-                print(
-                    f"Current status '{current_status}' is active. Updating existing record."
-                )
+                    set_old_record_historical(connection, record_id, dev)
+                    insert_new_record(
+                        connection,
+                        assembly_id,
+                        assembly,
+                        genebuilder,
+                        status,
+                        annotation_source,
+                        method_to_insert,
+                        current_date,
+                        release_type,
+                        genebuild_version,
+                        dev,
+                    )
+                else:
+                    print(f"ERROR: Cannot move from terminal status '{current_status}' to '{status}' with same genebuild_version '{genebuild_version}'")
+                    print(f"To restart work, you must increment the genebuild_version (e.g., ENS02, ENS03, etc.)")
+                    sys.exit(1)
 
-                update_existing_record(connection, record_id, status, current_date, dev, annotation_method)
+            # Terminal to terminal transition - UPDATE same record
+            elif current_status in terminal_statuses and status in terminal_statuses:
+                print(f"Moving from terminal status '{current_status}' to terminal status '{status}'")
+                print(f"Updating existing record.")
+                update_existing_record(connection, record_id, status, current_date, dev, method_to_update)
+
+            # Completed to terminal transition - UPDATE same record
+            elif current_status == completed_status and status in terminal_statuses:
+                print(f"Moving from 'completed' to terminal status '{status}'")
+                print(f"Updating existing record.")
+                update_existing_record(connection, record_id, status, current_date, dev, method_to_update)
+
+            # Active to active or active to completed - UPDATE same record
+            elif current_status in active_statuses and (status in active_statuses or status == completed_status):
+                print(f"Current status '{current_status}' is active. Updating to '{status}'.")
+                update_existing_record(connection, record_id, status, current_date, dev, method_to_update)
+
+            # Active to terminal - UPDATE same record
+            elif current_status in active_statuses and status in terminal_statuses:
+                print(f"Moving from active status '{current_status}' to terminal status '{status}'")
+                print(f"Updating existing record.")
+                update_existing_record(connection, record_id, status, current_date, dev, method_to_update)
 
             else:
                 raise ValueError(
-                    f"Unexpected current status: '{current_status}'. Not in terminal or active status lists."
+                    f"Unexpected status transition: '{current_status}' to '{status}'"
                 )
 
         if not dev:

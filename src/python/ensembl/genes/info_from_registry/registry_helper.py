@@ -37,18 +37,18 @@ def fetch_current_genebuild_record(connection, assembly, genebuilder=None):
         assembly (str): Assembly Accession (GCA format)
         genebuilder (str, optional): Genebuilder name to filter by. If None, fetches any active record.
     Returns:
-        dict: Record with genebuild_status_id, gb_status, genebuilder, annotation_method, and other fields if found, else None
+        dict: Record with genebuild_status_id, gb_status, genebuilder, annotation_method, genebuild_version, and other fields if found, else None
     """
     if genebuilder:
         query = """
-        SELECT genebuild_status_id, gb_status, genebuilder, annotation_method
+        SELECT genebuild_status_id, gb_status, genebuilder, annotation_method, genebuild_version
         FROM genebuild_status
         WHERE gca_accession = %s AND genebuilder = %s AND last_attempt = 1
         """
         params = (assembly, genebuilder)
     else:
         query = """
-        SELECT genebuild_status_id, gb_status, genebuilder, annotation_method
+        SELECT genebuild_status_id, gb_status, genebuilder, annotation_method, genebuild_version
         FROM genebuild_status
         WHERE gca_accession = %s AND last_attempt = 1
         """
