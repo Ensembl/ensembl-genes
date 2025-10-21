@@ -205,7 +205,7 @@ def get_ensembl_live(accessions_taxon: Dict[str, Dict[str, int]]) -> Dict[str, D
         return {}
 
     query = """
-        SELECT assembly.accession, genome.genome_uuid, dataset_source.name AS database_name
+    SELECT assembly.accession, genome.genome_uuid, dataset_source.name AS database_name
         FROM genome
         JOIN assembly ON genome.assembly_id = assembly.assembly_id
         JOIN genome_dataset ON genome.genome_id = genome_dataset.genome_id
@@ -213,8 +213,8 @@ def get_ensembl_live(accessions_taxon: Dict[str, Dict[str, int]]) -> Dict[str, D
         JOIN dataset_source ON dataset.dataset_source_id = dataset_source.dataset_source_id
         JOIN genome_release ON genome.genome_id = genome_release.genome_id
         JOIN ensembl_release ON genome_release.release_id = ensembl_release.release_id
-        WHERE dataset.name = 'assembly'
-        AND assembly.accession IN ({})
+        WHERE dataset.name = 'genebuild'
+        AND assembly.accession IN ({}) 
     """.format(", ".join(["%s"] * len(accessions)))
 
     data_fetch = mysql_fetch_data(query, tuple(accessions))
@@ -340,6 +340,7 @@ def add_ftp(
             
             ftp_link = f"https://ftp.ebi.ac.uk/pub/ensemblorganisms/{scientific_name}/{accession}/ensembl/geneset/{date}/"
             annotation["ftp"] = ftp_link
+            annotation["date"] = date
                 
     return annotations
 
@@ -411,6 +412,7 @@ def write_report(
     live_annotations: Dict[str, Dict[str, str]],
     report_file: str,
     rank: str,
+    include_class: bool = False,
     include_ftp: bool = False
 ):
     """
@@ -457,18 +459,17 @@ def write_report(
                 str(accession),
                 str(details.get("guuid") or "unknown"),
                 str(details.get("dbname") or "unknown"),
-                str(details.get(rank) or "unknown"),
             ]
+            if include_class:
+                row.append(str(details.get(rank) or "unknown"))
             if include_ftp:
+                row.append(str(details.get("date")))
                 row.append(str(details.get("ftp") or "N/A"))
 
             file.write("\t".join(row) + "\n")
             lines_written += 1
 
     logging.info(f"Report written to {report_path.resolve()} with {lines_written} lines.")
-
-
-
     logging.info(f"Report written to {report_path.resolve()}.")
                 
                 
@@ -497,6 +498,7 @@ def main():
     parser.add_argument("--taxon_id", type=str, help="Taxonomy ID")
     parser.add_argument("--haploid", action="store_true", help="Fetch only haploid assemblies")
     parser.add_argument("--report_file", type=str, default="./report_file.csv")
+    parser.add_argument("--classification", action="store_true", help="Provide breakdown of taxonomic classification")
     parser.add_argument("--rank", type=str, default="order")
     parser.add_argument("--ftp", action="store_true", help="Include FTP links in the report")
     parser.add_argument("--pre_release", action="store_true", help="Include list of pre-release databases in the report")
@@ -513,7 +515,8 @@ def main():
     # Fetch annotations
     live_annotations, missing_annotations = get_ensembl_live(accessions_taxon)
     # Ensure taxonomic rank is added before any logic that depends on it
-    get_taxonomy_info(live_annotations, accessions_taxon, args.rank)
+    if args.classification:
+        get_taxonomy_info(live_annotations, accessions_taxon, args.rank)
     
     # Optionally add FTP links
     if args.ftp:
@@ -528,7 +531,8 @@ def main():
         for accession in pre_release_annotations:
             if accession in accessions_taxon:
                 pre_release_annotations[accession]["taxon_id"] = accessions_taxon[accession]["taxon_id"]
-        get_taxonomy_info(pre_release_annotations, accessions_taxon, args.rank)
+        if args.classification:
+            get_taxonomy_info(pre_release_annotations, accessions_taxon, args.rank)
 
         if args.ftp:
             pre_release_annotations = add_ftp(pre_release_annotations, 'pre')
@@ -544,14 +548,15 @@ def main():
     elif (args.taxon_id):
         print(f"Found {len(accessions_taxon)} assemblies for taxon ID {args.taxon_id}")
     print(f"Found {len(live_annotations)} annotations in beta.ensembl.org for {len(unique_taxon_ids)} unique species")
-        
-    rank_values = [details[args.rank] for details in live_annotations.values()]
-    rank_counts = Counter(rank_values)
-    print("\nBreakdown:")
-    print(rank_counts)
+
+    if args.classification:
+        rank_values = [details[args.rank] for details in live_annotations.values()]
+        rank_counts = Counter(rank_values)
+        print("\nBreakdown:")
+        print(rank_counts)
             
     # Write final report
-    write_report(all_annotations, args.report_file, args.rank, include_ftp=args.ftp)
+    write_report(all_annotations, args.report_file, args.rank, include_class=args.classification, include_ftp=args.ftp)
     
 
 
