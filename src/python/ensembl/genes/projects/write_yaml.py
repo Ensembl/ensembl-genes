@@ -271,13 +271,12 @@ def write_yaml(
     except KeyError:
         date = ''
     species_name = info_dict["species.scientific_name"].replace(" ", "_")
-
-    rm_species_name = species_name.lower()
+    species_name = species_name.replace(".", "")
+    lc_species_name = species_name.lower()
 
     if "species.strain" in info_dict and info_dict["species.strain"] != "reference":
         info_dict["species.scientific_name"] += f" ({info_dict['species.strain']})"
 
-    lc_species_name = info_dict["species.scientific_name"].replace(" ", "_").lower()
     uc_prod_name = info_dict["species.production_name"].capitalize()
 
     # Get submitter from assembly report
@@ -295,7 +294,7 @@ def write_yaml(
     # Start building YAML content
     yaml = f"- species: {info_dict['species.scientific_name']}\n"
 
-    if use_server == "st5" or use_server == "st6":
+    if use_server == "st5" or use_server == "st6" or use_server == "gb1":
         ftp_base = "https://ftp.ebi.ac.uk/pub/ensemblorganisms"
 
         if project in ("vgp", "dtol", "erga", "cbp", "bge", "asg"):
@@ -371,7 +370,7 @@ def write_yaml(
             if fb:
                 yaml += f"  softmasked_genome: {fb}\n"
         rm_file = ftp_client.check_for_file(
-            rm_species_name,
+            lc_species_name,
             info_dict["species.production_name"],
             info_dict["assembly.accession"],
             source,
@@ -410,6 +409,11 @@ def write_yaml(
                 )
                 if busco_file:
                     yaml += f"  busco_score: {busco_file}\n"
+            try:
+                yaml += f"  busco_lineage: {info_dict['genebuild.busco_dataset']}\n"
+            except KeyError:
+                if busco_file:
+                    yaml += f"  busco_lineage: {busco_file}\n"
             if alternate:
                 alternate_url = f"https://rapid.ensembl.org/{alternate}/Info/Index"
                 yaml += f"  alternate: {alternate_url}\n"
@@ -459,7 +463,7 @@ def write_yaml(
             f"{uc_prod_name}.{assembly_name}.dna_sm.toplevel.fa.gz\n"
         )
         rm_file = ftp_client.check_for_file(
-            rm_species_name,
+            lc_species_name,
             info_dict["species.production_name"],
             info_dict["assembly.accession"],
             source,
@@ -490,6 +494,11 @@ def write_yaml(
                 )
                 if busco_file:
                     yaml += f"  busco_score: {busco_file}\n"
+            try:
+                yaml += f"  busco_lineage: {info_dict['genebuild.busco_dataset']}\n"
+            except KeyError:
+                if busco_file:
+                    yaml += f"  busco_lineage: {busco_file}\n"
             if alternate:
                 alternate_url = f"https://rapid.ensembl.org/{alternate}/Info/Index"
                 yaml += f"  alternate: {alternate_url}\n"
@@ -641,7 +650,7 @@ def main() -> None:
                 "WHERE meta_key IN "
                 "('species.scientific_name','assembly.accession','assembly.name',"
                 "'species.production_name','species.strain','schema_version',"
-                "'genebuild.last_geneset_update','species.annotation_source','genebuild.busco') "
+                "'genebuild.last_geneset_update','species.annotation_source','genebuild.busco','genebuild.busco_dataset') "
                 "OR meta_key LIKE 'genebuild.method%'"
             )
             info = mysql_fetch_data(
@@ -698,7 +707,7 @@ def main() -> None:
 
             if chordate and icon == "Metazoa.png":
                 icon = "Chordates.png"
-
+                
             write_yaml(info_dict, icon, yaml_out, project, use_server, alternate, guuid, ftp_client)
 
     ftp_client.close_connections()

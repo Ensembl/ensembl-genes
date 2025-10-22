@@ -33,8 +33,8 @@ python bioproject_tracking.py -h
 ```
 usage: bioproject_tracking.py [-h] [--bioproject_id BIOPROJECT_ID]
                               [--taxon_id TAXON_ID] [--haploid]
-                              [--report_file REPORT_FILE] [--rank RANK]
-                              [--ftp]
+	                      [--report_file REPORT_FILE] [--classification]
+			      [--rank RANK] [--ftp] [--pre_release]
 
 This script fetches assembly accessions from NCBI BioProject and reports the
 number of corresponding annotations in the beta.ensembl.org metadata. It handles various
@@ -43,24 +43,22 @@ it.
 
 optional arguments:
   -h, --help            show this help message and exit
-  --bioproject_id BIOPROJECT_ID
-                        Specify the NCBI BioProject ID to fetch data for.
-  --taxon_id TAXON_ID   Specify the Taxonomy ID to fetch data for.
-  --haploid             Set this flag to fetch only haploid assemblies.
+  --bioproject_id BIOPROJECT_ID NCBI BioProject ID
+  --taxon_id TAXON_ID   Taxonomy ID
+  --haploid             Fetch only haploid assemblies
   --report_file REPORT_FILE
-                        Path to the output file where the report will be
-                        written. Defaults to "./report_file.csv".
-  --rank RANK           Taxonomic rank to classify. Default is "order".
-  --ftp                 Set this flag to report beta ftp links for the live
-                        genomes.
+  --classification      Provide breakdown of taxonomic classification [note: this will significantly slow down the script, only use if needed]
+  --rank RANK
+  --ftp                 Include FTP links in the report
+  --pre_release         Include list of pre-release databases in the report
 ```
 
 ## Example Usage
 
-You can combine flags to tailor your query. For example, to report the number of DToL assemblies for which you can find annotation on `beta.ensembl.org`, restricting to primary haplotypes (`--haploid`), and summarising by taxonomic class (`--rank class`):
+You can combine flags to tailor your query. For example, to report the number of DToL assemblies for which you can find annotation on `beta.ensembl.org`, restricting to primary haplotypes (`--haploid`), provding taxonmic classification (`--classification`) and summarising by taxonomic rank=class (`--rank class`):
 
 ```bash
-python bioproject_tracking.py --haploid PRJEB40665 --rank class --report_file ./dtol_rank_report_file.csv
+python bioproject_tracking.py --haploid PRJEB40665 --classification --rank class --report_file ./dtol_rank_report_file.csv
 ```
 
 Example output might look like:
@@ -77,9 +75,9 @@ Counter({'Insecta': 591, 'Mammalia': 10, 'Magnoliopsida': 6, 'Actinopteri': 5,
 ```
 
 1. **`--haploid`** ensures only haploid assemblies are reported.
-2. **`--report_file`** specifies where to save the tab-separated output.
+2. **`--classification`** tells the script to report taoxnomic classifications 
 3. **`--rank`** (e.g., `class`) tells the script which taxonomic rank to retrieve from NCBI.
-
+4. **`--report_file`** specifies where to save the tab-separated output.
 ---
 
 **Note**: Make sure you update the `bioproject_tracking_config.json` file with your specific MySQL credentials and NCBI API endpoint details before running the script.
