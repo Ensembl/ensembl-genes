@@ -243,6 +243,33 @@ def get_taxonomy_info(
     accessions_taxon: Dict[str, Dict[str, int]],
     rank: str
 ) -> Dict[str, Dict[str, Any]]:
+    """
+    Fetches taxonomy information for a given rank from the NCBI Datasets API.
+    For each accession in `live_annotations`, this function retrieves its `taxon_id`
+    and queries the NCBI taxonomy endpoint to get the classification at the specified rank.
+    The retrieved rank name is then added to the corresponding annotation data.
+    Args:
+        live_annotations (Dict[str, Dict[str, str]]): A dictionary where each key is
+            an assembly accession and its value contains annotation details (including
+            at least "taxon_id").
+        accessions_taxon (Dict[str, Dict[str, int]]): A dictionary mapping accessions
+            to basic taxon information, such as {"GCA_000001405.39": {"taxon_id": 9606}}.
+        rank (str): The taxonomic rank to retrieve (e.g., "order", "class", "phylum").
+    Returns:
+        Dict[str, Dict[str, str]]: The updated `live_annotations` dictionary with an
+        additional key for the requested rank. For example:
+            {
+                "GCA_000001405.39": {
+                    "taxon_id": 9606,
+                    "guuid": "some-uuid",
+                    "dbname": "ensembl_core",
+                    "order": "Primates"
+                },
+                ...
+            }
+        If the API query fails or the rank is not found, the value for that rank is not added
+        (or set to None/unknown).
+    """
     for accession in live_annotations:
         taxon_id = accessions_taxon[accession]["taxon_id"]
         url = f"https://api.ncbi.nlm.nih.gov/datasets/v2alpha/taxonomy/taxon/{taxon_id}/dataset_report"
@@ -346,13 +373,34 @@ def add_ftp(
 
     return annotations
 
-# -----------------------------------
-# Pre-release lookup
-# -----------------------------------
 def get_pre_release(missing_annotations: List[str]) -> Dict[str, Dict[str, str]]:
     """
-    Checks information_schema for pre-release databases matching the accession pattern.
-    Returns dict: {accession: {"guuid": "unknown", "dbname": "<schema>"}}
+    Checks for the existence of pre-release Ensembl database schemas for a list of missing accessions.
+    This function takes a list of GenBank/RefSeq assembly accessions that were not found in the
+    Ensembl live database lookup (e.g., from `get_ensembl_live`). It reformats each accession
+    to match the expected pre-release Ensembl database schema naming convention (e.g.,
+    'GCA_000001405.39' → 'gca000001405v39') and queries the MySQL server's 
+    `information_schema.schemata` table to check if a database with that name exists.
+    If such a schema is found, the function records the corresponding accession and
+    database name in the returned dictionary.
+    Args:
+        missing_annotations (List[str]): A list of assembly accessions (e.g., 'GCA_000001405.39')
+            for which no live annotation database was found.
+    Returns:
+        Dict[str, Dict[str, str]]: A dictionary mapping each accession with a found pre-release
+        database to a nested dictionary containing:
+            - "dbname": The name of the pre-release schema (e.g., 'gca000001405v39').
+        Example:
+            {
+                "GCA_000001405.39": {
+                    "dbname": "gca000001405v39"
+                },
+                ...
+            }
+    Notes:
+        - Only accessions matching the pattern 'GCA/GCF_XXXXXXXXX.XX' are processed.
+        - If no matching schema is found for an accession, it is omitted from the result.
+        - The function uses `mysql_fetch_data` to query the MySQL server's schema metadata.
     """
     pre_release_annotations: Dict[str, Dict[str, str]] = {}
 
@@ -429,12 +477,21 @@ def write_report(
 
     logging.info(f"Report written to {report_path.resolve()} with {lines_written} lines.")
 
-# -----------------------------------
-# Main
-# -----------------------------------
 def main():
     """
-    CLI entrypoint.
+    Main entry point of the script.
+    Parses command-line arguments to determine if a BioProject ID or Taxon ID is provided,
+    whether to filter only haploid assemblies, the desired output file path, the taxonomic
+    rank to retrieve, and whether to include FTP links. It then:
+      1. Fetches assembly accessions from the NCBI API based on the provided ID.
+      2. Fetches corresponding Ensembl live database information from the local MySQL database.
+      3. Retrieves taxonomy information for the specified rank from the NCBI API.
+      4. Optionally adds FTP links if requested.
+      5. Writes all collected data into a tab-separated report file.
+    Usage Example:
+        python script_name.py --bioproject_id PRJNA12345 --haploid --rank order --ftp
+    Returns:
+        None
     """
     parser = argparse.ArgumentParser(description="Fetch assembly data and report annotations.")
     parser.add_argument("--bioproject_id", type=str, help="NCBI BioProject ID")
