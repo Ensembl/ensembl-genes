@@ -38,11 +38,11 @@ vim user_pipeline_settings.json
 vim gcas
 
 # Run script to collect info and initialise pipeline
-python3 path/to/software/dir/ensembl-genes/src/python/ensembl/genes/info_from_registry/genebuild_init_pipeline.py --gcas gcas --settings_file user_pipeline_settings.json 
+python3 path/to/software/dir/ensembl-genes/src/python/ensembl/genes/info_from_registry/genebuild_start_pipeline.py --gcas gcas --settings_file user_pipeline_settings.json 
 ```
 
 #### Expected behaviour
-The script will create a json for all provided GCAs. This file will contain all parameters needed to start the annotation pipeline. Based on the JSON an eHIVE pipline will be initialised (with force option!). Finally, GCAs are seeded into the pipeline (into analysis 1 by default) for anno. The script checks if a given GCA was annotated before. If it was it will throw an error. Please use `genebuild = 1` option to override behaviour. The script also assigns `stable ID` and writes it back to the registry. Clade settings can be found in the `clade_settings.json` file. Clade is assigned based on lowest taxon ID. `init_file` can be used to supress most behaviour and load from a file.
+The script will create a json for all provided GCAs. This file will contain all parameters needed to start the annotation pipeline. Based on the JSON an eHIVE pipline will be initialised (with force option!). Finally, GCAs are seeded into the pipeline (into analysis 1 by default) for anno. The script checks if a given GCA was annotated before. If it was it will throw an error. Please use `genebuild = 1` option to override behaviour. The script also assigns `stable ID` and writes it back to the registry. Clade settings can be found in the `clade_settings.json` file. Clade is assigned based on lowest taxon ID. `init_file` can be used to supress most behaviour and load from a file. Optional: if `seed_url` is provided, the provided pipeline will be seeded. Initialisation is skipped.
 
 
 ## Breakdown of files and scripts 
@@ -71,8 +71,8 @@ Function to check stable space in the old registry. Will be deprecated once old 
 `create_config.py`
 Copies and edits config file specified in anno_settings.json or main_settings.json.
 
-`genebuild_init_pipeline.py`
-Main script that initialises (and seeds anno pipeline) after gathering all information. Args: gcas (str): Path to file containing GCA accessions (one per line), settings_file (str): Path to settings file (JSON).
+`genebuild_start_pipeline.py`
+Main script that initialises (and seeds anno pipeline) after gathering all information. Args: gcas (str): Path to file containing GCA accessions (one per line), settings_file (str): Path to settings file (JSON), seed_url (str): EHIVE URL to already existing pipeline.
 
 `main_settings.json`
 Contains basic settings for pipeline.
