@@ -75,7 +75,7 @@ def check_if_annotated(assembly_accession, server_info):
             logger.error(f"\n Annotation already exists for GCA: {gca}")
             logger.error(f"   Status     : {gb_status}")
             logger.error(f"   Genebuilder: {genebuilder}")
-        raise RuntimeError("Terminating: One or more assemblies are already annotated. Please set curent_genebuild to 1 in user_settings.json if you wish to proceed.")
+        raise RuntimeError("Terminating: One or more assemblies are already annotated. Please set current_genebuild to 1 in user_settings.json if you wish to proceed.")
 
     logger.info("Start check complete: %s", assembly_accession)
     return None
