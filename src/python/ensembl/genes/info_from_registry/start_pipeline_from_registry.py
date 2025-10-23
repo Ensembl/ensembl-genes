@@ -895,6 +895,16 @@ def main(gcas, settings_file):
             output_params["stable_id_start"] = get_stable_space(
                 output_params["taxon_id"], gca, output_params["assembly_id"], server_info
             )
+            #Create directories
+            create_dir(output_params["output_path"])
+            dirs_to_create = [output_params["genome_files_dir"], output_params["short_read_dir"], output_params["long_read_dir"], output_params["gst_dir"]]
+
+            for d in dirs_to_create:
+                try:
+                    os.makedirs(d, exist_ok=True)
+                except Exception as e:
+                    raise RuntimeError(f"Failed to create dir: {d}") from e
+
 
         # Store output params
         output_params["pipeline"] = pipeline_type
