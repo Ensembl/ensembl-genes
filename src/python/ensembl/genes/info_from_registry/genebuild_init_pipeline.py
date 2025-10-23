@@ -117,13 +117,14 @@ def init_pipeline_main(config_file: str, hive_force_init: int = 1) -> str:
         raise
     
 
-def main(gcas: str, settings_file: str):
+def main(gcas: str, settings_file: str, seed_url: str):
     """
     Main execution logic: extract metadata, initialize the pipeline, and seed jobs.
 
     Args:
         gcas (str): Path to file containing GCA accessions (one per line).
         settings_file (str): Path to settings file (JSON).
+        seed_url (str): Existing URL to seed the pipeline. If provided initialisation will be skipped.
 
     Raises:
         FileNotFoundError: If no config file is found.
@@ -133,35 +134,41 @@ def main(gcas: str, settings_file: str):
     #Get info and create input JSON
     server_info, all_output_params, saved_paths = info(gcas, settings_file)
 
+
     #Save EHIVE URLs
     ehive_urls = {}
 
-    #Initialise pipeline
+    #Anno
     if saved_paths.get("anno"):
-        first_key = next(iter(all_output_params))
-        output_path = Path(all_output_params[first_key]["output_path"])
-        parent_dir = output_path.parent
-        conf_files = list(parent_dir.glob("*_conf.pm"))
+        json_file = saved_paths["anno"]
 
-        if not conf_files:
-            raise FileNotFoundError(f"No .conf file found in {parent_dir}")
-        elif len(conf_files) > 1:
-            raise RuntimeError(f"Multiple .conf files found in {parent_dir}: {conf_files}")
-        
-        conf_path = conf_files[0]
-        logger.info(f"Config found at {conf_path}")
+        if seed_url:
+            logger.info("Skipping pipeline initialisation.")
+            logger.info("Using provided seed URL: %s", seed_url)
+            ehive_urls["anno"] = seed_url
+        else:
+            logger.info("No seed URL provided. Initialising new pipeline.")
+            first_key = next(iter(all_output_params))
+            output_path = Path(all_output_params[first_key]["output_path"])
+            parent_dir = output_path.parent
+            conf_files = list(parent_dir.glob("*_conf.pm"))
 
-        ehive_url = init_pipeline_anno(conf_path)
-        ehive_urls["anno"] = ehive_url
-        logger.info(f"Extracted EHIVE_URL: {ehive_url}")
+            if not conf_files:
+                raise FileNotFoundError(f"No .conf file found in {parent_dir}")
+            if len(conf_files) > 1:
+                raise RuntimeError(f"Multiple .conf files found in {parent_dir}: {conf_files}")
 
-        #Update registry path in pipeline DB
-        update_registry_path_in_pipedb(parent_dir, server_info)
+            conf_path = conf_files[0]
+            logger.info(f"Config found at {conf_path}")
 
-    
-        #Seed pipeline
-        json_file = saved_paths["anno"]  # Path object
+            ehive_url = init_pipeline_anno(conf_path)
+            ehive_urls["anno"] = ehive_url
+            logger.info(f"Extracted EHIVE_URL: {ehive_url}")
 
+            update_registry_path_in_pipedb(parent_dir, server_info)
+            seed_url = ehive_url  # unify below
+
+        # Common seeding step
         logger.info(f"Seeding non-vertebrate pipeline from {json_file}")
         with open(json_file) as f:
             params = json.load(f)
@@ -169,7 +176,7 @@ def main(gcas: str, settings_file: str):
         seed_jobs_from_json(
             json_file=params,
             analysis_id=1,
-            ehive_url=ehive_url)
+            ehive_url=seed_url)
 
 
     # --- Handle main (one JSON per GCA) ---
@@ -192,9 +199,15 @@ def main(gcas: str, settings_file: str):
             ehive_urls["main"][gca] = ehive_url
             logger.info(f"Extracted EHIVE_URL for {gca}: {ehive_url}")
 
-
-    print("EHIVE_URL:", ehive_urls)
     logger.info(f"Initalised pipelines. EHIVE_URL(s): {ehive_urls}")
+
+    output_dir_current = Path.cwd()
+    ehive_url_file = output_dir_current / "ehive_urls.json"
+
+    with open(ehive_url_file, "w") as f:
+        json.dump(ehive_urls, f, indent=2)
+
+    logger.info(f"Saved EHIVE URLs to {ehive_url_file}")
 
     return ehive_urls
 
@@ -216,7 +229,14 @@ if __name__ == "__main__":
         help="Path to file containing edited settings."
     )
 
+    parser.add_argument(
+        "--seed_url",
+        type=str,
+        required=False,
+        help="Pipeline seed URL. If provided initialisation will be skipped."
+    )
+
     args = parser.parse_args()
 
-    ehive_urls = main(args.gcas, args.settings_file)
+    ehive_urls = main(args.gcas, args.settings_file, args.seed_url)
 
