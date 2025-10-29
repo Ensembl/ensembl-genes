@@ -389,6 +389,9 @@ def add_generated_data(server_info: dict, assembly_accession: str, settings: dic
     # Create variables for pipeline
     info_dict["strain_type"] = "strain"
 
+    if "assembly_name" in registry_info and " " in registry_info["assembly_name"]:
+        registry_info["assembly_name"] = registry_info["assembly_name"].replace(" ", "_")
+
     if "alternate_haplotype" in registry_info.get("assembly_name", ""):
         info_dict["common_name"] = "alternate haplotype"
         info_dict["species_strain"] = "alternate haplotype"
