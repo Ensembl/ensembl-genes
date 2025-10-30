@@ -48,7 +48,7 @@ def build_annotation_commands(core_adaptor: dict, output_params: dict, anno_sett
         )
 
     if anno_settings.get("validation_type"):
-        anno_commandline += f" --validation_type {output_params['validation_type']}"
+        anno_commandline += f" --validation_type {anno_settings['validation_type']}"
 
     anno_commandline += " --run_full_annotation --load_to_ensembl_db"
 
