@@ -1,6 +1,7 @@
 {
   "diamond_validation_db": "/hps/nobackup/flicek/ensembl/genebuild/blastdb/uniprot_euk_diamond/uniprot_euk.fa.dmnd",
   "num_threads": "20",
+  "validation_type": "moderate",
   "use_existing_short_read_dir": "",
   "use_existing_repeatmodeler_library": "",
   "rnaseq_main_file_min_lines": "5",

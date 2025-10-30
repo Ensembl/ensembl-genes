@@ -47,7 +47,7 @@ def build_annotation_commands(core_adaptor: dict, output_params: dict, anno_sett
             f" --diamond_validation_db {anno_settings['diamond_validation_db']}"
         )
 
-    if output_params.get("validation_type"):
+    if anno_settings.get("validation_type"):
         anno_commandline += f" --validation_type {output_params['validation_type']}"
 
     anno_commandline += " --run_full_annotation --load_to_ensembl_db"

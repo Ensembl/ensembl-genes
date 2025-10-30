@@ -880,7 +880,7 @@ def main(gcas, settings_file):
                 "host": server_info["core_db"]["db_host"],
                 "port": server_info["core_db"]["db_port"],
                 "dbname": info_dict["core_dbname"],
-                "user": settings["user_r"],
+                "user": settings["user"],
                 "pass": settings["password"],
                 "species": info_dict["production_name"],
                 "group": "core",
