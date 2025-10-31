@@ -826,7 +826,7 @@ def main(gcas, settings_file):
             create_dir(output_params["output_path"])
             edit_config_main(main_settings, output_params, pipeline_type)
 
-            projection_source_info = current_projection_source_db(output_params["projection_source_db_name"])
+            projection_source_info = current_projection_source_db(output_params["projection_source_production_name"])
             output_params.update(projection_source_info)  # Adds db_name, server, port to output_params
 
             output_params["stable_id_prefix"] = get_species_prefix(output_params["taxon_id"], server_info)
