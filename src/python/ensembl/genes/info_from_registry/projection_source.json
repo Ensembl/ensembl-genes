@@ -1,16 +1,16 @@
 {
   "homo_sapiens": {
-    "projection_source_db": "homo_sapiens_core_110_38",
+    "projection_source_db_name": "homo_sapiens_core_110_38",
     "projection_source_db_host": "mysql-ens-sta-6",
     "projection_source_db_port": 4695
   },
   "mus_musculus": {
-    "projection_source_db": "mus_musculus_core_110_39",
+    "projection_source_db_name": "mus_musculus_core_110_39",
     "projection_source_db_host": "mysql-ens-sta-6",
     "projection_source_db_port": 4695
   },
   "danio_rerio": {
-    "projection_source_db": "danio_rerio_core_110_11",
+    "projection_source_db_name": "danio_rerio_core_110_11",
     "projection_source_db_host": "mysql-ens-sta-5",
     "projection_source_db_port": 4684
   }
