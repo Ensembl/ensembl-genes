@@ -1,0 +1,5 @@
+production_name,genome_uuid,meta_key,desired_meta_value,dataset_type,species_id,table_location
+homo_sapiens,,assembly.name,GRCh38.p14,genebuild,1,dataset_attribute
+,a7335667-93e7-11ec-a39d-005056b38ce3,organism.strain,Reference,genebuild,1,genome
+mus_musculus,,genebuild.version,ENS02,genebuild,1,dataset_attribute
+danio_rerio,,assembly.provider_name,Ensembl,genebuild,1,dataset_attribute
