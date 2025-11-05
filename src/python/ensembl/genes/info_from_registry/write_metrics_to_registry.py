@@ -28,10 +28,10 @@ def fetch_core_metrics(core_connection, species_id):
     SELECT meta_key, meta_value
     FROM meta
     WHERE species_id=%s AND (
-        meta_key LIKE 'assembly.busco%%' OR
-        meta_key LIKE 'assembly.stats.%%' OR
-        meta_key LIKE 'genebuild.busco%%' OR
-        meta_key LIKE 'genebuild.stats.%%' OR
+        meta_key LIKE 'assembly.busco%' OR
+        meta_key LIKE 'assembly.stats.%' OR
+        meta_key LIKE 'genebuild.busco%' OR
+        meta_key LIKE 'genebuild.stats.%' OR
         meta_key = 'genebuild.last_geneset_update'
     )
     """
@@ -79,10 +79,10 @@ def write_assembly_metrics(registry_connection, assembly_id, rows, dev):
         print("No assembly metrics to write")
         return
 
+    # Delete only the specific metrics we're about to insert
     delete_query = """
     DELETE FROM assembly_metrics
-    WHERE assembly_id=%s
-    AND (metrics_name LIKE 'assembly.busco%%' OR metrics_name LIKE 'assembly.stats.%%')
+    WHERE assembly_id=%s AND metrics_name=%s
     """
 
     insert_query = """
@@ -92,12 +92,14 @@ def write_assembly_metrics(registry_connection, assembly_id, rows, dev):
 
     if dev:
         print("Would execute:")
-        print(delete_query % (assembly_id,))
         for name, value in rows:
+            print(delete_query % (assembly_id, name))
             print(insert_query % (assembly_id, name, value))
     else:
         with registry_connection.cursor() as cursor:
-            cursor.execute(delete_query, (assembly_id,))
+            # Delete each specific metric, then insert
+            for name, value in rows:
+                cursor.execute(delete_query, (assembly_id, name))
             cursor.executemany(insert_query, [(assembly_id, name, value) for name, value in rows])
         print(f"Wrote {len(rows)} assembly metrics for assembly_id {assembly_id}")
 
@@ -123,7 +125,7 @@ def write_genebuild_metrics(registry_connection, genebuild_status_id, rows, dev)
     delete_query = """
     DELETE FROM genebuild_metrics
     WHERE genebuild_id=%s
-    AND (metrics_name LIKE 'genebuild.busco%%' OR metrics_name LIKE 'genebuild.stats.%%' OR metrics_name = 'genebuild.last_geneset_update')
+    AND (metrics_name LIKE 'genebuild.busco%' OR metrics_name LIKE 'genebuild.stats.%' OR metrics_name = 'genebuild.last_geneset_update')
     """
 
     insert_query = """
