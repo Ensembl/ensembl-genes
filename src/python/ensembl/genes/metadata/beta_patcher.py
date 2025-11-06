@@ -318,7 +318,7 @@ def _core_db_where(meta_key: str, species_id: int) -> str:
 def generate_core_db_patch(
     output_dir: Path,
     database: str,
-    patches: List[Tuple[str, str]],
+    patches: List[Tuple[str, str, str]],
     species_id: int = 1,
     jira_ticket: str = ""
 ) -> tuple[Path, Path]:
@@ -328,7 +328,7 @@ def generate_core_db_patch(
     Args:
         output_dir: Output directory for patch files
         database: Core database name
-        patches: List of (meta_key, new_value) tuples
+        patches: List of (meta_key, new_value, table_location) tuples (table_location ignored for core DB)
         species_id: Species ID
         jira_ticket: Jira ticket reference (e.g., EBD-1111)
 
@@ -346,7 +346,7 @@ def generate_core_db_patch(
         f.write(f"-- Validation: {database} | species_id={species_id} | {jira_ticket} | {datetime.now().isoformat()}\n")
         f.write(f"USE {database};\n\n")
 
-        for meta_key, new_value in patches:
+        for meta_key, new_value, _table_location in patches:
             escaped_value = new_value.replace("'", "''")
             f.write(f"-- {meta_key}\n")
             f.write(f"SELECT '{meta_key}' AS meta_key, meta_value AS current_value, ")
@@ -361,7 +361,7 @@ def generate_core_db_patch(
         f.write(f"-- Validate first: {validate_filename}\n")
         f.write(f"USE {database};\n\n")
 
-        for meta_key, new_value in patches:
+        for meta_key, new_value, _table_location in patches:
             escaped_value = new_value.replace("'", "''")
             f.write(f"-- {meta_key}\n")
             f.write("UPDATE meta\n")
