@@ -208,103 +208,78 @@ def _metadata_db_where(genome_uuid: str, dataset_type: str, attribute_name: str)
     )
 
 
-def generate_metadata_db_patch(
-    output_dir: Path,
+def write_metadata_patch_for_genome(
+    validate_file,
+    patch_file,
     genome_uuid: str,
     patches: List[Tuple[str, str, str]],
-    dataset_type: str = "genebuild",
-    jira_ticket: str = ""
-) -> tuple[Path, Path]:
+    dataset_type: str = "genebuild"
+):
     """
-    Generate SQL patch file for production metadata database.
+    Write validation and patch SQL for a single genome to open file handles.
 
     Args:
-        output_dir: Output directory for patch files
+        validate_file: Open file handle for validation SQL
+        patch_file: Open file handle for patch SQL
         genome_uuid: Genome UUID
         patches: List of (attribute_name, new_value, table_location) tuples
         dataset_type: Dataset type (genebuild, assembly, etc.)
-        jira_ticket: Jira ticket reference (e.g., EBD-1111)
-
-    Returns:
-        Tuple of (patch_filepath, validation_filepath)
     """
-    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-    patch_filename = f"patch_metadata_{genome_uuid}.sql"
-    validate_filename = f"validate_metadata_{genome_uuid}.sql"
-    patch_filepath = output_dir / patch_filename
-    validate_filepath = output_dir / validate_filename
+    for attribute_name, new_value, table_location in patches:
+        escaped_value = new_value.replace("'", "''")
 
-    # Generate validation SELECT file
-    with open(validate_filepath, 'w') as f:
-        f.write(f"-- Validation: {genome_uuid} | {dataset_type} | {jira_ticket} | {datetime.now().isoformat()}\n")
-        f.write("USE ensembl_genome_metadata;\n\n")
+        # Write validation SQL
+        validate_file.write(f"-- {genome_uuid} | {attribute_name} (table: {table_location})\n")
+        if table_location == 'dataset_attribute':
+            validate_file.write("SELECT genome.genome_uuid, dataset_attribute.value AS current_value, ")
+            validate_file.write(f"'{escaped_value}' AS proposed_value\n")
+            validate_file.write("FROM dataset_attribute\n")
+            validate_file.write(_metadata_db_joins())
+            validate_file.write("\n")
+            validate_file.write(_metadata_db_where(genome_uuid, dataset_type, attribute_name))
+            validate_file.write(";\n\n")
+        elif table_location == 'genome':
+            column_name = attribute_name.split('.')[-1]
+            validate_file.write(f"SELECT genome.genome_uuid, genome.{column_name} AS current_value, ")
+            validate_file.write(f"'{escaped_value}' AS proposed_value\n")
+            validate_file.write("FROM genome\n")
+            validate_file.write(f"WHERE genome.genome_uuid = '{genome_uuid}';\n\n")
+        else:
+            validate_file.write(f"-- WARNING: Unknown table_location '{table_location}'\n")
+            validate_file.write(f"-- Manual validation required for {attribute_name}\n\n")
 
-        for attribute_name, new_value, table_location in patches:
-            escaped_value = new_value.replace("'", "''")
-            f.write(f"-- {attribute_name} (table: {table_location})\n")
+        # Write patch SQL
+        patch_file.write(f"-- {genome_uuid} | {attribute_name} (table: {table_location})\n")
+        if table_location == 'dataset_attribute':
+            # DELETE existing attribute value (if exists)
+            patch_file.write("DELETE dataset_attribute FROM dataset_attribute\n")
+            patch_file.write(_metadata_db_joins())
+            patch_file.write("\n")
+            patch_file.write(_metadata_db_where(genome_uuid, dataset_type, attribute_name))
+            patch_file.write(";\n\n")
 
-            if table_location == 'dataset_attribute':
-                f.write("SELECT genome.genome_uuid, dataset_attribute.value AS current_value, ")
-                f.write(f"'{escaped_value}' AS proposed_value\n")
-                f.write("FROM dataset_attribute\n")
-                f.write(_metadata_db_joins())
-                f.write("\n")
-                f.write(_metadata_db_where(genome_uuid, dataset_type, attribute_name))
-                f.write(";\n\n")
-            elif table_location == 'genome':
-                # Validation for genome table - need to map attribute name to column name
-                column_name = attribute_name.split('.')[-1]  # e.g., organism.strain -> strain
-                f.write(f"SELECT genome.genome_uuid, genome.{column_name} AS current_value, ")
-                f.write(f"'{escaped_value}' AS proposed_value\n")
-                f.write("FROM genome\n")
-                f.write(f"WHERE genome.genome_uuid = '{genome_uuid}';\n\n")
-            else:
-                f.write(f"-- WARNING: Unknown table_location '{table_location}'\n")
-                f.write(f"-- Manual validation required for {attribute_name}\n\n")
+            # INSERT new attribute value
+            patch_file.write("INSERT INTO dataset_attribute (dataset_id, attribute_id, value)\n")
+            patch_file.write("SELECT dataset.dataset_id, attribute.attribute_id, ")
+            patch_file.write(f"'{escaped_value}'\n")
+            patch_file.write("FROM dataset\n")
+            patch_file.write("JOIN genome_dataset ON dataset.dataset_id = genome_dataset.dataset_id\n")
+            patch_file.write("JOIN genome ON genome_dataset.genome_id = genome.genome_id\n")
+            patch_file.write("JOIN attribute ON attribute.name = ")
+            patch_file.write(f"'{attribute_name}'\n")
+            patch_file.write(f"WHERE genome.genome_uuid = '{genome_uuid}'\n")
+            patch_file.write(f"AND dataset.name = '{dataset_type}'")
+            patch_file.write(";\n\n")
 
-    # Generate patch file using DELETE + INSERT (handles both existing and missing attributes)
-    with open(patch_filepath, 'w') as f:
-        f.write(f"-- Patch: {genome_uuid} | {dataset_type} | {jira_ticket} | {datetime.now().isoformat()}\n")
-        f.write(f"-- Validate first: {validate_filename}\n")
-        f.write("USE ensembl_genome_metadata;\n\n")
+        elif table_location == 'genome':
+            column_name = attribute_name.split('.')[-1]
+            patch_file.write("UPDATE genome\n")
+            patch_file.write(f"SET {column_name} = '{escaped_value}'\n")
+            patch_file.write(f"WHERE genome_uuid = '{genome_uuid}';\n\n")
 
-        for attribute_name, new_value, table_location in patches:
-            escaped_value = new_value.replace("'", "''")
-            f.write(f"-- {attribute_name} (table: {table_location})\n")
-
-            if table_location == 'dataset_attribute':
-                # DELETE existing attribute value (if exists)
-                f.write("DELETE dataset_attribute FROM dataset_attribute\n")
-                f.write(_metadata_db_joins())
-                f.write("\n")
-                f.write(_metadata_db_where(genome_uuid, dataset_type, attribute_name))
-                f.write(";\n\n")
-
-                # INSERT new attribute value
-                f.write("INSERT INTO dataset_attribute (dataset_id, attribute_id, value)\n")
-                f.write("SELECT dataset.dataset_id, attribute.attribute_id, ")
-                f.write(f"'{escaped_value}'\n")
-                f.write("FROM dataset\n")
-                f.write("JOIN genome_dataset ON dataset.dataset_id = genome_dataset.dataset_id\n")
-                f.write("JOIN genome ON genome_dataset.genome_id = genome.genome_id\n")
-                f.write("JOIN attribute ON attribute.name = ")
-                f.write(f"'{attribute_name}'\n")
-                f.write(f"WHERE genome.genome_uuid = '{genome_uuid}'\n")
-                f.write(f"AND dataset.name = '{dataset_type}'")
-                f.write(";\n\n")
-
-            elif table_location == 'genome':
-                # UPDATE genome table directly
-                column_name = attribute_name.split('.')[-1]  # e.g., organism.strain -> strain
-                f.write("UPDATE genome\n")
-                f.write(f"SET {column_name} = '{escaped_value}'\n")
-                f.write(f"WHERE genome_uuid = '{genome_uuid}';\n\n")
-
-            else:
-                f.write(f"-- ERROR: Unknown table_location '{table_location}'\n")
-                f.write(f"-- Manual SQL required for {attribute_name}\n\n")
-
-    return patch_filepath, validate_filepath
+        else:
+            patch_file.write(f"-- ERROR: Unknown table_location '{table_location}'\n")
+            patch_file.write(f"-- Manual SQL required for {attribute_name}\n\n")
 
 
 def _core_db_where(meta_key: str, species_id: int) -> str:
@@ -315,62 +290,44 @@ def _core_db_where(meta_key: str, species_id: int) -> str:
     )
 
 
-def generate_core_db_patch(
-    output_dir: Path,
+def write_core_patch_for_genome(
+    validate_file,
+    patch_file,
     database: str,
     patches: List[Tuple[str, str, str]],
-    species_id: int = 1,
-    jira_ticket: str = ""
-) -> tuple[Path, Path]:
+    species_id: int = 1
+):
     """
-    Generate SQL patch file for core database.
+    Write validation and patch SQL for a single core database to open file handles.
 
     Args:
-        output_dir: Output directory for patch files
+        validate_file: Open file handle for validation SQL
+        patch_file: Open file handle for patch SQL
         database: Core database name
         patches: List of (meta_key, new_value, table_location) tuples (table_location ignored for core DB)
         species_id: Species ID
-        jira_ticket: Jira ticket reference (e.g., EBD-1111)
-
-    Returns:
-        Tuple of (patch_filepath, validation_filepath)
     """
-    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-    patch_filename = f"patch_core_{database}_{timestamp}.sql"
-    validate_filename = f"validate_core_{database}_{timestamp}.sql"
-    patch_filepath = output_dir / patch_filename
-    validate_filepath = output_dir / validate_filename
+    for meta_key, new_value, _table_location in patches:
+        escaped_value = new_value.replace("'", "''")
 
-    # Generate validation SELECT file
-    with open(validate_filepath, 'w') as f:
-        f.write(f"-- Validation: {database} | species_id={species_id} | {jira_ticket} | {datetime.now().isoformat()}\n")
-        f.write(f"USE {database};\n\n")
+        # Write validation SQL
+        validate_file.write(f"-- {database} | {meta_key}\n")
+        validate_file.write(f"USE {database};\n")
+        validate_file.write(f"SELECT '{meta_key}' AS meta_key, meta_value AS current_value, ")
+        validate_file.write(f"'{escaped_value}' AS proposed_value\n")
+        validate_file.write("FROM meta\n")
+        validate_file.write(_core_db_where(meta_key, species_id))
+        validate_file.write(";\n\n")
 
-        for meta_key, new_value, _table_location in patches:
-            escaped_value = new_value.replace("'", "''")
-            f.write(f"-- {meta_key}\n")
-            f.write(f"SELECT '{meta_key}' AS meta_key, meta_value AS current_value, ")
-            f.write(f"'{escaped_value}' AS proposed_value\n")
-            f.write("FROM meta\n")
-            f.write(_core_db_where(meta_key, species_id))
-            f.write(";\n\n")
-
-    # Generate UPDATE patch file
-    with open(patch_filepath, 'w') as f:
-        f.write(f"-- Patch: {database} | species_id={species_id} | {jira_ticket} | {datetime.now().isoformat()}\n")
-        f.write(f"-- Validate first: {validate_filename}\n")
-        f.write(f"USE {database};\n\n")
-
-        for meta_key, new_value, _table_location in patches:
-            escaped_value = new_value.replace("'", "''")
-            f.write(f"-- {meta_key}\n")
-            f.write("UPDATE meta\n")
-            f.write(f"SET meta_value = '{escaped_value}'\n")
-            f.write(_core_db_where(meta_key, species_id))
-            f.write(";\n\n")
-            f.write(f"INSERT IGNORE INTO meta (species_id, meta_key, meta_value)\n")
-            f.write(f"VALUES ({species_id}, '{meta_key}', '{escaped_value}');\n\n")
-    return patch_filepath, validate_filepath
+        # Write patch SQL
+        patch_file.write(f"-- {database} | {meta_key}\n")
+        patch_file.write(f"USE {database};\n")
+        patch_file.write("UPDATE meta\n")
+        patch_file.write(f"SET meta_value = '{escaped_value}'\n")
+        patch_file.write(_core_db_where(meta_key, species_id))
+        patch_file.write(";\n\n")
+        patch_file.write(f"INSERT IGNORE INTO meta (species_id, meta_key, meta_value)\n")
+        patch_file.write(f"VALUES ({species_id}, '{meta_key}', '{escaped_value}');\n\n")
 
 
 def read_csv_patches(csv_file: Path, core_suffix: str = "_core_114_1") -> List[Dict]:
@@ -538,33 +495,80 @@ def group_patches_by_genome(patches: List[Dict], logger: logging.Logger, jira_ti
     return grouped
 
 
-def process_genome_patches(genome_data: Dict, output_dir: Path, logger: logging.Logger) -> bool:
+def generate_all_patches(
+    grouped_patches: Dict[str, Dict],
+    output_dir: Path,
+    jira_ticket: str,
+    logger: logging.Logger
+) -> bool:
     """
-    Process all patches for a single genome.
+    Generate consolidated patch files for all genomes.
 
     Args:
-        genome_data: Dictionary containing genome info and patches
+        grouped_patches: Dictionary of genome patches grouped by UUID
         output_dir: Output directory for patch files
+        jira_ticket: Jira ticket reference
         logger: Logger instance
 
     Returns:
         True if successful, False otherwise
     """
-    genome_uuid = genome_data['genome_uuid']
-    production_name = genome_data['production_name']
-    core_db_name = genome_data['core_db_name']
-    patches = genome_data['patches']
-    row_nums = genome_data['row_nums']
-    jira_ticket = genome_data['jira_ticket']
+    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
 
-    logger.info(f"{production_name} ({genome_uuid}): {len(patches)} patches from rows {row_nums}")
+    # Metadata DB files
+    metadata_patch_file = output_dir / f"patch_metadata_{jira_ticket}_{timestamp}.sql"
+    metadata_validate_file = output_dir / f"validate_metadata_{jira_ticket}_{timestamp}.sql"
+
+    # Core DB files
+    core_patch_file = output_dir / f"patch_core_{jira_ticket}_{timestamp}.sql"
+    core_validate_file = output_dir / f"validate_core_{jira_ticket}_{timestamp}.sql"
 
     try:
-        generate_metadata_db_patch(output_dir, genome_uuid, patches, genome_data['dataset_type'], jira_ticket)
-        generate_core_db_patch(output_dir, core_db_name, patches, genome_data['species_id'], jira_ticket)
+        # Write metadata patches
+        with open(metadata_validate_file, 'w') as val_f, open(metadata_patch_file, 'w') as patch_f:
+            val_f.write(f"-- Validation: Metadata DB | {jira_ticket} | {datetime.now().isoformat()}\n")
+            val_f.write("USE ensembl_genome_metadata;\n\n")
+
+            patch_f.write(f"-- Patch: Metadata DB | {jira_ticket} | {datetime.now().isoformat()}\n")
+            patch_f.write(f"-- Validate first: {metadata_validate_file.name}\n")
+            patch_f.write("USE ensembl_genome_metadata;\n\n")
+
+            for genome_uuid, genome_data in grouped_patches.items():
+                production_name = genome_data['production_name']
+                patches = genome_data['patches']
+                logger.info(f"  Metadata: {production_name} ({genome_uuid}): {len(patches)} patches")
+
+                write_metadata_patch_for_genome(
+                    val_f, patch_f, genome_uuid, patches, genome_data['dataset_type']
+                )
+
+        # Write core patches
+        with open(core_validate_file, 'w') as val_f, open(core_patch_file, 'w') as patch_f:
+            val_f.write(f"-- Validation: Core DBs | {jira_ticket} | {datetime.now().isoformat()}\n\n")
+
+            patch_f.write(f"-- Patch: Core DBs | {jira_ticket} | {datetime.now().isoformat()}\n")
+            patch_f.write(f"-- Validate first: {core_validate_file.name}\n\n")
+
+            for genome_uuid, genome_data in grouped_patches.items():
+                production_name = genome_data['production_name']
+                core_db_name = genome_data['core_db_name']
+                patches = genome_data['patches']
+                logger.info(f"  Core: {core_db_name}: {len(patches)} patches")
+
+                write_core_patch_for_genome(
+                    val_f, patch_f, core_db_name, patches, genome_data['species_id']
+                )
+
+        logger.info(f"Generated files:")
+        logger.info(f"  {metadata_validate_file}")
+        logger.info(f"  {metadata_patch_file}")
+        logger.info(f"  {core_validate_file}")
+        logger.info(f"  {core_patch_file}")
+
         return True
+
     except Exception as e:
-        logger.error(f"  Failed: {e}")
+        logger.error(f"Failed to generate patches: {e}")
         return False
 
 
@@ -683,18 +687,13 @@ See patches_template.csv for a complete example.
         logger.error("No valid patches to process after grouping")
         return 1
 
-    # Process each genome
-    success_count = 0
-    error_count = 0
-
-    for genome_uuid, genome_data in grouped_patches.items():
-        if process_genome_patches(genome_data, args.output_dir, logger):
-            success_count += 1
-        else:
-            error_count += 1
-
-    logger.info(f"Done: {success_count} succeeded, {error_count} failed. Log: {log_file}")
-    return 0 if error_count == 0 else 1
+    # Generate consolidated patch files
+    if generate_all_patches(grouped_patches, args.output_dir, args.jira_ticket, logger):
+        logger.info(f"Success! Log: {log_file}")
+        return 0
+    else:
+        logger.error(f"Failed. Log: {log_file}")
+        return 1
 
 
 if __name__ == '__main__':
