@@ -172,7 +172,7 @@ def suggest_genomes_by_production_name(production_name: str) -> List[Dict]:
     try:
         results = adaptor.fetch_genomes(production_name=production_name)
         genomes = []
-        for genome, organism, assembly, release in results:
+        for genome, organism, assembly, release, _site in results:
             genomes.append({
                 "genome_uuid": genome.genome_uuid,
                 "production_name": genome.production_name,
