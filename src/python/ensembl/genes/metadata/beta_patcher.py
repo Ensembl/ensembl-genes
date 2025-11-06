@@ -229,8 +229,8 @@ def generate_metadata_db_patch(
         Tuple of (patch_filepath, validation_filepath)
     """
     timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-    patch_filename = f"patch_metadata_{genome_uuid}_{timestamp}.sql"
-    validate_filename = f"validate_metadata_{genome_uuid}_{timestamp}.sql"
+    patch_filename = f"patch_metadata_{genome_uuid}.sql"
+    validate_filename = f"validate_metadata_{genome_uuid}.sql"
     patch_filepath = output_dir / patch_filename
     validate_filepath = output_dir / validate_filename
 
