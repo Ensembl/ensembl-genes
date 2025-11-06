@@ -513,15 +513,14 @@ def generate_all_patches(
     Returns:
         True if successful, False otherwise
     """
-    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
 
     # Metadata DB files
-    metadata_patch_file = output_dir / f"patch_metadata_{jira_ticket}_{timestamp}.sql"
-    metadata_validate_file = output_dir / f"validate_metadata_{jira_ticket}_{timestamp}.sql"
+    metadata_patch_file = output_dir / f"patch_metadata_{jira_ticket}.sql"
+    metadata_validate_file = output_dir / f"validate_metadata_{jira_ticket}.sql"
 
     # Core DB files
-    core_patch_file = output_dir / f"patch_core_{jira_ticket}_{timestamp}.sql"
-    core_validate_file = output_dir / f"validate_core_{jira_ticket}_{timestamp}.sql"
+    core_patch_file = output_dir / f"patch_core_{jira_ticket}.sql"
+    core_validate_file = output_dir / f"validate_core_{jira_ticket}.sql"
 
     try:
         # Write metadata patches
