@@ -100,7 +100,7 @@ def get_genome_by_uuid(genome_uuid: str) -> Optional[Dict]:
     try:
         results = adaptor.fetch_genomes_by_genome_uuid(genome_uuid=genome_uuid)
         if results:
-            genome, organism, assembly, release = results[0]
+            genome, organism, assembly, release, site = results[0]
             return {
                 "genome_uuid": genome.genome_uuid,
                 "production_name": genome.production_name,
@@ -143,7 +143,7 @@ def get_genome_by_production_name(production_name: str) -> Optional[Dict]:
     try:
         results = adaptor.fetch_genomes(production_name=production_name)
         if results:
-            genome, organism, assembly, release = results[0]
+            genome, organism, assembly, release, _site = results[0]
             return {
                 "genome_uuid": genome.genome_uuid,
                 "production_name": genome.production_name,
