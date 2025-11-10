@@ -74,13 +74,12 @@ def write_assembly_metrics(registry_connection, assembly_id, rows, dev):
 
     # Extract metric names for deletion
     metric_names = [name for name, value in rows]
-    print(metric_names)
     
     # Single DELETE for all metrics at once
     placeholders = ','.join(['%s'] * len(metric_names))
-    print(placeholders)
     delete_query = f"""
     DELETE FROM assembly_metrics
+    WHERE assembly_id=%s AND metrics_name IN ({placeholders})
     WHERE assembly_id=%s AND metrics_name IN ({placeholders})
     """
 
