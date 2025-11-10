@@ -3,7 +3,7 @@ Write metrics from core database to registry database.
 
 Reads metrics from core DB meta table and writes them to registry tables:
  - assembly.* keys -> assembly_metrics
- - genebuild.* keys -> genebuild_metrics
+ - genebuild.* keys -> annotation_metrics
 
 Uses DELETE then INSERT pattern to avoid stale/duplicated metrics.
 """
@@ -122,13 +122,13 @@ def write_genebuild_metrics(registry_connection, genebuild_status_id, rows, dev)
         return
 
     delete_query = """
-    DELETE FROM genebuild_metrics
+    DELETE FROM annotation_metrics
     WHERE genebuild_id=%s
     AND (metrics_name LIKE 'genebuild.busco%%' OR metrics_name LIKE 'genebuild.stats.%%' OR metrics_name = 'genebuild.last_geneset_update')
     """
 
     insert_query = """
-    INSERT INTO genebuild_metrics (genebuild_id, metrics_name, metrics_value)
+    INSERT INTO annotation_metrics (genebuild_id, metrics_name, metrics_value)
     VALUES (%s, %s, %s)
     """
 
