@@ -123,12 +123,12 @@ def write_genebuild_metrics(registry_connection, genebuild_status_id, rows, dev)
 
     delete_query = """
     DELETE FROM annotation_metrics
-    WHERE genebuild_id=%s
+    WHERE genebuild_status_id=%s
     AND (metrics_name LIKE 'genebuild.busco%%' OR metrics_name LIKE 'genebuild.stats.%%' OR metrics_name = 'genebuild.last_geneset_update')
     """
 
     insert_query = """
-    INSERT INTO annotation_metrics (genebuild_id, metrics_name, metrics_value)
+    INSERT INTO annotation_metrics (genebuild_status_id, metrics_name, metrics_value)
     VALUES (%s, %s, %s)
     """
 
@@ -141,7 +141,7 @@ def write_genebuild_metrics(registry_connection, genebuild_status_id, rows, dev)
         with registry_connection.cursor() as cursor:
             cursor.execute(delete_query, (genebuild_status_id,))
             cursor.executemany(insert_query, [(genebuild_status_id, name, value) for name, value in rows])
-        print(f"Wrote {len(rows)} genebuild metrics for genebuild_id {genebuild_status_id}")
+        print(f"Wrote {len(rows)} genebuild metrics for genebuild_status_id {genebuild_status_id}")
 
 
 def main(
