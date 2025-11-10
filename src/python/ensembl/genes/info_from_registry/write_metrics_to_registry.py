@@ -3,7 +3,7 @@ Write metrics from core database to registry database.
 
 Reads metrics from core DB meta table and writes them to registry tables:
  - assembly.* keys -> assembly_metrics
- - genebuild.* keys -> annotation_metrics
+ - genebuild.* keys -> genebuild_metrics
 
 Uses DELETE then INSERT pattern to avoid stale/duplicated metrics.
 """
@@ -67,21 +67,21 @@ def partition_metrics(rows):
 def write_assembly_metrics(registry_connection, assembly_id, rows, dev):
     """
     Write assembly metrics to registry using DELETE then INSERT pattern.
-
-    Args:
-        registry_connection: MySQL connection object for registry DB
-        assembly_id (int): Assembly ID
-        rows (list): List of (metrics_name, metrics_value) tuples
-        dev (bool): If True, only print SQL without executing
     """
     if not rows:
         print("No assembly metrics to write")
         return
 
-    # Delete only the specific metrics we're about to insert
-    delete_query = """
+    # Extract metric names for deletion
+    metric_names = [name for name, value in rows]
+    print(metric_names)
+    
+    # Single DELETE for all metrics at once
+    placeholders = ','.join(['%s'] * len(metric_names))
+    print(placeholders)
+    delete_query = f"""
     DELETE FROM assembly_metrics
-    WHERE assembly_id=%s AND metrics_name=%s
+    WHERE assembly_id=%s AND metrics_name IN ({placeholders})
     """
 
     insert_query = """
@@ -91,14 +91,19 @@ def write_assembly_metrics(registry_connection, assembly_id, rows, dev):
 
     if dev:
         print("Would execute:")
+        print(delete_query, (assembly_id, *metric_names))
         for name, value in rows:
-            print(delete_query % (assembly_id, name))
-            print(insert_query % (assembly_id, name, value))
+            print(insert_query, (assembly_id, name, value))
     else:
         with registry_connection.cursor() as cursor:
-            # Delete each specific metric, then insert
-            for name, value in rows:
-                cursor.execute(delete_query, (assembly_id, name))
+            print(delete_query, (assembly_id, *metric_names))
+
+            # Single DELETE for all metrics
+            cursor.execute(delete_query, (assembly_id, *metric_names))
+            deleted = cursor.rowcount
+            print(f"Deleted {deleted} existing assembly metrics for assembly_id {assembly_id}")
+            
+            # Bulk INSERT
             cursor.executemany(insert_query, [(assembly_id, name, value) for name, value in rows])
         print(f"Wrote {len(rows)} assembly metrics for assembly_id {assembly_id}")
 
@@ -106,12 +111,6 @@ def write_assembly_metrics(registry_connection, assembly_id, rows, dev):
 def write_genebuild_metrics(registry_connection, genebuild_status_id, rows, dev):
     """
     Write genebuild metrics to registry using DELETE then INSERT pattern.
-
-    Args:
-        registry_connection: MySQL connection object for registry DB
-        genebuild_status_id (int): Genebuild status ID
-        rows (list): List of (metrics_name, metrics_value) tuples
-        dev (bool): If True, only print SQL without executing
     """
     if not rows:
         print("No genebuild metrics to write")
@@ -121,27 +120,32 @@ def write_genebuild_metrics(registry_connection, genebuild_status_id, rows, dev)
         print("No genebuild_status_id available; skipping genebuild metrics")
         return
 
-    delete_query = """
-    DELETE FROM annotation_metrics
-    WHERE genebuild_status_id=%s
-    AND (metrics_name LIKE 'genebuild.busco%%' OR metrics_name LIKE 'genebuild.stats.%%' OR metrics_name = 'genebuild.last_geneset_update')
+    metric_names = [name for name, value in rows]
+    
+    placeholders = ','.join(['%s'] * len(metric_names))
+    delete_query = f"""
+    DELETE FROM genebuild_metrics
+    WHERE genebuild_id=%s AND metrics_name IN ({placeholders})
     """
 
     insert_query = """
-    INSERT INTO annotation_metrics (genebuild_status_id, metrics_name, metrics_value)
+    INSERT INTO genebuild_metrics (genebuild_id, metrics_name, metrics_value)
     VALUES (%s, %s, %s)
     """
 
     if dev:
         print("Would execute:")
-        print(delete_query % (genebuild_status_id,))
+        print(delete_query, (genebuild_status_id, *metric_names))
         for name, value in rows:
-            print(insert_query % (genebuild_status_id, name, value))
+            print(insert_query, (genebuild_status_id, name, value))
     else:
         with registry_connection.cursor() as cursor:
-            cursor.execute(delete_query, (genebuild_status_id,))
+            cursor.execute(delete_query, (genebuild_status_id, *metric_names))
+            deleted = cursor.rowcount
+            print(f"Deleted {deleted} existing genebuild metrics for genebuild_id {genebuild_status_id}")
+            
             cursor.executemany(insert_query, [(genebuild_status_id, name, value) for name, value in rows])
-        print(f"Wrote {len(rows)} genebuild metrics for genebuild_status_id {genebuild_status_id}")
+        print(f"Wrote {len(rows)} genebuild metrics for genebuild_id {genebuild_status_id}")
 
 
 def main(
