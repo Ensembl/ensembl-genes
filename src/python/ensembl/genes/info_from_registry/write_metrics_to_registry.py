@@ -3,7 +3,7 @@ Write metrics from core database to registry database.
 
 Reads metrics from core DB meta table and writes them to registry tables:
  - assembly.* keys -> assembly_metrics
- - genebuild.* keys -> genebuild_metrics
+ - genebuild.* keys -> annotation_metrics
 
 Uses DELETE then INSERT pattern to avoid stale/duplicated metrics.
 """
@@ -122,12 +122,12 @@ def write_genebuild_metrics(registry_connection, genebuild_status_id, rows, dev)
     
     placeholders = ','.join(['%s'] * len(metric_names))
     delete_query = f"""
-    DELETE FROM genebuild_metrics
-    WHERE genebuild_id=%s AND metrics_name IN ({placeholders})
+    DELETE FROM annotation_metrics
+    WHERE genebuild_status_id=%s AND metrics_name IN ({placeholders})
     """
 
     insert_query = """
-    INSERT INTO genebuild_metrics (genebuild_id, metrics_name, metrics_value)
+    INSERT INTO annotation_metrics (genebuild_status_id, metrics_name, metrics_value)
     VALUES (%s, %s, %s)
     """
 
@@ -140,10 +140,10 @@ def write_genebuild_metrics(registry_connection, genebuild_status_id, rows, dev)
         with registry_connection.cursor() as cursor:
             cursor.execute(delete_query, (genebuild_status_id, *metric_names))
             deleted = cursor.rowcount
-            print(f"Deleted {deleted} existing genebuild metrics for genebuild_id {genebuild_status_id}")
+            print(f"Deleted {deleted} existing genebuild metrics for genebuild_status_id {genebuild_status_id}")
             
             cursor.executemany(insert_query, [(genebuild_status_id, name, value) for name, value in rows])
-        print(f"Wrote {len(rows)} genebuild metrics for genebuild_id {genebuild_status_id}")
+        print(f"Wrote {len(rows)} genebuild metrics for genebuild_status_id {genebuild_status_id}")
 
 
 def main(
