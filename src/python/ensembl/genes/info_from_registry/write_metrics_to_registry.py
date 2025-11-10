@@ -106,7 +106,7 @@ def write_assembly_metrics(registry_connection, assembly_id, rows, dev):
         print(f"Wrote {len(rows)} assembly metrics for assembly_id {assembly_id}")
 
 
-def write_genebuild_metrics(registry_connection, genebuild_status_id, rows, dev):
+def write_genebuild_metrics(registry_connection, genebuild_status_id, assembly_id, rows, dev):
     """
     Write genebuild metrics to registry using DELETE then INSERT pattern.
     """
@@ -127,22 +127,27 @@ def write_genebuild_metrics(registry_connection, genebuild_status_id, rows, dev)
     """
 
     insert_query = """
+<<<<<<< HEAD
     INSERT INTO annotation_metrics (genebuild_status_id, metrics_name, metrics_value)
     VALUES (%s, %s, %s)
+=======
+    INSERT INTO annotation_metrics (genebuild_status_id, assembly_id, metrics_name, metrics_value)
+    VALUES (%s, %s, %s, %s)
+>>>>>>> f5c067f (match metric updates to registry schema)
     """
 
     if dev:
         print("Would execute:")
         print(delete_query, (genebuild_status_id, *metric_names))
         for name, value in rows:
-            print(insert_query, (genebuild_status_id, name, value))
+            print(insert_query, (genebuild_status_id, assembly_id, name, value))
     else:
         with registry_connection.cursor() as cursor:
             cursor.execute(delete_query, (genebuild_status_id, *metric_names))
             deleted = cursor.rowcount
             print(f"Deleted {deleted} existing genebuild metrics for genebuild_status_id {genebuild_status_id}")
-            
-            cursor.executemany(insert_query, [(genebuild_status_id, name, value) for name, value in rows])
+
+            cursor.executemany(insert_query, [(genebuild_status_id, str(assembly_id), name, value) for name, value in rows])
         print(f"Wrote {len(rows)} genebuild metrics for genebuild_status_id {genebuild_status_id}")
 
 
@@ -218,7 +223,7 @@ def main(
 
         # Write metrics to registry
         write_assembly_metrics(registry_connection, assembly_id, assembly_rows, dev)
-        write_genebuild_metrics(registry_connection, genebuild_status_id, genebuild_rows, dev)
+        write_genebuild_metrics(registry_connection, genebuild_status_id, assembly_id, genebuild_rows, dev)
 
         if not dev:
             # Commit transaction
