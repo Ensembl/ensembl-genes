@@ -771,7 +771,7 @@ def main(gcas, settings_file):
                 "db_user": settings["user_r"],
                 "db_user_w": settings["user"],
                 "db_port": int(os.environ.get("GBP1")),
-                "db_name": "gb_metadata_start_test",
+                "db_name": "gb_assembly_metadata",
                 "password": settings["password"]
             }
         }
