@@ -80,7 +80,6 @@ def write_assembly_metrics(registry_connection, assembly_id, rows, dev):
     delete_query = f"""
     DELETE FROM assembly_metrics
     WHERE assembly_id=%s AND metrics_name IN ({placeholders})
-    WHERE assembly_id=%s AND metrics_name IN ({placeholders})
     """
 
     insert_query = """
