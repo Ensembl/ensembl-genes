@@ -273,7 +273,7 @@ if __name__ == "__main__":
     parser.add_argument("--core_host", required=True, help="Core MySQL host")
     parser.add_argument("--core_port", type=int, default=3306, help="Core MySQL port")
     parser.add_argument("--core_user", required=True, help="Core MySQL user")
-    parser.add_argument("--core_password", required=True, help="Core MySQL password")
+    parser.add_argument("--core_password", default=None, help="Core MySQL password")
     parser.add_argument("--core_db", required=True, help="Core MySQL database name")
 
     # Context
