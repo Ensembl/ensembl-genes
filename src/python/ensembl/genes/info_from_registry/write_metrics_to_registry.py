@@ -127,13 +127,8 @@ def write_genebuild_metrics(registry_connection, genebuild_status_id, assembly_i
     """
 
     insert_query = """
-<<<<<<< HEAD
-    INSERT INTO annotation_metrics (genebuild_status_id, metrics_name, metrics_value)
-    VALUES (%s, %s, %s)
-=======
     INSERT INTO annotation_metrics (genebuild_status_id, assembly_id, metrics_name, metrics_value)
     VALUES (%s, %s, %s, %s)
->>>>>>> f5c067f (match metric updates to registry schema)
     """
 
     if dev:
