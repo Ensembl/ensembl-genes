@@ -28,14 +28,13 @@ def fetch_core_metrics(core_connection, species_id):
     SELECT meta_key, meta_value
     FROM meta
     WHERE species_id=%s AND (
-        meta_key LIKE 'assembly.busco%' OR
-        meta_key LIKE 'assembly.stats.%' OR
-        meta_key LIKE 'genebuild.busco%' OR
-        meta_key LIKE 'genebuild.stats.%' OR
+    meta_key LIKE 'assembly.busco%%' OR
+    meta_key LIKE 'assembly.stats.%%' OR
+    meta_key LIKE 'genebuild.busco%%' OR
+    meta_key LIKE 'genebuild.stats.%%' OR
         meta_key = 'genebuild.last_geneset_update'
     )
     """
-
     with core_connection.cursor() as cursor:
         cursor.execute(query, (species_id,))
         return cursor.fetchall()
@@ -125,7 +124,7 @@ def write_genebuild_metrics(registry_connection, genebuild_status_id, rows, dev)
     delete_query = """
     DELETE FROM genebuild_metrics
     WHERE genebuild_id=%s
-    AND (metrics_name LIKE 'genebuild.busco%' OR metrics_name LIKE 'genebuild.stats.%' OR metrics_name = 'genebuild.last_geneset_update')
+    AND (metrics_name LIKE 'genebuild.busco%%' OR metrics_name LIKE 'genebuild.stats.%%' OR metrics_name = 'genebuild.last_geneset_update')
     """
 
     insert_query = """
@@ -207,7 +206,6 @@ def main(
 
         print(f"Fetching metrics from core database...")
         meta_rows = fetch_core_metrics(core_connection, species_id)
-
         if not meta_rows:
             print("No metrics found in core database")
             sys.exit(0)
