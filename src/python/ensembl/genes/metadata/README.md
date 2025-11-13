@@ -34,3 +34,25 @@ optional arguments:
 **NOTE**
 
 This script doesn't currently deal with collections, species_ids are hardcoded at **LN:207**. This should be updated, but for now, if you are dealing with a collection db, please hardcode the `species_id`.
+
+## Running beta_patcher.py
+
+Generates SQL patches for beta metadata fixes in both production metadata DB and core DBs.
+
+**Setup:**
+```bash
+pip install -r requirements.txt
+git clone https://github.com/Ensembl/ensembl-metadata-api.git
+cd ensembl-metadata-api && pip install -r requirements.txt && pip install -e .
+```
+
+You also require two environemtal variables to enable interaction with the production metadata db. Substitute in the valid connection details for these database servers.
+```bash
+export METADATA_URI="mysql+pymysql://user:pass@host:port/ensembl_genome_metadata"
+export TAXONOMY_URI="mysql+pymysql://user:pass@host:port/ncbi_taxonomy"
+```
+
+**Usage:**
+```bash
+python beta_patcher.py patches.csv --jira-ticket EBD-1111 --output-dir ./patches/
+```
