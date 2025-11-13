@@ -95,12 +95,18 @@ def insert_new_record(
         print(f"Inserted new record for GCA {assembly} with status '{status}'")
 
 
-def update_existing_record(connection, record_id, status, current_date, dev, annotation_method=None):
+def update_existing_record(connection, record_id, status, current_date, dev, annotation_method=None, annotation_source=None, genebuild_version=None):
     query_parts = ["gb_status = %s", "date_status_update = %s"]
     params = [status, current_date]
     if annotation_method:
         query_parts.append("annotation_method = %s")
         params.append(annotation_method)
+    if annotation_source:
+        query_parts.append("annotation_source = %s")
+        params.append(annotation_source)
+    if genebuild_version:
+        query_parts.append("genebuild_version = %s")
+        params.append(genebuild_version)
     query = f"""
 UPDATE genebuild_status
 SET {', '.join(query_parts)}
@@ -200,8 +206,10 @@ def main(
             print(f"No existing record found for {assembly} by {genebuilder}")
             print(f"Creating new record with status: {status}")
 
-            # Use "pending" as default for new records if not specified
+            # Use defaults for new records if not specified
             method_to_insert = annotation_method if annotation_method else "pending"
+            source_to_insert = annotation_source if annotation_source else "ensembl"
+            version_to_insert = genebuild_version if genebuild_version else "ENS01"
 
             insert_new_record(
                 connection,
@@ -209,11 +217,11 @@ def main(
                 assembly,
                 genebuilder,
                 status,
-                annotation_source,
+                source_to_insert,
                 method_to_insert,
                 current_date,
                 release_type,
-                genebuild_version,
+                version_to_insert,
                 dev,
             )
 
@@ -221,6 +229,7 @@ def main(
             # Existing record found for this genebuilder
             current_status = existing_record["gb_status"]
             current_method = existing_record.get("annotation_method")
+            current_source = existing_record.get("annotation_source")
             current_version = existing_record.get("genebuild_version")
             record_id = existing_record["genebuild_status_id"]
 
@@ -232,15 +241,31 @@ def main(
             active_statuses = ["insufficient_data", "in_progress", "check_busco"]
             completed_status = "completed" # terminal-like status
 
-            # Determine if method should be updated (preserve existing if not specified)
-            method_to_update = annotation_method if annotation_method is not None else current_method
+            # Determine if method/source/version should be updated (preserve existing if not specified)
+            method_to_update = annotation_method if annotation_method is not None else None
+            source_to_update = annotation_source if annotation_source is not None else None
+            version_to_update = genebuild_version if (genebuild_version is not None and genebuild_version != current_version) else None
 
-            # Same status - check for method/release_type changes
+            # Same status - check for method/source/version changes
             if current_status == status:
-                # Check if annotation_method is provided and different
-                if annotation_method and annotation_method != current_method:
-                    print(f"Status is already '{status}', but updating method from '{current_method}' to '{annotation_method}'")
-                    update_existing_record(connection, record_id, status, current_date, dev, annotation_method)
+                # Check if annotation_method, annotation_source, or genebuild_version is provided and different
+                method_changed = annotation_method and annotation_method != current_method
+                source_changed = annotation_source and annotation_source != current_source
+                version_changed = genebuild_version is not None and genebuild_version != current_version
+
+                if method_changed or source_changed or version_changed:
+                    changes = []
+                    if method_changed:
+                        changes.append(f"method from '{current_method}' to '{annotation_method}'")
+                    if source_changed:
+                        changes.append(f"source from '{current_source}' to '{annotation_source}'")
+                    if version_changed:
+                        changes.append(f"version from '{current_version}' to '{genebuild_version}'")
+                    print(f"Status is already '{status}', but updating {' and '.join(changes)}")
+                    update_existing_record(connection, record_id, status, current_date, dev,
+                                          annotation_method if method_changed else None,
+                                          annotation_source if source_changed else None,
+                                          genebuild_version if version_changed else None)
                 else:
                     print(f"Status is already '{status}'. No changes needed.")
                     sys.exit(0)
@@ -254,11 +279,15 @@ def main(
             # Block backwards transitions from terminal statuses
             elif current_status in terminal_statuses and status in (active_statuses + [completed_status]):
                 # Check if version changed - if so, allow new attempt
-                if genebuild_version != current_version:
-                    print(f"Moving from terminal status '{current_status}' to '{status}' with new version {genebuild_version}")
+                # If genebuild_version not provided, use current version (no version change)
+                effective_version = genebuild_version if genebuild_version else current_version
+
+                if effective_version != current_version:
+                    print(f"Moving from terminal status '{current_status}' to '{status}' with new version {effective_version}")
                     print(f"Creating new attempt.")
 
                     method_to_insert = annotation_method if annotation_method else "pending"
+                    source_to_insert = annotation_source if annotation_source else current_source
 
                     set_old_record_historical(connection, record_id, dev)
                     insert_new_record(
@@ -267,40 +296,40 @@ def main(
                         assembly,
                         genebuilder,
                         status,
-                        annotation_source,
+                        source_to_insert,
                         method_to_insert,
                         current_date,
                         release_type,
-                        genebuild_version,
+                        effective_version,
                         dev,
                     )
                 else:
-                    print(f"ERROR: Cannot move from terminal status '{current_status}' to '{status}' with same genebuild_version '{genebuild_version}'")
-                    print(f"To restart work, you must increment the genebuild_version (e.g., ENS02, ENS03, etc.)")
+                    print(f"ERROR: Cannot move from terminal status '{current_status}' to '{status}' with same genebuild_version '{current_version}'")
+                    print(f"To restart work, you must provide a new --genebuild_version (e.g., ENS02, ENS03, etc.)")
                     sys.exit(1)
 
             # Terminal to terminal transition - UPDATE same record
             elif current_status in terminal_statuses and status in terminal_statuses:
                 print(f"Moving from terminal status '{current_status}' to terminal status '{status}'")
                 print(f"Updating existing record.")
-                update_existing_record(connection, record_id, status, current_date, dev, method_to_update)
+                update_existing_record(connection, record_id, status, current_date, dev, method_to_update, source_to_update, version_to_update)
 
             # Completed to terminal transition - UPDATE same record
             elif current_status == completed_status and status in terminal_statuses:
                 print(f"Moving from 'completed' to terminal status '{status}'")
                 print(f"Updating existing record.")
-                update_existing_record(connection, record_id, status, current_date, dev, method_to_update)
+                update_existing_record(connection, record_id, status, current_date, dev, method_to_update, source_to_update, version_to_update)
 
             # Active to active or active to completed - UPDATE same record
             elif current_status in active_statuses and (status in active_statuses or status == completed_status):
                 print(f"Current status '{current_status}' is active. Updating to '{status}'.")
-                update_existing_record(connection, record_id, status, current_date, dev, method_to_update)
+                update_existing_record(connection, record_id, status, current_date, dev, method_to_update, source_to_update, version_to_update)
 
             # Active to terminal - UPDATE same record
             elif current_status in active_statuses and status in terminal_statuses:
                 print(f"Moving from active status '{current_status}' to terminal status '{status}'")
                 print(f"Updating existing record.")
-                update_existing_record(connection, record_id, status, current_date, dev, method_to_update)
+                update_existing_record(connection, record_id, status, current_date, dev, method_to_update, source_to_update, version_to_update)
 
             else:
                 raise ValueError(
@@ -383,9 +412,10 @@ if __name__ == "__main__":
 
     parser.add_argument(
         "--annotation_source",
-        default="ensembl",
+        default=None,
         choices=[
             "ensembl",
+            "helixer",
             "external",
             "import_refseq",
             "import_community",
@@ -394,7 +424,7 @@ if __name__ == "__main__":
             "import_genbank",
             "import_noninsdc",
         ],
-        help="Annotation source (default: ensembl)",
+        help="Annotation source (default: preserve existing value, or 'ensembl' for new records)",
     )
 
     parser.add_argument(
@@ -423,8 +453,8 @@ if __name__ == "__main__":
 
     parser.add_argument(
         "--genebuild_version",
-        default="ENS01",
-        help="Genebuild version (default: ENS01)",
+        default=None,
+        help="Genebuild version (default: preserve existing value, or 'ENS01' for new records)",
     )
 
     args = parser.parse_args()
