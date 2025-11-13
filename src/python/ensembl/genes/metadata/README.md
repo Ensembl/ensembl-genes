@@ -44,6 +44,10 @@ Generates SQL patches for beta metadata fixes in both production metadata DB and
 pip install -r requirements.txt
 git clone https://github.com/Ensembl/ensembl-metadata-api.git
 cd ensembl-metadata-api && pip install -r requirements.txt && pip install -e .
+```
+
+You also require two environemtal variables to enable interaction with the production metadata db. Substitute in the valid connection details for these database servers.
+```bash
 export METADATA_URI="mysql+pymysql://user:pass@host:port/ensembl_genome_metadata"
 export TAXONOMY_URI="mysql+pymysql://user:pass@host:port/ncbi_taxonomy"
 ```
