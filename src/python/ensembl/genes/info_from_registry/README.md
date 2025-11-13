@@ -1,13 +1,13 @@
 # Ensembl Genes - Info From Registry Module
 
 ## Overview
-The `info_from_registry` module is a Python component of the Ensembl Gene Annotation pipelines that interfaces with the Metadata Registry to retrieve database connection and metadata information. This module is specifically designed to support pipeline initialization and registry status update workflows.
+The `info_from_registry` module is a Python component of the Ensembl Gene Annotation pipelines that interfaces with the Metadata Registry to retrieve database connection and metadata information. This module is specifically designed to support pipeline initialisation and registry status update workflows.
 
 ## Purpose
 This module serves as an interface between the Metadata Registry and the annotation pipeline, providing:
 
 - **Registry Data Extraction**:  Gathers assembly-specific database and assembly information
-- **Pipeline Initialization**: Provides necessary metadata to start annotation pipelines
+- **Pipeline Initialisation**: Provides necessary metadata to start annotation pipelines
 - **Status Monitoring**: Tracks GCA status
 - **Connection Management**: Handles database connection parameters and credentials
 
@@ -29,7 +29,7 @@ This module serves as an interface between the Metadata Registry and the annotat
 
 ```bash
 # Copy user_pipeline_settings.json into your working directory
-cp path/to/user_pipeline_settings.json  path/to/working/directory
+cp settings.json  path/to/working/directory
 
 # Fill out details in user_pipeline_settings
 vim user_pipeline_settings.json
@@ -38,47 +38,56 @@ vim user_pipeline_settings.json
 vim gcas
 
 # Run script to collect info and initialise pipeline
-python3 path/to/software/dir/ensembl-genes/src/python/ensembl/genes/info_from_registry/genebuild_start_pipeline.py --gcas gcas --settings_file user_pipeline_settings.json 
+python3 genebuild_start_pipeline.py --gcas gcas --settings_file user_pipeline_settings.json 
 ```
 
 #### Expected behaviour
-The script will create a json for all provided GCAs. This file will contain all parameters needed to start the annotation pipeline. Based on the JSON an eHIVE pipline will be initialised (with force option!). Finally, GCAs are seeded into the pipeline (into analysis 1 by default) for anno. The script checks if a given GCA was annotated before. If it was it will throw an error. Please use `genebuild = 1` option to override behaviour. The script also assigns `stable ID` and writes it back to the registry. Clade settings can be found in the `clade_settings.json` file. Clade is assigned based on lowest taxon ID. `init_file` can be used to supress most behaviour and load from a file. Optional: if `seed_url` is provided, the provided pipeline will be seeded. Initialisation is skipped.
+The script will create a json for all provided GCAs. This file will contain all parameters needed to start the annotation pipeline. Based on the JSON an eHIVE pipeline will be initialised (with force option!). Finally, GCAs are seeded into the pipeline (into analysis 1 by default) for anno. The script checks if a given GCA was annotated before. If it was it would throw an error. Please use `genebuild = 1` option to override the behaviour. The script also assigns `stable ID` and writes it back to the registry. Clade settings can be found in the `clade_settings.json` file. Clade is assigned based on lowest taxon ID. `init_file` can be used to suppress most behaviour and load from a file. Optional: if `seed_url` is provided, the provided pipeline will be seeded. Initialisation is skipped.
 
 
 ## Breakdown of files and scripts 
 `anno_settings.json`
-Contains basic settings for pipeline.
+Contains basic settings for the non-vertebrate pipeline.
 
 `assing_clade_based_on_tax.py`
 Created a taxonomy dictionary based on information stored in the taxonomy table in the registry. Args: server_info (dict): MySQL connection information under 'registry', registry_info (dict): Dictionary with at least a 'taxon_id' key.
 
 `assign_species_prefix.py`
-Assigns species prefix based on taxon ID and writes back to the registry.
+Assigns species prefix based on taxon ID and writes it back to the registry.
 
 `build_anno_commands.py`
 Creates anno command based on information gathered from the registry and the clade settings. Args: core_adaptor (dict): Contains database connection info with keys: 'dbname', 'host', 'port', 'user', 'pass', output_params (dict): Dictionary where input/output file paths and directories are specified. The final command strings are added here.
-anno_settings (dict): Annotation settings such as number of threads and diamond validation DB path. settings (dict): General pipeline settings, including repeat library usage.
+anno_settings (dict): Annotation settings such as the number of threads and the diamond validation DB path. settings (dict): General pipeline settings, including repeat library usage.
 
 `check_if_annotated.py`
-Checks if a GCA has already been annotated and gives back an error message if it has been.
+Checks if a GCA has already been annotated and gives back an error message if it has been. Script is not run if 'genebuild = 1' in user_settings.json is set.
 
 `clade_settings.json`
 Holds pipeline settings based on clade/taxon ID.
 
 `check_stable_space_old_registry.py`
-Function to check stable space in the old registry. Will be deprecated once old registry is not in use anymore.
+Function to check stable space in the old registry. It will be deprecated once the old registry is no longer in use.
 
 `create_config.py`
-Copies and edits config file specified in anno_settings.json or main_settings.json.
+Copies and edits the appropriate config file specified in anno_settings.json or main_settings.json.
+
+`create_pipe_reg.py`
+Helper to copy and edit registry.pm for anno.
 
 `genebuild_start_pipeline.py`
 Main script that initialises (and seeds anno pipeline) after gathering all information. Args: gcas (str): Path to file containing GCA accessions (one per line), settings_file (str): Path to settings file (JSON), seed_url (str): EHIVE URL to already existing pipeline.
 
 `main_settings.json`
-Contains basic settings for pipeline.
+Contains basic settings for the vertebrate pipeline.
 
 `mysql_helper.py`
 Script to access and edit information in the registry.
+
+`projection_source.json`
+Specifies the projection source DB details for the main pipeline.
+
+`registry_helper.py`
+Helper to add information about status and metrics to the registry.
 
 `seed_nonvert.py`
 Seeds anno pipeline analysis 1 by default.
@@ -91,7 +100,10 @@ Module to assign clade information based on taxonomy data retrieved
 from a registry MySQL database and static JSON configuration.
 
 `update_assembly_registry.py`
-Utility to update the status of a genebuild in the registry db.
+Utility to update the status of a genebuild in the registry DB.
 
 `user_pipeline_settings.json`
-JSON file that needs to be filled out by user. This is the main input.
+JSON file that needs to be filled out by the user. This is the main input.
+
+`write_metrics_to_registry.json`
+Writes assembly and annotation metrics back to the registry from the pipeline.
