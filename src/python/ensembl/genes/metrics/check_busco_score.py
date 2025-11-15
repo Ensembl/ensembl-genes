@@ -103,7 +103,7 @@ def evaluate_busco(
     if min_range_protein_score < protein_busco_score < max_range_protein_score:
         difference = protein_busco_score - genome_busco_score
         print(f"Difference (protein - genome): {difference:.2f}%")
-        if difference >= diff_prot_gen_mode:
+        if difference <= diff_prot_gen_mode:
             sys.exit(0)
         else:
             sys.exit(42)
