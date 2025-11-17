@@ -7,6 +7,7 @@ using the new registry to start anno runs.
 """
 import logging
 from mysql_helper import mysql_fetch_data
+from typing import Dict, Any, List, Optional
 
 # Configure logging
 logging.basicConfig(
@@ -19,7 +20,10 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-def get_old_stable_space_info(taxon_id, server_info):
+def get_old_stable_space_info(
+    taxon_id: int,
+    server_info: Dict[str, Dict[str, Any]]
+) -> Optional[int]:
     """Get the stable space that has been assigned to old registry.
 
         Args:
