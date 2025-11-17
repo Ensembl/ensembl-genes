@@ -27,8 +27,9 @@ import os
 import shutil
 import re
 import logging
-import json
 from pathlib import Path
+from typing import Dict, Any, Optional, List
+
 
 # Configure logging
 logging.basicConfig(
@@ -42,7 +43,11 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-def copy_config(settings, info_dict, pipeline):
+def copy_config(
+    settings: Dict[str, Any],
+    info_dict: Dict[str, Any],
+    pipeline: str
+) -> str:
     """
     Copies a configuration file from the ENSCODE environment into a local output directory.
 
@@ -94,7 +99,13 @@ def copy_config(settings, info_dict, pipeline):
     return local_config
 
 
-def edit_config_anno(anno_settings, settings, info_dict, pipeline, server_settings):
+def edit_config_anno(
+    anno_settings: Dict[str, Any],
+    settings: Dict[str, Any],
+    info_dict: Dict[str, Any],
+    pipeline: str,
+    server_settings: Dict[str, Dict[str, Any]]
+) -> None:
     """
         Edits specific parameter values in a copied Ensembl Hive config file.
 
@@ -207,7 +218,11 @@ def edit_config_anno(anno_settings, settings, info_dict, pipeline, server_settin
         f.write(content)
 
 
-def edit_config_main(settings, info_dict, pipeline):
+def edit_config_main(
+    settings: Dict[str, Any],
+    info_dict: Dict[str, Any],
+    pipeline: str
+) -> str:
     """
     Edits specific parameter values in a copied Ensembl Hive config file safely,
     preserving comments and avoiding Perl syntax errors.
