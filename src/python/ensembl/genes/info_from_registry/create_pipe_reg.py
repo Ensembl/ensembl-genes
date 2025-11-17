@@ -19,6 +19,8 @@ import shutil
 from pathlib import Path
 import os
 import logging
+from typing import Dict, Any
+
 
 
 from mysql_helper import mysql_update
@@ -35,7 +37,10 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-def update_registry_path_in_pipedb(parent_dir, server_info):
+def update_registry_path_in_pipedb(
+    parent_dir: str,
+    server_info: Dict[str, Dict[str, Any]]
+) -> None:
     """
     Updates the resource_description table in the pipeline database by replacing
     the shared registry path with a local copy. This ensures worker nodes access
@@ -95,7 +100,11 @@ def update_registry_path_in_pipedb(parent_dir, server_info):
         logger.error("Failed to update registry path.")
 
 
-def create_registry_entry(settings, server_info, core_adaptor):
+def create_registry_entry(
+    settings: Dict[str, Any],
+    server_info: Dict[str, Dict[str, Any]],
+    core_adaptor: Dict[str, str]
+) -> Path:
     """
         Updates the local registry file with new DBAdaptor connection details for a
         core database, using the provided connection settings.
