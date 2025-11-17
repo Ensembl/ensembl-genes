@@ -124,7 +124,7 @@ def create_prefix(existing_prefix:list[str], taxon_id:int, server_info: dict) ->
         database=server_info["registry"]["db_name"])
 
     with conn:
-        for _ in range(10000):  # max attempts
+        for _ in range(10):  # max attempts
             prefix = generate_random_prefix(existing_prefix)
             if insert_prefix_into_db(prefix, taxon_id, conn):
                 logger.info(f"Successfully inserted: {prefix}")
