@@ -12,7 +12,6 @@ Typical usage:
 
 import os
 from pathlib import Path
-import json
 import sys
 from typing import Optional, Dict, Any
 import shutil
@@ -42,7 +41,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-def load_settings(settings_file) -> dict:
+def load_settings(settings_file: str) -> dict:
     """
     Load JSON-formatted pipeline settings from a given file path.
 
@@ -94,7 +93,7 @@ def load_anno_settings() -> dict:
 def load_main_settings() -> dict:
     """
     Load the annotation-specific settings from a hardcoded path relative to
-    the environment variable 'ENSCODE'.
+    the environment variable 'ENSCODEf'.
 
     Returns:
         dict: Parsed annotation settings dictionary.
@@ -616,7 +615,7 @@ def copy_general_module():
     else:
         logger.info(f"{general_file} already exists, nothing to do.")
 
-def current_projection_source_db(projection_source_production_name):
+def current_projection_source_db(projection_source_production_name: str) -> dict:
     """
     Find the reference core database and server info for the given projection_source_production_name.
     If not found, fall back to homo_sapiens core.
@@ -661,7 +660,7 @@ def current_projection_source_db(projection_source_production_name):
         raise RuntimeError(f"No match for '{projection_source_production_name}' and 'homo_sapiens' not found in {json_path}.")
 
 
-def custom_loading(settings):
+def custom_loading(settings:dict) -> dict[str, str]:
     """
     Load custom key-value pairs from an INI-style initialization file specified in settings.
 
@@ -709,7 +708,7 @@ def custom_loading(settings):
     return custom_dict
 
 
-def create_dir(path, mode=None):
+def create_dir(path: str | Path, mode: Optional[int] = None) -> None:
     """
     Create a directory and optionally set its permissions.
 
@@ -731,7 +730,7 @@ def create_dir(path, mode=None):
     except Exception as e:
         raise RuntimeError(f"Failed to create dir: {path}") from e
 
-def main(gcas, settings_file):
+def main(gcas: str, settings_file: str) -> tuple[dict, dict, dict]:
     """
     Create parameters for annotation pipeline.
 
