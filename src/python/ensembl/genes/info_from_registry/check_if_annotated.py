@@ -7,6 +7,7 @@ an error if any assembly has already been annotated.
 """
 
 from mysql_helper import mysql_fetch_data
+from typing import Dict, Any, List, Optional
 import logging
 
 # Configure logging
@@ -21,7 +22,10 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-def check_if_annotated(assembly_accession, server_info):
+def check_if_annotated(
+    assembly_accession: str,
+    server_info: Dict[str, Dict[str, Any]]
+) -> None:
     """
      Check if a genome assembly is already annotated in the genebuild registry.
 
