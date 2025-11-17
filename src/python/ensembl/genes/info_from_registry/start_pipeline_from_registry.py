@@ -29,6 +29,7 @@ from assign_species_prefix import get_species_prefix # type: ignore
 from assign_stable_space import get_stable_space
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from metrics.busco_lineage_selector import get_dataset_match
+import json
 
 # Configure logging
 logging.basicConfig(
@@ -742,8 +743,6 @@ def main(gcas, settings_file):
         all_output_params (dict): Dictionary of all GCA output parameters
         saved_paths (dict): Paths to saved JSONs, with separate entries for 'anno' and 'main'
     """
-    import json, os
-    from pathlib import Path
 
     # Load settings
     settings = load_settings(settings_file)
