@@ -20,6 +20,8 @@ import subprocess
 from pathlib import Path
 from create_pipe_reg import update_registry_path_in_pipedb
 import json
+from typing import Dict, Any, Optional
+
 
 
 
@@ -34,7 +36,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-def init_pipeline_anno(config_file: str, hive_force_init: int = 1) -> str:
+def init_pipeline_anno(config_file: str, hive_force_init: int = 1) -> Optional[str]:
     """
     Initialize an eHive pipeline using a given config file.
 
@@ -69,7 +71,7 @@ def init_pipeline_anno(config_file: str, hive_force_init: int = 1) -> str:
         logger.error(f"Error running init_pipeline.pl: {e.stdout}")
         raise
 
-def init_pipeline_main(config_file: str, hive_force_init: int = 1) -> str:
+def init_pipeline_main(config_file: str, hive_force_init: int = 1) -> Optional[str]:
     """
     Initialize an eHive pipeline using a given config file.
 
@@ -117,7 +119,11 @@ def init_pipeline_main(config_file: str, hive_force_init: int = 1) -> str:
         raise
     
 
-def main(gcas: str, settings_file: str, seed_url: str):
+def main(
+    gcas: str,
+    settings_file: str,
+    seed_url: Optional[str]
+) -> Dict[str, Any]:
     """
     Main execution logic: extract metadata, initialize the pipeline, and seed jobs.
 
