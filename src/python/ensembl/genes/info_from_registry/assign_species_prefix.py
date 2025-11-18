@@ -17,6 +17,21 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+def get_special_cases(json_path="stable_id_special_cases.json") -> dict[str, str]:
+    """Retrieve special cases for species prefixes from a JSON file.
+
+    Args:
+        json_path (str): Path to the JSON file containing special cases.
+
+    Returns:
+        dict: A dictionary mapping taxon IDs to their special species prefixes.
+    """
+    import json
+    with open(json_path, 'r') as f:
+        special_cases = json.load(f)
+    return special_cases
+
+
 def exiting_prefix(server_info: dict) -> list[str]:
     """Get a list of existing species prefixes from the gb assembly registry and metadata databases.
 
@@ -151,11 +166,7 @@ def get_species_prefix(taxon_id:int, server_info: dict) -> Optional[str]:
     """
 
     # Special cases
-    special_cases = {
-        '9612': 'ENSCAF', # Canis lupus (wolf)
-        '9615' : 'ENSCAF', # Canis lupus familiaris (Domestic dog)
-        '10181': 'ENSHGL' #  Heterocephalus glaber (naked mole rat)
-        }
+    special_cases = get_special_cases()
 
     if str(taxon_id) in special_cases:
         logger.info(f"The prefix is a special case for taxon ID: {taxon_id}")
