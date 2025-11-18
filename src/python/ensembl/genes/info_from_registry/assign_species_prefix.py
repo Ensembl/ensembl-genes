@@ -1,4 +1,6 @@
+import json
 import logging
+import os
 import random
 import string
 from typing import Optional
@@ -17,16 +19,22 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-def get_special_cases(json_path="stable_id_special_cases.json") -> dict[str, str]:
+def get_special_cases() -> dict[str, str]:
     """Retrieve special cases for species prefixes from a JSON file.
-
-    Args:
-        json_path (str): Path to the JSON file containing special cases.
-
     Returns:
         dict: A dictionary mapping taxon IDs to their special species prefixes.
     """
-    import json
+
+    json_path = os.path.join(
+         os.environ.get("ENSCODE"),
+         "ensembl-genes",
+         "src",
+         "python",
+         "ensembl",
+         "genes",
+         "info_from_registry",
+         "anno_settings.json"
+     )
     with open(json_path, 'r') as f:
         special_cases = json.load(f)
     return special_cases
