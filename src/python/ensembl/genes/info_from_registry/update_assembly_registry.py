@@ -7,9 +7,11 @@ from registry_helper import fetch_assembly_id, fetch_current_genebuild_record
 import argparse
 from datetime import datetime
 import sys
+from typing import Optional
+import pymysql
 
 
-def ensure_genebuilder_exists(connection, genebuilder):
+def ensure_genebuilder_exists(connection: pymysql.connections.Connection, genebuilder: str) -> None:
     """
     Ensure genebuilder exists in the genebuilder table.
 
@@ -31,18 +33,18 @@ def ensure_genebuilder_exists(connection, genebuilder):
 
 
 def insert_new_record(
-    connection,
-    assembly_id,
-    assembly,
-    genebuilder,
-    status,
-    annotation_source,
-    annotation_method,
-    current_date,
-    release_type,
-    genebuild_version,
-    dev,
-):
+    connection: pymysql.connections.Connection,
+    assembly_id: int,
+    assembly: str,
+    genebuilder: str,
+    status: str,
+    annotation_source: str,
+    annotation_method: str,
+    current_date: str,
+    release_type: str,
+    genebuild_version: str,
+    dev: bool,
+) -> None:
     """
     Insert a new genebuild status record.
 
@@ -95,7 +97,16 @@ def insert_new_record(
         print(f"Inserted new record for GCA {assembly} with status '{status}'")
 
 
-def update_existing_record(connection, record_id, status, current_date, dev, annotation_method=None, annotation_source=None, genebuild_version=None):
+def update_existing_record(
+    connection: pymysql.connections.Connection,
+    record_id: int,
+    status: str,
+    current_date: str,
+    dev: bool,
+    annotation_method: Optional[str] = None,
+    annotation_source: Optional[str] = None,
+    genebuild_version: Optional[str] = None
+) -> None:
     query_parts = ["gb_status = %s", "date_status_update = %s"]
     params = [status, current_date]
     if annotation_method:
@@ -123,7 +134,7 @@ WHERE genebuild_status_id = %s
         print(f"Updated record {record_id} to status '{status}'")
 
 
-def set_old_record_historical(connection, record_id, dev):
+def set_old_record_historical(connection: pymysql.connections.Connection, record_id: int, dev: bool) -> None:
     """
     Set an existing record to historical (last_attempt = 0).
 
@@ -146,20 +157,20 @@ def set_old_record_historical(connection, record_id, dev):
 
 
 def main(
-    host,
-    port,
-    user,
-    password,
-    database,
-    assembly,
-    status,
-    genebuilder,
-    annotation_source,
-    annotation_method,
-    release_type,
-    genebuild_version,
-    dev=False,
-):
+    host: str,
+    port: int,
+    user: str,
+    password: str,
+    database: str,
+    assembly: str,
+    status: str,
+    genebuilder: str,
+    annotation_source: Optional[str],
+    annotation_method: Optional[str],
+    release_type: str,
+    genebuild_version: Optional[str],
+    dev: bool = False,
+) -> None:
     """
     Main function to update the genebuild status in the registry database.
 

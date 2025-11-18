@@ -12,6 +12,7 @@ Functions:
 
 import pymysql
 import logging
+from typing import Optional, Any
 
 # Configure logging
 logging.basicConfig(
@@ -25,7 +26,9 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-def mysql_get_connection(database, host, port, user, password):
+def mysql_get_connection(
+    database: str, host: str, port: int, user: str, password: str
+) -> Optional[pymysql.connections.Connection]:
     """
     Establish a connection to the MySQL database.
     """
@@ -44,7 +47,15 @@ def mysql_get_connection(database, host, port, user, password):
         return None
 
 
-def mysql_fetch_data(query, database, host, port, user, password, params=None):
+def mysql_fetch_data(
+    query: str,
+    database: str,
+    host: str,
+    port: int,
+    user: str,
+    password: str,
+    params: Optional[tuple[Any, ...] | list[Any]] = None,
+) -> list[dict[str, Any]]:
     """
     Execute a SELECT query on the specified MySQL database and return results.
 
@@ -82,7 +93,15 @@ def mysql_fetch_data(query, database, host, port, user, password, params=None):
         return []
 
 
-def mysql_update(query, database, host, port, user, password, params=None):
+def mysql_update(
+    query: str,
+    database: str,
+    host: str,
+    port: int,
+    user: str,
+    password: str,
+    params: Optional[tuple[Any, ...] | list[Any]] = None,
+) -> bool:
     """
     Execute an UPDATE, INSERT, or DELETE query on the specified MySQL database.
 

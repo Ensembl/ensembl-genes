@@ -12,9 +12,11 @@ from mysql_helper import mysql_get_connection
 from registry_helper import fetch_registry_ids
 import argparse
 import sys
+from typing import Optional
+import pymysql
 
 
-def fetch_core_metrics(core_connection, species_id):
+def fetch_core_metrics(core_connection: pymysql.connections.Connection, species_id: int) -> list[dict[str, str]]:
     """
     Fetch metrics from core database meta table.
 
@@ -40,7 +42,7 @@ def fetch_core_metrics(core_connection, species_id):
         return cursor.fetchall()
 
 
-def partition_metrics(rows):
+def partition_metrics(rows: list[dict[str, str]]) -> tuple[list[tuple[str, str]], list[tuple[str, str]]]:
     """
     Partition metrics into assembly and genebuild categories.
 
@@ -64,7 +66,12 @@ def partition_metrics(rows):
     return assembly_rows, genebuild_rows
 
 
-def write_assembly_metrics(registry_connection, assembly_id, rows, dev):
+def write_assembly_metrics(
+    registry_connection: pymysql.connections.Connection,
+    assembly_id: int,
+    rows: list[tuple[str, str]],
+    dev: bool
+) -> None:
     """
     Write assembly metrics to registry using DELETE then INSERT pattern.
     """
@@ -106,7 +113,13 @@ def write_assembly_metrics(registry_connection, assembly_id, rows, dev):
         print(f"Wrote {len(rows)} assembly metrics for assembly_id {assembly_id}")
 
 
-def write_genebuild_metrics(registry_connection, genebuild_status_id, assembly_id, rows, dev):
+def write_genebuild_metrics(
+    registry_connection: pymysql.connections.Connection,
+    genebuild_status_id: Optional[int],
+    assembly_id: int,
+    rows: list[tuple[str, str]],
+    dev: bool
+) -> None:
     """
     Write genebuild metrics to registry using DELETE then INSERT pattern.
     """
@@ -147,21 +160,21 @@ def write_genebuild_metrics(registry_connection, genebuild_status_id, assembly_i
 
 
 def main(
-    registry_host,
-    registry_port,
-    registry_user,
-    registry_password,
-    registry_db,
-    core_host,
-    core_port,
-    core_user,
-    core_password,
-    core_db,
-    assembly,
-    species_id,
-    genebuilder,
-    dev,
-):
+    registry_host: str,
+    registry_port: int,
+    registry_user: str,
+    registry_password: str,
+    registry_db: str,
+    core_host: str,
+    core_port: int,
+    core_user: str,
+    core_password: Optional[str],
+    core_db: str,
+    assembly: str,
+    species_id: int,
+    genebuilder: str,
+    dev: bool,
+) -> None:
     """
     Main function to write metrics from core DB to registry DB.
 

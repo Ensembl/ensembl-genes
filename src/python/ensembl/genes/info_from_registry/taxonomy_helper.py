@@ -15,6 +15,7 @@ import pymysql
 import json
 from mysql_helper import mysql_fetch_data
 import logging
+from typing import Optional
 
 # Configure logging
 logging.basicConfig(
@@ -28,7 +29,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-def create_tax_dictionary_from_registry(server_info, registry_info):
+def create_tax_dictionary_from_registry(server_info: dict, registry_info: dict) -> dict[str, list[dict[str, any]]]:
     """
     Query the registry MySQL database to construct taxonomy hierarchy for a given taxon ID.
 
@@ -81,7 +82,7 @@ def create_tax_dictionary_from_registry(server_info, registry_info):
         return {}
 
 
-def load_clade_data():
+def load_clade_data() -> dict[str, dict[str, any]]:
     """
     Load clade definitions from a static JSON file.
 
@@ -108,7 +109,7 @@ def load_clade_data():
         return json.load(f)
 
 
-def assign_clade(server_info, registry_info):
+def assign_clade(server_info: dict, registry_info: dict) -> tuple[str, Optional[int], Optional[dict[str, any]]]:
     """
         Assign a clade to a given taxon based on clade data and taxonomy hierarchy.
 
@@ -178,7 +179,7 @@ def assign_clade(server_info, registry_info):
     return "Unassigned", genus_taxon_id, None
 
 
-def assign_clade_info_custom_loading(registry_info):
+def assign_clade_info_custom_loading(registry_info: dict) -> Optional[dict[str, any]]:
     """
     Look for a specific clade in the JSON data and return all values except for taxon_id.
 
@@ -210,7 +211,7 @@ def assign_clade_info_custom_loading(registry_info):
         logging.warning(f"Clade '{clade_name}' not found in clade data")
         return None
 
-def get_parent_taxon(server_info, species_taxon_id):
+def get_parent_taxon(server_info: dict, species_taxon_id: int) -> str:
     """
     Fetch the parent taxon name from the taxonomy table for a given taxon ID.
 

@@ -5,8 +5,11 @@ This module provides utility functions for common registry database queries
 that are shared across multiple scripts.
 """
 
+from typing import Optional
+import pymysql
 
-def fetch_assembly_id(connection, assembly):
+
+def fetch_assembly_id(connection: pymysql.connections.Connection, assembly: str) -> Optional[int]:
     """
     Fetch the assembly ID for a given assembly accession.
 
@@ -28,7 +31,9 @@ def fetch_assembly_id(connection, assembly):
     return result["assembly_id"] if result else None
 
 
-def fetch_current_genebuild_record(connection, assembly, genebuilder=None):
+def fetch_current_genebuild_record(
+    connection: pymysql.connections.Connection, assembly: str, genebuilder: Optional[str] = None
+) -> Optional[dict[str, any]]:
     """
     Fetch the full current genebuild record for a given assembly.
 
@@ -61,7 +66,7 @@ def fetch_current_genebuild_record(connection, assembly, genebuilder=None):
     return result
 
 
-def fetch_genebuild_status_id(connection, assembly):
+def fetch_genebuild_status_id(connection: pymysql.connections.Connection, assembly: str) -> Optional[int]:
     """
     Fetch the current genebuild status ID for a given assembly.
 
@@ -75,7 +80,9 @@ def fetch_genebuild_status_id(connection, assembly):
     return record["genebuild_status_id"] if record else None
 
 
-def fetch_registry_ids(connection, assembly, genebuilder=None):
+def fetch_registry_ids(
+    connection: pymysql.connections.Connection, assembly: str, genebuilder: Optional[str] = None
+) -> tuple[int, Optional[int]]:
     """
     Fetch both assembly_id and genebuild_status_id for a given assembly.
 
