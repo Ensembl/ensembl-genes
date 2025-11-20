@@ -492,7 +492,7 @@ def get_info_for_pipeline_anno(settings: dict, info_dict: dict, assembly_accessi
         short_read_dir / f"{info_dict['production_name']}_gen.csv"
     )
     long_read_summary_file = (
-        short_read_dir / f"{info_dict['production_name']}_long_read.csv"
+        long_read_dir / f"{info_dict['production_name']}_long_read.csv"
     )
     reheadered_toplevel_genome_file = (
             output_path
