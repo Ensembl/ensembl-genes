@@ -455,7 +455,7 @@ def classify_problem(problem: Dict):
         return
 
     # Core has protein_coding genes but they don't satisfy BUSCO
-    problem["classification"] = "POOR_QUALITY_PROTEIN_CODING"
+    problem["classification"] = "PROTEIN_CODING_BUT_NOT_BUSCO_SATISFYING"
 
     # Get evidence source summary
     evidence_summary = ", ".join(f"{k}({v})" for k, v in sorted(layer_logic_name_counts.items(), key=lambda x: x[1], reverse=True)[:5])
