@@ -34,12 +34,13 @@ from typing import Dict, List, Optional, Tuple
 import pymysql
 
 
-def parse_busco_table(file_path: str) -> Dict[str, Dict]:
+def parse_busco_table(file_path: str, mode: str) -> Dict[str, Dict]:
     """
     Parse a BUSCO full_table.tsv file.
 
     Args:
         file_path (str): Path to BUSCO full_table.tsv
+        mode (str): Either "genome" or "protein" - determines parsing format
 
     Returns:
         Dict[str, Dict]: Dictionary of BUSCO ID to entry data
@@ -51,34 +52,50 @@ def parse_busco_table(file_path: str) -> Dict[str, Dict]:
                 continue
 
             parts = line.strip().split("\t")
-            if len(parts) < 3:
+            if len(parts) < 2:
                 continue
 
             busco_id = parts[0]
             status = parts[1]  # Complete, Duplicated, Fragmented, Missing
 
-            # Handle Missing entries (no coordinates)
-            if status == "Missing":
+            if mode == "genome":
+                # Genome mode format: BUSCO_ID Status Sequence Start End Strand Score Length
+                if status == "Missing":
+                    entries[busco_id] = {
+                        "busco_id": busco_id,
+                        "status": status,
+                        "sequence": "",
+                        "start": 0,
+                        "end": 0,
+                        "strand": "",
+                        "score": 0.0,
+                        "length": 0,
+                    }
+                elif len(parts) >= 8:
+                    entries[busco_id] = {
+                        "busco_id": busco_id,
+                        "status": status,
+                        "sequence": parts[2],
+                        "start": int(parts[3]),
+                        "end": int(parts[4]),
+                        "strand": parts[5],
+                        "score": float(parts[6]),
+                        "length": int(parts[7]),
+                    }
+            elif mode == "protein":
+                # Protein mode format: BUSCO_ID Status Gene/Transcript_ID Score Length [URL] [Description]
+                # We only care about status for protein mode
+                gene_id = parts[2] if len(parts) > 2 and status != "Missing" else ""
                 entries[busco_id] = {
                     "busco_id": busco_id,
                     "status": status,
-                    "sequence": "",
+                    "gene_id": gene_id,  # Store gene/transcript ID from protein mode
+                    "sequence": "",  # No genomic coordinates in protein mode
                     "start": 0,
                     "end": 0,
                     "strand": "",
                     "score": 0.0,
                     "length": 0,
-                }
-            elif len(parts) >= 8:
-                entries[busco_id] = {
-                    "busco_id": busco_id,
-                    "status": status,
-                    "sequence": parts[2],
-                    "start": int(parts[3]),
-                    "end": int(parts[4]),
-                    "strand": parts[5],
-                    "score": float(parts[6]),
-                    "length": int(parts[7]),
                 }
 
     return entries
@@ -751,9 +768,9 @@ def main():
 
     # Parse BUSCO tables
     print("\nParsing BUSCO results...")
-    genome_entries = parse_busco_table(args.genome_busco)
+    genome_entries = parse_busco_table(args.genome_busco, "genome")
     print(f"Parsed {len(genome_entries)} BUSCO entries from genome mode")
-    protein_entries = parse_busco_table(args.protein_busco)
+    protein_entries = parse_busco_table(args.protein_busco, "protein")
     print(f"Parsed {len(protein_entries)} BUSCO entries from protein mode")
 
     # Identify problems
