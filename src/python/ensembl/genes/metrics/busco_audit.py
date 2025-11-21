@@ -67,16 +67,41 @@ def get_busco_metadata(busco_dataset_dir: str, busco_ids: List[str]) -> Dict[str
     """
     metadata = {}
 
-    if not busco_dataset_dir or not Path(busco_dataset_dir).exists():
+    if not busco_dataset_dir:
+        print("Warning: No BUSCO dataset directory provided")
+        return metadata
+
+    busco_path = Path(busco_dataset_dir)
+    if not busco_path.exists():
+        print(f"Warning: BUSCO dataset directory does not exist: {busco_dataset_dir}")
         return metadata
 
     # Read lengths_cutoff file which has expected protein lengths
-    lengths_file = Path(busco_dataset_dir) / "lengths_cutoff"
+    lengths_file = busco_path / "lengths_cutoff"
+
+    print(f"Looking for lengths_cutoff at: {lengths_file}")
+    print(f"File exists: {lengths_file.exists()}")
 
     busco_lengths = {}
+
+    # If direct path doesn't exist, try common BUSCO dataset structures
+    if not lengths_file.exists():
+        print(f"Checking for common BUSCO dataset structures...")
+        possible_locations = [
+            busco_path / "lineages" / "actinopterygii_odb10" / "lengths_cutoff",
+            busco_path / "actinopterygii_odb10" / "lengths_cutoff",
+        ]
+        for loc in possible_locations:
+            print(f"  Trying: {loc}")
+            if loc.exists():
+                print(f"  Found it!")
+                lengths_file = loc
+                break
+
     if lengths_file.exists():
         try:
             with open(lengths_file, "r") as f:  # pylint: disable=unspecified-encoding
+                line_count = 0
                 for line in f:
                     if line.startswith("#"):
                         continue
@@ -87,11 +112,12 @@ def get_busco_metadata(busco_dataset_dir: str, busco_ids: List[str]) -> Dict[str
                             "length_sd": float(parts[1]),
                             "length": float(parts[2]),
                         }
+                        line_count += 1
+                print(f"Loaded {line_count} BUSCO length entries from lengths_cutoff")
         except Exception as e:  # pylint: disable=broad-except
             print(f"Warning: Could not parse lengths_cutoff: {e}")
-
-    # Try to read info/species.info which might have descriptions
-    # Note: This varies by BUSCO version, so we'll just add what we can
+    else:
+        print(f"Warning: Could not find lengths_cutoff file in any expected location")
 
     for busco_id in busco_ids:
         parsed = parse_busco_id(busco_id)
