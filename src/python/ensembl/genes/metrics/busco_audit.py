@@ -88,14 +88,15 @@ def identify_problems(
     genome_entries: Dict[str, Dict], protein_entries: Dict[str, Dict]
 ) -> List[Dict]:
     """
-    Identify problematic loci where genome and protein results differ.
+    Identify problematic loci where protein BUSCO is worse than genome BUSCO.
+    Goal: protein completeness should be >= genome completeness.
 
     Args:
         genome_entries (Dict): BUSCO entries from genome mode
         protein_entries (Dict): BUSCO entries from protein mode
 
     Returns:
-        List[Dict]: List of problem loci
+        List[Dict]: List of problem loci where protein annotation is failing
     """
     problems = []
     all_busco_ids = set(genome_entries.keys()) | set(protein_entries.keys())
@@ -110,30 +111,33 @@ def identify_problems(
         genome_status = genome_entry["status"]
         protein_status = protein_entry["status"]
 
-        # Identify problematic cases
+        # Identify problematic cases where protein is WORSE than genome
         problem_type = None
 
-        # Case 1: Protein is Complete, but Genome is Missing
-        if protein_status == "Complete" and genome_status == "Missing":
-            problem_type = "Complete→Missing"
-        # Case 2: Protein is Complete, but Genome is Fragmented
-        elif protein_status == "Complete" and genome_status == "Fragmented":
-            problem_type = "Complete→Fragmented"
-        # Case 3: Protein is Fragmented, but Genome is Missing
-        elif protein_status == "Fragmented" and genome_status == "Missing":
-            problem_type = "Fragmented→Missing"
+        # Case 1: Genome is Complete, but Protein is Missing
+        # This means gene exists but no valid protein
+        if genome_status == "Complete" and protein_status == "Missing":
+            problem_type = "GenomeComplete→ProteinMissing"
+        # Case 2: Genome is Complete, but Protein is Fragmented
+        # Gene exists but protein is incomplete
+        elif genome_status == "Complete" and protein_status == "Fragmented":
+            problem_type = "GenomeComplete→ProteinFragmented"
+        # Case 3: Genome is Fragmented, but Protein is Missing
+        # Partial gene exists but no protein at all
+        elif genome_status == "Fragmented" and protein_status == "Missing":
+            problem_type = "GenomeFragmented→ProteinMissing"
 
         if problem_type:
-            # Use protein coordinates for investigation
+            # Use GENOME coordinates since genome BUSCO found it
             problems.append(
                 {
                     "busco_id": busco_id,
                     "genome_status": genome_status,
                     "protein_status": protein_status,
-                    "sequence": protein_entry["sequence"],
-                    "start": protein_entry["start"],
-                    "end": protein_entry["end"],
-                    "strand": protein_entry["strand"],
+                    "sequence": genome_entry["sequence"],
+                    "start": genome_entry["start"],
+                    "end": genome_entry["end"],
+                    "strand": genome_entry["strand"],
                     "problem_type": problem_type,
                     "classification": "",
                     "core_genes": [],
@@ -370,7 +374,8 @@ def audit_evidence(
 
 def classify_problem(problem: Dict):
     """
-    Classify the problem by comparing core and layer genes.
+    Classify why protein annotation is failing at this locus.
+    Focus: Genome BUSCO found something, but protein BUSCO failed.
 
     Args:
         problem (Dict): Problem locus data (modified in place)
@@ -378,59 +383,70 @@ def classify_problem(problem: Dict):
     core_genes = problem["core_genes"]
     layer_genes = problem["layer_genes"]
 
-    # Case 1: No genes in layer database
-    if not layer_genes:
-        problem["classification"] = "NO_LAYER_GENES"
-        problem["notes"] = "No genes found in layer database at this locus"
-        return
-
-    # Case 2: Genes in layer but none made it to core
+    # Case 1: No genes at all in core database
     if not core_genes:
-        layer_biotypes = [g["biotype"] for g in layer_genes]
-        layer_logic_names = [g.get("logic_name", "unknown") for g in layer_genes]
-        problem["classification"] = "LAYER_NOT_TRANSFERRED"
+        if layer_genes:
+            layer_biotypes = [g["biotype"] for g in layer_genes]
+            layer_logic_names = [g.get("logic_name", "unknown") for g in layer_genes]
+            problem["classification"] = "GENE_NOT_TRANSFERRED"
+            problem["notes"] = (
+                f"Genome BUSCO found locus but no genes in core. "
+                f"Layer has {len(layer_genes)} gene(s) (biotypes: {', '.join(set(layer_biotypes))}, "
+                f"logic_names: {', '.join(set(layer_logic_names))}) that were not transferred"
+            )
+        else:
+            problem["classification"] = "NO_GENES_FOUND"
+            problem["notes"] = "Genome BUSCO found locus but no genes in core or layer databases"
+        return
+
+    # Case 2: Genes exist but filtered as non-coding
+    non_coding_biotypes = {"pseudogene", "artifact", "TEC", "ncRNA", "lncRNA", "miRNA", "snoRNA", "snRNA"}
+    filtered_genes = [g for g in core_genes if g["biotype"] in non_coding_biotypes]
+
+    if filtered_genes:
+        problem["classification"] = "NON_CODING_BIOTYPE"
+        biotype_summary = ", ".join(set(g["biotype"] for g in filtered_genes))
         problem["notes"] = (
-            f"Found {len(layer_genes)} gene(s) in layer (biotypes: {', '.join(set(layer_biotypes))}, "
-            f"logic_names: {', '.join(set(layer_logic_names))}) but none made it to core"
+            f"Found {len(core_genes)} gene(s) but {len(filtered_genes)} are non-coding: {biotype_summary}. "
+            f"These won't have valid protein translations"
         )
         return
 
-    # Case 3: Some genes in both, compare what's missing
-    layer_biotypes = set(g["biotype"] for g in layer_genes)
-    core_biotypes = set(g["biotype"] for g in core_genes)
-    missing_biotypes = layer_biotypes - core_biotypes
-
-    if missing_biotypes:
-        # Get logic names for missing biotypes
-        missing_genes = [g for g in layer_genes if g["biotype"] in missing_biotypes]
-        missing_logic_names = set(g.get("logic_name", "unknown") for g in missing_genes)
-        problem["classification"] = "PARTIAL_TRANSFER"
+    # Case 3: Genes exist but no transcripts or translations
+    genes_without_transcripts = [g for g in core_genes if not g.get("transcripts")]
+    if genes_without_transcripts:
+        problem["classification"] = "NO_TRANSCRIPTS"
         problem["notes"] = (
-            f"Layer has {len(layer_genes)} gene(s), core has {len(core_genes)}. "
-            f"Missing biotypes from core: {', '.join(missing_biotypes)} "
-            f"(logic_names: {', '.join(missing_logic_names)})"
+            f"Found {len(core_genes)} gene(s) but {len(genes_without_transcripts)} have no transcripts. "
+            f"Missing gene IDs: {', '.join(g['stable_id'] for g in genes_without_transcripts)}"
         )
         return
 
-    # Case 4: Core has genes but wrong biotypes (filtered)
-    wrong_biotypes = [g for g in core_genes if g["biotype"] in ("pseudogene", "artifact", "TEC")]
-    if wrong_biotypes:
-        problem["classification"] = "FILTERED_BIOTYPE"
-        problem["notes"] = (
-            f"Core has {len(core_genes)} gene(s) but some filtered as: "
-            f"{', '.join(set(g['biotype'] for g in wrong_biotypes))}"
-        )
-        return
+    # Case 4: Better models exist in layer but not used
+    if layer_genes and len(layer_genes) > len(core_genes):
+        layer_biotypes = set(g["biotype"] for g in layer_genes)
+        core_biotypes = set(g["biotype"] for g in core_genes)
+        missing_biotypes = layer_biotypes - core_biotypes
 
-    # Case 5: Genes present in core but fewer than layer
-    if len(core_genes) < len(layer_genes):
-        problem["classification"] = "INCOMPLETE_TRANSFER"
-        problem["notes"] = f"Layer has {len(layer_genes)} gene(s) but only {len(core_genes)} made it to core"
-        return
+        if missing_biotypes:
+            missing_genes = [g for g in layer_genes if g["biotype"] in missing_biotypes]
+            missing_logic_names = set(g.get("logic_name", "unknown") for g in missing_genes)
+            problem["classification"] = "BETTER_MODEL_IN_LAYER"
+            problem["notes"] = (
+                f"Core has {len(core_genes)} gene(s), layer has {len(layer_genes)}. "
+                f"Layer has additional biotypes: {', '.join(missing_biotypes)} "
+                f"(logic_names: {', '.join(missing_logic_names)}) not in core"
+            )
+            return
 
-    # Case 6: Should not happen - equal or more genes in core
-    problem["classification"] = "UNCLEAR"
-    problem["notes"] = f"Core has {len(core_genes)} gene(s), layer has {len(layer_genes)} - needs manual investigation"
+    # Case 5: Genes exist but likely fragmented/incomplete models
+    problem["classification"] = "INCOMPLETE_MODEL"
+    core_biotypes = ", ".join(set(g["biotype"] for g in core_genes))
+    problem["notes"] = (
+        f"Found {len(core_genes)} gene(s) in core (biotypes: {core_biotypes}). "
+        f"Models likely incomplete - genome BUSCO found complete but protein BUSCO failed. "
+        f"Check for frameshift errors, premature stops, or fragmented exon structure"
+    )
 
 
 def generate_report(problems: List[Dict], output_tsv: str, output_json: Optional[str] = None):
