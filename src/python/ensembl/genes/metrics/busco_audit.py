@@ -134,13 +134,18 @@ def get_busco_metadata(busco_dataset_dir: str, busco_ids: List[str]) -> Dict[str
 def parse_hmmer_output(hmmer_file: str, core_gene_ids: List[str]) -> Dict:
     """
     Parse HMMER output file to understand why BUSCO failed.
+    Also identifies alternative transcript isoforms that would satisfy BUSCO.
+
+    The HMMER output contains results for ALL transcripts that were tested by BUSCO,
+    not just the canonical. This function identifies which transcripts would satisfy
+    BUSCO criteria, allowing you to see if a better isoform exists.
 
     Args:
         hmmer_file (str): Path to HMMER .out file
         core_gene_ids (List[str]): List of gene stable IDs to look for
 
     Returns:
-        Dict: HMMER results with best hit info, or empty dict if file not found
+        Dict: HMMER results with best hit info and alternative isoforms
     """
     if not Path(hmmer_file).exists():
         return {"status": "file_not_found"}
@@ -156,7 +161,7 @@ def parse_hmmer_output(hmmer_file: str, core_gene_ids: List[str]) -> Dict:
                 continue
 
             parts = line.split()
-            if len(parts) < 13:
+            if len(parts) < 19:
                 continue
 
             transcript_id = parts[0]
@@ -192,11 +197,11 @@ def parse_hmmer_output(hmmer_file: str, core_gene_ids: List[str]) -> Dict:
         # Get best hit (lowest e-value)
         best_hit = min(hits, key=lambda x: x["e_value"])
 
-        # Calculate coverage
+        # Calculate coverage for best hit
         hmm_coverage = (best_hit["hmm_to"] - best_hit["hmm_from"] + 1) / best_hit["qlen"] * 100
         protein_coverage = (best_hit["ali_to"] - best_hit["ali_from"] + 1) / best_hit["tlen"] * 100
 
-        # Diagnose issue
+        # Diagnose issues with best hit
         issues = []
         if best_hit["e_value"] > 1e-10:
             issues.append("poor_evalue")
@@ -209,6 +214,32 @@ def parse_hmmer_output(hmmer_file: str, core_gene_ids: List[str]) -> Dict:
         if protein_coverage < 50:
             issues.append("low_protein_coverage")
 
+        # Find isoforms that would satisfy BUSCO criteria
+        # Criteria: e-value <= 1e-10, HMM coverage >= 80%, single domain, protein coverage >= 50%
+        # These are transcripts that exist in the HMMER results (meaning they were tested)
+        # and would pass BUSCO if they were selected as canonical
+        good_isoforms = []
+        for hit in hits:
+            hit_hmm_cov = (hit["hmm_to"] - hit["hmm_from"] + 1) / hit["qlen"] * 100
+            hit_prot_cov = (hit["ali_to"] - hit["ali_from"] + 1) / hit["tlen"] * 100
+
+            if (hit["e_value"] <= 1e-10 and
+                hit_hmm_cov >= 80 and
+                hit["domain_total"] == 1 and
+                hit_prot_cov >= 50):
+
+                # Mark if this is the best hit (likely the current canonical or best transcript)
+                is_best = (hit["transcript_id"] == best_hit["transcript_id"])
+
+                good_isoforms.append({
+                    "transcript_id": hit["transcript_id"],
+                    "e_value": hit["e_value"],
+                    "hmm_coverage": hit_hmm_cov,
+                    "protein_coverage": hit_prot_cov,
+                    "protein_length": hit["tlen"],
+                    "is_best_hit": is_best,
+                })
+
         return {
             "status": "hit_found",
             "best_hit": best_hit,
@@ -216,6 +247,7 @@ def parse_hmmer_output(hmmer_file: str, core_gene_ids: List[str]) -> Dict:
             "hmm_coverage": hmm_coverage,
             "protein_coverage": protein_coverage,
             "issues": issues,
+            "good_isoforms": good_isoforms,  # Isoforms that would satisfy BUSCO
         }
 
     except Exception as e:  # pylint: disable=broad-except
@@ -393,7 +425,7 @@ def get_genes_at_locus(
     seq_region_id: int, start: int, end: int, host: str, port: int, user: str, password: str, core_db: str
 ) -> List[Dict]:
     """
-    Get all genes overlapping a locus.
+    Get all genes overlapping a locus with transcript and translation details.
 
     Args:
         seq_region_id (int): seq_region_id
@@ -406,7 +438,7 @@ def get_genes_at_locus(
         core_db (str): Core database name
 
     Returns:
-        List[Dict]: List of genes at locus
+        List[Dict]: List of genes at locus with transcript details including protein lengths
     """
     try:
         if password:
@@ -423,6 +455,7 @@ def get_genes_at_locus(
             SELECT
                 g.gene_id,
                 g.stable_id,
+                g.canonical_transcript_id,
                 sr.name as seq_region_name,
                 g.seq_region_start,
                 g.seq_region_end,
@@ -437,13 +470,25 @@ def get_genes_at_locus(
         cursor.execute(query, (seq_region_id, end, start))
         genes = cursor.fetchall()
 
-        # Get transcripts for each gene
+        # Get transcripts with translation details for each gene
         for gene in genes:
             cursor.execute(
                 """
-                SELECT transcript_id, stable_id, seq_region_start, seq_region_end, biotype
-                FROM transcript
-                WHERE gene_id = %s
+                SELECT
+                    t.transcript_id,
+                    t.stable_id,
+                    t.seq_region_start,
+                    t.seq_region_end,
+                    t.biotype,
+                    tl.seq_start as cds_start,
+                    tl.start_exon_id,
+                    tl.seq_end as cds_end,
+                    tl.end_exon_id,
+                    LENGTH(tl.seq) as protein_length
+                FROM transcript t
+                LEFT JOIN translation tl ON t.transcript_id = tl.transcript_id
+                WHERE t.gene_id = %s
+                ORDER BY t.transcript_id
                 """,
                 (gene["gene_id"],),
             )
@@ -582,8 +627,82 @@ def audit_evidence(
         # Classify the problem
         classify_problem(problem)
 
+        # Identify alternative isoforms worth testing
+        problem["alternative_isoform_suggestions"] = identify_alternative_isoforms(problem)
+
     print(f"\nCompleted evidence audit for {total} loci")
     return problems
+
+
+def identify_alternative_isoforms(problem: Dict) -> List[Dict]:
+    """
+    Identify alternative isoforms that might be worth testing for BUSCO.
+
+    Suggests non-canonical isoforms that have substantially different protein sequences
+    based on length differences and coordinates.
+
+    Args:
+        problem (Dict): Problem locus data
+
+    Returns:
+        List[Dict]: Suggested alternative isoforms with rationale
+    """
+    suggestions = []
+
+    for gene in problem.get("core_genes", []):
+        canonical_id = gene.get("canonical_transcript_id")
+        transcripts = gene.get("transcripts", [])
+
+        if not transcripts or not canonical_id:
+            continue
+
+        # Find canonical transcript
+        canonical = None
+        for t in transcripts:
+            if t["transcript_id"] == canonical_id:
+                canonical = t
+                break
+
+        if not canonical or not canonical.get("protein_length"):
+            continue
+
+        canonical_length = canonical["protein_length"]
+
+        # Find alternative isoforms with significantly different protein lengths
+        for transcript in transcripts:
+            if transcript["transcript_id"] == canonical_id:
+                continue  # Skip canonical
+
+            if not transcript.get("protein_length"):
+                continue  # Skip non-coding
+
+            alt_length = transcript["protein_length"]
+            length_diff_pct = abs(alt_length - canonical_length) / canonical_length * 100
+
+            # Suggest if >20% length difference or substantially longer
+            if length_diff_pct > 20 or (alt_length > canonical_length * 1.5):
+                reason = []
+                if alt_length > canonical_length:
+                    reason.append(f"{length_diff_pct:.0f}% longer ({alt_length} vs {canonical_length} aa)")
+                else:
+                    reason.append(f"{length_diff_pct:.0f}% shorter ({alt_length} vs {canonical_length} aa)")
+
+                # Check coordinate differences
+                coord_diff = abs(transcript["seq_region_end"] - transcript["seq_region_start"]) - \
+                            abs(canonical["seq_region_end"] - canonical["seq_region_start"])
+                if abs(coord_diff) > 1000:
+                    reason.append(f"{abs(coord_diff)}bp genomic difference")
+
+                suggestions.append({
+                    "gene_id": gene["stable_id"],
+                    "transcript_id": transcript["stable_id"],
+                    "protein_length": alt_length,
+                    "canonical_length": canonical_length,
+                    "length_diff_pct": length_diff_pct,
+                    "reason": "; ".join(reason),
+                })
+
+    return suggestions
 
 
 def classify_problem(problem: Dict):
@@ -712,6 +831,7 @@ def generate_report(problems: List[Dict], output_tsv: str, output_json: Optional
                 "HMMER_E-value",
                 "HMMER_Coverage",
                 "HMMER_Issues",
+                "Alternative_Isoforms",
                 "Summary",
             ]
         )
@@ -750,11 +870,28 @@ def generate_report(problems: List[Dict], output_tsv: str, output_json: Optional
             # Parse HMMER results
             hmmer = problem.get("hmmer_results", {})
             hmmer_status = hmmer.get("status", "-")
+            alternative_isoforms_str = "-"
+
             if hmmer_status == "hit_found":
                 best_hit = hmmer["best_hit"]
                 hmmer_evalue = f"{best_hit['e_value']:.2e}"
                 hmmer_coverage = f"HMM:{hmmer['hmm_coverage']:.0f}%,Prot:{hmmer['protein_coverage']:.0f}%"
                 hmmer_issues = ",".join(hmmer["issues"]) if hmmer["issues"] else "none"
+
+                # Format alternative isoforms
+                good_isoforms = hmmer.get("good_isoforms", [])
+                if good_isoforms:
+                    # Show up to 3 good isoforms with their stats
+                    # Mark the best hit with an asterisk to show it's likely the canonical
+                    isoform_strs = []
+                    for iso in good_isoforms[:3]:
+                        marker = "*" if iso.get("is_best_hit") else ""
+                        isoform_strs.append(
+                            f"{iso['transcript_id']}{marker}(E:{iso['e_value']:.1e},HMM:{iso['hmm_coverage']:.0f}%)"
+                        )
+                    alternative_isoforms_str = "; ".join(isoform_strs)
+                    if len(good_isoforms) > 3:
+                        alternative_isoforms_str += f" +{len(good_isoforms)-3} more"
             else:
                 hmmer_evalue = "-"
                 hmmer_coverage = "-"
@@ -764,7 +901,11 @@ def generate_report(problems: List[Dict], output_tsv: str, output_json: Optional
             classification = problem["classification"]
             if classification == "PROTEIN_CODING_BUT_NOT_BUSCO_SATISFYING":
                 if hmmer_status == "hit_found" and hmmer["issues"]:
-                    summary = f"{core_protein_coding} protein_coding gene(s), HMMER: {', '.join(hmmer['issues'])}"
+                    good_isoforms = hmmer.get("good_isoforms", [])
+                    if good_isoforms:
+                        summary = f"{core_protein_coding} protein_coding gene(s), HMMER: {', '.join(hmmer['issues'])} BUT {len(good_isoforms)} good isoform(s) exist!"
+                    else:
+                        summary = f"{core_protein_coding} protein_coding gene(s), HMMER: {', '.join(hmmer['issues'])}"
                 else:
                     summary = f"{core_protein_coding} protein_coding gene(s), likely incomplete CDS or poor canonical"
             elif classification == "NON_CODING_BIOTYPE":
@@ -802,11 +943,16 @@ def generate_report(problems: List[Dict], output_tsv: str, output_json: Optional
                     hmmer_evalue,
                     hmmer_coverage,
                     hmmer_issues,
+                    alternative_isoforms_str,
                     summary,
                 ]
             )
 
     print(f"TSV report written to: {output_tsv}")
+
+    # Generate alternative isoforms suggestions file
+    isoform_file = output_tsv.replace(".tsv", "_isoform_suggestions.tsv")
+    write_isoform_suggestions(problems, isoform_file)
 
     # Generate summary statistics
     print_summary(problems)
@@ -814,6 +960,68 @@ def generate_report(problems: List[Dict], output_tsv: str, output_json: Optional
     # Generate JSON output if requested
     if output_json:
         generate_json_report(problems, output_json)
+
+
+def write_isoform_suggestions(problems: List[Dict], output_file: str):
+    """
+    Write alternative isoform suggestions to a separate TSV file.
+
+    Args:
+        problems (List[Dict]): List of problem loci
+        output_file (str): Output file path for isoform suggestions
+    """
+    all_suggestions = []
+
+    for problem in problems:
+        suggestions = problem.get("alternative_isoform_suggestions", [])
+        if suggestions:
+            for sug in suggestions:
+                all_suggestions.append({
+                    "busco_id": problem["busco_id"],
+                    "chromosome": problem["sequence"],
+                    "locus_start": problem["start"],
+                    "locus_end": problem["end"],
+                    **sug
+                })
+
+    if not all_suggestions:
+        print("No alternative isoform suggestions to write")
+        return
+
+    with open(output_file, "w", newline="") as f:  # pylint: disable=unspecified-encoding
+        writer = csv.writer(f, delimiter="\t")
+
+        # Header
+        writer.writerow([
+            "BUSCO_ID",
+            "Chromosome",
+            "Locus_Start",
+            "Locus_End",
+            "Gene_ID",
+            "Alternative_Transcript_ID",
+            "Alt_Protein_Length",
+            "Canonical_Protein_Length",
+            "Length_Diff_Percent",
+            "Reason",
+        ])
+
+        # Data rows
+        for sug in all_suggestions:
+            writer.writerow([
+                sug["busco_id"],
+                sug["chromosome"],
+                sug["locus_start"],
+                sug["locus_end"],
+                sug["gene_id"],
+                sug["transcript_id"],
+                sug["protein_length"],
+                sug["canonical_length"],
+                f"{sug['length_diff_pct']:.1f}%",
+                sug["reason"],
+            ])
+
+    print(f"Alternative isoform suggestions written to: {output_file}")
+    print(f"  Total suggestions: {len(all_suggestions)} isoforms across {len([p for p in problems if p.get('alternative_isoform_suggestions')])} genes")
 
 
 def print_summary(problems: List[Dict]):
@@ -867,6 +1075,19 @@ def print_summary(problems: List[Dict]):
     print(f"  Total genes in core: {total_core_genes}")
     print(f"  Protein_coding genes: {total_core_protein_coding} ({100*total_core_protein_coding/total_core_genes if total_core_genes > 0 else 0:.1f}%)")
     print(f"  Non-coding genes: {total_core_genes - total_core_protein_coding} ({100*(total_core_genes - total_core_protein_coding)/total_core_genes if total_core_genes > 0 else 0:.1f}%)")
+
+    # HMMER isoform statistics
+    genes_with_hmmer = sum(1 for p in problems if p.get("hmmer_results", {}).get("status") == "hit_found")
+    genes_with_good_isoforms = sum(1 for p in problems if p.get("hmmer_results", {}).get("good_isoforms"))
+    total_good_isoforms = sum(len(p.get("hmmer_results", {}).get("good_isoforms", [])) for p in problems)
+
+    if genes_with_hmmer > 0:
+        print(f"\nHMMER Analysis Results:")
+        print(f"  Genes with HMMER hits: {genes_with_hmmer}")
+        print(f"  Genes with alternative good isoforms: {genes_with_good_isoforms} ({100*genes_with_good_isoforms/genes_with_hmmer:.1f}%)")
+        print(f"  Total good alternative isoforms found: {total_good_isoforms}")
+        if genes_with_good_isoforms > 0:
+            print(f"  Average good isoforms per gene: {total_good_isoforms/genes_with_good_isoforms:.1f}")
 
     print(f"\nLayer Evidence Statistics (at problem loci):")
     print(f"  Total evidence alignments: {total_layer_evidence}")
