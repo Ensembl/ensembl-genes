@@ -497,24 +497,26 @@ def get_genes_at_locus(
 
             # Calculate protein length from coding exon sequences
             for transcript in transcripts:
-                if transcript.get("translation_id"):
-                    # Get all exons for this transcript in order
-                    cursor.execute(
-                        """
-                        SELECT
-                            e.exon_id,
-                            e.seq_region_start,
-                            e.seq_region_end,
-                            et.rank
-                        FROM exon_transcript et
-                        JOIN exon e ON et.exon_id = e.exon_id
-                        WHERE et.transcript_id = %s
-                        ORDER BY et.rank
-                        """,
-                        (transcript["transcript_id"],),
-                    )
-                    exons = cursor.fetchall()
+                # Get all exons for this transcript in order
+                cursor.execute(
+                    """
+                    SELECT
+                        e.exon_id,
+                        e.seq_region_start,
+                        e.seq_region_end,
+                        et.rank
+                    FROM exon_transcript et
+                    JOIN exon e ON et.exon_id = e.exon_id
+                    WHERE et.transcript_id = %s
+                    ORDER BY et.rank
+                    """,
+                    (transcript["transcript_id"],),
+                )
+                exons = cursor.fetchall()
+                # Store exons in transcript for later analysis
+                transcript["exons"] = exons
 
+                if transcript.get("translation_id"):
                     # Calculate CDS length accounting for translation boundaries
                     cds_length = 0
                     start_exon_id = transcript.get("start_exon_id")
@@ -697,7 +699,7 @@ def identify_alternative_isoforms(problem: Dict) -> List[Dict]:
     Identify alternative isoforms that might be worth testing for BUSCO.
 
     Suggests non-canonical isoforms that have substantially different protein sequences
-    based on length differences and coordinates.
+    based on length differences and unique exon coverage.
 
     Args:
         problem (Dict): Problem locus data
@@ -726,6 +728,13 @@ def identify_alternative_isoforms(problem: Dict) -> List[Dict]:
 
         canonical_length = canonical["protein_length"]
 
+        # Get canonical exon positions
+        canonical_exons = canonical.get("exons", [])
+        canonical_positions = set()
+        for exon in canonical_exons:
+            for pos in range(exon["seq_region_start"], exon["seq_region_end"] + 1):
+                canonical_positions.add(pos)
+
         # Find alternative isoforms with significantly different protein lengths
         for transcript in transcripts:
             if transcript["transcript_id"] == canonical_id:
@@ -745,11 +754,27 @@ def identify_alternative_isoforms(problem: Dict) -> List[Dict]:
                 else:
                     reason.append(f"{length_diff_pct:.0f}% shorter ({alt_length} vs {canonical_length} aa)")
 
-                # Check coordinate differences
-                coord_diff = abs(transcript["seq_region_end"] - transcript["seq_region_start"]) - \
-                            abs(canonical["seq_region_end"] - canonical["seq_region_start"])
-                if abs(coord_diff) > 1000:
-                    reason.append(f"{abs(coord_diff)}bp genomic difference")
+                # Calculate unique genomic positions covered by alternative isoform
+                alt_exons = transcript.get("exons", [])
+                alt_positions = set()
+                for exon in alt_exons:
+                    for pos in range(exon["seq_region_start"], exon["seq_region_end"] + 1):
+                        alt_positions.add(pos)
+
+                # Find unique positions in alternative that canonical doesn't have
+                unique_to_alt = alt_positions - canonical_positions
+                unique_to_canonical = canonical_positions - alt_positions
+                shared_positions = alt_positions & canonical_positions
+
+                if unique_to_alt:
+                    reason.append(f"{len(unique_to_alt)}bp unique to alt")
+                if unique_to_canonical:
+                    reason.append(f"{len(unique_to_canonical)}bp unique to canonical")
+
+                # Calculate overlap percentage
+                if alt_positions:
+                    overlap_pct = len(shared_positions) / len(alt_positions) * 100
+                    reason.append(f"{overlap_pct:.0f}% overlap")
 
                 suggestions.append({
                     "gene_id": gene["stable_id"],
@@ -757,6 +782,9 @@ def identify_alternative_isoforms(problem: Dict) -> List[Dict]:
                     "protein_length": alt_length,
                     "canonical_length": canonical_length,
                     "length_diff_pct": length_diff_pct,
+                    "unique_bp_to_alt": len(unique_to_alt),
+                    "unique_bp_to_canonical": len(unique_to_canonical),
+                    "overlap_pct": overlap_pct if alt_positions else 0,
                     "reason": "; ".join(reason),
                 })
 
@@ -1060,6 +1088,9 @@ def write_isoform_suggestions(problems: List[Dict], output_file: str):
             "Alt_Protein_Length",
             "Canonical_Protein_Length",
             "Length_Diff_Percent",
+            "Unique_bp_to_Alt",
+            "Unique_bp_to_Canonical",
+            "Overlap_Percent",
             "Reason",
         ])
 
@@ -1075,6 +1106,9 @@ def write_isoform_suggestions(problems: List[Dict], output_file: str):
                 sug["protein_length"],
                 sug["canonical_length"],
                 f"{sug['length_diff_pct']:.1f}%",
+                sug["unique_bp_to_alt"],
+                sug["unique_bp_to_canonical"],
+                f"{sug['overlap_pct']:.1f}%",
                 sug["reason"],
             ])
 
