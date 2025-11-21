@@ -435,7 +435,7 @@ def classify_problem(problem: Dict):
         problem["classification"] = "NO_TRANSCRIPTS"
         problem["notes"] = (
             f"Found {len(core_genes)} gene(s) but {len(genes_without_transcripts)} have no transcripts. "
-            f"Missing gene IDs: {', '.join(g['stable_id'] for g in genes_without_transcripts)}"
+            f"Missing gene IDs: {', '.join(g['stable_id'] or 'None' for g in genes_without_transcripts)}"
         )
         return
 
@@ -505,16 +505,16 @@ def generate_report(problems: List[Dict], output_tsv: str, output_json: Optional
         # Data rows
         for problem in problems:
             core_gene_ids = (
-                ",".join(g["stable_id"] for g in problem["core_genes"]) if problem["core_genes"] else ""
+                ",".join(g["stable_id"] or "None" for g in problem["core_genes"]) if problem["core_genes"] else ""
             )
             core_gene_biotypes = (
-                ",".join(set(g["biotype"] for g in problem["core_genes"])) if problem["core_genes"] else ""
+                ",".join(set(g["biotype"] or "unknown" for g in problem["core_genes"])) if problem["core_genes"] else ""
             )
             layer_gene_ids = (
-                ",".join(g["stable_id"] for g in problem["layer_genes"]) if problem["layer_genes"] else ""
+                ",".join(g["stable_id"] or "None" for g in problem["layer_genes"]) if problem["layer_genes"] else ""
             )
             layer_gene_biotypes = (
-                ",".join(set(g["biotype"] for g in problem["layer_genes"])) if problem["layer_genes"] else ""
+                ",".join(set(g["biotype"] or "unknown" for g in problem["layer_genes"])) if problem["layer_genes"] else ""
             )
             layer_logic_names = (
                 ",".join(set(g.get("logic_name", "unknown") for g in problem["layer_genes"]))
@@ -637,8 +637,8 @@ def generate_json_report(problems: List[Dict], output_json: str):
             },
             "core_genes": [
                 {
-                    "stable_id": g["stable_id"],
-                    "biotype": g["biotype"],
+                    "stable_id": g["stable_id"] or "None",
+                    "biotype": g["biotype"] or "unknown",
                     "coordinates": {
                         "start": g["seq_region_start"],
                         "end": g["seq_region_end"],
@@ -649,8 +649,8 @@ def generate_json_report(problems: List[Dict], output_json: str):
             ],
             "layer_genes": [
                 {
-                    "stable_id": g["stable_id"],
-                    "biotype": g["biotype"],
+                    "stable_id": g["stable_id"] or "None",
+                    "biotype": g["biotype"] or "unknown",
                     "logic_name": g.get("logic_name", "unknown"),
                     "coordinates": {
                         "start": g["seq_region_start"],
