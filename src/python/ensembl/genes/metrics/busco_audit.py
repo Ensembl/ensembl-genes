@@ -29,9 +29,171 @@ import json
 import re
 import sys
 from collections import defaultdict
+from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
 import pymysql
+
+
+def parse_busco_id(busco_id: str) -> Dict[str, str]:
+    """
+    Parse BUSCO ID to extract OrthoDB group and taxonomic info.
+
+    Args:
+        busco_id (str): BUSCO ID like "135504at7898"
+
+    Returns:
+        Dict with orthodb_group and taxid
+    """
+    match = re.match(r"(\d+)at(\d+)", busco_id)
+    if match:
+        return {
+            "orthodb_group": match.group(1),
+            "taxid": match.group(2),
+        }
+    return {"orthodb_group": busco_id, "taxid": "unknown"}
+
+
+def get_busco_metadata(busco_dataset_dir: str, busco_ids: List[str]) -> Dict[str, Dict]:
+    """
+    Extract BUSCO metadata from the lineage dataset directory.
+
+    Args:
+        busco_dataset_dir (str): Path to BUSCO lineage directory (e.g., actinopterygii_odb10)
+        busco_ids (List[str]): List of BUSCO IDs to get metadata for
+
+    Returns:
+        Dict mapping BUSCO ID to metadata (name, length, etc.)
+    """
+    metadata = {}
+
+    if not busco_dataset_dir or not Path(busco_dataset_dir).exists():
+        return metadata
+
+    # Read lengths_cutoff file which has expected protein lengths
+    lengths_file = Path(busco_dataset_dir) / "lengths_cutoff"
+
+    busco_lengths = {}
+    if lengths_file.exists():
+        try:
+            with open(lengths_file, "r") as f:  # pylint: disable=unspecified-encoding
+                for line in f:
+                    if line.startswith("#"):
+                        continue
+                    parts = line.strip().split()
+                    if len(parts) >= 3:
+                        busco_id = parts[0]
+                        busco_lengths[busco_id] = {
+                            "length_sd": float(parts[1]),
+                            "length": float(parts[2]),
+                        }
+        except Exception as e:  # pylint: disable=broad-except
+            print(f"Warning: Could not parse lengths_cutoff: {e}")
+
+    # Try to read info/species.info which might have descriptions
+    # Note: This varies by BUSCO version, so we'll just add what we can
+
+    for busco_id in busco_ids:
+        parsed = parse_busco_id(busco_id)
+        metadata[busco_id] = {
+            "orthodb_group": parsed["orthodb_group"],
+            "taxid": parsed["taxid"],
+            "length": busco_lengths.get(busco_id, {}).get("length"),
+            "length_sd": busco_lengths.get(busco_id, {}).get("length_sd"),
+        }
+
+    return metadata
+
+
+def parse_hmmer_output(hmmer_file: str, core_gene_ids: List[str]) -> Dict:
+    """
+    Parse HMMER output file to understand why BUSCO failed.
+
+    Args:
+        hmmer_file (str): Path to HMMER .out file
+        core_gene_ids (List[str]): List of gene stable IDs to look for
+
+    Returns:
+        Dict: HMMER results with best hit info, or empty dict if file not found
+    """
+    if not Path(hmmer_file).exists():
+        return {"status": "file_not_found"}
+
+    try:
+        with open(hmmer_file, "r") as f:  # pylint: disable=unspecified-encoding
+            lines = f.readlines()
+
+        # Find hits for our genes (matches transcript IDs, but we have gene IDs)
+        hits = []
+        for line in lines:
+            if line.startswith("#") or not line.strip():
+                continue
+
+            parts = line.split()
+            if len(parts) < 13:
+                continue
+
+            transcript_id = parts[0]
+            # Extract gene ID from transcript (e.g., ENSDARG00160000965.1 from ENSDART00160002563.1)
+            gene_id_match = re.match(r"(ENSDARG\d+)", transcript_id)
+            if not gene_id_match:
+                continue
+
+            gene_id = gene_id_match.group(1)
+            if gene_id not in core_gene_ids:
+                continue
+
+            hits.append({
+                "transcript_id": transcript_id,
+                "gene_id": gene_id,
+                "tlen": int(parts[2]),  # Target (protein) length
+                "qlen": int(parts[5]),  # Query (BUSCO HMM) length
+                "e_value": float(parts[6]),
+                "score": float(parts[7]),
+                "bias": float(parts[8]),
+                "domain_num": int(parts[9]),
+                "domain_total": int(parts[10]),
+                "c_evalue": float(parts[11]) if parts[11] != "-" else None,
+                "hmm_from": int(parts[15]),
+                "hmm_to": int(parts[16]),
+                "ali_from": int(parts[17]),
+                "ali_to": int(parts[18]),
+            })
+
+        if not hits:
+            return {"status": "no_hits_for_genes"}
+
+        # Get best hit (lowest e-value)
+        best_hit = min(hits, key=lambda x: x["e_value"])
+
+        # Calculate coverage
+        hmm_coverage = (best_hit["hmm_to"] - best_hit["hmm_from"] + 1) / best_hit["qlen"] * 100
+        protein_coverage = (best_hit["ali_to"] - best_hit["ali_from"] + 1) / best_hit["tlen"] * 100
+
+        # Diagnose issue
+        issues = []
+        if best_hit["e_value"] > 1e-10:
+            issues.append("poor_evalue")
+        if hmm_coverage < 80:
+            issues.append("low_hmm_coverage")
+        if best_hit["tlen"] < best_hit["qlen"] * 0.5:
+            issues.append("protein_too_short")
+        if best_hit["domain_total"] > 1:
+            issues.append("fragmented_match")
+        if protein_coverage < 50:
+            issues.append("low_protein_coverage")
+
+        return {
+            "status": "hit_found",
+            "best_hit": best_hit,
+            "total_hits": len(hits),
+            "hmm_coverage": hmm_coverage,
+            "protein_coverage": protein_coverage,
+            "issues": issues,
+        }
+
+    except Exception as e:  # pylint: disable=broad-except
+        return {"status": "parse_error", "error": str(e)}
 
 
 def parse_busco_table(file_path: str, mode: str) -> Dict[str, Dict]:
@@ -342,7 +504,7 @@ def get_layer_genes_at_locus(
 
 
 def audit_evidence(
-    problems: List[Dict], host: str, port: int, user: str, password: str, core_db: str, layer_db: str
+    problems: List[Dict], host: str, port: int, user: str, password: str, core_db: str, layer_db: str, hmmer_dir: Optional[str] = None
 ) -> List[Dict]:
     """
     Audit genes at each problematic locus by comparing core vs layer databases.
@@ -355,6 +517,7 @@ def audit_evidence(
         password (str): Database password
         core_db (str): Core database name
         layer_db (str): Layer database name
+        hmmer_dir (Optional[str]): Path to HMMER output directory
 
     Returns:
         List[Dict]: Updated problem loci with gene comparison data
@@ -381,6 +544,14 @@ def audit_evidence(
         problem["layer_genes"] = get_layer_genes_at_locus(
             seq_region_id, problem["start"], problem["end"], host, port, user, password, layer_db
         )
+
+        # Parse HMMER output if available and genes exist in core
+        problem["hmmer_results"] = {}
+        if hmmer_dir and problem["core_genes"]:
+            hmmer_file = Path(hmmer_dir) / f"{problem['busco_id']}.out"
+            core_gene_ids = [g["stable_id"] for g in problem["core_genes"] if g.get("stable_id")]
+            if core_gene_ids:
+                problem["hmmer_results"] = parse_hmmer_output(str(hmmer_file), core_gene_ids)
 
         # Classify the problem
         classify_problem(problem)
@@ -474,7 +645,7 @@ def classify_problem(problem: Dict):
     )
 
 
-def generate_report(problems: List[Dict], output_tsv: str, output_json: Optional[str] = None):
+def generate_report(problems: List[Dict], output_tsv: str, output_json: Optional[str] = None, busco_metadata: Optional[Dict] = None):
     """
     Generate TSV report and optional JSON output.
 
@@ -482,7 +653,10 @@ def generate_report(problems: List[Dict], output_tsv: str, output_json: Optional
         problems (List[Dict]): List of problem loci with evidence
         output_tsv (str): Output TSV file path
         output_json (Optional[str]): Optional JSON output file path
+        busco_metadata (Optional[Dict]): BUSCO metadata (expected lengths, etc.)
     """
+    if busco_metadata is None:
+        busco_metadata = {}
     # Generate TSV report
     with open(output_tsv, "w", newline="") as f:  # pylint: disable=unspecified-encoding
         writer = csv.writer(f, delimiter="\t")
@@ -491,6 +665,9 @@ def generate_report(problems: List[Dict], output_tsv: str, output_json: Optional
         writer.writerow(
             [
                 "BUSCO_ID",
+                "OrthoDB_Group",
+                "TaxID",
+                "Expected_Length",
                 "Chromosome",
                 "Start",
                 "End",
@@ -505,12 +682,24 @@ def generate_report(problems: List[Dict], output_tsv: str, output_json: Optional
                 "Layer_Evidence_Total",
                 "Layer_Top_Biotypes",
                 "Layer_Top_Analyses",
+                "HMMER_Status",
+                "HMMER_E-value",
+                "HMMER_Coverage",
+                "HMMER_Issues",
                 "Summary",
             ]
         )
 
         # Data rows
         for problem in problems:
+            # Get BUSCO metadata
+            busco_id = problem["busco_id"]
+            meta = busco_metadata.get(busco_id, {})
+            orthodb_group = meta.get("orthodb_group", "-")
+            taxid = meta.get("taxid", "-")
+            expected_length = meta.get("length")
+            expected_length_str = f"{expected_length:.0f}" if expected_length else "-"
+
             core_gene_ids = ",".join(g["stable_id"] or "None" for g in problem["core_genes"]) if problem["core_genes"] else "-"
 
             # Format biotype breakdowns
@@ -532,10 +721,26 @@ def generate_report(problems: List[Dict], output_tsv: str, output_json: Optional
 
             core_protein_coding = core_biotype_counts.get("protein_coding", 0)
 
+            # Parse HMMER results
+            hmmer = problem.get("hmmer_results", {})
+            hmmer_status = hmmer.get("status", "-")
+            if hmmer_status == "hit_found":
+                best_hit = hmmer["best_hit"]
+                hmmer_evalue = f"{best_hit['e_value']:.2e}"
+                hmmer_coverage = f"HMM:{hmmer['hmm_coverage']:.0f}%,Prot:{hmmer['protein_coverage']:.0f}%"
+                hmmer_issues = ",".join(hmmer["issues"]) if hmmer["issues"] else "none"
+            else:
+                hmmer_evalue = "-"
+                hmmer_coverage = "-"
+                hmmer_issues = hmmer_status
+
             # Simplified summary based on classification
             classification = problem["classification"]
             if classification == "PROTEIN_CODING_BUT_NOT_BUSCO_SATISFYING":
-                summary = f"{core_protein_coding} protein_coding gene(s), likely incomplete CDS or poor canonical"
+                if hmmer_status == "hit_found" and hmmer["issues"]:
+                    summary = f"{core_protein_coding} protein_coding gene(s), HMMER: {', '.join(hmmer['issues'])}"
+                else:
+                    summary = f"{core_protein_coding} protein_coding gene(s), likely incomplete CDS or poor canonical"
             elif classification == "NON_CODING_BIOTYPE":
                 summary = f"Gene classified as {core_biotypes_str}, no valid protein"
             elif classification == "NO_GENE_BUILT":
@@ -550,6 +755,9 @@ def generate_report(problems: List[Dict], output_tsv: str, output_json: Optional
             writer.writerow(
                 [
                     problem["busco_id"],
+                    orthodb_group,
+                    taxid,
+                    expected_length_str,
                     problem["sequence"],
                     problem["start"],
                     problem["end"],
@@ -564,6 +772,10 @@ def generate_report(problems: List[Dict], output_tsv: str, output_json: Optional
                     layer_evidence_count,
                     layer_biotype_str,
                     layer_analysis_str,
+                    hmmer_status,
+                    hmmer_evalue,
+                    hmmer_coverage,
+                    hmmer_issues,
                     summary,
                 ]
             )
@@ -802,6 +1014,20 @@ def main():
     parser.add_argument("--output_tsv", required=True, type=str, help="Output TSV report file")
     parser.add_argument("--output_json", type=str, help="Optional detailed JSON output file")
 
+    # HMMER analysis
+    parser.add_argument(
+        "--hmmer_dir",
+        type=str,
+        help="Path to HMMER output directory (e.g., busco_protein/run_actinopterygii_odb10/hmmer_output/initial_run_results/)",
+    )
+
+    # BUSCO dataset metadata
+    parser.add_argument(
+        "--busco_dataset_dir",
+        type=str,
+        help="Path to BUSCO lineage dataset directory (e.g., actinopterygii_odb10) for OrthoDB metadata",
+    )
+
     args = parser.parse_args()
 
     # Parse database names
@@ -838,13 +1064,21 @@ def main():
     problems = identify_problems(genome_entries, protein_entries)
     print(f"Identified {len(problems)} problematic loci")
 
+    # Extract BUSCO metadata if dataset directory provided
+    busco_metadata = {}
+    if args.busco_dataset_dir:
+        print("\nExtracting BUSCO metadata...")
+        busco_ids = [p["busco_id"] for p in problems]
+        busco_metadata = get_busco_metadata(args.busco_dataset_dir, busco_ids)
+        print(f"Retrieved metadata for {len(busco_metadata)} BUSCO IDs")
+
     # Audit evidence
     print("\nAuditing evidence at problematic loci...")
-    problems = audit_evidence(problems, args.host, args.port, args.user, args.password, core_db, layer_db)
+    problems = audit_evidence(problems, args.host, args.port, args.user, args.password, core_db, layer_db, args.hmmer_dir)
 
     # Generate reports
     print("\nGenerating reports...")
-    generate_report(problems, args.output_tsv, args.output_json)
+    generate_report(problems, args.output_tsv, args.output_json, busco_metadata)
 
     print("\nAudit complete!")
 
