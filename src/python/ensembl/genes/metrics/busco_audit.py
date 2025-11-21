@@ -392,7 +392,7 @@ def audit_evidence(
 def classify_problem(problem: Dict):
     """
     Classify why protein annotation is failing at this locus.
-    Focus: Genome BUSCO found something, but protein BUSCO failed.
+    Focus: Understanding biotype distribution and what's in layer vs core.
 
     Args:
         problem (Dict): Problem locus data (modified in place)
@@ -400,69 +400,92 @@ def classify_problem(problem: Dict):
     core_genes = problem["core_genes"]
     layer_genes = problem["layer_genes"]
 
-    # Case 1: No genes at all in core database
+    # Get biotype counts for core
+    core_biotype_counts = {}
+    for g in core_genes:
+        biotype = g["biotype"] or "unknown"
+        core_biotype_counts[biotype] = core_biotype_counts.get(biotype, 0) + 1
+
+    # Get biotype counts for layer
+    layer_biotype_counts = {}
+    layer_logic_name_counts = {}
+    for g in layer_genes:
+        biotype = g["biotype"] or "unknown"
+        logic_name = g.get("logic_name", "unknown")
+        layer_biotype_counts[biotype] = layer_biotype_counts.get(biotype, 0) + 1
+        layer_logic_name_counts[logic_name] = layer_logic_name_counts.get(logic_name, 0) + 1
+
+    # Store detailed breakdowns
+    problem["core_biotype_counts"] = core_biotype_counts
+    problem["layer_biotype_counts"] = layer_biotype_counts
+    problem["layer_logic_name_counts"] = layer_logic_name_counts
+
+    # Count protein_coding specifically
+    core_protein_coding = core_biotype_counts.get("protein_coding", 0)
+    layer_protein_coding = layer_biotype_counts.get("protein_coding", 0)
+
+    # Classification logic
     if not core_genes:
         if layer_genes:
-            layer_biotypes = [g["biotype"] for g in layer_genes]
-            layer_logic_names = [g.get("logic_name", "unknown") for g in layer_genes]
             problem["classification"] = "GENE_NOT_TRANSFERRED"
             problem["notes"] = (
-                f"Genome BUSCO found locus but no genes in core. "
-                f"Layer has {len(layer_genes)} gene(s) (biotypes: {', '.join(set(layer_biotypes))}, "
-                f"logic_names: {', '.join(set(layer_logic_names))}) that were not transferred"
+                f"No genes in core. Layer has {len(layer_genes)} genes: "
+                f"{layer_protein_coding} protein_coding, "
+                f"biotypes: {dict(layer_biotype_counts)}, "
+                f"logic_names: {dict(layer_logic_name_counts)}"
             )
         else:
             problem["classification"] = "NO_GENES_FOUND"
-            problem["notes"] = "Genome BUSCO found locus but no genes in core or layer databases"
+            problem["notes"] = "Genome BUSCO found locus but no genes in core or layer"
         return
 
-    # Case 2: Genes exist but filtered as non-coding
-    non_coding_biotypes = {"pseudogene", "artifact", "TEC", "ncRNA", "lncRNA", "miRNA", "snoRNA", "snRNA"}
-    filtered_genes = [g for g in core_genes if g["biotype"] in non_coding_biotypes]
-
-    if filtered_genes:
-        problem["classification"] = "NON_CODING_BIOTYPE"
-        biotype_summary = ", ".join(set(g["biotype"] for g in filtered_genes))
-        problem["notes"] = (
-            f"Found {len(core_genes)} gene(s) but {len(filtered_genes)} are non-coding: {biotype_summary}. "
-            f"These won't have valid protein translations"
-        )
+    # Check if core only has non-coding while layer has protein_coding
+    if core_protein_coding == 0:
+        if layer_protein_coding > 0:
+            problem["classification"] = "PROTEIN_CODING_NOT_TRANSFERRED"
+            problem["notes"] = (
+                f"Core has {len(core_genes)} non-coding genes (biotypes: {dict(core_biotype_counts)}). "
+                f"Layer has {layer_protein_coding} protein_coding genes not transferred. "
+                f"Layer biotypes: {dict(layer_biotype_counts)}, logic_names: {dict(layer_logic_name_counts)}"
+            )
+        else:
+            problem["classification"] = "NON_CODING_ONLY"
+            problem["notes"] = (
+                f"Core has {len(core_genes)} non-coding genes: {dict(core_biotype_counts)}. "
+                f"No protein_coding genes in layer either. BUSCO genome mode may have found pseudogene/ncRNA"
+            )
         return
 
-    # Case 3: Genes exist but no transcripts or translations
+    # Core has protein_coding but BUSCO protein mode fails
     genes_without_transcripts = [g for g in core_genes if not g.get("transcripts")]
     if genes_without_transcripts:
         problem["classification"] = "NO_TRANSCRIPTS"
         problem["notes"] = (
-            f"Found {len(core_genes)} gene(s) but {len(genes_without_transcripts)} have no transcripts. "
-            f"Missing gene IDs: {', '.join(g['stable_id'] or 'None' for g in genes_without_transcripts)}"
+            f"Core has {core_protein_coding} protein_coding genes but {len(genes_without_transcripts)} lack transcripts. "
+            f"Core biotypes: {dict(core_biotype_counts)}. "
+            f"Layer: {layer_protein_coding} protein_coding, biotypes: {dict(layer_biotype_counts)}"
         )
         return
 
-    # Case 4: Better models exist in layer but not used
-    if layer_genes and len(layer_genes) > len(core_genes):
-        layer_biotypes = set(g["biotype"] for g in layer_genes)
-        core_biotypes = set(g["biotype"] for g in core_genes)
-        missing_biotypes = layer_biotypes - core_biotypes
+    # More protein_coding models in layer than core
+    if layer_protein_coding > core_protein_coding:
+        problem["classification"] = "MORE_PROTEIN_CODING_IN_LAYER"
+        problem["notes"] = (
+            f"Core: {core_protein_coding} protein_coding (total {len(core_genes)} genes). "
+            f"Layer: {layer_protein_coding} protein_coding (total {len(layer_genes)} genes). "
+            f"Core biotypes: {dict(core_biotype_counts)}. "
+            f"Layer biotypes: {dict(layer_biotype_counts)}, logic_names: {dict(layer_logic_name_counts)}"
+        )
+        return
 
-        if missing_biotypes:
-            missing_genes = [g for g in layer_genes if g["biotype"] in missing_biotypes]
-            missing_logic_names = set(g.get("logic_name", "unknown") for g in missing_genes)
-            problem["classification"] = "BETTER_MODEL_IN_LAYER"
-            problem["notes"] = (
-                f"Core has {len(core_genes)} gene(s), layer has {len(layer_genes)}. "
-                f"Layer has additional biotypes: {', '.join(missing_biotypes)} "
-                f"(logic_names: {', '.join(missing_logic_names)}) not in core"
-            )
-            return
-
-    # Case 5: Genes exist but likely fragmented/incomplete models
-    problem["classification"] = "INCOMPLETE_MODEL"
-    core_biotypes = ", ".join(set(g["biotype"] for g in core_genes))
+    # Core has protein_coding genes but they don't satisfy BUSCO
+    problem["classification"] = "POOR_QUALITY_MODEL"
     problem["notes"] = (
-        f"Found {len(core_genes)} gene(s) in core (biotypes: {core_biotypes}). "
-        f"Models likely incomplete - genome BUSCO found complete but protein BUSCO failed. "
-        f"Check for frameshift errors, premature stops, or fragmented exon structure"
+        f"Core has {core_protein_coding} protein_coding genes but BUSCO protein mode fails. "
+        f"Likely: incomplete CDS, frameshifts, premature stops, or wrong canonical selected. "
+        f"Core biotypes: {dict(core_biotype_counts)}. "
+        f"Layer: {layer_protein_coding} protein_coding, biotypes: {dict(layer_biotype_counts)}, "
+        f"logic_names: {dict(layer_logic_name_counts)}"
     )
 
 
@@ -492,12 +515,14 @@ def generate_report(problems: List[Dict], output_tsv: str, output_json: Optional
                 "Genome_Status",
                 "Protein_Status",
                 "Core_Genes_Count",
+                "Core_Protein_Coding_Count",
+                "Core_Biotype_Breakdown",
                 "Core_Gene_Stable_IDs",
-                "Core_Gene_Biotypes",
                 "Layer_Genes_Count",
+                "Layer_Protein_Coding_Count",
+                "Layer_Biotype_Breakdown",
+                "Layer_Logic_Name_Breakdown",
                 "Layer_Gene_Stable_IDs",
-                "Layer_Gene_Biotypes",
-                "Layer_Logic_Names",
                 "Notes",
             ]
         )
@@ -507,20 +532,21 @@ def generate_report(problems: List[Dict], output_tsv: str, output_json: Optional
             core_gene_ids = (
                 ",".join(g["stable_id"] or "None" for g in problem["core_genes"]) if problem["core_genes"] else ""
             )
-            core_gene_biotypes = (
-                ",".join(set(g["biotype"] or "unknown" for g in problem["core_genes"])) if problem["core_genes"] else ""
-            )
             layer_gene_ids = (
                 ",".join(g["stable_id"] or "None" for g in problem["layer_genes"]) if problem["layer_genes"] else ""
             )
-            layer_gene_biotypes = (
-                ",".join(set(g["biotype"] or "unknown" for g in problem["layer_genes"])) if problem["layer_genes"] else ""
-            )
-            layer_logic_names = (
-                ",".join(set(g.get("logic_name", "unknown") for g in problem["layer_genes"]))
-                if problem["layer_genes"]
-                else ""
-            )
+
+            # Format biotype breakdowns
+            core_biotype_counts = problem.get("core_biotype_counts", {})
+            layer_biotype_counts = problem.get("layer_biotype_counts", {})
+            layer_logic_name_counts = problem.get("layer_logic_name_counts", {})
+
+            core_biotype_str = "; ".join(f"{k}:{v}" for k, v in core_biotype_counts.items()) if core_biotype_counts else ""
+            layer_biotype_str = "; ".join(f"{k}:{v}" for k, v in layer_biotype_counts.items()) if layer_biotype_counts else ""
+            layer_logic_str = "; ".join(f"{k}:{v}" for k, v in layer_logic_name_counts.items()) if layer_logic_name_counts else ""
+
+            core_protein_coding = core_biotype_counts.get("protein_coding", 0)
+            layer_protein_coding = layer_biotype_counts.get("protein_coding", 0)
 
             writer.writerow(
                 [
@@ -534,12 +560,14 @@ def generate_report(problems: List[Dict], output_tsv: str, output_json: Optional
                     problem["genome_status"],
                     problem["protein_status"],
                     len(problem["core_genes"]),
+                    core_protein_coding,
+                    core_biotype_str,
                     core_gene_ids,
-                    core_gene_biotypes,
                     len(problem["layer_genes"]),
+                    layer_protein_coding,
+                    layer_biotype_str,
+                    layer_logic_str,
                     layer_gene_ids,
-                    layer_gene_biotypes,
-                    layer_logic_names,
                     problem["notes"],
                 ]
             )
@@ -585,10 +613,44 @@ def print_summary(problems: List[Dict]):
     total_core_genes = sum(len(p["core_genes"]) for p in problems)
     total_layer_genes = sum(len(p["layer_genes"]) for p in problems)
 
+    # Protein coding statistics
+    total_core_protein_coding = sum(p.get("core_biotype_counts", {}).get("protein_coding", 0) for p in problems)
+    total_layer_protein_coding = sum(p.get("layer_biotype_counts", {}).get("protein_coding", 0) for p in problems)
+
+    # Aggregate all biotype counts
+    core_biotype_totals = defaultdict(int)
+    layer_biotype_totals = defaultdict(int)
+    layer_logic_name_totals = defaultdict(int)
+
+    for problem in problems:
+        for biotype, count in problem.get("core_biotype_counts", {}).items():
+            core_biotype_totals[biotype] += count
+        for biotype, count in problem.get("layer_biotype_counts", {}).items():
+            layer_biotype_totals[biotype] += count
+        for logic_name, count in problem.get("layer_logic_name_counts", {}).items():
+            layer_logic_name_totals[logic_name] += count
+
     print(f"\nGene Statistics:")
     print(f"  Total genes in core at problem loci: {total_core_genes}")
     print(f"  Total genes in layer at problem loci: {total_layer_genes}")
     print(f"  Genes not transferred: {total_layer_genes - total_core_genes}")
+
+    print(f"\nProtein Coding Gene Statistics:")
+    print(f"  Core protein_coding genes: {total_core_protein_coding} / {total_core_genes} ({100*total_core_protein_coding/total_core_genes if total_core_genes > 0 else 0:.1f}%)")
+    print(f"  Layer protein_coding genes: {total_layer_protein_coding} / {total_layer_genes} ({100*total_layer_protein_coding/total_layer_genes if total_layer_genes > 0 else 0:.1f}%)")
+    print(f"  Protein_coding not transferred: {total_layer_protein_coding - total_core_protein_coding}")
+
+    print(f"\nCore Biotype Breakdown (at problem loci):")
+    for biotype, count in sorted(core_biotype_totals.items(), key=lambda x: x[1], reverse=True):
+        print(f"  {biotype}: {count}")
+
+    print(f"\nLayer Biotype Breakdown (at problem loci):")
+    for biotype, count in sorted(layer_biotype_totals.items(), key=lambda x: x[1], reverse=True):
+        print(f"  {biotype}: {count}")
+
+    print(f"\nLayer Logic Name Breakdown (at problem loci):")
+    for logic_name, count in sorted(layer_logic_name_totals.items(), key=lambda x: x[1], reverse=True):
+        print(f"  {logic_name}: {count}")
 
     print("=" * 80)
 
