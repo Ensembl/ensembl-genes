@@ -487,58 +487,76 @@ def generate_report(problems: List[Dict], output_tsv: str, output_json: Optional
         writer.writerow(
             [
                 "BUSCO_ID",
-                "Problem_Type",
-                "Classification",
-                "Sequence",
+                "Chromosome",
                 "Start",
                 "End",
                 "Strand",
-                "Genome_Status",
-                "Protein_Status",
-                "Core_Genes_Count",
-                "Core_Protein_Coding_Count",
-                "Core_Biotype_Breakdown",
-                "Core_Gene_Stable_IDs",
-                "Layer_Evidence_Count",
-                "Layer_Evidence_Sources",
-                "Notes",
+                "Genome_BUSCO",
+                "Protein_BUSCO",
+                "Issue",
+                "Core_Genes",
+                "Core_Protein_Coding",
+                "Core_Biotypes",
+                "Core_Gene_IDs",
+                "Layer_Evidence_Total",
+                "Layer_Top_Sources",
+                "Layer_Source_Count",
+                "Summary",
             ]
         )
 
         # Data rows
         for problem in problems:
-            core_gene_ids = (
-                ",".join(g["stable_id"] or "None" for g in problem["core_genes"]) if problem["core_genes"] else ""
-            )
+            core_gene_ids = ",".join(g["stable_id"] or "None" for g in problem["core_genes"]) if problem["core_genes"] else "-"
 
             # Format biotype breakdowns
             core_biotype_counts = problem.get("core_biotype_counts", {})
             layer_logic_name_counts = problem.get("layer_logic_name_counts", {})
             layer_evidence_count = problem.get("layer_evidence_count", 0)
 
-            core_biotype_str = "; ".join(f"{k}:{v}" for k, v in core_biotype_counts.items()) if core_biotype_counts else ""
-            layer_evidence_str = "; ".join(f"{k}:{v}" for k, v in layer_logic_name_counts.items()) if layer_logic_name_counts else ""
+            # Core biotypes - just list unique ones
+            core_biotypes_str = ",".join(sorted(core_biotype_counts.keys())) if core_biotype_counts else "-"
+
+            # Layer evidence - show top 3 sources
+            top_sources = sorted(layer_logic_name_counts.items(), key=lambda x: x[1], reverse=True)[:3]
+            layer_top_str = ", ".join(f"{k}({v})" for k, v in top_sources) if top_sources else "-"
+            layer_source_count = len(layer_logic_name_counts)
 
             core_protein_coding = core_biotype_counts.get("protein_coding", 0)
+
+            # Simplified summary based on classification
+            classification = problem["classification"]
+            if classification == "PROTEIN_CODING_BUT_NOT_BUSCO_SATISFYING":
+                summary = f"{core_protein_coding} protein_coding gene(s), likely incomplete CDS or poor canonical"
+            elif classification == "NON_CODING_BIOTYPE":
+                summary = f"Gene classified as {core_biotypes_str}, no valid protein"
+            elif classification == "NO_GENE_BUILT":
+                summary = f"{layer_evidence_count} evidence alignments not merged into core gene"
+            elif classification == "NO_GENES_FOUND":
+                summary = "BUSCO found locus but no genes/evidence in databases"
+            elif classification == "NO_TRANSCRIPTS":
+                summary = f"{core_protein_coding} protein_coding gene(s) but missing transcripts"
+            else:
+                summary = problem["notes"][:100]
 
             writer.writerow(
                 [
                     problem["busco_id"],
-                    problem["problem_type"],
-                    problem["classification"],
                     problem["sequence"],
                     problem["start"],
                     problem["end"],
                     problem["strand"],
                     problem["genome_status"],
                     problem["protein_status"],
+                    classification,
                     len(problem["core_genes"]),
                     core_protein_coding,
-                    core_biotype_str,
+                    core_biotypes_str,
                     core_gene_ids,
                     layer_evidence_count,
-                    layer_evidence_str,
-                    problem["notes"],
+                    layer_top_str,
+                    layer_source_count,
+                    summary,
                 ]
             )
 
