@@ -710,7 +710,7 @@ def parse_db_name(db_name: str) -> Tuple[str, str, str]:
     Parse database name to extract species, version, and assembly.
 
     Args:
-        db_name (str): Database name (e.g., homo_sapiens_core_113_38)
+        db_name (str): Database name (e.g., homo_sapiens_core_113_38 or jackt_gca049306965v1_core_114)
 
     Returns:
         Tuple[str, str, str]: (species, version, assembly)
@@ -718,13 +718,22 @@ def parse_db_name(db_name: str) -> Tuple[str, str, str]:
     Raises:
         ValueError: If database name format is invalid
     """
-    pattern = r"^(.+)_core_(\d+)_(\d+)$"
-    match = re.match(pattern, db_name)
-    if not match:
-        raise ValueError(
-            f"Invalid database name format: {db_name}. Expected format: species_core_version_assembly"
-        )
-    return match.groups()
+    # Try format with assembly: species_core_version_assembly
+    pattern_with_assembly = r"^(.+)_core_(\d+)_(\d+)$"
+    match = re.match(pattern_with_assembly, db_name)
+    if match:
+        return match.groups()
+
+    # Try format without assembly: species_core_version
+    pattern_without_assembly = r"^(.+)_core_(\d+)$"
+    match = re.match(pattern_without_assembly, db_name)
+    if match:
+        species, version = match.groups()
+        return (species, version, "")
+
+    raise ValueError(
+        f"Invalid database name format: {db_name}. Expected format: species_core_version or species_core_version_assembly"
+    )
 
 
 def main():
@@ -762,7 +771,7 @@ def main():
     parser.add_argument("--host", required=True, type=str, help="Database host")
     parser.add_argument("--port", required=True, type=int, help="Database port (e.g., 3306)")
     parser.add_argument("--user", required=True, type=str, help="Database user")
-    parser.add_argument("--password", required=True, type=str, help="Database password")
+    parser.add_argument("--password", type=str, default="", help="Database password (optional for read-only users)")
 
     # Output
     parser.add_argument("--output_tsv", required=True, type=str, help="Output TSV report file")
@@ -774,7 +783,12 @@ def main():
     try:
         species, version, assembly = parse_db_name(args.core_db)
         core_db = args.core_db
-        layer_db = args.layer_db or f"{species}_layer_{version}_{assembly}"
+        if args.layer_db:
+            layer_db = args.layer_db
+        elif assembly:
+            layer_db = f"{species}_layer_{version}_{assembly}"
+        else:
+            layer_db = f"{species}_layer_{version}"
     except ValueError as e:
         print(f"Error: {e}")
         sys.exit(1)
