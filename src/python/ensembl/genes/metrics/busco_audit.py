@@ -944,11 +944,40 @@ def generate_report(problems: List[Dict], output_tsv: str, output_json: Optional
             core_biotypes_str = ",".join(sorted(core_biotype_counts.keys())) if core_biotype_counts else "-"
 
             # Layer biotypes - show top 3 (what's in layer biotype field)
-            top_layer_biotypes = sorted(layer_biotype_counts.items(), key=lambda x: x[1], reverse=True)[:3]
+            # Prioritize diversity: show different evidence types, preferring _1 over _2, etc.
+            def select_diverse_evidence(evidence_counts, max_items=3):
+                """Select diverse evidence sources, preferring highest ranked (_1, _2, etc.)"""
+                # Group by base name (remove _N suffix)
+                from collections import defaultdict
+                base_groups = defaultdict(list)
+                for name, count in evidence_counts.items():
+                    # Extract base name and rank
+                    match = re.match(r"(.+?)_(\d+)$", name)
+                    if match:
+                        base_name = match.group(1)
+                        rank = int(match.group(2))
+                        base_groups[base_name].append((rank, name, count))
+                    else:
+                        # No rank suffix, treat as rank 0
+                        base_groups[name].append((0, name, count))
+
+                # For each base, select the highest-ranked (lowest number) entry
+                selected = []
+                for base_name, entries in base_groups.items():
+                    # Sort by rank (ascending), then by count (descending)
+                    entries.sort(key=lambda x: (x[0], -x[2]))
+                    best_entry = entries[0]
+                    selected.append((best_entry[1], best_entry[2]))  # (name, count)
+
+                # Sort selected by count (descending) and take top N
+                selected.sort(key=lambda x: x[1], reverse=True)
+                return selected[:max_items]
+
+            top_layer_biotypes = select_diverse_evidence(layer_biotype_counts, max_items=3)
             layer_biotype_str = ", ".join(f"{k}({v})" for k, v in top_layer_biotypes) if top_layer_biotypes else "-"
 
-            # Layer analyses - show top 3 logic names
-            top_analyses = sorted(layer_logic_name_counts.items(), key=lambda x: x[1], reverse=True)[:3]
+            # Layer analyses - show top 3 logic names with diversity preference
+            top_analyses = select_diverse_evidence(layer_logic_name_counts, max_items=3)
             layer_analysis_str = ", ".join(f"{k}({v})" for k, v in top_analyses) if top_analyses else "-"
 
             core_protein_coding = core_biotype_counts.get("protein_coding", 0)
