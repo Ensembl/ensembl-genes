@@ -29,7 +29,7 @@ import json
 import re
 import sys
 from collections import defaultdict
-from typing import Dict, List, Optional, Set, Tuple
+from typing import Dict, List, Optional, Tuple
 
 import pymysql
 
@@ -136,10 +136,8 @@ def identify_problems(
                     "strand": protein_entry["strand"],
                     "problem_type": problem_type,
                     "classification": "",
-                    "genes_at_locus": [],
-                    "protein_evidence": [],
-                    "dna_evidence": [],
-                    "supporting_evidence_used": set(),
+                    "core_genes": [],
+                    "layer_genes": [],
                     "notes": "",
                 }
             )
@@ -156,16 +154,21 @@ def get_seq_region_id(sequence: str, host: str, port: int, user: str, password: 
         host (str): Database host
         port (int): Database port
         user (str): Database user
-        password (str): Database password
+        password (str): Database password (can be empty string for read-only)
         core_db (str): Core database name
 
     Returns:
         Optional[int]: seq_region_id or None
     """
     try:
-        conn = pymysql.connect(
-            host=host, user=user, password=password, port=port, database=core_db
-        )
+        if password:
+            conn = pymysql.connect(
+                host=host, user=user, password=password, port=port, database=core_db
+            )
+        else:
+            conn = pymysql.connect(
+                host=host, user=user, port=port, database=core_db
+            )
         cursor = conn.cursor()
         cursor.execute("SELECT seq_region_id FROM seq_region WHERE name = %s", (sequence,))
         result = cursor.fetchone()
@@ -190,16 +193,21 @@ def get_genes_at_locus(
         host (str): Database host
         port (int): Database port
         user (str): Database user
-        password (str): Database password
+        password (str): Database password (can be empty string for read-only)
         core_db (str): Core database name
 
     Returns:
         List[Dict]: List of genes at locus
     """
     try:
-        conn = pymysql.connect(
-            host=host, user=user, password=password, port=port, database=core_db
-        )
+        if password:
+            conn = pymysql.connect(
+                host=host, user=user, password=password, port=port, database=core_db
+            )
+        else:
+            conn = pymysql.connect(
+                host=host, user=user, port=port, database=core_db
+            )
         cursor = conn.cursor(pymysql.cursors.DictCursor)
 
         query = """
@@ -241,11 +249,11 @@ def get_genes_at_locus(
         return []
 
 
-def get_protein_evidence_at_locus(
+def get_layer_genes_at_locus(
     seq_region_id: int, start: int, end: int, host: str, port: int, user: str, password: str, layer_db: str
 ) -> List[Dict]:
     """
-    Get protein alignment evidence from layer database.
+    Get all genes at a locus in the layer database.
 
     Args:
         seq_region_id (int): seq_region_id
@@ -254,154 +262,69 @@ def get_protein_evidence_at_locus(
         host (str): Database host
         port (int): Database port
         user (str): Database user
-        password (str): Database password
+        password (str): Database password (can be empty string for read-only)
         layer_db (str): Layer database name
 
     Returns:
-        List[Dict]: List of protein evidence alignments
+        List[Dict]: List of genes in layer database at locus
     """
     try:
-        conn = pymysql.connect(
-            host=host, user=user, password=password, port=port, database=layer_db
-        )
+        if password:
+            conn = pymysql.connect(
+                host=host, user=user, password=password, port=port, database=layer_db
+            )
+        else:
+            conn = pymysql.connect(
+                host=host, user=user, port=port, database=layer_db
+            )
         cursor = conn.cursor(pymysql.cursors.DictCursor)
 
         query = """
             SELECT
-                paf.hit_name,
+                g.gene_id,
+                g.stable_id,
                 sr.name as seq_region_name,
-                paf.seq_region_start,
-                paf.seq_region_end,
-                paf.seq_region_strand,
-                paf.score,
-                paf.perc_ident,
-                a.logic_name,
-                ed.db_name as external_db_name
-            FROM protein_align_feature paf
-            JOIN seq_region sr ON paf.seq_region_id = sr.seq_region_id
-            JOIN analysis a ON paf.analysis_id = a.analysis_id
-            LEFT JOIN external_db ed ON paf.external_db_id = ed.external_db_id
-            WHERE paf.seq_region_id = %s
-            AND paf.seq_region_start <= %s
-            AND paf.seq_region_end >= %s
-            ORDER BY paf.score DESC
+                g.seq_region_start,
+                g.seq_region_end,
+                g.seq_region_strand,
+                g.biotype,
+                a.logic_name
+            FROM gene g
+            JOIN seq_region sr ON g.seq_region_id = sr.seq_region_id
+            LEFT JOIN analysis a ON g.analysis_id = a.analysis_id
+            WHERE g.seq_region_id = %s
+            AND g.seq_region_start <= %s
+            AND g.seq_region_end >= %s
         """
         cursor.execute(query, (seq_region_id, end, start))
-        results = cursor.fetchall()
+        genes = cursor.fetchall()
+
+        # Get transcripts for each gene
+        for gene in genes:
+            cursor.execute(
+                """
+                SELECT transcript_id, stable_id, seq_region_start, seq_region_end, biotype
+                FROM transcript
+                WHERE gene_id = %s
+                """,
+                (gene["gene_id"],),
+            )
+            gene["transcripts"] = cursor.fetchall()
+
         cursor.close()
         conn.close()
-        return results
+        return genes
 
     except pymysql.Error as err:
-        print(f"Error querying protein evidence: {err}")
+        print(f"Error querying layer genes: {err}")
         return []
-
-
-def get_dna_evidence_at_locus(
-    seq_region_id: int, start: int, end: int, host: str, port: int, user: str, password: str, layer_db: str
-) -> List[Dict]:
-    """
-    Get DNA alignment evidence from layer database.
-
-    Args:
-        seq_region_id (int): seq_region_id
-        start (int): Start coordinate
-        end (int): End coordinate
-        host (str): Database host
-        port (int): Database port
-        user (str): Database user
-        password (str): Database password
-        layer_db (str): Layer database name
-
-    Returns:
-        List[Dict]: List of DNA evidence alignments
-    """
-    try:
-        conn = pymysql.connect(
-            host=host, user=user, password=password, port=port, database=layer_db
-        )
-        cursor = conn.cursor(pymysql.cursors.DictCursor)
-
-        query = """
-            SELECT
-                daf.hit_name,
-                sr.name as seq_region_name,
-                daf.seq_region_start,
-                daf.seq_region_end,
-                daf.seq_region_strand,
-                daf.score,
-                daf.perc_ident,
-                a.logic_name,
-                ed.db_name as external_db_name
-            FROM dna_align_feature daf
-            JOIN seq_region sr ON daf.seq_region_id = sr.seq_region_id
-            JOIN analysis a ON daf.analysis_id = a.analysis_id
-            LEFT JOIN external_db ed ON daf.external_db_id = ed.external_db_id
-            WHERE daf.seq_region_id = %s
-            AND daf.seq_region_start <= %s
-            AND daf.seq_region_end >= %s
-            ORDER BY daf.score DESC
-        """
-        cursor.execute(query, (seq_region_id, end, start))
-        results = cursor.fetchall()
-        cursor.close()
-        conn.close()
-        return results
-
-    except pymysql.Error as err:
-        print(f"Error querying DNA evidence: {err}")
-        return []
-
-
-def get_supporting_evidence_for_genes(
-    gene_ids: List[int], host: str, port: int, user: str, password: str, core_db: str
-) -> Set[str]:
-    """
-    Get supporting evidence used in final gene models.
-
-    Args:
-        gene_ids (List[int]): List of gene_ids
-        host (str): Database host
-        port (int): Database port
-        user (str): Database user
-        password (str): Database password
-        core_db (str): Core database name
-
-    Returns:
-        Set[str]: Set of feature IDs used as supporting evidence
-    """
-    if not gene_ids:
-        return set()
-
-    try:
-        conn = pymysql.connect(
-            host=host, user=user, password=password, port=port, database=core_db
-        )
-        cursor = conn.cursor()
-
-        placeholders = ",".join(["%s"] * len(gene_ids))
-        query = f"""
-            SELECT DISTINCT tse.feature_id
-            FROM transcript_supporting_evidence tse
-            JOIN transcript t ON tse.transcript_id = t.transcript_id
-            WHERE t.gene_id IN ({placeholders})
-        """
-        cursor.execute(query, tuple(gene_ids))
-        results = cursor.fetchall()
-        cursor.close()
-        conn.close()
-        return {str(row[0]) for row in results}
-
-    except pymysql.Error as err:
-        print(f"Error querying supporting evidence: {err}")
-        return set()
 
 
 def audit_evidence(
     problems: List[Dict], host: str, port: int, user: str, password: str, core_db: str, layer_db: str
 ) -> List[Dict]:
     """
-    Audit evidence for each problematic locus.
+    Audit genes at each problematic locus by comparing core vs layer databases.
 
     Args:
         problems (List[Dict]): List of problem loci
@@ -413,7 +336,7 @@ def audit_evidence(
         layer_db (str): Layer database name
 
     Returns:
-        List[Dict]: Updated problem loci with evidence data
+        List[Dict]: Updated problem loci with gene comparison data
     """
     total = len(problems)
     for idx, problem in enumerate(problems, 1):
@@ -428,25 +351,15 @@ def audit_evidence(
             problem["notes"] = f"Could not map sequence '{problem['sequence']}' to seq_region_id"
             continue
 
-        # Get genes at locus
-        problem["genes_at_locus"] = get_genes_at_locus(
+        # Get genes at locus in core database
+        problem["core_genes"] = get_genes_at_locus(
             seq_region_id, problem["start"], problem["end"], host, port, user, password, core_db
         )
 
-        # Get evidence from layer database
-        problem["protein_evidence"] = get_protein_evidence_at_locus(
+        # Get genes at locus in layer database
+        problem["layer_genes"] = get_layer_genes_at_locus(
             seq_region_id, problem["start"], problem["end"], host, port, user, password, layer_db
         )
-        problem["dna_evidence"] = get_dna_evidence_at_locus(
-            seq_region_id, problem["start"], problem["end"], host, port, user, password, layer_db
-        )
-
-        # Get supporting evidence used in final models
-        if problem["genes_at_locus"]:
-            gene_ids = [g["gene_id"] for g in problem["genes_at_locus"]]
-            problem["supporting_evidence_used"] = get_supporting_evidence_for_genes(
-                gene_ids, host, port, user, password, core_db
-            )
 
         # Classify the problem
         classify_problem(problem)
@@ -457,52 +370,67 @@ def audit_evidence(
 
 def classify_problem(problem: Dict):
     """
-    Classify the problem based on evidence.
+    Classify the problem by comparing core and layer genes.
 
     Args:
         problem (Dict): Problem locus data (modified in place)
     """
-    # Case 1: No evidence in layer database
-    if not problem["protein_evidence"] and not problem["dna_evidence"]:
-        problem["classification"] = "NO_EVIDENCE"
-        problem["notes"] = "No protein or DNA evidence found in layer database at this locus"
+    core_genes = problem["core_genes"]
+    layer_genes = problem["layer_genes"]
+
+    # Case 1: No genes in layer database
+    if not layer_genes:
+        problem["classification"] = "NO_LAYER_GENES"
+        problem["notes"] = "No genes found in layer database at this locus"
         return
 
-    # Case 2: Evidence exists but no genes built
-    if not problem["genes_at_locus"]:
-        if problem["protein_evidence"]:
-            problem["classification"] = "EVIDENCE_NOT_USED"
-            problem["notes"] = f"Found {len(problem['protein_evidence'])} protein evidence alignments but no genes built"
-        else:
-            problem["classification"] = "EVIDENCE_NOT_USED"
-            problem["notes"] = f"Found {len(problem['dna_evidence'])} DNA evidence alignments but no genes built"
+    # Case 2: Genes in layer but none made it to core
+    if not core_genes:
+        layer_biotypes = [g["biotype"] for g in layer_genes]
+        layer_logic_names = [g.get("logic_name", "unknown") for g in layer_genes]
+        problem["classification"] = "LAYER_NOT_TRANSFERRED"
+        problem["notes"] = (
+            f"Found {len(layer_genes)} gene(s) in layer (biotypes: {', '.join(set(layer_biotypes))}, "
+            f"logic_names: {', '.join(set(layer_logic_names))}) but none made it to core"
+        )
         return
 
-    # Case 3: Genes exist but wrong biotype/filtering
-    wrong_biotypes = [
-        g for g in problem["genes_at_locus"] if g["biotype"] in ("pseudogene", "artifact", "TEC")
-    ]
+    # Case 3: Some genes in both, compare what's missing
+    layer_biotypes = set(g["biotype"] for g in layer_genes)
+    core_biotypes = set(g["biotype"] for g in core_genes)
+    missing_biotypes = layer_biotypes - core_biotypes
+
+    if missing_biotypes:
+        # Get logic names for missing biotypes
+        missing_genes = [g for g in layer_genes if g["biotype"] in missing_biotypes]
+        missing_logic_names = set(g.get("logic_name", "unknown") for g in missing_genes)
+        problem["classification"] = "PARTIAL_TRANSFER"
+        problem["notes"] = (
+            f"Layer has {len(layer_genes)} gene(s), core has {len(core_genes)}. "
+            f"Missing biotypes from core: {', '.join(missing_biotypes)} "
+            f"(logic_names: {', '.join(missing_logic_names)})"
+        )
+        return
+
+    # Case 4: Core has genes but wrong biotypes (filtered)
+    wrong_biotypes = [g for g in core_genes if g["biotype"] in ("pseudogene", "artifact", "TEC")]
     if wrong_biotypes:
-        problem["classification"] = "WRONG_BIOTYPE"
-        problem["notes"] = f"Genes built but classified as: {', '.join(g['biotype'] for g in wrong_biotypes)}"
+        problem["classification"] = "FILTERED_BIOTYPE"
+        problem["notes"] = (
+            f"Core has {len(core_genes)} gene(s) but some filtered as: "
+            f"{', '.join(set(g['biotype'] for g in wrong_biotypes))}"
+        )
         return
 
-    # Case 4: Genes exist but evidence not used
-    if problem["protein_evidence"]:
-        evidence_ids = {e["hit_name"] for e in problem["protein_evidence"][:10]}
-        used_evidence = evidence_ids & problem["supporting_evidence_used"]
-        if not used_evidence:
-            problem["classification"] = "EVIDENCE_IGNORED"
-            problem["notes"] = (
-                f"Found {len(problem['protein_evidence'])} protein alignments but none used in final models"
-            )
-            return
+    # Case 5: Genes present in core but fewer than layer
+    if len(core_genes) < len(layer_genes):
+        problem["classification"] = "INCOMPLETE_TRANSFER"
+        problem["notes"] = f"Layer has {len(layer_genes)} gene(s) but only {len(core_genes)} made it to core"
+        return
 
-    # Case 5: Evidence was used but model is incomplete
-    problem["classification"] = "MODEL_INCOMPLETE"
-    problem["notes"] = (
-        f"Evidence used ({len(problem['supporting_evidence_used'])} features) but resulting model may be fragmented"
-    )
+    # Case 6: Should not happen - equal or more genes in core
+    problem["classification"] = "UNCLEAR"
+    problem["notes"] = f"Core has {len(core_genes)} gene(s), layer has {len(layer_genes)} - needs manual investigation"
 
 
 def generate_report(problems: List[Dict], output_tsv: str, output_json: Optional[str] = None):
@@ -530,37 +458,34 @@ def generate_report(problems: List[Dict], output_tsv: str, output_json: Optional
                 "Strand",
                 "Genome_Status",
                 "Protein_Status",
-                "Genes_Count",
-                "Gene_Stable_IDs",
-                "Gene_Biotypes",
-                "Protein_Evidence_Count",
-                "DNA_Evidence_Count",
-                "Evidence_Used_Count",
-                "Top_Evidence_Logic_Names",
+                "Core_Genes_Count",
+                "Core_Gene_Stable_IDs",
+                "Core_Gene_Biotypes",
+                "Layer_Genes_Count",
+                "Layer_Gene_Stable_IDs",
+                "Layer_Gene_Biotypes",
+                "Layer_Logic_Names",
                 "Notes",
             ]
         )
 
         # Data rows
         for problem in problems:
-            gene_ids = (
-                ",".join(g["stable_id"] for g in problem["genes_at_locus"])
-                if problem["genes_at_locus"]
-                else ""
+            core_gene_ids = (
+                ",".join(g["stable_id"] for g in problem["core_genes"]) if problem["core_genes"] else ""
             )
-            gene_biotypes = (
-                ",".join(set(g["biotype"] for g in problem["genes_at_locus"]))
-                if problem["genes_at_locus"]
-                else ""
+            core_gene_biotypes = (
+                ",".join(set(g["biotype"] for g in problem["core_genes"])) if problem["core_genes"] else ""
             )
-            top_logic_names = (
-                ",".join(
-                    set(
-                        e["logic_name"]
-                        for e in (problem["protein_evidence"][:5] + problem["dna_evidence"][:5])
-                    )
-                )
-                if (problem["protein_evidence"] or problem["dna_evidence"])
+            layer_gene_ids = (
+                ",".join(g["stable_id"] for g in problem["layer_genes"]) if problem["layer_genes"] else ""
+            )
+            layer_gene_biotypes = (
+                ",".join(set(g["biotype"] for g in problem["layer_genes"])) if problem["layer_genes"] else ""
+            )
+            layer_logic_names = (
+                ",".join(set(g.get("logic_name", "unknown") for g in problem["layer_genes"]))
+                if problem["layer_genes"]
                 else ""
             )
 
@@ -575,13 +500,13 @@ def generate_report(problems: List[Dict], output_tsv: str, output_json: Optional
                     problem["strand"],
                     problem["genome_status"],
                     problem["protein_status"],
-                    len(problem["genes_at_locus"]),
-                    gene_ids,
-                    gene_biotypes,
-                    len(problem["protein_evidence"]),
-                    len(problem["dna_evidence"]),
-                    len(problem["supporting_evidence_used"]),
-                    top_logic_names,
+                    len(problem["core_genes"]),
+                    core_gene_ids,
+                    core_gene_biotypes,
+                    len(problem["layer_genes"]),
+                    layer_gene_ids,
+                    layer_gene_biotypes,
+                    layer_logic_names,
                     problem["notes"],
                 ]
             )
@@ -623,15 +548,14 @@ def print_summary(problems: List[Dict]):
     for classification, count in sorted(classification_counts.items(), key=lambda x: x[1], reverse=True):
         print(f"  {classification}: {count}")
 
-    # Evidence statistics
-    total_protein_evidence = sum(len(p["protein_evidence"]) for p in problems)
-    total_dna_evidence = sum(len(p["dna_evidence"]) for p in problems)
-    total_genes = sum(len(p["genes_at_locus"]) for p in problems)
+    # Gene statistics
+    total_core_genes = sum(len(p["core_genes"]) for p in problems)
+    total_layer_genes = sum(len(p["layer_genes"]) for p in problems)
 
-    print(f"\nEvidence Statistics:")
-    print(f"  Total protein evidence alignments: {total_protein_evidence}")
-    print(f"  Total DNA evidence alignments: {total_dna_evidence}")
-    print(f"  Total genes at problem loci: {total_genes}")
+    print(f"\nGene Statistics:")
+    print(f"  Total genes in core at problem loci: {total_core_genes}")
+    print(f"  Total genes in layer at problem loci: {total_layer_genes}")
+    print(f"  Genes not transferred: {total_layer_genes - total_core_genes}")
 
     print("=" * 80)
 
@@ -662,7 +586,7 @@ def generate_json_report(problems: List[Dict], output_json: str):
             report["summary"]["problem_types"].get(problem["problem_type"], 0) + 1
         )
 
-    # Detailed problem data (convert sets to lists for JSON serialization)
+    # Detailed problem data
     for problem in problems:
         problem_data = {
             "busco_id": problem["busco_id"],
@@ -678,7 +602,7 @@ def generate_json_report(problems: List[Dict], output_json: str):
                 "genome": problem["genome_status"],
                 "protein": problem["protein_status"],
             },
-            "genes": [
+            "core_genes": [
                 {
                     "stable_id": g["stable_id"],
                     "biotype": g["biotype"],
@@ -688,13 +612,21 @@ def generate_json_report(problems: List[Dict], output_json: str):
                         "strand": g["seq_region_strand"],
                     },
                 }
-                for g in problem["genes_at_locus"]
+                for g in problem["core_genes"]
             ],
-            "evidence_counts": {
-                "protein": len(problem["protein_evidence"]),
-                "dna": len(problem["dna_evidence"]),
-                "used": len(problem["supporting_evidence_used"]),
-            },
+            "layer_genes": [
+                {
+                    "stable_id": g["stable_id"],
+                    "biotype": g["biotype"],
+                    "logic_name": g.get("logic_name", "unknown"),
+                    "coordinates": {
+                        "start": g["seq_region_start"],
+                        "end": g["seq_region_end"],
+                        "strand": g["seq_region_strand"],
+                    },
+                }
+                for g in problem["layer_genes"]
+            ],
             "notes": problem["notes"],
         }
         report["problems"].append(problem_data)
