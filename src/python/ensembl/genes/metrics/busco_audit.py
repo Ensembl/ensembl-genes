@@ -406,14 +406,18 @@ def classify_problem(problem: Dict):
         biotype = g["biotype"] or "unknown"
         core_biotype_counts[biotype] = core_biotype_counts.get(biotype, 0) + 1
 
-    # Get logic name counts for layer (evidence sources, NOT biotypes)
+    # Get biotype counts for layer (what's stored in layer biotype field - often logic_names)
+    layer_biotype_counts = {}
     layer_logic_name_counts = {}
     for g in layer_genes:
+        biotype = g["biotype"] or "unknown"
         logic_name = g.get("logic_name", "unknown")
+        layer_biotype_counts[biotype] = layer_biotype_counts.get(biotype, 0) + 1
         layer_logic_name_counts[logic_name] = layer_logic_name_counts.get(logic_name, 0) + 1
 
     # Store detailed breakdowns
     problem["core_biotype_counts"] = core_biotype_counts
+    problem["layer_biotype_counts"] = layer_biotype_counts
     problem["layer_logic_name_counts"] = layer_logic_name_counts
     problem["layer_evidence_count"] = len(layer_genes)  # Total evidence alignments
 
@@ -499,8 +503,8 @@ def generate_report(problems: List[Dict], output_tsv: str, output_json: Optional
                 "Core_Biotypes",
                 "Core_Gene_IDs",
                 "Layer_Evidence_Total",
-                "Layer_Top_Sources",
-                "Layer_Source_Count",
+                "Layer_Top_Biotypes",
+                "Layer_Top_Analyses",
                 "Summary",
             ]
         )
@@ -511,16 +515,20 @@ def generate_report(problems: List[Dict], output_tsv: str, output_json: Optional
 
             # Format biotype breakdowns
             core_biotype_counts = problem.get("core_biotype_counts", {})
+            layer_biotype_counts = problem.get("layer_biotype_counts", {})
             layer_logic_name_counts = problem.get("layer_logic_name_counts", {})
             layer_evidence_count = problem.get("layer_evidence_count", 0)
 
             # Core biotypes - just list unique ones
             core_biotypes_str = ",".join(sorted(core_biotype_counts.keys())) if core_biotype_counts else "-"
 
-            # Layer evidence - show top 3 sources
-            top_sources = sorted(layer_logic_name_counts.items(), key=lambda x: x[1], reverse=True)[:3]
-            layer_top_str = ", ".join(f"{k}({v})" for k, v in top_sources) if top_sources else "-"
-            layer_source_count = len(layer_logic_name_counts)
+            # Layer biotypes - show top 3 (what's in layer biotype field)
+            top_layer_biotypes = sorted(layer_biotype_counts.items(), key=lambda x: x[1], reverse=True)[:3]
+            layer_biotype_str = ", ".join(f"{k}({v})" for k, v in top_layer_biotypes) if top_layer_biotypes else "-"
+
+            # Layer analyses - show top 3 logic names
+            top_analyses = sorted(layer_logic_name_counts.items(), key=lambda x: x[1], reverse=True)[:3]
+            layer_analysis_str = ", ".join(f"{k}({v})" for k, v in top_analyses) if top_analyses else "-"
 
             core_protein_coding = core_biotype_counts.get("protein_coding", 0)
 
@@ -554,8 +562,8 @@ def generate_report(problems: List[Dict], output_tsv: str, output_json: Optional
                     core_biotypes_str,
                     core_gene_ids,
                     layer_evidence_count,
-                    layer_top_str,
-                    layer_source_count,
+                    layer_biotype_str,
+                    layer_analysis_str,
                     summary,
                 ]
             )
@@ -606,11 +614,14 @@ def print_summary(problems: List[Dict]):
 
     # Aggregate all biotype counts and evidence sources
     core_biotype_totals = defaultdict(int)
+    layer_biotype_totals = defaultdict(int)
     layer_logic_name_totals = defaultdict(int)
 
     for problem in problems:
         for biotype, count in problem.get("core_biotype_counts", {}).items():
             core_biotype_totals[biotype] += count
+        for biotype, count in problem.get("layer_biotype_counts", {}).items():
+            layer_biotype_totals[biotype] += count
         for logic_name, count in problem.get("layer_logic_name_counts", {}).items():
             layer_logic_name_totals[logic_name] += count
 
@@ -622,14 +633,19 @@ def print_summary(problems: List[Dict]):
     print(f"\nLayer Evidence Statistics (at problem loci):")
     print(f"  Total evidence alignments: {total_layer_evidence}")
     print(f"  Evidence alignments per core gene: {total_layer_evidence/total_core_genes if total_core_genes > 0 else 0:.1f}")
-    print(f"  Unique evidence sources: {len(layer_logic_name_totals)}")
+    print(f"  Unique analysis sources: {len(layer_logic_name_totals)}")
 
     print(f"\nCore Biotype Breakdown:")
     for biotype, count in sorted(core_biotype_totals.items(), key=lambda x: x[1], reverse=True):
         pct = 100 * count / sum(core_biotype_totals.values()) if sum(core_biotype_totals.values()) > 0 else 0
         print(f"  {biotype}: {count} ({pct:.1f}%)")
 
-    print(f"\nLayer Evidence Source Breakdown (top 20):")
+    print(f"\nLayer Biotype Breakdown (top 20):")
+    for idx, (biotype, count) in enumerate(sorted(layer_biotype_totals.items(), key=lambda x: x[1], reverse=True)[:20], 1):
+        pct = 100 * count / sum(layer_biotype_totals.values()) if sum(layer_biotype_totals.values()) > 0 else 0
+        print(f"  {idx}. {biotype}: {count} ({pct:.1f}%)")
+
+    print(f"\nLayer Analysis Source Breakdown (top 20):")
     for idx, (logic_name, count) in enumerate(sorted(layer_logic_name_totals.items(), key=lambda x: x[1], reverse=True)[:20], 1):
         pct = 100 * count / sum(layer_logic_name_totals.values()) if sum(layer_logic_name_totals.values()) > 0 else 0
         print(f"  {idx}. {logic_name}: {count} ({pct:.1f}%)")
