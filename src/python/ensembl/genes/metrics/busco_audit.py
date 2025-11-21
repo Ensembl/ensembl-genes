@@ -471,6 +471,7 @@ def get_genes_at_locus(
         genes = cursor.fetchall()
 
         # Get transcripts with translation details for each gene
+        # Note: We calculate protein length from exon sequences
         for gene in genes:
             cursor.execute(
                 """
@@ -480,11 +481,11 @@ def get_genes_at_locus(
                     t.seq_region_start,
                     t.seq_region_end,
                     t.biotype,
+                    tl.translation_id,
                     tl.seq_start as cds_start,
                     tl.start_exon_id,
                     tl.seq_end as cds_end,
-                    tl.end_exon_id,
-                    LENGTH(tl.seq) as protein_length
+                    tl.end_exon_id
                 FROM transcript t
                 LEFT JOIN translation tl ON t.transcript_id = tl.transcript_id
                 WHERE t.gene_id = %s
@@ -492,7 +493,64 @@ def get_genes_at_locus(
                 """,
                 (gene["gene_id"],),
             )
-            gene["transcripts"] = cursor.fetchall()
+            transcripts = cursor.fetchall()
+
+            # Calculate protein length from coding exon sequences
+            for transcript in transcripts:
+                if transcript.get("translation_id"):
+                    # Get all exons for this transcript in order
+                    cursor.execute(
+                        """
+                        SELECT
+                            e.exon_id,
+                            e.seq_region_start,
+                            e.seq_region_end,
+                            et.rank
+                        FROM exon_transcript et
+                        JOIN exon e ON et.exon_id = e.exon_id
+                        WHERE et.transcript_id = %s
+                        ORDER BY et.rank
+                        """,
+                        (transcript["transcript_id"],),
+                    )
+                    exons = cursor.fetchall()
+
+                    # Calculate CDS length accounting for translation boundaries
+                    cds_length = 0
+                    start_exon_id = transcript.get("start_exon_id")
+                    end_exon_id = transcript.get("end_exon_id")
+                    cds_start = transcript.get("cds_start")
+                    cds_end = transcript.get("cds_end")
+
+                    in_cds = False
+                    for exon in exons:
+                        exon_length = exon["seq_region_end"] - exon["seq_region_start"] + 1
+
+                        if exon["exon_id"] == start_exon_id:
+                            # First coding exon - adjust for cds_start
+                            in_cds = True
+                            if exon["exon_id"] == end_exon_id:
+                                # Single exon CDS
+                                cds_length += cds_end - cds_start + 1
+                            else:
+                                cds_length += exon_length - cds_start + 1
+                        elif exon["exon_id"] == end_exon_id:
+                            # Last coding exon - adjust for cds_end
+                            cds_length += cds_end
+                            in_cds = False
+                        elif in_cds:
+                            # Middle coding exon - use full length
+                            cds_length += exon_length
+
+                    if cds_length > 0:
+                        # Protein length = CDS length / 3 (codons)
+                        transcript["protein_length"] = cds_length // 3
+                    else:
+                        transcript["protein_length"] = None
+                else:
+                    transcript["protein_length"] = None
+
+            gene["transcripts"] = transcripts
 
         cursor.close()
         conn.close()
