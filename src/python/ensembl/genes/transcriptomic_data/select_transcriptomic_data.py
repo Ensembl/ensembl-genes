@@ -486,7 +486,9 @@ def main() -> None:
             axis=1,
         )
         # print(df_final.head())
-        if args.csv_for_main:
+        if not df_final.empty :
+          if args.csv_for_main:
+            print(df_final.head())
             df_final.loc[:, "file_name"] = df_final["file_name"].astype(str) + ".fastq.gz"
             df_final.loc[:, "col1"] = 1
             df_final.loc[:, "col_1"] = -1
@@ -514,7 +516,7 @@ def main() -> None:
                     ],
                     header=False,
                 )
-        else:
+          else:
             # taxon_id,gca,platform,paired,tissue,run_accession,pair1,md5_1,pair2,md5_2
             output_df = (
                 df_final.groupby("run_accession")
