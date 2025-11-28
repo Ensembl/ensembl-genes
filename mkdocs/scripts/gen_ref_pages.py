@@ -1,47 +1,49 @@
-# See the NOTICE file distributed with this work for additional information
-# regarding copyright ownership.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-"""Generate the code reference pages for mkdocs."""
+"""Generate API reference pages for MkDocs using mkdocs-gen-files.
 
+This script discovers Python modules under `src/python/ensembl` and
+creates a `reference/` page for each module with a mkdocstrings directive.
+
+It is intentionally simple and avoids importing project modules.
+"""
 from pathlib import Path
-
 import mkdocs_gen_files
 
+ROOT = Path("src/python")
+PKG = Path("src/python/ensembl")
+OUT_DIR = "reference"
 
-nav = mkdocs_gen_files.Nav()
 
-root = Path("src/python/ensembl").resolve()
-for py_path in sorted(root.rglob("*.py")):
-    # Get the relative module path and corresponding documentation paths
-    module_path = py_path.relative_to(root)
-    doc_path = module_path.with_suffix(".md")
-    full_doc_path = Path("reference", doc_path)
-    # Get all the parts of the module path without the ".py" extension
-    parts = tuple(module_path.with_suffix("").parts)
-    # Drop "__init__" file from the path components as well (if present)
-    if parts[-1] == "__init__":
-        parts = parts[:-1]
-        doc_path = doc_path.with_name("index.md")
-        full_doc_path = full_doc_path.with_name("index.md")
-    # Add markdown file path with its index tree
-    nav[parts] = doc_path.as_posix()
-    # Populate the markdown file with the doc stub of this module
-    with mkdocs_gen_files.open(full_doc_path, "w") as fd:
-        identifier = ".".join(parts)
-        fd.write(f"::: {identifier}\n")
-    # Correct the path
-    mkdocs_gen_files.set_edit_path(full_doc_path, module_path)
+def iter_modules(root: Path):
+    for path in sorted(root.rglob("*.py")):
+        # skip tests or private modules if needed
+        if path.name == "__init__.py":
+            continue
+        rel = path.relative_to(ROOT).with_suffix("")
+        parts = rel.parts
+        # only include modules under the top-level 'ensembl' package
+        if len(parts) == 0 or parts[0] != "ensembl":
+            continue
+        module = ".".join(parts)
+        yield module
 
-with mkdocs_gen_files.open("reference/summary.md", "w") as nav_file:
-    nav_file.writelines(nav.build_literate_nav())
+
+def build():
+    nav = []
+    for module in iter_modules(PKG):
+        page_path = Path(OUT_DIR) / (module + ".md")
+        # create parent dirs
+        mkdocs_gen_files.set_edit_path(str(Path("src") / page_path))
+        with mkdocs_gen_files.open(page_path, "w") as fh:
+            fh.write(f"::: {module}\n")
+        nav.append(page_path.as_posix())
+
+    # write a simple summary index
+    summary = Path(OUT_DIR) / "summary.md"
+    with mkdocs_gen_files.open(summary, "w") as fh:
+        fh.write("# API reference\n\n")
+        for p in nav:
+            fh.write(f"- [{p}]({p})\n")
+
+
+if __name__ == "__main__":
+    build()
