@@ -1,0 +1,65 @@
+# See the NOTICE file distributed with this work for additional information
+# regarding copyright ownership.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+name: 'Deploy documentation'
+run-name: ${{ github.actor }} triggered docs build
+
+on:
+  workflow_dispatch:
+    inputs:
+      python-version:
+        description: Python version
+        default: '3.10'
+        required: true
+        type: string
+
+jobs:
+  build-and-deploy:
+    name: Build documentation and deploy to GitHub Pages
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ./.github/actions/python_build
+        with:
+          python-version: ${{ inputs.python-version }}
+          tags: "[cicd,docs]"
+
+      - name: Install docs deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e '.[dev]'
+
+      - name: Build Sphinx HTML
+        run: |
+          sphinx-build -b html docs docs/_build/html
+
+      - name: Upload pages artifact
+        uses: actions/upload-pages-artifact@v1
+        with:
+          path: ./docs/_build/html
+
+  deploy-pages:
+    needs: build-and-deploy
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    steps:
+      - name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@v1
