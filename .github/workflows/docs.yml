@@ -60,9 +60,12 @@ jobs:
 
       - name: Ensure docs directory exists
         run: |
-          if [ ! -d "${{ inputs.docs-dir }}" ]; then
-            echo "Docs dir '${{ inputs.docs-dir }}' not found; creating directory.";
-            mkdir -p ${{ inputs.docs-dir }};
+          # Use provided input when running via workflow_dispatch, otherwise default to 'mkdocs'
+          DOCS_DIR="${{ inputs.docs-dir }}"
+          DOCS_DIR="${DOCS_DIR:-mkdocs}"
+          if [ ! -d "$DOCS_DIR" ]; then
+            echo "Docs dir '$DOCS_DIR' not found; creating directory.";
+            mkdir -p "$DOCS_DIR";
           fi
 
       - name: Build MkDocs site (generate reference pages)
