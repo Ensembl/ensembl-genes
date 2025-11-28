@@ -1,11 +1,16 @@
-# ensembl-genes documentation
+# ensembl-genes
 
-Welcome to the project documentation.
+*Ensembl genes utilities and tools — project documentation*
 
-This is a placeholder MkDocs index. Replace or expand by creating Markdown files in the `mkdocs/` directory and updating `mkdocs.yml` as needed.
+This repository provides tools and utilities used by Ensembl for genome annotation and related workflows. The documentation is produced with MkDocs.
 
-Quick start:
+Contents
 
-- Edit `mkdocs.yml` to configure the site
-- Add pages under the `mkdocs/` directory (Markdown files)
-- Build locally with `mkdocs build` or serve with `mkdocs serve`
+1. [Install](install.md)
+2. [Usage](usage.md)
+
+## License
+
+Software in this repository is distributed under the [Apache-2.0 License](https://www.apache.org/licenses/LICENSE-2.0.txt).
+
+Source: https://github.com/Ensembl/ensembl-genes
