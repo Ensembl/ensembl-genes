@@ -1,0 +1,12 @@
+site_name: "ensembl-genes"
+site_description: "Ensembl Genes project documentation"
+docs_dir: "mkdocs"
+site_dir: "site"
+
+theme:
+  name: "material"
+
+nav:
+  - Home: index.md
+
+plugins: []
