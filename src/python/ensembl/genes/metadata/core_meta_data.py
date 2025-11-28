@@ -1,114 +1,136 @@
-import requests
-import xmltodict
 import json
-from datetime import datetime
-import argparse
-import pymysql
 import re
+import argparse
+from datetime import datetime
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Tuple
+
 import logging
 import logging.config
-from pathlib import Path
+import requests
+import pymysql
+import xmltodict
 
 
-def mysql_fetch_data(query, database, host, port, user):
+# Module logger (configured in __main__ via logging.config)
+logger: logging.Logger = logging.getLogger(__name__)
+
+
+def mysql_fetch_data(
+    query: str, database: str, host: str, port: int, user: str
+) -> List[Tuple[Any, ...]]:
+    """Run a simple SELECT query and return fetched rows.
+
+    Returns an empty list on error.
+    """
+    conn = None
+    cursor = None
+    info: List[Tuple[Any, ...]] = []
     try:
         conn = pymysql.connect(host=host, user=user, port=port, database=database.strip())
-
         cursor = conn.cursor()
         cursor.execute(query)
-        info = cursor.fetchall()
-
-    except pymysql.Error as err:
-        print(err)
-
-    cursor.close()
-    conn.close()
+        info = list(cursor.fetchall())
+    except pymysql.Error:
+        logger.exception("MySQL error while executing query: %s", query)
+    finally:
+        if cursor is not None:
+            try:
+                cursor.close()
+            except Exception:
+                logger.exception("Error closing cursor")
+        if conn is not None:
+            try:
+                conn.close()
+            except Exception:
+                logger.exception("Error closing connection")
     return info
 
 
-def get_ena_metadata(accession, truth_dict):
+def get_ena_metadata(accession: str, truth_dict: Dict[str, Any]) -> Dict[str, str]:
     assembly_url = f"https://www.ebi.ac.uk/ena/browser/api/xml/{accession}"
     assembly_xml = requests.get(assembly_url)
     assembly_dict = xmltodict.parse(assembly_xml.text)
 
-    assembly_attribs = assembly_dict["ASSEMBLY_SET"]["ASSEMBLY"]["ASSEMBLY_ATTRIBUTES"]["ASSEMBLY_ATTRIBUTE"]
+    attribs = assembly_dict.get("ASSEMBLY_SET", {}).get("ASSEMBLY", {}).get("ASSEMBLY_ATTRIBUTES", {}).get("ASSEMBLY_ATTRIBUTE", [])
+    # normalize to a list
+    if isinstance(attribs, dict):
+        assembly_attribs = [attribs]
+    else:
+        assembly_attribs = list(attribs)
 
-    return_dict = {}
+    return_dict: Dict[str, str] = {}
 
-    # assembly meta data
-    # assembly name
-    try:
-        return_dict["assembly.name"] = assembly_dict["ASSEMBLY_SET"]["ASSEMBLY"]["NAME"].replace(" ", "_")
-    except KeyError:
-        return_dict["assembly.name"] = ""
-    # assembly level
-    try:
-        return_dict["assembly.level"] = assembly_dict["ASSEMBLY_SET"]["ASSEMBLY"]["ASSEMBLY_LEVEL"]
-    except KeyError:
-        return_dict["assembly.level"] = ""
+    # assembly metadata
+    return_dict["assembly.name"] = (
+        assembly_dict.get("ASSEMBLY_SET", {}).get("ASSEMBLY", {}).get("NAME", "")
+    ).replace(" ", "_") if assembly_dict.get("ASSEMBLY_SET", {}).get("ASSEMBLY", {}).get("NAME") else ""
+
+    return_dict["assembly.level"] = assembly_dict.get("ASSEMBLY_SET", {}).get("ASSEMBLY", {}).get("ASSEMBLY_LEVEL", "")
 
     for attrib_set in assembly_attribs:
         # assembly date
-        if attrib_set["TAG"] == "ENA-LAST-UPDATED":
-            return_dict["assembly.date"] = attrib_set["VALUE"]
+        if attrib_set.get("TAG") == "ENA-LAST-UPDATED":
+            return_dict["assembly.date"] = attrib_set.get("VALUE", "")
 
-        # organism meta data
-        # sample id
-        if "organism.biosample_id" not in truth_dict:
-            try:
-                return_dict["organism.biosample_id"] = assembly_dict["ASSEMBLY_SET"]["ASSEMBLY"]["SAMPLE_REF"]["IDENTIFIERS"]["PRIMARY_ID"]
-            except KeyError:
-                logger.critical(
-                    " | BIOSAMPLE_ID | organism.biosample_id could not be found in the ENA metadata, this is a required key!"
-                )
-        # taxonomy id
-        # found a species that has incorrect taxon id in INSDC records, hardcoding the fix
-        if accession == "GCA_944452655.1" or accession == "GCA_944452715.1":
-            return_dict["organism.taxonomy_id"] = "1539398"
+    # organism metadata: sample id
+    if "organism.biosample_id" not in truth_dict:
+        biosample_id = (
+            assembly_dict.get("ASSEMBLY_SET", {}).get("ASSEMBLY", {}).get("SAMPLE_REF", {}).get("IDENTIFIERS", {}).get("PRIMARY_ID", "")
+        )
+        if biosample_id:
+            return_dict["organism.biosample_id"] = biosample_id
         else:
-            try:
-                return_dict["organism.taxonomy_id"] = assembly_dict["ASSEMBLY_SET"]["ASSEMBLY"]["TAXON"]["TAXON_ID"]
-            except KeyError:
-                logger.warning(" | TAXONOMY_ID | organism.taxonomy_id could not be found in the ENA metadata")
+            logger.critical(" | BIOSAMPLE_ID | organism.biosample_id could not be found in the ENA metadata, this is a required key!")
 
-        return return_dict
-
-
-def get_ncbi_metadata(accession, assembly_name, scientific_name, search):
-    organism = f"{accession}_{assembly_name}"
-    ncbi_url = f"https://ftp.ncbi.nlm.nih.gov/genomes/all/{accession[0:3]}/{accession[4:7]}/{accession[7:10]}/{accession[10:13]}/{organism}/{organism}_assembly_report.txt"
-    ncbi_return = requests.get(ncbi_url).text.split("\n")
-
-    return_dict = {}
-    return_dict["assembly.ucsc_alias"] = ""
-    return_dict["organism.strain"] = ""
-    return_dict["organism.strain_type"] = ""
-
-    if search == "ucsc":
-        for line in ncbi_return:
-            ucscREGEX = re.search("\# Synonyms\: +([a-zA-Z0-9]+)", line)
-            if ucscREGEX:
-                ucsc_alias = ucscREGEX.group(1)
-                return_dict["assembly.ucsc_alias"] = ucsc_alias
-
-    elif search == "biosample":
-        for line in ncbi_return:
-            strainREGEX = re.search("\# Infraspecific name: +([A-Za-z]+)=([a-zA-Z0-9 -\.\/]+)", line)
-            if strainREGEX:
-                strain_type = strainREGEX.group(1)
-                strain = strainREGEX.group(2)
-                return_dict["organism.strain"] = strain
-                return_dict["organism.strain_type"] = strain_type
+    # taxonomy id (workaround for bad records)
+    if accession in ("GCA_944452655.1", "GCA_944452715.1"):
+        return_dict["organism.taxonomy_id"] = "1539398"
+    else:
+        tax_id = assembly_dict.get("ASSEMBLY_SET", {}).get("ASSEMBLY", {}).get("TAXON", {}).get("TAXON_ID", "")
+        if tax_id:
+            return_dict["organism.taxonomy_id"] = tax_id
+        else:
+            logger.warning(" | TAXONOMY_ID | organism.taxonomy_id could not be found in the ENA metadata")
 
     return return_dict
 
 
-def get_biosample_metadata(biosample_id, assembly_accession, assembly_name, scientific_name):
+def get_ncbi_metadata(accession: str, assembly_name: str, scientific_name: str, search: str) -> Dict[str, str]:
+    organism = f"{accession}_{assembly_name}"
+    ncbi_url = (
+        f"https://ftp.ncbi.nlm.nih.gov/genomes/all/{accession[0:3]}/{accession[4:7]}/{accession[7:10]}/{accession[10:13]}/{organism}/{organism}_assembly_report.txt"
+    )
+    ncbi_return = requests.get(ncbi_url).text.splitlines()
+
+    return_dict: Dict[str, str] = {
+        "assembly.ucsc_alias": "",
+        "organism.strain": "",
+        "organism.strain_type": "",
+    }
+
+    if search == "ucsc":
+        for line in ncbi_return:
+            ucsc_match = re.search(r"# Synonyms:\s*([A-Za-z0-9]+)", line)
+            if ucsc_match:
+                return_dict["assembly.ucsc_alias"] = ucsc_match.group(1)
+
+    elif search == "biosample":
+        for line in ncbi_return:
+            strain_match = re.search(r"# Infraspecific name:\s*([A-Za-z]+)=([A-Za-z0-9 \-\./]+)", line)
+            if strain_match:
+                return_dict["organism.strain_type"] = strain_match.group(1)
+                return_dict["organism.strain"] = strain_match.group(2)
+
+    return return_dict
+
+
+def get_biosample_metadata(
+    biosample_id: str, assembly_accession: str, assembly_name: str, scientific_name: str
+) -> Dict[str, str]:
     biosample_url = f"https://www.ebi.ac.uk/biosamples/samples/{biosample_id}"
     biosample_return = requests.get(biosample_url).text
-    return_dict = {}
-    return_dict["organism.strain"] = ""
-    return_dict["organism.strain_type"] = ""
+    return_dict: Dict[str, str] = {"organism.strain": "", "organism.strain_type": ""}
 
     try:
         biosample_data = json.loads(biosample_return)
@@ -132,10 +154,10 @@ def get_biosample_metadata(biosample_id, assembly_accession, assembly_name, scie
             return_dict["assembly.tol_id"] = ""
 
     except json.decoder.JSONDecodeError:
-        # I couldn't get the biosample info from ENA because metadata is so ridiculously poorly recorded so I'm going to try and grab it from NCBI... FML
+        # fallback to NCBI
         biosample_dict = get_ncbi_metadata(assembly_accession, assembly_name, scientific_name, "biosample")
-        return_dict["organism.strain"] = biosample_dict["organism.strain"]
-        return_dict["organism.strain_type"] = biosample_dict["organism.strain_type"]
+        return_dict["organism.strain"] = biosample_dict.get("organism.strain", "")
+        return_dict["organism.strain_type"] = biosample_dict.get("organism.strain_type", "")
         return_dict["assembly.tol_id"] = ""
 
     return return_dict
