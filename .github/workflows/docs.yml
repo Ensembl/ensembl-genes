@@ -17,6 +17,14 @@ name: 'Deploy documentation (MkDocs)'
 run-name: ${{ github.actor }} triggered MkDocs build
 
 on:
+  push:
+    branches: [ 'fix/documentation' ]
+    paths:
+      - 'mkdocs/**'
+      - 'docs/**'
+      - 'src/**'
+      - 'pyproject.toml'
+      - 'mkdocs.yml'
   workflow_dispatch:
     inputs:
       python-version:
