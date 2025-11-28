@@ -45,29 +45,33 @@ markdown_extensions:
       permalink: true
 
 plugins:
-- search
-- gen-files:
-  scripts:
-  - mkdocs/scripts/gen_ref_pages.py
-- literate-nav:
-  nav_file: reference/summary.md
-- section-index
-- mkdocstrings:
-    enabled: !ENV [ENABLE_MKDOCSTRINGS, true]
-    default_handler: python
-    handlers:
-      python:
-    paths: [src/python]
-        options:
-          filters: ["!^_"]
-          show_if_no_docstring: true
-          show_root_heading: true
-          show_source: true
-          show_symbol_type_heading: true
-          show_symbol_type_toc: true
-- coverage:
-    page_name: coverage
-    html_report_dir: reports/htmlcov
+  - search
+  - gen-files:
+      scripts:
+        - mkdocs/scripts/gen_ref_pages.py
+  - literate-nav:
+      nav_file: reference/summary.md
+  - section-index
+  - mkdocstrings:
+      enabled: !ENV [ENABLE_MKDOCSTRINGS, true]
+      default_handler: python
+      handlers:
+        python:
+          # Restrict mkdocstrings to the ensembl package to avoid importing
+          # unrelated modules during collection which can cause import-time
+          # side effects. gen_ref_pages generates references only for
+          # `src/python/ensembl` modules.
+          paths: [src/python/ensembl]
+          options:
+            filters: ["!^_"]
+            show_if_no_docstring: true
+            show_root_heading: true
+            show_source: true
+            show_symbol_type_heading: true
+            show_symbol_type_toc: true
+  - coverage:
+      page_name: coverage
+      html_report_dir: reports/htmlcov
 
 nav:
   - Home:
