@@ -53,16 +53,8 @@ jobs:
       - name: Ensure docs directory exists
         run: |
           if [ ! -d "${{ inputs.docs-dir }}" ]; then
-            echo "Docs dir '${{ inputs.docs-dir }}' not found; creating a minimal site.";
+            echo "Docs dir '${{ inputs.docs-dir }}' not found; creating directory.";
             mkdir -p ${{ inputs.docs-dir }};
-            cat > ${{ inputs.docs-dir }}/index.md <<'MD'
-# Project documentation
-
-This repository is configured to build documentation with MkDocs.
-
-Replace this page by adding Markdown files under the docs directory and updating `mkdocs.yml`.
-
-MD
           fi
 
       - name: Build MkDocs site (generate reference pages)
