@@ -13,8 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-name: 'Deploy documentation'
-run-name: ${{ github.actor }} triggered docs build
+name: 'Deploy documentation (MkDocs)'
+run-name: ${{ github.actor }} triggered MkDocs build
 
 on:
   workflow_dispatch:
@@ -24,10 +24,15 @@ on:
         default: '3.10'
         required: true
         type: string
+      docs-dir:
+        description: Directory containing MkDocs sources
+        default: 'mkdocs'
+        required: true
+        type: string
 
 jobs:
   build-and-deploy:
-    name: Build documentation and deploy to GitHub Pages
+    name: Build MkDocs site and deploy to GitHub Pages
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -40,19 +45,35 @@ jobs:
           python-version: ${{ inputs.python-version }}
           tags: "[cicd,docs]"
 
-      - name: Install docs deps
+      - name: Install MkDocs, theme and plugins
         run: |
           python -m pip install --upgrade pip
-          pip install -e '.[dev]'
+          pip install mkdocs mkdocs-material mkdocs-gen-files mkdocstrings[python] mkdocs-literate-nav mkdocs-section-index mkdocs-coverage
 
-      - name: Build Sphinx HTML
+      - name: Ensure docs directory exists
         run: |
-          sphinx-build -b html docs docs/_build/html
+          if [ ! -d "${{ inputs.docs-dir }}" ]; then
+            echo "Docs dir '${{ inputs.docs-dir }}' not found; creating a minimal site.";
+            mkdir -p ${{ inputs.docs-dir }};
+            cat > ${{ inputs.docs-dir }}/index.md <<'MD'
+# Project documentation
 
-      - name: Upload pages artifact
+This repository is configured to build documentation with MkDocs.
+
+Replace this page by adding Markdown files under the docs directory and updating `mkdocs.yml`.
+
+MD
+          fi
+
+      - name: Build MkDocs site (generate reference pages)
+        run: |
+          # generate reference pages via the gen-files script (mkdocs-gen-files plugin)
+          mkdocs build -f mkdocs.yml -d ./site
+
+      - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v1
         with:
-          path: ./docs/_build/html
+          path: ./site
 
   deploy-pages:
     needs: build-and-deploy
