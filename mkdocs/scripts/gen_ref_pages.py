@@ -21,7 +21,7 @@ import mkdocs_gen_files
 
 nav = mkdocs_gen_files.Nav()
 
-root = Path("src").resolve()
+root = Path("src/python/ensembl").resolve()
 for py_path in sorted(root.rglob("*.py")):
     # Get the relative module path and corresponding documentation paths
     module_path = py_path.relative_to(root)
