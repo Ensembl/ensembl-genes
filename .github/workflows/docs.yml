@@ -44,6 +44,8 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+    env:
+      DOCS_DIR: mkdocs
 
     steps:
       - uses: actions/checkout@v4
@@ -60,9 +62,10 @@ jobs:
 
       - name: Ensure docs directory exists
         run: |
-          # Use provided input when running via workflow_dispatch, otherwise default to 'mkdocs'
-          DOCS_DIR="${{ inputs.docs-dir }}"
-          DOCS_DIR="${DOCS_DIR:-mkdocs}"
+          # Job-level default is provided by the env `DOCS_DIR` (mkdocs).
+          # If a workflow_dispatch input is provided, prefer that value.
+          INPUT_DOCS_DIR="${{ inputs.docs-dir }}"
+          DOCS_DIR="${INPUT_DOCS_DIR:-$DOCS_DIR}"
           if [ ! -d "$DOCS_DIR" ]; then
             echo "Docs dir '$DOCS_DIR' not found; creating directory.";
             mkdir -p "$DOCS_DIR";
