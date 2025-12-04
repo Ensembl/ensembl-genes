@@ -2,7 +2,7 @@
 name = "ensembl-genes"
 version = "0.1.0"
 description = "Tools for genome annotation"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 authors = [
     {name = "Ensembl", email = "dev@ensembl.org"},
 ]
@@ -19,6 +19,7 @@ dependencies = [
     "pymysql == 1.0.2",
     "requests >= 2.32.5",
     "sqlalchemy == 1.4.9",
+    "xmltodict"
 ]
 
 [project.optional-dependencies]
@@ -56,3 +57,9 @@ where = ["src/python"]
 
 [tool.setuptools]
 package-dir = {"" = "src/python"}
+
+[tool.mypy]
+ignore_missing_imports = true
+
+[tool.pylint.'MASTER']
+init-hook = "import sys; sys.path.append('src/python')"
