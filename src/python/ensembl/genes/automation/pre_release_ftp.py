@@ -14,6 +14,8 @@
 
 
 #!/usr/bin/env python3
+# pylint: disable=logging-fstring-interpolation
+
 """
 Pre-release FTP processing script for Ensembl genebuild pipeline.
 
@@ -74,7 +76,7 @@ def parse_gca_id(gca_string: str) -> Tuple[str, str]:
     return gca_number, version
 
 
-def find_reheadered_fasta(output_path: str) -> tuple[str, str]:
+def find_reheadered_fasta(output_path: str) -> str:
     """
     Find the reheadered toplevel FASTA file and its corresponding FAI index file.
 
@@ -185,9 +187,9 @@ def _select_main_annotation_file(file_list: List[str], file_type: str) -> str:
             other_files.append(filepath)
 
     # Return in order of preference
-    if main_files:
+    if main_files:#pylint: disable=no-else-return
         return main_files[0]
-    elif chr_files:
+    elif chr_files: #pylint: disable:no-else-return
         return chr_files[0]
     elif other_files:
         return other_files[0]
@@ -209,8 +211,8 @@ def is_compressed_file(filepath: str) -> bool:
         bool: True if file is actually gzip compressed
     """
     try:
-        with open(filepath, "rb") as f:
-            magic_bytes = f.read(2)
+        with open(filepath, "rb") as file:
+            magic_bytes = file.read(2)
             # Check for gzip magic bytes (0x1f, 0x8b)
             return (
                 len(magic_bytes) == 2
@@ -286,8 +288,8 @@ def calculate_md5(filepath: str) -> str:
         IOError: If file cannot be read
     """
     hash_md5 = hashlib.md5()
-    with open(filepath, "rb") as f:
-        for chunk in iter(lambda: f.read(4096), b""):
+    with open(filepath, "rb") as file:
+        for chunk in iter(lambda: file.read(4096), b""):
             hash_md5.update(chunk)
     return hash_md5.hexdigest()
 
@@ -318,13 +320,13 @@ def format_species_name(species_name: str) -> str:
     return species_title.replace(" ", "_").replace("-", "_").replace(".", "_")
 
 
-def create_ftp_directory_structure(
+def create_ftp_directory_structure( # pylint: disable=too-many-locals, too-many-arguments
     output_path: str,
     species_name: str,
     gca_string: str,
     annotation_files: Dict[str, Optional[str]],
     fasta_file: str,
-    two_bit_file: str,
+    two_bit_file: Optional[str],
     logger: logging.Logger,
 ) -> Tuple[str, List[str]]:
     """
@@ -436,12 +438,12 @@ def generate_md5_checksums(
 
     logger.info(f"Generating MD5 checksums in: {md5_file}")
 
-    with open(md5_file, "w") as f:
+    with open(md5_file, "w") as file:#pylint: disable=unspecified-encoding
         for filepath in sorted(files):
             if os.path.exists(filepath):
                 filename = os.path.basename(filepath)
                 md5_hash = calculate_md5(filepath)
-                f.write(f"{md5_hash}  {filename}\n")
+                file.write(f"{md5_hash}  {filename}\n")
                 logger.info(f"  {filename}: {md5_hash}")
 
     return md5_file
@@ -462,8 +464,8 @@ def main() -> None:
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  %(prog)s -p /path/to/GCA_030222105.1/ -g GCA_030222105.1 -s Macaca_mulatta
-  %(prog)s -p /path/to/data/ -g GCA_002263795.4
+    %(prog)s -p /path/to/GCA_030222105.1/ -g GCA_030222105.1 -s Macaca_mulatta
+    %(prog)s -p /path/to/data/ -g GCA_002263795.4
         """,
     )
     parser.add_argument(
@@ -509,8 +511,8 @@ Examples:
             fasta_file = find_reheadered_fasta(output_path)
             logger.info(f"Found reheadered FASTA file: {os.path.basename(fasta_file)}")
 
-        except FileNotFoundError as e:
-            logger.error(str(e))
+        except FileNotFoundError as err:
+            logger.error(str(err))
             sys.exit(1)
 
         annotation_files = find_annotation_files(output_path)
@@ -559,8 +561,8 @@ Examples:
         logger.info(f"FTP structure created successfully in: {ftp_dir}")
         logger.info("Pre-release FTP processing completed successfully")
 
-    except Exception as e:
-        logger.error(f"Error during processing: {str(e)}")
+    except Exception as err:#pylint: disable=broad-exception-caught
+        logger.error(f"Error during processing: {str(err)}")
         sys.exit(1)
 
 
