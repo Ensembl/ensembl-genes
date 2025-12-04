@@ -10,7 +10,6 @@ Usage:
     python genebuild_init_pipeline.py --gcas path/to/gcas.txt --settings_file path/to/user_pipeline_settings.json
 """
 
-
 import argparse
 import logging
 import re

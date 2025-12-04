@@ -45,7 +45,7 @@ def fetch_core_metrics(
 
 
 def partition_metrics(
-    rows: list[dict[str, str]]
+    rows: list[dict[str, str]],
 ) -> tuple[list[tuple[str, str]], list[tuple[str, str]]]:
     """
     Partition metrics into assembly and genebuild categories.

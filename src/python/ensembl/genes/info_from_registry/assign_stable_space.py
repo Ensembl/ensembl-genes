@@ -34,7 +34,7 @@ def insert_to_db(
         return True
     except pymysql.err.IntegrityError as e:
         if e.args[0] == 1062:
-            if store_new_registry:#pylint: disable=no-else-return
+            if store_new_registry:  # pylint: disable=no-else-return
                 logger.info(
                     "Duplicate entry found, but store_new_registry is True. Report as success."
                 )
@@ -106,7 +106,7 @@ def stable_space_per_taxon(taxon_id: int, server_info: dict) -> int:
                 f"{old_stable_space_info} != {stable_space_tmp}"
             )
             logger.error(msg)
-            raise Exception(msg)#pylint: disable=broad-exception-raised
+            raise Exception(msg)  # pylint: disable=broad-exception-raised
 
     return stable_space_id
 
@@ -132,7 +132,7 @@ def stable_space_range(stable_space_id: int, server_info: dict) -> bool:
         password="",
     )
 
-    if output_query:#pylint: disable=no-else-return
+    if output_query:  # pylint: disable=no-else-return
         logger.info(
             f"Stable space ID {stable_space_id} already exists with range: {output_query[0]}."
         )
@@ -178,13 +178,15 @@ def stable_space_range(stable_space_id: int, server_info: dict) -> bool:
                 database=server_info["registry"]["db_name"],
             )
 
-            if insert_to_db(insert_query, conn, store_new_registry=True):#pylint: disable=no-else-return
+            if insert_to_db(
+                insert_query, conn, store_new_registry=True
+            ):  # pylint: disable=no-else-return
                 logger.info(
                     f"Successfully created stable space range for ID {stable_space_id}."
                 )
                 conn.close()
                 return new_start
-            else:#pylint: disable=no-else-return
+            else:  # pylint: disable=no-else-return
                 logger.error(
                     f"Failed to insert stable space range for ID {stable_space_id}."
                 )
@@ -236,7 +238,9 @@ def assign_stable_id(
             database=server_info["registry"]["db_name"],
         )
 
-        if insert_to_db(insert_query, conn, store_new_registry=True):#pylint: disable=no-else-return
+        if insert_to_db(
+            insert_query, conn, store_new_registry=True
+        ):  # pylint: disable=no-else-return
             logger.info(
                 f"Successfully inserted stable space ID {stable_space_id} for GCA {gca_accession}."
             )
@@ -284,7 +288,7 @@ def get_stable_space(
         password="",
     )
 
-    if output_query:#pylint: disable=no-else-return
+    if output_query:  # pylint: disable=no-else-return
         stable_space_id = output_query[0].get("stable_space_id")
         stable_space_start = output_query[0].get("stable_space_start")
         logger.info(

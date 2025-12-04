@@ -5,11 +5,11 @@ This module defines a function to verify if a given genome assembly accession
 is already annotated in the genebuild registry. It logs annotation status and raises
 an error if any assembly has already been annotated.
 """
+
 # pylint: disable=logging-fstring-interpolation
 import logging
 from typing import Dict, Any
 from mysql_helper import mysql_fetch_data
-
 
 
 # Configure logging
@@ -57,7 +57,7 @@ def check_if_annotated(
             genebuilder
         FROM genebuild_status 
         WHERE gca_accession =  %s
-    """# pylint: disable=f-string-without-interpolation
+    """  # pylint: disable=f-string-without-interpolation
 
     registry_rows = mysql_fetch_data(
         registry_query,

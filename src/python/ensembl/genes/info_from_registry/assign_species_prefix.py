@@ -41,7 +41,7 @@ def get_special_cases() -> dict[str, str]:
         "info_from_registry",
         "anno_settings.json",
     )
-    with open(json_path, "r") as file:#pylint: disable=unspecified-encoding
+    with open(json_path, "r") as file:  # pylint: disable=unspecified-encoding
         special_cases = json.load(file)
     return special_cases
 
@@ -56,7 +56,7 @@ def exiting_prefix(server_info: dict) -> list[str]:
         list[str]: A list of existing species prefixes.
     """
     # Getting existing prefix from registry db. To be removed when the registry is updated.
-    prefix_registry_query = f"SELECT DISTINCT species_prefix FROM assembly ;"#pylint: disable=f-string-without-interpolation
+    prefix_registry_query = f"SELECT DISTINCT species_prefix FROM assembly ;"  # pylint: disable=f-string-without-interpolation
     output_registry = mysql_fetch_data(
         prefix_registry_query,
         host=server_info["registry"]["db_host"],
@@ -66,7 +66,7 @@ def exiting_prefix(server_info: dict) -> list[str]:
         password="",
     )
     # Getting existing prefix from metadata db
-    prefix_metadata_query = f"SELECT DISTINCT prefix FROM species_prefix ;"#pylint: disable=f-string-without-interpolation
+    prefix_metadata_query = f"SELECT DISTINCT prefix FROM species_prefix ;"  # pylint: disable=f-string-without-interpolation
     output_metadata = mysql_fetch_data(
         prefix_metadata_query,
         host=server_info["registry"]["db_host"],
@@ -116,7 +116,7 @@ def insert_prefix_into_db(
         prefix (str): The species prefix to insert.
         taxon_id (int): The lowest taxon ID associated with the prefix.
         conn (pymysql.connections.Connection): The database connection object.
-        store_new_registry (bool): Whether to allow duplicated exception if 
+        store_new_registry (bool): Whether to allow duplicated exception if
         the prefix already exists in the database.
     Returns:
         bool: True if the prefix was successfully inserted, False if it already exists.
@@ -179,9 +179,9 @@ def create_prefix(existing_prefix: list[str], taxon_id: int, server_info: dict) 
 
 def get_species_prefix(taxon_id: int, server_info: dict) -> Optional[str]:
     """
-    This function retrieves the species prefix from the assembly registry 
+    This function retrieves the species prefix from the assembly registry
     and metadata databases.
-    If the prefix is not found, it creates a new one. There are special cases 
+    If the prefix is not found, it creates a new one. There are special cases
     where the prefix is predefined.
     - Canis lupus (wolf) -> ENSCAF
     - Canis lupus familiaris (Domestic dog) -> ENSCAF

@@ -5,6 +5,7 @@ This module gets legacy stable id from old registry. Module will be deprecated w
 all pipelines have moved to the new registry. It's main functions is to facilitate
 using the new registry to start anno runs.
 """
+
 import logging
 from mysql_helper import mysql_fetch_data
 from typing import Dict, Any, List, Optional

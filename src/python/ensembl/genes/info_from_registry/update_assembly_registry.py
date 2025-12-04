@@ -1,5 +1,5 @@
 """
-Utility to update the status of a genebuild in the registry db 
+Utility to update the status of a genebuild in the registry db
 """
 
 from mysql_helper import mysql_get_connection

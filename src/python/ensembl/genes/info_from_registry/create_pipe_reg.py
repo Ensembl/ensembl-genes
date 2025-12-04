@@ -15,6 +15,7 @@ Functions:
 - update_registry_path_and_create_entry: Updates resource_description in pipeline DB.
 - create_registry_entry: Adds new DBAdaptor entries into the local registry file.
 """
+
 import shutil
 from pathlib import Path
 import os

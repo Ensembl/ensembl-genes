@@ -23,6 +23,7 @@ Example usage:
     }
     edit_config(settings)
 """
+
 import os
 import shutil
 import re

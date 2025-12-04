@@ -9,7 +9,6 @@ Functions:
     - assign_clade_info_custom_loading: Loads clade details by name from JSON config.
 """
 
-
 import os
 import pymysql
 import json

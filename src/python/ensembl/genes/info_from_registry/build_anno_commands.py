@@ -1,4 +1,6 @@
 """Build command-line strings for genome annotation and repeat analysis."""
+
+
 def build_annotation_commands(
     core_adaptor: dict, output_params: dict, anno_settings: dict, settings: dict
 ) -> None:
@@ -25,7 +27,9 @@ def build_annotation_commands(
         None: Modifies `output_params` in place by adding two command strings.
     """
 
-    get = lambda k: output_params.get(k, "")  # Short helper #pylint: disable=unnecessary-lambda-assignment
+    get = lambda k: output_params.get(
+        k, ""
+    )  # Short helper #pylint: disable=unnecessary-lambda-assignment
 
     anno_commandline = (
         f" --genome_file {get('reheadered_toplevel_genome_file')}"
