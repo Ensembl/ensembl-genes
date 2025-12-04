@@ -18,6 +18,9 @@ repo_url: https://github.com/Ensembl/ensembl-genes
 repo_name: GitHub repository
 copyright: Copyright &copy; [2016-<script>document.write(new Date().getFullYear())</script>] <a href="https://www.ebi.ac.uk">EMBL-European Bioinformatics Institute</a>
 docs_dir: mkdocs
+site_url: https://ensembl.github.io/ensembl-genes/
+site_description: 'Ensembl Genes is a collection of Python tools to work with Ensembl gene annotation.'
+use_directory_urls: true
 
 theme:
   name: "material"
