@@ -28,8 +28,9 @@ import pymysql
 from sqlalchemy import create_engine
 
 
-def connect_to_db(host:str, user:str, password:str, database:str, port=3306) \
-    -> pymysql.connections.Connection:
+def connect_to_db(
+    host: str, user: str, password: str, database: str, port=3306
+) -> pymysql.connections.Connection:
     """
     Establishes a connection to the MySQL database.
 
@@ -43,14 +44,16 @@ def connect_to_db(host:str, user:str, password:str, database:str, port=3306) \
         A pymysql connection object.
     """
     try:
-        connection = pymysql.connect(host=host, user=user, password=password, database=database, port=port)
+        connection = pymysql.connect(
+            host=host, user=user, password=password, database=database, port=port
+        )
         return connection
     except pymysql.MySQLError as e:
         print(f"Error connecting to MySQL: {e}")
         return None
 
 
-def fastqc_quality(row:pd.Series) -> bool:
+def fastqc_quality(row: pd.Series) -> bool:
     """Calculate FastQC quality based on the criteria.
     The function checks the FastQC quality criteria for each row and returns True if the criteria are met.
 
@@ -71,7 +74,7 @@ def fastqc_quality(row:pd.Series) -> bool:
 
 
 # Define STAR Quality classification
-def star_quality(row:pd.Series) -> bool:
+def star_quality(row: pd.Series) -> bool:
     """Calculate STAR quality based on the criteria.
     The function checks the STAR quality criteria for each row and returns True if the criteria are met.
     Args:
@@ -86,7 +89,7 @@ def star_quality(row:pd.Series) -> bool:
     )
 
 
-def check_fastqc_star_quality(df:pd.DataFrame) -> pd.DataFrame:
+def check_fastqc_star_quality(df: pd.DataFrame) -> pd.DataFrame:
     """Apply FastQC and STAR quality to each row
     Args:
         df (pd.DataFrame): DataFrame containing the data to be processed.
@@ -105,12 +108,14 @@ def check_fastqc_star_quality(df:pd.DataFrame) -> pd.DataFrame:
     df["final_star_status"] = df.groupby("run_accession")["star_quality"].transform(
         lambda x: "Failed" if not all(x) else "Passed"
     )
-    df["passed_both"] = (df["final_fastqc_status"] == "Passed") & (df["final_star_status"] == "Passed")
+    df["passed_both"] = (df["final_fastqc_status"] == "Passed") & (
+        df["final_star_status"] == "Passed"
+    )
     # print(df.head(10))
     return df
 
 
-def create_report(df:pd.DataFrame, tissue_report_file:str) -> pd.DataFrame:
+def create_report(df: pd.DataFrame, tissue_report_file: str) -> pd.DataFrame:
     """Create a report based on the DataFrame.
     This function summarizes the FastQC and STAR quality results for each taxon_id and run_accession.
     It calculates the number of runs that passed both quality checks and the percentage of runs that passed.
@@ -193,9 +198,9 @@ def create_report(df:pd.DataFrame, tissue_report_file:str) -> pd.DataFrame:
             .reset_index()
         )
 
-        run_tissue_summary["passed_both"] = (run_tissue_summary["final_fastqc_status"] == "Passed") & (
-            run_tissue_summary["final_star_status"] == "Passed"
-        )
+        run_tissue_summary["passed_both"] = (
+            run_tissue_summary["final_fastqc_status"] == "Passed"
+        ) & (run_tissue_summary["final_star_status"] == "Passed")
 
         tissue_pass_summary = (
             run_tissue_summary.groupby(["taxon_id", "tissue_prediction"])
@@ -237,7 +242,9 @@ def create_report(df:pd.DataFrame, tissue_report_file:str) -> pd.DataFrame:
     return df
 
 
-def prioritise_tissues(df: pd.DataFrame, priority_tissues: typing.List[str]) -> pd.DataFrame:
+def prioritise_tissues(
+    df: pd.DataFrame, priority_tissues: typing.List[str]
+) -> pd.DataFrame:
     """
     Assign a numeric priority to tissue predictions based on a predefined list.
 
@@ -253,14 +260,16 @@ def prioritise_tissues(df: pd.DataFrame, priority_tissues: typing.List[str]) -> 
     Returns:
         pd.DataFrame: Modified DataFrame with an added 'priority' column.
     """
-    priority_regex = re.compile(r"|".join(map(re.escape, priority_tissues)), re.IGNORECASE)
+    priority_regex = re.compile(
+        r"|".join(map(re.escape, priority_tissues)), re.IGNORECASE
+    )
     df["priority"] = df["tissue_prediction"].apply(
         lambda x: 1 if isinstance(x, str) and priority_regex.search(x) else 2
     )
     return df
 
 
-def filter_data(df:pd.DataFrame) -> list:
+def filter_data(df: pd.DataFrame) -> list:
     """
     Filter the DataFrame to select tissue-annotated samples based on quality criteria.
 
@@ -287,7 +296,17 @@ def filter_data(df:pd.DataFrame) -> list:
         )
     ].reset_index(drop=True)
     # Prioritise tissue types
-    priority_tissues = ["heart", "lung", "brain", "ovary", "ovaries", "testes", "testis", "gonad", "gonads"]
+    priority_tissues = [
+        "heart",
+        "lung",
+        "brain",
+        "ovary",
+        "ovaries",
+        "testes",
+        "testis",
+        "gonad",
+        "gonads",
+    ]
     df_tissue = prioritise_tissues(df_tissue, priority_tissues)
     df_tissue.to_csv("tissueall.csv", index=False)
     df_tissue = df_tissue[
@@ -298,14 +317,13 @@ def filter_data(df:pd.DataFrame) -> list:
         )
     ]
     df_tissue.to_csv("tissueless.csv", index=False)
-    df_no_tissue = df[df["tissue_prediction"].isna()].reset_index(
-        drop=True
-    )
+    df_no_tissue = df[df["tissue_prediction"].isna()].reset_index(drop=True)
     run_accessions = []
     # Filter tissue-annotated samples
     for _, group in df_tissue.groupby("tissue_prediction"):
         group = group.sort_values(
-            by=["priority", "passed_both", "final_fastqc_status", "final_star_status"], ascending=False
+            by=["priority", "passed_both", "final_fastqc_status", "final_star_status"],
+            ascending=False,
         )
         group.to_csv("group.csv", index=False)
         total_length = 0
@@ -314,7 +332,9 @@ def filter_data(df:pd.DataFrame) -> list:
                 run_accessions.append(row["run_accession"])
                 total_length += row["total_sequences"]
 
-    df_tissue[df_tissue["run_accession"].isin(run_accessions)].to_csv("tissuedanio.csv", index=False)
+    df_tissue[df_tissue["run_accession"].isin(run_accessions)].to_csv(
+        "tissuedanio.csv", index=False
+    )
 
     if len(run_accessions) < 500:
         for _, group in df_no_tissue.groupby("run_accession"):
@@ -326,11 +346,11 @@ def filter_data(df:pd.DataFrame) -> list:
     return run_accessions
 
 
-def clean_repeated_words(text:str)-> str:
+def clean_repeated_words(text: str) -> str:
     """Remove consecutive duplicate words from a string."
 
     Args:
-        text (str): The input string from which to remove 
+        text (str): The input string from which to remove
         consecutive duplicate words.
 
     Returns:
@@ -350,12 +370,26 @@ def clean_repeated_words(text:str)-> str:
 
 def main() -> None:
     """Module's entry-point."""
-    parser = argparse.ArgumentParser(prog="llm_prediction.py", description="Predict tissue using LLMs")
+    parser = argparse.ArgumentParser(
+        prog="llm_prediction.py", description="Predict tissue using LLMs"
+    )
 
-    parser.add_argument("--taxon_id", default="10116", type=str, required=True, help="Taxonomy ID")
-    parser.add_argument("--host", type=str, default="mysql-ens-genebuild-prod-1", required=False, help="Host")
-    parser.add_argument("--user", type=str, default="ensadmin", required=False, help="User")
-    parser.add_argument("--password", type=str, default="ensembl", required=False, help="Password")
+    parser.add_argument(
+        "--taxon_id", default="10116", type=str, required=True, help="Taxonomy ID"
+    )
+    parser.add_argument(
+        "--host",
+        type=str,
+        default="mysql-ens-genebuild-prod-1",
+        required=False,
+        help="Host",
+    )
+    parser.add_argument(
+        "--user", type=str, default="ensadmin", required=False, help="User"
+    )
+    parser.add_argument(
+        "--password", type=str, default="ensembl", required=False, help="Password"
+    )
     parser.add_argument(
         "--database",
         default="gb_transcriptomic_registry",
@@ -364,7 +398,9 @@ def main() -> None:
         help="Database",
     )
     parser.add_argument("--port", default=4527, type=int, required=False, help="Port")
-    parser.add_argument("--file_name", type=str, required=False, help="Output file name")
+    parser.add_argument(
+        "--file_name", type=str, required=False, help="Output file name"
+    )
     parser.add_argument(
         "--read_type",
         type=str,
@@ -424,11 +460,11 @@ def main() -> None:
     if not df.empty:
         df = check_fastqc_star_quality(df)
 
-        #df["tissue_prediction"] = df["tissue_prediction"].apply(
+        # df["tissue_prediction"] = df["tissue_prediction"].apply(
         #    lambda x: re.search(r"^(.*)", str(x)).group(1) if re.search(r"^(.*)", str(x)) else x
-        #)
+        # )
         df["tissue_prediction"] = df["tissue_prediction"].apply(
-        lambda x: str(x) if pd.notnull(x) else x
+            lambda x: str(x) if pd.notnull(x) else x
         )
         # df["tissue_prediction"] = df["tissue_prediction"].apply(
         #    lambda x: (m.group(1) if (m := re.search(r"^(.*)", str(x))) else x)
@@ -457,13 +493,21 @@ def main() -> None:
         df["tissue_prediction"] = df["tissue_prediction"].astype(str).str.lower()
 
         df.loc[
-            df["tissue_prediction"].astype(str).str.contains("NONE", case=False, na=False), "tissue_prediction"
+            df["tissue_prediction"]
+            .astype(str)
+            .str.contains("NONE", case=False, na=False),
+            "tissue_prediction",
         ] = None
         df.loc[
-            df["tissue_prediction"].astype(str).str.contains("nan", case=False, na=False), "tissue_prediction"
+            df["tissue_prediction"]
+            .astype(str)
+            .str.contains("nan", case=False, na=False),
+            "tissue_prediction",
         ] = None
 
-        create_report(df, f"{Path(args.file_name).parent}/{args.taxon_id}_tissue_summary.txt")
+        create_report(
+            df, f"{Path(args.file_name).parent}/{args.taxon_id}_tissue_summary.txt"
+        )
         # print(df.head())
         # Remove duplicates based on 'run_accession' while keeping the first row for each
         df_original = df.copy()
@@ -472,97 +516,115 @@ def main() -> None:
         # Build a regex pattern from run_accession list
         selected_accessions = run_accessions[0:25000]
         # df_final = df_original[df_original["run_accession"].isin(run_accessions[0:250])].copy()
-        df_final = df_original[df_original["run_accession"].isin(selected_accessions)].copy()
+        df_final = df_original[
+            df_original["run_accession"].isin(selected_accessions)
+        ].copy()
         df_final["run_accession"] = pd.Categorical(
             df_final["run_accession"], categories=selected_accessions, ordered=True
         )
-        df_final = df_final.sort_values(by=["run_accession", "file_name"])  # "run_accession")
+        df_final = df_final.sort_values(
+            by=["run_accession", "file_name"]
+        )  # "run_accession")
 
         df_final.drop_duplicates(inplace=True)
         df_final["predicted_tissue"] = df_final.apply(
             lambda row: (
-                row["sample_accession"] if pd.isnull(row["tissue_prediction"]) else row["tissue_prediction"]
+                row["sample_accession"]
+                if pd.isnull(row["tissue_prediction"])
+                else row["tissue_prediction"]
             ),
             axis=1,
         )
         # print(df_final.head())
-        if not df_final.empty :
-          if args.csv_for_main:
-            print(df_final.head())
-            df_final.loc[:, "file_name"] = df_final["file_name"].astype(str) + ".fastq.gz"
-            df_final.loc[:, "col1"] = 1
-            df_final.loc[:, "col_1"] = -1
-            df_final.loc[:, "col0"] = 0
-            df_final.loc[:, "ENA"] = "ENA"
-
-            with open(args.file_name, "w") as f:
-                df_final.to_csv(
-                    f,
-                    sep="\t",
-                    index=False,
-                    columns=[
-                        "predicted_tissue",
-                        "run_accession",
-                        "col1",
-                        "file_name",
-                        "col_1",
-                        "col1",
-                        "col0",
-                        "ENA",
-                        "platform",
-                        "sample_accession",
-                        "file_url",
-                        "md5",
-                    ],
-                    header=False,
+        if not df_final.empty:
+            if args.csv_for_main:
+                print(df_final.head())
+                df_final.loc[:, "file_name"] = (
+                    df_final["file_name"].astype(str) + ".fastq.gz"
                 )
-          else:
-            # taxon_id,gca,platform,paired,tissue,run_accession,pair1,md5_1,pair2,md5_2
-            output_df = (
-                df_final.groupby("run_accession")
-                .apply(
-                    lambda g: pd.Series(
-                        {
-                            "taxon_id": g["taxon_id"].iloc[0],
-                            "assembly_accession": g.get("assembly_accession", pd.Series(["NA"])).iloc[
-                                0
-                            ],  # optional if gca exists
-                            "platform": g["platform"].iloc[0],
-                            "paired": bool(int(g["paired"].iloc[0])),
-                            # "paired": g["paired"].iloc[0],
-                            "predicted_tissue": g["predicted_tissue"].iloc[0],
-                            "pair1": g[g["file_name"].str.contains("_1")]["file_url"].values[0],
-                            "md5_1": g[g["file_name"].str.contains("_1")]["md5"].values[0],
-                            "pair2": g[g["file_name"].str.contains("_2")]["file_url"].values[0],
-                            "md5_2": g[g["file_name"].str.contains("_2")]["md5"].values[0],
-                        }
+                df_final.loc[:, "col1"] = 1
+                df_final.loc[:, "col_1"] = -1
+                df_final.loc[:, "col0"] = 0
+                df_final.loc[:, "ENA"] = "ENA"
+
+                with open(args.file_name, "w") as f:
+                    df_final.to_csv(
+                        f,
+                        sep="\t",
+                        index=False,
+                        columns=[
+                            "predicted_tissue",
+                            "run_accession",
+                            "col1",
+                            "file_name",
+                            "col_1",
+                            "col1",
+                            "col0",
+                            "ENA",
+                            "platform",
+                            "sample_accession",
+                            "file_url",
+                            "md5",
+                        ],
+                        header=False,
                     )
+            else:
+                # taxon_id,gca,platform,paired,tissue,run_accession,pair1,md5_1,pair2,md5_2
+                output_df = (
+                    df_final.groupby("run_accession")
+                    .apply(
+                        lambda g: pd.Series(
+                            {
+                                "taxon_id": g["taxon_id"].iloc[0],
+                                "assembly_accession": g.get(
+                                    "assembly_accession", pd.Series(["NA"])
+                                ).iloc[
+                                    0
+                                ],  # optional if gca exists
+                                "platform": g["platform"].iloc[0],
+                                "paired": bool(int(g["paired"].iloc[0])),
+                                # "paired": g["paired"].iloc[0],
+                                "predicted_tissue": g["predicted_tissue"].iloc[0],
+                                "pair1": g[g["file_name"].str.contains("_1")][
+                                    "file_url"
+                                ].values[0],
+                                "md5_1": g[g["file_name"].str.contains("_1")][
+                                    "md5"
+                                ].values[0],
+                                "pair2": g[g["file_name"].str.contains("_2")][
+                                    "file_url"
+                                ].values[0],
+                                "md5_2": g[g["file_name"].str.contains("_2")][
+                                    "md5"
+                                ].values[0],
+                            }
+                        )
+                    )
+                    .reset_index()
                 )
-                .reset_index()
-            )
-            output_df = output_df.drop(columns=["tissue"], errors="ignore").rename(
-                columns={"predicted_tissue": "tissue"}
-            )
+                output_df = output_df.drop(columns=["tissue"], errors="ignore").rename(
+                    columns={"predicted_tissue": "tissue"}
+                )
 
-            with open(args.file_name, "w") as f:
-                output_df.to_csv(
-                    f,
-                    sep=",",
-                    index=False,
-                    columns=[
-                        "taxon_id",
-                        "assembly_accession",
-                        "platform",
-                        "paired",
-                        "tissue",
-                        "run_accession",
-                        "pair1",
-                        "md5_1",
-                        "pair2",
-                        "md5_2",
-                    ],
-                    header=True,
-                )
+                with open(args.file_name, "w") as f:
+                    output_df.to_csv(
+                        f,
+                        sep=",",
+                        index=False,
+                        columns=[
+                            "taxon_id",
+                            "assembly_accession",
+                            "platform",
+                            "paired",
+                            "tissue",
+                            "run_accession",
+                            "pair1",
+                            "md5_1",
+                            "pair2",
+                            "md5_2",
+                        ],
+                        header=True,
+                    )
 
         # print("✅ CSV READY!!!!.")
 

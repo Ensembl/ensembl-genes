@@ -23,18 +23,14 @@ import json
 from typing import Dict, Any, Optional
 
 
-
-
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s",
-    handlers=[
-        logging.FileHandler("pipeline_setup.log"),
-        logging.StreamHandler()
-    ]
+    handlers=[logging.FileHandler("pipeline_setup.log"), logging.StreamHandler()],
 )
 logger = logging.getLogger(__name__)
+
 
 def init_pipeline_anno(config_file: str, hive_force_init: int = 1) -> Optional[str]:
     """
@@ -52,24 +48,23 @@ def init_pipeline_anno(config_file: str, hive_force_init: int = 1) -> Optional[s
         RuntimeError: If the expected MySQL URL is not found in the output.
     """
     logger.info("Innitialising anno pipeline")
-    cmd = [
-        "init_pipeline.pl",
-        config_file,
-        "--hive_force_init", str(hive_force_init)
-    ]
+    cmd = ["init_pipeline.pl", config_file, "--hive_force_init", str(hive_force_init)]
 
     logger.info("Running: %s", " ".join(str(x) for x in cmd))
     try:
-        result = subprocess.run(cmd, check=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+        result = subprocess.run(
+            cmd, check=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True
+        )
         output = result.stdout
         for line in output.splitlines():
             match = re.search(r"(mysql://[^\s]+)", line)
             if match:
                 return match.group(1)  # Just the URL part
-        return 
+        return
     except subprocess.CalledProcessError as e:
         logger.error(f"Error running init_pipeline.pl: {e.stdout}")
         raise
+
 
 def init_pipeline_main(config_file: str, hive_force_init: int = 1) -> Optional[str]:
     """
@@ -89,24 +84,25 @@ def init_pipeline_main(config_file: str, hive_force_init: int = 1) -> Optional[s
     config_path = Path(config_file)
     config_dir = config_path.parent
     config_name = config_path.stem  # Gets filename without .pm extension
-    
+
     cmd = [
         "init_pipeline.pl",
         config_name,  # Just the module name, not the full path
-        "--hive_force_init", str(hive_force_init)
+        "--hive_force_init",
+        str(hive_force_init),
     ]
 
     logger.info("Running: %s", " ".join(str(x) for x in cmd))
     logger.info(f"Working directory: {config_dir}")
-    
+
     try:
         result = subprocess.run(
-            cmd, 
-            check=True, 
-            stdout=subprocess.PIPE, 
-            stderr=subprocess.STDOUT, 
+            cmd,
+            check=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
             text=True,
-            cwd=str(config_dir)  # Run from the config directory
+            cwd=str(config_dir),  # Run from the config directory
         )
         output = result.stdout
         for line in output.splitlines():
@@ -117,13 +113,9 @@ def init_pipeline_main(config_file: str, hive_force_init: int = 1) -> Optional[s
     except subprocess.CalledProcessError as e:
         logger.error(f"Error running init_pipeline.pl: {e.stdout}")
         raise
-    
 
-def main(
-    gcas: str,
-    settings_file: str,
-    seed_url: Optional[str]
-) -> Dict[str, Any]:
+
+def main(gcas: str, settings_file: str, seed_url: Optional[str]) -> Dict[str, Any]:
     """
     Main execution logic: extract metadata, initialize the pipeline, and seed jobs.
 
@@ -137,14 +129,13 @@ def main(
         RuntimeError: If multiple config files are found.
     """
 
-    #Get info and create input JSON
+    # Get info and create input JSON
     server_info, all_output_params, saved_paths = info(gcas, settings_file)
 
-
-    #Save EHIVE URLs
+    # Save EHIVE URLs
     ehive_urls = {}
 
-    #Anno
+    # Anno
     if saved_paths.get("anno"):
         json_file = saved_paths["anno"]
 
@@ -162,7 +153,9 @@ def main(
             if not conf_files:
                 raise FileNotFoundError(f"No .conf file found in {parent_dir}")
             if len(conf_files) > 1:
-                raise RuntimeError(f"Multiple .conf files found in {parent_dir}: {conf_files}")
+                raise RuntimeError(
+                    f"Multiple .conf files found in {parent_dir}: {conf_files}"
+                )
 
             conf_path = conf_files[0]
             logger.info(f"Config found at {conf_path}")
@@ -179,11 +172,7 @@ def main(
         with open(json_file) as f:
             params = json.load(f)
 
-        seed_jobs_from_json(
-            json_file=params,
-            analysis_id=1,
-            ehive_url=seed_url)
-
+        seed_jobs_from_json(json_file=params, analysis_id=1, ehive_url=seed_url)
 
     # --- Handle main (one JSON per GCA) ---
     if saved_paths.get("main"):
@@ -197,7 +186,9 @@ def main(
             if not conf_files:
                 raise FileNotFoundError(f"No .conf file found in {parent_dir}")
             elif len(conf_files) > 1:
-                raise RuntimeError(f"Multiple .conf files found in {parent_dir}: {conf_files}")
+                raise RuntimeError(
+                    f"Multiple .conf files found in {parent_dir}: {conf_files}"
+                )
 
             conf_path = conf_files[0]
 
@@ -217,6 +208,7 @@ def main(
 
     return ehive_urls
 
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Extract metadata, initialize and seed annotation pipelines."
@@ -225,24 +217,23 @@ if __name__ == "__main__":
         "--gcas",
         type=str,
         required=True,
-        help="Path to file containing GCA accessions (one per line)."
+        help="Path to file containing GCA accessions (one per line).",
     )
 
     parser.add_argument(
         "--settings_file",
         type=str,
         required=True,
-        help="Path to file containing edited settings."
+        help="Path to file containing edited settings.",
     )
 
     parser.add_argument(
         "--seed_url",
         type=str,
         required=False,
-        help="Pipeline seed URL. If provided initialisation will be skipped."
+        help="Pipeline seed URL. If provided initialisation will be skipped.",
     )
 
     args = parser.parse_args()
 
     ehive_urls = main(args.gcas, args.settings_file, args.seed_url)
-

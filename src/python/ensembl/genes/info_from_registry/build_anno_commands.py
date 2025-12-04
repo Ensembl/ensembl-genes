@@ -1,4 +1,6 @@
-def build_annotation_commands(core_adaptor: dict, output_params: dict, anno_settings: dict, settings: dict) -> None:
+def build_annotation_commands(
+    core_adaptor: dict, output_params: dict, anno_settings: dict, settings: dict
+) -> None:
     """
     Construct and store command-line strings for genome annotation and repeat analysis.
 

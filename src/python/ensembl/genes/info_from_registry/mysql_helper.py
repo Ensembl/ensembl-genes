@@ -18,10 +18,7 @@ from typing import Optional, Any
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s",
-    handlers=[
-        logging.FileHandler("pipeline_setup.log"),
-        logging.StreamHandler()
-    ]
+    handlers=[logging.FileHandler("pipeline_setup.log"), logging.StreamHandler()],
 )
 logger = logging.getLogger(__name__)
 

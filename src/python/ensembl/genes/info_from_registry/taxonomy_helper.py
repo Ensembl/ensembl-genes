@@ -21,15 +21,14 @@ from typing import Optional
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s",
-    handlers=[
-        logging.FileHandler("pipeline_setup.log"),
-        logging.StreamHandler()
-    ]
+    handlers=[logging.FileHandler("pipeline_setup.log"), logging.StreamHandler()],
 )
 logger = logging.getLogger(__name__)
 
 
-def create_tax_dictionary_from_registry(server_info: dict, registry_info: dict) -> dict[str, list[dict[str, any]]]:
+def create_tax_dictionary_from_registry(
+    server_info: dict, registry_info: dict
+) -> dict[str, list[dict[str, any]]]:
     """
     Query the registry MySQL database to construct taxonomy hierarchy for a given taxon ID.
 
@@ -58,7 +57,7 @@ def create_tax_dictionary_from_registry(server_info: dict, registry_info: dict) 
             user=server_info["registry"]["db_user"],
             port=server_info["registry"]["db_port"],
             database=server_info["registry"]["db_name"],
-            password= "",
+            password="",
             params=taxon_id,
         )
 
@@ -96,43 +95,49 @@ def load_clade_data() -> dict[str, dict[str, any]]:
     json_file = os.path.join(
         os.environ.get("ENSCODE"),
         "ensembl-genes",
-         "src",
-         "python",
-         "ensembl",
-         "genes",
-         "info_from_registry",
-         "clade_settings.json"
-     )
+        "src",
+        "python",
+        "ensembl",
+        "genes",
+        "info_from_registry",
+        "clade_settings.json",
+    )
 
     with open(json_file, "r") as f:
         logging.info("Loading clade settings json file.")
         return json.load(f)
 
 
-def assign_clade(server_info: dict, registry_info: dict) -> tuple[str, Optional[int], Optional[dict[str, any]]]:
+def assign_clade(
+    server_info: dict, registry_info: dict
+) -> tuple[str, Optional[int], Optional[dict[str, any]]]:
     """
-        Assign a clade to a given taxon based on clade data and taxonomy hierarchy.
+    Assign a clade to a given taxon based on clade data and taxonomy hierarchy.
 
-        Args:
-            server_info (dict): MySQL connection information under 'registry'.
-            registry_info (dict): Dictionary with at least a 'taxon_id' key.
+    Args:
+        server_info (dict): MySQL connection information under 'registry'.
+        registry_info (dict): Dictionary with at least a 'taxon_id' key.
 
-        Returns:
-            tuple:
-                - internal_clade (str): Name of the assigned clade (or 'Unassigned').
-                - genus_taxon_id (int or None): Genus-level taxon ID, if found.
-                - clade_details (dict or None): Dictionary of clade properties excluding taxon_id.
-     """
+    Returns:
+        tuple:
+            - internal_clade (str): Name of the assigned clade (or 'Unassigned').
+            - genus_taxon_id (int or None): Genus-level taxon ID, if found.
+            - clade_details (dict or None): Dictionary of clade properties excluding taxon_id.
+    """
 
     clade_data = load_clade_data()
     taxonomy_dict = create_tax_dictionary_from_registry(server_info, registry_info)
 
     # Accept both int and str keys
     lowest_taxon_id = registry_info["taxon_id"]
-    taxonomy_hierarchy = taxonomy_dict.get(str(lowest_taxon_id)) or taxonomy_dict.get(lowest_taxon_id, [])
+    taxonomy_hierarchy = taxonomy_dict.get(str(lowest_taxon_id)) or taxonomy_dict.get(
+        lowest_taxon_id, []
+    )
 
     if not taxonomy_hierarchy:
-        logging.warning(f"Taxonomy hierarchy not found for taxon ID {registry_info['taxon_id']}")
+        logging.warning(
+            f"Taxonomy hierarchy not found for taxon ID {registry_info['taxon_id']}"
+        )
         return "Unassigned", None, None
 
     internal_clade = "Unassigned"
@@ -150,16 +155,28 @@ def assign_clade(server_info: dict, registry_info: dict) -> tuple[str, Optional[
         if clade_taxon_id == lowest_taxon_id:
             internal_clade = clade_name
             clade_details = {k: v for k, v in details.items() if k != "taxon_id"}
-            clade_details['helixer_lineage'] = clade_details.get('helixer_lineage', '')
+            clade_details["helixer_lineage"] = clade_details.get("helixer_lineage", "")
 
-            logging.info(f"Exact match: Assigned clade '{internal_clade}' for taxon {registry_info['taxon_id']}")
+            logging.info(
+                f"Exact match: Assigned clade '{internal_clade}' for taxon {registry_info['taxon_id']}"
+            )
             return internal_clade, genus_taxon_id, clade_details
 
     # Step 2: Walk up the taxonomy hierarchy
-    taxon_classes_order = ["species", "genus", "family", "order", "class", "phylum", "kingdom"]
+    taxon_classes_order = [
+        "species",
+        "genus",
+        "family",
+        "order",
+        "class",
+        "phylum",
+        "kingdom",
+    ]
 
     for taxon_class in taxon_classes_order:
-        matching = next((t for t in taxonomy_hierarchy if t["taxon_class"] == taxon_class), None)
+        matching = next(
+            (t for t in taxonomy_hierarchy if t["taxon_class"] == taxon_class), None
+        )
         if not matching:
             continue
         current_taxon_id = int(matching["taxon_class_id"])
@@ -169,13 +186,19 @@ def assign_clade(server_info: dict, registry_info: dict) -> tuple[str, Optional[
             if clade_taxon_id == current_taxon_id:
                 internal_clade = clade_name
                 clade_details = {k: v for k, v in details.items() if k != "taxon_id"}
-                clade_details['helixer_lineage'] = clade_details.get('helixer_lineage', '')
+                clade_details["helixer_lineage"] = clade_details.get(
+                    "helixer_lineage", ""
+                )
 
-                logging.info(f"Hierarchy match: Assigned clade '{internal_clade}' via {taxon_class} taxon_id {current_taxon_id}")
+                logging.info(
+                    f"Hierarchy match: Assigned clade '{internal_clade}' via {taxon_class} taxon_id {current_taxon_id}"
+                )
                 return internal_clade, genus_taxon_id, clade_details
 
     # No match found
-    logging.error(f"No clade found for taxon {registry_info['taxon_id']} in full hierarchy.")
+    logging.error(
+        f"No clade found for taxon {registry_info['taxon_id']} in full hierarchy."
+    )
     return "Unassigned", genus_taxon_id, None
 
 
@@ -204,12 +227,13 @@ def assign_clade_info_custom_loading(registry_info: dict) -> Optional[dict[str, 
         details = clade_data[clade_name]
         # Return all details except taxon_id
         clade_details = {k: v for k, v in details.items() if k != "taxon_id"}
-        clade_details['helixer_lineage'] = clade_details.get('helixer_lineage', '')
+        clade_details["helixer_lineage"] = clade_details.get("helixer_lineage", "")
 
         return clade_details
     else:
         logging.warning(f"Clade '{clade_name}' not found in clade data")
         return None
+
 
 def get_parent_taxon(server_info: dict, species_taxon_id: int) -> str:
     """
@@ -239,14 +263,14 @@ def get_parent_taxon(server_info: dict, species_taxon_id: int) -> str:
             port=server_info["registry"]["db_port"],
             database=server_info["registry"]["db_name"],
             password="",
-            params=(species_taxon_id,)  # must be a tuple
+            params=(species_taxon_id,),  # must be a tuple
         )
 
         if not result:
             raise ValueError(f"No parent taxon found for taxon ID {species_taxon_id}")
 
         # Return as a single string
-        return str(result[0]['taxon_class_name'])
+        return str(result[0]["taxon_class_name"])
 
     except Exception as e:
         raise RuntimeError(f"Error fetching parent taxon: {e}")

@@ -33,11 +33,7 @@ def check_data_from_ena(  # pylint: disable=too-many-locals
 ) -> dict:
     """Query ENA API to get short or long read data"""
 
-    TEXT_FORMAT = {
-        "BOLD": "\033[1m",
-        "UNDERLINE": "\033[4m",
-        "END": "\033[0m"
-    }
+    TEXT_FORMAT = {"BOLD": "\033[1m", "UNDERLINE": "\033[4m", "END": "\033[0m"}
     if tree:
         query = f"tax_tree({taxon_id})"
     else:
@@ -45,12 +41,12 @@ def check_data_from_ena(  # pylint: disable=too-many-locals
 
     query_short_paired = (
         query
-        + " AND instrument_platform=ILLUMINA AND library_layout=PAIRED" \
+        + " AND instrument_platform=ILLUMINA AND library_layout=PAIRED"
         + " AND library_source=TRANSCRIPTOMIC"
     )
     query_short_single = (
         query
-        + " AND instrument_platform=ILLUMINA AND library_layout=SINGLE" \
+        + " AND instrument_platform=ILLUMINA AND library_layout=SINGLE"
         + " AND library_source=TRANSCRIPTOMIC"
     )
     query_pacbio = (
@@ -79,7 +75,7 @@ def check_data_from_ena(  # pylint: disable=too-many-locals
         + f"Found {short_single_runs} runs."
     )
     print(
-       TEXT_FORMAT["BOLD"]
+        TEXT_FORMAT["BOLD"]
         + "Long-read PacBio data available! "
         + TEXT_FORMAT["END"]
         + f"Found {pacbio_read_runs} runs."

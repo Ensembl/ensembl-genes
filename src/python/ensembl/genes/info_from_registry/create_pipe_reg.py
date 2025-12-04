@@ -22,24 +22,19 @@ import logging
 from typing import Dict, Any
 
 
-
 from mysql_helper import mysql_update
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s",
-    handlers=[
-        logging.FileHandler("pipeline_setup.log"),
-        logging.StreamHandler()
-    ]
+    handlers=[logging.FileHandler("pipeline_setup.log"), logging.StreamHandler()],
 )
 logger = logging.getLogger(__name__)
 
 
 def update_registry_path_in_pipedb(
-    parent_dir: str,
-    server_info: Dict[str, Dict[str, Any]]
+    parent_dir: str, server_info: Dict[str, Dict[str, Any]]
 ) -> None:
     """
     Updates the resource_description table in the pipeline database by replacing
@@ -68,7 +63,7 @@ def update_registry_path_in_pipedb(
         "genebuild",
         "gbiab",
         "support_files",
-        "Databases.pm"
+        "Databases.pm",
     )
     logger.debug(f"parennt_dir : {parent_dir}")
     new_registry_file = Path(parent_dir).resolve() / "Databases.pm"
@@ -103,37 +98,37 @@ def update_registry_path_in_pipedb(
 def create_registry_entry(
     settings: Dict[str, Any],
     server_info: Dict[str, Dict[str, Any]],
-    core_adaptor: Dict[str, str]
+    core_adaptor: Dict[str, str],
 ) -> Path:
     """
-        Updates the local registry file with new DBAdaptor connection details for a
-        core database, using the provided connection settings.
+    Updates the local registry file with new DBAdaptor connection details for a
+    core database, using the provided connection settings.
 
-        Parameters:
-        ----------
-        settings : dict
-            Must contain:
-                - 'base_output_dir': str, where the local Databases.pm file is placed.
+    Parameters:
+    ----------
+    settings : dict
+        Must contain:
+            - 'base_output_dir': str, where the local Databases.pm file is placed.
 
-        server_info : dict
-            Used to pass to `update_registry_path_and_create_entry`.
+    server_info : dict
+        Used to pass to `update_registry_path_and_create_entry`.
 
-        core_adaptor : dict
-            Must contain:
-                - 'host', 'port', 'dbname', 'user', 'pass', 'species', 'group'
+    core_adaptor : dict
+        Must contain:
+            - 'host', 'port', 'dbname', 'user', 'pass', 'species', 'group'
 
-        Returns:
-        -------
-        Path to the modified local registry file (Databases.pm)
+    Returns:
+    -------
+    Path to the modified local registry file (Databases.pm)
 
-        Raises:
-        ------
-        FileNotFoundError:
-            If the registry file does not exist after copying.
+    Raises:
+    ------
+    FileNotFoundError:
+        If the registry file does not exist after copying.
 
-        RuntimeError:
-            If there is an error overwriting the original registry file.
-        """
+    RuntimeError:
+        If there is an error overwriting the original registry file.
+    """
     registry_path = Path(settings["base_output_dir"]) / "Databases.pm"
     registry_file = os.path.join(
         os.environ.get("ENSCODE"),
@@ -142,7 +137,7 @@ def create_registry_entry(
         "genebuild",
         "gbiab",
         "support_files",
-        "Databases.pm"
+        "Databases.pm",
     )
 
     if not registry_path.exists():

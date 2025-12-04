@@ -91,7 +91,7 @@ def get_assembly_info(accession: str) -> Dict[str, str]:
     return return_dict
 
 
-def write_content(info: Dict[str,str], out_dir: Path, url_path: str) -> None:
+def write_content(info: Dict[str, str], out_dir: Path, url_path: str) -> None:
     """
     Write assembly and annotation content to HTML files.
 
@@ -100,7 +100,7 @@ def write_content(info: Dict[str,str], out_dir: Path, url_path: str) -> None:
         output_dir (Path): Directory path for output files.
         url_path (str): Name used to title the output files.
     """
-    with open( # pylint: disable=unspecified-encoding
+    with open(  # pylint: disable=unspecified-encoding
         out_dir / f"{url_path}_assembly.html", "w"
     ) as assembly_out:  # pylint: disable=unspecified-encoding
         print(
@@ -117,7 +117,7 @@ def write_content(info: Dict[str,str], out_dir: Path, url_path: str) -> None:
             file=assembly_out,
         )
 
-    with open( # pylint: disable=unspecified-encoding
+    with open(  # pylint: disable=unspecified-encoding
         out_dir / f"{url_path}_annotation.html", "w"
     ) as annotation_out:  # pylint: disable=unspecified-encoding
         print(

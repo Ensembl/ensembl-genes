@@ -4,17 +4,20 @@ from typing import List, Tuple, Any, Dict
 from pathlib import Path
 import argparse
 
-with open(Path(__file__).parent/"./live_tracking_config.json", "r") as f:
-        config = json.load(f)
+with open(Path(__file__).parent / "./live_tracking_config.json", "r") as f:
+    config = json.load(f)
 
 import pymysql
 from typing import List, Tuple, Any
 import sys
 
-def mysql_fetch_data(query: str, database: str, host: str, port: int, user: str) -> List[Tuple[Any, ...]]:
+
+def mysql_fetch_data(
+    query: str, database: str, host: str, port: int, user: str
+) -> List[Tuple[Any, ...]]:
     """
     Executes a given SQL query on a MySQL database and fetches the result.
-    
+
     This function establishes a connection to the MySQL database using provided connection details.
     It then executes the given query using a cursor obtained from the connection. After executing the query,
     it fetches all the rows of the query result and returns them. The function handles any errors that might
@@ -37,27 +40,28 @@ def mysql_fetch_data(query: str, database: str, host: str, port: int, user: str)
     """
     try:
         conn = pymysql.connect(
-                host=host, user=user, port=port, database=database.strip()
+            host=host, user=user, port=port, database=database.strip()
         )
-        
+
         cursor = conn.cursor()
         cursor.execute(query)
         result = cursor.fetchall()
-        
+
         cursor.close()
         conn.close()
-        
+
         return result
 
     except pymysql.Error as err:
         print(f"Error: {err}")
-        
+
         try:
-                cursor.close()
-                conn.close()
+            cursor.close()
+            conn.close()
         except:
-                pass
+            pass
         return []
+
 
 def check_database_on_server(db, server_key, config):
     """
@@ -77,7 +81,10 @@ def check_database_on_server(db, server_key, config):
             port=config["server_details"]["staging"][server_key]["db_port"],
         )
         with conn.cursor() as cur:
-            cur.execute("SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = %s", (db,))
+            cur.execute(
+                "SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = %s",
+                (db,),
+            )
             result = cur.fetchone()
             return result is not None
 
@@ -85,18 +92,19 @@ def check_database_on_server(db, server_key, config):
         print(f"Error connecting to {server_key}: {e}")
         return False
     finally:
-        if 'conn' in locals() and conn:
+        if "conn" in locals() and conn:
             conn.close()
-            
+
+
 def clean_server(config, mode: str):
     """
     Fetches a list of core databases that are both current in the rapid database and present on the MySQL server.
-    
+
     This function performs the following steps:
     1. Executes a query on the rapid database to fetch all current core databases.
     2. Executes a query on the MySQL server to fetch all core databases.
     3. Compares the results from both queries and compiles a list of core databases that are present in both.
-    
+
     Returns:
         list: A list of core databases that are current in the rapid database and present on the MySQL server.
     """
@@ -106,7 +114,7 @@ def clean_server(config, mode: str):
     cores_query = "SHOW DATABASES like '%core%';"
     cores_fetch = mysql_fetch_data(
         cores_query,
-        '',
+        "",
         config["server_details"]["genebuild"]["prod_1"]["db_host"],
         config["server_details"]["genebuild"]["prod_1"]["db_port"],
         config["server_details"]["genebuild"]["prod_1"]["db_user"],
@@ -168,16 +176,25 @@ def clean_server(config, mode: str):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Check rapid or beta metadata databases.")
-    parser.add_argument("--mode", choices=["rapid", "beta"], required=True, help="Choose either 'rapid' or 'beta'")
+    parser = argparse.ArgumentParser(
+        description="Check rapid or beta metadata databases."
+    )
+    parser.add_argument(
+        "--mode",
+        choices=["rapid", "beta"],
+        required=True,
+        help="Choose either 'rapid' or 'beta'",
+    )
     args = parser.parse_args()
 
     live_databases = clean_server(config, args.mode)
 
-    print(f"Here is a list of databases on genebuild-prod-1 that can also be found in the {args.mode} metadata:")
+    print(
+        f"Here is a list of databases on genebuild-prod-1 that can also be found in the {args.mode} metadata:"
+    )
     for db in live_databases:
         print(f"{db}")
 
-        
+
 if __name__ == "__main__":
     main()

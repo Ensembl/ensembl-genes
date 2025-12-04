@@ -16,7 +16,9 @@ from typing import Optional
 import pymysql
 
 
-def fetch_core_metrics(core_connection: pymysql.connections.Connection, species_id: int) -> list[dict[str, str]]:
+def fetch_core_metrics(
+    core_connection: pymysql.connections.Connection, species_id: int
+) -> list[dict[str, str]]:
     """
     Fetch metrics from core database meta table.
 
@@ -42,7 +44,9 @@ def fetch_core_metrics(core_connection: pymysql.connections.Connection, species_
         return cursor.fetchall()
 
 
-def partition_metrics(rows: list[dict[str, str]]) -> tuple[list[tuple[str, str]], list[tuple[str, str]]]:
+def partition_metrics(
+    rows: list[dict[str, str]]
+) -> tuple[list[tuple[str, str]], list[tuple[str, str]]]:
     """
     Partition metrics into assembly and genebuild categories.
 
@@ -60,7 +64,11 @@ def partition_metrics(rows: list[dict[str, str]]) -> tuple[list[tuple[str, str]]
 
         if key.startswith("assembly.busco") or key.startswith("assembly.stats."):
             assembly_rows.append((key, value))
-        elif key.startswith("genebuild.busco") or key.startswith("genebuild.stats.") or key == "genebuild.last_geneset_update":
+        elif (
+            key.startswith("genebuild.busco")
+            or key.startswith("genebuild.stats.")
+            or key == "genebuild.last_geneset_update"
+        ):
             genebuild_rows.append((key, value))
 
     return assembly_rows, genebuild_rows
@@ -70,7 +78,7 @@ def write_assembly_metrics(
     registry_connection: pymysql.connections.Connection,
     assembly_id: int,
     rows: list[tuple[str, str]],
-    dev: bool
+    dev: bool,
 ) -> None:
     """
     Write assembly metrics to registry using DELETE then INSERT pattern.
@@ -81,9 +89,9 @@ def write_assembly_metrics(
 
     # Extract metric names for deletion
     metric_names = [name for name, value in rows]
-    
+
     # Single DELETE for all metrics at once
-    placeholders = ','.join(['%s'] * len(metric_names))
+    placeholders = ",".join(["%s"] * len(metric_names))
     delete_query = f"""
     DELETE FROM assembly_metrics
     WHERE assembly_id=%s AND metrics_name IN ({placeholders})
@@ -106,10 +114,14 @@ def write_assembly_metrics(
             # Single DELETE for all metrics
             cursor.execute(delete_query, (assembly_id, *metric_names))
             deleted = cursor.rowcount
-            print(f"Deleted {deleted} existing assembly metrics for assembly_id {assembly_id}")
-            
+            print(
+                f"Deleted {deleted} existing assembly metrics for assembly_id {assembly_id}"
+            )
+
             # Bulk INSERT
-            cursor.executemany(insert_query, [(assembly_id, name, value) for name, value in rows])
+            cursor.executemany(
+                insert_query, [(assembly_id, name, value) for name, value in rows]
+            )
         print(f"Wrote {len(rows)} assembly metrics for assembly_id {assembly_id}")
 
 
@@ -118,7 +130,7 @@ def write_genebuild_metrics(
     genebuild_status_id: Optional[int],
     assembly_id: int,
     rows: list[tuple[str, str]],
-    dev: bool
+    dev: bool,
 ) -> None:
     """
     Write genebuild metrics to registry using DELETE then INSERT pattern.
@@ -132,8 +144,8 @@ def write_genebuild_metrics(
         return
 
     metric_names = [name for name, value in rows]
-    
-    placeholders = ','.join(['%s'] * len(metric_names))
+
+    placeholders = ",".join(["%s"] * len(metric_names))
     delete_query = f"""
     DELETE FROM annotation_metrics
     WHERE genebuild_status_id=%s AND metrics_name IN ({placeholders})
@@ -153,10 +165,20 @@ def write_genebuild_metrics(
         with registry_connection.cursor() as cursor:
             cursor.execute(delete_query, (genebuild_status_id, *metric_names))
             deleted = cursor.rowcount
-            print(f"Deleted {deleted} existing genebuild metrics for genebuild_status_id {genebuild_status_id}")
+            print(
+                f"Deleted {deleted} existing genebuild metrics for genebuild_status_id {genebuild_status_id}"
+            )
 
-            cursor.executemany(insert_query, [(genebuild_status_id, str(assembly_id), name, value) for name, value in rows])
-        print(f"Wrote {len(rows)} genebuild metrics for genebuild_status_id {genebuild_status_id}")
+            cursor.executemany(
+                insert_query,
+                [
+                    (genebuild_status_id, str(assembly_id), name, value)
+                    for name, value in rows
+                ],
+            )
+        print(
+            f"Wrote {len(rows)} genebuild metrics for genebuild_status_id {genebuild_status_id}"
+        )
 
 
 def main(
@@ -215,9 +237,15 @@ def main(
         # Start transaction on registry
         registry_connection.begin()
 
-        print(f"Fetching registry IDs for assembly {assembly} and genebuilder {genebuilder}...")
-        assembly_id, genebuild_status_id = fetch_registry_ids(registry_connection, assembly, genebuilder)
-        print(f"Found assembly_id: {assembly_id}, genebuild_status_id: {genebuild_status_id}")
+        print(
+            f"Fetching registry IDs for assembly {assembly} and genebuilder {genebuilder}..."
+        )
+        assembly_id, genebuild_status_id = fetch_registry_ids(
+            registry_connection, assembly, genebuilder
+        )
+        print(
+            f"Found assembly_id: {assembly_id}, genebuild_status_id: {genebuild_status_id}"
+        )
 
         print(f"Fetching metrics from core database...")
         meta_rows = fetch_core_metrics(core_connection, species_id)
@@ -227,11 +255,15 @@ def main(
 
         # Partition metrics
         assembly_rows, genebuild_rows = partition_metrics(meta_rows)
-        print(f"Found {len(assembly_rows)} assembly metrics and {len(genebuild_rows)} genebuild metrics")
+        print(
+            f"Found {len(assembly_rows)} assembly metrics and {len(genebuild_rows)} genebuild metrics"
+        )
 
         # Write metrics to registry
         write_assembly_metrics(registry_connection, assembly_id, assembly_rows, dev)
-        write_genebuild_metrics(registry_connection, genebuild_status_id, assembly_id, genebuild_rows, dev)
+        write_genebuild_metrics(
+            registry_connection, genebuild_status_id, assembly_id, genebuild_rows, dev
+        )
 
         if not dev:
             # Commit transaction
@@ -277,10 +309,16 @@ if __name__ == "__main__":
 
     # Registry connection
     parser.add_argument("--registry_host", required=True, help="Registry MySQL host")
-    parser.add_argument("--registry_port", type=int, default=3306, help="Registry MySQL port")
+    parser.add_argument(
+        "--registry_port", type=int, default=3306, help="Registry MySQL port"
+    )
     parser.add_argument("--registry_user", required=True, help="Registry MySQL user")
-    parser.add_argument("--registry_password", required=True, help="Registry MySQL password")
-    parser.add_argument("--registry_db", required=True, help="Registry MySQL database name")
+    parser.add_argument(
+        "--registry_password", required=True, help="Registry MySQL password"
+    )
+    parser.add_argument(
+        "--registry_db", required=True, help="Registry MySQL database name"
+    )
 
     # Core connection
     parser.add_argument("--core_host", required=True, help="Core MySQL host")

@@ -35,18 +35,13 @@ from typing import Dict, Any, Optional, List
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s",
-    handlers=[
-        logging.FileHandler("pipeline_setup.log"),
-        logging.StreamHandler()
-    ]
+    handlers=[logging.FileHandler("pipeline_setup.log"), logging.StreamHandler()],
 )
 logger = logging.getLogger(__name__)
 
 
 def copy_config(
-    settings: Dict[str, Any],
-    info_dict: Dict[str, Any],
-    pipeline: str
+    settings: Dict[str, Any], info_dict: Dict[str, Any], pipeline: str
 ) -> str:
     """
     Copies a configuration file from the ENSCODE environment into a local output directory.
@@ -81,14 +76,15 @@ def copy_config(
         settings["config"],
     )
 
-
     if pipeline == "anno":
         anno_parent = str(Path(info_dict["output_path"]).parent)
         local_config = os.path.join(anno_parent, settings["config"])
     elif pipeline == "main":
         local_config = os.path.join(info_dict["output_path"], settings["config"])
     else:
-        raise ValueError(f"Unknown pipeline type: {pipeline}. Can't copy config. Please check taxon ID.")
+        raise ValueError(
+            f"Unknown pipeline type: {pipeline}. Can't copy config. Please check taxon ID."
+        )
 
     try:
         shutil.copy2(original_config, local_config)
@@ -104,45 +100,45 @@ def edit_config_anno(
     settings: Dict[str, Any],
     info_dict: Dict[str, Any],
     pipeline: str,
-    server_settings: Dict[str, Dict[str, Any]]
+    server_settings: Dict[str, Dict[str, Any]],
 ) -> None:
     """
-        Edits specific parameter values in a copied Ensembl Hive config file.
+    Edits specific parameter values in a copied Ensembl Hive config file.
 
-        The function performs in-place substitution of key parameters such as:
-        - current_genebuild
-        - dbowner
-        - pipeline_name
-        - password
-        - user
-        - user_r
-        - release_number
+    The function performs in-place substitution of key parameters such as:
+    - current_genebuild
+    - dbowner
+    - pipeline_name
+    - password
+    - user
+    - user_r
+    - release_number
 
-        Parameters:
-        ----------
-        anno_settings: dict
-        settings : dict
-            Dictionary with required keys:
-                - 'config': str, name of the config file (e.g., 'MyConfig.pm')
-                - 'base_output_dir': str, destination folder for the config
-                - 'current_genebuild': str
-                - 'dbowner': str
-                - 'pipeline_name': str
-                - 'password': str
-                - 'user': str
-                - 'user_r': str
-                - 'release_number': str or int
-        info_dict : dict
-        pipeline : str
+    Parameters:
+    ----------
+    anno_settings: dict
+    settings : dict
+        Dictionary with required keys:
+            - 'config': str, name of the config file (e.g., 'MyConfig.pm')
+            - 'base_output_dir': str, destination folder for the config
+            - 'current_genebuild': str
+            - 'dbowner': str
+            - 'pipeline_name': str
+            - 'password': str
+            - 'user': str
+            - 'user_r': str
+            - 'release_number': str or int
+    info_dict : dict
+    pipeline : str
 
-        Raises:
-        ------
-        FileNotFoundError
-            If the copied file cannot be opened.
-        KeyError
-            If required settings keys are missing.
-        """
-    local_config = copy_config(anno_settings, info_dict,  pipeline)
+    Raises:
+    ------
+    FileNotFoundError
+        If the copied file cannot be opened.
+    KeyError
+        If required settings keys are missing.
+    """
+    local_config = copy_config(anno_settings, info_dict, pipeline)
 
     with open(local_config, "r") as f:
         content = f.read()
@@ -213,15 +209,12 @@ def edit_config_anno(
         content,
     )
 
-
     with open(local_config, "w") as f:
         f.write(content)
 
 
 def edit_config_main(
-    settings: Dict[str, Any],
-    info_dict: Dict[str, Any],
-    pipeline: str
+    settings: Dict[str, Any], info_dict: Dict[str, Any], pipeline: str
 ) -> str:
     """
     Edits specific parameter values in a copied Ensembl Hive config file safely,
@@ -274,13 +267,13 @@ def edit_config_main(
 
                 if re.match(pattern, line):
                     # Preserve comment if present
-                    if '#' in line:
-                        parts = line.split('#', 1)
+                    if "#" in line:
+                        parts = line.split("#", 1)
                         line_content = parts[0]
-                        comment = '#' + parts[1].rstrip('\n')
+                        comment = "#" + parts[1].rstrip("\n")
                     else:
                         line_content = line
-                        comment = ''
+                        comment = ""
 
                     # Convert Python value to Perl representation
                     if isinstance(value, str):
@@ -293,9 +286,9 @@ def edit_config_main(
                     # Replace only the value before the comma
                     new_line = re.sub(r"=>\s*[^,]*,", f"=> {perl_value},", line_content)
                     if comment:
-                        new_line = new_line.rstrip() + ' ' + comment + '\n'
+                        new_line = new_line.rstrip() + " " + comment + "\n"
                     else:
-                        new_line = new_line.rstrip() + '\n'
+                        new_line = new_line.rstrip() + "\n"
 
                     new_lines.append(new_line)
                     updated = True

@@ -11,7 +11,9 @@ from typing import Optional
 import pymysql
 
 
-def ensure_genebuilder_exists(connection: pymysql.connections.Connection, genebuilder: str) -> None:
+def ensure_genebuilder_exists(
+    connection: pymysql.connections.Connection, genebuilder: str
+) -> None:
     """
     Ensure genebuilder exists in the genebuilder table.
 
@@ -61,8 +63,8 @@ def insert_new_record(
         dev (bool): If True, only print SQL without executing
     """
     # date completed is being used to track the last time this record was updated
-    # so we set it to the current date 
-    date_status_update = current_date 
+    # so we set it to the current date
+    date_status_update = current_date
 
     # Add not avaialable for release type
     query = """
@@ -105,7 +107,7 @@ def update_existing_record(
     dev: bool,
     annotation_method: Optional[str] = None,
     annotation_source: Optional[str] = None,
-    genebuild_version: Optional[str] = None
+    genebuild_version: Optional[str] = None,
 ) -> None:
     query_parts = ["gb_status = %s", "date_status_update = %s"]
     params = [status, current_date]
@@ -134,7 +136,9 @@ WHERE genebuild_status_id = %s
         print(f"Updated record {record_id} to status '{status}'")
 
 
-def set_old_record_historical(connection: pymysql.connections.Connection, record_id: int, dev: bool) -> None:
+def set_old_record_historical(
+    connection: pymysql.connections.Connection, record_id: int, dev: bool
+) -> None:
     """
     Set an existing record to historical (last_attempt = 0).
 
@@ -210,7 +214,9 @@ def main(
             raise Exception(f"Assembly not found for GCA: {assembly}")
 
         current_date = datetime.now().strftime("%Y-%m-%d")
-        existing_record = fetch_current_genebuild_record(connection, assembly, genebuilder)
+        existing_record = fetch_current_genebuild_record(
+            connection, assembly, genebuilder
+        )
 
         if not existing_record:
             # No existing record for this genebuilder - INSERT new
@@ -250,33 +256,65 @@ def main(
             # Status categories
             terminal_statuses = ["live", "pre_released", "handed_over", "archive"]
             active_statuses = ["insufficient_data", "in_progress", "check_busco"]
-            completed_status = "completed" # terminal-like status
+            completed_status = "completed"  # terminal-like status
 
             # Determine if method/source/version should be updated (preserve existing if not specified)
-            method_to_update = annotation_method if annotation_method is not None else None
-            source_to_update = annotation_source if annotation_source is not None else None
-            version_to_update = genebuild_version if (genebuild_version is not None and genebuild_version != current_version) else None
+            method_to_update = (
+                annotation_method if annotation_method is not None else None
+            )
+            source_to_update = (
+                annotation_source if annotation_source is not None else None
+            )
+            version_to_update = (
+                genebuild_version
+                if (
+                    genebuild_version is not None
+                    and genebuild_version != current_version
+                )
+                else None
+            )
 
             # Same status - check for method/source/version changes
             if current_status == status:
                 # Check if annotation_method, annotation_source, or genebuild_version is provided and different
-                method_changed = annotation_method and annotation_method != current_method
-                source_changed = annotation_source and annotation_source != current_source
-                version_changed = genebuild_version is not None and genebuild_version != current_version
+                method_changed = (
+                    annotation_method and annotation_method != current_method
+                )
+                source_changed = (
+                    annotation_source and annotation_source != current_source
+                )
+                version_changed = (
+                    genebuild_version is not None
+                    and genebuild_version != current_version
+                )
 
                 if method_changed or source_changed or version_changed:
                     changes = []
                     if method_changed:
-                        changes.append(f"method from '{current_method}' to '{annotation_method}'")
+                        changes.append(
+                            f"method from '{current_method}' to '{annotation_method}'"
+                        )
                     if source_changed:
-                        changes.append(f"source from '{current_source}' to '{annotation_source}'")
+                        changes.append(
+                            f"source from '{current_source}' to '{annotation_source}'"
+                        )
                     if version_changed:
-                        changes.append(f"version from '{current_version}' to '{genebuild_version}'")
-                    print(f"Status is already '{status}', but updating {' and '.join(changes)}")
-                    update_existing_record(connection, record_id, status, current_date, dev,
-                                          annotation_method if method_changed else None,
-                                          annotation_source if source_changed else None,
-                                          genebuild_version if version_changed else None)
+                        changes.append(
+                            f"version from '{current_version}' to '{genebuild_version}'"
+                        )
+                    print(
+                        f"Status is already '{status}', but updating {' and '.join(changes)}"
+                    )
+                    update_existing_record(
+                        connection,
+                        record_id,
+                        status,
+                        current_date,
+                        dev,
+                        annotation_method if method_changed else None,
+                        annotation_source if source_changed else None,
+                        genebuild_version if version_changed else None,
+                    )
                 else:
                     print(f"Status is already '{status}'. No changes needed.")
                     sys.exit(0)
@@ -284,21 +322,33 @@ def main(
             # Block backwards transitions from completed
             elif current_status == completed_status and status in active_statuses:
                 print(f"ERROR: Cannot move backwards from 'completed' to '{status}'")
-                print(f"Completed is a terminal-like status. To restart work, use a new genebuild_version.")
+                print(
+                    f"Completed is a terminal-like status. To restart work, use a new genebuild_version."
+                )
                 sys.exit(1)
 
             # Block backwards transitions from terminal statuses
-            elif current_status in terminal_statuses and status in (active_statuses + [completed_status]):
+            elif current_status in terminal_statuses and status in (
+                active_statuses + [completed_status]
+            ):
                 # Check if version changed - if so, allow new attempt
                 # If genebuild_version not provided, use current version (no version change)
-                effective_version = genebuild_version if genebuild_version else current_version
+                effective_version = (
+                    genebuild_version if genebuild_version else current_version
+                )
 
                 if effective_version != current_version:
-                    print(f"Moving from terminal status '{current_status}' to '{status}' with new version {effective_version}")
+                    print(
+                        f"Moving from terminal status '{current_status}' to '{status}' with new version {effective_version}"
+                    )
                     print(f"Creating new attempt.")
 
-                    method_to_insert = annotation_method if annotation_method else "pending"
-                    source_to_insert = annotation_source if annotation_source else current_source
+                    method_to_insert = (
+                        annotation_method if annotation_method else "pending"
+                    )
+                    source_to_insert = (
+                        annotation_source if annotation_source else current_source
+                    )
 
                     set_old_record_historical(connection, record_id, dev)
                     insert_new_record(
@@ -315,32 +365,80 @@ def main(
                         dev,
                     )
                 else:
-                    print(f"ERROR: Cannot move from terminal status '{current_status}' to '{status}' with same genebuild_version '{current_version}'")
-                    print(f"To restart work, you must provide a new --genebuild_version (e.g., ENS02, ENS03, etc.)")
+                    print(
+                        f"ERROR: Cannot move from terminal status '{current_status}' to '{status}' with same genebuild_version '{current_version}'"
+                    )
+                    print(
+                        f"To restart work, you must provide a new --genebuild_version (e.g., ENS02, ENS03, etc.)"
+                    )
                     sys.exit(1)
 
             # Terminal to terminal transition - UPDATE same record
             elif current_status in terminal_statuses and status in terminal_statuses:
-                print(f"Moving from terminal status '{current_status}' to terminal status '{status}'")
+                print(
+                    f"Moving from terminal status '{current_status}' to terminal status '{status}'"
+                )
                 print(f"Updating existing record.")
-                update_existing_record(connection, record_id, status, current_date, dev, method_to_update, source_to_update, version_to_update)
+                update_existing_record(
+                    connection,
+                    record_id,
+                    status,
+                    current_date,
+                    dev,
+                    method_to_update,
+                    source_to_update,
+                    version_to_update,
+                )
 
             # Completed to terminal transition - UPDATE same record
             elif current_status == completed_status and status in terminal_statuses:
                 print(f"Moving from 'completed' to terminal status '{status}'")
                 print(f"Updating existing record.")
-                update_existing_record(connection, record_id, status, current_date, dev, method_to_update, source_to_update, version_to_update)
+                update_existing_record(
+                    connection,
+                    record_id,
+                    status,
+                    current_date,
+                    dev,
+                    method_to_update,
+                    source_to_update,
+                    version_to_update,
+                )
 
             # Active to active or active to completed - UPDATE same record
-            elif current_status in active_statuses and (status in active_statuses or status == completed_status):
-                print(f"Current status '{current_status}' is active. Updating to '{status}'.")
-                update_existing_record(connection, record_id, status, current_date, dev, method_to_update, source_to_update, version_to_update)
+            elif current_status in active_statuses and (
+                status in active_statuses or status == completed_status
+            ):
+                print(
+                    f"Current status '{current_status}' is active. Updating to '{status}'."
+                )
+                update_existing_record(
+                    connection,
+                    record_id,
+                    status,
+                    current_date,
+                    dev,
+                    method_to_update,
+                    source_to_update,
+                    version_to_update,
+                )
 
             # Active to terminal - UPDATE same record
             elif current_status in active_statuses and status in terminal_statuses:
-                print(f"Moving from active status '{current_status}' to terminal status '{status}'")
+                print(
+                    f"Moving from active status '{current_status}' to terminal status '{status}'"
+                )
                 print(f"Updating existing record.")
-                update_existing_record(connection, record_id, status, current_date, dev, method_to_update, source_to_update, version_to_update)
+                update_existing_record(
+                    connection,
+                    record_id,
+                    status,
+                    current_date,
+                    dev,
+                    method_to_update,
+                    source_to_update,
+                    version_to_update,
+                )
 
             else:
                 raise ValueError(
@@ -458,7 +556,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--release_type",
         default="not_available",
-        choices=['main','beta','not_available'],
+        choices=["main", "beta", "not_available"],
         help="Release type (default: not_available)",
     )
 

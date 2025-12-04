@@ -22,12 +22,10 @@ from typing import Union
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s",
-    handlers=[
-        logging.FileHandler("pipeline_setup.log"),
-        logging.StreamHandler()
-    ]
+    handlers=[logging.FileHandler("pipeline_setup.log"), logging.StreamHandler()],
 )
 logger = logging.getLogger(__name__)
+
 
 def dict_to_perl_hash(d):
     """
@@ -40,40 +38,43 @@ def dict_to_perl_hash(d):
     Returns:
         str: A string representing the dictionary in Perl hash format.
     """
+
     def convert_db_keys(dictionary):
         """Convert db_* keys to Ensembl format if this looks like a DB connection."""
         if not isinstance(dictionary, dict):
             return dictionary
-            
+
         # Check if this looks like a database connection dictionary
-        db_keys = {'db_host', 'db_user', 'db_port', 'db_password', 'db_name'}
+        db_keys = {"db_host", "db_user", "db_port", "db_password", "db_name"}
         if any(key in dictionary for key in db_keys):
             converted = {}
             key_mapping = {
-                'db_host': '-host',
-                'db_user': '-user', 
-                'db_port': '-port',
-                'db_password': '-pass',
-                'db_name': '-dbname'
+                "db_host": "-host",
+                "db_user": "-user",
+                "db_port": "-port",
+                "db_password": "-pass",
+                "db_name": "-dbname",
             }
-            
+
             for k, v in dictionary.items():
                 if k in key_mapping:
                     converted[key_mapping[k]] = v
                 else:
                     converted[k] = v
-            
+
             # Add driver if not present
-            if '-driver' not in converted and any(k.startswith('-') for k in converted.keys()):
-                converted['-driver'] = 'mysql'
-                
+            if "-driver" not in converted and any(
+                k.startswith("-") for k in converted.keys()
+            ):
+                converted["-driver"] = "mysql"
+
             return converted
-        
+
         return dictionary
-    
+
     # Convert database keys if needed
     d = convert_db_keys(d)
-    
+
     items = []
     for k, v in d.items():
         key_str = f"'{k}'"
@@ -118,39 +119,41 @@ def seed_jobs_from_json(
         perl_hash = dict_to_perl_hash(param_dict)
         cmd = [
             "seed_pipeline.pl",
-            "-analysis_id", str(analysis_id),
-            "-input_id", perl_hash,
-            "-url", ehive_url
+            "-analysis_id",
+            str(analysis_id),
+            "-input_id",
+            perl_hash,
+            "-url",
+            ehive_url,
         ]
         subprocess.run(cmd, check=True)
         logging.info("Seeding complete")
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Seed eHive pipeline jobs from a JSON file")
-    parser.add_argument(
-        "-j", "--json_file",
-        required=True,
-        help="Path to the JSON file with job parameters"
+    parser = argparse.ArgumentParser(
+        description="Seed eHive pipeline jobs from a JSON file"
     )
     parser.add_argument(
-        "-a", "--analysis_id",
+        "-j",
+        "--json_file",
+        required=True,
+        help="Path to the JSON file with job parameters",
+    )
+    parser.add_argument(
+        "-a",
+        "--analysis_id",
         type=int,
         default=1,
-        help=f"Analysis ID to seed (default: 1)"
+        help=f"Analysis ID to seed (default: 1)",
     )
-    parser.add_argument(
-        "-u", "--url",
-        required=True,
-        help="EHIVE URL"
-    )
+    parser.add_argument("-u", "--url", required=True, help="EHIVE URL")
     args = parser.parse_args()
 
     seed_jobs_from_json(
-        json_file=args.json_file,
-        analysis_id=args.analysis_id,
-        ehive_url=args.url
+        json_file=args.json_file, analysis_id=args.analysis_id, ehive_url=args.url
     )
+
 
 if __name__ == "__main__":
     main()
