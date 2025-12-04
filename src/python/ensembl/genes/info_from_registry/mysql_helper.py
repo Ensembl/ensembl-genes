@@ -22,7 +22,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-
+__all__ = ["mysql_fetch_data", "mysql_update"]
 def mysql_get_connection(
     database: str, host: str, port: int, user: str, password: str
 ) -> Optional[pymysql.connections.Connection]:

@@ -1,3 +1,8 @@
+# pylint: disable=logging-fstring-interpolation
+"""This module handles the assignment of unique species prefixes
+based on taxon IDs by interacting with the assembly registry and
+metadata databases.
+"""
 import json
 import logging
 import os
@@ -5,8 +10,9 @@ import random
 import string
 from typing import Optional
 import pymysql  # type: ignore
-from pymysql.err import IntegrityError  # type: ignore
-from mysql_helper import mysql_fetch_data, mysql_update
+
+from mysql_helper import mysql_fetch_data
+
 
 # Configure logging
 logging.basicConfig(
@@ -22,9 +28,11 @@ def get_special_cases() -> dict[str, str]:
     Returns:
         dict: A dictionary mapping taxon IDs to their special species prefixes.
     """
-
+    enscode = os.environ.get("ENSCODE")
+    if not enscode:
+        raise EnvironmentError("Environment variable ENSCODE is not set")
     json_path = os.path.join(
-        os.environ.get("ENSCODE"),
+        enscode,
         "ensembl-genes",
         "src",
         "python",
@@ -33,8 +41,8 @@ def get_special_cases() -> dict[str, str]:
         "info_from_registry",
         "anno_settings.json",
     )
-    with open(json_path, "r") as f:
-        special_cases = json.load(f)
+    with open(json_path, "r") as file:#pylint: disable=unspecified-encoding
+        special_cases = json.load(file)
     return special_cases
 
 
@@ -48,7 +56,7 @@ def exiting_prefix(server_info: dict) -> list[str]:
         list[str]: A list of existing species prefixes.
     """
     # Getting existing prefix from registry db. To be removed when the registry is updated.
-    prefix_registry_query = f"SELECT DISTINCT species_prefix FROM assembly ;"
+    prefix_registry_query = f"SELECT DISTINCT species_prefix FROM assembly ;"#pylint: disable=f-string-without-interpolation
     output_registry = mysql_fetch_data(
         prefix_registry_query,
         host=server_info["registry"]["db_host"],
@@ -58,7 +66,7 @@ def exiting_prefix(server_info: dict) -> list[str]:
         password="",
     )
     # Getting existing prefix from metadata db
-    prefix_metadata_query = f"SELECT DISTINCT prefix FROM species_prefix ;"
+    prefix_metadata_query = f"SELECT DISTINCT prefix FROM species_prefix ;"#pylint: disable=f-string-without-interpolation
     output_metadata = mysql_fetch_data(
         prefix_metadata_query,
         host=server_info["registry"]["db_host"],
@@ -108,7 +116,8 @@ def insert_prefix_into_db(
         prefix (str): The species prefix to insert.
         taxon_id (int): The lowest taxon ID associated with the prefix.
         conn (pymysql.connections.Connection): The database connection object.
-        store_new_registry (bool): Whether to allow duplicated exception if the prefix already exists in the database.
+        store_new_registry (bool): Whether to allow duplicated exception if 
+        the prefix already exists in the database.
     Returns:
         bool: True if the prefix was successfully inserted, False if it already exists.
     Raises:
@@ -123,15 +132,14 @@ def insert_prefix_into_db(
             )
             cursor.execute(query, (taxon_id, prefix))
         return True
-    except pymysql.err.IntegrityError as e:
-        if e.args[0] == 1062:
+    except pymysql.err.IntegrityError as err:
+        if err.args[0] == 1062:
             if store_new_registry:
                 logger.info(
                     f"Existing prefix {prefix} already stored in the new registry. Allow exception"
                 )
                 return True
-            else:
-                return False
+            return False
         raise
 
 
@@ -171,8 +179,10 @@ def create_prefix(existing_prefix: list[str], taxon_id: int, server_info: dict) 
 
 def get_species_prefix(taxon_id: int, server_info: dict) -> Optional[str]:
     """
-    This function retrieves the species prefix from the assembly registry and metadata databases.
-    If the prefix is not found, it creates a new one. There are special cases where the prefix is predefined.
+    This function retrieves the species prefix from the assembly registry 
+    and metadata databases.
+    If the prefix is not found, it creates a new one. There are special cases 
+    where the prefix is predefined.
     - Canis lupus (wolf) -> ENSCAF
     - Canis lupus familiaris (Domestic dog) -> ENSCAF
     - Heterocephalus glaber (naked mole rat) -> ENSHGL
@@ -211,7 +221,8 @@ def get_species_prefix(taxon_id: int, server_info: dict) -> Optional[str]:
         if output_registry:
             logger.info(f"Prefix found in old registry: {output_registry}")
 
-        prefix_metadata_query = f"SELECT DISTINCT prefix FROM species_prefix WHERE lowest_taxon_id = {taxon_id}"
+        prefix_metadata_query = f"SELECT DISTINCT prefix FROM species_prefix \
+            WHERE lowest_taxon_id = {taxon_id}"
         output_metadata = mysql_fetch_data(
             prefix_metadata_query,
             host=server_info["registry"]["db_host"],
@@ -258,7 +269,8 @@ def get_species_prefix(taxon_id: int, server_info: dict) -> Optional[str]:
 
         else:
             raise ValueError(
-                f"The taxon {taxon_id} is already registered and multiple prefix were detected: {prefix_list}"
+                f"The taxon {taxon_id} is already registered and multiple prefix \
+                    were detected: {prefix_list}"
             )
 
     return species_prefix
