@@ -17,6 +17,7 @@ site_url: https://ensembl.github.io/ensembl-genes
 repo_url: https://github.com/Ensembl/ensembl-genes
 repo_name: GitHub repository
 copyright: Copyright &copy; [2016-<script>document.write(new Date().getFullYear())</script>] <a href="https://www.ebi.ac.uk">EMBL-European Bioinformatics Institute</a>
+docs_dir: mkdocs
 
 theme:
   name: "material"
@@ -82,3 +83,17 @@ nav:
     - Code of Conduct: code_of_conduct.md
     - Coverage report: coverage.md
   - Code reference: reference/
+
+exclude:
+  - "mkdocs/**"
+  - "docs/**"
+  - "src/genes/metadata/**"
+  - "src/genes/metrics/**"
+  - "src/genes/projects/**"
+  - "src/genes/stable_id/**"
+  - "src/genes/tracking/**"
+  - "src/genes/transcriptomic_data/**"
+  - "site/**"
+  - "*.tmp"
+  - "*.bak"
+  - "*.swp"  
