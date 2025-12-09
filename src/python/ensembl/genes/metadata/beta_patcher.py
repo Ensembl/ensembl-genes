@@ -313,7 +313,9 @@ def write_core_patch_for_genome(
         # Write validation SQL
         validate_file.write(f"-- {database} | {meta_key}\n")
         validate_file.write(f"USE {database};\n")
-        validate_file.write(f"SELECT '{meta_key}' AS meta_key, meta_value AS current_value, ")
+        validate_file.write(f"SELECT '{database}' AS database_name, ")
+        validate_file.write(f"'{meta_key}' AS meta_key, ")
+        validate_file.write("meta_value AS current_value, ")
         validate_file.write(f"'{escaped_value}' AS proposed_value\n")
         validate_file.write("FROM meta\n")
         validate_file.write(_core_db_where(meta_key, species_id))
