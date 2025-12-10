@@ -531,6 +531,37 @@ def read_csv_patches(csv_file: Path, core_suffix: str = "_core_114_1") -> List[D
     return patches
 
 
+def check_thoas_requirements(patches: List[Dict], logger: logging.Logger) -> bool:
+    """
+    Check if any patches require THOAS (taxonomic heritage) updates.
+
+    Args:
+        patches: List of patch dictionaries
+        logger: Logger instance
+    Returns:
+        True if THOAS updates are required, False otherwise
+    """
+    thoas_loaded_fields = {
+        'assembly.accession',
+        'assembly.date',
+        'assembly.name',
+        'assembly.tol_id',
+        'organism.taxonomy_id',
+        'organism.species_taxonomy_id',
+        'organism.common_name',
+        'organism.scientific_name',
+        'organism.scientific_parlance_name',
+        'genome.genome_uuid',
+    }
+
+    for patch in patches:
+        if patch['meta_key'] in thoas_loaded_fields:
+            logger.info(f"Patch for genome_uuid {patch['genome_uuid']} requires THOAS update")
+            logger.info(f"  Thoas-loaded field: {patch['meta_key']}")
+            return True
+    return False
+
+
 def resolve_genome_info(patch: Dict, logger: logging.Logger) -> Optional[Dict]:
     """
     Resolve production name from genome UUID.
@@ -803,6 +834,10 @@ See patches_template.csv for a complete example.
         logger.info(f"Processing {len(patches)} patches from {args.csv_file}")
     except Exception as e:
         logger.error(f"Failed to read CSV: {e}")
+        return 1
+    
+    if check_thoas_requirements(patches, logger):
+        logger.error("One or more patches require THOAS updates. Please handle these separately.")
         return 1
 
     grouped_patches = group_patches_by_genome(patches, logger, args.jira_ticket)
