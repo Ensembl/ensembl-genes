@@ -26,6 +26,8 @@ from pathlib import Path
 import pandas as pd
 import pymysql
 from sqlalchemy import create_engine
+from sqlalchemy import text
+
 
 
 def connect_to_db(host:str, user:str, password:str, database:str, port=3306) \
@@ -420,9 +422,9 @@ def main() -> None:
     # db_connection = connect_to_db(**db_config)
     # Clean the input text
     try:
-        # if db_connection:
-        # df = pd.read_sql(query, db_connection)
-        df = pd.read_sql(query, engine)
+    # df = pd.read_sql(query, engine)   # OLD code
+        with engine.connect() as conn:
+            df = pd.read_sql(text(query), conn)
         # print(f"Loaded {len(df)} rows.")
     except pymysql.MySQLError as e:
         print(f"Error connecting to MySQL: {e}")
