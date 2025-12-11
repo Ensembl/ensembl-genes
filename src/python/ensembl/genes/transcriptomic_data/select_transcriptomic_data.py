@@ -476,6 +476,11 @@ def main() -> None:
         # Remove duplicates based on 'run_accession' while keeping the first row for each
         df_original = df.copy()
         run_accessions = filter_data(df)
+        
+        # Early exit if empty after filtering
+        if not run_accessions:
+            print("No suitable run_accessions found for this taxon_id.")
+            return
 
         # Build a regex pattern from run_accession list
         selected_accessions = run_accessions[0:25000]
