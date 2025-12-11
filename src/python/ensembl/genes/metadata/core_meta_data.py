@@ -32,6 +32,9 @@ def get_ena_metadata(accession, truth_dict):
     assembly_dict = xmltodict.parse(assembly_xml.text)
 
     assembly_attribs = assembly_dict["ASSEMBLY_SET"]["ASSEMBLY"]["ASSEMBLY_ATTRIBUTES"]["ASSEMBLY_ATTRIBUTE"]
+    # fix if single or multiple items
+    if isinstance(assembly_attribs, dict): 
+        assembly_attribs = [assembly_attribs]
 
     return_dict = {}
 
