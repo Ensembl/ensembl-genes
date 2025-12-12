@@ -19,7 +19,7 @@
 """
 Pre-release FTP processing script for Ensembl genebuild pipeline.
 
-This script gathers GTF, GFF3, and reheadered toplevel FASTA files from a 
+This script gathers GTF, GFF3, and reheadered toplevel FASTA files from a
 pre-release directory structure and organizes them into an FTP-ready directory
 structure with standardized naming and MD5 checksums.
 """
@@ -187,9 +187,9 @@ def _select_main_annotation_file(file_list: List[str], file_type: str) -> str:
             other_files.append(filepath)
 
     # Return in order of preference
-    if main_files:#pylint: disable=no-else-return
+    if main_files:  # pylint: disable=no-else-return
         return main_files[0]
-    elif chr_files: #pylint: disable:no-else-return
+    elif chr_files:  # pylint: disable:no-else-return
         return chr_files[0]
     elif other_files:
         return other_files[0]
@@ -320,7 +320,7 @@ def format_species_name(species_name: str) -> str:
     return species_title.replace(" ", "_").replace("-", "_").replace(".", "_")
 
 
-def create_ftp_directory_structure( # pylint: disable=too-many-locals, too-many-arguments
+def create_ftp_directory_structure(  # pylint: disable=too-many-locals, too-many-arguments
     output_path: str,
     species_name: str,
     gca_string: str,
@@ -438,7 +438,7 @@ def generate_md5_checksums(
 
     logger.info(f"Generating MD5 checksums in: {md5_file}")
 
-    with open(md5_file, "w") as file:#pylint: disable=unspecified-encoding
+    with open(md5_file, "w") as file:  # pylint: disable=unspecified-encoding
         for filepath in sorted(files):
             if os.path.exists(filepath):
                 filename = os.path.basename(filepath)
@@ -561,7 +561,7 @@ Examples:
         logger.info(f"FTP structure created successfully in: {ftp_dir}")
         logger.info("Pre-release FTP processing completed successfully")
 
-    except Exception as err:#pylint: disable=broad-exception-caught
+    except Exception as err:  # pylint: disable=broad-exception-caught
         logger.error(f"Error during processing: {str(err)}")
         sys.exit(1)
 
