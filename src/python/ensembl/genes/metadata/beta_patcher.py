@@ -575,9 +575,10 @@ def generate_all_patches(
 
     try:
         # Write metadata patches
-        with open(metadata_validate_file, "w") as val_f, open(
-            metadata_patch_file, "w"
-        ) as patch_f:
+        with (
+            open(metadata_validate_file, "w") as val_f,
+            open(metadata_patch_file, "w") as patch_f,
+        ):
             val_f.write(
                 f"-- Validation: Metadata DB | {jira_ticket} | {datetime.now().isoformat()}\n"
             )
@@ -601,9 +602,10 @@ def generate_all_patches(
                 )
 
         # Write core patches
-        with open(core_validate_file, "w") as val_f, open(
-            core_patch_file, "w"
-        ) as patch_f:
+        with (
+            open(core_validate_file, "w") as val_f,
+            open(core_patch_file, "w") as patch_f,
+        ):
             val_f.write(
                 f"-- Validation: Core DBs | {jira_ticket} | {datetime.now().isoformat()}\n\n"
             )

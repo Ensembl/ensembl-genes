@@ -2,6 +2,7 @@ import pandas as pd
 import re
 import csv
 
+
 # Function to extract protein information from a GFF3 file
 # Merges all CDS records for the same protein into a single entry
 def extract_proteins_from_gff3(gff3_file):

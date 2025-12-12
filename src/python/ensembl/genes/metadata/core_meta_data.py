@@ -504,48 +504,48 @@ if __name__ == "__main__":
             truth_dict["genebuild.method_display"] = "BRAKER2"
             truth_dict["genebuild.annotation_source"] = "braker"
             truth_dict["genebuild.provider_name"] = "Ensembl"
-            truth_dict[
-                "genebuild.provider_url"
-            ] = "https://beta.ensembl.org/help/articles/braker-2-genome-annotation"
+            truth_dict["genebuild.provider_url"] = (
+                "https://beta.ensembl.org/help/articles/braker-2-genome-annotation"
+            )
         elif "HELIXER" in core_dict["sample.gene_text"]:
             truth_dict["genebuild.version"] = "HLX01"
             truth_dict["genebuild.method"] = "helixer"
             truth_dict["genebuild.method_display"] = "Helixer"
             truth_dict["genebuild.annotation_source"] = "helixer"
             truth_dict["genebuild.provider_name"] = "Ensembl"
-            truth_dict[
-                "genebuild.provider_url"
-            ] = "https://beta.ensembl.org/info/genome/helixer-genome-annotation"
+            truth_dict["genebuild.provider_url"] = (
+                "https://beta.ensembl.org/info/genome/helixer-genome-annotation"
+            )
         # otherwise check the genebuild.method for annotation key updates/additions
         elif core_dict["genebuild.method"] == "full_genebuild":
             truth_dict["genebuild.version"] = "ENS01"
             truth_dict["genebuild.method_display"] = "Ensembl Genebuild"
             truth_dict["genebuild.annotation_source"] = "ensembl"
             truth_dict["genebuild.provider_name"] = "Ensembl"
-            truth_dict[
-                "genebuild.provider_url"
-            ] = "https://beta.ensembl.org/help/articles/vertebrate-genome-annotation"
+            truth_dict["genebuild.provider_url"] = (
+                "https://beta.ensembl.org/help/articles/vertebrate-genome-annotation"
+            )
         elif core_dict["genebuild.method"] == "anno":
             truth_dict["genebuild.version"] = "ENS01"
             truth_dict["genebuild.method_display"] = "Ensembl Genebuild"
             truth_dict["genebuild.annotation_source"] = "ensembl"
             truth_dict["genebuild.provider_name"] = "Ensembl"
-            truth_dict[
-                "genebuild.provider_url"
-            ] = "https://beta.ensembl.org/help/articles/non-vertebrate-genome-annotation"
+            truth_dict["genebuild.provider_url"] = (
+                "https://beta.ensembl.org/help/articles/non-vertebrate-genome-annotation"
+            )
         elif core_dict["genebuild.method"] == "projection_build":
             truth_dict["genebuild.version"] = "ENS01"
             truth_dict["genebuild.annotation_source"] = "ensembl"
             truth_dict["genebuild.provider_name"] = "Ensembl"
             if core_dict["species.scientific_name"] == "homo sapiens":
-                truth_dict[
-                    "genebuild.provider_url"
-                ] = "https://beta.ensembl.org/help/articles/human-genome-automated-annotation"
+                truth_dict["genebuild.provider_url"] = (
+                    "https://beta.ensembl.org/help/articles/human-genome-automated-annotation"
+                )
                 truth_dict["genebuild.method_display"] = "Mapping from GRCh38"
             else:
-                truth_dict[
-                    "genebuild.provider_url"
-                ] = "https://beta.ensembl.org/help/articles/vertebrate-genome-annotation"
+                truth_dict["genebuild.provider_url"] = (
+                    "https://beta.ensembl.org/help/articles/vertebrate-genome-annotation"
+                )
                 truth_dict["genebuild.method_display"] = "Mapping from reference"
         # for non-genebuilds, I don't have a set of rules (as above), so I rely on the core meta keys and the static
         elif core_dict["genebuild.method"] == "import":
@@ -613,9 +613,9 @@ if __name__ == "__main__":
         truth_dict["genebuild.version"] = "ENS01"
         truth_dict["genebuild.annotation_source"] = "ensembl"
         truth_dict["genebuild.provider_name"] = "Ensembl"
-        truth_dict[
-            "genebuild.provider_url"
-        ] = "https://rapid.ensembl.org/info/genome/genebuild/full_genebuild.html"
+        truth_dict["genebuild.provider_url"] = (
+            "https://rapid.ensembl.org/info/genome/genebuild/full_genebuild.html"
+        )
 
     # if the genebuild.version already exists in the core db, I'll just leave that value
     if "genebuild.version" in core_dict and core_dict["genebuild.version"] != "":

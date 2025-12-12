@@ -24,6 +24,7 @@ logging.basicConfig(
 with open("./bioproject_tracking_config.json", "r") as f:
     config = json.load(f)
 
+
 # -----------------------------------
 # DB helper
 # -----------------------------------
