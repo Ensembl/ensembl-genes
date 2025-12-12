@@ -26,6 +26,8 @@ from pathlib import Path
 import pandas as pd
 import pymysql
 from sqlalchemy import create_engine
+from sqlalchemy import text
+
 
 
 def connect_to_db(host:str, user:str, password:str, database:str, port=3306) \
@@ -420,9 +422,9 @@ def main() -> None:
     # db_connection = connect_to_db(**db_config)
     # Clean the input text
     try:
-        # if db_connection:
-        # df = pd.read_sql(query, db_connection)
-        df = pd.read_sql(query, engine)
+    # df = pd.read_sql(query, engine)   # OLD code
+        with engine.connect() as conn:
+            df = pd.read_sql(text(query), conn)
         # print(f"Loaded {len(df)} rows.")
     except pymysql.MySQLError as e:
         print(f"Error connecting to MySQL: {e}")
@@ -474,6 +476,11 @@ def main() -> None:
         # Remove duplicates based on 'run_accession' while keeping the first row for each
         df_original = df.copy()
         run_accessions = filter_data(df)
+        
+        # Early exit if empty after filtering
+        if not run_accessions:
+            print("No suitable run_accessions found for this taxon_id.")
+            return
 
         # Build a regex pattern from run_accession list
         selected_accessions = run_accessions[0:25000]
