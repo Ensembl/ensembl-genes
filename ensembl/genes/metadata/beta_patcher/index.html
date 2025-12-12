@@ -2844,7 +2844,9 @@ python beta_patcher.py patches.csv --jira-ticket EBD-1111 --core-suffix _core_11
 <span class="normal">633</span>
 <span class="normal">634</span>
 <span class="normal">635</span>
-<span class="normal">636</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">generate_all_patches</span><span class="p">(</span>
+<span class="normal">636</span>
+<span class="normal">637</span>
+<span class="normal">638</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">generate_all_patches</span><span class="p">(</span>
     <span class="n">grouped_patches</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">],</span>
     <span class="n">output_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
     <span class="n">jira_ticket</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -2873,9 +2875,10 @@ python beta_patcher.py patches.csv --jira-ticket EBD-1111 --core-suffix _core_11
 
     <span class="k">try</span><span class="p">:</span>
         <span class="c1"># Write metadata patches</span>
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">metadata_validate_file</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">val_f</span><span class="p">,</span> <span class="nb">open</span><span class="p">(</span>
-            <span class="n">metadata_patch_file</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span>
-        <span class="p">)</span> <span class="k">as</span> <span class="n">patch_f</span><span class="p">:</span>
+        <span class="k">with</span> <span class="p">(</span>
+            <span class="nb">open</span><span class="p">(</span><span class="n">metadata_validate_file</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">val_f</span><span class="p">,</span>
+            <span class="nb">open</span><span class="p">(</span><span class="n">metadata_patch_file</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">patch_f</span><span class="p">,</span>
+        <span class="p">):</span>
             <span class="n">val_f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">&quot;-- Validation: Metadata DB | </span><span class="si">{</span><span class="n">jira_ticket</span><span class="si">}</span><span class="s2"> | </span><span class="si">{</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
             <span class="p">)</span>
@@ -2899,9 +2902,10 @@ python beta_patcher.py patches.csv --jira-ticket EBD-1111 --core-suffix _core_11
                 <span class="p">)</span>
 
         <span class="c1"># Write core patches</span>
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">core_validate_file</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">val_f</span><span class="p">,</span> <span class="nb">open</span><span class="p">(</span>
-            <span class="n">core_patch_file</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span>
-        <span class="p">)</span> <span class="k">as</span> <span class="n">patch_f</span><span class="p">:</span>
+        <span class="k">with</span> <span class="p">(</span>
+            <span class="nb">open</span><span class="p">(</span><span class="n">core_validate_file</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">val_f</span><span class="p">,</span>
+            <span class="nb">open</span><span class="p">(</span><span class="n">core_patch_file</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">patch_f</span><span class="p">,</span>
+        <span class="p">):</span>
             <span class="n">val_f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">&quot;-- Validation: Core DBs | </span><span class="si">{</span><span class="n">jira_ticket</span><span class="si">}</span><span class="s2"> | </span><span class="si">{</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span><span class="si">}</span><span class="se">\n\n</span><span class="s2">&quot;</span>
             <span class="p">)</span>
@@ -3557,9 +3561,7 @@ TAXONOMY_URI: Connection string for taxonomy database</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/python/ensembl/genes/metadata/beta_patcher.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">639</span>
-<span class="normal">640</span>
-<span class="normal">641</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">641</span>
 <span class="normal">642</span>
 <span class="normal">643</span>
 <span class="normal">644</span>
@@ -3678,7 +3680,9 @@ TAXONOMY_URI: Connection string for taxonomy database</p>
 <span class="normal">757</span>
 <span class="normal">758</span>
 <span class="normal">759</span>
-<span class="normal">760</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
+<span class="normal">760</span>
+<span class="normal">761</span>
+<span class="normal">762</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Main entry point for the beta patcher script.&quot;&quot;&quot;</span>
     <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span>
         <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Generate standardized SQL patches for Ensembl beta metadata issues from CSV input&quot;</span><span class="p">,</span>
