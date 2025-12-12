@@ -65,7 +65,7 @@ plugins:
           # unrelated modules during collection which can cause import-time
           # side effects. gen_ref_pages generates references only for
           # `src/python/ensembl` modules.
-          paths: [src/python/ensembl]
+          paths: [src/python]
           options:
             filters: ["!^_"]
             show_if_no_docstring: true
@@ -73,9 +73,7 @@ plugins:
             show_source: true
             show_symbol_type_heading: true
             show_symbol_type_toc: true
-  - coverage:
-      page_name: coverage
-      html_report_dir: reports/htmlcov
+
 
 nav:
   - Home:
@@ -87,16 +85,3 @@ nav:
     - Coverage report: coverage.md
   - Code reference: reference/
 
-exclude:
-  - "mkdocs/**"
-  - "docs/**"
-  - "src/genes/metadata/**"
-  - "src/genes/metrics/**"
-  - "src/genes/projects/**"
-  - "src/genes/stable_id/**"
-  - "src/genes/tracking/**"
-  - "src/genes/transcriptomic_data/**"
-  - "site/**"
-  - "*.tmp"
-  - "*.bak"
-  - "*.swp"  
