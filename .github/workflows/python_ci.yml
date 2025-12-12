@@ -41,8 +41,8 @@ jobs:
 
       - name: Run pylint
         run: |
-          pylint --rcfile pyproject.toml src/python/ensembl ensembl_genes
-          pylint --rcfile pyproject.toml ensembl_genes/tests
+          pylint --rcfile pyproject.toml src/python/ensembl/genes
+          pylint --rcfile pyproject.toml tests
 
   mypy:
     runs-on: ubuntu-latest
@@ -57,8 +57,8 @@ jobs:
 
       - name: Run mypy
         run: |
-          mypy --config-file pyproject.toml src/python/ensembl ensembl_genes
-          mypy --config-file pyproject.toml ensembl_genes/tests
+          mypy --config-file pyproject.toml src/python/ensembl/genes
+          mypy --config-file pyproject.toml tests
 
   black:
     runs-on: ubuntu-latest

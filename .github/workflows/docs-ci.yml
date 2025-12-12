@@ -1,0 +1,62 @@
+name: 'Docs: Build (MkDocs)'
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'mkdocs/**'
+      - 'docs/**'
+      - 'src/**'
+      - 'pyproject.toml'
+      - 'mkdocs.yml'
+  pull_request:
+    paths:
+      - 'mkdocs/**'
+      - 'docs/**'
+      - 'src/**'
+      - 'pyproject.toml'
+      - 'mkdocs.yml'
+
+jobs:
+  build:
+    name: Build MkDocs site and upload
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/pyproject.toml') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install project dev dependencies
+        run: |
+          python -m pip install --upgrade pip
+          # Prefer installing dev extras from pyproject if available
+          if python -c "import importlib.metadata as m; print('ok')" 2>/dev/null; then
+            pip install ".[dev]" || pip install mkdocs mkdocs-material mkdocs-gen-files mkdocstrings[python] mkdocs-literate-nav mkdocs-section-index mkdocs-coverage
+          else
+            pip install mkdocs mkdocs-material mkdocs-gen-files mkdocstrings[python] mkdocs-literate-nav mkdocs-section-index mkdocs-coverage
+          fi
+
+      - name: Build MkDocs site
+        env:
+          PYTHONPATH: src/python
+        run: |
+          mkdocs build -f mkdocs.yml -d site
+
+      - name: Upload generated site artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: mkdocs-site
+          path: site
