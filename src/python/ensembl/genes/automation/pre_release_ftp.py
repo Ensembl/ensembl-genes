@@ -126,7 +126,7 @@ def find_annotation_files(output_path: str) -> Dict[str, Optional[str]]:
 
     Returns:
         Dict[str, Optional[str]]: Dictionary with 'gff3' and 'gtf' keys mapping
-                                 to file paths or None if not found
+                                to file paths or None if not found
     """
     annotation_files: Dict[str, Optional[str]] = {"gff3": None, "gtf": None}
 
