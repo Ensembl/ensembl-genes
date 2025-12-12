@@ -2,6 +2,7 @@
 This script fetches assembly information from a MySQL database and the ENA API,
 and generates HTML files containing assembly and annotation content.
 """
+
 import argparse
 from pathlib import Path
 import pymysql
@@ -47,7 +48,7 @@ def get_assembly_info(accession):
         accession (str): The assembly accession number to fetch information for.
 
     Returns:
-        dict: A dictionary containing assembly attributes such as name, level,
+        dict: A dictionary containing assembly attributes such as name, level, \
         submitter, and counts.
     """
     assembly_url = f"https://www.ebi.ac.uk/ena/browser/api/xml/{accession}"

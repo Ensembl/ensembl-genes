@@ -52,7 +52,7 @@ def get_assembly_info(accession: str) -> Dict[str, str]:
         accession (str): The assembly accession number to fetch information for.
 
     Returns:
-        dict: A dictionary containing assembly attributes such as name, level,
+        dict: A dictionary containing assembly attributes such as name, level,\
         submitter, and counts.
     """
     assembly_url = f"https://www.ebi.ac.uk/ena/browser/api/xml/{accession}"
