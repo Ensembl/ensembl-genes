@@ -1,49 +1,65 @@
-"""Generate API reference pages for MkDocs using mkdocs-gen-files.
-
-This script discovers Python modules under `src/python/ensembl` and
-creates a `reference/` page for each module with a mkdocstrings directive.
-
-It is intentionally simple and avoids importing project modules.
 """
+Generate API reference pages under reference/ using mkdocs-gen-files.
+"""
+
 from pathlib import Path
 import mkdocs_gen_files
 
-ROOT = Path("src/python")
-PKG = Path("src/python/ensembl")
-OUT_DIR = "reference"
+SRC_ROOT = Path("src/python")
+PKG_ROOT = SRC_ROOT / "ensembl/genes"
+OUT_DIR = Path("reference")
 
+nav = mkdocs_gen_files.Nav()
 
-def iter_modules(root: Path):
-    for path in sorted(root.rglob("*.py")):
-        # skip tests or private modules if needed
-        if path.name == "__init__.py":
-            continue
-        rel = path.relative_to(ROOT).with_suffix("")
-        parts = rel.parts
-        # only include modules under the top-level 'ensembl' package
-        if len(parts) == 0 or parts[0] != "ensembl":
-            continue
-        module = ".".join(parts)
-        yield module
+# ----------------------------
+# 1. Add Home section
+# ----------------------------
+home_pages = [
+    ("Overview", "index.md"),
+    ("Install", "install.md"),
+    ("Usage", "usage.md"),
+]
+for title, path in home_pages:
+    nav["Home", title] = path
 
+# ----------------------------
+# 2. Add Development section
+# ----------------------------
+dev_pages = [
+    ("Code of Conduct", "code_of_conduct.md"),
+    ("Coverage report", "coverage.md"),
+]
+for title, path in dev_pages:
+    nav["Development", title] = path
 
-def build():
-    nav = []
-    for module in iter_modules(PKG):
-        page_path = Path(OUT_DIR) / (module + ".md")
-        # create parent dirs
-        mkdocs_gen_files.set_edit_path(str(Path("src") / page_path))
-        with mkdocs_gen_files.open(page_path, "w") as fh:
-            fh.write(f"::: {module}\n")
-        nav.append(page_path.as_posix())
+# ----------------------------
+# 3. Add Reference section
+# ----------------------------
 
-    # write a simple summary index
-    summary = Path(OUT_DIR) / "summary.md"
-    with mkdocs_gen_files.open(summary, "w") as fh:
-        fh.write("# API reference\n\n")
-        for p in nav:
-            fh.write(f"- [{p}]({p})\n")
+# Find all python modules under src/python/ensembl
+for path in sorted(PKG_ROOT.rglob("*.py")):
+    if path.name == "__init__.py":
+        continue
 
+    # Example:
+    #   src/python/ensembl/genes/automation/pre_release_ftp.py
+    #
+    # → module_parts = ("ensembl", "genes", "automation", "pre_release_ftp")
+    module_parts = path.relative_to(SRC_ROOT).with_suffix("").parts
+    module = ".".join(module_parts)
 
-if __name__ == "__main__":
-    build()
+    # strip the top-level "ensembl" so literate-nav creates reference/ensembl/... correctly
+    out_path = Path(*module_parts).with_suffix(".md")
+    # Create nested directories
+    mkdocs_gen_files.set_edit_path(out_path, path)
+
+    with mkdocs_gen_files.open(out_path, "w") as f:
+        f.write(f"# `{module}`\n\n::: {module}\n")
+
+    # Add to navigation under "Code reference"
+    nav["Code reference", *module_parts] = out_path.as_posix()
+
+# Write summary.md for mkdocs-literate-nav
+summary_path = OUT_DIR / "summary.md"
+with mkdocs_gen_files.open(summary_path, "w") as nav_file:
+    nav_file.writelines(nav.build_literate_nav())
