@@ -3,11 +3,22 @@ from pathlib import Path
 import argparse
 import gzip
 import shutil
+from typing import Iterable, Union
 
-def unzip_keep_original(file_path):
+
+def unzip_keep_original(file_path: Union[str, Path]) -> Path:
     """
-    Unzip a .gz file but keep the original.
-    Returns the path to the uncompressed file.
+    Unzip a `.gz` file while keeping the original compressed file.
+    If the uncompressed file already exists, it is not regenerated.
+    Parameters
+    ----------
+    file_path : str or pathlib.Path
+        path to the `.gz` file.
+
+    Returns
+    -------
+    pathlib.Path
+        Path to the uncompressed file.
     """
     file_path = Path(file_path)
     unzipped_file = file_path.with_suffix('')  # remove .gz
@@ -17,15 +28,35 @@ def unzip_keep_original(file_path):
             shutil.copyfileobj(f_in, f_out)
     return unzipped_file
 
-def run_funannotate(gcas, base_dir, output_dir, cpus=20):
+def run_funannotate(
+    gcas: Iterable[str],
+    base_dir: Union[str, Path],
+    output_dir: Union[str, Path],
+    cpus: int = 20,
+) -> None:
     """
-    Run funannotate predict for a list of GCAs.
+    Run `funannotate predict` for a list of genome assemblies (GCA IDs).
 
-    Parameters:
-        gcas (list of str): List of GCA IDs.
-        base_dir (str or Path): Base directory containing GCA folders.
-        output_dir (str or Path): Base output directory where results will be stored.
-        cpus (int): Number of CPUs to use.
+    For each GCA, the function:
+    - Locates and unzips the softmasked genome FASTA
+    - Infers the species name from the FASTA filename
+    - Locates RNA-seq BAMs, StringTie GTFs, protein alignments, and tRNA annotations
+    - Executes `funannotate predict` with the discovered inputs
+
+    Parameters
+    ----------
+    gcas : Iterable[str]
+        Collection of GCA accession IDs.
+    base_dir : str or pathlib.Path
+        Base directory containing per-GCA input folders.
+    output_dir : str or pathlib.Path
+        Base directory where funannotate output directories will be created.
+    cpus : int, optional
+        Number of CPUs to use for funannotate (default: 20).
+
+    Returns
+    -------
+    None
     """
     base_dir = Path(base_dir)
     output_dir = Path(output_dir)
