@@ -1,13 +1,23 @@
-import pandas as pd
-import re
+"""
+Script to compare protein IDs between two GFF3 files and generate a report
+"""
+
 import csv
+import re
+import pandas as pd
 
 
 # Function to extract protein information from a GFF3 file
 # Merges all CDS records for the same protein into a single entry
-def extract_proteins_from_gff3(gff3_file):
+def extract_proteins_from_gff3(gff3_file: str) -> pd.DataFrame:
+    """Extract protein information from GFF3 file.
+    Args:
+        gff3_file (str): Path to the GFF3 file.
+    Returns:
+        pd.DataFrame: DataFrame containing protein information.
+    """
     protein_data = {}
-    with open(gff3_file, "r") as file:
+    with open(gff3_file, "r") as file:  # pylint: disable=unspecified-encoding
         for line in file:
             if line.startswith("#"):
                 continue
@@ -34,15 +44,27 @@ def extract_proteins_from_gff3(gff3_file):
                         protein_data[protein_id]["End"] = max(
                             protein_data[protein_id]["End"], int(columns[4])
                         )
-                        protein_data[protein_id]["Attributes"].append(attributes)
+                        protein_data[protein_id]["Attributes"].append(attributes)  # type: ignore[union-attr] pylint:disable=line-too-long
     # Flatten attributes into a single string for each protein
     for protein in protein_data.values():
-        protein["Attributes"] = ";".join(protein["Attributes"])
+        protein["Attributes"] = ";".join(protein["Attributes"])  # type: ignore[arg-type]
     return pd.DataFrame(protein_data.values())
 
 
 # Function to compute shared protein statistics and generate the report
-def compare_protein_sets(gff3_file_old, gff3_file_new, output_report):
+def compare_protein_sets(
+    gff3_file_old: str,  # pylint:disable=redefined-outer-name
+    gff3_file_new: str,  # pylint:disable=redefined-outer-name
+    output_report: str,  # pylint:disable=redefined-outer-name
+) -> None:  # pylint:disable=redefined-outer-name
+    """Compare protein sets from two GFF3 files and generate a report.
+    Args:
+        gff3_file_old (str): Path to the older GFF3 file.
+        gff3_file_new (str): Path to the newer GFF3 file.
+        output_report (str): Path to save the output report.
+    Returns:
+        None
+    """
     # Extract protein information from both files
     proteins_old = extract_proteins_from_gff3(gff3_file_old)
     proteins_new = extract_proteins_from_gff3(gff3_file_new)
