@@ -1,16 +1,15 @@
 #!/usr/bin/env python3
-# pylint: disable=missing-module-docstring, too-many-locals, too-many-statements, too-many-arguments, too-many-branches, too-many-nested-blocks, logging-not-lazy, logging-fstring-interpolation, consider-using-dict-items, broad-exception-caught, line-too-long, unused-argument, missing-function-docstring, unspecified-encoding
+# pylint: disable=missing-module-docstring,consider-using-in,  too-many-locals, too-many-return-statements, missing-timeout, too-many-positional-arguments, no-else-return, too-many-statements, too-many-arguments, too-many-branches, too-many-nested-blocks, logging-not-lazy, logging-fstring-interpolation, consider-using-dict-items, broad-exception-caught, line-too-long, unused-argument, missing-function-docstring, unspecified-encoding, possibly-used-before-assignment, broad-exception-raised
 import argparse
 import json
-import os
 import re
 import sys
 import time
 from ftplib import FTP, error_perm, error_temp
-from typing import Dict, List, Tuple, Optional
+from typing import Any, Dict, Optional, Tuple
+import socket
 import pymysql
 import requests
-import socket
 
 
 class EnsemblFTP:
@@ -21,12 +20,19 @@ class EnsemblFTP:
     def __init__(
         self, timeout: int = 30, max_retries: int = 2, retry_sleep: float = 3.0
     ) -> None:
+        """
+        Initialize EnsemblFTP client and connect to Ensembl and EBI FTP servers.
+        Args:
+            timeout (int, optional): Timeout for FTP connections. Defaults to 30.
+            max_retries (int, optional): Maximum number of retries for failed operations. Defaults to 2.
+            retry_sleep (float, optional): Sleep duration between retries. Defaults to 3.0.
+        """
         self.timeout = timeout
         self.max_retries = max_retries
         self.retry_sleep = retry_sleep
 
-        self.ensembl_ftp = None
-        self.ebi_ftp = None
+        self.ensembl_ftp: Optional[FTP] = None
+        self.ebi_ftp: Optional[FTP] = None
 
         self._connect_ensembl()
         self._connect_ebi()
@@ -36,6 +42,7 @@ class EnsemblFTP:
 
     # ---- connections ----
     def _connect_ensembl(self):
+        """Connect to Ensembl FTP server."""
         try:
             self.ensembl_ftp = FTP("ftp.ensembl.org", timeout=self.timeout)
             self.ensembl_ftp.set_pasv(True)
@@ -45,6 +52,7 @@ class EnsemblFTP:
             raise
 
     def _connect_ebi(self):
+        """Connect to EBI FTP server."""
         try:
             self.ebi_ftp = FTP("ftp.ebi.ac.uk", timeout=self.timeout)
             self.ebi_ftp.set_pasv(True)
@@ -53,11 +61,11 @@ class EnsemblFTP:
             self.ebi_ftp = None
             raise
 
-    def _retry(self, fn, which: str, *args, **kwargs):
+    def _retry(self, fn, which: str, *args, **kwargs) -> Any:
         """
         Retry FTP operation; on failure, reconnect that endpoint and try again.
         """
-        last_exc = None
+        last_exc: Optional[BaseException] = None
         for _ in range(self.max_retries):
             try:
                 return fn(*args, **kwargs)
@@ -77,10 +85,21 @@ class EnsemblFTP:
                 except Exception:
                     pass
                 time.sleep(self.retry_sleep)
+        assert last_exc is not None
         raise last_exc
 
     # ---- utils ----
+    def _require_ftp(self, ftp: Optional[FTP]) -> FTP:
+        if ftp is None:
+            raise RuntimeError("FTP connection is not available")
+        return ftp
+
     def return_to_root(self, ftp_connection: FTP) -> None:
+        """Return to root
+
+        Args:
+            ftp_connection (FTP): Ftp path
+        """
         which = "ensembl" if ftp_connection is self.ensembl_ftp else "ebi"
         self._retry(ftp_connection.cwd, which, "/")
 
@@ -93,6 +112,18 @@ class EnsemblFTP:
         source: str,
         file_type: str,
     ) -> str:
+        """
+        Check for existence of specific file types on FTP servers.
+        Args:
+            species_name (str): _species_name_
+            prod_name (str): _prod_name_
+            accession (str): GCA accession
+            source (str): _source_
+            file_type (str): type of file to check for: "repeatmodeler" or "busco"
+
+        Returns:
+            str: URL to the file if found, else empty string
+        """
         if file_type == "repeatmodeler":
             ftp_connection = self.ebi_ftp
             which = "ebi"
@@ -122,6 +153,7 @@ class EnsemblFTP:
             return ""
 
         try:
+            ftp_connection = self._require_ftp(ftp_connection)
             self.return_to_root(ftp_connection)
             self._retry(ftp_connection.cwd, which, path)
             files_list = self._retry(ftp_connection.nlst, which)
@@ -149,11 +181,22 @@ class EnsemblFTP:
     def check_pre_release_file(
         self, species_name: str, accession: str, extension: str
     ) -> str:
+        """
+        Check for pre-release files on EBI FTP server.
+        Args:
+            species_name (str): _species_name_
+            accession (str): GCA accession
+            extension (str): File extension to look for (e.g., ".gtf.gz")
+        Returns:
+            str: URL to the pre-release file if found, else empty string
+        """
         ftp = self.ebi_ftp
         which = "ebi"
         base = self.ebi_ftp_path
         path = f"pub/databases/ensembl/pre-release/{species_name}/{accession}/"
         try:
+
+            ftp = self._require_ftp(ftp)
             self.return_to_root(ftp)
             self._retry(ftp.cwd, which, path)
             for fname in self._retry(ftp.nlst, which):
@@ -408,7 +451,7 @@ def write_yaml(
             if check_url_status(beta_link):
                 yaml += f"  beta_link: https://beta.ensembl.org/species/{guuid}\n"
             else:
-                yaml += f"  beta_link: Coming soon!\n"
+                yaml += "  beta_link: Coming soon!\n"
 
         if project in ("dtol", "erga", "cbp", "bge", "asg"):
             try:
