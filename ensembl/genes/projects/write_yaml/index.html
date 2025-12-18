@@ -2983,7 +2983,8 @@
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>src/python/ensembl/genes/projects/write_yaml.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 16</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 15</span>
+<span class="normal"> 16</span>
 <span class="normal"> 17</span>
 <span class="normal"> 18</span>
 <span class="normal"> 19</span>
@@ -3149,7 +3150,50 @@
 <span class="normal">179</span>
 <span class="normal">180</span>
 <span class="normal">181</span>
-<span class="normal">182</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">EnsemblFTP</span><span class="p">:</span>
+<span class="normal">182</span>
+<span class="normal">183</span>
+<span class="normal">184</span>
+<span class="normal">185</span>
+<span class="normal">186</span>
+<span class="normal">187</span>
+<span class="normal">188</span>
+<span class="normal">189</span>
+<span class="normal">190</span>
+<span class="normal">191</span>
+<span class="normal">192</span>
+<span class="normal">193</span>
+<span class="normal">194</span>
+<span class="normal">195</span>
+<span class="normal">196</span>
+<span class="normal">197</span>
+<span class="normal">198</span>
+<span class="normal">199</span>
+<span class="normal">200</span>
+<span class="normal">201</span>
+<span class="normal">202</span>
+<span class="normal">203</span>
+<span class="normal">204</span>
+<span class="normal">205</span>
+<span class="normal">206</span>
+<span class="normal">207</span>
+<span class="normal">208</span>
+<span class="normal">209</span>
+<span class="normal">210</span>
+<span class="normal">211</span>
+<span class="normal">212</span>
+<span class="normal">213</span>
+<span class="normal">214</span>
+<span class="normal">215</span>
+<span class="normal">216</span>
+<span class="normal">217</span>
+<span class="normal">218</span>
+<span class="normal">219</span>
+<span class="normal">220</span>
+<span class="normal">221</span>
+<span class="normal">222</span>
+<span class="normal">223</span>
+<span class="normal">224</span>
+<span class="normal">225</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">EnsemblFTP</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Robust FTP client for Ensembl/EBI with reconnect + tolerant shutdown.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -3157,12 +3201,19 @@
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">timeout</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">30</span><span class="p">,</span> <span class="n">max_retries</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span> <span class="n">retry_sleep</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">3.0</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize EnsemblFTP client and connect to Ensembl and EBI FTP servers.</span>
+<span class="sd">        Args:</span>
+<span class="sd">            timeout (int, optional): Timeout for FTP connections. Defaults to 30.</span>
+<span class="sd">            max_retries (int, optional): Maximum number of retries for failed operations. Defaults to 2.</span>
+<span class="sd">            retry_sleep (float, optional): Sleep duration between retries. Defaults to 3.0.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">timeout</span> <span class="o">=</span> <span class="n">timeout</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">max_retries</span> <span class="o">=</span> <span class="n">max_retries</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">retry_sleep</span> <span class="o">=</span> <span class="n">retry_sleep</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">ensembl_ftp</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">ebi_ftp</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ensembl_ftp</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">FTP</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ebi_ftp</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">FTP</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_connect_ensembl</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_connect_ebi</span><span class="p">()</span>
@@ -3172,6 +3223,7 @@
 
     <span class="c1"># ---- connections ----</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_connect_ensembl</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Connect to Ensembl FTP server.&quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">ensembl_ftp</span> <span class="o">=</span> <span class="n">FTP</span><span class="p">(</span><span class="s2">&quot;ftp.ensembl.org&quot;</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">timeout</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">ensembl_ftp</span><span class="o">.</span><span class="n">set_pasv</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
@@ -3181,6 +3233,7 @@
             <span class="k">raise</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_connect_ebi</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Connect to EBI FTP server.&quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">ebi_ftp</span> <span class="o">=</span> <span class="n">FTP</span><span class="p">(</span><span class="s2">&quot;ftp.ebi.ac.uk&quot;</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">timeout</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">ebi_ftp</span><span class="o">.</span><span class="n">set_pasv</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
@@ -3189,11 +3242,11 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">ebi_ftp</span> <span class="o">=</span> <span class="kc">None</span>
             <span class="k">raise</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_retry</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fn</span><span class="p">,</span> <span class="n">which</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_retry</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fn</span><span class="p">,</span> <span class="n">which</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Retry FTP operation; on failure, reconnect that endpoint and try again.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">last_exc</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">last_exc</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="ne">BaseException</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">max_retries</span><span class="p">):</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">fn</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
@@ -3213,10 +3266,21 @@
                 <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
                     <span class="k">pass</span>
                 <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">retry_sleep</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">last_exc</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
         <span class="k">raise</span> <span class="n">last_exc</span>
 
     <span class="c1"># ---- utils ----</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_require_ftp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ftp</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">FTP</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">FTP</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">ftp</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;FTP connection is not available&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ftp</span>
+
     <span class="k">def</span><span class="w"> </span><span class="nf">return_to_root</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ftp_connection</span><span class="p">:</span> <span class="n">FTP</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return to root</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            ftp_connection (FTP): Ftp path</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">which</span> <span class="o">=</span> <span class="s2">&quot;ensembl&quot;</span> <span class="k">if</span> <span class="n">ftp_connection</span> <span class="ow">is</span> <span class="bp">self</span><span class="o">.</span><span class="n">ensembl_ftp</span> <span class="k">else</span> <span class="s2">&quot;ebi&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_retry</span><span class="p">(</span><span class="n">ftp_connection</span><span class="o">.</span><span class="n">cwd</span><span class="p">,</span> <span class="n">which</span><span class="p">,</span> <span class="s2">&quot;/&quot;</span><span class="p">)</span>
 
@@ -3229,6 +3293,18 @@
         <span class="n">source</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">file_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Check for existence of specific file types on FTP servers.</span>
+<span class="sd">        Args:</span>
+<span class="sd">            species_name (str): _species_name_</span>
+<span class="sd">            prod_name (str): _prod_name_</span>
+<span class="sd">            accession (str): GCA accession</span>
+<span class="sd">            source (str): _source_</span>
+<span class="sd">            file_type (str): type of file to check for: &quot;repeatmodeler&quot; or &quot;busco&quot;</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: URL to the file if found, else empty string</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">file_type</span> <span class="o">==</span> <span class="s2">&quot;repeatmodeler&quot;</span><span class="p">:</span>
             <span class="n">ftp_connection</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ebi_ftp</span>
             <span class="n">which</span> <span class="o">=</span> <span class="s2">&quot;ebi&quot;</span>
@@ -3258,6 +3334,7 @@
             <span class="k">return</span> <span class="s2">&quot;&quot;</span>
 
         <span class="k">try</span><span class="p">:</span>
+            <span class="n">ftp_connection</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_require_ftp</span><span class="p">(</span><span class="n">ftp_connection</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">return_to_root</span><span class="p">(</span><span class="n">ftp_connection</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_retry</span><span class="p">(</span><span class="n">ftp_connection</span><span class="o">.</span><span class="n">cwd</span><span class="p">,</span> <span class="n">which</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
             <span class="n">files_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_retry</span><span class="p">(</span><span class="n">ftp_connection</span><span class="o">.</span><span class="n">nlst</span><span class="p">,</span> <span class="n">which</span><span class="p">)</span>
@@ -3285,11 +3362,22 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">check_pre_release_file</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">species_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">accession</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">extension</span><span class="p">:</span> <span class="nb">str</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Check for pre-release files on EBI FTP server.</span>
+<span class="sd">        Args:</span>
+<span class="sd">            species_name (str): _species_name_</span>
+<span class="sd">            accession (str): GCA accession</span>
+<span class="sd">            extension (str): File extension to look for (e.g., &quot;.gtf.gz&quot;)</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            str: URL to the pre-release file if found, else empty string</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">ftp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ebi_ftp</span>
         <span class="n">which</span> <span class="o">=</span> <span class="s2">&quot;ebi&quot;</span>
         <span class="n">base</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ebi_ftp_path</span>
         <span class="n">path</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;pub/databases/ensembl/pre-release/</span><span class="si">{</span><span class="n">species_name</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">accession</span><span class="si">}</span><span class="s2">/&quot;</span>
         <span class="k">try</span><span class="p">:</span>
+
+            <span class="n">ftp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_require_ftp</span><span class="p">(</span><span class="n">ftp</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">return_to_root</span><span class="p">(</span><span class="n">ftp</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_retry</span><span class="p">(</span><span class="n">ftp</span><span class="o">.</span><span class="n">cwd</span><span class="p">,</span> <span class="n">which</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">fname</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_retry</span><span class="p">(</span><span class="n">ftp</span><span class="o">.</span><span class="n">nlst</span><span class="p">,</span> <span class="n">which</span><span class="p">):</span>
@@ -3483,29 +3571,41 @@
 
     <div class="doc doc-contents ">
 
+        <p>Check for existence of specific file types on FTP servers.
+Args:
+    species_name (str): <em>species_name</em>
+    prod_name (str): <em>prod_name</em>
+    accession (str): GCA accession
+    source (str): <em>source</em>
+    file_type (str): type of file to check for: "repeatmodeler" or "busco"</p>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+<th>Name</th>          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+<td><code>str</code></td>            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>URL to the file if found, else empty string</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/python/ensembl/genes/projects/write_yaml.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 88</span>
-<span class="normal"> 89</span>
-<span class="normal"> 90</span>
-<span class="normal"> 91</span>
-<span class="normal"> 92</span>
-<span class="normal"> 93</span>
-<span class="normal"> 94</span>
-<span class="normal"> 95</span>
-<span class="normal"> 96</span>
-<span class="normal"> 97</span>
-<span class="normal"> 98</span>
-<span class="normal"> 99</span>
-<span class="normal">100</span>
-<span class="normal">101</span>
-<span class="normal">102</span>
-<span class="normal">103</span>
-<span class="normal">104</span>
-<span class="normal">105</span>
-<span class="normal">106</span>
-<span class="normal">107</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">107</span>
 <span class="normal">108</span>
 <span class="normal">109</span>
 <span class="normal">110</span>
@@ -3545,7 +3645,39 @@
 <span class="normal">144</span>
 <span class="normal">145</span>
 <span class="normal">146</span>
-<span class="normal">147</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">check_for_file</span><span class="p">(</span>
+<span class="normal">147</span>
+<span class="normal">148</span>
+<span class="normal">149</span>
+<span class="normal">150</span>
+<span class="normal">151</span>
+<span class="normal">152</span>
+<span class="normal">153</span>
+<span class="normal">154</span>
+<span class="normal">155</span>
+<span class="normal">156</span>
+<span class="normal">157</span>
+<span class="normal">158</span>
+<span class="normal">159</span>
+<span class="normal">160</span>
+<span class="normal">161</span>
+<span class="normal">162</span>
+<span class="normal">163</span>
+<span class="normal">164</span>
+<span class="normal">165</span>
+<span class="normal">166</span>
+<span class="normal">167</span>
+<span class="normal">168</span>
+<span class="normal">169</span>
+<span class="normal">170</span>
+<span class="normal">171</span>
+<span class="normal">172</span>
+<span class="normal">173</span>
+<span class="normal">174</span>
+<span class="normal">175</span>
+<span class="normal">176</span>
+<span class="normal">177</span>
+<span class="normal">178</span>
+<span class="normal">179</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">check_for_file</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">species_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">prod_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -3553,6 +3685,18 @@
     <span class="n">source</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">file_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Check for existence of specific file types on FTP servers.</span>
+<span class="sd">    Args:</span>
+<span class="sd">        species_name (str): _species_name_</span>
+<span class="sd">        prod_name (str): _prod_name_</span>
+<span class="sd">        accession (str): GCA accession</span>
+<span class="sd">        source (str): _source_</span>
+<span class="sd">        file_type (str): type of file to check for: &quot;repeatmodeler&quot; or &quot;busco&quot;</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        str: URL to the file if found, else empty string</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">file_type</span> <span class="o">==</span> <span class="s2">&quot;repeatmodeler&quot;</span><span class="p">:</span>
         <span class="n">ftp_connection</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ebi_ftp</span>
         <span class="n">which</span> <span class="o">=</span> <span class="s2">&quot;ebi&quot;</span>
@@ -3582,6 +3726,7 @@
         <span class="k">return</span> <span class="s2">&quot;&quot;</span>
 
     <span class="k">try</span><span class="p">:</span>
+        <span class="n">ftp_connection</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_require_ftp</span><span class="p">(</span><span class="n">ftp_connection</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">return_to_root</span><span class="p">(</span><span class="n">ftp_connection</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_retry</span><span class="p">(</span><span class="n">ftp_connection</span><span class="o">.</span><span class="n">cwd</span><span class="p">,</span> <span class="n">which</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
         <span class="n">files_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_retry</span><span class="p">(</span><span class="n">ftp_connection</span><span class="o">.</span><span class="n">nlst</span><span class="p">,</span> <span class="n">which</span><span class="p">)</span>
@@ -3622,34 +3767,64 @@
 
     <div class="doc doc-contents ">
 
+        <p>Check for pre-release files on EBI FTP server.
+Args:
+    species_name (str): <em>species_name</em>
+    accession (str): GCA accession
+    extension (str): File extension to look for (e.g., ".gtf.gz")
+Returns:
+    str: URL to the pre-release file if found, else empty string</p>
+
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/python/ensembl/genes/projects/write_yaml.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">149</span>
-<span class="normal">150</span>
-<span class="normal">151</span>
-<span class="normal">152</span>
-<span class="normal">153</span>
-<span class="normal">154</span>
-<span class="normal">155</span>
-<span class="normal">156</span>
-<span class="normal">157</span>
-<span class="normal">158</span>
-<span class="normal">159</span>
-<span class="normal">160</span>
-<span class="normal">161</span>
-<span class="normal">162</span>
-<span class="normal">163</span>
-<span class="normal">164</span>
-<span class="normal">165</span>
-<span class="normal">166</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">check_pre_release_file</span><span class="p">(</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">181</span>
+<span class="normal">182</span>
+<span class="normal">183</span>
+<span class="normal">184</span>
+<span class="normal">185</span>
+<span class="normal">186</span>
+<span class="normal">187</span>
+<span class="normal">188</span>
+<span class="normal">189</span>
+<span class="normal">190</span>
+<span class="normal">191</span>
+<span class="normal">192</span>
+<span class="normal">193</span>
+<span class="normal">194</span>
+<span class="normal">195</span>
+<span class="normal">196</span>
+<span class="normal">197</span>
+<span class="normal">198</span>
+<span class="normal">199</span>
+<span class="normal">200</span>
+<span class="normal">201</span>
+<span class="normal">202</span>
+<span class="normal">203</span>
+<span class="normal">204</span>
+<span class="normal">205</span>
+<span class="normal">206</span>
+<span class="normal">207</span>
+<span class="normal">208</span>
+<span class="normal">209</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">check_pre_release_file</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span> <span class="n">species_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">accession</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">extension</span><span class="p">:</span> <span class="nb">str</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Check for pre-release files on EBI FTP server.</span>
+<span class="sd">    Args:</span>
+<span class="sd">        species_name (str): _species_name_</span>
+<span class="sd">        accession (str): GCA accession</span>
+<span class="sd">        extension (str): File extension to look for (e.g., &quot;.gtf.gz&quot;)</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        str: URL to the pre-release file if found, else empty string</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">ftp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ebi_ftp</span>
     <span class="n">which</span> <span class="o">=</span> <span class="s2">&quot;ebi&quot;</span>
     <span class="n">base</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ebi_ftp_path</span>
     <span class="n">path</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;pub/databases/ensembl/pre-release/</span><span class="si">{</span><span class="n">species_name</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">accession</span><span class="si">}</span><span class="s2">/&quot;</span>
     <span class="k">try</span><span class="p">:</span>
+
+        <span class="n">ftp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_require_ftp</span><span class="p">(</span><span class="n">ftp</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">return_to_root</span><span class="p">(</span><span class="n">ftp</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_retry</span><span class="p">(</span><span class="n">ftp</span><span class="o">.</span><span class="n">cwd</span><span class="p">,</span> <span class="n">which</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">fname</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_retry</span><span class="p">(</span><span class="n">ftp</span><span class="o">.</span><span class="n">nlst</span><span class="p">,</span> <span class="n">which</span><span class="p">):</span>
@@ -3683,21 +3858,21 @@ fall back to close() and never raise.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/python/ensembl/genes/projects/write_yaml.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">168</span>
-<span class="normal">169</span>
-<span class="normal">170</span>
-<span class="normal">171</span>
-<span class="normal">172</span>
-<span class="normal">173</span>
-<span class="normal">174</span>
-<span class="normal">175</span>
-<span class="normal">176</span>
-<span class="normal">177</span>
-<span class="normal">178</span>
-<span class="normal">179</span>
-<span class="normal">180</span>
-<span class="normal">181</span>
-<span class="normal">182</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">close_connections</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">211</span>
+<span class="normal">212</span>
+<span class="normal">213</span>
+<span class="normal">214</span>
+<span class="normal">215</span>
+<span class="normal">216</span>
+<span class="normal">217</span>
+<span class="normal">218</span>
+<span class="normal">219</span>
+<span class="normal">220</span>
+<span class="normal">221</span>
+<span class="normal">222</span>
+<span class="normal">223</span>
+<span class="normal">224</span>
+<span class="normal">225</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">close_connections</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Best-effort shutdown: if QUIT fails because the server dropped us,</span>
 <span class="sd">    fall back to close() and never raise.</span>
@@ -3729,12 +3904,55 @@ fall back to close() and never raise.</p>
 
     <div class="doc doc-contents ">
 
+        <p>Return to root</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>ftp_connection</code>
+            </td>
+            <td>
+                  <code><span title="ftplib.FTP">FTP</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Ftp path</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/python/ensembl/genes/projects/write_yaml.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">83</span>
-<span class="normal">84</span>
-<span class="normal">85</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">return_to_root</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ftp_connection</span><span class="p">:</span> <span class="n">FTP</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 97</span>
+<span class="normal"> 98</span>
+<span class="normal"> 99</span>
+<span class="normal">100</span>
+<span class="normal">101</span>
+<span class="normal">102</span>
+<span class="normal">103</span>
+<span class="normal">104</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">return_to_root</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ftp_connection</span><span class="p">:</span> <span class="n">FTP</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return to root</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        ftp_connection (FTP): Ftp path</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">which</span> <span class="o">=</span> <span class="s2">&quot;ensembl&quot;</span> <span class="k">if</span> <span class="n">ftp_connection</span> <span class="ow">is</span> <span class="bp">self</span><span class="o">.</span><span class="n">ensembl_ftp</span> <span class="k">else</span> <span class="s2">&quot;ebi&quot;</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_retry</span><span class="p">(</span><span class="n">ftp_connection</span><span class="o">.</span><span class="n">cwd</span><span class="p">,</span> <span class="n">which</span><span class="p">,</span> <span class="s2">&quot;/&quot;</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
@@ -3853,41 +4071,41 @@ fall back to close() and never raise.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/python/ensembl/genes/projects/write_yaml.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">529</span>
-<span class="normal">530</span>
-<span class="normal">531</span>
-<span class="normal">532</span>
-<span class="normal">533</span>
-<span class="normal">534</span>
-<span class="normal">535</span>
-<span class="normal">536</span>
-<span class="normal">537</span>
-<span class="normal">538</span>
-<span class="normal">539</span>
-<span class="normal">540</span>
-<span class="normal">541</span>
-<span class="normal">542</span>
-<span class="normal">543</span>
-<span class="normal">544</span>
-<span class="normal">545</span>
-<span class="normal">546</span>
-<span class="normal">547</span>
-<span class="normal">548</span>
-<span class="normal">549</span>
-<span class="normal">550</span>
-<span class="normal">551</span>
-<span class="normal">552</span>
-<span class="normal">553</span>
-<span class="normal">554</span>
-<span class="normal">555</span>
-<span class="normal">556</span>
-<span class="normal">557</span>
-<span class="normal">558</span>
-<span class="normal">559</span>
-<span class="normal">560</span>
-<span class="normal">561</span>
-<span class="normal">562</span>
-<span class="normal">563</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">check_database_on_server</span><span class="p">(</span><span class="n">db</span><span class="p">,</span> <span class="n">server_key</span><span class="p">,</span> <span class="n">server_dict</span><span class="p">):</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">572</span>
+<span class="normal">573</span>
+<span class="normal">574</span>
+<span class="normal">575</span>
+<span class="normal">576</span>
+<span class="normal">577</span>
+<span class="normal">578</span>
+<span class="normal">579</span>
+<span class="normal">580</span>
+<span class="normal">581</span>
+<span class="normal">582</span>
+<span class="normal">583</span>
+<span class="normal">584</span>
+<span class="normal">585</span>
+<span class="normal">586</span>
+<span class="normal">587</span>
+<span class="normal">588</span>
+<span class="normal">589</span>
+<span class="normal">590</span>
+<span class="normal">591</span>
+<span class="normal">592</span>
+<span class="normal">593</span>
+<span class="normal">594</span>
+<span class="normal">595</span>
+<span class="normal">596</span>
+<span class="normal">597</span>
+<span class="normal">598</span>
+<span class="normal">599</span>
+<span class="normal">600</span>
+<span class="normal">601</span>
+<span class="normal">602</span>
+<span class="normal">603</span>
+<span class="normal">604</span>
+<span class="normal">605</span>
+<span class="normal">606</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">check_database_on_server</span><span class="p">(</span><span class="n">db</span><span class="p">,</span> <span class="n">server_key</span><span class="p">,</span> <span class="n">server_dict</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Checks if a database exists on a given server.</span>
 
@@ -3997,24 +4215,24 @@ fall back to close() and never raise.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/python/ensembl/genes/projects/write_yaml.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">222</span>
-<span class="normal">223</span>
-<span class="normal">224</span>
-<span class="normal">225</span>
-<span class="normal">226</span>
-<span class="normal">227</span>
-<span class="normal">228</span>
-<span class="normal">229</span>
-<span class="normal">230</span>
-<span class="normal">231</span>
-<span class="normal">232</span>
-<span class="normal">233</span>
-<span class="normal">234</span>
-<span class="normal">235</span>
-<span class="normal">236</span>
-<span class="normal">237</span>
-<span class="normal">238</span>
-<span class="normal">239</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">check_url_status</span><span class="p">(</span><span class="n">url</span><span class="p">):</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">265</span>
+<span class="normal">266</span>
+<span class="normal">267</span>
+<span class="normal">268</span>
+<span class="normal">269</span>
+<span class="normal">270</span>
+<span class="normal">271</span>
+<span class="normal">272</span>
+<span class="normal">273</span>
+<span class="normal">274</span>
+<span class="normal">275</span>
+<span class="normal">276</span>
+<span class="normal">277</span>
+<span class="normal">278</span>
+<span class="normal">279</span>
+<span class="normal">280</span>
+<span class="normal">281</span>
+<span class="normal">282</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">check_url_status</span><span class="p">(</span><span class="n">url</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Checks if a given URL is reachable.</span>
 
@@ -4146,27 +4364,27 @@ fall back to close() and never raise.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/python/ensembl/genes/projects/write_yaml.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">566</span>
-<span class="normal">567</span>
-<span class="normal">568</span>
-<span class="normal">569</span>
-<span class="normal">570</span>
-<span class="normal">571</span>
-<span class="normal">572</span>
-<span class="normal">573</span>
-<span class="normal">574</span>
-<span class="normal">575</span>
-<span class="normal">576</span>
-<span class="normal">577</span>
-<span class="normal">578</span>
-<span class="normal">579</span>
-<span class="normal">580</span>
-<span class="normal">581</span>
-<span class="normal">582</span>
-<span class="normal">583</span>
-<span class="normal">584</span>
-<span class="normal">585</span>
-<span class="normal">586</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">find_database_server</span><span class="p">(</span><span class="n">db</span><span class="p">,</span> <span class="n">server_dict</span><span class="p">):</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">609</span>
+<span class="normal">610</span>
+<span class="normal">611</span>
+<span class="normal">612</span>
+<span class="normal">613</span>
+<span class="normal">614</span>
+<span class="normal">615</span>
+<span class="normal">616</span>
+<span class="normal">617</span>
+<span class="normal">618</span>
+<span class="normal">619</span>
+<span class="normal">620</span>
+<span class="normal">621</span>
+<span class="normal">622</span>
+<span class="normal">623</span>
+<span class="normal">624</span>
+<span class="normal">625</span>
+<span class="normal">626</span>
+<span class="normal">627</span>
+<span class="normal">628</span>
+<span class="normal">629</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">find_database_server</span><span class="p">(</span><span class="n">db</span><span class="p">,</span> <span class="n">server_dict</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Determines which server the given database exists on.</span>
 
@@ -4210,50 +4428,7 @@ queries MySQL databases, and writes YAML content.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/python/ensembl/genes/projects/write_yaml.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">589</span>
-<span class="normal">590</span>
-<span class="normal">591</span>
-<span class="normal">592</span>
-<span class="normal">593</span>
-<span class="normal">594</span>
-<span class="normal">595</span>
-<span class="normal">596</span>
-<span class="normal">597</span>
-<span class="normal">598</span>
-<span class="normal">599</span>
-<span class="normal">600</span>
-<span class="normal">601</span>
-<span class="normal">602</span>
-<span class="normal">603</span>
-<span class="normal">604</span>
-<span class="normal">605</span>
-<span class="normal">606</span>
-<span class="normal">607</span>
-<span class="normal">608</span>
-<span class="normal">609</span>
-<span class="normal">610</span>
-<span class="normal">611</span>
-<span class="normal">612</span>
-<span class="normal">613</span>
-<span class="normal">614</span>
-<span class="normal">615</span>
-<span class="normal">616</span>
-<span class="normal">617</span>
-<span class="normal">618</span>
-<span class="normal">619</span>
-<span class="normal">620</span>
-<span class="normal">621</span>
-<span class="normal">622</span>
-<span class="normal">623</span>
-<span class="normal">624</span>
-<span class="normal">625</span>
-<span class="normal">626</span>
-<span class="normal">627</span>
-<span class="normal">628</span>
-<span class="normal">629</span>
-<span class="normal">630</span>
-<span class="normal">631</span>
-<span class="normal">632</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">632</span>
 <span class="normal">633</span>
 <span class="normal">634</span>
 <span class="normal">635</span>
@@ -4381,7 +4556,50 @@ queries MySQL databases, and writes YAML content.</p>
 <span class="normal">757</span>
 <span class="normal">758</span>
 <span class="normal">759</span>
-<span class="normal">760</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">760</span>
+<span class="normal">761</span>
+<span class="normal">762</span>
+<span class="normal">763</span>
+<span class="normal">764</span>
+<span class="normal">765</span>
+<span class="normal">766</span>
+<span class="normal">767</span>
+<span class="normal">768</span>
+<span class="normal">769</span>
+<span class="normal">770</span>
+<span class="normal">771</span>
+<span class="normal">772</span>
+<span class="normal">773</span>
+<span class="normal">774</span>
+<span class="normal">775</span>
+<span class="normal">776</span>
+<span class="normal">777</span>
+<span class="normal">778</span>
+<span class="normal">779</span>
+<span class="normal">780</span>
+<span class="normal">781</span>
+<span class="normal">782</span>
+<span class="normal">783</span>
+<span class="normal">784</span>
+<span class="normal">785</span>
+<span class="normal">786</span>
+<span class="normal">787</span>
+<span class="normal">788</span>
+<span class="normal">789</span>
+<span class="normal">790</span>
+<span class="normal">791</span>
+<span class="normal">792</span>
+<span class="normal">793</span>
+<span class="normal">794</span>
+<span class="normal">795</span>
+<span class="normal">796</span>
+<span class="normal">797</span>
+<span class="normal">798</span>
+<span class="normal">799</span>
+<span class="normal">800</span>
+<span class="normal">801</span>
+<span class="normal">802</span>
+<span class="normal">803</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Main function that parses arguments, reads server config from JSON,</span>
 <span class="sd">    queries MySQL databases, and writes YAML content.</span>
@@ -4591,41 +4809,41 @@ password : str
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/python/ensembl/genes/projects/write_yaml.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">185</span>
-<span class="normal">186</span>
-<span class="normal">187</span>
-<span class="normal">188</span>
-<span class="normal">189</span>
-<span class="normal">190</span>
-<span class="normal">191</span>
-<span class="normal">192</span>
-<span class="normal">193</span>
-<span class="normal">194</span>
-<span class="normal">195</span>
-<span class="normal">196</span>
-<span class="normal">197</span>
-<span class="normal">198</span>
-<span class="normal">199</span>
-<span class="normal">200</span>
-<span class="normal">201</span>
-<span class="normal">202</span>
-<span class="normal">203</span>
-<span class="normal">204</span>
-<span class="normal">205</span>
-<span class="normal">206</span>
-<span class="normal">207</span>
-<span class="normal">208</span>
-<span class="normal">209</span>
-<span class="normal">210</span>
-<span class="normal">211</span>
-<span class="normal">212</span>
-<span class="normal">213</span>
-<span class="normal">214</span>
-<span class="normal">215</span>
-<span class="normal">216</span>
-<span class="normal">217</span>
-<span class="normal">218</span>
-<span class="normal">219</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">mysql_fetch_data</span><span class="p">(</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">228</span>
+<span class="normal">229</span>
+<span class="normal">230</span>
+<span class="normal">231</span>
+<span class="normal">232</span>
+<span class="normal">233</span>
+<span class="normal">234</span>
+<span class="normal">235</span>
+<span class="normal">236</span>
+<span class="normal">237</span>
+<span class="normal">238</span>
+<span class="normal">239</span>
+<span class="normal">240</span>
+<span class="normal">241</span>
+<span class="normal">242</span>
+<span class="normal">243</span>
+<span class="normal">244</span>
+<span class="normal">245</span>
+<span class="normal">246</span>
+<span class="normal">247</span>
+<span class="normal">248</span>
+<span class="normal">249</span>
+<span class="normal">250</span>
+<span class="normal">251</span>
+<span class="normal">252</span>
+<span class="normal">253</span>
+<span class="normal">254</span>
+<span class="normal">255</span>
+<span class="normal">256</span>
+<span class="normal">257</span>
+<span class="normal">258</span>
+<span class="normal">259</span>
+<span class="normal">260</span>
+<span class="normal">261</span>
+<span class="normal">262</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">mysql_fetch_data</span><span class="p">(</span>
     <span class="n">query</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">database</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">host</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">port</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">user</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">password</span><span class="p">:</span> <span class="nb">str</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -4697,50 +4915,7 @@ ftp_client : EnsemblFTP
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/python/ensembl/genes/projects/write_yaml.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">242</span>
-<span class="normal">243</span>
-<span class="normal">244</span>
-<span class="normal">245</span>
-<span class="normal">246</span>
-<span class="normal">247</span>
-<span class="normal">248</span>
-<span class="normal">249</span>
-<span class="normal">250</span>
-<span class="normal">251</span>
-<span class="normal">252</span>
-<span class="normal">253</span>
-<span class="normal">254</span>
-<span class="normal">255</span>
-<span class="normal">256</span>
-<span class="normal">257</span>
-<span class="normal">258</span>
-<span class="normal">259</span>
-<span class="normal">260</span>
-<span class="normal">261</span>
-<span class="normal">262</span>
-<span class="normal">263</span>
-<span class="normal">264</span>
-<span class="normal">265</span>
-<span class="normal">266</span>
-<span class="normal">267</span>
-<span class="normal">268</span>
-<span class="normal">269</span>
-<span class="normal">270</span>
-<span class="normal">271</span>
-<span class="normal">272</span>
-<span class="normal">273</span>
-<span class="normal">274</span>
-<span class="normal">275</span>
-<span class="normal">276</span>
-<span class="normal">277</span>
-<span class="normal">278</span>
-<span class="normal">279</span>
-<span class="normal">280</span>
-<span class="normal">281</span>
-<span class="normal">282</span>
-<span class="normal">283</span>
-<span class="normal">284</span>
-<span class="normal">285</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">285</span>
 <span class="normal">286</span>
 <span class="normal">287</span>
 <span class="normal">288</span>
@@ -4981,7 +5156,50 @@ ftp_client : EnsemblFTP
 <span class="normal">523</span>
 <span class="normal">524</span>
 <span class="normal">525</span>
-<span class="normal">526</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">write_yaml</span><span class="p">(</span>
+<span class="normal">526</span>
+<span class="normal">527</span>
+<span class="normal">528</span>
+<span class="normal">529</span>
+<span class="normal">530</span>
+<span class="normal">531</span>
+<span class="normal">532</span>
+<span class="normal">533</span>
+<span class="normal">534</span>
+<span class="normal">535</span>
+<span class="normal">536</span>
+<span class="normal">537</span>
+<span class="normal">538</span>
+<span class="normal">539</span>
+<span class="normal">540</span>
+<span class="normal">541</span>
+<span class="normal">542</span>
+<span class="normal">543</span>
+<span class="normal">544</span>
+<span class="normal">545</span>
+<span class="normal">546</span>
+<span class="normal">547</span>
+<span class="normal">548</span>
+<span class="normal">549</span>
+<span class="normal">550</span>
+<span class="normal">551</span>
+<span class="normal">552</span>
+<span class="normal">553</span>
+<span class="normal">554</span>
+<span class="normal">555</span>
+<span class="normal">556</span>
+<span class="normal">557</span>
+<span class="normal">558</span>
+<span class="normal">559</span>
+<span class="normal">560</span>
+<span class="normal">561</span>
+<span class="normal">562</span>
+<span class="normal">563</span>
+<span class="normal">564</span>
+<span class="normal">565</span>
+<span class="normal">566</span>
+<span class="normal">567</span>
+<span class="normal">568</span>
+<span class="normal">569</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">write_yaml</span><span class="p">(</span>
     <span class="n">info_dict</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span>
     <span class="n">icon</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">yaml_out</span><span class="p">,</span>
@@ -5150,7 +5368,7 @@ ftp_client : EnsemblFTP
             <span class="k">if</span> <span class="n">check_url_status</span><span class="p">(</span><span class="n">beta_link</span><span class="p">):</span>
                 <span class="n">yaml</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;  beta_link: https://beta.ensembl.org/species/</span><span class="si">{</span><span class="n">guuid</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">yaml</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;  beta_link: Coming soon!</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="n">yaml</span> <span class="o">+=</span> <span class="s2">&quot;  beta_link: Coming soon!</span><span class="se">\n</span><span class="s2">&quot;</span>
 
         <span class="k">if</span> <span class="n">project</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;dtol&quot;</span><span class="p">,</span> <span class="s2">&quot;erga&quot;</span><span class="p">,</span> <span class="s2">&quot;cbp&quot;</span><span class="p">,</span> <span class="s2">&quot;bge&quot;</span><span class="p">,</span> <span class="s2">&quot;asg&quot;</span><span class="p">):</span>
             <span class="k">try</span><span class="p">:</span>
