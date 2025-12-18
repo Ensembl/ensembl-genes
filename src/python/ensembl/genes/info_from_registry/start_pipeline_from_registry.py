@@ -428,10 +428,8 @@ def add_generated_data(  # pylint:disable=too-many-locals
         server_info, assembly_accession, settings
     )
     if registry_info is None:
-        raise RuntimeError(
-            f"No registry metadata found for {assembly_accession}"
-        )
-    logger.info("Data collected from registry %s",assembly_accession)
+        raise RuntimeError(f"No registry metadata found for {assembly_accession}")
+    logger.info("Data collected from registry %s", assembly_accession)
     clade, genus_id, clade_metadata = assign_clade(server_info, registry_info)
     registry_info["clade"] = clade
     registry_info["genus_taxon_id"] = genus_id
@@ -849,7 +847,7 @@ def main(  # pylint:disable=too-many-branches, too-many-statements, too-many-loc
     with open(gcas, "r") as f:
         lines = [line.strip() for line in f if line.strip()]
 
-    gca_dict : dict[str, dict[str, Any]] = {gca: {} for gca in lines}
+    gca_dict: dict[str, dict[str, Any]] = {gca: {} for gca in lines}
     logger.info(f"Found {len(gca_dict)} GCAs")
 
     # Check if init_file exists
@@ -1051,7 +1049,9 @@ def main(  # pylint:disable=too-many-branches, too-many-statements, too-many-loc
     # -------------------------
     # Save JSONs
     # -------------------------
-    saved_paths : Dict[str, Union[Path, Dict[str, Path]]]= {}  # pylint:disable=redefined-outer-name
+    saved_paths: Dict[str, Union[Path, Dict[str, Path]]] = (
+        {}
+    )  # pylint:disable=redefined-outer-name
 
     # Save anno GCAs as a single file
     anno_params = {
