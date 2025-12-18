@@ -23,6 +23,14 @@ def mysql_fetch_data(
     """Run a simple SELECT query and return fetched rows.
 
     Returns an empty list on error.
+    Args:
+        query (str): SQL SELECT query to execute.
+        database (str): Name of the database.
+        host (str): Host address of the MySQL server.
+        port (int): Port number of the MySQL server.
+        user (str): Username to connect to the database.
+    Returns:
+        List of tuples representing query results.
     """
     conn = None
     cursor = None
@@ -51,6 +59,15 @@ def mysql_fetch_data(
 
 
 def get_ena_metadata(accession: str, truth_dict: Dict[str, Any]) -> Dict[str, str]:
+    """Fetch assembly metadata from ENA XML API.
+
+    Args:
+        accession (str): Assembly accession (e.g., GCA_000001405.28)
+        truth_dict (Dict[str, Any]): Dictionary containing truth values for metadata.
+
+    Returns:
+        Dict[str, str]: Dictionary containing metadata from ENA.
+    """
     assembly_url = f"https://www.ebi.ac.uk/ena/browser/api/xml/{accession}"
     assembly_xml = requests.get(assembly_url)
     assembly_dict = xmltodict.parse(assembly_xml.text)
@@ -128,6 +145,15 @@ def get_ena_metadata(accession: str, truth_dict: Dict[str, Any]) -> Dict[str, st
 def get_ncbi_metadata(
     accession: str, assembly_name: str, scientific_name: str, search: str
 ) -> Dict[str, str]:
+    """Fetch assembly metadata from NCBI assembly report.
+    Args:
+        accession (str): Assembly accession (e.g., GCA_000001405.28)
+        assembly_name (str): Assembly name (e.g., GRCh38)
+        scientific_name (str): Scientific name of the organism
+        search (str): Type of metadata to search for ("ucsc" or "biosample")
+    Returns:
+        Dict[str, str]: Dictionary containing metadata from NCBI.
+    """
     organism = f"{accession}_{assembly_name}"
     ncbi_url = f"https://ftp.ncbi.nlm.nih.gov/genomes/all/{accession[0:3]}/{accession[4:7]}/{accession[7:10]}/{accession[10:13]}/{organism}/{organism}_assembly_report.txt"
     ncbi_return = requests.get(ncbi_url).text.splitlines()
@@ -159,6 +185,16 @@ def get_ncbi_metadata(
 def get_biosample_metadata(
     biosample_id: str, assembly_accession: str, assembly_name: str, scientific_name: str
 ) -> Dict[str, str]:
+    """Fetch assembly metadata from EBI BioSample API.
+    Args:
+        biosample_id (str): BioSample accession (e.g., SAMN00000001)
+        assembly_accession (str): Assembly accession (e.g., GCA_000001405.28)
+        assembly_name (str): Assembly name (e.g., GRCh38)
+        scientific_name (str): Scientific name of the organism
+    Returns:
+        Dict[str, str]: Dictionary containing metadata from BioSample.
+    """
+        
     biosample_url = f"https://www.ebi.ac.uk/biosamples/samples/{biosample_id}"
     biosample_return = requests.get(biosample_url).text
     return_dict: Dict[str, str] = {"organism.strain": "", "organism.strain_type": ""}
