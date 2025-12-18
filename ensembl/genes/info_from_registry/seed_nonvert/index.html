@@ -23,7 +23,7 @@
       
       
       <link rel="icon" href="../../../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.0">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
     
     
       
@@ -31,7 +31,7 @@
       
     
     
-      <link rel="stylesheet" href="../../../../assets/stylesheets/main.618322db.min.css">
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.484c7ddc.min.css">
       
         
         <link rel="stylesheet" href="../../../../assets/stylesheets/palette.ab4e12ef.min.css">
@@ -2389,8 +2389,10 @@
     <div class="doc doc-contents first">
 
         <p>seed_nonvert.py</p>
-<p>This script allows you to seed jobs into an eHive pipeline using a JSON file or a dictionary of job parameters.
-It converts Python dictionaries to Perl hash syntax and invokes the <code>seed_pipeline.pl</code> script via subprocess.</p>
+<p>This script allows you to seed jobs into an eHive pipeline using
+a JSON file or a dictionary of job parameters.
+It converts Python dictionaries to Perl hash syntax and invokes
+the <code>seed_pipeline.pl</code> script via subprocess.</p>
 
 
 <details class="typical-usage-example" open>
@@ -2411,7 +2413,7 @@ It converts Python dictionaries to Perl hash syntax and invokes the <code>seed_p
               <td><code><span title="ensembl.genes.info_from_registry.seed_nonvert.- dict_to_perl_hash">- dict_to_perl_hash</span></code></td>
               <td>
                 <div class="doc-md-description">
-                  <p>Recursively converts a Python dictionary into a Perl-style hash string.</p>
+                  <p>Recursively converts a Python dictionary into</p>
                 </div>
               </td>
             </tr>
@@ -2544,10 +2546,7 @@ Automatically converts database connection parameters to Ensembl format.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/python/ensembl/genes/info_from_registry/seed_nonvert.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">31</span>
-<span class="normal">32</span>
-<span class="normal">33</span>
-<span class="normal">34</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">34</span>
 <span class="normal">35</span>
 <span class="normal">36</span>
 <span class="normal">37</span>
@@ -2606,7 +2605,11 @@ Automatically converts database connection parameters to Ensembl format.</p>
 <span class="normal">90</span>
 <span class="normal">91</span>
 <span class="normal">92</span>
-<span class="normal">93</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">dict_to_perl_hash</span><span class="p">(</span><span class="n">d</span><span class="p">):</span>
+<span class="normal">93</span>
+<span class="normal">94</span>
+<span class="normal">95</span>
+<span class="normal">96</span>
+<span class="normal">97</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">dict_to_perl_hash</span><span class="p">(</span><span class="n">d</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Recursively convert a Python dictionary to a Perl hash string.</span>
 <span class="sd">    Automatically converts database connection parameters to Ensembl format.</span>
@@ -2643,7 +2646,8 @@ Automatically converts database connection parameters to Ensembl format.</p>
 
             <span class="c1"># Add driver if not present</span>
             <span class="k">if</span> <span class="s2">&quot;-driver&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">converted</span> <span class="ow">and</span> <span class="nb">any</span><span class="p">(</span>
-                <span class="n">k</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">converted</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+                <span class="n">k</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">converted</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>  <span class="c1"># pylint:disable=consider-iterating-dictionary</span>
             <span class="p">):</span>
                 <span class="n">converted</span><span class="p">[</span><span class="s2">&quot;-driver&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;mysql&quot;</span>
 
@@ -2668,7 +2672,7 @@ Automatically converts database connection parameters to Ensembl format.</p>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">val_str</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
         <span class="n">items</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">key_str</span><span class="si">}</span><span class="s2"> =&gt; </span><span class="si">{</span><span class="n">val_str</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="k">return</span> <span class="s2">&quot;{{</span><span class="si">{}</span><span class="s2">}}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">items</span><span class="p">))</span>
+    <span class="k">return</span> <span class="s2">&quot;{{</span><span class="si">{}</span><span class="s2">}}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">items</span><span class="p">))</span>  <span class="c1"># pylint:disable=consider-using-f-string</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -2686,16 +2690,12 @@ Automatically converts database connection parameters to Ensembl format.</p>
 
     <div class="doc doc-contents ">
 
+        <p>Main</p>
+
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/python/ensembl/genes/info_from_registry/seed_nonvert.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">134</span>
-<span class="normal">135</span>
-<span class="normal">136</span>
-<span class="normal">137</span>
-<span class="normal">138</span>
-<span class="normal">139</span>
-<span class="normal">140</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">140</span>
 <span class="normal">141</span>
 <span class="normal">142</span>
 <span class="normal">143</span>
@@ -2711,7 +2711,15 @@ Automatically converts database connection parameters to Ensembl format.</p>
 <span class="normal">153</span>
 <span class="normal">154</span>
 <span class="normal">155</span>
-<span class="normal">156</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
+<span class="normal">156</span>
+<span class="normal">157</span>
+<span class="normal">158</span>
+<span class="normal">159</span>
+<span class="normal">160</span>
+<span class="normal">161</span>
+<span class="normal">162</span>
+<span class="normal">163</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Main&quot;&quot;&quot;</span>
     <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span>
         <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Seed eHive pipeline jobs from a JSON file&quot;</span>
     <span class="p">)</span>
@@ -2726,7 +2734,7 @@ Automatically converts database connection parameters to Ensembl format.</p>
         <span class="s2">&quot;--analysis_id&quot;</span><span class="p">,</span>
         <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
         <span class="n">default</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Analysis ID to seed (default: 1)&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Analysis ID to seed (default: 1)&quot;</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-u&quot;</span><span class="p">,</span> <span class="s2">&quot;--url&quot;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;EHIVE URL&quot;</span><span class="p">)</span>
     <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
@@ -2751,7 +2759,8 @@ Automatically converts database connection parameters to Ensembl format.</p>
 
     <div class="doc doc-contents ">
 
-        <p>Seed jobs in an eHive pipeline using job parameters from a JSON file or dictionary.</p>
+        <p>Seed jobs in an eHive pipeline using job parameters from a JSON
+file or dictionary.</p>
 
 
 <p><span class="doc-section-title">Parameters:</span></p>
@@ -2774,7 +2783,7 @@ Automatically converts database connection parameters to Ensembl format.</p>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>Path to a JSON file or a Python dictionary with job parameters.</p>
+                <p>Path to a JSON file or a Python        dictionary with job parameters.</p>
               </div>
             </td>
             <td>
@@ -2842,11 +2851,7 @@ Automatically converts database connection parameters to Ensembl format.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/python/ensembl/genes/info_from_registry/seed_nonvert.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 96</span>
-<span class="normal"> 97</span>
-<span class="normal"> 98</span>
-<span class="normal"> 99</span>
-<span class="normal">100</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">100</span>
 <span class="normal">101</span>
 <span class="normal">102</span>
 <span class="normal">103</span>
@@ -2877,16 +2882,24 @@ Automatically converts database connection parameters to Ensembl format.</p>
 <span class="normal">128</span>
 <span class="normal">129</span>
 <span class="normal">130</span>
-<span class="normal">131</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">seed_jobs_from_json</span><span class="p">(</span>
+<span class="normal">131</span>
+<span class="normal">132</span>
+<span class="normal">133</span>
+<span class="normal">134</span>
+<span class="normal">135</span>
+<span class="normal">136</span>
+<span class="normal">137</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">seed_jobs_from_json</span><span class="p">(</span>
     <span class="n">json_file</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">],</span>
     <span class="n">analysis_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">ehive_url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Seed jobs in an eHive pipeline using job parameters from a JSON file or dictionary.</span>
+<span class="sd">    Seed jobs in an eHive pipeline using job parameters from a JSON</span>
+<span class="sd">    file or dictionary.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        json_file (Union[str, dict]): Path to a JSON file or a Python dictionary with job parameters.</span>
+<span class="sd">        json_file (Union[str, dict]): Path to a JSON file or a Python\</span>
+<span class="sd">        dictionary with job parameters.</span>
 <span class="sd">        analysis_id (int): eHive analysis ID to assign jobs to.</span>
 <span class="sd">        ehive_url (str): URL of the eHive database (e.g., mysql://user:pass@host/db).</span>
 
@@ -2895,12 +2908,12 @@ Automatically converts database connection parameters to Ensembl format.</p>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">json_file</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">json_file</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">json_file</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>  <span class="c1"># pylint:disable=unspecified-encoding</span>
             <span class="n">params</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">params</span> <span class="o">=</span> <span class="n">json_file</span>  <span class="c1"># assume dict already</span>
 
-    <span class="k">for</span> <span class="n">input_id</span><span class="p">,</span> <span class="n">param_dict</span> <span class="ow">in</span> <span class="n">params</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="k">for</span> <span class="n">input_id</span><span class="p">,</span> <span class="n">param_dict</span> <span class="ow">in</span> <span class="n">params</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>  <span class="c1"># pylint:disable=unused-variable</span>
         <span class="n">perl_hash</span> <span class="o">=</span> <span class="n">dict_to_perl_hash</span><span class="p">(</span><span class="n">param_dict</span><span class="p">)</span>
         <span class="n">cmd</span> <span class="o">=</span> <span class="p">[</span>
             <span class="s2">&quot;seed_pipeline.pl&quot;</span><span class="p">,</span>
@@ -2985,10 +2998,10 @@ Automatically converts database connection parameters to Ensembl format.</p>
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["content.tooltips", "navigation.expand", "navigation.tabs", "navigation.tabs.sticky", "navigation.top", "search.highlight", "search.suggest", "toc.follow"], "search": "../../../../assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["content.tooltips", "navigation.expand", "navigation.tabs", "navigation.tabs.sticky", "navigation.top", "search.highlight", "search.suggest", "toc.follow"], "search": "../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../../../assets/javascripts/bundle.e71a0d61.min.js"></script>
+      <script src="../../../../assets/javascripts/bundle.79ae519e.min.js"></script>
       
     
   </body>
