@@ -4092,9 +4092,9 @@ Args:
     status (str): Status to set
     current_date (str): Current date
     dev (bool): If True, only print SQL without executing
-    annotation_method (str or None): New annotation method (if any)
-    annotation_source (str or None): New annotation source (if any)
-    genebuild_version (str or None): New genebuild version (if any)</p>
+    annotation_method (str, optional): New annotation method
+    annotation_source (str, optional): New annotation source
+    genebuild_version (str, optional): New genebuild version</p>
 
 
             <details class="mkdocstrings-source">
@@ -4163,9 +4163,9 @@ Args:
 <span class="sd">        status (str): Status to set</span>
 <span class="sd">        current_date (str): Current date</span>
 <span class="sd">        dev (bool): If True, only print SQL without executing</span>
-<span class="sd">        annotation_method (str or None): New annotation method (if any)</span>
-<span class="sd">        annotation_source (str or None): New annotation source (if any)</span>
-<span class="sd">        genebuild_version (str or None): New genebuild version (if any)</span>
+<span class="sd">        annotation_method (str, optional): New annotation method</span>
+<span class="sd">        annotation_source (str, optional): New annotation source</span>
+<span class="sd">        genebuild_version (str, optional): New genebuild version</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">query_parts</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;gb_status = </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;date_status_update = </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">]</span>
     <span class="n">params</span> <span class="o">=</span> <span class="p">[</span><span class="n">status</span><span class="p">,</span> <span class="n">current_date</span><span class="p">]</span>
