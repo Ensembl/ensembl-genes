@@ -2780,7 +2780,7 @@
 <span class="s2">    &quot;&quot;&quot;</span>
     <span class="k">with</span> <span class="n">core_connection</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span> <span class="k">as</span> <span class="n">cursor</span><span class="p">:</span>
         <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="p">(</span><span class="n">species_id</span><span class="p">,))</span>
-        <span class="k">return</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span> <span class="c1"># type: ignore[return-value]</span>
+        <span class="k">return</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>  <span class="c1"># type: ignore[return-value]</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
