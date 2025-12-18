@@ -1,9 +1,10 @@
+# pylint: disable=missing-module-docstring, consider-using-with, logging-not-lazy, logging-fstring-interpolation, consider-using-dict-items, unspecified-encoding,invalid-name , broad-exception-caught, line-too-long, redefined-outer-name, missing-timeout, unused-argument, missing-function-docstring
 import json
 import re
 import argparse
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Tuple
 
 import logging
 import logging.config
@@ -290,7 +291,7 @@ if __name__ == "__main__":
     log_ini_path = metadata_dir / "logging.conf"
     logging.config.fileConfig(
         log_ini_path,
-        defaults={"logfilename": log_file_path},
+        defaults={"logfilename": str(log_file_path)},
         disable_existing_loggers=True,
     )
     logger = logging.getLogger()

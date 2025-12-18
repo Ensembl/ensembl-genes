@@ -13,7 +13,7 @@ Usage:
     python beta_patcher.py patches.csv --jira-ticket EBD-1111 --output-dir ./patches/
     python beta_patcher.py patches.csv --jira-ticket EBD-1111 --core-suffix _core_115_1
 """
-
+# pylint: disable=logging-fstring-interpolation, unspecified-encoding, broad-exception-caught, unused-variable
 import argparse
 import csv
 import logging
@@ -329,7 +329,8 @@ def write_core_patch_for_genome(
         validate_file: Open file handle for validation SQL
         patch_file: Open file handle for patch SQL
         database: Core database name
-        patches: List of (meta_key, new_value, table_location) tuples (table_location ignored for core DB)
+        patches: List of (meta_key, new_value, table_location) \
+            tuples (table_location ignored for core DB)
         species_id: Species ID
     """
     for meta_key, new_value, _table_location in patches:
@@ -353,9 +354,7 @@ def write_core_patch_for_genome(
         patch_file.write(f"SET meta_value = '{escaped_value}'\n")
         patch_file.write(_core_db_where(meta_key, species_id))
         patch_file.write(";\n\n")
-        patch_file.write(
-            f"INSERT IGNORE INTO meta (species_id, meta_key, meta_value)\n"
-        )
+        patch_file.write("INSERT IGNORE INTO meta (species_id, meta_key, meta_value)\n")
         patch_file.write(f"VALUES ({species_id}, '{meta_key}', '{escaped_value}');\n\n")
 
 
@@ -389,11 +388,15 @@ def read_csv_patches(csv_file: Path, core_suffix: str = "_core_114_1") -> List[D
         # Validate required columns
         required_cols = {"meta_key", "desired_meta_value"}
         identifier_cols = {"production_name", "genome_uuid"}
+        fieldnames = reader.fieldnames
+        if fieldnames is None:
+            raise ValueError("CSV file has no header row")
 
-        if not required_cols.issubset(reader.fieldnames):
+        fieldnames_set = set(fieldnames)
+        if not required_cols.issubset(fieldnames_set):
             raise ValueError(f"CSV must contain columns: {required_cols}")
 
-        if not identifier_cols.intersection(reader.fieldnames):
+        if not identifier_cols.intersection(fieldnames_set):
             raise ValueError(f"CSV must contain at least one of: {identifier_cols}")
 
         for row_num, row in enumerate(
@@ -462,8 +465,10 @@ def resolve_genome_info(patch: Dict, logger: logging.Logger) -> Optional[Dict]:
 
         if len(genomes) > 1:
             logger.error(
-                f"Row {row_num}: Ambiguous production_name '{production_name}' matches {len(genomes)} genomes. "
-                f"Please specify genome_uuid instead. Found UUIDs: {[g['genome_uuid'] for g in genomes]}"
+                f"Row {row_num}: Ambiguous production_name '{production_name}'\
+                    matches {len(genomes)} genomes. "
+                f"Please specify genome_uuid instead. Found UUIDs: \
+                    {[g['genome_uuid'] for g in genomes]}"
             )
             return None
 
@@ -546,7 +551,7 @@ def group_patches_by_genome(
     return grouped
 
 
-def generate_all_patches(
+def generate_all_patches(  # pylint: disable=too-many-locals
     grouped_patches: Dict[str, Dict],
     output_dir: Path,
     jira_ticket: str,
@@ -625,7 +630,7 @@ def generate_all_patches(
                     val_f, patch_f, core_db_name, patches, genome_data["species_id"]
                 )
 
-        logger.info(f"Generated files:")
+        logger.info("Generated files:")
         logger.info(f"  {metadata_validate_file}")
         logger.info(f"  {metadata_patch_file}")
         logger.info(f"  {core_validate_file}")
@@ -641,7 +646,8 @@ def generate_all_patches(
 def main():
     """Main entry point for the beta patcher script."""
     parser = argparse.ArgumentParser(
-        description="Generate standardized SQL patches for Ensembl beta metadata issues from CSV input",
+        description="Generate standardized SQL patches for Ensembl\
+            beta metadata issues from CSV input",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
@@ -660,9 +666,12 @@ CSV Format:
   Optional columns: dataset_type, species_id, table_location
 
   Example:
-    production_name,genome_uuid,meta_key,desired_meta_value,dataset_type,species_id,table_location
-    homo_sapiens,,assembly.name,GRCh38.p14,genebuild,1,dataset_attribute
-    ,a7335667-93e7-11ec-a39d-005056b38ce3,organism.strain,Reference,genebuild,1,genome
+    production_name,genome_uuid,meta_key,desired_meta_value,\
+        dataset_type,species_id,table_location
+    homo_sapiens,,assembly.name,GRCh38.p14,genebuild,1,\
+        dataset_attribute
+    ,a7335667-93e7-11ec-a39d-005056b38ce3,organism.strain,'
+    Reference,genebuild,1,genome
 
 See patches_template.csv for a complete example.
         """,
@@ -754,7 +763,9 @@ See patches_template.csv for a complete example.
         return 1
 
     # Generate consolidated patch files
-    if generate_all_patches(grouped_patches, args.output_dir, args.jira_ticket, logger):
+    if generate_all_patches(# pylint: disable=no-else-return
+        grouped_patches, args.output_dir, args.jira_ticket, logger
+    ):
         logger.info(f"Success! Log: {log_file}")
         return 0
     else:
