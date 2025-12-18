@@ -118,7 +118,7 @@ def init_pipeline_main(config_file: str, hive_force_init: int = 1) -> Optional[s
         raise
 
 
-def main( # pylint:disable=too-many-statements, too-many-locals
+def main(  # pylint:disable=too-many-statements, too-many-locals
     gcas: str, settings_file: str, seed_url: Optional[str]
 ) -> Dict[str, Any]:
     """

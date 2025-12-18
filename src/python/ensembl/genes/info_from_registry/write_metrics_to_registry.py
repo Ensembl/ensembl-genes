@@ -42,7 +42,7 @@ def fetch_core_metrics(
     """
     with core_connection.cursor() as cursor:
         cursor.execute(query, (species_id,))
-        return cursor.fetchall() # type: ignore[return-value]
+        return cursor.fetchall()  # type: ignore[return-value]
 
 
 def partition_metrics(

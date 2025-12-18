@@ -3,7 +3,9 @@
 import logging
 import pymysql  # type: ignore
 from ensembl.genes.info_from_registry.mysql_helper import mysql_fetch_data
-from ensembl.genes.info_from_registry.check_stable_space_old_registry import get_old_stable_space_info
+from ensembl.genes.info_from_registry.check_stable_space_old_registry import (
+    get_old_stable_space_info,
+)
 
 # Configure logging
 logging.basicConfig(
