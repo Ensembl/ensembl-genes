@@ -32,7 +32,7 @@ def check_if_annotated(
     assembly_accession : str
         The GCA accession of the assembly to check (e.g., "GCA_000001405.28").
 
-    server_info : dict
+    server_info : Dict[str, Dict[str, Any]]
         Dictionary containing server connection details, with a 'registry' key
         pointing to another dict with the following keys:
             - db_host : str
