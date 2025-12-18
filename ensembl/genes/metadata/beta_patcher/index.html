@@ -3948,7 +3948,7 @@ TAXONOMY_URI: Connection string for taxonomy database</p>
         <span class="k">return</span> <span class="mi">1</span>
 
     <span class="c1"># Generate consolidated patch files</span>
-    <span class="k">if</span> <span class="n">generate_all_patches</span><span class="p">(</span><span class="c1"># pylint: disable=no-else-return</span>
+    <span class="k">if</span> <span class="n">generate_all_patches</span><span class="p">(</span>  <span class="c1"># pylint: disable=no-else-return</span>
         <span class="n">grouped_patches</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">output_dir</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">jira_ticket</span><span class="p">,</span> <span class="n">logger</span>
     <span class="p">):</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Success! Log: </span><span class="si">{</span><span class="n">log_file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
