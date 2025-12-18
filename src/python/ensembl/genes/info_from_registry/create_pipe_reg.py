@@ -110,14 +110,14 @@ def create_registry_entry(
 
     Parameters:
     ----------
-    settings : dict
+    settings : Dict[str, Any],
         Must contain:
             - 'base_output_dir': str, where the local Databases.pm file is placed.
 
-    server_info : dict
+    server_info : Dict[str, Dict[str, Any]],
         Used to pass to `update_registry_path_and_create_entry`.
 
-    core_adaptor : dict
+    core_adaptor : Dict[str, str],
         Must contain:
             - 'host', 'port', 'dbname', 'user', 'pass', 'species', 'group'
 
