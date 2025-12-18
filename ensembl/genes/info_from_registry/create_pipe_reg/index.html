@@ -2708,18 +2708,18 @@ the appropriate database adaptor entries for use in a genebuild pipeline.</p>
         <p>Updates the local registry file with new DBAdaptor connection details for a
 core database, using the provided connection settings.</p>
 <h5 id="ensembl.genes.info_from_registry.create_pipe_reg.create_registry_entry--parameters">Parameters:<a class="headerlink" href="#ensembl.genes.info_from_registry.create_pipe_reg.create_registry_entry--parameters" title="Permanent link">&para;</a></h5>
-<p>settings : dict
+<p>settings : Dict[str, Any],
     Must contain:
         - 'base_output_dir': str, where the local Databases.pm file is placed.</p>
 
 
 <details class="server_info-" open>
-  <summary>dict</summary>
+  <summary>Dict[str, Dict[str, Any]],</summary>
   <p>Used to pass to <code>update_registry_path_and_create_entry</code>.</p>
 </details>
 
 <details class="core_adaptor-" open>
-  <summary>dict</summary>
+  <summary>Dict[str, str],</summary>
   <p>Must contain:
     - 'host', 'port', 'dbname', 'user', 'pass', 'species', 'group'</p>
 </details>        <h5 id="ensembl.genes.info_from_registry.create_pipe_reg.create_registry_entry--returns">Returns:<a class="headerlink" href="#ensembl.genes.info_from_registry.create_pipe_reg.create_registry_entry--returns" title="Permanent link">&para;</a></h5>
@@ -2838,14 +2838,14 @@ core database, using the provided connection settings.</p>
 
 <span class="sd">    Parameters:</span>
 <span class="sd">    ----------</span>
-<span class="sd">    settings : dict</span>
+<span class="sd">    settings : Dict[str, Any],</span>
 <span class="sd">        Must contain:</span>
 <span class="sd">            - &#39;base_output_dir&#39;: str, where the local Databases.pm file is placed.</span>
 
-<span class="sd">    server_info : dict</span>
+<span class="sd">    server_info : Dict[str, Dict[str, Any]],</span>
 <span class="sd">        Used to pass to `update_registry_path_and_create_entry`.</span>
 
-<span class="sd">    core_adaptor : dict</span>
+<span class="sd">    core_adaptor : Dict[str, str],</span>
 <span class="sd">        Must contain:</span>
 <span class="sd">            - &#39;host&#39;, &#39;port&#39;, &#39;dbname&#39;, &#39;user&#39;, &#39;pass&#39;, &#39;species&#39;, &#39;group&#39;</span>
 
