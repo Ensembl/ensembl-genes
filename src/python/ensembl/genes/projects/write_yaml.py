@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-
+# pylint: disable=missing-module-docstring, too-many-locals, too-many-statements, too-many-arguments, too-many-branches, too-many-nested-blocks, logging-not-lazy, logging-fstring-interpolation, consider-using-dict-items, broad-exception-caught, line-too-long, unused-argument, missing-function-docstring, unspecified-encoding
 import argparse
 import json
 import os

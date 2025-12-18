@@ -83,6 +83,12 @@ def write_assembly_metrics(
 ) -> None:
     """
     Write assembly metrics to registry using DELETE then INSERT pattern.
+    Args:
+        registry_connection: MySQL connection object for registry DB
+        assembly_id (int): Assembly ID in registry
+        rows (list): List of (metric_name, metric_value) tuples
+        dev (bool): If True, only print SQL statements without executing them
+    returns: None
     """
     if not rows:
         print("No assembly metrics to write")
@@ -135,6 +141,13 @@ def write_genebuild_metrics(
 ) -> None:
     """
     Write genebuild metrics to registry using DELETE then INSERT pattern.
+    Args:
+        registry_connection: MySQL connection object for registry DB
+        genebuild_status_id (int): Genebuild status ID in registry
+        assembly_id (int): Assembly ID in registry
+        rows (list): List of (metric_name, metric_value) tuples
+        dev (bool): If True, only print SQL statements without executing them
+    returns: None
     """
     if not rows:
         print("No genebuild metrics to write")

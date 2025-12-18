@@ -120,9 +120,9 @@ def update_existing_record(  # pylint:disable=too-many-arguments, too-many-posit
         status (str): Status to set
         current_date (str): Current date
         dev (bool): If True, only print SQL without executing
-        annotation_method (str or None): New annotation method (if any)
-        annotation_source (str or None): New annotation source (if any)
-        genebuild_version (str or None): New genebuild version (if any)
+        annotation_method (str, optional): New annotation method
+        annotation_source (str, optional): New annotation source
+        genebuild_version (str, optional): New genebuild version
     """
     query_parts = ["gb_status = %s", "date_status_update = %s"]
     params = [status, current_date]
