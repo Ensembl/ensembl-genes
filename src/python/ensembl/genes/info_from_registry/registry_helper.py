@@ -5,7 +5,7 @@ This module provides utility functions for common registry database queries
 that are shared across multiple scripts.
 """
 
-from typing import Optional
+from typing import cast, Optional, Any
 import pymysql
 
 
@@ -26,28 +26,34 @@ def fetch_assembly_id(
     WHERE CONCAT(gca_chain, '.', gca_version) = %s
     """
 
-    with connection.cursor() as cursor:
+    with connection.cursor(pymysql.cursors.DictCursor) as cursor:
         cursor.execute(query, (assembly,))
         result = cursor.fetchone()
 
-    return result["assembly_id"] if result else None
+    if result is None:
+        return None
+    result_dict = cast(dict[str, int], result)
+    return result_dict["assembly_id"]
 
 
 def fetch_current_genebuild_record(
     connection: pymysql.connections.Connection,
     assembly: str,
     genebuilder: Optional[str] = None,
-) -> Optional[dict[str, any]]:
+) -> Optional[dict[str, Any]]:
     """
     Fetch the full current genebuild record for a given assembly.
 
     Args:
         connection: MySQL connection object
         assembly (str): Assembly Accession (GCA format)
-        genebuilder (str, optional): Genebuilder name to filter by. If None, fetches any active record.
+        genebuilder (str, optional): Genebuilder name to filter by.\
+            If None, fetches any active record.
     Returns:
-        dict: Record with genebuild_status_id, gb_status, genebuilder, annotation_method, genebuild_version, and other fields if found, else None
+        dict: Record with genebuild_status_id, gb_status, genebuilder,\
+            annotation_method, genebuild_version, and other fields if found, else None
     """
+    params: tuple[Any, ...] = ()
     if genebuilder:
         query = """
         SELECT genebuild_status_id, gb_status, genebuilder, annotation_method, genebuild_version
@@ -63,11 +69,13 @@ def fetch_current_genebuild_record(
         """
         params = (assembly,)
 
-    with connection.cursor() as cursor:
+    with connection.cursor(pymysql.cursors.DictCursor) as cursor:
         cursor.execute(query, params)
         result = cursor.fetchone()
 
-    return result
+    if result is None:
+        return None
+    return cast(dict[str, Any], result)
 
 
 def fetch_genebuild_status_id(

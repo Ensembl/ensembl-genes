@@ -10,9 +10,10 @@ Functions:
     - mysql_update: Executes an UPDATE/INSERT/DELETE query with optional parameters.
 """
 
-import pymysql
 import logging
 from typing import Optional, Any
+import pymysql
+
 
 # Configure logging
 logging.basicConfig(
@@ -27,7 +28,7 @@ __all__ = ["mysql_fetch_data", "mysql_update"]
 
 def mysql_get_connection(
     database: str, host: str, port: int, user: str, password: str
-) -> Optional[pymysql.connections.Connection]:
+) -> Optional[pymysql.connections.Connection[Any]]:
     """
     Establish a connection to the MySQL database.
     """
@@ -46,7 +47,7 @@ def mysql_get_connection(
         return None
 
 
-def mysql_fetch_data(
+def mysql_fetch_data(  # pylint:disable=too-many-arguments, too-many-positional-arguments
     query: str,
     database: str,
     host: str,
@@ -85,14 +86,16 @@ def mysql_fetch_data(
             results = cursor.fetchall()
         conn.close()
         logger.info("Query successful")
-        return results
+        return list(results)
 
     except pymysql.Error as err:
-        logger.error(f"MySQL error during fetch: {err}")
+        logger.error(  # pylint:disable=logging-fstring-interpolation
+            f"MySQL error during fetch: {err}"
+        )
         return []
 
 
-def mysql_update(
+def mysql_update(  # pylint:disable=too-many-arguments, too-many-positional-arguments
     query: str,
     database: str,
     host: str,
@@ -133,5 +136,7 @@ def mysql_update(
         return True
 
     except pymysql.Error as err:
-        logger.error(f"MySQL error during update: {err}")
+        logger.error(  # pylint:disable=logging-fstring-interpolation
+            f"MySQL error during update: {err}"
+        )
         return False

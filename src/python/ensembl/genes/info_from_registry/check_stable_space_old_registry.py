@@ -7,8 +7,9 @@ using the new registry to start anno runs.
 """
 
 import logging
-from mysql_helper import mysql_fetch_data
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, Optional
+from ensembl.genes.info_from_registry.mysql_helper import mysql_fetch_data
+
 
 # Configure logging
 logging.basicConfig(
@@ -31,7 +32,9 @@ def get_old_stable_space_info(
     Returns:
         int: Assigned stable space.
     """
-    logger.info(f"Check if taxon ID {taxon_id} has stable space in old registry")
+    logger.info(  # pylint: disable=logging-fstring-interpolation
+        f"Check if taxon ID {taxon_id} has stable space in old registry"
+    )
     space_query = (
         f"SELECT MAX(stable_id_space_id) as old_stable_id "
         f"FROM assembly "
@@ -50,9 +53,11 @@ def get_old_stable_space_info(
     old_stable_id = output_query[0].get("max_stable_id", None)
 
     if old_stable_id is None:
-        logger.info(f"Stable space not found in old registry for taxon ID {taxon_id}.")
+        logger.info(  # pylint: disable=logging-fstring-interpolation
+            f"Stable space not found in old registry for taxon ID {taxon_id}."
+        )
 
-    logger.info(
+    logger.info(  # pylint: disable=logging-fstring-interpolation
         f"Max stable space in the old registry for taxon ID {taxon_id} is {old_stable_id}."
     )
 

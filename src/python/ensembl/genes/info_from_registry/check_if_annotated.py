@@ -9,7 +9,7 @@ an error if any assembly has already been annotated.
 # pylint: disable=logging-fstring-interpolation
 import logging
 from typing import Dict, Any
-from mysql_helper import mysql_fetch_data
+from ensembl.genes.info_from_registry.mysql_helper import mysql_fetch_data
 
 
 # Configure logging

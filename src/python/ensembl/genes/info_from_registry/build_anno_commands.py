@@ -27,9 +27,9 @@ def build_annotation_commands(
         None: Modifies `output_params` in place by adding two command strings.
     """
 
-    get = lambda k: output_params.get(
+    get = lambda k: output_params.get(  # pylint: disable=unnecessary-lambda-assignment
         k, ""
-    )  # Short helper #pylint: disable=unnecessary-lambda-assignment
+    )
 
     anno_commandline = (
         f" --genome_file {get('reheadered_toplevel_genome_file')}"

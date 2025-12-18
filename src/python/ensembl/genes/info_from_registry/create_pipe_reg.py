@@ -23,7 +23,7 @@ import logging
 from typing import Dict, Any
 
 
-from mysql_helper import mysql_update
+from ensembl.genes.info_from_registry.mysql_helper import mysql_update
 
 # Configure logging
 logging.basicConfig(
@@ -58,7 +58,7 @@ def update_registry_path_in_pipedb(
     """
     logger.info("Updating registry path in pipeline DB")
     registry_file = os.path.join(
-        os.environ.get("ENSCODE"),
+        str(os.environ.get("ENSCODE")),
         "ensembl-analysis",
         "scripts",
         "genebuild",
@@ -66,13 +66,17 @@ def update_registry_path_in_pipedb(
         "support_files",
         "Databases.pm",
     )
-    logger.debug(f"parennt_dir : {parent_dir}")
+    logger.debug(  # pylint: disable=logging-fstring-interpolation
+        f"parent_dir : {parent_dir}"
+    )
     new_registry_file = Path(parent_dir).resolve() / "Databases.pm"
 
     if not new_registry_file.exists():
         raise OSError(f"Registry file doesn't exist: {new_registry_file}")
 
-    logger.info(f"Registry file exist at {new_registry_file}")
+    logger.info(  # pylint: disable=logging-fstring-interpolation
+        f"Registry file exist at {new_registry_file}"
+    )
 
     update_resources_query = """
 		UPDATE resource_description 
@@ -92,13 +96,12 @@ def update_registry_path_in_pipedb(
     if success:
         logger.info("Registry path updated successfully.")
     else:
-        raise RuntimeError(f"Failed to update registry path.")
-        logger.error("Failed to update registry path.")
+        raise RuntimeError("Failed to update registry path.")
 
 
 def create_registry_entry(
     settings: Dict[str, Any],
-    server_info: Dict[str, Dict[str, Any]],
+    server_info: Dict[str, Dict[str, Any]],  # pylint: disable=unused-argument
     core_adaptor: Dict[str, str],
 ) -> Path:
     """
@@ -132,7 +135,7 @@ def create_registry_entry(
     """
     registry_path = Path(settings["base_output_dir"]) / "Databases.pm"
     registry_file = os.path.join(
-        os.environ.get("ENSCODE"),
+        str(os.environ.get("ENSCODE")),
         "ensembl-analysis",
         "scripts",
         "genebuild",
@@ -183,6 +186,8 @@ def create_registry_entry(
     try:
         shutil.move(str(tmp_path), str(registry_path))
     except Exception as e:
-        raise RuntimeError(f"Issue overwriting the old registry: {e}")
+        raise RuntimeError(  # pylint: disable=raise-missing-from
+            f"Issue overwriting the old registry: {e}"
+        )
 
     return registry_path

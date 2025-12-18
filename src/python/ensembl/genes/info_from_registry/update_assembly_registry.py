@@ -2,13 +2,17 @@
 Utility to update the status of a genebuild in the registry db
 """
 
-from mysql_helper import mysql_get_connection
-from registry_helper import fetch_assembly_id, fetch_current_genebuild_record
+# pylint: disable=f-string-without-interpolation, broad-exception-raised, broad-exception-caught
 import argparse
 from datetime import datetime
 import sys
 from typing import Optional
 import pymysql
+from ensembl.genes.info_from_registry.mysql_helper import mysql_get_connection
+from ensembl.genes.info_from_registry.registry_helper import (
+    fetch_assembly_id,
+    fetch_current_genebuild_record,
+)
 
 
 def ensure_genebuilder_exists(
@@ -27,14 +31,13 @@ def ensure_genebuilder_exists(
         cursor.execute(check_query, (genebuilder,))
         if not cursor.fetchone():
             raise ValueError(
-                f"Genebuilder '{genebuilder}' does not exist in the genebuilder table. Please add it first."
+                f"Genebuilder '{genebuilder}' does not exist in the\
+                    genebuilder table. Please add it first."
             )
 
 
 # fetch_current_record is now fetch_current_genebuild_record imported from registry_helper
-
-
-def insert_new_record(
+def insert_new_record(  # pylint:disable=too-many-arguments, too-many-positional-arguments
     connection: pymysql.connections.Connection,
     assembly_id: int,
     assembly: str,
@@ -99,7 +102,7 @@ def insert_new_record(
         print(f"Inserted new record for GCA {assembly} with status '{status}'")
 
 
-def update_existing_record(
+def update_existing_record(  # pylint:disable=too-many-arguments, too-many-positional-arguments
     connection: pymysql.connections.Connection,
     record_id: int,
     status: str,
@@ -109,6 +112,18 @@ def update_existing_record(
     annotation_source: Optional[str] = None,
     genebuild_version: Optional[str] = None,
 ) -> None:
+    """
+    Update an existing genebuild status record.
+    Args:
+        connection: MySQL connection object
+        record_id (int): genebuild_status_id to update
+        status (str): Status to set
+        current_date (str): Current date
+        dev (bool): If True, only print SQL without executing
+        annotation_method (str or None): New annotation method (if any)
+        annotation_source (str or None): New annotation source (if any)
+        genebuild_version (str or None): New genebuild version (if any)
+    """
     query_parts = ["gb_status = %s", "date_status_update = %s"]
     params = [status, current_date]
     if annotation_method:
@@ -125,7 +140,7 @@ UPDATE genebuild_status
 SET {', '.join(query_parts)}
 WHERE genebuild_status_id = %s
 """
-    params.append(record_id)
+    params.append(str(record_id))
 
     if dev:
         print("Would execute:")
@@ -160,7 +175,7 @@ def set_old_record_historical(
         print(f"Set record {record_id} to historical")
 
 
-def main(
+def main(  # pylint:disable=too-many-arguments, too-many-statements, too-many-branches, too-many-locals, too-many-positional-arguments
     host: str,
     port: int,
     user: str,
@@ -258,7 +273,8 @@ def main(
             active_statuses = ["insufficient_data", "in_progress", "check_busco"]
             completed_status = "completed"  # terminal-like status
 
-            # Determine if method/source/version should be updated (preserve existing if not specified)
+            # Determine if method/source/version should be updated
+            # (preserve existing if not specified)
             method_to_update = (
                 annotation_method if annotation_method is not None else None
             )
@@ -276,7 +292,8 @@ def main(
 
             # Same status - check for method/source/version changes
             if current_status == status:
-                # Check if annotation_method, annotation_source, or genebuild_version is provided and different
+                # Check if annotation_method, annotation_source, or
+                # genebuild_version is provided and different
                 method_changed = (
                     annotation_method and annotation_method != current_method
                 )
@@ -323,7 +340,8 @@ def main(
             elif current_status == completed_status and status in active_statuses:
                 print(f"ERROR: Cannot move backwards from 'completed' to '{status}'")
                 print(
-                    f"Completed is a terminal-like status. To restart work, use a new genebuild_version."
+                    f"Completed is a terminal-like status. To restart work, \
+                        use a new genebuild_version."
                 )
                 sys.exit(1)
 
@@ -339,7 +357,8 @@ def main(
 
                 if effective_version != current_version:
                     print(
-                        f"Moving from terminal status '{current_status}' to '{status}' with new version {effective_version}"
+                        f"Moving from terminal status '{current_status}' to \
+                            '{status}' with new version {effective_version}"
                     )
                     print(f"Creating new attempt.")
 
@@ -366,10 +385,12 @@ def main(
                     )
                 else:
                     print(
-                        f"ERROR: Cannot move from terminal status '{current_status}' to '{status}' with same genebuild_version '{current_version}'"
+                        f"ERROR: Cannot move from terminal status '{current_status}' \
+                            to '{status}' with same genebuild_version '{current_version}'"
                     )
                     print(
-                        f"To restart work, you must provide a new --genebuild_version (e.g., ENS02, ENS03, etc.)"
+                        f"To restart work, you must provide a new \
+                            --genebuild_version (e.g., ENS02, ENS03, etc.)"
                     )
                     sys.exit(1)
 
@@ -533,7 +554,8 @@ if __name__ == "__main__":
             "import_genbank",
             "import_noninsdc",
         ],
-        help="Annotation source (default: preserve existing value, or 'ensembl' for new records)",
+        help="Annotation source (default: preserve existing value, \
+            or 'ensembl' for new records)",
     )
 
     parser.add_argument(
@@ -563,7 +585,8 @@ if __name__ == "__main__":
     parser.add_argument(
         "--genebuild_version",
         default=None,
-        help="Genebuild version (default: preserve existing value, or 'ENS01' for new records)",
+        help="Genebuild version (default: preserve existing value, \
+            or 'ENS01' for new records)",
     )
 
     args = parser.parse_args()

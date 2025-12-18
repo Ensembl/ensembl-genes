@@ -29,7 +29,7 @@ import shutil
 import re
 import logging
 from pathlib import Path
-from typing import Dict, Any, Optional, List
+from typing import Dict, Any
 
 
 # Configure logging
@@ -66,7 +66,7 @@ def copy_config(
     """
 
     original_config = os.path.join(
-        os.environ.get("ENSCODE"),
+        str(os.environ.get("ENSCODE")),
         "ensembl-analysis",
         "modules",
         "Bio",
@@ -89,9 +89,13 @@ def copy_config(
 
     try:
         shutil.copy2(original_config, local_config)
-        logging.info(f"Copied file from {original_config} to {local_config}")
+        logging.info(  # pylint: disable=logging-fstring-interpolation
+            f"Copied file from {original_config} to {local_config}"
+        )
     except Exception as e:
-        raise RuntimeError(f"Error copying file: {e}")
+        raise RuntimeError(  # pylint: disable=raise-missing-from
+            f"Error copying file: {e}"
+        )
 
     return local_config
 
@@ -141,7 +145,7 @@ def edit_config_anno(
     """
     local_config = copy_config(anno_settings, info_dict, pipeline)
 
-    with open(local_config, "r") as f:
+    with open(local_config, "r") as f:  # pylint: disable=unspecified-encoding
         content = f.read()
 
     # Replace the lines
@@ -210,11 +214,11 @@ def edit_config_anno(
         content,
     )
 
-    with open(local_config, "w") as f:
+    with open(local_config, "w") as f:  # pylint: disable=unspecified-encoding
         f.write(content)
 
 
-def edit_config_main(
+def edit_config_main(  # pylint: disable=too-many-locals, too-many-branches
     settings: Dict[str, Any], info_dict: Dict[str, Any], pipeline: str
 ) -> str:
     """
@@ -242,7 +246,7 @@ def edit_config_main(
 
     stop_marker = "# No option below this mark should be modified"
 
-    with open(local_config, "r") as f:
+    with open(local_config, "r") as f:  # pylint: disable=unspecified-encoding
         lines = f.readlines()
 
     new_lines = []
@@ -301,8 +305,10 @@ def edit_config_main(
             new_lines.append(line)
 
     # Write back the updated config safely
-    with open(local_config, "w") as f:
+    with open(local_config, "w", encoding="utf8") as f:
         f.writelines(new_lines)
 
-    logging.info(f"Config edited successfully: {local_config}")
+    logging.info(  # pylint: disable=logging-fstring-interpolation
+        f"Config edited successfully: {local_config}"
+    )
     return local_config

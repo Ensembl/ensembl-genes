@@ -11,7 +11,7 @@ import string
 from typing import Optional
 import pymysql  # type: ignore
 
-from mysql_helper import mysql_fetch_data
+from ensembl.genes.info_from_registry.mysql_helper import mysql_fetch_data
 
 
 # Configure logging

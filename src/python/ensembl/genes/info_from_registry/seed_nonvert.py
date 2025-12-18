@@ -1,14 +1,17 @@
 """
 seed_nonvert.py
 
-This script allows you to seed jobs into an eHive pipeline using a JSON file or a dictionary of job parameters.
-It converts Python dictionaries to Perl hash syntax and invokes the `seed_pipeline.pl` script via subprocess.
+This script allows you to seed jobs into an eHive pipeline using
+a JSON file or a dictionary of job parameters.
+It converts Python dictionaries to Perl hash syntax and invokes
+the `seed_pipeline.pl` script via subprocess.
 
 Typical usage example:
     python seed_jobs.py -j jobs.json -a 1 -u mysql://user:pass@host/db
 
 Functions:
-    - dict_to_perl_hash: Recursively converts a Python dictionary into a Perl-style hash string.
+    - dict_to_perl_hash: Recursively converts a Python dictionary into
+    a Perl-style hash string.
     - seed_jobs_from_json: Loads parameters and invokes eHive seeding commands.
     - main: Parses command-line arguments and calls the seeding function.
 """
@@ -65,7 +68,8 @@ def dict_to_perl_hash(d):
 
             # Add driver if not present
             if "-driver" not in converted and any(
-                k.startswith("-") for k in converted.keys()
+                k.startswith("-")
+                for k in converted.keys()  # pylint:disable=consider-iterating-dictionary
             ):
                 converted["-driver"] = "mysql"
 
@@ -90,7 +94,7 @@ def dict_to_perl_hash(d):
         else:
             val_str = str(v)
         items.append(f"{key_str} => {val_str}")
-    return "{{{}}}".format(", ".join(items))
+    return "{{{}}}".format(", ".join(items))  # pylint:disable=consider-using-f-string
 
 
 def seed_jobs_from_json(
@@ -99,10 +103,12 @@ def seed_jobs_from_json(
     ehive_url: str,
 ):
     """
-    Seed jobs in an eHive pipeline using job parameters from a JSON file or dictionary.
+    Seed jobs in an eHive pipeline using job parameters from a JSON
+    file or dictionary.
 
     Args:
-        json_file (Union[str, dict]): Path to a JSON file or a Python dictionary with job parameters.
+        json_file (Union[str, dict]): Path to a JSON file or a Python\
+        dictionary with job parameters.
         analysis_id (int): eHive analysis ID to assign jobs to.
         ehive_url (str): URL of the eHive database (e.g., mysql://user:pass@host/db).
 
@@ -111,12 +117,12 @@ def seed_jobs_from_json(
     """
 
     if isinstance(json_file, str):
-        with open(json_file) as f:
+        with open(json_file) as f:  # pylint:disable=unspecified-encoding
             params = json.load(f)
     else:
         params = json_file  # assume dict already
 
-    for input_id, param_dict in params.items():
+    for input_id, param_dict in params.items():  # pylint:disable=unused-variable
         perl_hash = dict_to_perl_hash(param_dict)
         cmd = [
             "seed_pipeline.pl",
@@ -132,6 +138,7 @@ def seed_jobs_from_json(
 
 
 def main():
+    """Main"""
     parser = argparse.ArgumentParser(
         description="Seed eHive pipeline jobs from a JSON file"
     )
@@ -146,7 +153,7 @@ def main():
         "--analysis_id",
         type=int,
         default=1,
-        help=f"Analysis ID to seed (default: 1)",
+        help="Analysis ID to seed (default: 1)",
     )
     parser.add_argument("-u", "--url", required=True, help="EHIVE URL")
     args = parser.parse_args()

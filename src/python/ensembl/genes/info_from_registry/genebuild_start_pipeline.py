@@ -7,19 +7,23 @@ Modules used:
     - seed_nonvert.py (seed_jobs_from_json)
 
 Usage:
-    python genebuild_init_pipeline.py --gcas path/to/gcas.txt --settings_file path/to/user_pipeline_settings.json
+    python genebuild_init_pipeline.py --gcas path/to/gcas.txt \
+        --settings_file path/to/user_pipeline_settings.json
 """
 
+# pylint:disable=logging-fstring-interpolation
 import argparse
 import logging
-import re
-from start_pipeline_from_registry import main as info
-from seed_nonvert import seed_jobs_from_json
-import subprocess
 from pathlib import Path
-from create_pipe_reg import update_registry_path_in_pipedb
+import re
+import subprocess
 import json
 from typing import Dict, Any, Optional
+from ensembl.genes.info_from_registry.start_pipeline_from_registry import main as info
+from ensembl.genes.info_from_registry.seed_nonvert import seed_jobs_from_json
+from ensembl.genes.info_from_registry.create_pipe_reg import (
+    update_registry_path_in_pipedb,
+)
 
 
 # Configure logging
@@ -59,7 +63,7 @@ def init_pipeline_anno(config_file: str, hive_force_init: int = 1) -> Optional[s
             match = re.search(r"(mysql://[^\s]+)", line)
             if match:
                 return match.group(1)  # Just the URL part
-        return
+        return None
     except subprocess.CalledProcessError as e:
         logger.error(f"Error running init_pipeline.pl: {e.stdout}")
         raise
@@ -114,14 +118,17 @@ def init_pipeline_main(config_file: str, hive_force_init: int = 1) -> Optional[s
         raise
 
 
-def main(gcas: str, settings_file: str, seed_url: Optional[str]) -> Dict[str, Any]:
+def main( # pylint:disable=too-many-statements, too-many-locals
+    gcas: str, settings_file: str, seed_url: Optional[str]
+) -> Dict[str, Any]:
     """
     Main execution logic: extract metadata, initialize the pipeline, and seed jobs.
 
     Args:
         gcas (str): Path to file containing GCA accessions (one per line).
         settings_file (str): Path to settings file (JSON).
-        seed_url (str): Existing URL to seed the pipeline. If provided initialisation will be skipped.
+        seed_url (str): Existing URL to seed the pipeline. If provided \
+            initialisation will be skipped.
 
     Raises:
         FileNotFoundError: If no config file is found.
@@ -132,7 +139,7 @@ def main(gcas: str, settings_file: str, seed_url: Optional[str]) -> Dict[str, An
     server_info, all_output_params, saved_paths = info(gcas, settings_file)
 
     # Save EHIVE URLs
-    ehive_urls = {}
+    ehive_urls: Dict[str, Dict[str, str]] = {}  # pylint:disable=redefined-outer-name
 
     # Anno
     if saved_paths.get("anno"):
@@ -141,7 +148,7 @@ def main(gcas: str, settings_file: str, seed_url: Optional[str]) -> Dict[str, An
         if seed_url:
             logger.info("Skipping pipeline initialisation.")
             logger.info("Using provided seed URL: %s", seed_url)
-            ehive_urls["anno"] = seed_url
+            ehive_urls["anno"] = seed_url  # type: ignore[assignment]
         else:
             logger.info("No seed URL provided. Initialising new pipeline.")
             first_key = next(iter(all_output_params))
@@ -159,8 +166,13 @@ def main(gcas: str, settings_file: str, seed_url: Optional[str]) -> Dict[str, An
             conf_path = conf_files[0]
             logger.info(f"Config found at {conf_path}")
 
-            ehive_url = init_pipeline_anno(conf_path)
-            ehive_urls["anno"] = ehive_url
+            ehive_url = init_pipeline_anno(str(conf_path))
+            if ehive_url is None:
+                raise RuntimeError(
+                    "Failed to retrieve eHive URL for annotation pipeline"
+                )
+
+            ehive_urls["anno"] = ehive_url  # type: ignore[assignment]
             logger.info(f"Extracted EHIVE_URL: {ehive_url}")
 
             update_registry_path_in_pipedb(parent_dir, server_info)
@@ -168,7 +180,7 @@ def main(gcas: str, settings_file: str, seed_url: Optional[str]) -> Dict[str, An
 
         # Common seeding step
         logger.info(f"Seeding non-vertebrate pipeline from {json_file}")
-        with open(json_file) as f:
+        with open(json_file) as f:  # pylint:disable=unspecified-encoding
             params = json.load(f)
 
         seed_jobs_from_json(json_file=params, analysis_id=1, ehive_url=seed_url)
@@ -184,7 +196,7 @@ def main(gcas: str, settings_file: str, seed_url: Optional[str]) -> Dict[str, An
 
             if not conf_files:
                 raise FileNotFoundError(f"No .conf file found in {parent_dir}")
-            elif len(conf_files) > 1:
+            if len(conf_files) > 1:
                 raise RuntimeError(
                     f"Multiple .conf files found in {parent_dir}: {conf_files}"
                 )
@@ -192,6 +204,11 @@ def main(gcas: str, settings_file: str, seed_url: Optional[str]) -> Dict[str, An
             conf_path = conf_files[0]
 
             ehive_url = init_pipeline_main(str(conf_path))
+            if ehive_url is None:
+                raise RuntimeError(
+                    "Failed to retrieve eHive URL for annotation pipeline"
+                )
+
             ehive_urls["main"][gca] = ehive_url
             logger.info(f"Extracted EHIVE_URL for {gca}: {ehive_url}")
 
@@ -200,7 +217,7 @@ def main(gcas: str, settings_file: str, seed_url: Optional[str]) -> Dict[str, An
     output_dir_current = Path.cwd()
     ehive_url_file = output_dir_current / "ehive_urls.json"
 
-    with open(ehive_url_file, "w") as f:
+    with open(ehive_url_file, "w") as f:  # pylint:disable=unspecified-encoding
         json.dump(ehive_urls, f, indent=2)
 
     logger.info(f"Saved EHIVE URLs to {ehive_url_file}")

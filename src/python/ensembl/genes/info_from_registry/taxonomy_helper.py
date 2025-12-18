@@ -9,12 +9,15 @@ Functions:
     - assign_clade_info_custom_loading: Loads clade details by name from JSON config.
 """
 
+# pylint:disable=logging-fstring-interpolation, unspecified-encoding, too-many-locals
 import os
-import pymysql
 import json
-from mysql_helper import mysql_fetch_data
 import logging
-from typing import Optional
+from typing import Any, Optional
+import pymysql
+
+from ensembl.genes.info_from_registry.mysql_helper import mysql_fetch_data
+
 
 # Configure logging
 logging.basicConfig(
@@ -27,7 +30,7 @@ logger = logging.getLogger(__name__)
 
 def create_tax_dictionary_from_registry(
     server_info: dict, registry_info: dict
-) -> dict[str, list[dict[str, any]]]:
+) -> dict[str, list[dict[str, Any]]]:
     """
     Query the registry MySQL database to construct taxonomy hierarchy for a given taxon ID.
 
@@ -60,7 +63,7 @@ def create_tax_dictionary_from_registry(
             params=taxon_id,
         )
 
-        taxonomy_dict = {}
+        taxonomy_dict: dict[str, list[dict[str, Any]]] = {}
         for row in taxonomy_info:
             lowest_taxon_id = row["lowest_taxon_id"]
             if lowest_taxon_id not in taxonomy_dict:
@@ -80,7 +83,7 @@ def create_tax_dictionary_from_registry(
         return {}
 
 
-def load_clade_data() -> dict[str, dict[str, any]]:
+def load_clade_data() -> dict[str, dict[str, Any]]:
     """
     Load clade definitions from a static JSON file.
 
@@ -92,7 +95,7 @@ def load_clade_data() -> dict[str, dict[str, any]]:
         json.JSONDecodeError: If the JSON is malformed.
     """
     json_file = os.path.join(
-        os.environ.get("ENSCODE"),
+        str(os.environ.get("ENSCODE")),
         "ensembl-genes",
         "src",
         "python",
@@ -109,7 +112,7 @@ def load_clade_data() -> dict[str, dict[str, any]]:
 
 def assign_clade(
     server_info: dict, registry_info: dict
-) -> tuple[str, Optional[int], Optional[dict[str, any]]]:
+) -> tuple[str, Optional[int], Optional[dict[str, Any]]]:
     """
     Assign a clade to a given taxon based on clade data and taxonomy hierarchy.
 
@@ -157,7 +160,8 @@ def assign_clade(
             clade_details["helixer_lineage"] = clade_details.get("helixer_lineage", "")
 
             logging.info(
-                f"Exact match: Assigned clade '{internal_clade}' for taxon {registry_info['taxon_id']}"
+                f"Exact match: Assigned clade '{internal_clade}' \
+                    for taxon {registry_info['taxon_id']}"
             )
             return internal_clade, genus_taxon_id, clade_details
 
@@ -190,7 +194,8 @@ def assign_clade(
                 )
 
                 logging.info(
-                    f"Hierarchy match: Assigned clade '{internal_clade}' via {taxon_class} taxon_id {current_taxon_id}"
+                    f"Hierarchy match: Assigned clade '{internal_clade}' \
+                        via {taxon_class} taxon_id {current_taxon_id}"
                 )
                 return internal_clade, genus_taxon_id, clade_details
 
@@ -201,7 +206,7 @@ def assign_clade(
     return "Unassigned", genus_taxon_id, None
 
 
-def assign_clade_info_custom_loading(registry_info: dict) -> Optional[dict[str, any]]:
+def assign_clade_info_custom_loading(registry_info: dict) -> Optional[dict[str, Any]]:
     """
     Look for a specific clade in the JSON data and return all values except for taxon_id.
 
@@ -222,7 +227,7 @@ def assign_clade_info_custom_loading(registry_info: dict) -> Optional[dict[str, 
         return None
 
     # Look for the specific clade in the dictionary
-    if clade_name in clade_data:
+    if clade_name in clade_data:  # pylint:disable=no-else-return
         details = clade_data[clade_name]
         # Return all details except taxon_id
         clade_details = {k: v for k, v in details.items() if k != "taxon_id"}
@@ -239,7 +244,8 @@ def get_parent_taxon(server_info: dict, species_taxon_id: int) -> str:
     Fetch the parent taxon name from the taxonomy table for a given taxon ID.
 
     Args:
-        server_info (dict): Server connection info with keys 'db_host', 'db_user', 'db_port', 'db_name'.
+        server_info (dict): Server connection info with keys 'db_host', \
+            'db_user', 'db_port', 'db_name'.
         species_taxon_id (int): The taxon ID for which to find the parent taxon.
 
     Returns:
@@ -272,4 +278,6 @@ def get_parent_taxon(server_info: dict, species_taxon_id: int) -> str:
         return str(result[0]["taxon_class_name"])
 
     except Exception as e:
-        raise RuntimeError(f"Error fetching parent taxon: {e}")
+        raise RuntimeError(  # pylint:disable=raise-missing-from
+            f"Error fetching parent taxon: {e}"
+        )

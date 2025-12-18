@@ -8,12 +8,13 @@ Reads metrics from core DB meta table and writes them to registry tables:
 Uses DELETE then INSERT pattern to avoid stale/duplicated metrics.
 """
 
-from mysql_helper import mysql_get_connection
-from registry_helper import fetch_registry_ids
+# pylint:disable=f-string-without-interpolation, broad-exception-raised
 import argparse
 import sys
 from typing import Optional
 import pymysql
+from ensembl.genes.info_from_registry.mysql_helper import mysql_get_connection
+from ensembl.genes.info_from_registry.registry_helper import fetch_registry_ids
 
 
 def fetch_core_metrics(
@@ -41,7 +42,7 @@ def fetch_core_metrics(
     """
     with core_connection.cursor() as cursor:
         cursor.execute(query, (species_id,))
-        return cursor.fetchall()
+        return cursor.fetchall() # type: ignore[return-value]
 
 
 def partition_metrics(
@@ -166,7 +167,8 @@ def write_genebuild_metrics(
             cursor.execute(delete_query, (genebuild_status_id, *metric_names))
             deleted = cursor.rowcount
             print(
-                f"Deleted {deleted} existing genebuild metrics for genebuild_status_id {genebuild_status_id}"
+                f"Deleted {deleted} existing genebuild metrics for \
+                    genebuild_status_id {genebuild_status_id}"
             )
 
             cursor.executemany(
@@ -181,7 +183,7 @@ def write_genebuild_metrics(
         )
 
 
-def main(
+def main(  # pylint:disable=too-many-arguments, too-many-positional-arguments, too-many-locals
     registry_host: str,
     registry_port: int,
     registry_user: str,
@@ -201,7 +203,8 @@ def main(
     Main function to write metrics from core DB to registry DB.
 
     Args:
-        registry_host, registry_port, registry_user, registry_password, registry_db: Registry DB connection
+        registry_host, registry_port, registry_user, registry_password,\
+            registry_db: Registry DB connection
         core_host, core_port, core_user, core_password, core_db: Core DB connection
         assembly (str): Assembly Accession (GCA format)
         species_id (int): Species ID in core meta table
@@ -256,7 +259,8 @@ def main(
         # Partition metrics
         assembly_rows, genebuild_rows = partition_metrics(meta_rows)
         print(
-            f"Found {len(assembly_rows)} assembly metrics and {len(genebuild_rows)} genebuild metrics"
+            f"Found {len(assembly_rows)} assembly metrics and \
+                {len(genebuild_rows)} genebuild metrics"
         )
 
         # Write metrics to registry
@@ -272,7 +276,7 @@ def main(
         else:
             print("DEV MODE: No changes were made to the registry database")
 
-    except Exception as e:
+    except Exception as e:  # pylint:disable=broad-exception-caught
         if registry_connection:
             registry_connection.rollback()
         print(f"ERROR: {str(e)}", file=sys.stderr)

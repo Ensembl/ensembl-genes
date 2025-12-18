@@ -2,8 +2,8 @@
 """This module manages the assignment of stable space IDs for genomic assemblies"""
 import logging
 import pymysql  # type: ignore
-from mysql_helper import mysql_fetch_data
-from check_stable_space_old_registry import get_old_stable_space_info
+from ensembl.genes.info_from_registry.mysql_helper import mysql_fetch_data
+from ensembl.genes.info_from_registry.check_stable_space_old_registry import get_old_stable_space_info
 
 # Configure logging
 logging.basicConfig(
@@ -178,7 +178,7 @@ def stable_space_range(stable_space_id: int, server_info: dict) -> bool:
                 database=server_info["registry"]["db_name"],
             )
 
-            if insert_to_db(
+            if insert_to_db(  # pylint: disable=no-else-return
                 insert_query, conn, store_new_registry=True
             ):  # pylint: disable=no-else-return
                 logger.info(
@@ -186,7 +186,7 @@ def stable_space_range(stable_space_id: int, server_info: dict) -> bool:
                 )
                 conn.close()
                 return new_start
-            else:  # pylint: disable=no-else-return
+            else:
                 logger.error(
                     f"Failed to insert stable space range for ID {stable_space_id}."
                 )
@@ -238,7 +238,7 @@ def assign_stable_id(
             database=server_info["registry"]["db_name"],
         )
 
-        if insert_to_db(
+        if insert_to_db(  # pylint: disable=no-else-return
             insert_query, conn, store_new_registry=True
         ):  # pylint: disable=no-else-return
             logger.info(
