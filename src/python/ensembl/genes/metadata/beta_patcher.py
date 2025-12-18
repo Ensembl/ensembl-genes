@@ -763,7 +763,7 @@ See patches_template.csv for a complete example.
         return 1
 
     # Generate consolidated patch files
-    if generate_all_patches(# pylint: disable=no-else-return
+    if generate_all_patches(  # pylint: disable=no-else-return
         grouped_patches, args.output_dir, args.jira_ticket, logger
     ):
         logger.info(f"Success! Log: {log_file}")
