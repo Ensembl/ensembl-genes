@@ -503,7 +503,11 @@ def main() -> None:
           if args.csv_for_main:
             print(df_final.head())
             if args.limit:
-                df_final=df_final[0:int(args.limit)]
+                #df_final=df_final[0:int(args.limit)]
+                df_final = df_final.sample(
+                    n=min(int(args.limit), len(df_final)),
+                    random_state=None,  # or set an int for reproducibility
+                )
             df_final.loc[:, "file_name"] = df_final["file_name"].astype(str) + ".fastq.gz"
             df_final.loc[:, "col1"] = 1
             df_final.loc[:, "col_1"] = -1
