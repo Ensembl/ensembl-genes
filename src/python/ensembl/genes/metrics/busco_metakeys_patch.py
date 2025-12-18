@@ -22,7 +22,7 @@ from typing import Dict, Optional, Union
 import pymysql
 
 
-def parse_busco_file(
+def parse_busco_file(  # pylint: disable=too-many-locals, too-many-statements, too-many-positional-arguments, unspecified-encoding
     file_path: str,
 ) -> Dict[
     str, Union[str, int, float]
