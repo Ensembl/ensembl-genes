@@ -59,6 +59,26 @@ for path in sorted(PKG_ROOT.rglob("*.py")):
     # Add to navigation under "Code reference"
     nav["Code reference", *module_parts] = out_path.as_posix()
 
+# ----------------------------
+# 3a. Capture README.md files
+# ----------------------------
+
+for readme_path in sorted(PKG_ROOT.rglob("README.md")):
+    # Example:
+    # src/python/ensembl/genes/automation/README.md
+    module_parts = readme_path.relative_to(SRC_ROOT).with_suffix("").parts
+    out_path = Path(*module_parts).with_suffix(".md")
+
+    # Copy the content of README.md to the mkdocs output
+    mkdocs_gen_files.set_edit_path(out_path, readme_path)
+    with mkdocs_gen_files.open(out_path, "w") as f:
+        content = readme_path.read_text()
+        # Optionally add a header with the folder name
+        f.write(f"# {module_parts[-1].replace('_', ' ').title()}\n\n")
+        f.write(content)
+
+    # Add README to nav under "Code reference"
+    nav["Code reference", *module_parts] = out_path.as_posix()
 # Write summary.md for mkdocs-literate-nav
 summary_path = OUT_DIR / "summary.md"
 with mkdocs_gen_files.open(summary_path, "w") as nav_file:
