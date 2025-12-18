@@ -2550,6 +2550,8 @@
 
     <div class="doc doc-contents first">
 
+        <p>Script to compare protein IDs between two GFF3 files and generate a report</p>
+
 
 
 
@@ -2641,54 +2643,86 @@
 
     <div class="doc doc-contents ">
 
+        <p>Compare protein sets from two GFF3 files and generate a report.
+Args:
+    gff3_file_old (str): Path to the older GFF3 file.
+    gff3_file_new (str): Path to the newer GFF3 file.
+    output_report (str): Path to save the output report.
+Returns:
+    None</p>
+
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/python/ensembl/genes/stable_id/pid_overlap.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">45</span>
-<span class="normal">46</span>
-<span class="normal">47</span>
-<span class="normal">48</span>
-<span class="normal">49</span>
-<span class="normal">50</span>
-<span class="normal">51</span>
-<span class="normal">52</span>
-<span class="normal">53</span>
-<span class="normal">54</span>
-<span class="normal">55</span>
-<span class="normal">56</span>
-<span class="normal">57</span>
-<span class="normal">58</span>
-<span class="normal">59</span>
-<span class="normal">60</span>
-<span class="normal">61</span>
-<span class="normal">62</span>
-<span class="normal">63</span>
-<span class="normal">64</span>
-<span class="normal">65</span>
-<span class="normal">66</span>
-<span class="normal">67</span>
-<span class="normal">68</span>
-<span class="normal">69</span>
-<span class="normal">70</span>
-<span class="normal">71</span>
-<span class="normal">72</span>
-<span class="normal">73</span>
-<span class="normal">74</span>
-<span class="normal">75</span>
-<span class="normal">76</span>
-<span class="normal">77</span>
-<span class="normal">78</span>
-<span class="normal">79</span>
-<span class="normal">80</span>
-<span class="normal">81</span>
-<span class="normal">82</span>
-<span class="normal">83</span>
-<span class="normal">84</span>
-<span class="normal">85</span>
-<span class="normal">86</span>
-<span class="normal">87</span>
-<span class="normal">88</span>
-<span class="normal">89</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">compare_protein_sets</span><span class="p">(</span><span class="n">gff3_file_old</span><span class="p">,</span> <span class="n">gff3_file_new</span><span class="p">,</span> <span class="n">output_report</span><span class="p">):</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 55</span>
+<span class="normal"> 56</span>
+<span class="normal"> 57</span>
+<span class="normal"> 58</span>
+<span class="normal"> 59</span>
+<span class="normal"> 60</span>
+<span class="normal"> 61</span>
+<span class="normal"> 62</span>
+<span class="normal"> 63</span>
+<span class="normal"> 64</span>
+<span class="normal"> 65</span>
+<span class="normal"> 66</span>
+<span class="normal"> 67</span>
+<span class="normal"> 68</span>
+<span class="normal"> 69</span>
+<span class="normal"> 70</span>
+<span class="normal"> 71</span>
+<span class="normal"> 72</span>
+<span class="normal"> 73</span>
+<span class="normal"> 74</span>
+<span class="normal"> 75</span>
+<span class="normal"> 76</span>
+<span class="normal"> 77</span>
+<span class="normal"> 78</span>
+<span class="normal"> 79</span>
+<span class="normal"> 80</span>
+<span class="normal"> 81</span>
+<span class="normal"> 82</span>
+<span class="normal"> 83</span>
+<span class="normal"> 84</span>
+<span class="normal"> 85</span>
+<span class="normal"> 86</span>
+<span class="normal"> 87</span>
+<span class="normal"> 88</span>
+<span class="normal"> 89</span>
+<span class="normal"> 90</span>
+<span class="normal"> 91</span>
+<span class="normal"> 92</span>
+<span class="normal"> 93</span>
+<span class="normal"> 94</span>
+<span class="normal"> 95</span>
+<span class="normal"> 96</span>
+<span class="normal"> 97</span>
+<span class="normal"> 98</span>
+<span class="normal"> 99</span>
+<span class="normal">100</span>
+<span class="normal">101</span>
+<span class="normal">102</span>
+<span class="normal">103</span>
+<span class="normal">104</span>
+<span class="normal">105</span>
+<span class="normal">106</span>
+<span class="normal">107</span>
+<span class="normal">108</span>
+<span class="normal">109</span>
+<span class="normal">110</span>
+<span class="normal">111</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">compare_protein_sets</span><span class="p">(</span>
+    <span class="n">gff3_file_old</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>  <span class="c1"># pylint:disable=redefined-outer-name</span>
+    <span class="n">gff3_file_new</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>  <span class="c1"># pylint:disable=redefined-outer-name</span>
+    <span class="n">output_report</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>  <span class="c1"># pylint:disable=redefined-outer-name</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># pylint:disable=redefined-outer-name</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compare protein sets from two GFF3 files and generate a report.</span>
+<span class="sd">    Args:</span>
+<span class="sd">        gff3_file_old (str): Path to the older GFF3 file.</span>
+<span class="sd">        gff3_file_new (str): Path to the newer GFF3 file.</span>
+<span class="sd">        output_report (str): Path to save the output report.</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        None</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Extract protein information from both files</span>
     <span class="n">proteins_old</span> <span class="o">=</span> <span class="n">extract_proteins_from_gff3</span><span class="p">(</span><span class="n">gff3_file_old</span><span class="p">)</span>
     <span class="n">proteins_new</span> <span class="o">=</span> <span class="n">extract_proteins_from_gff3</span><span class="p">(</span><span class="n">gff3_file_new</span><span class="p">)</span>
@@ -2750,14 +2784,16 @@
 
     <div class="doc doc-contents ">
 
+        <p>Extract protein information from GFF3 file.
+Args:
+    gff3_file (str): Path to the GFF3 file.
+Returns:
+    pd.DataFrame: DataFrame containing protein information.</p>
+
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/python/ensembl/genes/stable_id/pid_overlap.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 8</span>
-<span class="normal"> 9</span>
-<span class="normal">10</span>
-<span class="normal">11</span>
-<span class="normal">12</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">12</span>
 <span class="normal">13</span>
 <span class="normal">14</span>
 <span class="normal">15</span>
@@ -2786,9 +2822,25 @@
 <span class="normal">38</span>
 <span class="normal">39</span>
 <span class="normal">40</span>
-<span class="normal">41</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">extract_proteins_from_gff3</span><span class="p">(</span><span class="n">gff3_file</span><span class="p">):</span>
+<span class="normal">41</span>
+<span class="normal">42</span>
+<span class="normal">43</span>
+<span class="normal">44</span>
+<span class="normal">45</span>
+<span class="normal">46</span>
+<span class="normal">47</span>
+<span class="normal">48</span>
+<span class="normal">49</span>
+<span class="normal">50</span>
+<span class="normal">51</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">extract_proteins_from_gff3</span><span class="p">(</span><span class="n">gff3_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Extract protein information from GFF3 file.</span>
+<span class="sd">    Args:</span>
+<span class="sd">        gff3_file (str): Path to the GFF3 file.</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        pd.DataFrame: DataFrame containing protein information.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">protein_data</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">gff3_file</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">gff3_file</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>  <span class="c1"># pylint: disable=unspecified-encoding</span>
         <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">file</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;#&quot;</span><span class="p">):</span>
                 <span class="k">continue</span>
@@ -2815,10 +2867,10 @@
                         <span class="n">protein_data</span><span class="p">[</span><span class="n">protein_id</span><span class="p">][</span><span class="s2">&quot;End&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span>
                             <span class="n">protein_data</span><span class="p">[</span><span class="n">protein_id</span><span class="p">][</span><span class="s2">&quot;End&quot;</span><span class="p">],</span> <span class="nb">int</span><span class="p">(</span><span class="n">columns</span><span class="p">[</span><span class="mi">4</span><span class="p">])</span>
                         <span class="p">)</span>
-                        <span class="n">protein_data</span><span class="p">[</span><span class="n">protein_id</span><span class="p">][</span><span class="s2">&quot;Attributes&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">attributes</span><span class="p">)</span>
+                        <span class="n">protein_data</span><span class="p">[</span><span class="n">protein_id</span><span class="p">][</span><span class="s2">&quot;Attributes&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">attributes</span><span class="p">)</span>  <span class="c1"># type: ignore[union-attr] pylint:disable=line-too-long</span>
     <span class="c1"># Flatten attributes into a single string for each protein</span>
     <span class="k">for</span> <span class="n">protein</span> <span class="ow">in</span> <span class="n">protein_data</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
-        <span class="n">protein</span><span class="p">[</span><span class="s2">&quot;Attributes&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">protein</span><span class="p">[</span><span class="s2">&quot;Attributes&quot;</span><span class="p">])</span>
+        <span class="n">protein</span><span class="p">[</span><span class="s2">&quot;Attributes&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">protein</span><span class="p">[</span><span class="s2">&quot;Attributes&quot;</span><span class="p">])</span>  <span class="c1"># type: ignore[arg-type]</span>
     <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">protein_data</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
 </code></pre></div></td></tr></table></div>
             </details>
