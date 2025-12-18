@@ -194,7 +194,7 @@ def get_biosample_metadata(
     Returns:
         Dict[str, str]: Dictionary containing metadata from BioSample.
     """
-        
+
     biosample_url = f"https://www.ebi.ac.uk/biosamples/samples/{biosample_id}"
     biosample_return = requests.get(biosample_url).text
     return_dict: Dict[str, str] = {"organism.strain": "", "organism.strain_type": ""}
