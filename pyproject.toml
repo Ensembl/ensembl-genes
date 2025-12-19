@@ -16,10 +16,11 @@ classifiers = [
     "Topic :: Scientific/Engineering :: Bio-Informatics"
 ]
 dependencies = [
-    "pymysql == 1.0.2",
-    "requests >= 2.32.5",
+    "pymysql",
+    "requests",
     "sqlalchemy == 1.4.9",
-    "xmltodict"
+    "xmltodict",
+    "pandas"
 ]
 
 [project.optional-dependencies]
@@ -36,6 +37,7 @@ dev = [
     "mkdocs-literate-nav",
     "mkdocs-section-index",
     "mkdocs-coverage",
+    "types-PyMySQL",
 ]
 
 [project.urls]
@@ -43,6 +45,7 @@ repository = "https://github.com/Ensembl/ensembl-genes"
 
 [project.scripts]
 star2introns = "ensembl.genes.star2introns:main"
+pre_release_ftp = "ensembl.genes.automation.pre_release_ftp:main"
 
 [build-system]
 requires = [
