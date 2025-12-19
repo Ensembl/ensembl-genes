@@ -4860,8 +4860,8 @@ Returns:
 
     <div class="doc doc-contents ">
 
-        <p>Run a simple SELECT query and return fetched rows.</p>
-<p>Returns an empty list on error.
+        <p>Run a simple SELECT query and return fetched rows.
+Returns an empty list on error.
 Args:
     query (str): SQL SELECT query to execute.
     database (str): Name of the database.
@@ -4915,8 +4915,8 @@ Returns:
 <span class="normal">58</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">mysql_fetch_data</span><span class="p">(</span>
     <span class="n">query</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">database</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">host</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">port</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">user</span><span class="p">:</span> <span class="nb">str</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="o">...</span><span class="p">]]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Run a simple SELECT query and return fetched rows.</span>
-
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Run a simple SELECT query and return fetched rows.</span>
 <span class="sd">    Returns an empty list on error.</span>
 <span class="sd">    Args:</span>
 <span class="sd">        query (str): SQL SELECT query to execute.</span>

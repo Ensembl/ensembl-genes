@@ -2695,14 +2695,10 @@ and FTP links if available.</p>
 
         <p>Adds FTP links to the annotations dictionary based on the release type.
 Args:
-    annotations (Dict[str, Dict[str, Any]]): A dictionary where each key is
-        an assembly accession and its value contains annotation details,
-        including matches with database names or genome UUIDs.
-    release_type (str): The type of release to determine FTP link construction.
-        Can be either "live" or "pre".
+    annotations (Dict[str, Dict[str, Any]]): A dictionary where each key is             an assembly accession and its value contains annotation details,             including matches with database names or genome UUIDs.
+    release_type (str): The type of release to determine FTP link construction.            Can be either "live" or "pre".
 Returns:
-    Dict[str, Dict[str, Any]]: The updated annotations dictionary with FTP links
-    added to each match and the top-level annotation where applicable.</p>
+    Dict[str, Dict[str, Any]]: The updated annotations dictionary with FTP links         added to each match and the top-level annotation where applicable.</p>
 
 
             <details class="mkdocstrings-source">
@@ -2799,13 +2795,13 @@ Returns:
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Adds FTP links to the annotations dictionary based on the release type.</span>
 <span class="sd">    Args:</span>
-<span class="sd">        annotations (Dict[str, Dict[str, Any]]): A dictionary where each key is</span>
-<span class="sd">            an assembly accession and its value contains annotation details,</span>
+<span class="sd">        annotations (Dict[str, Dict[str, Any]]): A dictionary where each key is \</span>
+<span class="sd">            an assembly accession and its value contains annotation details, \</span>
 <span class="sd">            including matches with database names or genome UUIDs.</span>
-<span class="sd">        release_type (str): The type of release to determine FTP link construction.</span>
+<span class="sd">        release_type (str): The type of release to determine FTP link construction.\</span>
 <span class="sd">            Can be either &quot;live&quot; or &quot;pre&quot;.</span>
 <span class="sd">    Returns:</span>
-<span class="sd">        Dict[str, Dict[str, Any]]: The updated annotations dictionary with FTP links</span>
+<span class="sd">        Dict[str, Dict[str, Any]]: The updated annotations dictionary with FTP links \</span>
 <span class="sd">        added to each match and the top-level annotation where applicable.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">for</span> <span class="n">accession</span><span class="p">,</span> <span class="n">annotation</span> <span class="ow">in</span> <span class="n">annotations</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
@@ -3346,18 +3342,12 @@ Returns:
     <div class="doc doc-contents ">
 
         <p>Checks for the existence of pre-release Ensembl database schemas for a         list of missing accessions.
-This function takes a list of GenBank/RefSeq assembly accessions that were not found in the
-Ensembl live database lookup (e.g., from <code>get_ensembl_live</code>). It reformats each accession
-to match the expected pre-release Ensembl database schema naming convention (e.g.,
-'GCA_000001405.39' → 'gca000001405v39') and queries the MySQL server's
-<code>information_schema.schemata</code> table to check if a database with that name exists.
-If such a schema is found, the function records the corresponding accession and
-database name in the returned dictionary.
+This function takes a list of GenBank/RefSeq assembly accessions that were not found in the     Ensembl live database lookup (e.g., from <code>get_ensembl_live</code>). It reformats each accession     to match the expected pre-release Ensembl database schema naming convention (e.g.,    'GCA_000001405.39' → 'gca000001405v39') and queries the MySQL server's     <code>information_schema.schemata</code> table to check if a database with that name exists.
+If such a schema is found, the function records the corresponding accession and     database name in the returned dictionary.
 Args:
-    missing_annotations (List[str]): A list of assembly accessions (e.g., 'GCA_000001405.39')
-        for which no live annotation database was found.
+    missing_annotations (List[str]): A list of assembly accessions (e.g., 'GCA_000001405.39')             for which no live annotation database was found.
 Returns:
-    Dict[str, Dict[str, str]]: A dictionary mapping each accession with a found pre-release
+    Dict[str, Dict[str, str]]: A dictionary mapping each accession with a found pre-release 
     database to a nested dictionary containing:
         - "dbname": The name of the pre-release schema (e.g., 'gca000001405v39').
     Example:
@@ -3433,18 +3423,18 @@ Notes:
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Checks for the existence of pre-release Ensembl database schemas for a \</span>
 <span class="sd">        list of missing accessions.</span>
-<span class="sd">    This function takes a list of GenBank/RefSeq assembly accessions that were not found in the</span>
-<span class="sd">    Ensembl live database lookup (e.g., from `get_ensembl_live`). It reformats each accession</span>
-<span class="sd">    to match the expected pre-release Ensembl database schema naming convention (e.g.,</span>
-<span class="sd">    &#39;GCA_000001405.39&#39; → &#39;gca000001405v39&#39;) and queries the MySQL server&#39;s</span>
+<span class="sd">    This function takes a list of GenBank/RefSeq assembly accessions that were not found in the \</span>
+<span class="sd">    Ensembl live database lookup (e.g., from `get_ensembl_live`). It reformats each accession \</span>
+<span class="sd">    to match the expected pre-release Ensembl database schema naming convention (e.g.,\</span>
+<span class="sd">    &#39;GCA_000001405.39&#39; → &#39;gca000001405v39&#39;) and queries the MySQL server&#39;s \</span>
 <span class="sd">    `information_schema.schemata` table to check if a database with that name exists.</span>
-<span class="sd">    If such a schema is found, the function records the corresponding accession and</span>
+<span class="sd">    If such a schema is found, the function records the corresponding accession and \</span>
 <span class="sd">    database name in the returned dictionary.</span>
 <span class="sd">    Args:</span>
-<span class="sd">        missing_annotations (List[str]): A list of assembly accessions (e.g., &#39;GCA_000001405.39&#39;)</span>
+<span class="sd">        missing_annotations (List[str]): A list of assembly accessions (e.g., &#39;GCA_000001405.39&#39;) \</span>
 <span class="sd">            for which no live annotation database was found.</span>
 <span class="sd">    Returns:</span>
-<span class="sd">        Dict[str, Dict[str, str]]: A dictionary mapping each accession with a found pre-release</span>
+<span class="sd">        Dict[str, Dict[str, str]]: A dictionary mapping each accession with a found pre-release </span>
 <span class="sd">        database to a nested dictionary containing:</span>
 <span class="sd">            - &quot;dbname&quot;: The name of the pre-release schema (e.g., &#39;gca000001405v39&#39;).</span>
 <span class="sd">        Example:</span>
@@ -3502,15 +3492,11 @@ Notes:
     <div class="doc doc-contents ">
 
         <p>Fetches taxonomy information for a given rank from the NCBI Datasets API.
-For each accession in <code>live_annotations</code>, this function retrieves its <code>taxon_id</code>
-and queries the NCBI taxonomy endpoint to get the classification at the specified rank.
+For each accession in <code>live_annotations</code>, this function retrieves its <code>taxon_id</code>    and queries the NCBI taxonomy endpoint to get the classification at the specified rank.
 The retrieved rank name is then added to the corresponding annotation data.
 Args:
-    live_annotations (Dict[str, Dict[str, str]]): A dictionary where each key is
-        an assembly accession and its value contains annotation details (including
-        at least "taxon_id").
-    accessions_taxon (Dict[str, Dict[str, int]]): A dictionary mapping accessions
-        to basic taxon information, such as {"GCA_000001405.39": {"taxon_id": 9606}}.
+    live_annotations (Dict[str, Dict[str, str]]): A dictionary where each key is             an assembly accession and its value contains annotation details (including             at least "taxon_id").
+    accessions_taxon (Dict[str, Dict[str, int]]): A dictionary mapping accessions             to basic taxon information, such as {"GCA_000001405.39": {"taxon_id": 9606}}.
     rank (str): The taxonomic rank to retrieve (e.g., "order", "class", "phylum").
 Returns:
     Dict[str, Dict[str, str]]: The updated <code>live_annotations</code> dictionary with an
@@ -3594,14 +3580,14 @@ Returns:
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Fetches taxonomy information for a given rank from the NCBI Datasets API.</span>
-<span class="sd">    For each accession in `live_annotations`, this function retrieves its `taxon_id`</span>
+<span class="sd">    For each accession in `live_annotations`, this function retrieves its `taxon_id`\</span>
 <span class="sd">    and queries the NCBI taxonomy endpoint to get the classification at the specified rank.</span>
 <span class="sd">    The retrieved rank name is then added to the corresponding annotation data.</span>
 <span class="sd">    Args:</span>
-<span class="sd">        live_annotations (Dict[str, Dict[str, str]]): A dictionary where each key is</span>
-<span class="sd">            an assembly accession and its value contains annotation details (including</span>
+<span class="sd">        live_annotations (Dict[str, Dict[str, str]]): A dictionary where each key is \</span>
+<span class="sd">            an assembly accession and its value contains annotation details (including \</span>
 <span class="sd">            at least &quot;taxon_id&quot;).</span>
-<span class="sd">        accessions_taxon (Dict[str, Dict[str, int]]): A dictionary mapping accessions</span>
+<span class="sd">        accessions_taxon (Dict[str, Dict[str, int]]): A dictionary mapping accessions \</span>
 <span class="sd">            to basic taxon information, such as {&quot;GCA_000001405.39&quot;: {&quot;taxon_id&quot;: 9606}}.</span>
 <span class="sd">        rank (str): The taxonomic rank to retrieve (e.g., &quot;order&quot;, &quot;class&quot;, &quot;phylum&quot;).</span>
 <span class="sd">    Returns:</span>
@@ -4151,9 +4137,7 @@ Raises:
         <p>Writes a tab-separated report. If an accession has multiple matches,
 produces one line per match; otherwise one line.
 Args:
-    live_annotations (Dict[str, Dict[str, Any]]): A dictionary where each key is
-        an assembly accession and its value contains annotation details,
-        including matches with database names or genome UUIDs.
+    live_annotations (Dict[str, Dict[str, Any]]): A dictionary where each key is             an assembly accession and its value contains annotation details,             including matches with database names or genome UUIDs.
     report_file (str): The path to the output report file.
     rank (str): The taxonomic rank to include if <code>include_class</code> is True.
     include_class (bool): If True, includes the taxonomic classification at the specified rank.
@@ -4234,8 +4218,8 @@ Returns:
 <span class="sd">    Writes a tab-separated report. If an accession has multiple matches,</span>
 <span class="sd">    produces one line per match; otherwise one line.</span>
 <span class="sd">    Args:</span>
-<span class="sd">        live_annotations (Dict[str, Dict[str, Any]]): A dictionary where each key is</span>
-<span class="sd">            an assembly accession and its value contains annotation details,</span>
+<span class="sd">        live_annotations (Dict[str, Dict[str, Any]]): A dictionary where each key is \</span>
+<span class="sd">            an assembly accession and its value contains annotation details, \</span>
 <span class="sd">            including matches with database names or genome UUIDs.</span>
 <span class="sd">        report_file (str): The path to the output report file.</span>
 <span class="sd">        rank (str): The taxonomic rank to include if `include_class` is True.</span>

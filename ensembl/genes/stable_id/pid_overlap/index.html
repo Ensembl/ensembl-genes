@@ -2654,8 +2654,7 @@ Returns:
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/python/ensembl/genes/stable_id/pid_overlap.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 55</span>
-<span class="normal"> 56</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 56</span>
 <span class="normal"> 57</span>
 <span class="normal"> 58</span>
 <span class="normal"> 59</span>
@@ -2710,12 +2709,15 @@ Returns:
 <span class="normal">108</span>
 <span class="normal">109</span>
 <span class="normal">110</span>
-<span class="normal">111</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">compare_protein_sets</span><span class="p">(</span>
+<span class="normal">111</span>
+<span class="normal">112</span>
+<span class="normal">113</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">compare_protein_sets</span><span class="p">(</span>
     <span class="n">gff3_file_old</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>  <span class="c1"># pylint:disable=redefined-outer-name</span>
     <span class="n">gff3_file_new</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>  <span class="c1"># pylint:disable=redefined-outer-name</span>
     <span class="n">output_report</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>  <span class="c1"># pylint:disable=redefined-outer-name</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># pylint:disable=redefined-outer-name</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compare protein sets from two GFF3 files and generate a report.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compare protein sets from two GFF3 files and generate a report.</span>
 <span class="sd">    Args:</span>
 <span class="sd">        gff3_file_old (str): Path to the older GFF3 file.</span>
 <span class="sd">        gff3_file_new (str): Path to the newer GFF3 file.</span>
@@ -2832,8 +2834,10 @@ Returns:
 <span class="normal">48</span>
 <span class="normal">49</span>
 <span class="normal">50</span>
-<span class="normal">51</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">extract_proteins_from_gff3</span><span class="p">(</span><span class="n">gff3_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Extract protein information from GFF3 file.</span>
+<span class="normal">51</span>
+<span class="normal">52</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">extract_proteins_from_gff3</span><span class="p">(</span><span class="n">gff3_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Extract protein information from GFF3 file.</span>
 <span class="sd">    Args:</span>
 <span class="sd">        gff3_file (str): Path to the GFF3 file.</span>
 <span class="sd">    Returns:</span>
