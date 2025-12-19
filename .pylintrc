@@ -1,0 +1,12 @@
+[MASTER]
+init-hook=import sys;
+    sys.path.insert(0, "src/python")
+
+[MESSAGES CONTROL]
+disable =
+    R0801
+# List of files or directories to be skipped
+ignore=site,build,.venv
+
+# Python version used
+py-version=3.11
