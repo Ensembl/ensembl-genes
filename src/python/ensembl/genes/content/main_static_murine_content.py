@@ -97,7 +97,7 @@ def write_content(info, out_dir, url_path, species_strain):
         url_path (str): Name used to title the output files.
         species_strain (str): Species strain name for the assembly.
     """
-    with open( # pylint: disable=unspecified-encoding
+    with open(  # pylint: disable=unspecified-encoding
         out_dir / f"{url_path}_assembly.html", "w"
     ) as assembly_out:
         print(
