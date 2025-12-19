@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# See the NOTICE file distributed with this work for additional information 
+# See the NOTICE file distributed with this work for additional information
 # regarding copyright ownership.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
