@@ -13,21 +13,29 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Download short and long read data from ENA website"""
-import os.path
-from pathlib import Path
-from typing import List
+
 import argparse
-import requests
-from requests.exceptions import RequestException, HTTPError, ConnectionError, Timeout
+import os.path
 import re
+from pathlib import Path
+import sys
+from typing import List, Tuple
+import requests
+from requests.exceptions import RequestException, HTTPError, Timeout
 
 
-def get_sample_info(accession: str) -> List:
-    """Get info about sample name and description for the run accession"""
+def get_sample_info(accession: str) -> Tuple[str, str]:
+    """
+    Get info about sample name and description for the run accession
+    Args:
+        accession (str): sample accession
+    Returns:
+        List: sample name and description
+    """
     biosample_url = f"https://www.ebi.ac.uk/biosamples/samples/{accession}"
 
     try:
-        response = requests.get(biosample_url)
+        response = requests.get(biosample_url, timeout=60)
         response.raise_for_status()  # Raise an HTTPError if the request was not successful
 
         biosample_data = response.json()
@@ -60,8 +68,8 @@ def get_sample_info(accession: str) -> List:
         sample = re.sub(r"[ ;\(\)\/\\]", "_", sample)
         # remove punctuation
         sample = re.sub(r"[!\"#$%&()*\+,\-\'.\/:;<=>?@\[\]^`{|}~]", "", sample)
-        multi_tissuesREGEX = "([a-zA-Z]+\,)+"
-        if re.search(multi_tissuesREGEX, sample):
+        multi_tissues_regex = r"([a-zA-Z]+\,)+"
+        if re.search(multi_tissues_regex, sample):
             sample = "mixed_tissues"
 
         return (sample, description)
@@ -72,9 +80,19 @@ def get_sample_info(accession: str) -> List:
         return ("unknown", "unknown")
 
 
-def get_data_from_ena(taxon_id: int, read_type: str, tree: bool) -> List[str]:
-    """Query ENA API to get short or long read data"""
-    csv_data = []
+def get_data_from_ena(  # pylint: disable=too-many-locals, too-many-branches
+    taxon_id: int, read_type: str, tree: bool
+) -> List[Tuple[str, ...]]:
+    """
+    Query ENA API to get short or long read data
+    Args:
+        taxon_id (int): NCBI taxon id
+        read_type (str): type of read data to query ('short' or 'long')
+        tree (bool): whether to include subordinate taxa
+    Returns:
+        List[Tuple[str, ...]]: list of tuples with data for csv file
+    """
+    csv_data: List[Tuple[str, ...]] = []
 
     if tree:
         query = f"tax_tree({taxon_id})"
@@ -88,8 +106,8 @@ def get_data_from_ena(taxon_id: int, read_type: str, tree: bool) -> List[str]:
 
     query += " AND library_source=TRANSCRIPTOMIC"
 
-    search_url = f"https://www.ebi.ac.uk/ena/portal/api/search?display=report&query={query}&domain=read&result=read_run&fields=sample_accession,run_accession,fastq_ftp,read_count,instrument_platform,fastq_md5"
-    search_result = requests.get(search_url)
+    search_url = f"https://www.ebi.ac.uk/ena/portal/api/search?display=report&query={query}&domain=read&result=read_run&fields=sample_accession,run_accession,fastq_ftp,read_count,instrument_platform,fastq_md5"  # pylint: disable=line-too-long
+    search_result = requests.get(search_url, timeout=60)
     results = search_result.text.strip().split("\n")[1:]
     is_paired = "1"
     is_mate_1 = "-1"
@@ -110,7 +128,7 @@ def get_data_from_ena(taxon_id: int, read_type: str, tree: bool) -> List[str]:
                 sample, description = get_sample_info(sample_accession)
 
             try:
-                read_count = int(row_data[3])
+                read_count = row_data[3]  # pylint: disable=unused-variable
                 instrument_platform = row_data[4]
             except ValueError:
                 read_count = "0"
@@ -128,7 +146,8 @@ def get_data_from_ena(taxon_id: int, read_type: str, tree: bool) -> List[str]:
                 file_entries = [
                     f for f in file_entries if "_1.fastq.gz" in f or "_2.fastq.gz" in f
                 ]
-                # Assuming the order of md5 corresponds to files and the unwanted file is in the middle
+                # Assuming the order of md5 corresponds to files and the \
+                # unwanted file is in the middle
                 md5_entries = [
                     md5_entries[i]
                     for i, f in enumerate(row_data[2].split(";"))
@@ -139,7 +158,7 @@ def get_data_from_ena(taxon_id: int, read_type: str, tree: bool) -> List[str]:
                     "Warning: Unexpected number of file entries, skipping "
                     + run_accession
                 )
-                next  # Skip further processing for this row
+                continue  # Skip further processing for this row
 
             # Only proceed if we have exactly 2 entries after any necessary filtering
             if (len(file_entries) == 1 and instrument_platform == "PACBIO_SMRT") or (
@@ -201,7 +220,10 @@ class InputSchema(argparse.ArgumentParser):
             "--limit",
             type=int,
             required=False,
-            help="The number of runs to be included in your csv file - consider that 1 run = 2 files, so setting '-l 50' will result in 100 lines in your csv (WARNING: this limit does not consider quality of data, it is a simple subsampling)",
+            help="The number of runs to be included in your csv file \
+                - consider that 1 run = 2 files, so setting '-l 50' will \
+                    result in 100 lines in your csv (WARNING: this limit \
+                        does not consider quality of data, it is a simple subsampling)",
         )
 
 
@@ -214,7 +236,7 @@ def main() -> None:
         print(
             "File " + args.csv_file + " exists, and is not empty, will not overwrite!"
         )
-        exit
+        sys.exit()
     else:
         try:
             csv_data = get_data_from_ena(args.taxon_id, args.read_type, args.tree)

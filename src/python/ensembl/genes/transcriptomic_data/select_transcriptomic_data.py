@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# pylint: disable=missing-module-docstring
 #  See the NOTICE file distributed with this work for additional information
 #  regarding copyright ownership.
 #
@@ -26,11 +25,12 @@ from pathlib import Path
 import pandas as pd
 import pymysql
 from sqlalchemy import create_engine
+from sqlalchemy import text
 
 
 def connect_to_db(
     host: str, user: str, password: str, database: str, port=3306
-) -> pymysql.connections.Connection:
+) -> typing.Optional[pymysql.connections.Connection]:
     """
     Establishes a connection to the MySQL database.
 
@@ -55,7 +55,8 @@ def connect_to_db(
 
 def fastqc_quality(row: pd.Series) -> bool:
     """Calculate FastQC quality based on the criteria.
-    The function checks the FastQC quality criteria for each row and returns True if the criteria are met.
+    The function checks the FastQC quality criteria for \
+        each row and returns True if the criteria are met.
 
 
     Args:
@@ -76,7 +77,8 @@ def fastqc_quality(row: pd.Series) -> bool:
 # Define STAR Quality classification
 def star_quality(row: pd.Series) -> bool:
     """Calculate STAR quality based on the criteria.
-    The function checks the STAR quality criteria for each row and returns True if the criteria are met.
+    The function checks the STAR quality criteria for each row \
+        and returns True if the criteria are met.
     Args:
         row (_type_): dataframe row
     Returns:
@@ -111,14 +113,15 @@ def check_fastqc_star_quality(df: pd.DataFrame) -> pd.DataFrame:
     df["passed_both"] = (df["final_fastqc_status"] == "Passed") & (
         df["final_star_status"] == "Passed"
     )
-    # print(df.head(10))
     return df
 
 
 def create_report(df: pd.DataFrame, tissue_report_file: str) -> pd.DataFrame:
     """Create a report based on the DataFrame.
-    This function summarizes the FastQC and STAR quality results for each taxon_id and run_accession.
-    It calculates the number of runs that passed both quality checks and the percentage of runs that passed.
+    This function summarizes the FastQC and STAR quality results for
+    each taxon_id and run_accession.
+    It calculates the number of runs that passed both quality checks
+    and the percentage of runs that passed.
     The report is printed to the console.
     1. Group the DataFrame by taxon_id and run_accession.
     2. Aggregate the final_fastqc_status and final_star_status columns.
@@ -174,7 +177,6 @@ def create_report(df: pd.DataFrame, tissue_report_file: str) -> pd.DataFrame:
         taxon_pass_summary["passed_star"] - taxon_pass_summary["passed_both"]
     )
 
-    # print(taxon_pass_summary.head())
     # print("\n=== Run Quality Summary by Taxon ===")
     for _, row in taxon_pass_summary.iterrows():
         print(
@@ -225,7 +227,7 @@ def create_report(df: pd.DataFrame, tissue_report_file: str) -> pd.DataFrame:
         )
 
         # Save to text file
-        with open(tissue_report_file, "w") as f:
+        with open(tissue_report_file, "w", encoding="utf-8") as f:
             for _, row in tissue_pass_summary.iterrows():
                 f.write(
                     f"Taxon ID: {int(row['taxon_id'])} | "
@@ -255,7 +257,8 @@ def prioritise_tissues(
 
     Args:
         df (pd.DataFrame): DataFrame containing a 'tissue_prediction' column.
-        priority_tissues (List[str]): List of tissue names to prioritize (e.g., ['brain', 'liver']).
+        priority_tissues (List[str]): List of tissue names to prioritize \
+            (e.g., ['brain', 'liver']).
 
     Returns:
         pd.DataFrame: Modified DataFrame with an added 'priority' column.
@@ -346,18 +349,18 @@ def filter_data(df: pd.DataFrame) -> list:
     return run_accessions
 
 
-def clean_repeated_words(text: str) -> str:
+def clean_repeated_words(input_text: str) -> str:
     """Remove consecutive duplicate words from a string."
 
     Args:
-        text (str): The input string from which to remove
+        input_text (str): The input string from which to remove
         consecutive duplicate words.
 
     Returns:
         str: A string with consecutive duplicate words removed,
         preserving the first occurrence of each word.
     """
-    words = text.split()
+    words = input_text.split()
     if not words:
         return ""
     # Keep only the first occurrence, skip consecutive duplicates
@@ -368,7 +371,7 @@ def clean_repeated_words(text: str) -> str:
     return " ".join(cleaned_words)
 
 
-def main() -> None:
+def main() -> None:  # pylint: disable=too-many-statements
     """Module's entry-point."""
     parser = argparse.ArgumentParser(
         prog="llm_prediction.py", description="Predict tissue using LLMs"
@@ -388,7 +391,7 @@ def main() -> None:
         "--user", type=str, default="ensadmin", required=False, help="User"
     )
     parser.add_argument(
-        "--password", type=str, default="ensembl", required=False, help="Password"
+        "--password", type=str, default="", required=False, help="Password"
     )
     parser.add_argument(
         "--database",
@@ -416,6 +419,12 @@ def main() -> None:
         help="if true will produce the csv we need for main pipeline otherwise \
             the one for the full alignment pipeline",
     )
+    parser.add_argument(
+        "--limit",
+        type=int,
+        required=False,
+        help="max number of run accessions present in the output",
+    )
     args = parser.parse_args()
     engine = create_engine(
         f"mysql+pymysql://{args.user}:{args.password}@{args.host}:{args.port}/{args.database}"
@@ -431,7 +440,8 @@ def main() -> None:
             d.total_sequences, a.uniquely_mapped_reads_percentage, \
             a.percentage_reads_mapped_to_multiple_loci,a.percentage_reads_unmapped_too_short, \
             a.assembly_accession \
-            FROM run r INNER JOIN data_files d ON r.run_id=d.run_id INNER JOIN align a ON r.run_id=a.run_id \
+            FROM run r INNER JOIN data_files d ON r.run_id=d.run_id INNER JOIN align a \
+                ON r.run_id=a.run_id \
             WHERE  r.qc_status='ALIGNED' AND r.paired=1 AND r.platform='ILLUMINA' AND r.taxon_id = "
             + args.taxon_id
         )
@@ -442,8 +452,10 @@ def main() -> None:
             d.per_sequence_quality_scores, d.per_base_n_content, d.overrepresented_sequences, \
             d.total_sequences, a.uniquely_mapped_reads_percentage, \
             a.percentage_reads_mapped_to_multiple_loci,a.percentage_reads_unmapped_too_short \
-            FROM run r INNER JOIN data_files d ON r.run_id=d.run_id INNER JOIN align a ON r.run_id=a.run_id \
-            WHERE  r.qc_status='ALIGNED' AND r.paired=0 AND r.platform='PACBIO_SMRT' AND r.taxon_id = "
+            FROM run r INNER JOIN data_files d ON r.run_id=d.run_id INNER JOIN align a \
+                ON r.run_id=a.run_id \
+            WHERE  r.qc_status='ALIGNED' AND r.paired=0 AND \
+                r.platform='PACBIO_SMRT' AND r.taxon_id = "
             + args.taxon_id
         )
     # Connect to the database
@@ -452,23 +464,17 @@ def main() -> None:
     try:
         # if db_connection:
         # df = pd.read_sql(query, db_connection)
-        df = pd.read_sql(query, engine)
-        # print(f"Loaded {len(df)} rows.")
+        with engine.connect() as conn:
+            df = pd.read_sql(text(query), conn)
     except pymysql.MySQLError as e:
         print(f"Error connecting to MySQL: {e}")
 
     if not df.empty:
         df = check_fastqc_star_quality(df)
 
-        # df["tissue_prediction"] = df["tissue_prediction"].apply(
-        #    lambda x: re.search(r"^(.*)", str(x)).group(1) if re.search(r"^(.*)", str(x)) else x
-        # )
         df["tissue_prediction"] = df["tissue_prediction"].apply(
             lambda x: str(x) if pd.notnull(x) else x
         )
-        # df["tissue_prediction"] = df["tissue_prediction"].apply(
-        #    lambda x: (m.group(1) if (m := re.search(r"^(.*)", str(x))) else x)
-        # )
         df["tissue_prediction"] = (
             df["tissue_prediction"]
             .astype(str)
@@ -508,10 +514,13 @@ def main() -> None:
         create_report(
             df, f"{Path(args.file_name).parent}/{args.taxon_id}_tissue_summary.txt"
         )
-        # print(df.head())
         # Remove duplicates based on 'run_accession' while keeping the first row for each
         df_original = df.copy()
         run_accessions = filter_data(df)
+        # Early exit if empty after filtering
+        if not run_accessions:
+            print("No suitable run_accessions found for this taxon_id.")
+            return
 
         # Build a regex pattern from run_accession list
         selected_accessions = run_accessions[0:25000]
@@ -535,10 +544,14 @@ def main() -> None:
             ),
             axis=1,
         )
-        # print(df_final.head())
         if not df_final.empty:
             if args.csv_for_main:
-                print(df_final.head())
+                if args.limit:
+                    # df_final=df_final[0:int(args.limit)]
+                    df_final = df_final.sample(
+                        n=min(int(args.limit), len(df_final)),
+                        random_state=None,  # or set an int for reproducibility
+                    ).reset_index(drop=True)
                 df_final.loc[:, "file_name"] = (
                     df_final["file_name"].astype(str) + ".fastq.gz"
                 )
@@ -547,7 +560,7 @@ def main() -> None:
                 df_final.loc[:, "col0"] = 0
                 df_final.loc[:, "ENA"] = "ENA"
 
-                with open(args.file_name, "w") as f:
+                with open(args.file_name, "w", encoding="utf-8") as f:
                     df_final.to_csv(
                         f,
                         sep="\t",
@@ -606,8 +619,8 @@ def main() -> None:
                     columns={"predicted_tissue": "tissue"}
                 )
 
-                with open(args.file_name, "w") as f:
-                    output_df.to_csv(
+                with open(args.file_name, "w", encoding="utf-8") as f:
+                    output_df.to_csv(  # pylint: disable=unspecified-encoding
                         f,
                         sep=",",
                         index=False,
