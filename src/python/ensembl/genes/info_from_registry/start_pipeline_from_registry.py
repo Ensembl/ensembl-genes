@@ -1049,9 +1049,7 @@ def main(  # pylint:disable=too-many-branches, too-many-statements, too-many-loc
     # -------------------------
     # Save JSONs
     # -------------------------
-    saved_paths: Dict[str, Union[Path, Dict[str, Path]]] = (
-        {}
-    )
+    saved_paths: Dict[str, Union[Path, Dict[str, Path]]] = {}
 
     # Save anno GCAs as a single file
     anno_params = {
