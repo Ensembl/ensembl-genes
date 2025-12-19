@@ -2680,9 +2680,7 @@ Returns:
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/python/ensembl/genes/transcriptomic_data/select_transcriptomic_data.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 92</span>
-<span class="normal"> 93</span>
-<span class="normal"> 94</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 94</span>
 <span class="normal"> 95</span>
 <span class="normal"> 96</span>
 <span class="normal"> 97</span>
@@ -2703,7 +2701,8 @@ Returns:
 <span class="normal">112</span>
 <span class="normal">113</span>
 <span class="normal">114</span>
-<span class="normal">115</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">check_fastqc_star_quality</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="normal">115</span>
+<span class="normal">116</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">check_fastqc_star_quality</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Apply FastQC and STAR quality to each row</span>
 <span class="sd">    Args:</span>
 <span class="sd">        df (pd.DataFrame): DataFrame containing the data to be processed.</span>
@@ -2725,7 +2724,6 @@ Returns:
     <span class="n">df</span><span class="p">[</span><span class="s2">&quot;passed_both&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;final_fastqc_status&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;Passed&quot;</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span>
         <span class="n">df</span><span class="p">[</span><span class="s2">&quot;final_star_status&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;Passed&quot;</span>
     <span class="p">)</span>
-    <span class="c1"># print(df.head(10))</span>
     <span class="k">return</span> <span class="n">df</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -2737,7 +2735,7 @@ Returns:
 
 
 <h3 id="ensembl.genes.transcriptomic_data.select_transcriptomic_data.clean_repeated_words" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">clean_repeated_words</span><span class="p">(</span><span class="n">text</span><span class="p">)</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">clean_repeated_words</span><span class="p">(</span><span class="n">input_text</span><span class="p">)</span></code>
 
 <a href="#ensembl.genes.transcriptomic_data.select_transcriptomic_data.clean_repeated_words" class="headerlink" title="Permanent link">&para;</a></h3>
 
@@ -2760,7 +2758,7 @@ Returns:
       <tbody>
           <tr class="doc-section-item">
             <td>
-                <code>text</code>
+                <code>input_text</code>
             </td>
             <td>
                   <code><span title="str">str</span></code>
@@ -2813,10 +2811,7 @@ Returns:
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/python/ensembl/genes/transcriptomic_data/select_transcriptomic_data.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">349</span>
-<span class="normal">350</span>
-<span class="normal">351</span>
-<span class="normal">352</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">352</span>
 <span class="normal">353</span>
 <span class="normal">354</span>
 <span class="normal">355</span>
@@ -2832,18 +2827,21 @@ Returns:
 <span class="normal">365</span>
 <span class="normal">366</span>
 <span class="normal">367</span>
-<span class="normal">368</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">clean_repeated_words</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="normal">368</span>
+<span class="normal">369</span>
+<span class="normal">370</span>
+<span class="normal">371</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">clean_repeated_words</span><span class="p">(</span><span class="n">input_text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Remove consecutive duplicate words from a string.&quot;</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        text (str): The input string from which to remove</span>
+<span class="sd">        input_text (str): The input string from which to remove</span>
 <span class="sd">        consecutive duplicate words.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        str: A string with consecutive duplicate words removed,</span>
 <span class="sd">        preserving the first occurrence of each word.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">words</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+    <span class="n">words</span> <span class="o">=</span> <span class="n">input_text</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">words</span><span class="p">:</span>
         <span class="k">return</span> <span class="s2">&quot;&quot;</span>
     <span class="c1"># Keep only the first occurrence, skip consecutive duplicates</span>
@@ -2993,7 +2991,7 @@ Returns:
 <span class="normal">52</span>
 <span class="normal">53</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">connect_to_db</span><span class="p">(</span>
     <span class="n">host</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">user</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">password</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">database</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="mi">3306</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pymysql</span><span class="o">.</span><span class="n">connections</span><span class="o">.</span><span class="n">Connection</span><span class="p">:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">pymysql</span><span class="o">.</span><span class="n">connections</span><span class="o">.</span><span class="n">Connection</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Establishes a connection to the MySQL database.</span>
 
@@ -3032,8 +3030,10 @@ Returns:
     <div class="doc doc-contents ">
 
         <p>Create a report based on the DataFrame.
-This function summarizes the FastQC and STAR quality results for each taxon_id and run_accession.
-It calculates the number of runs that passed both quality checks and the percentage of runs that passed.
+This function summarizes the FastQC and STAR quality results for
+each taxon_id and run_accession.
+It calculates the number of runs that passed both quality checks
+and the percentage of runs that passed.
 The report is printed to the console.
 1. Group the DataFrame by taxon_id and run_accession.
 2. Aggregate the final_fastqc_status and final_star_status columns.
@@ -3057,8 +3057,7 @@ Returns:
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/python/ensembl/genes/transcriptomic_data/select_transcriptomic_data.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">118</span>
-<span class="normal">119</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">119</span>
 <span class="normal">120</span>
 <span class="normal">121</span>
 <span class="normal">122</span>
@@ -3181,10 +3180,14 @@ Returns:
 <span class="normal">239</span>
 <span class="normal">240</span>
 <span class="normal">241</span>
-<span class="normal">242</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">create_report</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">tissue_report_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="normal">242</span>
+<span class="normal">243</span>
+<span class="normal">244</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">create_report</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">tissue_report_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a report based on the DataFrame.</span>
-<span class="sd">    This function summarizes the FastQC and STAR quality results for each taxon_id and run_accession.</span>
-<span class="sd">    It calculates the number of runs that passed both quality checks and the percentage of runs that passed.</span>
+<span class="sd">    This function summarizes the FastQC and STAR quality results for</span>
+<span class="sd">    each taxon_id and run_accession.</span>
+<span class="sd">    It calculates the number of runs that passed both quality checks</span>
+<span class="sd">    and the percentage of runs that passed.</span>
 <span class="sd">    The report is printed to the console.</span>
 <span class="sd">    1. Group the DataFrame by taxon_id and run_accession.</span>
 <span class="sd">    2. Aggregate the final_fastqc_status and final_star_status columns.</span>
@@ -3240,7 +3243,6 @@ Returns:
         <span class="n">taxon_pass_summary</span><span class="p">[</span><span class="s2">&quot;passed_star&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">taxon_pass_summary</span><span class="p">[</span><span class="s2">&quot;passed_both&quot;</span><span class="p">]</span>
     <span class="p">)</span>
 
-    <span class="c1"># print(taxon_pass_summary.head())</span>
     <span class="c1"># print(&quot;\n=== Run Quality Summary by Taxon ===&quot;)</span>
     <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">taxon_pass_summary</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
         <span class="nb">print</span><span class="p">(</span>
@@ -3291,7 +3293,7 @@ Returns:
         <span class="p">)</span>
 
         <span class="c1"># Save to text file</span>
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">tissue_report_file</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">tissue_report_file</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">tissue_pass_summary</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
                 <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
                     <span class="sa">f</span><span class="s2">&quot;Taxon ID: </span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;taxon_id&#39;</span><span class="p">])</span><span class="si">}</span><span class="s2"> | &quot;</span>
@@ -3324,7 +3326,7 @@ Returns:
     <div class="doc doc-contents ">
 
         <p>Calculate FastQC quality based on the criteria.
-The function checks the FastQC quality criteria for each row and returns True if the criteria are met.</p>
+The function checks the FastQC quality criteria for         each row and returns True if the criteria are met.</p>
 
 
 <p><span class="doc-section-title">Parameters:</span></p>
@@ -3400,9 +3402,11 @@ The function checks the FastQC quality criteria for each row and returns True if
 <span class="normal">70</span>
 <span class="normal">71</span>
 <span class="normal">72</span>
-<span class="normal">73</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">fastqc_quality</span><span class="p">(</span><span class="n">row</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="normal">73</span>
+<span class="normal">74</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">fastqc_quality</span><span class="p">(</span><span class="n">row</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Calculate FastQC quality based on the criteria.</span>
-<span class="sd">    The function checks the FastQC quality criteria for each row and returns True if the criteria are met.</span>
+<span class="sd">    The function checks the FastQC quality criteria for \</span>
+<span class="sd">        each row and returns True if the criteria are met.</span>
 
 
 <span class="sd">    Args:</span>
@@ -3517,10 +3521,7 @@ The function checks the FastQC quality criteria for each row and returns True if
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/python/ensembl/genes/transcriptomic_data/select_transcriptomic_data.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">272</span>
-<span class="normal">273</span>
-<span class="normal">274</span>
-<span class="normal">275</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">275</span>
 <span class="normal">276</span>
 <span class="normal">277</span>
 <span class="normal">278</span>
@@ -3591,7 +3592,10 @@ The function checks the FastQC quality criteria for each row and returns True if
 <span class="normal">343</span>
 <span class="normal">344</span>
 <span class="normal">345</span>
-<span class="normal">346</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">filter_data</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+<span class="normal">346</span>
+<span class="normal">347</span>
+<span class="normal">348</span>
+<span class="normal">349</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">filter_data</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Filter the DataFrame to select tissue-annotated samples based on quality criteria.</span>
 
@@ -3688,10 +3692,7 @@ The function checks the FastQC quality criteria for each row and returns True if
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/python/ensembl/genes/transcriptomic_data/select_transcriptomic_data.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">371</span>
-<span class="normal">372</span>
-<span class="normal">373</span>
-<span class="normal">374</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">374</span>
 <span class="normal">375</span>
 <span class="normal">376</span>
 <span class="normal">377</span>
@@ -3944,7 +3945,20 @@ The function checks the FastQC quality criteria for each row and returns True if
 <span class="normal">624</span>
 <span class="normal">625</span>
 <span class="normal">626</span>
-<span class="normal">627</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">627</span>
+<span class="normal">628</span>
+<span class="normal">629</span>
+<span class="normal">630</span>
+<span class="normal">631</span>
+<span class="normal">632</span>
+<span class="normal">633</span>
+<span class="normal">634</span>
+<span class="normal">635</span>
+<span class="normal">636</span>
+<span class="normal">637</span>
+<span class="normal">638</span>
+<span class="normal">639</span>
+<span class="normal">640</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># pylint: disable=too-many-statements</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Module&#39;s entry-point.&quot;&quot;&quot;</span>
     <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span>
         <span class="n">prog</span><span class="o">=</span><span class="s2">&quot;llm_prediction.py&quot;</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Predict tissue using LLMs&quot;</span>
@@ -3964,7 +3978,7 @@ The function checks the FastQC quality criteria for each row and returns True if
         <span class="s2">&quot;--user&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;ensadmin&quot;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;User&quot;</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--password&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;ensembl&quot;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Password&quot;</span>
+        <span class="s2">&quot;--password&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Password&quot;</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;--database&quot;</span><span class="p">,</span>
@@ -3992,6 +4006,12 @@ The function checks the FastQC quality criteria for each row and returns True if
         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;if true will produce the csv we need for main pipeline otherwise </span><span class="se">\</span>
 <span class="s2">            the one for the full alignment pipeline&quot;</span><span class="p">,</span>
     <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--limit&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
+        <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;max number of run accessions present in the output&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
     <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
     <span class="n">engine</span> <span class="o">=</span> <span class="n">create_engine</span><span class="p">(</span>
         <span class="sa">f</span><span class="s2">&quot;mysql+pymysql://</span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">user</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">password</span><span class="si">}</span><span class="s2">@</span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">host</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">port</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">database</span><span class="si">}</span><span class="s2">&quot;</span>
@@ -4007,7 +4027,8 @@ The function checks the FastQC quality criteria for each row and returns True if
 <span class="s2">            d.total_sequences, a.uniquely_mapped_reads_percentage, </span><span class="se">\</span>
 <span class="s2">            a.percentage_reads_mapped_to_multiple_loci,a.percentage_reads_unmapped_too_short, </span><span class="se">\</span>
 <span class="s2">            a.assembly_accession </span><span class="se">\</span>
-<span class="s2">            FROM run r INNER JOIN data_files d ON r.run_id=d.run_id INNER JOIN align a ON r.run_id=a.run_id </span><span class="se">\</span>
+<span class="s2">            FROM run r INNER JOIN data_files d ON r.run_id=d.run_id INNER JOIN align a </span><span class="se">\</span>
+<span class="s2">                ON r.run_id=a.run_id </span><span class="se">\</span>
 <span class="s2">            WHERE  r.qc_status=&#39;ALIGNED&#39; AND r.paired=1 AND r.platform=&#39;ILLUMINA&#39; AND r.taxon_id = &quot;</span>
             <span class="o">+</span> <span class="n">args</span><span class="o">.</span><span class="n">taxon_id</span>
         <span class="p">)</span>
@@ -4018,8 +4039,10 @@ The function checks the FastQC quality criteria for each row and returns True if
 <span class="s2">            d.per_sequence_quality_scores, d.per_base_n_content, d.overrepresented_sequences, </span><span class="se">\</span>
 <span class="s2">            d.total_sequences, a.uniquely_mapped_reads_percentage, </span><span class="se">\</span>
 <span class="s2">            a.percentage_reads_mapped_to_multiple_loci,a.percentage_reads_unmapped_too_short </span><span class="se">\</span>
-<span class="s2">            FROM run r INNER JOIN data_files d ON r.run_id=d.run_id INNER JOIN align a ON r.run_id=a.run_id </span><span class="se">\</span>
-<span class="s2">            WHERE  r.qc_status=&#39;ALIGNED&#39; AND r.paired=0 AND r.platform=&#39;PACBIO_SMRT&#39; AND r.taxon_id = &quot;</span>
+<span class="s2">            FROM run r INNER JOIN data_files d ON r.run_id=d.run_id INNER JOIN align a </span><span class="se">\</span>
+<span class="s2">                ON r.run_id=a.run_id </span><span class="se">\</span>
+<span class="s2">            WHERE  r.qc_status=&#39;ALIGNED&#39; AND r.paired=0 AND </span><span class="se">\</span>
+<span class="s2">                r.platform=&#39;PACBIO_SMRT&#39; AND r.taxon_id = &quot;</span>
             <span class="o">+</span> <span class="n">args</span><span class="o">.</span><span class="n">taxon_id</span>
         <span class="p">)</span>
     <span class="c1"># Connect to the database</span>
@@ -4028,23 +4051,17 @@ The function checks the FastQC quality criteria for each row and returns True if
     <span class="k">try</span><span class="p">:</span>
         <span class="c1"># if db_connection:</span>
         <span class="c1"># df = pd.read_sql(query, db_connection)</span>
-        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">engine</span><span class="p">)</span>
-        <span class="c1"># print(f&quot;Loaded {len(df)} rows.&quot;)</span>
+        <span class="k">with</span> <span class="n">engine</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span> <span class="k">as</span> <span class="n">conn</span><span class="p">:</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="n">text</span><span class="p">(</span><span class="n">query</span><span class="p">),</span> <span class="n">conn</span><span class="p">)</span>
     <span class="k">except</span> <span class="n">pymysql</span><span class="o">.</span><span class="n">MySQLError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error connecting to MySQL: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">df</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
         <span class="n">df</span> <span class="o">=</span> <span class="n">check_fastqc_star_quality</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
 
-        <span class="c1"># df[&quot;tissue_prediction&quot;] = df[&quot;tissue_prediction&quot;].apply(</span>
-        <span class="c1">#    lambda x: re.search(r&quot;^(.*)&quot;, str(x)).group(1) if re.search(r&quot;^(.*)&quot;, str(x)) else x</span>
-        <span class="c1"># )</span>
         <span class="n">df</span><span class="p">[</span><span class="s2">&quot;tissue_prediction&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;tissue_prediction&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
             <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">if</span> <span class="n">pd</span><span class="o">.</span><span class="n">notnull</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">else</span> <span class="n">x</span>
         <span class="p">)</span>
-        <span class="c1"># df[&quot;tissue_prediction&quot;] = df[&quot;tissue_prediction&quot;].apply(</span>
-        <span class="c1">#    lambda x: (m.group(1) if (m := re.search(r&quot;^(.*)&quot;, str(x))) else x)</span>
-        <span class="c1"># )</span>
         <span class="n">df</span><span class="p">[</span><span class="s2">&quot;tissue_prediction&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
             <span class="n">df</span><span class="p">[</span><span class="s2">&quot;tissue_prediction&quot;</span><span class="p">]</span>
             <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
@@ -4084,10 +4101,13 @@ The function checks the FastQC quality criteria for each row and returns True if
         <span class="n">create_report</span><span class="p">(</span>
             <span class="n">df</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">Path</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">file_name</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">taxon_id</span><span class="si">}</span><span class="s2">_tissue_summary.txt&quot;</span>
         <span class="p">)</span>
-        <span class="c1"># print(df.head())</span>
         <span class="c1"># Remove duplicates based on &#39;run_accession&#39; while keeping the first row for each</span>
         <span class="n">df_original</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="n">run_accessions</span> <span class="o">=</span> <span class="n">filter_data</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+        <span class="c1"># Early exit if empty after filtering</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">run_accessions</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;No suitable run_accessions found for this taxon_id.&quot;</span><span class="p">)</span>
+            <span class="k">return</span>
 
         <span class="c1"># Build a regex pattern from run_accession list</span>
         <span class="n">selected_accessions</span> <span class="o">=</span> <span class="n">run_accessions</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">25000</span><span class="p">]</span>
@@ -4111,10 +4131,14 @@ The function checks the FastQC quality criteria for each row and returns True if
             <span class="p">),</span>
             <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="c1"># print(df_final.head())</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">df_final</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">csv_for_main</span><span class="p">:</span>
-                <span class="nb">print</span><span class="p">(</span><span class="n">df_final</span><span class="o">.</span><span class="n">head</span><span class="p">())</span>
+                <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">limit</span><span class="p">:</span>
+                    <span class="c1"># df_final=df_final[0:int(args.limit)]</span>
+                    <span class="n">df_final</span> <span class="o">=</span> <span class="n">df_final</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span>
+                        <span class="n">n</span><span class="o">=</span><span class="nb">min</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">limit</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">df_final</span><span class="p">)),</span>
+                        <span class="n">random_state</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>  <span class="c1"># or set an int for reproducibility</span>
+                    <span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
                 <span class="n">df_final</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s2">&quot;file_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
                     <span class="n">df_final</span><span class="p">[</span><span class="s2">&quot;file_name&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;.fastq.gz&quot;</span>
                 <span class="p">)</span>
@@ -4123,7 +4147,7 @@ The function checks the FastQC quality criteria for each row and returns True if
                 <span class="n">df_final</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s2">&quot;col0&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
                 <span class="n">df_final</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s2">&quot;ENA&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;ENA&quot;</span>
 
-                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">file_name</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">file_name</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
                     <span class="n">df_final</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span>
                         <span class="n">f</span><span class="p">,</span>
                         <span class="n">sep</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="p">,</span>
@@ -4182,8 +4206,8 @@ The function checks the FastQC quality criteria for each row and returns True if
                     <span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;predicted_tissue&quot;</span><span class="p">:</span> <span class="s2">&quot;tissue&quot;</span><span class="p">}</span>
                 <span class="p">)</span>
 
-                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">file_name</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-                    <span class="n">output_df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span>
+                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">file_name</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                    <span class="n">output_df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span>  <span class="c1"># pylint: disable=unspecified-encoding</span>
                         <span class="n">f</span><span class="p">,</span>
                         <span class="n">sep</span><span class="o">=</span><span class="s2">&quot;,&quot;</span><span class="p">,</span>
                         <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
@@ -4261,7 +4285,7 @@ The function checks the FastQC quality criteria for each row and returns True if
             </td>
             <td>
               <div class="doc-md-description">
-                <p>List of tissue names to prioritize (e.g., ['brain', 'liver']).</p>
+                <p>List of tissue names to prioritize             (e.g., ['brain', 'liver']).</p>
               </div>
             </td>
             <td>
@@ -4297,9 +4321,7 @@ The function checks the FastQC quality criteria for each row and returns True if
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/python/ensembl/genes/transcriptomic_data/select_transcriptomic_data.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">245</span>
-<span class="normal">246</span>
-<span class="normal">247</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">247</span>
 <span class="normal">248</span>
 <span class="normal">249</span>
 <span class="normal">250</span>
@@ -4321,7 +4343,10 @@ The function checks the FastQC quality criteria for each row and returns True if
 <span class="normal">266</span>
 <span class="normal">267</span>
 <span class="normal">268</span>
-<span class="normal">269</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">prioritise_tissues</span><span class="p">(</span>
+<span class="normal">269</span>
+<span class="normal">270</span>
+<span class="normal">271</span>
+<span class="normal">272</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">prioritise_tissues</span><span class="p">(</span>
     <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">priority_tissues</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -4334,7 +4359,8 @@ The function checks the FastQC quality criteria for each row and returns True if
 
 <span class="sd">    Args:</span>
 <span class="sd">        df (pd.DataFrame): DataFrame containing a &#39;tissue_prediction&#39; column.</span>
-<span class="sd">        priority_tissues (List[str]): List of tissue names to prioritize (e.g., [&#39;brain&#39;, &#39;liver&#39;]).</span>
+<span class="sd">        priority_tissues (List[str]): List of tissue names to prioritize \</span>
+<span class="sd">            (e.g., [&#39;brain&#39;, &#39;liver&#39;]).</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        pd.DataFrame: Modified DataFrame with an added &#39;priority&#39; column.</span>
@@ -4364,7 +4390,7 @@ The function checks the FastQC quality criteria for each row and returns True if
     <div class="doc doc-contents ">
 
         <p>Calculate STAR quality based on the criteria.
-The function checks the STAR quality criteria for each row and returns True if the criteria are met.
+The function checks the STAR quality criteria for each row         and returns True if the criteria are met.
 Args:
     row (<em>type</em>): dataframe row
 Returns:
@@ -4373,8 +4399,7 @@ Returns:
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/python/ensembl/genes/transcriptomic_data/select_transcriptomic_data.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">77</span>
-<span class="normal">78</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">78</span>
 <span class="normal">79</span>
 <span class="normal">80</span>
 <span class="normal">81</span>
@@ -4385,9 +4410,12 @@ Returns:
 <span class="normal">86</span>
 <span class="normal">87</span>
 <span class="normal">88</span>
-<span class="normal">89</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">star_quality</span><span class="p">(</span><span class="n">row</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="normal">89</span>
+<span class="normal">90</span>
+<span class="normal">91</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">star_quality</span><span class="p">(</span><span class="n">row</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Calculate STAR quality based on the criteria.</span>
-<span class="sd">    The function checks the STAR quality criteria for each row and returns True if the criteria are met.</span>
+<span class="sd">    The function checks the STAR quality criteria for each row \</span>
+<span class="sd">        and returns True if the criteria are met.</span>
 <span class="sd">    Args:</span>
 <span class="sd">        row (_type_): dataframe row</span>
 <span class="sd">    Returns:</span>
