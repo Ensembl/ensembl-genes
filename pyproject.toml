@@ -46,7 +46,6 @@ dev = [
 repository = "https://github.com/Ensembl/ensembl-genes"
 
 [project.scripts]
-star2introns = "ensembl.genes.star2introns:main"
 pre_release_ftp = "ensembl.genes.automation.pre_release_ftp:main"
 main_static_content = "ensembl.genes.content.main_static_content:main"
 start_pipeline_from_registry = "ensembl.genes.info_from_registry.start_pipeline_from_registry:main"
@@ -55,6 +54,14 @@ core_meta_data = "ensembl.genes.metadata.core_meta_data:main"
 busco_lineage_selector = "ensembl.genes.metrics.busco_lineage_selector:main"
 busco_metakeys_patch = "ensembl.genes.metrics.busco_metakeys_patch:main"
 check_busco_score = "ensembl.genes.metrics.check_busco_score:main"
+write_yaml = "ensembl.genes.projects.write_yaml:main"
+pid_overlap = "ensembl.genes.stable_id.pid_overlap:main"
+bioproject_tracking = "ensembl.genes.tracking.bioproject_tracking:main"
+live_tracking = "ensembl.genes.tracking.live_tracking:main"
+check_for_transcriptomic = "ensembl.genes.transcriptomic_data.check_for_transcriptomic:main"
+get_transcriptomic_data = "ensembl.genes.transcriptomic_data.get_transcriptomic_data:main"
+select_transcriptomic_data = "ensembl.genes.transcriptomic_data.select_transcriptomic_data:main"
+
 
 [build-system]
 requires = [
