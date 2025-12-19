@@ -23,12 +23,14 @@ def mysql_fetch_data(
     """
     Run a simple SELECT query and return fetched rows.
     Returns an empty list on error.
+    
     Args:
         query (str): SQL SELECT query to execute.
         database (str): Name of the database.
         host (str): Host address of the MySQL server.
         port (int): Port number of the MySQL server.
         user (str): Username to connect to the database.
+        
     Returns:
         List of tuples representing query results.
     """
@@ -146,11 +148,13 @@ def get_ncbi_metadata(
     accession: str, assembly_name: str, scientific_name: str, search: str
 ) -> Dict[str, str]:
     """Fetch assembly metadata from NCBI assembly report.
+    
     Args:
         accession (str): Assembly accession (e.g., GCA_000001405.28)
         assembly_name (str): Assembly name (e.g., GRCh38)
         scientific_name (str): Scientific name of the organism
         search (str): Type of metadata to search for ("ucsc" or "biosample")
+        
     Returns:
         Dict[str, str]: Dictionary containing metadata from NCBI.
     """
@@ -186,11 +190,13 @@ def get_biosample_metadata(
     biosample_id: str, assembly_accession: str, assembly_name: str, scientific_name: str
 ) -> Dict[str, str]:
     """Fetch assembly metadata from EBI BioSample API.
+    
     Args:
         biosample_id (str): BioSample accession (e.g., SAMN00000001)
         assembly_accession (str): Assembly accession (e.g., GCA_000001405.28)
         assembly_name (str): Assembly name (e.g., GRCh38)
         scientific_name (str): Scientific name of the organism
+        
     Returns:
         Dict[str, str]: Dictionary containing metadata from BioSample.
     """

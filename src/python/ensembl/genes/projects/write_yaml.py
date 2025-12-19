@@ -22,6 +22,7 @@ class EnsemblFTP:
     ) -> None:
         """
         Initialize EnsemblFTP client and connect to Ensembl and EBI FTP servers.
+        
         Args:
             timeout (int, optional): Timeout for FTP connections. Defaults to 30.
             max_retries (int, optional): Maximum number of retries for failed operations. Defaults to 2.
@@ -183,10 +184,12 @@ class EnsemblFTP:
     ) -> str:
         """
         Check for pre-release files on EBI FTP server.
+        
         Args:
             species_name (str): _species_name_
             accession (str): GCA accession
             extension (str): File extension to look for (e.g., ".gtf.gz")
+            
         Returns:
             str: URL to the pre-release file if found, else empty string
         """
@@ -231,8 +234,7 @@ def mysql_fetch_data(
     """
     Fetch data from a MySQL database using a given query.
 
-    Parameters
-    ----------
+    Args:
     query : str
         The SQL query to execute.
     database : str
@@ -246,10 +248,9 @@ def mysql_fetch_data(
     password : str
         The password for the database.
 
-    Returns
-    -------
+    Returns:
     Tuple
-        A tuple of results fetched from the database query.
+        A tuple containing the fetched rows from the database.
     """
     conn = pymysql.connect(
         host=host, user=user, passwd=password, port=port, database=database.strip()
@@ -294,6 +295,7 @@ def write_yaml(
 ) -> None:
     """
     Write YAML content for a species entry based on the provided metadata and project type.
+    
     Args:
         info_dict (Dict[str, str]): Metadata dictionary for the species.
         icon (str): Icon URL or identifier for the species.
@@ -303,6 +305,7 @@ def write_yaml(
         alternate (str): Alternate assembly name if applicable.
         guuid (str): Genome unique identifier.
         ftp_client (EnsemblFTP): FTP client instance for file checks.
+        
     Returns:    
         None        
     """
