@@ -317,14 +317,14 @@ def get_taxonomy_info(
 ) -> Dict[str, Dict[str, Any]]:
     """
     Fetches taxonomy information for a given rank from the NCBI Datasets API.
-    For each accession in `live_annotations`, this function retrieves its `taxon_id`
+    For each accession in `live_annotations`, this function retrieves its `taxon_id`\
     and queries the NCBI taxonomy endpoint to get the classification at the specified rank.
     The retrieved rank name is then added to the corresponding annotation data.
     Args:
-        live_annotations (Dict[str, Dict[str, str]]): A dictionary where each key is
-            an assembly accession and its value contains annotation details (including
+        live_annotations (Dict[str, Dict[str, str]]): A dictionary where each key is \
+            an assembly accession and its value contains annotation details (including \
             at least "taxon_id").
-        accessions_taxon (Dict[str, Dict[str, int]]): A dictionary mapping accessions
+        accessions_taxon (Dict[str, Dict[str, int]]): A dictionary mapping accessions \
             to basic taxon information, such as {"GCA_000001405.39": {"taxon_id": 9606}}.
         rank (str): The taxonomic rank to retrieve (e.g., "order", "class", "phylum").
     Returns:
@@ -379,13 +379,13 @@ def add_ftp(  # pylint:disable=too-many-locals, too-many-branches
     """
     Adds FTP links to the annotations dictionary based on the release type.
     Args:
-        annotations (Dict[str, Dict[str, Any]]): A dictionary where each key is
-            an assembly accession and its value contains annotation details,
+        annotations (Dict[str, Dict[str, Any]]): A dictionary where each key is \
+            an assembly accession and its value contains annotation details, \
             including matches with database names or genome UUIDs.
-        release_type (str): The type of release to determine FTP link construction.
+        release_type (str): The type of release to determine FTP link construction.\
             Can be either "live" or "pre".
     Returns:
-        Dict[str, Dict[str, Any]]: The updated annotations dictionary with FTP links
+        Dict[str, Dict[str, Any]]: The updated annotations dictionary with FTP links \
         added to each match and the top-level annotation where applicable.
     """
     for accession, annotation in annotations.items():
@@ -466,18 +466,18 @@ def get_pre_release(missing_annotations: List[str]) -> Dict[str, Dict[str, str]]
     """
     Checks for the existence of pre-release Ensembl database schemas for a \
         list of missing accessions.
-    This function takes a list of GenBank/RefSeq assembly accessions that were not found in the
-    Ensembl live database lookup (e.g., from `get_ensembl_live`). It reformats each accession
-    to match the expected pre-release Ensembl database schema naming convention (e.g.,
-    'GCA_000001405.39' → 'gca000001405v39') and queries the MySQL server's
+    This function takes a list of GenBank/RefSeq assembly accessions that were not found in the \
+    Ensembl live database lookup (e.g., from `get_ensembl_live`). It reformats each accession \
+    to match the expected pre-release Ensembl database schema naming convention (e.g.,\
+    'GCA_000001405.39' → 'gca000001405v39') and queries the MySQL server's \
     `information_schema.schemata` table to check if a database with that name exists.
-    If such a schema is found, the function records the corresponding accession and
+    If such a schema is found, the function records the corresponding accession and \
     database name in the returned dictionary.
     Args:
-        missing_annotations (List[str]): A list of assembly accessions (e.g., 'GCA_000001405.39')
+        missing_annotations (List[str]): A list of assembly accessions (e.g., 'GCA_000001405.39') \
             for which no live annotation database was found.
     Returns:
-        Dict[str, Dict[str, str]]: A dictionary mapping each accession with a found pre-release
+        Dict[str, Dict[str, str]]: A dictionary mapping each accession with a found pre-release 
         database to a nested dictionary containing:
             - "dbname": The name of the pre-release schema (e.g., 'gca000001405v39').
         Example:
@@ -533,8 +533,8 @@ def write_report(
     Writes a tab-separated report. If an accession has multiple matches,
     produces one line per match; otherwise one line.
     Args:
-        live_annotations (Dict[str, Dict[str, Any]]): A dictionary where each key is
-            an assembly accession and its value contains annotation details,
+        live_annotations (Dict[str, Dict[str, Any]]): A dictionary where each key is \
+            an assembly accession and its value contains annotation details, \
             including matches with database names or genome UUIDs.
         report_file (str): The path to the output report file.
         rank (str): The taxonomic rank to include if `include_class` is True.

@@ -10,7 +10,8 @@ import pandas as pd
 # Function to extract protein information from a GFF3 file
 # Merges all CDS records for the same protein into a single entry
 def extract_proteins_from_gff3(gff3_file: str) -> pd.DataFrame:
-    """Extract protein information from GFF3 file.
+    """
+    Extract protein information from GFF3 file.
     Args:
         gff3_file (str): Path to the GFF3 file.
     Returns:
@@ -57,7 +58,8 @@ def compare_protein_sets(
     gff3_file_new: str,  # pylint:disable=redefined-outer-name
     output_report: str,  # pylint:disable=redefined-outer-name
 ) -> None:  # pylint:disable=redefined-outer-name
-    """Compare protein sets from two GFF3 files and generate a report.
+    """
+    Compare protein sets from two GFF3 files and generate a report.
     Args:
         gff3_file_old (str): Path to the older GFF3 file.
         gff3_file_new (str): Path to the newer GFF3 file.

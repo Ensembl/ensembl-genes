@@ -294,23 +294,17 @@ def write_yaml(
 ) -> None:
     """
     Write YAML content for a species entry based on the provided metadata and project type.
-
-    Parameters
-    ----------
-    info_dict : Dict[str, str]
-        Dictionary containing species metadata.
-    icon : str
-        Icon filename for the species.
-    yaml_out : file-like object
-        The output file handle for writing the YAML.
-    project : str
-        The project name (e.g., 'aquafaang', 'asg', 'bge', ...).
-    use_server : str
-        Which server the data was fetched from ('st5', 'st6' or 'main').
-    alternate : str
-        Alternate assembly name, if available.
-    ftp_client : EnsemblFTP
-        An initialized FTP client instance for checking extra files.
+    Args:
+        info_dict (Dict[str, str]): Metadata dictionary for the species.
+        icon (str): Icon URL or identifier for the species.
+        yaml_out: Output stream to write the YAML content.
+        project (str): Project type (e.g., "vgp", "dtol", etc.).
+        use_server (str): Server to use ("st5", "st6", "main").
+        alternate (str): Alternate assembly name if applicable.
+        guuid (str): Genome unique identifier.
+        ftp_client (EnsemblFTP): FTP client instance for file checks.
+    Returns:    
+        None        
     """
     prod_url_list = ["bos_taurus_hybrid", "bos_indicus_hybrid"]
 

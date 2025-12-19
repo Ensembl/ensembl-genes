@@ -40,6 +40,7 @@ def connect_to_db(
         password: The password for the user.
         db: The name of the database to connect to.
         port: The port of the MySQL server (default is 3306).
+        
     Returns:
         A pymysql connection object.
     """
@@ -57,7 +58,6 @@ def fastqc_quality(row: pd.Series) -> bool:
     """Calculate FastQC quality based on the criteria.
     The function checks the FastQC quality criteria for \
         each row and returns True if the criteria are met.
-
 
     Args:
         row (_type_): dataframe row
@@ -79,8 +79,10 @@ def star_quality(row: pd.Series) -> bool:
     """Calculate STAR quality based on the criteria.
     The function checks the STAR quality criteria for each row \
         and returns True if the criteria are met.
+        
     Args:
         row (_type_): dataframe row
+        
     Returns:
         bool: True if the criteria are met, False otherwise.
     """
@@ -92,9 +94,12 @@ def star_quality(row: pd.Series) -> bool:
 
 
 def check_fastqc_star_quality(df: pd.DataFrame) -> pd.DataFrame:
-    """Apply FastQC and STAR quality to each row
+    """
+    Apply FastQC and STAR quality to each row
+    
     Args:
         df (pd.DataFrame): DataFrame containing the data to be processed.
+        
     Returns:
         pd.DataFrame: DataFrame with additional columns for FastQC and STAR quality.
     """
@@ -117,7 +122,8 @@ def check_fastqc_star_quality(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def create_report(df: pd.DataFrame, tissue_report_file: str) -> pd.DataFrame:
-    """Create a report based on the DataFrame.
+    """
+    Create a report based on the DataFrame.
     This function summarizes the FastQC and STAR quality results for
     each taxon_id and run_accession.
     It calculates the number of runs that passed both quality checks
@@ -137,8 +143,10 @@ def create_report(df: pd.DataFrame, tissue_report_file: str) -> pd.DataFrame:
         - passed_both: The number of runs that passed both quality checks.
         - total_runs: The total number of runs for the taxon_id.
         - percentage_passed_both: The percentage of runs that passed both quality checks.
+        
     Args:
         df (pd.DataFrame): DataFrame containing the data to be processed.
+        
     Returns:
         pd.DataFrame: DataFrame with the summarized report.
     """

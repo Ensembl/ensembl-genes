@@ -74,10 +74,12 @@ def check_database_on_server(
 ) -> bool:
     """
     Checks if a database exists on a given server.
+    
     Args:
         db (str): The name of the database to check.
         server_key (str): The key of the server in the config.
         server_dict (dict): Dictionary containing server connection details.
+        
     Returns:
         bool: True if the database exists, False otherwise.
     """
@@ -118,6 +120,7 @@ def clean_server(
     2. Executes a query on the MySQL server to fetch all core databases.
     3. Compares the results from both queries and compiles a list of\
         core databases that are present in both.
+        
     Args:
         config (dict): Configuration dictionary containing server connection details.
         mode (str): Mode of operation, either "rapid" or "beta".    

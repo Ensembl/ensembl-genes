@@ -20,8 +20,8 @@ logger: logging.Logger = logging.getLogger(__name__)
 def mysql_fetch_data(
     query: str, database: str, host: str, port: int, user: str
 ) -> List[Tuple[Any, ...]]:
-    """Run a simple SELECT query and return fetched rows.
-
+    """
+    Run a simple SELECT query and return fetched rows.
     Returns an empty list on error.
     Args:
         query (str): SQL SELECT query to execute.
