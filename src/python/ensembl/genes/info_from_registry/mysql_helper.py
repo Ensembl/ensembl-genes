@@ -29,7 +29,7 @@ __all__ = ["mysql_fetch_data", "mysql_update"]
 
 def mysql_get_connection(
     database: str, host: str, port: int, user: str, password: str
-) -> Optional[Connection[DictCursor]]:#pylint:disable=unsubscrptable-object
+) -> Optional[Connection[DictCursor]]:  # pylint: disable=unsubscriptable-object
     """
     Establish a connection to the MySQL database.
     """
