@@ -54,10 +54,10 @@ def mysql_fetch_data(
         server_group (str, optional): The server group as defined in the config. Defaults to "meta".
         server_name (str, optional): The server name within the group as defined in the config. Defaults to "beta".
         db_name (Optional[str], optional): The database name to connect to. If None, uses the default from config. Defaults to None.
-    
+
     Returns:
         Sequence[Tuple[Any, ...]]: The fetched rows from the query result.
-    
+
     Raises:
         KeyError: If the server group or name is not found in the config.
         pymysql.Error: If there is an error connecting to the database or executing the query.
@@ -92,12 +92,12 @@ def get_assembly_accessions(  # pylint:disable=too-many-branches, too-many-state
 ) -> Dict[str, Dict[str, int]]:
     """
     Fetches assembly accessions from NCBI Datasets API based on BioProject or Taxon ID.
-    
+
     Args:
         query_id (str): The BioProject or Taxon ID to query.
         query_type (str): The type of query, either "bioproject" or "taxon".
         only_haploid (bool): If True, only include haploid assemblies. Defaults to False.
-        
+
     Returns:
         Dict[str, Dict[str, int]]: A dictionary mapping assembly accessions to their taxon IDs.
     """
@@ -233,10 +233,10 @@ def _score_dbname(dbname: str) -> Tuple[int, int, str]:
     1) Higher core version
     2) Prefer non-'cm'
     3) Lexicographic tiebreak
-    
+
     Args:
         dbname (str): The database name to score.
-        
+
     Returns:
         Tuple[int, int, str]: A tuple representing the score.
     """
@@ -251,11 +251,11 @@ def get_ensembl_live(
 ) -> Tuple[Dict[str, Dict[str, Any]], List[str]]:
     """
     Fetches Ensembl live database annotations for a list of assembly accessions.
-    
+
     Args:
         accessions_taxon (Dict[str, Dict[str, int]]): A dictionary mapping assembly accessions
             to basic taxon information, such as {"GCA_000001405.39": {"taxon_id": 9606}}.
-            
+
     Returns:
         Tuple[Dict[str, Dict[str, Any]], List[str]]: A tuple containing:
         1) A dictionary where each key is an assembly accession and its value is another dictionary with:
