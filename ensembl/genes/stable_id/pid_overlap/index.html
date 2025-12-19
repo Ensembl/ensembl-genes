@@ -2643,20 +2643,98 @@
 
     <div class="doc doc-contents ">
 
-        <p>Compare protein sets from two GFF3 files and generate a report.
-Args:
-    gff3_file_old (str): Path to the older GFF3 file.
-    gff3_file_new (str): Path to the newer GFF3 file.
-    output_report (str): Path to save the output report.
-Returns:
-    None</p>
+        <p>Compare protein sets from two GFF3 files and generate a report.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>gff3_file_old</code>
+            </td>
+            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Path to the older GFF3 file.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>gff3_file_new</code>
+            </td>
+            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Path to the newer GFF3 file.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>output_report</code>
+            </td>
+            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Path to save the output report.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code>None</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>None</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
 
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/python/ensembl/genes/stable_id/pid_overlap.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 56</span>
-<span class="normal"> 57</span>
-<span class="normal"> 58</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 58</span>
 <span class="normal"> 59</span>
 <span class="normal"> 60</span>
 <span class="normal"> 61</span>
@@ -2711,17 +2789,23 @@ Returns:
 <span class="normal">110</span>
 <span class="normal">111</span>
 <span class="normal">112</span>
-<span class="normal">113</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">compare_protein_sets</span><span class="p">(</span>
+<span class="normal">113</span>
+<span class="normal">114</span>
+<span class="normal">115</span>
+<span class="normal">116</span>
+<span class="normal">117</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">compare_protein_sets</span><span class="p">(</span>
     <span class="n">gff3_file_old</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>  <span class="c1"># pylint:disable=redefined-outer-name</span>
     <span class="n">gff3_file_new</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>  <span class="c1"># pylint:disable=redefined-outer-name</span>
     <span class="n">output_report</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>  <span class="c1"># pylint:disable=redefined-outer-name</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># pylint:disable=redefined-outer-name</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Compare protein sets from two GFF3 files and generate a report.</span>
+
 <span class="sd">    Args:</span>
 <span class="sd">        gff3_file_old (str): Path to the older GFF3 file.</span>
 <span class="sd">        gff3_file_new (str): Path to the newer GFF3 file.</span>
 <span class="sd">        output_report (str): Path to save the output report.</span>
+
 <span class="sd">    Returns:</span>
 <span class="sd">        None</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -2786,11 +2870,61 @@ Returns:
 
     <div class="doc doc-contents ">
 
-        <p>Extract protein information from GFF3 file.
-Args:
-    gff3_file (str): Path to the GFF3 file.
-Returns:
-    pd.DataFrame: DataFrame containing protein information.</p>
+        <p>Extract protein information from GFF3 file.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>gff3_file</code>
+            </td>
+            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Path to the GFF3 file.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="pandas.DataFrame">DataFrame</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>pd.DataFrame: DataFrame containing protein information.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
 
 
             <details class="mkdocstrings-source">
@@ -2835,11 +2969,15 @@ Returns:
 <span class="normal">49</span>
 <span class="normal">50</span>
 <span class="normal">51</span>
-<span class="normal">52</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">extract_proteins_from_gff3</span><span class="p">(</span><span class="n">gff3_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="normal">52</span>
+<span class="normal">53</span>
+<span class="normal">54</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">extract_proteins_from_gff3</span><span class="p">(</span><span class="n">gff3_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Extract protein information from GFF3 file.</span>
+
 <span class="sd">    Args:</span>
 <span class="sd">        gff3_file (str): Path to the GFF3 file.</span>
+
 <span class="sd">    Returns:</span>
 <span class="sd">        pd.DataFrame: DataFrame containing protein information.</span>
 <span class="sd">    &quot;&quot;&quot;</span>

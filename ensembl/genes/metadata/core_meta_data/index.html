@@ -4365,23 +4365,114 @@
 
     <div class="doc doc-contents ">
 
-        <p>Fetch assembly metadata from EBI BioSample API.
-Args:
-    biosample_id (str): BioSample accession (e.g., SAMN00000001)
-    assembly_accession (str): Assembly accession (e.g., GCA_000001405.28)
-    assembly_name (str): Assembly name (e.g., GRCh38)
-    scientific_name (str): Scientific name of the organism
-Returns:
-    Dict[str, str]: Dictionary containing metadata from BioSample.</p>
+        <p>Fetch assembly metadata from EBI BioSample API.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>biosample_id</code>
+            </td>
+            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>BioSample accession (e.g., SAMN00000001)</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>assembly_accession</code>
+            </td>
+            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Assembly accession (e.g., GCA_000001405.28)</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>assembly_name</code>
+            </td>
+            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Assembly name (e.g., GRCh38)</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>scientific_name</code>
+            </td>
+            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Scientific name of the organism</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="typing.Dict">Dict</span>[<span title="str">str</span>, <span title="str">str</span>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Dict[str, str]: Dictionary containing metadata from BioSample.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
 
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/python/ensembl/genes/metadata/core_meta_data.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">185</span>
-<span class="normal">186</span>
-<span class="normal">187</span>
-<span class="normal">188</span>
-<span class="normal">189</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">189</span>
 <span class="normal">190</span>
 <span class="normal">191</span>
 <span class="normal">192</span>
@@ -4430,15 +4521,23 @@ Returns:
 <span class="normal">235</span>
 <span class="normal">236</span>
 <span class="normal">237</span>
-<span class="normal">238</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_biosample_metadata</span><span class="p">(</span>
+<span class="normal">238</span>
+<span class="normal">239</span>
+<span class="normal">240</span>
+<span class="normal">241</span>
+<span class="normal">242</span>
+<span class="normal">243</span>
+<span class="normal">244</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_biosample_metadata</span><span class="p">(</span>
     <span class="n">biosample_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">assembly_accession</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">assembly_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">scientific_name</span><span class="p">:</span> <span class="nb">str</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Fetch assembly metadata from EBI BioSample API.</span>
+
 <span class="sd">    Args:</span>
 <span class="sd">        biosample_id (str): BioSample accession (e.g., SAMN00000001)</span>
 <span class="sd">        assembly_accession (str): Assembly accession (e.g., GCA_000001405.28)</span>
 <span class="sd">        assembly_name (str): Assembly name (e.g., GRCh38)</span>
 <span class="sd">        scientific_name (str): Scientific name of the organism</span>
+
 <span class="sd">    Returns:</span>
 <span class="sd">        Dict[str, str]: Dictionary containing metadata from BioSample.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -4576,9 +4675,7 @@ Returns:
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/python/ensembl/genes/metadata/core_meta_data.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 61</span>
-<span class="normal"> 62</span>
-<span class="normal"> 63</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 63</span>
 <span class="normal"> 64</span>
 <span class="normal"> 65</span>
 <span class="normal"> 66</span>
@@ -4657,7 +4754,9 @@ Returns:
 <span class="normal">139</span>
 <span class="normal">140</span>
 <span class="normal">141</span>
-<span class="normal">142</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_ena_metadata</span><span class="p">(</span><span class="n">accession</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">truth_dict</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+<span class="normal">142</span>
+<span class="normal">143</span>
+<span class="normal">144</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_ena_metadata</span><span class="p">(</span><span class="n">accession</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">truth_dict</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Fetch assembly metadata from ENA XML API.</span>
 
 <span class="sd">    Args:</span>
@@ -4756,21 +4855,114 @@ Returns:
 
     <div class="doc doc-contents ">
 
-        <p>Fetch assembly metadata from NCBI assembly report.
-Args:
-    accession (str): Assembly accession (e.g., GCA_000001405.28)
-    assembly_name (str): Assembly name (e.g., GRCh38)
-    scientific_name (str): Scientific name of the organism
-    search (str): Type of metadata to search for ("ucsc" or "biosample")
-Returns:
-    Dict[str, str]: Dictionary containing metadata from NCBI.</p>
+        <p>Fetch assembly metadata from NCBI assembly report.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>accession</code>
+            </td>
+            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Assembly accession (e.g., GCA_000001405.28)</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>assembly_name</code>
+            </td>
+            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Assembly name (e.g., GRCh38)</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>scientific_name</code>
+            </td>
+            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Scientific name of the organism</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>search</code>
+            </td>
+            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Type of metadata to search for ("ucsc" or "biosample")</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="typing.Dict">Dict</span>[<span title="str">str</span>, <span title="str">str</span>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Dict[str, str]: Dictionary containing metadata from NCBI.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
 
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/python/ensembl/genes/metadata/core_meta_data.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">145</span>
-<span class="normal">146</span>
-<span class="normal">147</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">147</span>
 <span class="normal">148</span>
 <span class="normal">149</span>
 <span class="normal">150</span>
@@ -4805,15 +4997,21 @@ Returns:
 <span class="normal">179</span>
 <span class="normal">180</span>
 <span class="normal">181</span>
-<span class="normal">182</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_ncbi_metadata</span><span class="p">(</span>
+<span class="normal">182</span>
+<span class="normal">183</span>
+<span class="normal">184</span>
+<span class="normal">185</span>
+<span class="normal">186</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_ncbi_metadata</span><span class="p">(</span>
     <span class="n">accession</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">assembly_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">scientific_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">search</span><span class="p">:</span> <span class="nb">str</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Fetch assembly metadata from NCBI assembly report.</span>
+
 <span class="sd">    Args:</span>
 <span class="sd">        accession (str): Assembly accession (e.g., GCA_000001405.28)</span>
 <span class="sd">        assembly_name (str): Assembly name (e.g., GRCh38)</span>
 <span class="sd">        scientific_name (str): Scientific name of the organism</span>
 <span class="sd">        search (str): Type of metadata to search for (&quot;ucsc&quot; or &quot;biosample&quot;)</span>
+
 <span class="sd">    Returns:</span>
 <span class="sd">        Dict[str, str]: Dictionary containing metadata from NCBI.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -4861,15 +5059,125 @@ Returns:
     <div class="doc doc-contents ">
 
         <p>Run a simple SELECT query and return fetched rows.
-Returns an empty list on error.
-Args:
-    query (str): SQL SELECT query to execute.
-    database (str): Name of the database.
-    host (str): Host address of the MySQL server.
-    port (int): Port number of the MySQL server.
-    user (str): Username to connect to the database.
-Returns:
-    List of tuples representing query results.</p>
+Returns an empty list on error.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>query</code>
+            </td>
+            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>SQL SELECT query to execute.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>database</code>
+            </td>
+            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Name of the database.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>host</code>
+            </td>
+            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Host address of the MySQL server.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>port</code>
+            </td>
+            <td>
+                  <code><span title="int">int</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Port number of the MySQL server.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>user</code>
+            </td>
+            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Username to connect to the database.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="typing.List">List</span>[<span title="typing.Tuple">Tuple</span>[<span title="typing.Any">Any</span>, ...]]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>List of tuples representing query results.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
 
 
             <details class="mkdocstrings-source">
@@ -4912,18 +5220,22 @@ Returns:
 <span class="normal">55</span>
 <span class="normal">56</span>
 <span class="normal">57</span>
-<span class="normal">58</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">mysql_fetch_data</span><span class="p">(</span>
+<span class="normal">58</span>
+<span class="normal">59</span>
+<span class="normal">60</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">mysql_fetch_data</span><span class="p">(</span>
     <span class="n">query</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">database</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">host</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">port</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">user</span><span class="p">:</span> <span class="nb">str</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="o">...</span><span class="p">]]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Run a simple SELECT query and return fetched rows.</span>
 <span class="sd">    Returns an empty list on error.</span>
+
 <span class="sd">    Args:</span>
 <span class="sd">        query (str): SQL SELECT query to execute.</span>
 <span class="sd">        database (str): Name of the database.</span>
 <span class="sd">        host (str): Host address of the MySQL server.</span>
 <span class="sd">        port (int): Port number of the MySQL server.</span>
 <span class="sd">        user (str): Username to connect to the database.</span>
+
 <span class="sd">    Returns:</span>
 <span class="sd">        List of tuples representing query results.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
