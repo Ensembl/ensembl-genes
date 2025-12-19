@@ -3501,7 +3501,7 @@ and generates HTML files containing assembly and annotation content.</p>
 <span class="sd">        url_path (str): Name used to title the output files.</span>
 <span class="sd">        species_strain (str): Species strain name for the assembly.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span> <span class="c1"># pylint: disable=unspecified-encoding</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span>  <span class="c1"># pylint: disable=unspecified-encoding</span>
         <span class="n">out_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">url_path</span><span class="si">}</span><span class="s2">_assembly.html&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span>
     <span class="p">)</span> <span class="k">as</span> <span class="n">assembly_out</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span>
