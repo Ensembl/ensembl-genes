@@ -44,7 +44,7 @@ def extract_proteins_from_gff3(gff3_file: str) -> pd.DataFrame:
                         protein_data[protein_id]["End"] = max(
                             protein_data[protein_id]["End"], int(columns[4])
                         )
-                        protein_data[protein_id]["Attributes"].append(attributes)  # type: ignore[union-attr] pylint:disable=line-too-long
+                        protein_data[protein_id]["Attributes"].append(attributes)  # type: ignore[union-attr] # pylint:disable=line-too-long
     # Flatten attributes into a single string for each protein
     for protein in protein_data.values():
         protein["Attributes"] = ";".join(protein["Attributes"])  # type: ignore[arg-type]
