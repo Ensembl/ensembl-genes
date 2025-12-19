@@ -40,7 +40,7 @@ def connect_to_db(
         password: The password for the user.
         db: The name of the database to connect to.
         port: The port of the MySQL server (default is 3306).
-        
+
     Returns:
         A pymysql connection object.
     """
@@ -96,10 +96,10 @@ def star_quality(row: pd.Series) -> bool:
 def check_fastqc_star_quality(df: pd.DataFrame) -> pd.DataFrame:
     """
     Apply FastQC and STAR quality to each row
-    
+
     Args:
         df (pd.DataFrame): DataFrame containing the data to be processed.
-        
+
     Returns:
         pd.DataFrame: DataFrame with additional columns for FastQC and STAR quality.
     """
@@ -143,10 +143,10 @@ def create_report(df: pd.DataFrame, tissue_report_file: str) -> pd.DataFrame:
         - passed_both: The number of runs that passed both quality checks.
         - total_runs: The total number of runs for the taxon_id.
         - percentage_passed_both: The percentage of runs that passed both quality checks.
-        
+
     Args:
         df (pd.DataFrame): DataFrame containing the data to be processed.
-        
+
     Returns:
         pd.DataFrame: DataFrame with the summarized report.
     """
