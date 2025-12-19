@@ -651,27 +651,27 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  # Process patches from CSV file
-  python beta_patcher.py patches.csv --jira-ticket EBD-1111 --output-dir ./patches/
+# Process patches from CSV file
+python beta_patcher.py patches.csv --jira-ticket EBD-1111 --output-dir ./patches/
 
-  # Process CSV with custom core suffix
-  python beta_patcher.py patches.csv --jira-ticket EBD-1111 --core-suffix _core_115_1
+# Process CSV with custom core suffix
+python beta_patcher.py patches.csv --jira-ticket EBD-1111 --core-suffix _core_115_1
 
-  # Validation files are automatically generated
-  # Run validate_*.sql files before applying patch_*.sql files
+# Validation files are automatically generated
+# Run validate_*.sql files before applying patch_*.sql files
 
 CSV Format:
-  Required columns: meta_key, desired_meta_value
-  Identifier (one required): production_name OR genome_uuid
-  Optional columns: dataset_type, species_id, table_location
+Required columns: meta_key, desired_meta_value
+Identifier (one required): production_name OR genome_uuid
+Optional columns: dataset_type, species_id, table_location
 
-  Example:
-    production_name,genome_uuid,meta_key,desired_meta_value,\
-        dataset_type,species_id,table_location
-    homo_sapiens,,assembly.name,GRCh38.p14,genebuild,1,\
-        dataset_attribute
-    ,a7335667-93e7-11ec-a39d-005056b38ce3,organism.strain,'
-    Reference,genebuild,1,genome
+Example:
+production_name,genome_uuid,meta_key,desired_meta_value,\
+    dataset_type,species_id,table_location
+homo_sapiens,,assembly.name,GRCh38.p14,genebuild,1,\
+    dataset_attribute
+,a7335667-93e7-11ec-a39d-005056b38ce3,organism.strain,'
+Reference,genebuild,1,genome
 
 See patches_template.csv for a complete example.
         """,

@@ -231,7 +231,7 @@ def process_busco_file(
     return sql_patches
 
 
-def execute_sql_patches(  # pylint: disable=too-many-arguments, too-many-locals
+def execute_sql_patches(  # pylint: disable=too-many-arguments, too-many-locals, too-many-positional-arguments
     db_name: str,
     sql_statements: str,
     host: str,
@@ -311,18 +311,18 @@ def main():
         sql_patches = process_busco_file(
             args.file, args.db, args.output_dir, args.assembly_id
         )
-        with open(
+        with open(  # pylint: disable =unspecified-encoding
             Path(args.output_dir) / f"{args.db}.sql", "a"
-        ) as f_in:  # pylint: disable =unspecified-encoding
+        ) as f_in:
             f_in.write(sql_patches)
 
     elif args.input_dir:
         # Process all files that end with 'busco_short_summary'
         busco_files = list(Path(args.input_dir).rglob("*busco_short_summary.txt"))
 
-        with open(
+        with open(  # pylint: disable =unspecified-encoding
             Path(args.output_dir) / f"{args.db}.sql", "a"
-        ) as f:  # pylint: disable =unspecified-encoding
+        ) as f:
             for file in busco_files:
                 print(f"Processing file: {file}")
                 sql_patches = process_busco_file(

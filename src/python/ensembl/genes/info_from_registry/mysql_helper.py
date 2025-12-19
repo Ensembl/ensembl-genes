@@ -13,7 +13,8 @@ Functions:
 import logging
 from typing import Optional, Any
 import pymysql
-
+from pymysql.connections import Connection
+from pymysql.cursors import DictCursor
 
 # Configure logging
 logging.basicConfig(
@@ -28,7 +29,7 @@ __all__ = ["mysql_fetch_data", "mysql_update"]
 
 def mysql_get_connection(
     database: str, host: str, port: int, user: str, password: str
-) -> Optional[pymysql.Connection[Any]]:
+) -> Optional[Connection[DictCursor]]:
     """
     Establish a connection to the MySQL database.
     """

@@ -72,17 +72,17 @@ def get_ena_metadata(accession: str, truth_dict: Dict[str, Any]) -> Dict[str, st
     assembly_xml = requests.get(assembly_url)
     assembly_dict = xmltodict.parse(assembly_xml.text)
 
-    attribs = (
+    assembly_attribs = (
         assembly_dict.get("ASSEMBLY_SET", {})
         .get("ASSEMBLY", {})
         .get("ASSEMBLY_ATTRIBUTES", {})
         .get("ASSEMBLY_ATTRIBUTE", [])
     )
     # normalize to a list
-    if isinstance(attribs, dict):
-        assembly_attribs = [attribs]
+    if isinstance(assembly_attribs, dict):
+        assembly_attribs = [assembly_attribs]
     else:
-        assembly_attribs = list(attribs)
+        assembly_attribs = list(assembly_attribs)
 
     return_dict: Dict[str, str] = {}
 

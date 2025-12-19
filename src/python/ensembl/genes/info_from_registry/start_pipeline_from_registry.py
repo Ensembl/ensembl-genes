@@ -1,4 +1,4 @@
-# pylint:disable=line-too-long, too-many-lines, logging-fstring-interpolation, unspecified-encoding
+# pylint:disable=line-too-long, too-many-lines, logging-fstring-interpolation, unspecified-encoding, redefined-outer-name
 """
 This script connects to a genomic assembly registry, extracts assembly metadata,
 and initializes annotation pipelines based on predefined configurations.
@@ -1051,7 +1051,7 @@ def main(  # pylint:disable=too-many-branches, too-many-statements, too-many-loc
     # -------------------------
     saved_paths: Dict[str, Union[Path, Dict[str, Path]]] = (
         {}
-    )  # pylint:disable=redefined-outer-name
+    )
 
     # Save anno GCAs as a single file
     anno_params = {
