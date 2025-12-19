@@ -27,10 +27,10 @@ from requests.exceptions import RequestException, HTTPError, Timeout
 def get_sample_info(accession: str) -> Tuple[str, str]:
     """
     Get info about sample name and description for the run accession
-    
+
     Args:
         accession (str): sample accession
-        
+
     Returns:
         List: sample name and description
     """
@@ -87,12 +87,12 @@ def get_data_from_ena(  # pylint: disable=too-many-locals, too-many-branches
 ) -> List[Tuple[str, ...]]:
     """
     Query ENA API to get short or long read data
-    
+
     Args:
         taxon_id (int): NCBI taxon id
         read_type (str): type of read data to query ('short' or 'long')
         tree (bool): whether to include subordinate taxa
-        
+
     Returns:
         List[Tuple[str, ...]]: list of tuples with data for csv file
     """
