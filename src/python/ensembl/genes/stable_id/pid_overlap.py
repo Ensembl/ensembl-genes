@@ -12,10 +12,10 @@ import pandas as pd
 def extract_proteins_from_gff3(gff3_file: str) -> pd.DataFrame:
     """
     Extract protein information from GFF3 file.
-    
+
     Args:
         gff3_file (str): Path to the GFF3 file.
-        
+
     Returns:
         pd.DataFrame: DataFrame containing protein information.
     """
@@ -62,12 +62,12 @@ def compare_protein_sets(
 ) -> None:  # pylint:disable=redefined-outer-name
     """
     Compare protein sets from two GFF3 files and generate a report.
-    
+
     Args:
         gff3_file_old (str): Path to the older GFF3 file.
         gff3_file_new (str): Path to the newer GFF3 file.
         output_report (str): Path to save the output report.
-        
+
     Returns:
         None
     """
