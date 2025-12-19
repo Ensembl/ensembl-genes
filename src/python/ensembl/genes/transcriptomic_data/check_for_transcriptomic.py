@@ -21,10 +21,10 @@ import requests
 
 def ena_rest_api(query: str) -> int:
     """Call to ENA API
-    
+
     Args:
         query (str): query string to search ENA database
-        
+
     Returns:
         int: number of runs found
     """
@@ -40,11 +40,11 @@ def check_data_from_ena(  # pylint: disable=too-many-locals
 ) -> dict:
     """
     Query ENA API to get short or long read data
-    
+
     Args:
         taxon_id (int): NCBI taxon id
         tree (bool): whether to include subordinate taxa
-        
+
     Returns:
         dict: number of runs found for each data type
     """

@@ -74,12 +74,12 @@ def check_database_on_server(
 ) -> bool:
     """
     Checks if a database exists on a given server.
-    
+
     Args:
         db (str): The name of the database to check.
         server_key (str): The key of the server in the config.
         server_dict (dict): Dictionary containing server connection details.
-        
+
     Returns:
         bool: True if the database exists, False otherwise.
     """
