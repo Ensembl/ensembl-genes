@@ -54,8 +54,10 @@ def mysql_fetch_data(
         server_group (str, optional): The server group as defined in the config. Defaults to "meta".
         server_name (str, optional): The server name within the group as defined in the config. Defaults to "beta".
         db_name (Optional[str], optional): The database name to connect to. If None, uses the default from config. Defaults to None.
+    
     Returns:
         Sequence[Tuple[Any, ...]]: The fetched rows from the query result.
+    
     Raises:
         KeyError: If the server group or name is not found in the config.
         pymysql.Error: If there is an error connecting to the database or executing the query.
@@ -90,10 +92,12 @@ def get_assembly_accessions(  # pylint:disable=too-many-branches, too-many-state
 ) -> Dict[str, Dict[str, int]]:
     """
     Fetches assembly accessions from NCBI Datasets API based on BioProject or Taxon ID.
+    
     Args:
         query_id (str): The BioProject or Taxon ID to query.
         query_type (str): The type of query, either "bioproject" or "taxon".
         only_haploid (bool): If True, only include haploid assemblies. Defaults to False.
+        
     Returns:
         Dict[str, Dict[str, int]]: A dictionary mapping assembly accessions to their taxon IDs.
     """
@@ -229,8 +233,10 @@ def _score_dbname(dbname: str) -> Tuple[int, int, str]:
     1) Higher core version
     2) Prefer non-'cm'
     3) Lexicographic tiebreak
+    
     Args:
         dbname (str): The database name to score.
+        
     Returns:
         Tuple[int, int, str]: A tuple representing the score.
     """
@@ -245,9 +251,11 @@ def get_ensembl_live(
 ) -> Tuple[Dict[str, Dict[str, Any]], List[str]]:
     """
     Fetches Ensembl live database annotations for a list of assembly accessions.
+    
     Args:
         accessions_taxon (Dict[str, Dict[str, int]]): A dictionary mapping assembly accessions
             to basic taxon information, such as {"GCA_000001405.39": {"taxon_id": 9606}}.
+            
     Returns:
         Tuple[Dict[str, Dict[str, Any]], List[str]]: A tuple containing:
         1) A dictionary where each key is an assembly accession and its value is another dictionary with:
@@ -320,6 +328,7 @@ def get_taxonomy_info(
     For each accession in `live_annotations`, this function retrieves its `taxon_id`\
     and queries the NCBI taxonomy endpoint to get the classification at the specified rank.
     The retrieved rank name is then added to the corresponding annotation data.
+    
     Args:
         live_annotations (Dict[str, Dict[str, str]]): A dictionary where each key is \
             an assembly accession and its value contains annotation details (including \
@@ -327,6 +336,7 @@ def get_taxonomy_info(
         accessions_taxon (Dict[str, Dict[str, int]]): A dictionary mapping accessions \
             to basic taxon information, such as {"GCA_000001405.39": {"taxon_id": 9606}}.
         rank (str): The taxonomic rank to retrieve (e.g., "order", "class", "phylum").
+        
     Returns:
         Dict[str, Dict[str, str]]: The updated `live_annotations` dictionary with an
         additional key for the requested rank. For example:
@@ -378,12 +388,14 @@ def add_ftp(  # pylint:disable=too-many-locals, too-many-branches
 ) -> Dict[str, Dict[str, Any]]:
     """
     Adds FTP links to the annotations dictionary based on the release type.
+    
     Args:
         annotations (Dict[str, Dict[str, Any]]): A dictionary where each key is \
             an assembly accession and its value contains annotation details, \
             including matches with database names or genome UUIDs.
         release_type (str): The type of release to determine FTP link construction.\
             Can be either "live" or "pre".
+            
     Returns:
         Dict[str, Dict[str, Any]]: The updated annotations dictionary with FTP links \
         added to each match and the top-level annotation where applicable.
@@ -473,9 +485,11 @@ def get_pre_release(missing_annotations: List[str]) -> Dict[str, Dict[str, str]]
     `information_schema.schemata` table to check if a database with that name exists.
     If such a schema is found, the function records the corresponding accession and \
     database name in the returned dictionary.
+    
     Args:
         missing_annotations (List[str]): A list of assembly accessions (e.g., 'GCA_000001405.39') \
             for which no live annotation database was found.
+            
     Returns:
         Dict[str, Dict[str, str]]: A dictionary mapping each accession with a found pre-release 
         database to a nested dictionary containing:
@@ -532,6 +546,7 @@ def write_report(
     """
     Writes a tab-separated report. If an accession has multiple matches,
     produces one line per match; otherwise one line.
+    
     Args:
         live_annotations (Dict[str, Dict[str, Any]]): A dictionary where each key is \
             an assembly accession and its value contains annotation details, \
@@ -540,6 +555,7 @@ def write_report(
         rank (str): The taxonomic rank to include if `include_class` is True.
         include_class (bool): If True, includes the taxonomic classification at the specified rank.
         include_ftp (bool): If True, includes FTP links in the report.
+        
     Returns:
         None
     """
