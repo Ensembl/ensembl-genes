@@ -191,6 +191,7 @@ def process_busco_file(
     """
     Parses the BUSCO file, generates a JSON, writes it to an output file,
     and generates SQL patches.
+    
     Args:
         busco_file (str): Busco file to process
         dbname (str) : db name

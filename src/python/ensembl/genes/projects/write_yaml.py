@@ -235,22 +235,15 @@ def mysql_fetch_data(
     Fetch data from a MySQL database using a given query.
 
     Args:
-    query : str
-        The SQL query to execute.
-    database : str
-        The database name.
-    host : str
-        The database host.
-    port : int
-        The database port.
-    user : str
-        The username for the database.
-    password : str
-        The password for the database.
+        query (str): SQL query to execute.
+        database (str): Name of the database.
+        host (str): Database host.
+        port (int): Database port.
+        user (str): Database user.
+        password (str): Database password.
 
     Returns:
-    Tuple
-        A tuple containing the fetched rows from the database.
+    Tuple containing the fetched rows from the database.
     """
     conn = pymysql.connect(
         host=host, user=user, passwd=password, port=port, database=database.strip()
