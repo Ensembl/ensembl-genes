@@ -49,11 +49,11 @@ star2introns = "ensembl.genes.star2introns:main"
 pre_release_ftp = "ensembl.genes.automation.pre_release_ftp:main"
 main_static_content = "ensembl.genes.content.main_static_content:main"
 start_pipeline_from_registry = "ensembl.genes.info_from_registry.start_pipeline_from_registry:main"
-beta_patcher = "ensembl.genes.metadata/beta_patcher:main"
-core_meta_data = "ensembl.genes./metadata/core_meta_data:main"
-busco_lineage_selector = "ensembl.genes.metrics/busco_lineage_selector:main"
-busco_metakeys_patch = "ensembl.genes.metrics/busco_metakeys_patch:main"
-check_busco_score = "ensembl.genes.metrics/check_busco_score:main"
+beta_patcher = "ensembl.genes.metadata.beta_patcher:main"
+core_meta_data = "ensembl.genes.metadata.core_meta_data:main"
+busco_lineage_selector = "ensembl.genes.metrics.busco_lineage_selector:main"
+busco_metakeys_patch = "ensembl.genes.metrics.busco_metakeys_patch:main"
+check_busco_score = "ensembl.genes.metrics.check_busco_score:main"
 [build-system]
 requires = [
     "setuptools",
