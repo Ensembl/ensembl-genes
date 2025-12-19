@@ -34,4 +34,4 @@ jobs:
 
       - name: Run Mypy
         run: |
-          mypy  $(git ls-files 'src/python/ensembl/**/*.py')
+          mypy  src/python/ensembl
