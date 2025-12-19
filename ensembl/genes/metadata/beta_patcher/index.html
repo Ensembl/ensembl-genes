@@ -3836,27 +3836,27 @@ TAXONOMY_URI: Connection string for taxonomy database</p>
         <span class="n">formatter_class</span><span class="o">=</span><span class="n">argparse</span><span class="o">.</span><span class="n">RawDescriptionHelpFormatter</span><span class="p">,</span>
         <span class="n">epilog</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">Examples:</span>
-<span class="s2">  # Process patches from CSV file</span>
-<span class="s2">  python beta_patcher.py patches.csv --jira-ticket EBD-1111 --output-dir ./patches/</span>
+<span class="s2"># Process patches from CSV file</span>
+<span class="s2">python beta_patcher.py patches.csv --jira-ticket EBD-1111 --output-dir ./patches/</span>
 
-<span class="s2">  # Process CSV with custom core suffix</span>
-<span class="s2">  python beta_patcher.py patches.csv --jira-ticket EBD-1111 --core-suffix _core_115_1</span>
+<span class="s2"># Process CSV with custom core suffix</span>
+<span class="s2">python beta_patcher.py patches.csv --jira-ticket EBD-1111 --core-suffix _core_115_1</span>
 
-<span class="s2">  # Validation files are automatically generated</span>
-<span class="s2">  # Run validate_*.sql files before applying patch_*.sql files</span>
+<span class="s2"># Validation files are automatically generated</span>
+<span class="s2"># Run validate_*.sql files before applying patch_*.sql files</span>
 
 <span class="s2">CSV Format:</span>
-<span class="s2">  Required columns: meta_key, desired_meta_value</span>
-<span class="s2">  Identifier (one required): production_name OR genome_uuid</span>
-<span class="s2">  Optional columns: dataset_type, species_id, table_location</span>
+<span class="s2">Required columns: meta_key, desired_meta_value</span>
+<span class="s2">Identifier (one required): production_name OR genome_uuid</span>
+<span class="s2">Optional columns: dataset_type, species_id, table_location</span>
 
-<span class="s2">  Example:</span>
-<span class="s2">    production_name,genome_uuid,meta_key,desired_meta_value,</span><span class="se">\</span>
-<span class="s2">        dataset_type,species_id,table_location</span>
-<span class="s2">    homo_sapiens,,assembly.name,GRCh38.p14,genebuild,1,</span><span class="se">\</span>
-<span class="s2">        dataset_attribute</span>
-<span class="s2">    ,a7335667-93e7-11ec-a39d-005056b38ce3,organism.strain,&#39;</span>
-<span class="s2">    Reference,genebuild,1,genome</span>
+<span class="s2">Example:</span>
+<span class="s2">production_name,genome_uuid,meta_key,desired_meta_value,</span><span class="se">\</span>
+<span class="s2">    dataset_type,species_id,table_location</span>
+<span class="s2">homo_sapiens,,assembly.name,GRCh38.p14,genebuild,1,</span><span class="se">\</span>
+<span class="s2">    dataset_attribute</span>
+<span class="s2">,a7335667-93e7-11ec-a39d-005056b38ce3,organism.strain,&#39;</span>
+<span class="s2">Reference,genebuild,1,genome</span>
 
 <span class="s2">See patches_template.csv for a complete example.</span>
 <span class="s2">        &quot;&quot;&quot;</span><span class="p">,</span>

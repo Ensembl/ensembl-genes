@@ -4671,17 +4671,17 @@ Returns:
     <span class="n">assembly_xml</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">assembly_url</span><span class="p">)</span>
     <span class="n">assembly_dict</span> <span class="o">=</span> <span class="n">xmltodict</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">assembly_xml</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
 
-    <span class="n">attribs</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">assembly_attribs</span> <span class="o">=</span> <span class="p">(</span>
         <span class="n">assembly_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ASSEMBLY_SET&quot;</span><span class="p">,</span> <span class="p">{})</span>
         <span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ASSEMBLY&quot;</span><span class="p">,</span> <span class="p">{})</span>
         <span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ASSEMBLY_ATTRIBUTES&quot;</span><span class="p">,</span> <span class="p">{})</span>
         <span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ASSEMBLY_ATTRIBUTE&quot;</span><span class="p">,</span> <span class="p">[])</span>
     <span class="p">)</span>
     <span class="c1"># normalize to a list</span>
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">attribs</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
-        <span class="n">assembly_attribs</span> <span class="o">=</span> <span class="p">[</span><span class="n">attribs</span><span class="p">]</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">assembly_attribs</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="n">assembly_attribs</span> <span class="o">=</span> <span class="p">[</span><span class="n">assembly_attribs</span><span class="p">]</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">assembly_attribs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">attribs</span><span class="p">)</span>
+        <span class="n">assembly_attribs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">assembly_attribs</span><span class="p">)</span>
 
     <span class="n">return_dict</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
 
