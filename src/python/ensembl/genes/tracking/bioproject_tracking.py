@@ -1,15 +1,23 @@
 #!/usr/bin/env python3
+# pylint:disable=line-too-long, logging-fstring-interpolation
+"""Script to track assemblies from NCBI BioProject/Taxon IDs and their presence in Ensembl.
+Generates a report of assembly accessions, Ensembl database info, taxonomy classification,
+and FTP links if available.
+"""
+
 import argparse
-import requests
-import pymysql
+
+
 import json
 import logging
 import re
 from pathlib import Path
 from collections import Counter
-from typing import List, Tuple, Any, Dict, Optional
+from typing import List, Sequence, Tuple, Any, Dict, Optional
 import subprocess
 import shutil
+import requests
+import pymysql
 
 # -----------------------------------
 # Logging
@@ -21,7 +29,9 @@ logging.basicConfig(
 # -----------------------------------
 # Config
 # -----------------------------------
-with open("./bioproject_tracking_config.json", "r") as f:
+with open(  # pylint:disable=unspecified-encoding
+    "./bioproject_tracking_config.json", "r"
+) as f:
     config = json.load(f)
 
 
@@ -34,11 +44,21 @@ def mysql_fetch_data(
     server_group: str = "meta",
     server_name: str = "beta",
     db_name: Optional[str] = None,
-) -> List[Tuple[Any, ...]]:
+) -> Sequence[Tuple[Any, ...]]:
     """
     Executes a SQL query with optional parameters to fetch results from a specified MySQL server.
 
-    Returns empty list on error or no data.
+    Args:
+        query (str): The SQL query to execute.
+        params (Tuple, optional): Parameters to pass to the SQL query. Defaults to ().
+        server_group (str, optional): The server group as defined in the config. Defaults to "meta".
+        server_name (str, optional): The server name within the group as defined in the config. Defaults to "beta".
+        db_name (Optional[str], optional): The database name to connect to. If None, uses the default from config. Defaults to None.
+    Returns:
+        Sequence[Tuple[Any, ...]]: The fetched rows from the query result.
+    Raises:
+        KeyError: If the server group or name is not found in the config.
+        pymysql.Error: If there is an error connecting to the database or executing the query.
     """
     try:
         server_config = config["server_details"][server_group][server_name]
@@ -65,13 +85,17 @@ def mysql_fetch_data(
 # -----------------------------------
 # NCBI accessions helper
 # -----------------------------------
-def get_assembly_accessions(
+def get_assembly_accessions(  # pylint:disable=too-many-branches, too-many-statements, too-many-locals
     query_id: str, query_type: str, only_haploid: bool = False
 ) -> Dict[str, Dict[str, int]]:
     """
-    Prefer NCBI Datasets CLI (all versions), fall back to Datasets API (latest only).
-    Supports query_type in {"bioproject", "taxon"}.
-    Always returns a dict (possibly empty): {accession: {"taxon_id": int}}
+    Fetches assembly accessions from NCBI Datasets API based on BioProject or Taxon ID.
+    Args:
+        query_id (str): The BioProject or Taxon ID to query.
+        query_type (str): The type of query, either "bioproject" or "taxon".
+        only_haploid (bool): If True, only include haploid assemblies. Defaults to False.
+    Returns:
+        Dict[str, Dict[str, int]]: A dictionary mapping assembly accessions to their taxon IDs.
     """
 
     def _parse_reports(lines: List[str]) -> Dict[str, Dict[str, int]]:
@@ -90,6 +114,8 @@ def get_assembly_accessions(
                 continue
             accession = report.get("accession")
             taxon_id = (report.get("organism") or {}).get("tax_id")
+            if not isinstance(taxon_id, int):
+                continue
             if accession:
                 accs[accession] = {"taxon_id": taxon_id}
         return accs
@@ -126,7 +152,7 @@ def get_assembly_accessions(
 
             result = subprocess.run(cmd, capture_output=True, text=True, check=True)
             parsed = _parse_reports(result.stdout.splitlines())
-            if parsed:
+            if parsed:  # pylint:disable=no-else-return
                 logging.info(
                     f"[Datasets CLI] Retrieved {len(parsed)} assemblies (all versions)."
                 )
@@ -139,7 +165,7 @@ def get_assembly_accessions(
             logging.warning(
                 f"[Datasets CLI] Exit {e.returncode}. STDERR:\n{e.stderr}\nFalling back to API."
             )
-        except Exception as e:
+        except Exception as e:  # pylint:disable=broad-exception-caught
             logging.warning(
                 f"[Datasets CLI] Unexpected error: {e}. Falling back to API."
             )
@@ -147,7 +173,7 @@ def get_assembly_accessions(
     # --- 2) Fallback: API (latest only) ---
     try:
         base_url = config["urls"]["datasets"].get(query_type)
-    except Exception:
+    except Exception:  # pylint:disable=broad-exception-caught
         base_url = None
 
     if not base_url:
@@ -165,7 +191,7 @@ def get_assembly_accessions(
         if next_page_token:
             url += f"&page_token={next_page_token}"
         try:
-            response = requests.get(url)
+            response = requests.get(url)  # pylint:disable=missing-timeout
             response.raise_for_status()
             data = response.json()
             for assembly in data.get("reports", []):
@@ -174,6 +200,8 @@ def get_assembly_accessions(
                     continue
                 accession = assembly.get("accession")
                 taxon_id = (assembly.get("organism") or {}).get("tax_id")
+                if not isinstance(taxon_id, int):
+                    continue
                 if accession:
                     assembly_accessions[accession] = {"taxon_id": taxon_id}
             next_page_token = data.get("next_page_token")
@@ -201,6 +229,10 @@ def _score_dbname(dbname: str) -> Tuple[int, int, str]:
     1) Higher core version
     2) Prefer non-'cm'
     3) Lexicographic tiebreak
+    Args:
+        dbname (str): The database name to score.
+    Returns:
+        Tuple[int, int, str]: A tuple representing the score.
     """
     m = _CORE_VER_RE.search(dbname or "")
     core_ver = int(m.group(1)) if m else -1
@@ -208,19 +240,27 @@ def _score_dbname(dbname: str) -> Tuple[int, int, str]:
     return (core_ver, non_cm, dbname or "")
 
 
-def get_ensembl_live(accessions_taxon: Dict[str, Dict[str, int]]):
+def get_ensembl_live(
+    accessions_taxon: Dict[str, Dict[str, int]],
+) -> Tuple[Dict[str, Dict[str, Any]], List[str]]:
     """
-    Returns (annotated_dict, missing_list).
-    annotated_dict[accession] contains:
-      - taxon_id (from input)
-      - matches: List[{"guuid","dbname", optional "ftp","date"}]
-      - guuid, dbname: best match (latest core; prefer non-cm)
+    Fetches Ensembl live database annotations for a list of assembly accessions.
+    Args:
+        accessions_taxon (Dict[str, Dict[str, int]]): A dictionary mapping assembly accessions
+            to basic taxon information, such as {"GCA_000001405.39": {"taxon_id": 9606}}.
+    Returns:
+        Tuple[Dict[str, Dict[str, Any]], List[str]]: A tuple containing:
+        1) A dictionary where each key is an assembly accession and its value is another dictionary with:
+           - taxon_id (from input)
+           - matches: List[{"guuid","dbname"}]
+           - guuid, dbname: best match (latest core; prefer non-cm)
+        2) A list of accessions that were not found in the Ensembl live database.
     """
     accessions = list(accessions_taxon.keys())
     if not accessions:
         return {}, []
-
-    query = """
+    placeholders = ", ".join(["%s"] * len(accessions))
+    query = f"""
     SELECT DISTINCT
         assembly.accession,
         genome.genome_uuid,
@@ -233,10 +273,8 @@ def get_ensembl_live(accessions_taxon: Dict[str, Dict[str, int]]):
     JOIN genome_release ON genome.genome_id = genome_release.genome_id
     JOIN ensembl_release ON genome_release.release_id = ensembl_release.release_id
     WHERE dataset.name = 'genebuild'
-      AND assembly.accession IN ({})
-    """.format(
-        ", ".join(["%s"] * len(accessions))
-    )
+      AND assembly.accession IN ({placeholders})
+    """
 
     rows = mysql_fetch_data(query, tuple(accessions))
 
@@ -309,7 +347,7 @@ def get_taxonomy_info(
         url = f"https://api.ncbi.nlm.nih.gov/datasets/v2alpha/taxonomy/taxon/{taxon_id}/dataset_report"
 
         try:
-            response = requests.get(url)
+            response = requests.get(url)  # pylint:disable=missing-timeout
             response.raise_for_status()
             data = response.json()
 
@@ -326,7 +364,7 @@ def get_taxonomy_info(
 
         except requests.HTTPError as http_err:
             logging.error(f"HTTP error occurred: {http_err}")
-        except Exception as err:
+        except Exception as err:  # pylint:disable=broad-exception-caught
             logging.error(f"An error occurred: {err}")
 
     return live_annotations
@@ -335,9 +373,21 @@ def get_taxonomy_info(
 # -----------------------------------
 # Add FTP (per match + best)
 # -----------------------------------
-def add_ftp(
+def add_ftp(  # pylint:disable=too-many-locals, too-many-branches
     annotations: Dict[str, Dict[str, Any]], release_type: str = "live"
 ) -> Dict[str, Dict[str, Any]]:
+    """
+    Adds FTP links to the annotations dictionary based on the release type.
+    Args:
+        annotations (Dict[str, Dict[str, Any]]): A dictionary where each key is
+            an assembly accession and its value contains annotation details,
+            including matches with database names or genome UUIDs.
+        release_type (str): The type of release to determine FTP link construction.
+            Can be either "live" or "pre".
+    Returns:
+        Dict[str, Dict[str, Any]]: The updated annotations dictionary with FTP links
+        added to each match and the top-level annotation where applicable.
+    """
     for accession, annotation in annotations.items():
         matches = annotation.get("matches") or []
 
@@ -414,7 +464,8 @@ def add_ftp(
 
 def get_pre_release(missing_annotations: List[str]) -> Dict[str, Dict[str, str]]:
     """
-    Checks for the existence of pre-release Ensembl database schemas for a list of missing accessions.
+    Checks for the existence of pre-release Ensembl database schemas for a \
+        list of missing accessions.
     This function takes a list of GenBank/RefSeq assembly accessions that were not found in the
     Ensembl live database lookup (e.g., from `get_ensembl_live`). It reformats each accession
     to match the expected pre-release Ensembl database schema naming convention (e.g.,
@@ -481,6 +532,16 @@ def write_report(
     """
     Writes a tab-separated report. If an accession has multiple matches,
     produces one line per match; otherwise one line.
+    Args:
+        live_annotations (Dict[str, Dict[str, Any]]): A dictionary where each key is
+            an assembly accession and its value contains annotation details,
+            including matches with database names or genome UUIDs.
+        report_file (str): The path to the output report file.
+        rank (str): The taxonomic rank to include if `include_class` is True.
+        include_class (bool): If True, includes the taxonomic classification at the specified rank.
+        include_ftp (bool): If True, includes FTP links in the report.
+    Returns:
+        None
     """
     report_path = Path(report_file)
     lines_written = 0
@@ -597,7 +658,9 @@ def main():
     if args.pre_release and missing_annotations:
         pre_release_annotations = get_pre_release(missing_annotations)
 
-        for accession in pre_release_annotations:
+        for (
+            accession
+        ) in pre_release_annotations:  # pylint:disable=consider-using-dict-items
             if accession in accessions_taxon:
                 pre_release_annotations[accession]["taxon_id"] = accessions_taxon[
                     accession
@@ -625,7 +688,8 @@ def main():
         print(f"Found {len(accessions_taxon)} assemblies for taxon ID {args.taxon_id}")
 
     print(
-        f"Found {len(live_annotations)} annotations in beta.ensembl.org for {len(unique_taxon_ids)} unique species"
+        f"Found {len(live_annotations)} annotations in beta.ensembl.org \
+            for {len(unique_taxon_ids)} unique species"
     )
 
     if args.classification:

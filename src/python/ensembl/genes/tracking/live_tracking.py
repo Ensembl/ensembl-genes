@@ -1,15 +1,15 @@
-import json
-import pymysql
-from typing import List, Tuple, Any, Dict
-from pathlib import Path
+"""the live_tracking module contains functions to track live core databases on staging servers."""
+
 import argparse
-
-with open(Path(__file__).parent / "./live_tracking_config.json", "r") as f:
-    config = json.load(f)
-
-import pymysql
+import json
 from typing import List, Tuple, Any
-import sys
+from pathlib import Path
+import pymysql
+
+with open(  # pylint:disable=unspecified-encoding
+    Path(__file__).parent / "./live_tracking_config.json", "r"
+) as f:
+    config = json.load(f)
 
 
 def mysql_fetch_data(
@@ -18,10 +18,14 @@ def mysql_fetch_data(
     """
     Executes a given SQL query on a MySQL database and fetches the result.
 
-    This function establishes a connection to the MySQL database using provided connection details.
-    It then executes the given query using a cursor obtained from the connection. After executing the query,
-    it fetches all the rows of the query result and returns them. The function handles any errors that might
-    occur during the process and ensures that the database connection is closed before returning the result.
+    This function establishes a connection to the MySQL database \
+        using provided connection details.
+    It then executes the given query using a cursor obtained from \
+        the connection. After executing the query,
+    it fetches all the rows of the query result and returns them. \
+        The function handles any errors that might
+    occur during the process and ensures that the database connection is \
+        closed before returning the result.
 
     Args:
         query (str): The SQL query to be executed.
@@ -34,8 +38,10 @@ def mysql_fetch_data(
         tuple: A tuple of tuples containing the rows returned by the query execution.
 
     Note:
-        This function does not handle database password authentication. Ensure that the provided user
-        has the necessary permissions and that the database is configured to allow password-less connections
+        This function does not handle database password authentication. \
+            Ensure that the provided user
+        has the necessary permissions and that the database is configured\
+            to allow password-less connections
         from the given host.
     """
     try:
@@ -50,7 +56,7 @@ def mysql_fetch_data(
         cursor.close()
         conn.close()
 
-        return result
+        return list(result)
 
     except pymysql.Error as err:
         print(f"Error: {err}")
@@ -58,12 +64,14 @@ def mysql_fetch_data(
         try:
             cursor.close()
             conn.close()
-        except:
+        except:  # pylint:disable=bare-except
             pass
         return []
 
 
-def check_database_on_server(db, server_key, config):
+def check_database_on_server(
+    db: str, server_key: str, config: dict  # pylint:disable=redefined-outer-name
+) -> bool:
     """
     Checks if a database exists on a given server.
     Args:
@@ -82,7 +90,8 @@ def check_database_on_server(db, server_key, config):
         )
         with conn.cursor() as cur:
             cur.execute(
-                "SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = %s",
+                "SELECT SCHEMA_NAME FROM information_schema.SCHEMATA\
+                    WHERE SCHEMA_NAME = %s",
                 (db,),
             )
             result = cur.fetchone()
@@ -96,17 +105,26 @@ def check_database_on_server(db, server_key, config):
             conn.close()
 
 
-def clean_server(config, mode: str):
+def clean_server(
+    config: dict, mode: str  # pylint:disable=redefined-outer-name
+) -> List:
     """
-    Fetches a list of core databases that are both current in the rapid database and present on the MySQL server.
+    Fetches a list of core databases that are both current in the \
+        rapid database and present on the MySQL server.
 
     This function performs the following steps:
-    1. Executes a query on the rapid database to fetch all current core databases.
+    1. Executes a query on the rapid database to fetch all current core\
+        databases.
     2. Executes a query on the MySQL server to fetch all core databases.
-    3. Compares the results from both queries and compiles a list of core databases that are present in both.
+    3. Compares the results from both queries and compiles a list of\
+        core databases that are present in both.
+    Args:
+        config (dict): Configuration dictionary containing server connection details.
+        mode (str): Mode of operation, either "rapid" or "beta".    
 
     Returns:
-        list: A list of core databases that are current in the rapid database and present on the MySQL server.
+        list: A list of core databases that are current in the rapid \
+            database and present on the MySQL server.
     """
     rapid_live_databases = []
     beta_live_databases = []
@@ -121,10 +139,11 @@ def clean_server(config, mode: str):
     )
     core_dbs = [db[0] for db in cores_fetch]
 
-    if mode == "rapid":
+    if mode == "rapid":  # pylint:disable=no-else-return
         rapid_query = (
             "SELECT dbname FROM genome_database JOIN genome USING(genome_id) "
-            "JOIN data_release USING(data_release_id) WHERE is_current = 1 and dbname like '%core%';"
+            "JOIN data_release USING(data_release_id) WHERE \
+                is_current = 1 and dbname like '%core%';"
         )
         rapid_fetch = mysql_fetch_data(
             rapid_query,
@@ -176,6 +195,7 @@ def clean_server(config, mode: str):
 
 
 def main():
+    """the main function to run the live tracking script."""
     parser = argparse.ArgumentParser(
         description="Check rapid or beta metadata databases."
     )
@@ -190,7 +210,8 @@ def main():
     live_databases = clean_server(config, args.mode)
 
     print(
-        f"Here is a list of databases on genebuild-prod-1 that can also be found in the {args.mode} metadata:"
+        f"Here is a list of databases on genebuild-prod-1 that\
+            can also be found in the {args.mode} metadata:"
     )
     for db in live_databases:
         print(f"{db}")
