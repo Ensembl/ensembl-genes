@@ -114,7 +114,7 @@ def update_existing_record(  # pylint:disable=too-many-arguments, too-many-posit
 ) -> None:
     """
     Update an existing genebuild status record.
-    
+
     Args:
         connection: MySQL connection object
         record_id (int): genebuild_status_id to update

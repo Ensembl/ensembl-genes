@@ -28,7 +28,7 @@ __all__ = ["mysql_fetch_data", "mysql_update"]
 
 def mysql_get_connection(
     database: str, host: str, port: int, user: str, password: str
-) -> Optional[pymysql.connections.Connection[Any]]:
+) -> Optional[pymysql.Connection[Any]]:
     """
     Establish a connection to the MySQL database.
     """

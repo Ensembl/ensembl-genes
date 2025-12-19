@@ -1,22 +1,21 @@
 {
-  "current_genebuild": "0",
-  "dbowner": "",
-  "email": "",
-  "base_output_dir": "",
-  "release_number": "",
-  "pipeline_name": "",
-  "password": "",
-  "user": "",
-  "user_r": "",
-  "server_set": "",
-  "custom_server":
-    {
-      "pipeline_db_host": "",
-      "pipeline_db_port": "",
-      "core_db_host": "",
-      "core_db_port": "",
-      "databases_host": "",
-      "databases_port": ""
+    "current_genebuild": "0",
+    "dbowner": "",
+    "email": "",
+    "base_output_dir": "",
+    "release_number": "",
+    "pipeline_name": "",
+    "password": "",
+    "user": "",
+    "user_r": "",
+    "server_set": "",
+    "custom_server": {
+        "pipeline_db_host": "",
+        "pipeline_db_port": "",
+        "core_db_host": "",
+        "core_db_port": "",
+        "databases_host": "",
+        "databases_port": "",
     },
-  "init_file": ""
+    "init_file": "",
 }
