@@ -39,6 +39,7 @@ dev = [
     "mkdocs-coverage",
     "types-PyMySQL",
     "mypy",
+    "types-requests",
 ]
 
 [project.urls]
@@ -54,6 +55,7 @@ core_meta_data = "ensembl.genes.metadata.core_meta_data:main"
 busco_lineage_selector = "ensembl.genes.metrics.busco_lineage_selector:main"
 busco_metakeys_patch = "ensembl.genes.metrics.busco_metakeys_patch:main"
 check_busco_score = "ensembl.genes.metrics.check_busco_score:main"
+
 [build-system]
 requires = [
     "setuptools",
