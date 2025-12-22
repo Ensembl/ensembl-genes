@@ -2814,7 +2814,7 @@ It will retry up to 10,000 times to ensure uniqueness.</p>
     <span class="n">conn</span> <span class="o">=</span> <span class="n">pymysql</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span>
         <span class="n">host</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">&quot;registry&quot;</span><span class="p">][</span><span class="s2">&quot;db_host&quot;</span><span class="p">],</span>
         <span class="n">user</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">&quot;registry&quot;</span><span class="p">][</span><span class="s2">&quot;db_user_w&quot;</span><span class="p">],</span>
-        <span class="n">port</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">&quot;registry&quot;</span><span class="p">][</span><span class="s2">&quot;db_port&quot;</span><span class="p">],</span>
+        <span class="n">port</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">server_info</span><span class="p">[</span><span class="s2">&quot;registry&quot;</span><span class="p">][</span><span class="s2">&quot;db_port&quot;</span><span class="p">]),</span>
         <span class="n">password</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">&quot;registry&quot;</span><span class="p">][</span><span class="s2">&quot;password&quot;</span><span class="p">],</span>
         <span class="n">database</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">&quot;registry&quot;</span><span class="p">][</span><span class="s2">&quot;db_name&quot;</span><span class="p">],</span>
     <span class="p">)</span>
@@ -3390,7 +3390,7 @@ where the prefix is predefined.
             <span class="n">prefix_registry_query</span><span class="p">,</span>
             <span class="n">host</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">&quot;registry&quot;</span><span class="p">][</span><span class="s2">&quot;db_host&quot;</span><span class="p">],</span>
             <span class="n">user</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">&quot;registry&quot;</span><span class="p">][</span><span class="s2">&quot;db_user&quot;</span><span class="p">],</span>
-            <span class="n">port</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">&quot;registry&quot;</span><span class="p">][</span><span class="s2">&quot;db_port&quot;</span><span class="p">],</span>
+            <span class="n">port</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">server_info</span><span class="p">[</span><span class="s2">&quot;registry&quot;</span><span class="p">][</span><span class="s2">&quot;db_port&quot;</span><span class="p">]),</span>
             <span class="n">database</span><span class="o">=</span><span class="s2">&quot;gb_assembly_registry&quot;</span><span class="p">,</span>
             <span class="n">password</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
         <span class="p">)</span>
@@ -3403,7 +3403,7 @@ where the prefix is predefined.
             <span class="n">prefix_metadata_query</span><span class="p">,</span>
             <span class="n">host</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">&quot;registry&quot;</span><span class="p">][</span><span class="s2">&quot;db_host&quot;</span><span class="p">],</span>
             <span class="n">user</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">&quot;registry&quot;</span><span class="p">][</span><span class="s2">&quot;db_user&quot;</span><span class="p">],</span>
-            <span class="n">port</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">&quot;registry&quot;</span><span class="p">][</span><span class="s2">&quot;db_port&quot;</span><span class="p">],</span>
+            <span class="n">port</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">server_info</span><span class="p">[</span><span class="s2">&quot;registry&quot;</span><span class="p">][</span><span class="s2">&quot;db_port&quot;</span><span class="p">]),</span>
             <span class="n">database</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">&quot;registry&quot;</span><span class="p">][</span><span class="s2">&quot;db_name&quot;</span><span class="p">],</span>
             <span class="n">password</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
         <span class="p">)</span>
@@ -3432,7 +3432,7 @@ where the prefix is predefined.
             <span class="n">conn</span> <span class="o">=</span> <span class="n">pymysql</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span>
                 <span class="n">host</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">&quot;registry&quot;</span><span class="p">][</span><span class="s2">&quot;db_host&quot;</span><span class="p">],</span>
                 <span class="n">user</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">&quot;registry&quot;</span><span class="p">][</span><span class="s2">&quot;db_user_w&quot;</span><span class="p">],</span>
-                <span class="n">port</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">&quot;registry&quot;</span><span class="p">][</span><span class="s2">&quot;db_port&quot;</span><span class="p">],</span>
+                <span class="n">port</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">server_info</span><span class="p">[</span><span class="s2">&quot;registry&quot;</span><span class="p">][</span><span class="s2">&quot;db_port&quot;</span><span class="p">]),</span>
                 <span class="n">password</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">&quot;registry&quot;</span><span class="p">][</span><span class="s2">&quot;password&quot;</span><span class="p">],</span>
                 <span class="n">database</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">&quot;registry&quot;</span><span class="p">][</span><span class="s2">&quot;db_name&quot;</span><span class="p">],</span>
             <span class="p">)</span>
