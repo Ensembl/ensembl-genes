@@ -18,7 +18,7 @@ classifiers = [
 dependencies = [
     "pymysql",
     "requests",
-    "sqlalchemy == 1.4.9",
+    "sqlalchemy >=1.4.16",
     "xmltodict",
     "pandas"
 ]
