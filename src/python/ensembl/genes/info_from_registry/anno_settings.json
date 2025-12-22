@@ -9,5 +9,5 @@
     "busco_threshold": "70",
     "busco_lower_threshold": "50",
     "busco_difference_threshold": "10",
-    "config": "EnsemblAnnoHelixer_conf.pm",
+    "config": "EnsemblAnnoHelixer_conf.pm"
 }

@@ -15,7 +15,7 @@
         "core_db_host": "",
         "core_db_port": "",
         "databases_host": "",
-        "databases_port": "",
+        "databases_port": ""
     },
-    "init_file": "",
+    "init_file": ""
 }
