@@ -702,7 +702,7 @@ def main():
         if args.ftp and pre_release_annotations:
             pre_release_annotations = add_ftp(pre_release_annotations, "pre")
 
-        all_annotations: Dict[str, Dict[str, Any]] = { # type: ignore
+        all_annotations: Dict[str, Dict[str, Any]] = {  # type: ignore
             **live_annotations,
             **pre_release_annotations,
         }
