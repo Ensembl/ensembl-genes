@@ -78,7 +78,7 @@ def stable_space_per_taxon(taxon_id: int, server_info: dict) -> int:
         space_query,
         host=server_info["registry"]["db_host"],
         user=server_info["registry"]["db_user"],
-        port=server_info["registry"]["db_port"],
+        port=int(server_info["registry"]["db_port"]),
         database=server_info["registry"]["db_name"],
         password="",
     )
@@ -144,7 +144,7 @@ def stable_space_range(stable_space_id: int, server_info: dict) -> bool:
         query,
         host=server_info["registry"]["db_host"],
         user=server_info["registry"]["db_user"],
-        port=server_info["registry"]["db_port"],
+        port=int(server_info["registry"]["db_port"]),
         database=server_info["registry"]["db_name"],
         password="",
     )
@@ -166,7 +166,7 @@ def stable_space_range(stable_space_id: int, server_info: dict) -> bool:
             query,
             host=server_info["registry"]["db_host"],
             user=server_info["registry"]["db_user"],
-            port=server_info["registry"]["db_port"],
+            port=int(server_info["registry"]["db_port"]),
             database=server_info["registry"]["db_name"],
             password="",
         )
@@ -190,7 +190,7 @@ def stable_space_range(stable_space_id: int, server_info: dict) -> bool:
             conn = pymysql.connect(
                 host=server_info["registry"]["db_host"],
                 user=server_info["registry"]["db_user_w"],
-                port=server_info["registry"]["db_port"],
+                port=int(server_info["registry"]["db_port"]),
                 password=server_info["registry"]["password"],
                 database=server_info["registry"]["db_name"],
             )
@@ -250,7 +250,7 @@ def assign_stable_id(
         conn = pymysql.connect(
             host=server_info["registry"]["db_host"],
             user=server_info["registry"]["db_user_w"],
-            port=server_info["registry"]["db_port"],
+            port=int(server_info["registry"]["db_port"]),
             password=server_info["registry"]["password"],
             database=server_info["registry"]["db_name"],
         )
@@ -300,7 +300,7 @@ def get_stable_space(
         space_gca_query,
         host=server_info["registry"]["db_host"],
         user=server_info["registry"]["db_user"],
-        port=server_info["registry"]["db_port"],
+        port=int(server_info["registry"]["db_port"]),
         database=server_info["registry"]["db_name"],
         password="",
     )

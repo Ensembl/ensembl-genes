@@ -28,8 +28,6 @@ Functions:
 import logging
 from typing import Optional, Any
 import pymysql
-from pymysql.connections import Connection
-from pymysql.cursors import DictCursor
 
 # Configure logging
 logging.basicConfig(
@@ -44,7 +42,7 @@ __all__ = ["mysql_fetch_data", "mysql_update"]
 
 def mysql_get_connection(
     database: str, host: str, port: int, user: str, password: str
-) -> Optional[Connection[DictCursor]]:  # pylint: disable=unsubscriptable-object
+) -> Optional[pymysql.connections.Connection]:  # pylint: disable=unsubscriptable-object
     """
     Establish a connection to the MySQL database.
     """
@@ -92,7 +90,7 @@ def mysql_fetch_data(  # pylint:disable=too-many-arguments, too-many-positional-
         conn = pymysql.connect(
             host=host,
             user=user,
-            port=port,
+            port=int(port),
             password=password,
             database=database.strip(),
             cursorclass=pymysql.cursors.DictCursor,

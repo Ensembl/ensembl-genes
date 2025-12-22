@@ -177,7 +177,7 @@ def create_prefix(existing_prefix: list[str], taxon_id: int, server_info: dict) 
     conn = pymysql.connect(
         host=server_info["registry"]["db_host"],
         user=server_info["registry"]["db_user_w"],
-        port=server_info["registry"]["db_port"],
+        port=int(server_info["registry"]["db_port"]),
         password=server_info["registry"]["password"],
         database=server_info["registry"]["db_name"],
     )
@@ -229,7 +229,7 @@ def get_species_prefix(taxon_id: int, server_info: dict) -> Optional[str]:
             prefix_registry_query,
             host=server_info["registry"]["db_host"],
             user=server_info["registry"]["db_user"],
-            port=server_info["registry"]["db_port"],
+            port=int(server_info["registry"]["db_port"]),
             database="gb_assembly_registry",
             password="",
         )
@@ -242,7 +242,7 @@ def get_species_prefix(taxon_id: int, server_info: dict) -> Optional[str]:
             prefix_metadata_query,
             host=server_info["registry"]["db_host"],
             user=server_info["registry"]["db_user"],
-            port=server_info["registry"]["db_port"],
+            port=int(server_info["registry"]["db_port"]),
             database=server_info["registry"]["db_name"],
             password="",
         )
@@ -271,7 +271,7 @@ def get_species_prefix(taxon_id: int, server_info: dict) -> Optional[str]:
             conn = pymysql.connect(
                 host=server_info["registry"]["db_host"],
                 user=server_info["registry"]["db_user_w"],
-                port=server_info["registry"]["db_port"],
+                port=int(server_info["registry"]["db_port"]),
                 password=server_info["registry"]["password"],
                 database=server_info["registry"]["db_name"],
             )
