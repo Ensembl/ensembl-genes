@@ -4283,7 +4283,7 @@ Returns:
         <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">ftp</span> <span class="ow">and</span> <span class="n">pre_release_annotations</span><span class="p">:</span>
             <span class="n">pre_release_annotations</span> <span class="o">=</span> <span class="n">add_ftp</span><span class="p">(</span><span class="n">pre_release_annotations</span><span class="p">,</span> <span class="s2">&quot;pre&quot;</span><span class="p">)</span>
 
-        <span class="n">all_annotations</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span> <span class="c1"># type: ignore</span>
+        <span class="n">all_annotations</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>  <span class="c1"># type: ignore</span>
             <span class="o">**</span><span class="n">live_annotations</span><span class="p">,</span>
             <span class="o">**</span><span class="n">pre_release_annotations</span><span class="p">,</span>
         <span class="p">}</span>

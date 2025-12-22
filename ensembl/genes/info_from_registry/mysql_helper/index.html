@@ -2915,7 +2915,7 @@ informative messages and errors during execution.</p>
             <span class="n">database</span><span class="o">=</span><span class="n">database</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span>
             <span class="n">cursorclass</span><span class="o">=</span><span class="n">pymysql</span><span class="o">.</span><span class="n">cursors</span><span class="o">.</span><span class="n">DictCursor</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="k">return</span> <span class="n">conn</span> <span class="c1"># type: ignore</span>
+        <span class="k">return</span> <span class="n">conn</span>  <span class="c1"># type: ignore</span>
     <span class="k">except</span> <span class="n">pymysql</span><span class="o">.</span><span class="n">Error</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;MySQL error: </span><span class="si">{</span><span class="n">err</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="kc">None</span>
