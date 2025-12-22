@@ -55,7 +55,7 @@ def mysql_get_connection(
             database=database.strip(),
             cursorclass=pymysql.cursors.DictCursor,
         )
-        return conn
+        return conn # type: ignore
     except pymysql.Error as err:
         print(f"MySQL error: {err}")
         return None
