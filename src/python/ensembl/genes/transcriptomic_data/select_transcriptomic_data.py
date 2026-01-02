@@ -356,7 +356,7 @@ def main() -> None:
 
     parser.add_argument("--taxon_id", default="10116", type=str, required=True, help="Taxonomy ID")
     parser.add_argument("--host", type=str, default="mysql-ens-genebuild-prod-1", required=False, help="Host")
-    parser.add_argument("--user", type=str, default="ensadmin", required=False, help="User")
+    parser.add_argument("--user", type=str, default="ensro", required=False, help="User")
     parser.add_argument("--password", type=str, default="", required=False, help="Password")
     parser.add_argument(
         "--database",
