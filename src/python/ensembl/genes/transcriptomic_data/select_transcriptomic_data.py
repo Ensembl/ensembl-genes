@@ -352,11 +352,11 @@ def clean_repeated_words(text:str)-> str:
 
 def main() -> None:
     """Module's entry-point."""
-    parser = argparse.ArgumentParser(prog="llm_prediction.py", description="Predict tissue using LLMs")
+    parser = argparse.ArgumentParser(prog="select_transcriptomic_data.py", description="Select transcriptomic data from the registry for annotation")
 
     parser.add_argument("--taxon_id", default="10116", type=str, required=True, help="Taxonomy ID")
     parser.add_argument("--host", type=str, default="mysql-ens-genebuild-prod-1", required=False, help="Host")
-    parser.add_argument("--user", type=str, default="ensadmin", required=False, help="User")
+    parser.add_argument("--user", type=str, default="ensro", required=False, help="User")
     parser.add_argument("--password", type=str, default="", required=False, help="Password")
     parser.add_argument(
         "--database",
