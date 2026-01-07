@@ -382,7 +382,7 @@ def clean_repeated_words(input_text: str) -> str:
 def main() -> None:  # pylint: disable=too-many-statements
     """Module's entry-point."""
     parser = argparse.ArgumentParser(
-        prog="llm_prediction.py", description="Predict tissue using LLMs"
+        prog="select_transcriptomic_data.py", description="Select transcriptomic data from the registry for annotation"
     )
 
     parser.add_argument(
@@ -396,7 +396,7 @@ def main() -> None:  # pylint: disable=too-many-statements
         help="Host",
     )
     parser.add_argument(
-        "--user", type=str, default="ensadmin", required=False, help="User"
+        "--user", type=str, default="ensro", required=False, help="User"
     )
     parser.add_argument(
         "--password", type=str, default="", required=False, help="Password"
