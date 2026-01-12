@@ -386,8 +386,32 @@
         "projection_source_production_name": "homo_sapiens"
     },
 
-    "reptiles": {
-        "taxon_id": 8457,
+    "lepidosauria": {
+        "taxon_id": 8504,
+        "repbase_library": "vertebrates",
+        "repbase_logic_name": "vertebrates",
+        "uniprot_set": "reptiles_basic",
+        "sanity_set": "reptiles_basic",
+        "ig_tr_fasta_file": "imgt_mammals_aves_ig_tr.fa",
+        "masking_timer_long": "6h",
+        "masking_timer_short": "3h",
+        "projection_source_production_name": "homo_sapiens"
+    },
+
+	"testudines": {
+        "taxon_id": 8459,
+        "repbase_library": "vertebrates",
+        "repbase_logic_name": "vertebrates",
+        "uniprot_set": "reptiles_basic",
+        "sanity_set": "reptiles_basic",
+        "ig_tr_fasta_file": "imgt_mammals_aves_ig_tr.fa",
+        "masking_timer_long": "6h",
+        "masking_timer_short": "3h",
+        "projection_source_production_name": "homo_sapiens"
+    },
+
+	"crocodylia": {
+        "taxon_id": 1294634,
         "repbase_library": "vertebrates",
         "repbase_logic_name": "vertebrates",
         "uniprot_set": "reptiles_basic",
