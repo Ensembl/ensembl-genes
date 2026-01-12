@@ -311,7 +311,7 @@
         "busco_protein_file": "/nfs/production/flicek/ensembl/genebuild/genebuild_virtual_user/protein_sets/oomycota_fungidb_proteins.fa",
         "rfam_accessions_file": "/hps/nobackup/flicek/ensembl/genebuild/blastdb/ncrna/Rfam_14.1/clade_accessions/rfam_fungi_ids.txt",
         "species_division": "EnsemblFungi",
-        "busco_group": "mucoromycota_odb12",
+        "busco_group": "oomycota_odb12",
         "helixer_lineage": "fungi",
         "helixer_param": "--subsequence-length 21384 --overlap-offset 10692 --overlap-core-length 16038"
     },
