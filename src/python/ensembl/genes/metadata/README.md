@@ -58,7 +58,7 @@ export TAXONOMY_URI="mysql+pymysql://user:pass@host:port/ncbi_taxonomy"
 python beta_patcher.py patches.csv --jira-ticket EBD-1111 --output-dir ./patches/
 
 # With team filter (only applies patches where all affected genomes belong to specified team)
-python beta_patcher.py patches.csv --jira-ticket EBD-1111 --team-filter genebuild
+python beta_patcher.py patches.csv --jira-ticket EBD-1111 --team-filter Genebuild
 ```
 
 ### Finding genome_uuid for organism/assembly patches
