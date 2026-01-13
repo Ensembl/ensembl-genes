@@ -66,7 +66,7 @@
         "taxon_id": 6657,
         "max_intron_length": 100000,
         "protein_file": "/nfs/production/flicek/ensembl/genebuild/genebuild_virtual_user/protein_sets/crustacea_uniprot_proteins.fa",
-        "busco_protein_file": "/nfs/production/flicek/ensembl/genebuild/genebuild_virtual_user/protein_sets/rustacea_orthodb_proteins.fa",
+        "busco_protein_file": "/nfs/production/flicek/ensembl/genebuild/genebuild_virtual_user/protein_sets/crustacea_orthodb_proteins.fa",
         "rfam_accessions_file": "/hps/nobackup/flicek/ensembl/genebuild/blastdb/ncrna/Rfam_14.1/clade_accessions/rfam_crustacea_ids.txt",
         "species_division": "EnsemblMetazoa",
         "busco_group": "crustacea_odb12"
