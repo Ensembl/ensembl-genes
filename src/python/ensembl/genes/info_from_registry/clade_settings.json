@@ -23,7 +23,7 @@
         "protein_file": "/nfs/production/flicek/ensembl/genebuild/genebuild_virtual_user/protein_sets/polyneoptera_uniprot_proteins.fa",
         "busco_protein_file": "/nfs/production/flicek/ensembl/genebuild/genebuild_virtual_user/protein_sets/hexapoda_orthodb11v0_proteins.fa",
         "rfam_accessions_file": "/hps/nobackup/flicek/ensembl/genebuild/blastdb/ncrna/Rfam_14.1/clade_accessions/rfam_insect_ids.txt",
-        "species_division": "rfam_insect_ids",
+        "species_division": "EnsemblMetazoa",
         "busco_group": "insecta_odb12"
     },
     "plasmodium": {
