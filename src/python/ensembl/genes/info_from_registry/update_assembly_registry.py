@@ -3,7 +3,12 @@ Utility to update the status of a genebuild in the registry db
 """
 
 from mysql_helper import mysql_get_connection
-from registry_helper import fetch_assembly_id, fetch_current_genebuild_record
+from registry_helper import (
+    fetch_assembly_id,
+    fetch_current_genebuild_record,
+    fetch_highest_genebuild_version,
+    increment_genebuild_version,
+)
 import argparse
 from datetime import datetime
 import sys
@@ -220,7 +225,29 @@ def main(
             # Use defaults for new records if not specified
             method_to_insert = annotation_method if annotation_method else "pending"
             source_to_insert = annotation_source if annotation_source else "ensembl"
-            version_to_insert = genebuild_version if genebuild_version else "ENS01"
+
+            # Determine genebuild version: must be unique per assembly, not per genebuilder
+            if genebuild_version:
+                # User explicitly provided a version - check if it already exists for this assembly
+                highest_version = fetch_highest_genebuild_version(connection, assembly)
+                if highest_version:
+                    if genebuild_version <= highest_version:
+                        print(f"ERROR: Genebuild version '{genebuild_version}' already exists or is lower than existing version '{highest_version}' for assembly {assembly}")
+                        print(f"Versions must be unique per assembly across all genebuilders.")
+                        print(f"Please use a version higher than '{highest_version}' or omit --genebuild_version to auto-increment.")
+                        sys.exit(1)
+                version_to_insert = genebuild_version
+            else:
+                # Auto-determine version: check if ANY version exists for this assembly (any genebuilder)
+                highest_version = fetch_highest_genebuild_version(connection, assembly)
+                if highest_version:
+                    # Another genebuilder has a version for this assembly - increment it
+                    version_to_insert = increment_genebuild_version(highest_version)
+                    print(f"Found existing genebuild version '{highest_version}' for {assembly} (by another genebuilder)")
+                    print(f"Auto-incrementing to version: {version_to_insert}")
+                else:
+                    # No version exists for this assembly yet - start with ENS01
+                    version_to_insert = "ENS01"
 
             insert_new_record(
                 connection,
@@ -294,6 +321,14 @@ def main(
                 effective_version = genebuild_version if genebuild_version else current_version
 
                 if effective_version != current_version:
+                    # Validate the new version against ALL existing versions for this assembly
+                    highest_version = fetch_highest_genebuild_version(connection, assembly)
+                    if highest_version and effective_version <= highest_version:
+                        print(f"ERROR: Genebuild version '{effective_version}' already exists or is lower than existing version '{highest_version}' for assembly {assembly}")
+                        print(f"Versions must be unique per assembly across all genebuilders.")
+                        print(f"Please use a version higher than '{highest_version}'.")
+                        sys.exit(1)
+
                     print(f"Moving from terminal status '{current_status}' to '{status}' with new version {effective_version}")
                     print(f"Creating new attempt.")
 
@@ -315,8 +350,11 @@ def main(
                         dev,
                     )
                 else:
+                    # No version provided or same as current - suggest incrementing
+                    highest_version = fetch_highest_genebuild_version(connection, assembly)
+                    suggested_version = increment_genebuild_version(highest_version) if highest_version else "ENS02"
                     print(f"ERROR: Cannot move from terminal status '{current_status}' to '{status}' with same genebuild_version '{current_version}'")
-                    print(f"To restart work, you must provide a new --genebuild_version (e.g., ENS02, ENS03, etc.)")
+                    print(f"To restart work, you must provide a new --genebuild_version higher than '{highest_version}' (e.g., {suggested_version})")
                     sys.exit(1)
 
             # Terminal to terminal transition - UPDATE same record
@@ -465,7 +503,12 @@ if __name__ == "__main__":
     parser.add_argument(
         "--genebuild_version",
         default=None,
-        help="Genebuild version (default: preserve existing value, or 'ENS01' for new records)",
+        help=(
+            "Genebuild version (must be unique per assembly across all genebuilders). "
+            "If not specified: for new records, auto-increments from the highest existing version "
+            "for this assembly (any genebuilder), or defaults to 'ENS01' if none exists. "
+            "For updates, preserves existing value."
+        ),
     )
 
     args = parser.parse_args()
