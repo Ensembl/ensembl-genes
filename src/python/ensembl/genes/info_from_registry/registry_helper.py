@@ -20,6 +20,7 @@ This module provides utility functions for common registry database queries
 that are shared across multiple scripts.
 """
 
+import re
 from typing import cast, Optional, Any
 import pymysql
 
@@ -107,6 +108,63 @@ def fetch_genebuild_status_id(
     """
     record = fetch_current_genebuild_record(connection, assembly)
     return record["genebuild_status_id"] if record else None
+
+
+def fetch_highest_genebuild_version(
+    connection: pymysql.connections.Connection, assembly: str
+) -> Optional[str]:
+    """
+    Fetch the highest genebuild version for a given assembly across all genebuilders.
+    This ensures version uniqueness per assembly, regardless of who owns the genebuild.
+    Args:
+        connection: MySQL connection object
+        assembly (str): Assembly Accession (GCA format)
+    Returns:
+        str: Highest genebuild version (e.g., "ENS02") if any exists, else None
+    """
+    query = """
+    SELECT genebuild_version
+    FROM genebuild_status
+    WHERE gca_accession = %s
+    ORDER BY genebuild_version DESC
+    LIMIT 1
+    """
+
+    with connection.cursor(pymysql.cursors.DictCursor) as cursor:
+        cursor.execute(query, (assembly,))
+        result = cursor.fetchone()
+
+    return result["genebuild_version"] if result else None
+
+
+def increment_genebuild_version(version: str) -> str:
+    """
+    Increment a genebuild version string.
+    Examples:
+        ENS01 -> ENS02
+        ENS09 -> ENS10
+        BRK01 -> BRK02
+        HLX99 -> HLX100
+    Args:
+        version (str): Current version (e.g., "ENS01")
+    Returns:
+        str: Incremented version (e.g., "ENS02")
+    """
+
+    # Extract prefix and numeric suffix
+    match = re.match(r"^([A-Z]+)(\d+)$", version)
+    if not match:
+        raise ValueError(f"Invalid genebuild version format: {version}")
+
+    prefix = match.group(1)
+    number = int(match.group(2))
+
+    # Increment and preserve zero-padding
+    new_number = number + 1
+    # Preserve the original zero-padding width
+    width = len(match.group(2))
+
+    return f"{prefix}{new_number:0{width}d}"
 
 
 def fetch_registry_ids(
