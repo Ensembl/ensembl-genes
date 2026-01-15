@@ -176,7 +176,9 @@ def assign_clade(server_info: dict, registry_info: dict) -> tuple[str, Optional[
 
     # No match found
     logging.error(f"No clade found for taxon {registry_info['taxon_id']} in full hierarchy.")
-    return "Unassigned", genus_taxon_id, None
+    raise RuntimeError(
+        f"No clade found for taxon {registry_info['taxon_id']} in full hierarchy. "
+        "Please check clade settings.")
 
 
 def assign_clade_info_custom_loading(registry_info: dict) -> Optional[dict[str, any]]:
