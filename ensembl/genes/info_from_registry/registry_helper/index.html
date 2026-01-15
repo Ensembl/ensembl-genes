@@ -1403,10 +1403,32 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#ensembl.genes.info_from_registry.registry_helper.fetch_highest_genebuild_version" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;fetch_highest_genebuild_version
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#ensembl.genes.info_from_registry.registry_helper.fetch_registry_ids" class="md-nav__link">
     <span class="md-ellipsis">
       
         <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;fetch_registry_ids
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ensembl.genes.info_from_registry.registry_helper.increment_genebuild_version" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;increment_genebuild_version
       
     </span>
   </a>
@@ -2478,10 +2500,32 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#ensembl.genes.info_from_registry.registry_helper.fetch_highest_genebuild_version" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;fetch_highest_genebuild_version
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#ensembl.genes.info_from_registry.registry_helper.fetch_registry_ids" class="md-nav__link">
     <span class="md-ellipsis">
       
         <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;fetch_registry_ids
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ensembl.genes.info_from_registry.registry_helper.increment_genebuild_version" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;increment_genebuild_version
       
     </span>
   </a>
@@ -2617,8 +2661,7 @@ that are shared across multiple scripts.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/python/ensembl/genes/info_from_registry/registry_helper.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">27</span>
-<span class="normal">28</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">28</span>
 <span class="normal">29</span>
 <span class="normal">30</span>
 <span class="normal">31</span>
@@ -2641,7 +2684,8 @@ that are shared across multiple scripts.</p>
 <span class="normal">48</span>
 <span class="normal">49</span>
 <span class="normal">50</span>
-<span class="normal">51</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">fetch_assembly_id</span><span class="p">(</span>
+<span class="normal">51</span>
+<span class="normal">52</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">fetch_assembly_id</span><span class="p">(</span>
     <span class="n">connection</span><span class="p">:</span> <span class="n">pymysql</span><span class="o">.</span><span class="n">connections</span><span class="o">.</span><span class="n">Connection</span><span class="p">,</span> <span class="n">assembly</span><span class="p">:</span> <span class="nb">str</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -2753,8 +2797,7 @@ that are shared across multiple scripts.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/python/ensembl/genes/info_from_registry/registry_helper.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">54</span>
-<span class="normal">55</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">55</span>
 <span class="normal">56</span>
 <span class="normal">57</span>
 <span class="normal">58</span>
@@ -2792,7 +2835,8 @@ that are shared across multiple scripts.</p>
 <span class="normal">90</span>
 <span class="normal">91</span>
 <span class="normal">92</span>
-<span class="normal">93</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">fetch_current_genebuild_record</span><span class="p">(</span>
+<span class="normal">93</span>
+<span class="normal">94</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">fetch_current_genebuild_record</span><span class="p">(</span>
     <span class="n">connection</span><span class="p">:</span> <span class="n">pymysql</span><span class="o">.</span><span class="n">connections</span><span class="o">.</span><span class="n">Connection</span><span class="p">,</span>
     <span class="n">assembly</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">genebuilder</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -2903,8 +2947,7 @@ that are shared across multiple scripts.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/python/ensembl/genes/info_from_registry/registry_helper.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 96</span>
-<span class="normal"> 97</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 97</span>
 <span class="normal"> 98</span>
 <span class="normal"> 99</span>
 <span class="normal">100</span>
@@ -2916,7 +2959,8 @@ that are shared across multiple scripts.</p>
 <span class="normal">106</span>
 <span class="normal">107</span>
 <span class="normal">108</span>
-<span class="normal">109</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">fetch_genebuild_status_id</span><span class="p">(</span>
+<span class="normal">109</span>
+<span class="normal">110</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">fetch_genebuild_status_id</span><span class="p">(</span>
     <span class="n">connection</span><span class="p">:</span> <span class="n">pymysql</span><span class="o">.</span><span class="n">connections</span><span class="o">.</span><span class="n">Connection</span><span class="p">,</span> <span class="n">assembly</span><span class="p">:</span> <span class="nb">str</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -2930,6 +2974,83 @@ that are shared across multiple scripts.</p>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">record</span> <span class="o">=</span> <span class="n">fetch_current_genebuild_record</span><span class="p">(</span><span class="n">connection</span><span class="p">,</span> <span class="n">assembly</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">record</span><span class="p">[</span><span class="s2">&quot;genebuild_status_id&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="n">record</span> <span class="k">else</span> <span class="kc">None</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="ensembl.genes.info_from_registry.registry_helper.fetch_highest_genebuild_version" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">fetch_highest_genebuild_version</span><span class="p">(</span><span class="n">connection</span><span class="p">,</span> <span class="n">assembly</span><span class="p">)</span></code>
+
+<a href="#ensembl.genes.info_from_registry.registry_helper.fetch_highest_genebuild_version" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Fetch the highest genebuild version for a given assembly across all genebuilders.
+This ensures version uniqueness per assembly, regardless of who owns the genebuild.
+Args:
+    connection: MySQL connection object
+    assembly (str): Assembly Accession (GCA format)
+Returns:
+    str: Highest genebuild version (e.g., "ENS02") if any exists, else None</p>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/python/ensembl/genes/info_from_registry/registry_helper.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">113</span>
+<span class="normal">114</span>
+<span class="normal">115</span>
+<span class="normal">116</span>
+<span class="normal">117</span>
+<span class="normal">118</span>
+<span class="normal">119</span>
+<span class="normal">120</span>
+<span class="normal">121</span>
+<span class="normal">122</span>
+<span class="normal">123</span>
+<span class="normal">124</span>
+<span class="normal">125</span>
+<span class="normal">126</span>
+<span class="normal">127</span>
+<span class="normal">128</span>
+<span class="normal">129</span>
+<span class="normal">130</span>
+<span class="normal">131</span>
+<span class="normal">132</span>
+<span class="normal">133</span>
+<span class="normal">134</span>
+<span class="normal">135</span>
+<span class="normal">136</span>
+<span class="normal">137</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">fetch_highest_genebuild_version</span><span class="p">(</span>
+    <span class="n">connection</span><span class="p">:</span> <span class="n">pymysql</span><span class="o">.</span><span class="n">connections</span><span class="o">.</span><span class="n">Connection</span><span class="p">,</span> <span class="n">assembly</span><span class="p">:</span> <span class="nb">str</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Fetch the highest genebuild version for a given assembly across all genebuilders.</span>
+<span class="sd">    This ensures version uniqueness per assembly, regardless of who owns the genebuild.</span>
+<span class="sd">    Args:</span>
+<span class="sd">        connection: MySQL connection object</span>
+<span class="sd">        assembly (str): Assembly Accession (GCA format)</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        str: Highest genebuild version (e.g., &quot;ENS02&quot;) if any exists, else None</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">    SELECT genebuild_version</span>
+<span class="s2">    FROM genebuild_status</span>
+<span class="s2">    WHERE gca_accession = </span><span class="si">%s</span>
+<span class="s2">    ORDER BY genebuild_version DESC</span>
+<span class="s2">    LIMIT 1</span>
+<span class="s2">    &quot;&quot;&quot;</span>
+
+    <span class="k">with</span> <span class="n">connection</span><span class="o">.</span><span class="n">cursor</span><span class="p">(</span><span class="n">pymysql</span><span class="o">.</span><span class="n">cursors</span><span class="o">.</span><span class="n">DictCursor</span><span class="p">)</span> <span class="k">as</span> <span class="n">cursor</span><span class="p">:</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="p">(</span><span class="n">assembly</span><span class="p">,))</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;genebuild_version&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="n">result</span> <span class="k">else</span> <span class="kc">None</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -3020,32 +3141,32 @@ Raises:
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/python/ensembl/genes/info_from_registry/registry_helper.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">112</span>
-<span class="normal">113</span>
-<span class="normal">114</span>
-<span class="normal">115</span>
-<span class="normal">116</span>
-<span class="normal">117</span>
-<span class="normal">118</span>
-<span class="normal">119</span>
-<span class="normal">120</span>
-<span class="normal">121</span>
-<span class="normal">122</span>
-<span class="normal">123</span>
-<span class="normal">124</span>
-<span class="normal">125</span>
-<span class="normal">126</span>
-<span class="normal">127</span>
-<span class="normal">128</span>
-<span class="normal">129</span>
-<span class="normal">130</span>
-<span class="normal">131</span>
-<span class="normal">132</span>
-<span class="normal">133</span>
-<span class="normal">134</span>
-<span class="normal">135</span>
-<span class="normal">136</span>
-<span class="normal">137</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">fetch_registry_ids</span><span class="p">(</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">170</span>
+<span class="normal">171</span>
+<span class="normal">172</span>
+<span class="normal">173</span>
+<span class="normal">174</span>
+<span class="normal">175</span>
+<span class="normal">176</span>
+<span class="normal">177</span>
+<span class="normal">178</span>
+<span class="normal">179</span>
+<span class="normal">180</span>
+<span class="normal">181</span>
+<span class="normal">182</span>
+<span class="normal">183</span>
+<span class="normal">184</span>
+<span class="normal">185</span>
+<span class="normal">186</span>
+<span class="normal">187</span>
+<span class="normal">188</span>
+<span class="normal">189</span>
+<span class="normal">190</span>
+<span class="normal">191</span>
+<span class="normal">192</span>
+<span class="normal">193</span>
+<span class="normal">194</span>
+<span class="normal">195</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">fetch_registry_ids</span><span class="p">(</span>
     <span class="n">connection</span><span class="p">:</span> <span class="n">pymysql</span><span class="o">.</span><span class="n">connections</span><span class="o">.</span><span class="n">Connection</span><span class="p">,</span>
     <span class="n">assembly</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">genebuilder</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -3071,6 +3192,92 @@ Raises:
     <span class="n">genebuild_status_id</span> <span class="o">=</span> <span class="n">record</span><span class="p">[</span><span class="s2">&quot;genebuild_status_id&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="n">record</span> <span class="k">else</span> <span class="kc">None</span>
 
     <span class="k">return</span> <span class="n">assembly_id</span><span class="p">,</span> <span class="n">genebuild_status_id</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="ensembl.genes.info_from_registry.registry_helper.increment_genebuild_version" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">increment_genebuild_version</span><span class="p">(</span><span class="n">version</span><span class="p">)</span></code>
+
+<a href="#ensembl.genes.info_from_registry.registry_helper.increment_genebuild_version" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Increment a genebuild version string.
+Examples:
+    ENS01 -&gt; ENS02
+    ENS09 -&gt; ENS10
+    BRK01 -&gt; BRK02
+    HLX99 -&gt; HLX100
+Args:
+    version (str): Current version (e.g., "ENS01")
+Returns:
+    str: Incremented version (e.g., "ENS02")</p>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/python/ensembl/genes/info_from_registry/registry_helper.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">140</span>
+<span class="normal">141</span>
+<span class="normal">142</span>
+<span class="normal">143</span>
+<span class="normal">144</span>
+<span class="normal">145</span>
+<span class="normal">146</span>
+<span class="normal">147</span>
+<span class="normal">148</span>
+<span class="normal">149</span>
+<span class="normal">150</span>
+<span class="normal">151</span>
+<span class="normal">152</span>
+<span class="normal">153</span>
+<span class="normal">154</span>
+<span class="normal">155</span>
+<span class="normal">156</span>
+<span class="normal">157</span>
+<span class="normal">158</span>
+<span class="normal">159</span>
+<span class="normal">160</span>
+<span class="normal">161</span>
+<span class="normal">162</span>
+<span class="normal">163</span>
+<span class="normal">164</span>
+<span class="normal">165</span>
+<span class="normal">166</span>
+<span class="normal">167</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">increment_genebuild_version</span><span class="p">(</span><span class="n">version</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Increment a genebuild version string.</span>
+<span class="sd">    Examples:</span>
+<span class="sd">        ENS01 -&gt; ENS02</span>
+<span class="sd">        ENS09 -&gt; ENS10</span>
+<span class="sd">        BRK01 -&gt; BRK02</span>
+<span class="sd">        HLX99 -&gt; HLX100</span>
+<span class="sd">    Args:</span>
+<span class="sd">        version (str): Current version (e.g., &quot;ENS01&quot;)</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        str: Incremented version (e.g., &quot;ENS02&quot;)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Extract prefix and numeric suffix</span>
+    <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^([A-Z]+)(\d+)$&quot;</span><span class="p">,</span> <span class="n">version</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">match</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid genebuild version format: </span><span class="si">{</span><span class="n">version</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="n">prefix</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">number</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
+
+    <span class="c1"># Increment and preserve zero-padding</span>
+    <span class="n">new_number</span> <span class="o">=</span> <span class="n">number</span> <span class="o">+</span> <span class="mi">1</span>
+    <span class="c1"># Preserve the original zero-padding width</span>
+    <span class="n">width</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}{</span><span class="n">new_number</span><span class="si">:</span><span class="s2">0</span><span class="si">{</span><span class="n">width</span><span class="si">}</span><span class="s2">d</span><span class="si">}</span><span class="s2">&quot;</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
