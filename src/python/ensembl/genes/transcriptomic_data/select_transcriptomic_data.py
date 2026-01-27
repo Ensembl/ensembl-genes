@@ -358,7 +358,7 @@ def filter_data(df: pd.DataFrame) -> list:
 
 
 def clean_repeated_words(input_text: str) -> str:
-    """Remove consecutive duplicate words from a string."
+    """Remove consecutive duplicate words from a string.
 
     Args:
         input_text (str): The input string from which to remove
@@ -564,6 +564,7 @@ def main() -> None:  # pylint: disable=too-many-statements
                 df_final.loc[:, "file_name"] = (
                     df_final["file_name"].astype(str) + ".fastq.gz"
                 )
+                
                 df_final.loc[:, "col1"] = 1
                 df_final.loc[:, "col_1"] = -1
                 df_final.loc[:, "col0"] = 0

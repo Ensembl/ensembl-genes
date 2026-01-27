@@ -54,5 +54,76 @@ export TAXONOMY_URI="mysql+pymysql://user:pass@host:port/ncbi_taxonomy"
 
 **Usage:**
 ```bash
+# Basic usage
 python beta_patcher.py patches.csv --jira-ticket EBD-1111 --output-dir ./patches/
+
+# With team filter (only applies patches where all affected genomes belong to specified team)
+python beta_patcher.py patches.csv --jira-ticket EBD-1111 --team-filter Genebuild
 ```
+
+### Finding genome_uuid for organism/assembly patches
+
+When patching `organism` or `assembly` tables, you need to provide a genome_uuid. Use these queries to find genome UUIDs:
+
+**Find all genomes for a specific assembly (by accession):**
+```sql
+SELECT DISTINCT
+    genome.genome_uuid,
+    genome.production_name,
+    assembly.accession,
+    assembly.name AS assembly_name,
+    (SELECT da.value
+     FROM genome_dataset gd
+     JOIN dataset d ON gd.dataset_id = d.dataset_id AND d.name = 'genebuild'
+     JOIN dataset_attribute da ON d.dataset_id = da.dataset_id
+     JOIN attribute a ON da.attribute_id = a.attribute_id AND a.name = 'genebuild.team_responsible'
+     WHERE gd.genome_id = genome.genome_id
+     LIMIT 1) AS team_responsible
+FROM genome
+JOIN assembly ON genome.assembly_id = assembly.assembly_id
+WHERE assembly.accession = 'GCA_000001405.14'
+ORDER BY team_responsible, genome.production_name;
+```
+
+**Find all genomes for a specific organism (by biosample_id):**
+```sql
+SELECT DISTINCT
+    genome.genome_uuid,
+    genome.production_name,
+    organism.biosample_id,
+    organism.scientific_name,
+    organism.strain,
+    (SELECT da.value
+     FROM genome_dataset gd
+     JOIN dataset d ON gd.dataset_id = d.dataset_id AND d.name = 'genebuild'
+     JOIN dataset_attribute da ON d.dataset_id = da.dataset_id
+     JOIN attribute a ON da.attribute_id = a.attribute_id AND a.name = 'genebuild.team_responsible'
+     WHERE gd.genome_id = genome.genome_id
+     LIMIT 1) AS team_responsible
+FROM genome
+JOIN organism ON genome.organism_id = organism.organism_id
+WHERE organism.biosample_id = 'SAMN04851098'
+ORDER BY team_responsible, genome.production_name;
+```
+
+**Find genomes by organism strain:**
+```sql
+SELECT DISTINCT
+    genome.genome_uuid,
+    genome.production_name,
+    organism.scientific_name,
+    organism.strain,
+    (SELECT da.value
+     FROM genome_dataset gd
+     JOIN dataset d ON gd.dataset_id = d.dataset_id AND d.name = 'genebuild'
+     JOIN dataset_attribute da ON d.dataset_id = da.dataset_id
+     JOIN attribute a ON da.attribute_id = a.attribute_id AND a.name = 'genebuild.team_responsible'
+     WHERE gd.genome_id = genome.genome_id
+     LIMIT 1) AS team_responsible
+FROM genome
+JOIN organism ON genome.organism_id = organism.organism_id
+WHERE organism.scientific_name = 'Homo sapiens'
+ORDER BY team_responsible, genome.production_name;
+```
+
+Pick any one of the returned genome_uuid values to use in your CSV. The script will automatically detect and warn about all other genomes sharing that organism/assembly.
