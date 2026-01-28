@@ -227,10 +227,8 @@ def main():
 
     live_databases = clean_server(config, args.mode)
 
-    print(
-        f"Here is a list of databases on genebuild-prod-1 that\
-            can also be found in the {args.mode} metadata:"
-    )
+    print(f"Here is a list of databases on genebuild-prod-1 that\
+            can also be found in the {args.mode} metadata:")
     for db in live_databases:
         print(f"{db}")
 

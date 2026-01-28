@@ -15,6 +15,7 @@
 # limitations under the License.
 # pylint: disable=logging-fstring-interpolation
 """This module manages the assignment of stable space IDs for genomic assemblies"""
+
 import logging
 import pymysql  # type: ignore
 from ensembl.genes.info_from_registry.mysql_helper import mysql_fetch_data
@@ -156,10 +157,8 @@ def stable_space_range(stable_space_id: int, server_info: dict) -> bool:
         return True
 
     else:
-        logger.info(
-            f"No existing stable space range found for ID {stable_space_id}. \
-                Creating a new range space."
-        )
+        logger.info(f"No existing stable space range found for ID {stable_space_id}. \
+                Creating a new range space.")
         previous_space_id = stable_space_id - 1
         query = f"""SELECT * FROM stable_space WHERE stable_space_id = '{previous_space_id}';"""
         output_query = mysql_fetch_data(
@@ -179,10 +178,8 @@ def stable_space_range(stable_space_id: int, server_info: dict) -> bool:
                 output_query[0].get("stable_space_end") + 1
             )  # Increment the end of the previous stable space by 1
             new_end = new_start + 4999999
-            logger.info(
-                f"New stable space range for ID {stable_space_id} will be \
-                    from {new_start} to {new_end}."
-            )
+            logger.info(f"New stable space range for ID {stable_space_id} will be \
+                    from {new_start} to {new_end}.")
 
             insert_query = f"INSERT INTO stable_space (stable_space_id, \
                 stable_space_start, stable_space_end) VALUES ({stable_space_id},\
@@ -238,10 +235,8 @@ def assign_stable_id(
     stable_space_start = stable_space_range(stable_space_id, server_info)
 
     if stable_space_start is not False:
-        logger.info(
-            f"Assigned stable space ID {stable_space_id} for {gca_accession}\
-                and taxon ID {taxon_id}."
-        )
+        logger.info(f"Assigned stable space ID {stable_space_id} for {gca_accession}\
+                and taxon ID {taxon_id}.")
 
         insert_query = f"""INSERT INTO stable_space_species_log (stable_space_id, \
             lowest_taxon_id, gca_accession, assembly_id) 

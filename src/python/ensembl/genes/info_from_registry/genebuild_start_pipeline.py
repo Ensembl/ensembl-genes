@@ -40,7 +40,6 @@ from ensembl.genes.info_from_registry.create_pipe_reg import (
     update_registry_path_in_pipedb,
 )
 
-
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,

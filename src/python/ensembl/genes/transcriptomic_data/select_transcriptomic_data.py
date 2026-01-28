@@ -564,7 +564,7 @@ def main() -> None:  # pylint: disable=too-many-statements
                 df_final.loc[:, "file_name"] = (
                     df_final["file_name"].astype(str) + ".fastq.gz"
                 )
-                
+
                 df_final.loc[:, "col1"] = 1
                 df_final.loc[:, "col_1"] = -1
                 df_final.loc[:, "col0"] = 0

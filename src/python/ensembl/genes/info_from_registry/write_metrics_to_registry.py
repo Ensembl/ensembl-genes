@@ -198,10 +198,8 @@ def write_genebuild_metrics(
         with registry_connection.cursor() as cursor:
             cursor.execute(delete_query, (genebuild_status_id, *metric_names))
             deleted = cursor.rowcount
-            print(
-                f"Deleted {deleted} existing genebuild metrics for \
-                    genebuild_status_id {genebuild_status_id}"
-            )
+            print(f"Deleted {deleted} existing genebuild metrics for \
+                    genebuild_status_id {genebuild_status_id}")
 
             cursor.executemany(
                 insert_query,
@@ -290,10 +288,8 @@ def main(  # pylint:disable=too-many-arguments, too-many-positional-arguments, t
 
         # Partition metrics
         assembly_rows, genebuild_rows = partition_metrics(meta_rows)
-        print(
-            f"Found {len(assembly_rows)} assembly metrics and \
-                {len(genebuild_rows)} genebuild metrics"
-        )
+        print(f"Found {len(assembly_rows)} assembly metrics and \
+                {len(genebuild_rows)} genebuild metrics")
 
         # Write metrics to registry
         write_assembly_metrics(registry_connection, assembly_id, assembly_rows, dev)

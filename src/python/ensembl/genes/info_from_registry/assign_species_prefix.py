@@ -18,6 +18,7 @@
 based on taxon IDs by interacting with the assembly registry and
 metadata databases.
 """
+
 import json
 import logging
 import os
@@ -27,7 +28,6 @@ from typing import Optional
 import pymysql  # type: ignore
 
 from ensembl.genes.info_from_registry.mysql_helper import mysql_fetch_data
-
 
 # Configure logging
 logging.basicConfig(

@@ -18,6 +18,7 @@ Module to create static content files for main release.
 This module fetches assembly information from a MySQL database and the ENA API,
 and generates HTML files containing assembly and annotation content.
 """
+
 import argparse
 from pathlib import Path
 from typing import Dict, Optional, Tuple

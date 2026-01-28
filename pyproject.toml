@@ -82,3 +82,7 @@ ignore_missing_imports = true
 
 [tool.pylint.'MASTER']
 init-hook = "import sys; sys.path.append('src/python')"
+
+[tool.pixi.project]
+name = "ensembl-genes"
+channels = ["pypi"]

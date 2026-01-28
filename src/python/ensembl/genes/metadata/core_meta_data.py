@@ -27,7 +27,6 @@ import requests
 import pymysql
 import xmltodict
 
-
 # Module logger (configured in __main__ via logging.config)
 logger: logging.Logger = logging.getLogger(__name__)
 
@@ -85,13 +84,16 @@ def get_ena_metadata(accession: str, truth_dict: Dict[str, Any]) -> Dict[str, st
     Returns:
         Dict[str, str]: Dictionary containing metadata from ENA.
     """
+    return_dict: Dict[str, str] = {}
     assembly_url = f"https://www.ebi.ac.uk/ena/browser/api/xml/{accession}"
     assembly_xml = requests.get(assembly_url)
     assembly_dict = xmltodict.parse(assembly_xml.text)
 
-    assembly_attribs = assembly_dict["ASSEMBLY_SET"]["ASSEMBLY"]["ASSEMBLY_ATTRIBUTES"]["ASSEMBLY_ATTRIBUTE"]
+    assembly_attribs = assembly_dict["ASSEMBLY_SET"]["ASSEMBLY"]["ASSEMBLY_ATTRIBUTES"][
+        "ASSEMBLY_ATTRIBUTE"
+    ]
     # fix if single or multiple items
-    if isinstance(assembly_attribs, dict): 
+    if isinstance(assembly_attribs, dict):
         assembly_attribs = [assembly_attribs]
 
     # assembly metadata

@@ -25,7 +25,6 @@ import logging
 from typing import Dict, Any, Optional
 from ensembl.genes.info_from_registry.mysql_helper import mysql_fetch_data
 
-
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
