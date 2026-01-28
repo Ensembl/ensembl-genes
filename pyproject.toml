@@ -24,12 +24,13 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+[project.optional-dependencies]
 dev = [
-    "black>=25.11.0",
-    "pylint>=4.0.4",
-    "pytest>=6.2.3,<7.0.0",
-    "sphinx>=3.5.4,<4.0.0",
-    # MkDocs and plugins for building documentation locally / in CI
+    "black>=24,<25",
+    "pylint>=3,<4",
+    "pytest>=7,<9",
+    "sphinx>=7,<9",
+
     "mkdocs",
     "mkdocs-material",
     "mkdocs-gen-files",
@@ -37,9 +38,17 @@ dev = [
     "mkdocs-literate-nav",
     "mkdocs-section-index",
     "mkdocs-coverage",
-    "types-PyMySQL",
+
     "mypy",
+    "types-PyMySQL",
     "types-requests",
+]
+
+cicd = [
+    "black>=24,<25",
+    "pylint>=3,<4",
+    "pytest>=7,<9",
+    "mypy",
 ]
 
 [project.urls]

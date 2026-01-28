@@ -38,12 +38,9 @@ runs:
       run: |
         python -m pip install --upgrade pip
 
-        EXTRAS="dev"
-
         if [ -n "${{ inputs.tags }}" ]; then
-          EXTRAS="$EXTRAS,${{ inputs.tags }}"
+          pip install ".[${{ inputs.tags }}]"
+        else
+          pip install .
         fi
-
-        echo "Installing extras: $EXTRAS"
-        pip install -e .[$EXTRAS]
       shell: bash
