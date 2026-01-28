@@ -13,6 +13,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+# pylint:disable=duplicate-code
 """Prepare static content files for main release.
 This script fetches assembly information from a MySQL database and the ENA API,
 and generates HTML files containing assembly and annotation content.

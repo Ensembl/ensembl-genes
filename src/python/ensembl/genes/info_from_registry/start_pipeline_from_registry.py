@@ -13,7 +13,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-# pylint:disable=line-too-long, too-many-lines, logging-fstring-interpolation, unspecified-encoding, redefined-outer-name
+# pylint:disable=line-too-long, too-many-lines, logging-fstring-interpolation, unspecified-encoding, redefined-outer-name,duplicate-code
 """
 This script connects to a genomic assembly registry, extracts assembly metadata,
 and initializes annotation pipelines based on predefined configurations.
