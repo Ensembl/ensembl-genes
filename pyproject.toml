@@ -24,12 +24,8 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-dev = [
-    "black>=24,<25",
-    "pylint>=3,<4",
-    "pytest>=7,<9",
+docs = [
     "sphinx>=7,<9",
-    "coverage>=7,<8",
 
     "mkdocs",
     "mkdocs-material",
@@ -38,10 +34,6 @@ dev = [
     "mkdocs-literate-nav",
     "mkdocs-section-index",
     "mkdocs-coverage",
-
-    "mypy",
-    "types-PyMySQL",
-    "types-requests",
 ]
 
 cicd = [

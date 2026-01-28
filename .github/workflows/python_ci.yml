@@ -16,12 +16,10 @@
 name: "Python CI"
 
 on:
-  workflow_call:
-    inputs:
-      python-version:
-        description: Python version to run the CI checks on
-        required: true
-        type: string
+  push:
+    branches: [ "fix/documentation" ]
+  pull_request:
+    branches: [ "main" ]
 
 defaults:
   run:
@@ -36,7 +34,7 @@ jobs:
 
       - uses: ./.github/actions/python_build
         with:
-          python-version: ${{ inputs.python-version }}
+          python-version: "3.11"
           tags: "[cicd]"
 
       - name: Run pylint
@@ -52,7 +50,7 @@ jobs:
 
       - uses: ./.github/actions/python_build
         with:
-          python-version: ${{ inputs.python-version }}
+          python-version: "3.11"
           tags: "[cicd]"
 
       - name: Run mypy
@@ -68,7 +66,7 @@ jobs:
 
       - uses: ./.github/actions/python_build
         with:
-          python-version: ${{ inputs.python-version }}
+          python-version: "3.11"
           tags: "[cicd]"
 
       - name: Run black
@@ -87,7 +85,7 @@ jobs:
 
       - uses: ./.github/actions/python_build
         with:
-          python-version: ${{ inputs.python-version }}
+          python-version: "3.11"
           tags: "[cicd]"
 
       - name: Run pytest with coverage
