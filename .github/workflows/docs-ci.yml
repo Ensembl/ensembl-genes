@@ -39,12 +39,12 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pip-
 
-      - name: Install project dev dependencies
+      - name: Install project docs dependencies
         run: |
           python -m pip install --upgrade pip
           # Prefer installing dev extras from pyproject if available
           if python -c "import importlib.metadata as m; print('ok')" 2>/dev/null; then
-            pip install ".[dev]" || pip install mkdocs mkdocs-material mkdocs-gen-files mkdocstrings[python] mkdocs-literate-nav mkdocs-section-index mkdocs-coverage
+            pip install ".[docs]" || pip install mkdocs mkdocs-material mkdocs-gen-files mkdocstrings[python] mkdocs-literate-nav mkdocs-section-index mkdocs-coverage
           else
             pip install mkdocs mkdocs-material mkdocs-gen-files mkdocstrings[python] mkdocs-literate-nav mkdocs-section-index mkdocs-coverage
           fi
