@@ -24,7 +24,6 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-[project.optional-dependencies]
 dev = [
     "black>=24,<25",
     "pylint>=3,<4",
