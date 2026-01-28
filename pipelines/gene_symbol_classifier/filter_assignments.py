@@ -25,7 +25,6 @@ probability threshold to create their subset to be loaded to the genome core dat
 Generate assignments CSV with gene description from an existing one.
 """
 
-
 # standard library imports
 import argparse
 import pathlib

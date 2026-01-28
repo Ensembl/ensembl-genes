@@ -29,6 +29,7 @@ dev = [
     "pylint>=3,<4",
     "pytest>=7,<9",
     "sphinx>=7,<9",
+    "coverage>=7,<8",
 
     "mkdocs",
     "mkdocs-material",
@@ -48,6 +49,7 @@ cicd = [
     "pylint>=3,<4",
     "pytest>=7,<9",
     "mypy",
+    "coverage>=7,<8",
 ]
 
 [project.urls]
