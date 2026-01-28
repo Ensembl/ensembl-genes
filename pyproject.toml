@@ -25,10 +25,10 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = [
-    "black (>=25.11.0)",
-    "pylint (>=4.0.4)",
-    "pytest (>=6.2.3,<7.0.0)",
-    "sphinx (>=3.5.4,<4.0.0)",
+    "black>=25.11.0",
+    "pylint>=4.0.4",
+    "pytest>=6.2.3,<7.0.0",
+    "sphinx>=3.5.4,<4.0.0",
     # MkDocs and plugins for building documentation locally / in CI
     "mkdocs",
     "mkdocs-material",

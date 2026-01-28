@@ -37,5 +37,13 @@ runs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install -e .[dev]${{ inputs.tags }}
+
+        EXTRAS="dev"
+
+        if [ -n "${{ inputs.tags }}" ]; then
+          EXTRAS="$EXTRAS,${{ inputs.tags }}"
+        fi
+
+        echo "Installing extras: $EXTRAS"
+        pip install -e .[$EXTRAS]
       shell: bash
