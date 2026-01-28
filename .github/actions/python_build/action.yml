@@ -39,7 +39,7 @@ runs:
         python -m pip install --upgrade pip
 
         if [ -n "${{ inputs.tags }}" ]; then
-          pip install ".[${{ inputs.tags }}]"
+          pip install ".${{ inputs.tags }}"
         else
           pip install .
         fi

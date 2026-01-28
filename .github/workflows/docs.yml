@@ -1,20 +1,4 @@
-# See the NOTICE file distributed with this work for additional information
-# regarding copyright ownership.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
-name: 'Deploy documentation (MkDocs)'
-run-name: ${{ github.actor }} triggered MkDocs build
+name: Deploy documentation (MkDocs)
 
 on:
   push:
@@ -26,64 +10,26 @@ on:
       - 'pyproject.toml'
       - 'mkdocs.yml'
   workflow_dispatch:
-    inputs:
-      python-version:
-        description: Python version
-        default: '3.11'
-        required: true
-        type: string
-      docs-dir:
-        description: Directory containing MkDocs sources
-        default: 'mkdocs'
-        required: true
-        type: string
 
 jobs:
-  build-and-deploy:
-    name: Build MkDocs site and deploy to GitHub Pages
+  docs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-    env:
-      DOCS_DIR: mkdocs
 
     steps:
       - uses: actions/checkout@v4
 
       - uses: ./.github/actions/python_build
         with:
-          python-version: ${{ inputs.python-version || '3.11' }}
+          python-version: '3.11'
           tags: "[cicd,docs]"
 
-      - name: Install MkDocs, theme and plugins
-        run: |
-          python -m pip install --upgrade pip
-          pip install mkdocs mkdocs-material mkdocs-gen-files mkdocstrings[python] mkdocs-literate-nav mkdocs-section-index mkdocs-coverage
+      - run: python --version
 
-      - name: Ensure docs directory exists
-        run: |
-          # Job-level default is provided by the env `DOCS_DIR` (mkdocs).
-          # If a workflow_dispatch input is provided, prefer that value.
-          INPUT_DOCS_DIR="${{ inputs.docs-dir }}"
-          DOCS_DIR="${INPUT_DOCS_DIR:-$DOCS_DIR}"
-          if [ ! -d "$DOCS_DIR" ]; then
-            echo "Docs dir '$DOCS_DIR' not found; creating directory.";
-            mkdir -p "$DOCS_DIR";
-          fi
+      - run: mkdocs build -f mkdocs.yml -d site
 
-      - name: Build MkDocs site (generate reference pages)
-        run: |
-          # generate reference pages via the gen-files script (mkdocs-gen-files plugin)
-          mkdocs build -f mkdocs.yml -d ./site
-
-      - name: Upload site artifact for review
-        uses: actions/upload-artifact@v4
-        with:
-          name: mkdocs-site
-          path: ./site
-
-      - name: Publish to GitHub Pages (gh-pages branch)
-        uses: peaceiris/actions-gh-pages@v3
+      - uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./site
+          publish_dir: site
