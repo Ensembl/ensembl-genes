@@ -717,8 +717,10 @@ def main():
     elif args.taxon_id:
         print(f"Found {len(accessions_taxon)} assemblies for taxon ID {args.taxon_id}")
 
-    print(f"Found {len(live_annotations)} annotations in beta.ensembl.org \
-            for {len(unique_taxon_ids)} unique species")
+    print(
+        f"Found {len(live_annotations)} annotations in beta.ensembl.org \
+            for {len(unique_taxon_ids)} unique species"
+    )
 
     if args.classification:
         rank_values = [

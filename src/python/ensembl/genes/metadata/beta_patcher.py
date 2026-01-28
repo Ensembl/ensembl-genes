@@ -163,7 +163,8 @@ def get_team_responsible_for_genome(
         return None
 
     try:
-        query = text("""
+        query = text(
+            """
             SELECT dataset_attribute.value
             FROM dataset_attribute
             JOIN attribute ON dataset_attribute.attribute_id = attribute.attribute_id
@@ -173,7 +174,8 @@ def get_team_responsible_for_genome(
             WHERE genome.genome_uuid = :genome_uuid
             AND dataset.name = :dataset_type
             AND attribute.name = 'genebuild.team_responsible'
-        """)
+        """
+        )
 
         with adaptor.metadata_db.connect() as conn:
             result = conn.execute(
@@ -214,20 +216,24 @@ def get_affected_genomes_and_teams(
     try:
         if table_location == "organism":
             # Find all genomes sharing the same organism
-            query = text("""
+            query = text(
+                """
                 SELECT g2.genome_uuid, g2.production_name
                 FROM genome g1
                 JOIN genome g2 ON g1.organism_id = g2.organism_id
                 WHERE g1.genome_uuid = :genome_uuid
-            """)
+            """
+            )
         else:  # assembly
             # Find all genomes sharing the same assembly
-            query = text("""
+            query = text(
+                """
                 SELECT g2.genome_uuid, g2.production_name
                 FROM genome g1
                 JOIN genome g2 ON g1.assembly_id = g2.assembly_id
                 WHERE g1.genome_uuid = :genome_uuid
-            """)
+            """
+            )
 
         affected_genomes = []
         with adaptor.metadata_db.connect() as conn:
@@ -306,10 +312,12 @@ def _log_team_warnings(
         validate_file.write("\n")
         patch_file.write("\n")
         if logger:
-            logger.warning(f"""
+            logger.warning(
+                f"""
                 SKIPPED: {genome_uuid} - affects teams {teams_set},
                 filter requires '{team_filter}'
-                """)
+                """
+            )
     else:
         # Normal warning header
         header = f"""
@@ -365,11 +373,13 @@ def _write_validation_sql(
             "organism": "organism JOIN genome ON organism.organism_id = genome.organism_id",
             "assembly": "assembly JOIN genome ON assembly.assembly_id = genome.assembly_id",
         }
-        validate_file.write(f"""
+        validate_file.write(
+            f"""
             SELECT 
                 genome.genome_uuid, {table_location}.{column_name} AS current_value,
                 '{escaped_value}' AS proposed_value\n
-            """)
+            """
+        )
         validate_file.write(f"FROM {table_map[table_location]}\n")
         validate_file.write(f"WHERE genome.genome_uuid = '{genome_uuid}';\n\n")
 

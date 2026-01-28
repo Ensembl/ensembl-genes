@@ -756,8 +756,10 @@ def current_projection_source_db(projection_source_production_name: str) -> dict
         )
         return data[matched_key]
     elif "homo_sapiens" in data:
-        logger.warning(f"No match for '{projection_source_production_name}'. \
-                Falling back to 'homo_sapiens'.")
+        logger.warning(
+            f"No match for '{projection_source_production_name}'. \
+                Falling back to 'homo_sapiens'."
+        )
         return data["homo_sapiens"]
     else:
         raise RuntimeError(

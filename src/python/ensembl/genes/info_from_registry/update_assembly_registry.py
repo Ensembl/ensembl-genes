@@ -47,8 +47,10 @@ def ensure_genebuilder_exists(
     with connection.cursor() as cursor:
         cursor.execute(check_query, (genebuilder,))
         if not cursor.fetchone():
-            raise ValueError(f"Genebuilder '{genebuilder}' does not exist in the\
-                    genebuilder table. Please add it first.")
+            raise ValueError(
+                f"Genebuilder '{genebuilder}' does not exist in the\
+                    genebuilder table. Please add it first."
+            )
 
 
 # fetch_current_record is now fetch_current_genebuild_record imported from registry_helper
@@ -272,8 +274,10 @@ def main(  # pylint:disable=too-many-arguments, too-many-statements, too-many-br
                         print(
                             f"Versions must be unique per assembly across all genebuilders."
                         )
-                        print(f"Please use a version higher than '{highest_version}' \
-                                or omit --genebuild_version to auto-increment.")
+                        print(
+                            f"Please use a version higher than '{highest_version}' \
+                                or omit --genebuild_version to auto-increment."
+                        )
                         sys.exit(1)
                 version_to_insert = genebuild_version
             else:
@@ -283,8 +287,10 @@ def main(  # pylint:disable=too-many-arguments, too-many-statements, too-many-br
                 if highest_version:
                     # Another genebuilder has a version for this assembly - increment it
                     version_to_insert = increment_genebuild_version(highest_version)
-                    print(f"Found existing genebuild version '{highest_version}' \
-                            for {assembly} (by another genebuilder)")
+                    print(
+                        f"Found existing genebuild version '{highest_version}' \
+                            for {assembly} (by another genebuilder)"
+                    )
                     print(f"Auto-incrementing to version: {version_to_insert}")
                 else:
                     # No version exists for this assembly yet - start with ENS01
@@ -386,8 +392,10 @@ def main(  # pylint:disable=too-many-arguments, too-many-statements, too-many-br
             # Block backwards transitions from completed
             elif current_status == completed_status and status in active_statuses:
                 print(f"ERROR: Cannot move backwards from 'completed' to '{status}'")
-                print(f"Completed is a terminal-like status. To restart work, \
-                        use a new genebuild_version.")
+                print(
+                    f"Completed is a terminal-like status. To restart work, \
+                        use a new genebuild_version."
+                )
                 sys.exit(1)
 
             # Block backwards transitions from terminal statuses
@@ -416,8 +424,10 @@ def main(  # pylint:disable=too-many-arguments, too-many-statements, too-many-br
                         )
                         print(f"Please use a version higher than '{highest_version}'.")
                         sys.exit(1)
-                    print(f"Moving from terminal status '{current_status}' to \
-                            '{status}' with new version {effective_version}")
+                    print(
+                        f"Moving from terminal status '{current_status}' to \
+                            '{status}' with new version {effective_version}"
+                    )
                     print(f"Creating new attempt.")
 
                     method_to_insert = (

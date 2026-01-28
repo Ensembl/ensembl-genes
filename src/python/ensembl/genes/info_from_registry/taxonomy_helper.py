@@ -173,8 +173,10 @@ def assign_clade(
             clade_details = {k: v for k, v in details.items() if k != "taxon_id"}
             clade_details["helixer_lineage"] = clade_details.get("helixer_lineage", "")
 
-            logging.info(f"Exact match: Assigned clade '{internal_clade}' \
-                    for taxon {registry_info['taxon_id']}")
+            logging.info(
+                f"Exact match: Assigned clade '{internal_clade}' \
+                    for taxon {registry_info['taxon_id']}"
+            )
             return internal_clade, genus_taxon_id, clade_details
 
     # Step 2: Walk up the taxonomy hierarchy
@@ -205,8 +207,10 @@ def assign_clade(
                     "helixer_lineage", ""
                 )
 
-                logging.info(f"Hierarchy match: Assigned clade '{internal_clade}' \
-                        via {taxon_class} taxon_id {current_taxon_id}")
+                logging.info(
+                    f"Hierarchy match: Assigned clade '{internal_clade}' \
+                        via {taxon_class} taxon_id {current_taxon_id}"
+                )
                 return internal_clade, genus_taxon_id, clade_details
 
     # No match found
