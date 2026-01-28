@@ -49,6 +49,8 @@ cicd = [
     "pylint>=3,<4",
     "pytest>=7,<9",
     "mypy",
+    "types-PyMySQL",
+    "types-requests",
     "coverage>=7,<8",
 ]
 

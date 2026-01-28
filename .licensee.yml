@@ -4,3 +4,8 @@ ignore:
   - "*.css"
   - ".python-version"
   - ".github/**"
+  - "docs/**"
+  - "mkdocs/**"
+  - "site/**"
+  - "tests/**"
+  - "tests/**/**"
