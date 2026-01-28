@@ -275,7 +275,7 @@ def _metadata_db_where(genome_uuid: str, dataset_type: str, attribute_name: str)
     )
 
 
-def _log_team_warnings(
+def _log_team_warnings(  # pylint: disable=too-many-locals, too-many-positional-arguments, too-many-arguments
     validate_file,
     patch_file,
     genome_uuid: str,
@@ -345,7 +345,7 @@ def _log_team_warnings(
     return skip_due_to_filter
 
 
-def _write_validation_sql(
+def _write_validation_sql(  # pylint: disable= too-many-positional-arguments, too-many-arguments
     validate_file,
     genome_uuid: str,
     attribute_name: str,
@@ -384,7 +384,7 @@ def _write_validation_sql(
         validate_file.write(f"WHERE genome.genome_uuid = '{genome_uuid}';\n\n")
 
 
-def _write_patch_sql(
+def _write_patch_sql(  # pylint: disable=too-many-positional-arguments, too-many-arguments
     patch_file,
     genome_uuid: str,
     attribute_name: str,
@@ -437,7 +437,7 @@ def _write_patch_sql(
         patch_file.write(f"WHERE genome.genome_uuid = '{genome_uuid}';\n\n")
 
 
-def write_metadata_patch_for_genome(
+def write_metadata_patch_for_genome(  # pylint: disable= too-many-positional-arguments, too-many-arguments
     validate_file,
     patch_file,
     genome_uuid: str,
