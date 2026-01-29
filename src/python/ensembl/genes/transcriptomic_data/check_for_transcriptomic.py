@@ -1,4 +1,5 @@
-# See the NOTICE file distributed with this work for additional information #pylint: disable=missing-module-docstring
+#!/usr/bin/env python3
+# See the NOTICE file distributed with this work for additional information
 # regarding copyright ownership.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,6 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Check the availability for short and long read data from ENA website given a taxon id"""
+
 import csv
 from pathlib import Path
 import argparse
@@ -20,9 +22,16 @@ import requests
 
 
 def ena_rest_api(query: str) -> int:
-    """Call to ENA API"""
+    """Call to ENA API
+
+    Args:
+        query (str): query string to search ENA database
+
+    Returns:
+        int: number of runs found
+    """
     search_url = f"https://www.ebi.ac.uk/ena/portal/api/search?display=report&query={query}&domain=read&result=read_run&fields=sample_accession,run_accession,fastq_ftp,read_count,instrument_platform"  # pylint: disable=line-too-long
-    search_result = requests.get(search_url)
+    search_result = requests.get(search_url, timeout=60)
     results = search_result.text.strip().split("\n")[1:]
     return len(results)
 
@@ -31,12 +40,21 @@ def check_data_from_ena(  # pylint: disable=too-many-locals
     taxon_id: int,
     tree: bool,
 ) -> dict:
-    """Query ENA API to get short or long read data"""
+    """
+    Query ENA API to get short or long read data
 
-    TEXT_FORMAT = {
+    Args:
+        taxon_id (int): NCBI taxon id
+        tree (bool): whether to include subordinate taxa
+
+    Returns:
+        dict: number of runs found for each data type
+    """
+
+    TEXT_FORMAT: dict[str, str] = {  # pylint:disable=invalid-name
         "BOLD": "\033[1m",
         "UNDERLINE": "\033[4m",
-        "END": "\033[0m"
+        "END": "\033[0m",
     }
     if tree:
         query = f"tax_tree({taxon_id})"
@@ -45,12 +63,12 @@ def check_data_from_ena(  # pylint: disable=too-many-locals
 
     query_short_paired = (
         query
-        + " AND instrument_platform=ILLUMINA AND library_layout=PAIRED" \
+        + " AND instrument_platform=ILLUMINA AND library_layout=PAIRED"
         + " AND library_source=TRANSCRIPTOMIC"
     )
     query_short_single = (
         query
-        + " AND instrument_platform=ILLUMINA AND library_layout=SINGLE" \
+        + " AND instrument_platform=ILLUMINA AND library_layout=SINGLE"
         + " AND library_source=TRANSCRIPTOMIC"
     )
     query_pacbio = (
@@ -79,7 +97,7 @@ def check_data_from_ena(  # pylint: disable=too-many-locals
         + f"Found {short_single_runs} runs."
     )
     print(
-       TEXT_FORMAT["BOLD"]
+        TEXT_FORMAT["BOLD"]
         + "Long-read PacBio data available! "
         + TEXT_FORMAT["END"]
         + f"Found {pacbio_read_runs} runs."
@@ -132,12 +150,12 @@ def main() -> None:
     taxon_ids = [args.taxon_id]  # Start with the single taxon_id
 
     if args.file:
-        with open(args.file, "r") as input_file:
+        with open(args.file, "r", encoding="utf-8") as input_file:
             taxon_ids = input_file.read().splitlines()
 
     # Prepare CSV file
     csv_file = output_dir / "taxon_summary.csv"
-    with open(csv_file, mode="w", newline="") as file:
+    with open(csv_file, mode="w", newline="", encoding="utf-8") as file:
         writer = csv.writer(file)
 
         # Write the header row

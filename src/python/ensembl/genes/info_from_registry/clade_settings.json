@@ -88,7 +88,7 @@
         "rfam_accessions_file": "/hps/nobackup/flicek/ensembl/genebuild/blastdb/ncrna/Rfam_14.1/clade_accessions/rfam_hemiptera_ids.txt",
         "species_division": "EnsemblMetazoa",
         "busco_group": "hemiptera_odb12"
-        },
+    },
     "plants": {
         "taxon_id": 33090,
         "max_intron_length": 10000,
@@ -343,7 +343,6 @@
         "sanity_set": "primates_basic",
         "projection_source_production_name": "homo_sapiens"
     },
-
     "rodentia": {
         "taxon_id": 9989,
         "repbase_library": "rodentia",
@@ -353,7 +352,6 @@
         "ig_tr_fasta_file": "imgt_mammals_ig_tr.fa",
         "projection_source_production_name": "mus_musculus"
     },
-
     "mammalia": {
         "taxon_id": 40674,
         "repbase_library": "mammals",
@@ -363,8 +361,7 @@
         "ig_tr_fasta_file": "imgt_mammals_ig_tr.fa",
         "projection_source_production_name": "homo_sapiens"
     },
-
-   "marsupials": {
+    "marsupials": {
         "taxon_id": 9263,
         "repbase_library": "mammals",
         "repbase_logic_name": "mammals",
@@ -372,8 +369,7 @@
         "sanity_set": "mammals_basic",
         "ig_tr_fasta_file": "imgt_mammals_ig_tr.fa",
         "projection_source_production_name": "homo_sapiens"
-   },
-
+    },
     "aves": {
         "taxon_id": 8782,
         "repbase_library": "Birds",
@@ -381,6 +377,17 @@
         "uniprot_set": "aves_basic",
         "sanity_set": "aves_basic",
         "ig_tr_fasta_file": "imgt_mammals_aves_ig_tr.fa",
+        "projection_source_production_name": "homo_sapiens"
+    },
+    "lepidosauria": {
+        "taxon_id": 8504,
+        "repbase_library": "vertebrates",
+        "repbase_logic_name": "vertebrates",
+        "uniprot_set": "reptiles_basic",
+        "sanity_set": "reptiles_basic",
+        "ig_tr_fasta_file": "imgt_mammals_aves_ig_tr.fa",
+        "masking_timer_long": "6h",
+        "masking_timer_short": "3h",
         "projection_source_production_name": "homo_sapiens"
     },
 
@@ -420,6 +427,17 @@
         "projection_source_production_name": "homo_sapiens"
     },
 
+	"crocodylia": {
+        "taxon_id": 1294634,
+        "repbase_library": "vertebrates",
+        "repbase_logic_name": "vertebrates",
+        "uniprot_set": "reptiles_basic",
+        "sanity_set": "reptiles_basic",
+        "ig_tr_fasta_file": "imgt_mammals_aves_ig_tr.fa",
+        "masking_timer_long": "6h",
+        "masking_timer_short": "3h",
+        "projection_source_production_name": "homo_sapiens"
+    },
     "amphibians": {
         "taxon_id": 8292,
         "repbase_library": "vertebrates",
@@ -431,7 +449,6 @@
         "masking_timer_short": "3h",
         "projection_source_production_name": "danio_rerio"
     },
-
     "teleostei": {
         "taxon_id": 186623,
         "repbase_library": "Teleostei",
@@ -446,9 +463,8 @@
         "projection_source_production_name": "danio_rerio",
         "repeatmasker_slice_size": 500000
     },
-
-	"sharks": {
-	    "taxon_id": 7777,
+    "sharks": {
+        "taxon_id": 7777,
         "repbase_library": "Teleostei",
         "repbase_logic_name": "teleost",
         "uniprot_set": "sharks_basic",
@@ -461,7 +477,6 @@
         "projection_source_production_name": "danio_rerio",
         "repeatmasker_slice_size": 500000
     },
-
     "distant_vertebrate (chordata)": {
         "taxon_id": 7711,
         "repbase_library": "vertebrates",
@@ -475,4 +490,3 @@
         "batch_target_size": 300000
     }
 }
-

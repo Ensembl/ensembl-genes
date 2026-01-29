@@ -1,26 +1,53 @@
 #!/usr/bin/env python3
+# See the NOTICE file distributed with this work for additional information
+# regarding copyright ownership.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# pylint:disable=line-too-long, logging-fstring-interpolation
+"""Script to track assemblies from NCBI BioProject/Taxon IDs and their presence in Ensembl.
+Generates a report of assembly accessions, Ensembl database info, taxonomy classification,
+and FTP links if available.
+"""
+
 import argparse
-import requests
-import pymysql
+
+
 import json
 import logging
 import re
 from pathlib import Path
 from collections import Counter
-from typing import List, Tuple, Any, Dict, Optional
+from typing import List, Sequence, Tuple, Any, Dict, Optional
 import subprocess
 import shutil
+import requests
+import pymysql
 
 # -----------------------------------
 # Logging
 # -----------------------------------
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
 
 # -----------------------------------
 # Config
 # -----------------------------------
-with open("./bioproject_tracking_config.json", "r") as f:
+with open(  # pylint:disable=unspecified-encoding
+    "./bioproject_tracking_config.json", "r"
+) as f:
     config = json.load(f)
+
 
 # -----------------------------------
 # DB helper
@@ -30,12 +57,24 @@ def mysql_fetch_data(
     params: Tuple = (),
     server_group: str = "meta",
     server_name: str = "beta",
-    db_name: Optional[str] = None
-) -> List[Tuple[Any, ...]]:
+    db_name: Optional[str] = None,
+) -> Sequence[Tuple[Any, ...]]:
     """
     Executes a SQL query with optional parameters to fetch results from a specified MySQL server.
 
-    Returns empty list on error or no data.
+    Args:
+        query (str): The SQL query to execute.
+        params (Tuple, optional): Parameters to pass to the SQL query. Defaults to ().
+        server_group (str, optional): The server group as defined in the config. Defaults to "meta".
+        server_name (str, optional): The server name within the group as defined in the config. Defaults to "beta".
+        db_name (Optional[str], optional): The database name to connect to. If None, uses the default from config. Defaults to None.
+
+    Returns:
+        Sequence[Tuple[Any, ...]]: The fetched rows from the query result.
+
+    Raises:
+        KeyError: If the server group or name is not found in the config.
+        pymysql.Error: If there is an error connecting to the database or executing the query.
     """
     try:
         server_config = config["server_details"][server_group][server_name]
@@ -58,18 +97,23 @@ def mysql_fetch_data(
 
     return []
 
+
 # -----------------------------------
 # NCBI accessions helper
 # -----------------------------------
-def get_assembly_accessions(
-    query_id: str,
-    query_type: str,
-    only_haploid: bool = False
+def get_assembly_accessions(  # pylint:disable=too-many-branches, too-many-statements, too-many-locals
+    query_id: str, query_type: str, only_haploid: bool = False
 ) -> Dict[str, Dict[str, int]]:
     """
-    Prefer NCBI Datasets CLI (all versions), fall back to Datasets API (latest only).
-    Supports query_type in {"bioproject", "taxon"}.
-    Always returns a dict (possibly empty): {accession: {"taxon_id": int}}
+    Fetches assembly accessions from NCBI Datasets API based on BioProject or Taxon ID.
+
+    Args:
+        query_id (str): The BioProject or Taxon ID to query.
+        query_type (str): The type of query, either "bioproject" or "taxon".
+        only_haploid (bool): If True, only include haploid assemblies. Defaults to False.
+
+    Returns:
+        Dict[str, Dict[str, int]]: A dictionary mapping assembly accessions to their taxon IDs.
     """
 
     def _parse_reports(lines: List[str]) -> Dict[str, Dict[str, int]]:
@@ -88,6 +132,8 @@ def get_assembly_accessions(
                 continue
             accession = report.get("accession")
             taxon_id = (report.get("organism") or {}).get("tax_id")
+            if not isinstance(taxon_id, int):
+                continue
             if accession:
                 accs[accession] = {"taxon_id": taxon_id}
         return accs
@@ -98,14 +144,24 @@ def get_assembly_accessions(
         try:
             if query_type == "bioproject":
                 cmd = [
-                    datasets_cli, "summary", "genome", "accession", str(query_id),
-                    "--assembly-version", "all",
+                    datasets_cli,
+                    "summary",
+                    "genome",
+                    "accession",
+                    str(query_id),
+                    "--assembly-version",
+                    "all",
                     "--as-json-lines",
                 ]
             elif query_type == "taxon":
                 cmd = [
-                    datasets_cli, "summary", "genome", "taxon", str(query_id),
-                    "--assembly-version", "all",
+                    datasets_cli,
+                    "summary",
+                    "genome",
+                    "taxon",
+                    str(query_id),
+                    "--assembly-version",
+                    "all",
                     "--as-json-lines",
                 ]
             else:
@@ -114,24 +170,34 @@ def get_assembly_accessions(
 
             result = subprocess.run(cmd, capture_output=True, text=True, check=True)
             parsed = _parse_reports(result.stdout.splitlines())
-            if parsed:
-                logging.info(f"[Datasets CLI] Retrieved {len(parsed)} assemblies (all versions).")
+            if parsed:  # pylint:disable=no-else-return
+                logging.info(
+                    f"[Datasets CLI] Retrieved {len(parsed)} assemblies (all versions)."
+                )
                 return parsed
             else:
-                logging.warning("[Datasets CLI] Parsed zero rows from stdout; falling back to API.")
+                logging.warning(
+                    "[Datasets CLI] Parsed zero rows from stdout; falling back to API."
+                )
         except subprocess.CalledProcessError as e:
-            logging.warning(f"[Datasets CLI] Exit {e.returncode}. STDERR:\n{e.stderr}\nFalling back to API.")
-        except Exception as e:
-            logging.warning(f"[Datasets CLI] Unexpected error: {e}. Falling back to API.")
+            logging.warning(
+                f"[Datasets CLI] Exit {e.returncode}. STDERR:\n{e.stderr}\nFalling back to API."
+            )
+        except Exception as e:  # pylint:disable=broad-exception-caught
+            logging.warning(
+                f"[Datasets CLI] Unexpected error: {e}. Falling back to API."
+            )
 
     # --- 2) Fallback: API (latest only) ---
     try:
         base_url = config["urls"]["datasets"].get(query_type)
-    except Exception:
+    except Exception:  # pylint:disable=broad-exception-caught
         base_url = None
 
     if not base_url:
-        logging.error("[Datasets API] Base URL not found in config; returning empty set.")
+        logging.error(
+            "[Datasets API] Base URL not found in config; returning empty set."
+        )
         return {}
 
     assembly_accessions: Dict[str, Dict[str, int]] = {}
@@ -143,7 +209,7 @@ def get_assembly_accessions(
         if next_page_token:
             url += f"&page_token={next_page_token}"
         try:
-            response = requests.get(url)
+            response = requests.get(url)  # pylint:disable=missing-timeout
             response.raise_for_status()
             data = response.json()
             for assembly in data.get("reports", []):
@@ -152,6 +218,8 @@ def get_assembly_accessions(
                     continue
                 accession = assembly.get("accession")
                 taxon_id = (assembly.get("organism") or {}).get("tax_id")
+                if not isinstance(taxon_id, int):
+                    continue
                 if accession:
                     assembly_accessions[accession] = {"taxon_id": taxon_id}
             next_page_token = data.get("next_page_token")
@@ -161,13 +229,17 @@ def get_assembly_accessions(
             logging.error(f"[Datasets API] Error: {e}")
             break
 
-    logging.info(f"[Datasets API] Retrieved {len(assembly_accessions)} assemblies (latest only).")
+    logging.info(
+        f"[Datasets API] Retrieved {len(assembly_accessions)} assemblies (latest only)."
+    )
     return assembly_accessions
+
 
 # -----------------------------------
 # Ensembl live lookup (collect all + best)
 # -----------------------------------
 _CORE_VER_RE = re.compile(r"_core_(\d+)_", re.IGNORECASE)
+
 
 def _score_dbname(dbname: str) -> Tuple[int, int, str]:
     """
@@ -175,25 +247,42 @@ def _score_dbname(dbname: str) -> Tuple[int, int, str]:
     1) Higher core version
     2) Prefer non-'cm'
     3) Lexicographic tiebreak
+
+    Args:
+        dbname (str): The database name to score.
+
+    Returns:
+        Tuple[int, int, str]: A tuple representing the score.
     """
     m = _CORE_VER_RE.search(dbname or "")
     core_ver = int(m.group(1)) if m else -1
     non_cm = 1 if "_cm_" not in (dbname or "").lower() else 0
     return (core_ver, non_cm, dbname or "")
 
-def get_ensembl_live(accessions_taxon: Dict[str, Dict[str, int]]):
+
+def get_ensembl_live(
+    accessions_taxon: Dict[str, Dict[str, int]],
+) -> Tuple[Dict[str, Dict[str, Any]], List[str]]:
     """
-    Returns (annotated_dict, missing_list).
-    annotated_dict[accession] contains:
-      - taxon_id (from input)
-      - matches: List[{"guuid","dbname", optional "ftp","date"}]
-      - guuid, dbname: best match (latest core; prefer non-cm)
+    Fetches Ensembl live database annotations for a list of assembly accessions.
+
+    Args:
+        accessions_taxon (Dict[str, Dict[str, int]]): A dictionary mapping assembly accessions
+            to basic taxon information, such as {"GCA_000001405.39": {"taxon_id": 9606}}.
+
+    Returns:
+        Tuple[Dict[str, Dict[str, Any]], List[str]]: A tuple containing:
+        1) A dictionary where each key is an assembly accession and its value is another dictionary with:
+           - taxon_id (from input)
+           - matches: List[{"guuid","dbname"}]
+           - guuid, dbname: best match (latest core; prefer non-cm)
+        2) A list of accessions that were not found in the Ensembl live database.
     """
     accessions = list(accessions_taxon.keys())
     if not accessions:
         return {}, []
-
-    query = """
+    placeholders = ", ".join(["%s"] * len(accessions))
+    query = f"""
     SELECT DISTINCT
         assembly.accession,
         genome.genome_uuid,
@@ -206,8 +295,8 @@ def get_ensembl_live(accessions_taxon: Dict[str, Dict[str, int]]):
     JOIN genome_release ON genome.genome_id = genome_release.genome_id
     JOIN ensembl_release ON genome_release.release_id = ensembl_release.release_id
     WHERE dataset.name = 'genebuild'
-      AND assembly.accession IN ({})
-    """.format(", ".join(["%s"] * len(accessions)))
+      AND assembly.accession IN ({placeholders})
+    """
 
     rows = mysql_fetch_data(query, tuple(accessions))
 
@@ -215,10 +304,14 @@ def get_ensembl_live(accessions_taxon: Dict[str, Dict[str, int]]):
     live_annotations: Dict[str, Dict[str, Any]] = {}
 
     for accession, guuid, dbname in rows:
-        entry = live_annotations.setdefault(accession, dict(accessions_taxon.get(accession, {})))
+        entry = live_annotations.setdefault(
+            accession, dict(accessions_taxon.get(accession, {}))
+        )
         entry.setdefault("matches", [])
         # Avoid duplicates across joins if any
-        if not any(m["guuid"] == guuid and m["dbname"] == dbname for m in entry["matches"]):
+        if not any(
+            m["guuid"] == guuid and m["dbname"] == dbname for m in entry["matches"]
+        ):
             entry["matches"].append({"guuid": guuid, "dbname": dbname})
 
     # Choose best match for backward compatibility fields
@@ -235,26 +328,29 @@ def get_ensembl_live(accessions_taxon: Dict[str, Dict[str, int]]):
 
     return live_annotations, missing_annotations
 
+
 # -----------------------------------
 # Taxonomy info
 # -----------------------------------
 def get_taxonomy_info(
     live_annotations: Dict[str, Dict[str, Any]],
     accessions_taxon: Dict[str, Dict[str, int]],
-    rank: str
+    rank: str,
 ) -> Dict[str, Dict[str, Any]]:
     """
     Fetches taxonomy information for a given rank from the NCBI Datasets API.
-    For each accession in `live_annotations`, this function retrieves its `taxon_id`
+    For each accession in `live_annotations`, this function retrieves its `taxon_id`\
     and queries the NCBI taxonomy endpoint to get the classification at the specified rank.
     The retrieved rank name is then added to the corresponding annotation data.
+    
     Args:
-        live_annotations (Dict[str, Dict[str, str]]): A dictionary where each key is
-            an assembly accession and its value contains annotation details (including
+        live_annotations (Dict[str, Dict[str, str]]): A dictionary where each key is \
+            an assembly accession and its value contains annotation details (including \
             at least "taxon_id").
-        accessions_taxon (Dict[str, Dict[str, int]]): A dictionary mapping accessions
+        accessions_taxon (Dict[str, Dict[str, int]]): A dictionary mapping accessions \
             to basic taxon information, such as {"GCA_000001405.39": {"taxon_id": 9606}}.
         rank (str): The taxonomic rank to retrieve (e.g., "order", "class", "phylum").
+        
     Returns:
         Dict[str, Dict[str, str]]: The updated `live_annotations` dictionary with an
         additional key for the requested rank. For example:
@@ -275,30 +371,49 @@ def get_taxonomy_info(
         url = f"https://api.ncbi.nlm.nih.gov/datasets/v2alpha/taxonomy/taxon/{taxon_id}/dataset_report"
 
         try:
-            response = requests.get(url)
+            response = requests.get(url)  # pylint:disable=missing-timeout
             response.raise_for_status()
             data = response.json()
 
-            taxonomies = data.get('reports', [])
+            taxonomies = data.get("reports", [])
             for taxonomy in taxonomies:
-                rank_name = taxonomy.get('taxonomy', {}).get('classification', {}).get(rank, {}).get('name')
+                rank_name = (
+                    taxonomy.get("taxonomy", {})
+                    .get("classification", {})
+                    .get(rank, {})
+                    .get("name")
+                )
                 taxonomy_info = {rank: rank_name}
                 live_annotations[accession].update(taxonomy_info)
 
         except requests.HTTPError as http_err:
             logging.error(f"HTTP error occurred: {http_err}")
-        except Exception as err:
+        except Exception as err:  # pylint:disable=broad-exception-caught
             logging.error(f"An error occurred: {err}")
 
     return live_annotations
 
+
 # -----------------------------------
 # Add FTP (per match + best)
 # -----------------------------------
-def add_ftp(
-    annotations: Dict[str, Dict[str, Any]],
-    release_type: str = "live"
+def add_ftp(  # pylint:disable=too-many-locals, too-many-branches
+    annotations: Dict[str, Dict[str, Any]], release_type: str = "live"
 ) -> Dict[str, Dict[str, Any]]:
+    """
+    Adds FTP links to the annotations dictionary based on the release type.
+    
+    Args:
+        annotations (Dict[str, Dict[str, Any]]): A dictionary where each key is \
+            an assembly accession and its value contains annotation details, \
+            including matches with database names or genome UUIDs.
+        release_type (str): The type of release to determine FTP link construction.\
+            Can be either "live" or "pre".
+            
+    Returns:
+        Dict[str, Dict[str, Any]]: The updated annotations dictionary with FTP links \
+        added to each match and the top-level annotation where applicable.
+    """
     for accession, annotation in annotations.items():
         matches = annotation.get("matches") or []
 
@@ -318,7 +433,7 @@ def add_ftp(
                     (),
                     server_group="pre-release",
                     server_name="gb1",
-                    db_name=dbname
+                    db_name=dbname,
                 )
 
                 if not result:
@@ -333,7 +448,6 @@ def add_ftp(
                         m["ftp"] = ftp_link
                 if annotation.get("dbname") == dbname:
                     annotation["ftp"] = ftp_link  # top-level
-
 
         elif release_type == "live":
             # Build map guuid->match for easy updates
@@ -373,21 +487,25 @@ def add_ftp(
 
     return annotations
 
+
 def get_pre_release(missing_annotations: List[str]) -> Dict[str, Dict[str, str]]:
     """
-    Checks for the existence of pre-release Ensembl database schemas for a list of missing accessions.
-    This function takes a list of GenBank/RefSeq assembly accessions that were not found in the
-    Ensembl live database lookup (e.g., from `get_ensembl_live`). It reformats each accession
-    to match the expected pre-release Ensembl database schema naming convention (e.g.,
-    'GCA_000001405.39' → 'gca000001405v39') and queries the MySQL server's 
+    Checks for the existence of pre-release Ensembl database schemas for a \
+        list of missing accessions.
+    This function takes a list of GenBank/RefSeq assembly accessions that were not found in the \
+    Ensembl live database lookup (e.g., from `get_ensembl_live`). It reformats each accession \
+    to match the expected pre-release Ensembl database schema naming convention (e.g.,\
+    'GCA_000001405.39' → 'gca000001405v39') and queries the MySQL server's \
     `information_schema.schemata` table to check if a database with that name exists.
-    If such a schema is found, the function records the corresponding accession and
+    If such a schema is found, the function records the corresponding accession and \
     database name in the returned dictionary.
+    
     Args:
-        missing_annotations (List[str]): A list of assembly accessions (e.g., 'GCA_000001405.39')
+        missing_annotations (List[str]): A list of assembly accessions (e.g., 'GCA_000001405.39') \
             for which no live annotation database was found.
+            
     Returns:
-        Dict[str, Dict[str, str]]: A dictionary mapping each accession with a found pre-release
+        Dict[str, Dict[str, str]]: A dictionary mapping each accession with a found pre-release 
         database to a nested dictionary containing:
             - "dbname": The name of the pre-release schema (e.g., 'gca000001405v39').
         Example:
@@ -418,18 +536,16 @@ def get_pre_release(missing_annotations: List[str]) -> Dict[str, Dict[str, str]]
         WHERE SCHEMA_NAME like %s
         """
         result = mysql_fetch_data(
-            query,
-            (lookup_string,),
-            server_group="pre-release",
-            server_name="gb1"
+            query, (lookup_string,), server_group="pre-release", server_name="gb1"
         )
 
         if result:
             pre_release_annotations[accession] = {
-                "guuid": 'unknown',  # typo fixed from guiid -> guuid
-                "dbname": result[0][0]
+                "guuid": "unknown",  # typo fixed from guiid -> guuid
+                "dbname": result[0][0],
             }
     return pre_release_annotations
+
 
 # -----------------------------------
 # Report writer (explode when multiple matches)
@@ -439,11 +555,23 @@ def write_report(
     report_file: str,
     rank: str,
     include_class: bool = False,
-    include_ftp: bool = False
+    include_ftp: bool = False,
 ):
     """
     Writes a tab-separated report. If an accession has multiple matches,
     produces one line per match; otherwise one line.
+    
+    Args:
+        live_annotations (Dict[str, Dict[str, Any]]): A dictionary where each key is \
+            an assembly accession and its value contains annotation details, \
+            including matches with database names or genome UUIDs.
+        report_file (str): The path to the output report file.
+        rank (str): The taxonomic rank to include if `include_class` is True.
+        include_class (bool): If True, includes the taxonomic classification at the specified rank.
+        include_ftp (bool): If True, includes FTP links in the report.
+        
+    Returns:
+        None
     """
     report_path = Path(report_file)
     lines_written = 0
@@ -453,12 +581,18 @@ def write_report(
             matches = details.get("matches")
 
             # If we have multiple, write one row per match
-            rows = matches if matches else [{
-                "guuid": details.get("guuid"),
-                "dbname": details.get("dbname"),
-                "ftp": details.get("ftp"),
-                "date": details.get("date")
-            }]
+            rows = (
+                matches
+                if matches
+                else [
+                    {
+                        "guuid": details.get("guuid"),
+                        "dbname": details.get("dbname"),
+                        "ftp": details.get("ftp"),
+                        "date": details.get("date"),
+                    }
+                ]
+            )
 
             for m in rows:
                 row = [
@@ -475,7 +609,10 @@ def write_report(
                 file.write("\t".join(row) + "\n")
                 lines_written += 1
 
-    logging.info(f"Report written to {report_path.resolve()} with {lines_written} lines.")
+    logging.info(
+        f"Report written to {report_path.resolve()} with {lines_written} lines."
+    )
+
 
 def main():
     """
@@ -493,15 +630,29 @@ def main():
     Returns:
         None
     """
-    parser = argparse.ArgumentParser(description="Fetch assembly data and report annotations.")
+    parser = argparse.ArgumentParser(
+        description="Fetch assembly data and report annotations."
+    )
     parser.add_argument("--bioproject_id", type=str, help="NCBI BioProject ID")
     parser.add_argument("--taxon_id", type=str, help="Taxonomy ID")
-    parser.add_argument("--haploid", action="store_true", help="Fetch only haploid assemblies")
+    parser.add_argument(
+        "--haploid", action="store_true", help="Fetch only haploid assemblies"
+    )
     parser.add_argument("--report_file", type=str, default="./report_file.tsv")
-    parser.add_argument("--classification", action="store_true", help="Provide breakdown of taxonomic classification")
+    parser.add_argument(
+        "--classification",
+        action="store_true",
+        help="Provide breakdown of taxonomic classification",
+    )
     parser.add_argument("--rank", type=str, default="order")
-    parser.add_argument("--ftp", action="store_true", help="Include FTP links in the report")
-    parser.add_argument("--pre_release", action="store_true", help="Include list of pre-release databases in the report")
+    parser.add_argument(
+        "--ftp", action="store_true", help="Include FTP links in the report"
+    )
+    parser.add_argument(
+        "--pre_release",
+        action="store_true",
+        help="Include list of pre-release databases in the report",
+    )
 
     args = parser.parse_args()
 
@@ -512,7 +663,7 @@ def main():
     accessions_taxon = get_assembly_accessions(
         args.bioproject_id or args.taxon_id,
         "bioproject" if args.bioproject_id else "taxon",
-        args.haploid
+        args.haploid,
     )
 
     # Fetch annotations (live)
@@ -524,45 +675,70 @@ def main():
 
     # Optionally add FTP links
     if args.ftp:
-        live_annotations = add_ftp(live_annotations, 'live')
+        live_annotations = add_ftp(live_annotations, "live")
 
     # Unique species count from live annotations
-    unique_taxon_ids = {details['taxon_id'] for details in live_annotations.values() if 'taxon_id' in details}
+    unique_taxon_ids = {
+        details["taxon_id"]
+        for details in live_annotations.values()
+        if "taxon_id" in details
+    }
 
     # Optionally add Pre-release data
     if args.pre_release and missing_annotations:
         pre_release_annotations = get_pre_release(missing_annotations)
 
-        for accession in pre_release_annotations:
+        for (
+            accession
+        ) in pre_release_annotations:  # pylint:disable=consider-using-dict-items
             if accession in accessions_taxon:
-                pre_release_annotations[accession]["taxon_id"] = accessions_taxon[accession]["taxon_id"]
+                pre_release_annotations[accession]["taxon_id"] = accessions_taxon[
+                    accession
+                ]["taxon_id"]
 
         if args.classification and pre_release_annotations:
             get_taxonomy_info(pre_release_annotations, accessions_taxon, args.rank)
 
         if args.ftp and pre_release_annotations:
-            pre_release_annotations = add_ftp(pre_release_annotations, 'pre')
+            pre_release_annotations = add_ftp(pre_release_annotations, "pre")
 
-        all_annotations: Dict[str, Dict[str, Any]] = {**live_annotations, **pre_release_annotations}
+        all_annotations: Dict[str, Dict[str, Any]] = {  # type: ignore
+            **live_annotations,
+            **pre_release_annotations,
+        }
     else:
         all_annotations = live_annotations
 
     # Console summary
     if args.bioproject_id:
-        print(f"Found {len(accessions_taxon)} assemblies under BioProject ID {args.bioproject_id}")
+        print(
+            f"Found {len(accessions_taxon)} assemblies under BioProject ID {args.bioproject_id}"
+        )
     elif args.taxon_id:
         print(f"Found {len(accessions_taxon)} assemblies for taxon ID {args.taxon_id}")
 
-    print(f"Found {len(live_annotations)} annotations in beta.ensembl.org for {len(unique_taxon_ids)} unique species")
+    print(
+        f"Found {len(live_annotations)} annotations in beta.ensembl.org \
+            for {len(unique_taxon_ids)} unique species"
+    )
 
     if args.classification:
-        rank_values = [details.get(args.rank, "unknown") for details in live_annotations.values()]
+        rank_values = [
+            details.get(args.rank, "unknown") for details in live_annotations.values()
+        ]
         rank_counts = Counter(rank_values)
         print("\nBreakdown:")
         print(rank_counts)
 
     # Write final report
-    write_report(all_annotations, args.report_file, args.rank, include_class=args.classification, include_ftp=args.ftp)
+    write_report(
+        all_annotations,
+        args.report_file,
+        args.rank,
+        include_class=args.classification,
+        include_ftp=args.ftp,
+    )
+
 
 if __name__ == "__main__":
     main()

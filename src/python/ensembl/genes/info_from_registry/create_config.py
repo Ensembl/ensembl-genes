@@ -1,3 +1,18 @@
+#!/usr/bin/env python3
+# See the NOTICE file distributed with this work for additional information
+# regarding copyright ownership.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 """
 create_config.py
 
@@ -23,30 +38,25 @@ Example usage:
     }
     edit_config(settings)
 """
+
 import os
 import shutil
 import re
 import logging
 from pathlib import Path
-from typing import Dict, Any, Optional, List
-
+from typing import Dict, Any
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s",
-    handlers=[
-        logging.FileHandler("pipeline_setup.log"),
-        logging.StreamHandler()
-    ]
+    handlers=[logging.FileHandler("pipeline_setup.log"), logging.StreamHandler()],
 )
 logger = logging.getLogger(__name__)
 
 
 def copy_config(
-    settings: Dict[str, Any],
-    info_dict: Dict[str, Any],
-    pipeline: str
+    settings: Dict[str, Any], info_dict: Dict[str, Any], pipeline: str
 ) -> str:
     """
     Copies a configuration file from the ENSCODE environment into a local output directory.
@@ -70,7 +80,7 @@ def copy_config(
     """
 
     original_config = os.path.join(
-        os.environ.get("ENSCODE"),
+        str(os.environ.get("ENSCODE")),
         "ensembl-analysis",
         "modules",
         "Bio",
@@ -81,20 +91,25 @@ def copy_config(
         settings["config"],
     )
 
-
     if pipeline == "anno":
         anno_parent = str(Path(info_dict["output_path"]).parent)
         local_config = os.path.join(anno_parent, settings["config"])
     elif pipeline == "main":
         local_config = os.path.join(info_dict["output_path"], settings["config"])
     else:
-        raise ValueError(f"Unknown pipeline type: {pipeline}. Can't copy config. Please check taxon ID.")
+        raise ValueError(
+            f"Unknown pipeline type: {pipeline}. Can't copy config. Please check taxon ID."
+        )
 
     try:
         shutil.copy2(original_config, local_config)
-        logging.info(f"Copied file from {original_config} to {local_config}")
+        logging.info(  # pylint: disable=logging-fstring-interpolation
+            f"Copied file from {original_config} to {local_config}"
+        )
     except Exception as e:
-        raise RuntimeError(f"Error copying file: {e}")
+        raise RuntimeError(  # pylint: disable=raise-missing-from
+            f"Error copying file: {e}"
+        )
 
     return local_config
 
@@ -104,47 +119,47 @@ def edit_config_anno(
     settings: Dict[str, Any],
     info_dict: Dict[str, Any],
     pipeline: str,
-    server_settings: Dict[str, Dict[str, Any]]
+    server_settings: Dict[str, Dict[str, Any]],
 ) -> None:
     """
-        Edits specific parameter values in a copied Ensembl Hive config file.
+    Edits specific parameter values in a copied Ensembl Hive config file.
 
-        The function performs in-place substitution of key parameters such as:
-        - current_genebuild
-        - dbowner
-        - pipeline_name
-        - password
-        - user
-        - user_r
-        - release_number
+    The function performs in-place substitution of key parameters such as:
+    - current_genebuild
+    - dbowner
+    - pipeline_name
+    - password
+    - user
+    - user_r
+    - release_number
 
-        Parameters:
-        ----------
-        anno_settings: dict
-        settings : dict
-            Dictionary with required keys:
-                - 'config': str, name of the config file (e.g., 'MyConfig.pm')
-                - 'base_output_dir': str, destination folder for the config
-                - 'current_genebuild': str
-                - 'dbowner': str
-                - 'pipeline_name': str
-                - 'password': str
-                - 'user': str
-                - 'user_r': str
-                - 'release_number': str or int
-        info_dict : dict
-        pipeline : str
+    Parameters:
+    ----------
+    anno_settings: dict
+    settings : dict
+        Dictionary with required keys:
+            - 'config': str, name of the config file (e.g., 'MyConfig.pm')
+            - 'base_output_dir': str, destination folder for the config
+            - 'current_genebuild': str
+            - 'dbowner': str
+            - 'pipeline_name': str
+            - 'password': str
+            - 'user': str
+            - 'user_r': str
+            - 'release_number': str or int
+    info_dict : dict
+    pipeline : str
 
-        Raises:
-        ------
-        FileNotFoundError
-            If the copied file cannot be opened.
-        KeyError
-            If required settings keys are missing.
-        """
-    local_config = copy_config(anno_settings, info_dict,  pipeline)
+    Raises:
+    ------
+    FileNotFoundError
+        If the copied file cannot be opened.
+    KeyError
+        If required settings keys are missing.
+    """
+    local_config = copy_config(anno_settings, info_dict, pipeline)
 
-    with open(local_config, "r") as f:
+    with open(local_config, "r") as f:  # pylint: disable=unspecified-encoding
         content = f.read()
 
     # Replace the lines
@@ -213,15 +228,12 @@ def edit_config_anno(
         content,
     )
 
-
-    with open(local_config, "w") as f:
+    with open(local_config, "w") as f:  # pylint: disable=unspecified-encoding
         f.write(content)
 
 
-def edit_config_main(
-    settings: Dict[str, Any],
-    info_dict: Dict[str, Any],
-    pipeline: str
+def edit_config_main(  # pylint: disable=too-many-locals, too-many-branches
+    settings: Dict[str, Any], info_dict: Dict[str, Any], pipeline: str
 ) -> str:
     """
     Edits specific parameter values in a copied Ensembl Hive config file safely,
@@ -248,7 +260,7 @@ def edit_config_main(
 
     stop_marker = "# No option below this mark should be modified"
 
-    with open(local_config, "r") as f:
+    with open(local_config, "r") as f:  # pylint: disable=unspecified-encoding
         lines = f.readlines()
 
     new_lines = []
@@ -274,13 +286,13 @@ def edit_config_main(
 
                 if re.match(pattern, line):
                     # Preserve comment if present
-                    if '#' in line:
-                        parts = line.split('#', 1)
+                    if "#" in line:
+                        parts = line.split("#", 1)
                         line_content = parts[0]
-                        comment = '#' + parts[1].rstrip('\n')
+                        comment = "#" + parts[1].rstrip("\n")
                     else:
                         line_content = line
-                        comment = ''
+                        comment = ""
 
                     # Convert Python value to Perl representation
                     if isinstance(value, str):
@@ -293,9 +305,9 @@ def edit_config_main(
                     # Replace only the value before the comma
                     new_line = re.sub(r"=>\s*[^,]*,", f"=> {perl_value},", line_content)
                     if comment:
-                        new_line = new_line.rstrip() + ' ' + comment + '\n'
+                        new_line = new_line.rstrip() + " " + comment + "\n"
                     else:
-                        new_line = new_line.rstrip() + '\n'
+                        new_line = new_line.rstrip() + "\n"
 
                     new_lines.append(new_line)
                     updated = True
@@ -307,8 +319,10 @@ def edit_config_main(
             new_lines.append(line)
 
     # Write back the updated config safely
-    with open(local_config, "w") as f:
+    with open(local_config, "w", encoding="utf8") as f:
         f.writelines(new_lines)
 
-    logging.info(f"Config edited successfully: {local_config}")
+    logging.info(  # pylint: disable=logging-fstring-interpolation
+        f"Config edited successfully: {local_config}"
+    )
     return local_config

@@ -14,10 +14,12 @@
 
 
 #!/usr/bin/env python3
+# pylint: disable=logging-fstring-interpolation
+
 """
 Pre-release FTP processing script for Ensembl genebuild pipeline.
 
-This script gathers GTF, GFF3, and reheadered toplevel FASTA files from a 
+This script gathers GTF, GFF3, and reheadered toplevel FASTA files from a
 pre-release directory structure and organizes them into an FTP-ready directory
 structure with standardized naming and MD5 checksums.
 """
@@ -74,7 +76,7 @@ def parse_gca_id(gca_string: str) -> Tuple[str, str]:
     return gca_number, version
 
 
-def find_reheadered_fasta(output_path: str) -> tuple[str, str]:
+def find_reheadered_fasta(output_path: str) -> str:
     """
     Find the reheadered toplevel FASTA file and its corresponding FAI index file.
 
@@ -94,7 +96,7 @@ def find_reheadered_fasta(output_path: str) -> tuple[str, str]:
         raise FileNotFoundError(
             f"No reheadered toplevel FASTA file found in {output_path}"
         )
-    
+
     return fasta_matches[0]
 
 
@@ -113,6 +115,7 @@ def find_2bit(output_path: str) -> Optional[str]:
         return two_bit_matches[0]  # Return first match
     return None
 
+
 def find_annotation_files(output_path: str) -> Dict[str, Optional[str]]:
     """
     Find GFF3 and GTF annotation files in the clade (vertabrates/ etc) directory structure.
@@ -123,12 +126,12 @@ def find_annotation_files(output_path: str) -> Dict[str, Optional[str]]:
 
     Returns:
         Dict[str, Optional[str]]: Dictionary with 'gff3' and 'gtf' keys mapping
-                                 to file paths or None if not found
+                                to file paths or None if not found
     """
     annotation_files: Dict[str, Optional[str]] = {"gff3": None, "gtf": None}
 
     # Look for GFF3 files
-    gff3_pattern = os.path.join(output_path, '*', "gff3", "**", "*.gff3.gz")
+    gff3_pattern = os.path.join(output_path, "*", "gff3", "**", "*.gff3.gz")
     gff3_matches = glob.glob(gff3_pattern, recursive=True)
     if gff3_matches:
         # Prioritize main GFF3 files over specialized variants
@@ -136,7 +139,7 @@ def find_annotation_files(output_path: str) -> Dict[str, Optional[str]]:
         annotation_files["gff3"] = main_gff3
 
     # Look for GTF files
-    gtf_pattern = os.path.join(output_path, '*', "gtf", "**", "*.gtf.gz")
+    gtf_pattern = os.path.join(output_path, "*", "gtf", "**", "*.gtf.gz")
     gtf_matches = glob.glob(gtf_pattern, recursive=True)
     if gtf_matches:
         # Prioritize main GTF files over specialized variants
@@ -149,44 +152,44 @@ def find_annotation_files(output_path: str) -> Dict[str, Optional[str]]:
 def _select_main_annotation_file(file_list: List[str], file_type: str) -> str:
     """
     Select the main annotation file from a list of candidates.
-    
+
     Prioritizes files in this order:
     1. Files ending with .{file_type}.gz (main annotation)
     2. Files ending with .chr.{file_type}.gz (chromosome-level)
     3. Any other files (avoiding abinitio, which are typically minimal)
-    
+
     Args:
         file_list: List of file paths to choose from
         file_type: Type of file ('gtf' or 'gff3')
-    
+
     Returns:
         str: Path to the selected main annotation file
     """
     if not file_list:
         raise ValueError("Empty file list provided")
-    
+
     # Sort files by priority
     main_files = []
     chr_files = []
     other_files = []
     abinitio_files = []
-    
+
     for filepath in file_list:
         filename = os.path.basename(filepath)
-        
-        if 'abinitio' in filename.lower():
+
+        if "abinitio" in filename.lower():
             abinitio_files.append(filepath)
-        elif filename.endswith(f'.{file_type}.gz'):
+        elif filename.endswith(f".{file_type}.gz"):
             main_files.append(filepath)
-        elif filename.endswith(f'.chr.{file_type}.gz'):
+        elif filename.endswith(f".chr.{file_type}.gz"):
             chr_files.append(filepath)
         else:
             other_files.append(filepath)
-    
+
     # Return in order of preference
-    if main_files:
+    if main_files:  # pylint: disable=no-else-return
         return main_files[0]
-    elif chr_files:
+    elif chr_files:  # pylint: disable:no-else-return
         return chr_files[0]
     elif other_files:
         return other_files[0]
@@ -194,26 +197,32 @@ def _select_main_annotation_file(file_list: List[str], file_type: str) -> str:
         # Only abinitio files found - return first one but this might not be ideal
         return abinitio_files[0]
 
+
 def is_compressed_file(filepath: str) -> bool:
     """
     Check if a file is actually compressed by examining its magic bytes.
-    
+
     Checks for gzip magic bytes (0x1f, 0x8b) at the beginning of the file.
-    
+
     Args:
         filepath: Path to the file to check
-        
+
     Returns:
         bool: True if file is actually gzip compressed
     """
     try:
-        with open(filepath, 'rb') as f:
-            magic_bytes = f.read(2)
+        with open(filepath, "rb") as file:
+            magic_bytes = file.read(2)
             # Check for gzip magic bytes (0x1f, 0x8b)
-            return len(magic_bytes) == 2 and magic_bytes[0] == 0x1f and magic_bytes[1] == 0x8b
+            return (
+                len(magic_bytes) == 2
+                and magic_bytes[0] == 0x1F
+                and magic_bytes[1] == 0x8B
+            )
     except (IOError, OSError):
         # If we can't read the file, assume it's not compressed
-        return False    
+        return False
+
 
 def extract_species_from_filename(filename: str) -> str:
     """
@@ -260,8 +269,8 @@ def generate_new_filename(
     species_lower = species_name.lower()
     new_name = f"{species_lower}_gca{gca_number}v{version}.{file_type}"
 
-    if is_compressed_file(original_file) and not new_name.endswith('.gz'):
-        new_name += '.gz'
+    if is_compressed_file(original_file) and not new_name.endswith(".gz"):
+        new_name += ".gz"
     return new_name
 
 
@@ -279,8 +288,8 @@ def calculate_md5(filepath: str) -> str:
         IOError: If file cannot be read
     """
     hash_md5 = hashlib.md5()
-    with open(filepath, "rb") as f:
-        for chunk in iter(lambda: f.read(4096), b""):
+    with open(filepath, "rb") as file:
+        for chunk in iter(lambda: file.read(4096), b""):
             hash_md5.update(chunk)
     return hash_md5.hexdigest()
 
@@ -311,13 +320,13 @@ def format_species_name(species_name: str) -> str:
     return species_title.replace(" ", "_").replace("-", "_").replace(".", "_")
 
 
-def create_ftp_directory_structure(
+def create_ftp_directory_structure(  # pylint: disable=too-many-locals, too-many-arguments
     output_path: str,
     species_name: str,
     gca_string: str,
     annotation_files: Dict[str, Optional[str]],
     fasta_file: str,
-    two_bit_file: str,
+    two_bit_file: Optional[str],
     logger: logging.Logger,
 ) -> Tuple[str, List[str]]:
     """
@@ -395,7 +404,9 @@ def create_ftp_directory_structure(
         )
         dest_2bit = os.path.join(ftp_final_dir, new_2bit_name)
 
-        logger.info(f"Copying 2bit file: {os.path.basename(two_bit_file)} -> {new_2bit_name}")
+        logger.info(
+            f"Copying 2bit file: {os.path.basename(two_bit_file)} -> {new_2bit_name}"
+        )
         shutil.copy2(two_bit_file, dest_2bit)
         copied_files.append(dest_2bit)
     else:
@@ -427,12 +438,12 @@ def generate_md5_checksums(
 
     logger.info(f"Generating MD5 checksums in: {md5_file}")
 
-    with open(md5_file, "w") as f:
+    with open(md5_file, "w") as file:  # pylint: disable=unspecified-encoding
         for filepath in sorted(files):
             if os.path.exists(filepath):
                 filename = os.path.basename(filepath)
                 md5_hash = calculate_md5(filepath)
-                f.write(f"{md5_hash}  {filename}\n")
+                file.write(f"{md5_hash}  {filename}\n")
                 logger.info(f"  {filename}: {md5_hash}")
 
     return md5_file
@@ -453,8 +464,8 @@ def main() -> None:
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  %(prog)s -p /path/to/GCA_030222105.1/ -g GCA_030222105.1 -s Macaca_mulatta
-  %(prog)s -p /path/to/data/ -g GCA_002263795.4
+    %(prog)s -p /path/to/GCA_030222105.1/ -g GCA_030222105.1 -s Macaca_mulatta
+    %(prog)s -p /path/to/data/ -g GCA_002263795.4
         """,
     )
     parser.add_argument(
@@ -500,8 +511,8 @@ Examples:
             fasta_file = find_reheadered_fasta(output_path)
             logger.info(f"Found reheadered FASTA file: {os.path.basename(fasta_file)}")
 
-        except FileNotFoundError as e:
-            logger.error(str(e))
+        except FileNotFoundError as err:
+            logger.error(str(err))
             sys.exit(1)
 
         annotation_files = find_annotation_files(output_path)
@@ -533,7 +544,13 @@ Examples:
 
         # Create FTP directory structure and copy files
         ftp_dir, copied_files = create_ftp_directory_structure(
-            output_path, species_name, gca_string, annotation_files, fasta_file, two_bit_file, logger
+            output_path,
+            species_name,
+            gca_string,
+            annotation_files,
+            fasta_file,
+            two_bit_file,
+            logger,
         )
 
         # Generate MD5 checksums
@@ -544,8 +561,8 @@ Examples:
         logger.info(f"FTP structure created successfully in: {ftp_dir}")
         logger.info("Pre-release FTP processing completed successfully")
 
-    except Exception as e:
-        logger.error(f"Error during processing: {str(e)}")
+    except Exception as err:  # pylint: disable=broad-exception-caught
+        logger.error(f"Error during processing: {str(err)}")
         sys.exit(1)
 
 

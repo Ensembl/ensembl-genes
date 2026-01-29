@@ -1,3 +1,18 @@
+#!/usr/bin/env python3
+# See the NOTICE file distributed with this work for additional information
+# regarding copyright ownership.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 """
 MySQL Helper Module
 
@@ -10,25 +25,24 @@ Functions:
     - mysql_update: Executes an UPDATE/INSERT/DELETE query with optional parameters.
 """
 
-import pymysql
 import logging
 from typing import Optional, Any
+import pymysql
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s",
-    handlers=[
-        logging.FileHandler("pipeline_setup.log"),
-        logging.StreamHandler()
-    ]
+    handlers=[logging.FileHandler("pipeline_setup.log"), logging.StreamHandler()],
 )
 logger = logging.getLogger(__name__)
+
+__all__ = ["mysql_fetch_data", "mysql_update"]
 
 
 def mysql_get_connection(
     database: str, host: str, port: int, user: str, password: str
-) -> Optional[pymysql.connections.Connection]:
+) -> Optional[pymysql.connections.Connection]:  # pylint: disable=unsubscriptable-object
     """
     Establish a connection to the MySQL database.
     """
@@ -41,13 +55,13 @@ def mysql_get_connection(
             database=database.strip(),
             cursorclass=pymysql.cursors.DictCursor,
         )
-        return conn
+        return conn  # type: ignore
     except pymysql.Error as err:
         print(f"MySQL error: {err}")
         return None
 
 
-def mysql_fetch_data(
+def mysql_fetch_data(  # pylint:disable=too-many-arguments
     query: str,
     database: str,
     host: str,
@@ -76,7 +90,7 @@ def mysql_fetch_data(
         conn = pymysql.connect(
             host=host,
             user=user,
-            port=port,
+            port=int(port),
             password=password,
             database=database.strip(),
             cursorclass=pymysql.cursors.DictCursor,
@@ -86,14 +100,16 @@ def mysql_fetch_data(
             results = cursor.fetchall()
         conn.close()
         logger.info("Query successful")
-        return results
+        return list(results)
 
     except pymysql.Error as err:
-        logger.error(f"MySQL error during fetch: {err}")
+        logger.error(  # pylint:disable=logging-fstring-interpolation
+            f"MySQL error during fetch: {err}"
+        )
         return []
 
 
-def mysql_update(
+def mysql_update(  # pylint:disable=too-many-arguments
     query: str,
     database: str,
     host: str,
@@ -134,5 +150,7 @@ def mysql_update(
         return True
 
     except pymysql.Error as err:
-        logger.error(f"MySQL error during update: {err}")
+        logger.error(  # pylint:disable=logging-fstring-interpolation
+            f"MySQL error during update: {err}"
+        )
         return False

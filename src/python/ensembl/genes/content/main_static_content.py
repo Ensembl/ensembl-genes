@@ -1,9 +1,24 @@
 #!/usr/bin/env python3
+# See the NOTICE file distributed with this work for additional information
+# regarding copyright ownership.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 """
 Module to create static content files for main release.
 This module fetches assembly information from a MySQL database and the ENA API,
 and generates HTML files containing assembly and annotation content.
 """
+
 import argparse
 from pathlib import Path
 from typing import Dict, Optional, Tuple
@@ -52,7 +67,7 @@ def get_assembly_info(accession: str) -> Dict[str, str]:
         accession (str): The assembly accession number to fetch information for.
 
     Returns:
-        dict: A dictionary containing assembly attributes such as name, level,
+        dict: A dictionary containing assembly attributes such as name, level,\
         submitter, and counts.
     """
     assembly_url = f"https://www.ebi.ac.uk/ena/browser/api/xml/{accession}"
@@ -91,7 +106,7 @@ def get_assembly_info(accession: str) -> Dict[str, str]:
     return return_dict
 
 
-def write_content(info: Dict[str,str], out_dir: Path, url_path: str) -> None:
+def write_content(info: Dict[str, str], out_dir: Path, url_path: str) -> None:
     """
     Write assembly and annotation content to HTML files.
 
@@ -100,7 +115,7 @@ def write_content(info: Dict[str,str], out_dir: Path, url_path: str) -> None:
         output_dir (Path): Directory path for output files.
         url_path (str): Name used to title the output files.
     """
-    with open( # pylint: disable=unspecified-encoding
+    with open(  # pylint: disable=unspecified-encoding
         out_dir / f"{url_path}_assembly.html", "w"
     ) as assembly_out:  # pylint: disable=unspecified-encoding
         print(
@@ -117,7 +132,7 @@ def write_content(info: Dict[str,str], out_dir: Path, url_path: str) -> None:
             file=assembly_out,
         )
 
-    with open( # pylint: disable=unspecified-encoding
+    with open(  # pylint: disable=unspecified-encoding
         out_dir / f"{url_path}_annotation.html", "w"
     ) as annotation_out:  # pylint: disable=unspecified-encoding
         print(

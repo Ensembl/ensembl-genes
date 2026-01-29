@@ -1,22 +1,40 @@
+#!/usr/bin/env python3
+# See the NOTICE file distributed with this work for additional information
+# regarding copyright ownership.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 """
-Utility to update the status of a genebuild in the registry db 
+Utility to update the status of a genebuild in the registry db
 """
 
-from mysql_helper import mysql_get_connection
-from registry_helper import (
-    fetch_assembly_id,
-    fetch_current_genebuild_record,
-    fetch_highest_genebuild_version,
-    increment_genebuild_version,
-)
+# pylint: disable=f-string-without-interpolation, broad-exception-raised, broad-exception-caught
 import argparse
 from datetime import datetime
 import sys
 from typing import Optional
 import pymysql
+from ensembl.genes.info_from_registry.mysql_helper import mysql_get_connection
+from ensembl.genes.info_from_registry.registry_helper import (
+    fetch_assembly_id,
+    fetch_current_genebuild_record,
+    fetch_highest_genebuild_version,
+    increment_genebuild_version,
+)
 
 
-def ensure_genebuilder_exists(connection: pymysql.connections.Connection, genebuilder: str) -> None:
+def ensure_genebuilder_exists(
+    connection: pymysql.connections.Connection, genebuilder: str
+) -> None:
     """
     Ensure genebuilder exists in the genebuilder table.
 
@@ -30,14 +48,13 @@ def ensure_genebuilder_exists(connection: pymysql.connections.Connection, genebu
         cursor.execute(check_query, (genebuilder,))
         if not cursor.fetchone():
             raise ValueError(
-                f"Genebuilder '{genebuilder}' does not exist in the genebuilder table. Please add it first."
+                f"Genebuilder '{genebuilder}' does not exist in the\
+                    genebuilder table. Please add it first."
             )
 
 
 # fetch_current_record is now fetch_current_genebuild_record imported from registry_helper
-
-
-def insert_new_record(
+def insert_new_record(  # pylint:disable=too-many-arguments
     connection: pymysql.connections.Connection,
     assembly_id: int,
     assembly: str,
@@ -66,8 +83,8 @@ def insert_new_record(
         dev (bool): If True, only print SQL without executing
     """
     # date completed is being used to track the last time this record was updated
-    # so we set it to the current date 
-    date_status_update = current_date 
+    # so we set it to the current date
+    date_status_update = current_date
 
     # Add not avaialable for release type
     query = """
@@ -102,7 +119,7 @@ def insert_new_record(
         print(f"Inserted new record for GCA {assembly} with status '{status}'")
 
 
-def update_existing_record(
+def update_existing_record(  # pylint:disable=too-many-arguments
     connection: pymysql.connections.Connection,
     record_id: int,
     status: str,
@@ -110,8 +127,21 @@ def update_existing_record(
     dev: bool,
     annotation_method: Optional[str] = None,
     annotation_source: Optional[str] = None,
-    genebuild_version: Optional[str] = None
+    genebuild_version: Optional[str] = None,
 ) -> None:
+    """
+    Update an existing genebuild status record.
+
+    Args:
+        connection: MySQL connection object
+        record_id (int): genebuild_status_id to update
+        status (str): Status to set
+        current_date (str): Current date
+        dev (bool): If True, only print SQL without executing
+        annotation_method (str, optional): New annotation method
+        annotation_source (str, optional): New annotation source
+        genebuild_version (str, optional): New genebuild version
+    """
     query_parts = ["gb_status = %s", "date_status_update = %s"]
     params = [status, current_date]
     if annotation_method:
@@ -128,7 +158,7 @@ UPDATE genebuild_status
 SET {', '.join(query_parts)}
 WHERE genebuild_status_id = %s
 """
-    params.append(record_id)
+    params.append(str(record_id))
 
     if dev:
         print("Would execute:")
@@ -139,7 +169,9 @@ WHERE genebuild_status_id = %s
         print(f"Updated record {record_id} to status '{status}'")
 
 
-def set_old_record_historical(connection: pymysql.connections.Connection, record_id: int, dev: bool) -> None:
+def set_old_record_historical(
+    connection: pymysql.connections.Connection, record_id: int, dev: bool
+) -> None:
     """
     Set an existing record to historical (last_attempt = 0).
 
@@ -161,7 +193,7 @@ def set_old_record_historical(connection: pymysql.connections.Connection, record
         print(f"Set record {record_id} to historical")
 
 
-def main(
+def main(  # pylint:disable=too-many-arguments, too-many-statements, too-many-branches, too-many-locals
     host: str,
     port: int,
     user: str,
@@ -215,7 +247,9 @@ def main(
             raise Exception(f"Assembly not found for GCA: {assembly}")
 
         current_date = datetime.now().strftime("%Y-%m-%d")
-        existing_record = fetch_current_genebuild_record(connection, assembly, genebuilder)
+        existing_record = fetch_current_genebuild_record(
+            connection, assembly, genebuilder
+        )
 
         if not existing_record:
             # No existing record for this genebuilder - INSERT new
@@ -232,18 +266,31 @@ def main(
                 highest_version = fetch_highest_genebuild_version(connection, assembly)
                 if highest_version:
                     if genebuild_version <= highest_version:
-                        print(f"ERROR: Genebuild version '{genebuild_version}' already exists or is lower than existing version '{highest_version}' for assembly {assembly}")
-                        print(f"Versions must be unique per assembly across all genebuilders.")
-                        print(f"Please use a version higher than '{highest_version}' or omit --genebuild_version to auto-increment.")
+                        print(
+                            f"ERROR: Genebuild version '{genebuild_version}' already exists \
+                                or is lower than existing version '{highest_version}' \
+                                    for assembly {assembly}"
+                        )
+                        print(
+                            f"Versions must be unique per assembly across all genebuilders."
+                        )
+                        print(
+                            f"Please use a version higher than '{highest_version}' \
+                                or omit --genebuild_version to auto-increment."
+                        )
                         sys.exit(1)
                 version_to_insert = genebuild_version
             else:
-                # Auto-determine version: check if ANY version exists for this assembly (any genebuilder)
+                # Auto-determine version: check if ANY version exists for this assembly
+                # (any genebuilder)
                 highest_version = fetch_highest_genebuild_version(connection, assembly)
                 if highest_version:
                     # Another genebuilder has a version for this assembly - increment it
                     version_to_insert = increment_genebuild_version(highest_version)
-                    print(f"Found existing genebuild version '{highest_version}' for {assembly} (by another genebuilder)")
+                    print(
+                        f"Found existing genebuild version '{highest_version}' \
+                            for {assembly} (by another genebuilder)"
+                    )
                     print(f"Auto-incrementing to version: {version_to_insert}")
                 else:
                     # No version exists for this assembly yet - start with ENS01
@@ -277,33 +324,67 @@ def main(
             # Status categories
             terminal_statuses = ["live", "pre_released", "handed_over", "archive"]
             active_statuses = ["insufficient_data", "in_progress", "check_busco"]
-            completed_status = "completed" # terminal-like status
+            completed_status = "completed"  # terminal-like status
 
-            # Determine if method/source/version should be updated (preserve existing if not specified)
-            method_to_update = annotation_method if annotation_method is not None else None
-            source_to_update = annotation_source if annotation_source is not None else None
-            version_to_update = genebuild_version if (genebuild_version is not None and genebuild_version != current_version) else None
+            # Determine if method/source/version should be updated
+            # (preserve existing if not specified)
+            method_to_update = (
+                annotation_method if annotation_method is not None else None
+            )
+            source_to_update = (
+                annotation_source if annotation_source is not None else None
+            )
+            version_to_update = (
+                genebuild_version
+                if (
+                    genebuild_version is not None
+                    and genebuild_version != current_version
+                )
+                else None
+            )
 
             # Same status - check for method/source/version changes
             if current_status == status:
-                # Check if annotation_method, annotation_source, or genebuild_version is provided and different
-                method_changed = annotation_method and annotation_method != current_method
-                source_changed = annotation_source and annotation_source != current_source
-                version_changed = genebuild_version is not None and genebuild_version != current_version
+                # Check if annotation_method, annotation_source, or
+                # genebuild_version is provided and different
+                method_changed = (
+                    annotation_method and annotation_method != current_method
+                )
+                source_changed = (
+                    annotation_source and annotation_source != current_source
+                )
+                version_changed = (
+                    genebuild_version is not None
+                    and genebuild_version != current_version
+                )
 
                 if method_changed or source_changed or version_changed:
                     changes = []
                     if method_changed:
-                        changes.append(f"method from '{current_method}' to '{annotation_method}'")
+                        changes.append(
+                            f"method from '{current_method}' to '{annotation_method}'"
+                        )
                     if source_changed:
-                        changes.append(f"source from '{current_source}' to '{annotation_source}'")
+                        changes.append(
+                            f"source from '{current_source}' to '{annotation_source}'"
+                        )
                     if version_changed:
-                        changes.append(f"version from '{current_version}' to '{genebuild_version}'")
-                    print(f"Status is already '{status}', but updating {' and '.join(changes)}")
-                    update_existing_record(connection, record_id, status, current_date, dev,
-                                          annotation_method if method_changed else None,
-                                          annotation_source if source_changed else None,
-                                          genebuild_version if version_changed else None)
+                        changes.append(
+                            f"version from '{current_version}' to '{genebuild_version}'"
+                        )
+                    print(
+                        f"Status is already '{status}', but updating {' and '.join(changes)}"
+                    )
+                    update_existing_record(
+                        connection,
+                        record_id,
+                        status,
+                        current_date,
+                        dev,
+                        annotation_method if method_changed else None,
+                        annotation_source if source_changed else None,
+                        genebuild_version if version_changed else None,
+                    )
                 else:
                     print(f"Status is already '{status}'. No changes needed.")
                     sys.exit(0)
@@ -311,29 +392,50 @@ def main(
             # Block backwards transitions from completed
             elif current_status == completed_status and status in active_statuses:
                 print(f"ERROR: Cannot move backwards from 'completed' to '{status}'")
-                print(f"Completed is a terminal-like status. To restart work, use a new genebuild_version.")
+                print(
+                    f"Completed is a terminal-like status. To restart work, \
+                        use a new genebuild_version."
+                )
                 sys.exit(1)
 
             # Block backwards transitions from terminal statuses
-            elif current_status in terminal_statuses and status in (active_statuses + [completed_status]):
+            elif current_status in terminal_statuses and status in (
+                active_statuses + [completed_status]
+            ):
                 # Check if version changed - if so, allow new attempt
                 # If genebuild_version not provided, use current version (no version change)
-                effective_version = genebuild_version if genebuild_version else current_version
+                effective_version = (
+                    genebuild_version if genebuild_version else current_version
+                )
 
                 if effective_version != current_version:
                     # Validate the new version against ALL existing versions for this assembly
-                    highest_version = fetch_highest_genebuild_version(connection, assembly)
+                    highest_version = fetch_highest_genebuild_version(
+                        connection, assembly
+                    )
                     if highest_version and effective_version <= highest_version:
-                        print(f"ERROR: Genebuild version '{effective_version}' already exists or is lower than existing version '{highest_version}' for assembly {assembly}")
-                        print(f"Versions must be unique per assembly across all genebuilders.")
+                        print(
+                            f"ERROR: Genebuild version '{effective_version}' already exists \
+                                or is lower than existing version '{highest_version}' \
+                                    for assembly {assembly}"
+                        )
+                        print(
+                            f"Versions must be unique per assembly across all genebuilders."
+                        )
                         print(f"Please use a version higher than '{highest_version}'.")
                         sys.exit(1)
-
-                    print(f"Moving from terminal status '{current_status}' to '{status}' with new version {effective_version}")
+                    print(
+                        f"Moving from terminal status '{current_status}' to \
+                            '{status}' with new version {effective_version}"
+                    )
                     print(f"Creating new attempt.")
 
-                    method_to_insert = annotation_method if annotation_method else "pending"
-                    source_to_insert = annotation_source if annotation_source else current_source
+                    method_to_insert = (
+                        annotation_method if annotation_method else "pending"
+                    )
+                    source_to_insert = (
+                        annotation_source if annotation_source else current_source
+                    )
 
                     set_old_record_historical(connection, record_id, dev)
                     insert_new_record(
@@ -351,34 +453,90 @@ def main(
                     )
                 else:
                     # No version provided or same as current - suggest incrementing
-                    highest_version = fetch_highest_genebuild_version(connection, assembly)
-                    suggested_version = increment_genebuild_version(highest_version) if highest_version else "ENS02"
-                    print(f"ERROR: Cannot move from terminal status '{current_status}' to '{status}' with same genebuild_version '{current_version}'")
-                    print(f"To restart work, you must provide a new --genebuild_version higher than '{highest_version}' (e.g., {suggested_version})")
+                    highest_version = fetch_highest_genebuild_version(
+                        connection, assembly
+                    )
+                    suggested_version = (
+                        increment_genebuild_version(highest_version)
+                        if highest_version
+                        else "ENS02"
+                    )
+                    print(
+                        f"ERROR: Cannot move from terminal status '{current_status}' \
+                            to '{status}' with same genebuild_version '{current_version}'"
+                    )
+                    print(
+                        f"To restart work, you must provide a new --genebuild_version higher \
+                            than '{highest_version}' (e.g., {suggested_version})"
+                    )
                     sys.exit(1)
 
             # Terminal to terminal transition - UPDATE same record
             elif current_status in terminal_statuses and status in terminal_statuses:
-                print(f"Moving from terminal status '{current_status}' to terminal status '{status}'")
+                print(
+                    f"Moving from terminal status '{current_status}' to terminal status '{status}'"
+                )
                 print(f"Updating existing record.")
-                update_existing_record(connection, record_id, status, current_date, dev, method_to_update, source_to_update, version_to_update)
+                update_existing_record(
+                    connection,
+                    record_id,
+                    status,
+                    current_date,
+                    dev,
+                    method_to_update,
+                    source_to_update,
+                    version_to_update,
+                )
 
             # Completed to terminal transition - UPDATE same record
             elif current_status == completed_status and status in terminal_statuses:
                 print(f"Moving from 'completed' to terminal status '{status}'")
                 print(f"Updating existing record.")
-                update_existing_record(connection, record_id, status, current_date, dev, method_to_update, source_to_update, version_to_update)
+                update_existing_record(
+                    connection,
+                    record_id,
+                    status,
+                    current_date,
+                    dev,
+                    method_to_update,
+                    source_to_update,
+                    version_to_update,
+                )
 
             # Active to active or active to completed - UPDATE same record
-            elif current_status in active_statuses and (status in active_statuses or status == completed_status):
-                print(f"Current status '{current_status}' is active. Updating to '{status}'.")
-                update_existing_record(connection, record_id, status, current_date, dev, method_to_update, source_to_update, version_to_update)
+            elif current_status in active_statuses and (
+                status in active_statuses or status == completed_status
+            ):
+                print(
+                    f"Current status '{current_status}' is active. Updating to '{status}'."
+                )
+                update_existing_record(
+                    connection,
+                    record_id,
+                    status,
+                    current_date,
+                    dev,
+                    method_to_update,
+                    source_to_update,
+                    version_to_update,
+                )
 
             # Active to terminal - UPDATE same record
             elif current_status in active_statuses and status in terminal_statuses:
-                print(f"Moving from active status '{current_status}' to terminal status '{status}'")
+                print(
+                    f"Moving from active status '{current_status}' to terminal status '{status}'"
+                )
                 print(f"Updating existing record.")
-                update_existing_record(connection, record_id, status, current_date, dev, method_to_update, source_to_update, version_to_update)
+                update_existing_record(
+                    connection,
+                    record_id,
+                    status,
+                    current_date,
+                    dev,
+                    method_to_update,
+                    source_to_update,
+                    version_to_update,
+                )
 
             else:
                 raise ValueError(
@@ -473,7 +631,8 @@ if __name__ == "__main__":
             "import_genbank",
             "import_noninsdc",
         ],
-        help="Annotation source (default: preserve existing value, or 'ensembl' for new records)",
+        help="Annotation source (default: preserve existing value, \
+            or 'ensembl' for new records)",
     )
 
     parser.add_argument(
@@ -496,7 +655,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--release_type",
         default="not_available",
-        choices=['main','beta','not_available'],
+        choices=["main", "beta", "not_available"],
         help="Release type (default: not_available)",
     )
 

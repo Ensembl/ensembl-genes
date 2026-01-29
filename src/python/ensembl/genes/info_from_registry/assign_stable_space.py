@@ -1,21 +1,50 @@
+#!/usr/bin/env python3
+# See the NOTICE file distributed with this work for additional information
+# regarding copyright ownership.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# pylint: disable=logging-fstring-interpolation
+"""This module manages the assignment of stable space IDs for genomic assemblies"""
+
 import logging
-from typing import Any
-import pymysql # type: ignore
-from mysql_helper import mysql_fetch_data
-from check_stable_space_old_registry import get_old_stable_space_info
+import pymysql  # type: ignore
+from ensembl.genes.info_from_registry.mysql_helper import mysql_fetch_data
+from ensembl.genes.info_from_registry.check_stable_space_old_registry import (
+    get_old_stable_space_info,
+)
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s",
-    handlers=[
-        logging.FileHandler("pipeline_setup.log"),
-        logging.StreamHandler()
-    ]
+    handlers=[logging.FileHandler("pipeline_setup.log"), logging.StreamHandler()],
 )
 logger = logging.getLogger(__name__)
 
-def insert_to_db(insert_query, conn: pymysql.connections.Connection, store_new_registry: bool) -> bool:
+
+def insert_to_db(
+    insert_query, conn: pymysql.connections.Connection, store_new_registry: bool
+) -> bool:
+    """Insert data into the database and handle duplicate entries.
+
+    Args:
+        insert_query (_type_): SQL insert query string.
+        conn (pymysql.connections.Connection): Database connection object.
+        store_new_registry (bool): Flag to indicate handling of duplicate entries.
+
+    Returns:
+        bool: _True_ if insertion is successful or duplicate is allowed, _False_ otherwise.
+    """
     logger.info(f"Inserting data: {insert_query}")
     try:
         with conn.cursor() as cursor:
@@ -23,12 +52,15 @@ def insert_to_db(insert_query, conn: pymysql.connections.Connection, store_new_r
         return True
     except pymysql.err.IntegrityError as e:
         if e.args[0] == 1062:
-            if store_new_registry:
-                logger.info(f"Duplicate entry found, but store_new_registry is True. Report as success.")
+            if store_new_registry:  # pylint: disable=no-else-return
+                logger.info(
+                    "Duplicate entry found, but store_new_registry is True. Report as success."
+                )
                 return True
             else:
                 return False
         raise
+
 
 def stable_space_per_taxon(taxon_id: int, server_info: dict) -> int:
     """Get the next stable space ID for a given taxon.
@@ -41,17 +73,18 @@ def stable_space_per_taxon(taxon_id: int, server_info: dict) -> int:
         int: The next available stable space ID.
     """
     logger.info(f"Get the next stable space ID for taxon ID {taxon_id}")
-    space_query = f"SELECT MAX(stable_space_id) as max_stable_id FROM stable_space_species_log WHERE lowest_taxon_id = {taxon_id};"
+    space_query = f"SELECT MAX(stable_space_id) as max_stable_id \
+        FROM stable_space_species_log WHERE lowest_taxon_id = {taxon_id};"
     output_query = mysql_fetch_data(
         space_query,
         host=server_info["registry"]["db_host"],
         user=server_info["registry"]["db_user"],
-        port=server_info["registry"]["db_port"],
+        port=int(server_info["registry"]["db_port"]),
         database=server_info["registry"]["db_name"],
-        password=""
+        password="",
     )
 
-    stable_space_tmp = output_query[0].get('max_stable_id', None)
+    stable_space_tmp = output_query[0].get("max_stable_id", None)
 
     ####################
     # remove when all pipelines have moved to the new registry:
@@ -91,11 +124,12 @@ def stable_space_per_taxon(taxon_id: int, server_info: dict) -> int:
                 f"{old_stable_space_info} != {stable_space_tmp}"
             )
             logger.error(msg)
-            raise Exception(msg)
+            raise Exception(msg)  # pylint: disable=broad-exception-raised
 
     return stable_space_id
 
-def stable_space_range(stable_space_id:int, server_info: dict) -> bool:
+
+def stable_space_range(stable_space_id: int, server_info: dict) -> bool:
     """Check if a stable space range exists for the given stable space ID.
 
     Args:
@@ -111,56 +145,81 @@ def stable_space_range(stable_space_id:int, server_info: dict) -> bool:
         query,
         host=server_info["registry"]["db_host"],
         user=server_info["registry"]["db_user"],
-        port=server_info["registry"]["db_port"],
+        port=int(server_info["registry"]["db_port"]),
         database=server_info["registry"]["db_name"],
-        password=""
+        password="",
+    )
+
+    if output_query:  # pylint: disable=no-else-return
+        logger.info(
+            f"Stable space ID {stable_space_id} already exists with range: {output_query[0]}."
         )
-    
-    if output_query:
-        logger.info(f"Stable space ID {stable_space_id} already exists with range: {output_query[0]}.")  
         return True
-    
+
     else:
-        logger.info(f"No existing stable space range found for ID {stable_space_id}. Creating a new range space.")
+        logger.info(
+            f"No existing stable space range found for ID {stable_space_id}. \
+                Creating a new range space."
+        )
         previous_space_id = stable_space_id - 1
         query = f"""SELECT * FROM stable_space WHERE stable_space_id = '{previous_space_id}';"""
         output_query = mysql_fetch_data(
             query,
             host=server_info["registry"]["db_host"],
             user=server_info["registry"]["db_user"],
-            port=server_info["registry"]["db_port"],
+            port=int(server_info["registry"]["db_port"]),
             database=server_info["registry"]["db_name"],
-            password=""
+            password="",
         )
-        logger.info(f"Output query for previous stable space ID {previous_space_id}: {output_query}")
-        
-        if output_query:
-            new_start = output_query[0].get('stable_space_end') + 1 # Increment the end of the previous stable space by 1
-            new_end = new_start + 4999999
-            logger.info(f"New stable space range for ID {stable_space_id} will be from {new_start} to {new_end}.")
+        logger.info(
+            f"Output query for previous stable space ID {previous_space_id}: {output_query}"
+        )
 
-            insert_query = f"INSERT INTO stable_space (stable_space_id, stable_space_start, stable_space_end) VALUES ({stable_space_id}, {new_start}, {new_end});"
+        if output_query:
+            new_start = (
+                output_query[0].get("stable_space_end") + 1
+            )  # Increment the end of the previous stable space by 1
+            new_end = new_start + 4999999
+            logger.info(
+                f"New stable space range for ID {stable_space_id} will be \
+                    from {new_start} to {new_end}."
+            )
+
+            insert_query = f"INSERT INTO stable_space (stable_space_id, \
+                stable_space_start, stable_space_end) VALUES ({stable_space_id},\
+                    {new_start}, {new_end});"
             conn = pymysql.connect(
                 host=server_info["registry"]["db_host"],
                 user=server_info["registry"]["db_user_w"],
-                port=server_info["registry"]["db_port"],
+                port=int(server_info["registry"]["db_port"]),
                 password=server_info["registry"]["password"],
-                database=server_info["registry"]["db_name"]
+                database=server_info["registry"]["db_name"],
             )
-            
-            if insert_to_db(insert_query, conn, store_new_registry=True):
-                logger.info(f"Successfully created stable space range for ID {stable_space_id}.")
+
+            if insert_to_db(  # pylint: disable=no-else-return
+                insert_query, conn, store_new_registry=True
+            ):  # pylint: disable=no-else-return
+                logger.info(
+                    f"Successfully created stable space range for ID {stable_space_id}."
+                )
                 conn.close()
                 return new_start
             else:
-                logger.error(f"Failed to insert stable space range for ID {stable_space_id}.")
+                logger.error(
+                    f"Failed to insert stable space range for ID {stable_space_id}."
+                )
                 return False
         else:
-            logger.error(f"Failed to create stable space range for ID {stable_space_id}. Previous space ID {previous_space_id} not found.")
-            return False       
-        
-def assign_stable_id(taxon_id:int, gca_accession: str, assembly_id:int, server_info:dict) -> tuple[bool, int, int] | \
-                                                                                             tuple[bool, None, None]:
+            logger.error(
+                f"Failed to create stable space range for ID {stable_space_id}. \
+                    Previous space ID {previous_space_id} not found."
+            )
+            return False
+
+
+def assign_stable_id(
+    taxon_id: int, gca_accession: str, assembly_id: int, server_info: dict
+) -> tuple[bool, int, int] | tuple[bool, None, None]:
     """Assign a stable space ID for a given taxon and GCA accession.
 
     Args:
@@ -170,40 +229,56 @@ def assign_stable_id(taxon_id:int, gca_accession: str, assembly_id:int, server_i
         server_info (dict): The server information for database connection.
 
     Returns:
-        tuple[bool, int|None, int|None]: A tuple containing a success flag and the assigned stable space ID or None if failed.
+        tuple[bool, int|None, int|None]: A tuple containing a success flag and \
+            the assigned stable space ID or None if failed.
     """
-    
+
     stable_space_id = stable_space_per_taxon(taxon_id, server_info)
     # Check if stable space range exists
     logger.info(f"Check if stable space range exists {stable_space_id}")
     stable_space_start = stable_space_range(stable_space_id, server_info)
 
     if stable_space_start is not False:
-        logger.info(f"Assigned stable space ID {stable_space_id} for {gca_accession} and taxon ID {taxon_id}.") 
-        
-        insert_query = f"""INSERT INTO stable_space_species_log (stable_space_id, lowest_taxon_id, gca_accession, assembly_id) 
+        logger.info(
+            f"Assigned stable space ID {stable_space_id} for {gca_accession}\
+                and taxon ID {taxon_id}."
+        )
+
+        insert_query = f"""INSERT INTO stable_space_species_log (stable_space_id, \
+            lowest_taxon_id, gca_accession, assembly_id) 
             VALUES ({stable_space_id}, {taxon_id}, '{gca_accession}', {assembly_id});
             """
         conn = pymysql.connect(
             host=server_info["registry"]["db_host"],
             user=server_info["registry"]["db_user_w"],
-            port=server_info["registry"]["db_port"],
+            port=int(server_info["registry"]["db_port"]),
             password=server_info["registry"]["password"],
-            database=server_info["registry"]["db_name"]
+            database=server_info["registry"]["db_name"],
         )
-        
-        if insert_to_db(insert_query, conn, store_new_registry=True):
-            logger.info(f"Successfully inserted stable space ID {stable_space_id} for GCA {gca_accession}.")
+
+        if insert_to_db(  # pylint: disable=no-else-return
+            insert_query, conn, store_new_registry=True
+        ):  # pylint: disable=no-else-return
+            logger.info(
+                f"Successfully inserted stable space ID {stable_space_id} for GCA {gca_accession}."
+            )
             conn.close()
             return True, stable_space_id, stable_space_start
         else:
-            logger.error(f"Failed to insert stable space ID {stable_space_id} for GCA {gca_accession}.")
+            logger.error(
+                f"Failed to insert stable space ID {stable_space_id} for GCA {gca_accession}."
+            )
             return False, None, None
     else:
-        logger.error(f"Failed to assign stable space ID {stable_space_id} for GCA {gca_accession}.")
+        logger.error(
+            f"Failed to assign stable space ID {stable_space_id} for GCA {gca_accession}."
+        )
         return False, None, None
 
-def get_stable_space(taxon_id:int, gca_accession:str, assembly_id:int, server_info: dict) -> int:
+
+def get_stable_space(
+    taxon_id: int, gca_accession: str, assembly_id: int, server_info: dict
+) -> int:
     """Get the stable space ID for a given taxon and GCA accession.
 
     Args:
@@ -218,28 +293,40 @@ def get_stable_space(taxon_id:int, gca_accession:str, assembly_id:int, server_in
 
     # Check if GCA already has assigned a stable space
     logger.info(f"Check if {gca_accession} already has assigned a stable space")
-    space_gca_query = f"SELECT stable_space_species_log.stable_space_id, stable_space.stable_space_start FROM stable_space_species_log JOIN stable_space ON stable_space.stable_space_id = stable_space_species_log.stable_space_id  WHERE stable_space_species_log.gca_accession = '{gca_accession}';"
+    space_gca_query = f"SELECT stable_space_species_log.stable_space_id, \
+        stable_space.stable_space_start FROM stable_space_species_log JOIN stable_space \
+            ON stable_space.stable_space_id = stable_space_species_log.stable_space_id  \
+                WHERE stable_space_species_log.gca_accession = '{gca_accession}';"
     output_query = mysql_fetch_data(
         space_gca_query,
         host=server_info["registry"]["db_host"],
         user=server_info["registry"]["db_user"],
-        port=server_info["registry"]["db_port"],
+        port=int(server_info["registry"]["db_port"]),
         database=server_info["registry"]["db_name"],
-        password=""
+        password="",
     )
-    
-    if output_query:
-        stable_space_id = output_query[0].get('stable_space_id')
-        stable_space_start = output_query[0].get('stable_space_start')
-        logger.info(f"Stable space {stable_space_id} already assigned for GCA {gca_accession}.")
+
+    if output_query:  # pylint: disable=no-else-return
+        stable_space_id = output_query[0].get("stable_space_id")
+        stable_space_start = output_query[0].get("stable_space_start")
+        logger.info(
+            f"Stable space {stable_space_id} already assigned for GCA {gca_accession}."
+        )
         return stable_space_start
-    
+
     else:
-        logger.info(f"No stable space found for assembly {gca_accession}. Checking taxon ID {taxon_id} for existing stable space.")
-        
+        logger.info(
+            f"No stable space found for assembly {gca_accession}. Checking taxon ID \
+                {taxon_id} for existing stable space."
+        )
+
         success = False
         while not success:
-            logger.info(f"Assigning stable space for taxon ID {taxon_id} and {gca_accession}.")
-            success, stable_space_id, stable_space_start = assign_stable_id(taxon_id, gca_accession, assembly_id, server_info)
+            logger.info(
+                f"Assigning stable space for taxon ID {taxon_id} and {gca_accession}."
+            )
+            success, stable_space_id, stable_space_start = assign_stable_id(
+                taxon_id, gca_accession, assembly_id, server_info
+            )
 
         return int(stable_space_start)

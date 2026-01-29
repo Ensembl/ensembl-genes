@@ -1,4 +1,24 @@
-def build_annotation_commands(core_adaptor: dict, output_params: dict, anno_settings: dict, settings: dict) -> None:
+#!/usr/bin/env python3
+# See the NOTICE file distributed with this work for additional information
+# regarding copyright ownership.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+"""Build command-line strings for genome annotation and repeat analysis."""
+
+
+def build_annotation_commands(
+    core_adaptor: dict, output_params: dict, anno_settings: dict, settings: dict
+) -> None:
     """
     Construct and store command-line strings for genome annotation and repeat analysis.
 
@@ -22,11 +42,14 @@ def build_annotation_commands(core_adaptor: dict, output_params: dict, anno_sett
         None: Modifies `output_params` in place by adding two command strings.
     """
 
-    get = lambda k: output_params.get(k, "")  # Short helper
+    get = lambda k: output_params.get(  # pylint: disable=unnecessary-lambda-assignment
+        k, ""
+    )
 
     anno_commandline = (
         f" --genome_file {get('reheadered_toplevel_genome_file')}"
-        f" --db_details {core_adaptor['dbname']},{core_adaptor['host']},{core_adaptor['port']},{core_adaptor['user']},{core_adaptor['pass']}"
+        f" --db_details {core_adaptor['dbname']},{core_adaptor['host']},\
+            {core_adaptor['port']},{core_adaptor['user']},{core_adaptor['pass']}"
         f" --output_dir {get('output_path')}"
         f" --short_read_fastq_dir {get('short_read_dir')}"
         f" --long_read_fastq_dir {get('long_read_dir')}"
@@ -54,7 +77,8 @@ def build_annotation_commands(core_adaptor: dict, output_params: dict, anno_sett
 
     anno_red_commandline = (
         f" --genome_file {get('reheadered_toplevel_genome_file')}"
-        f" --db_details {core_adaptor['dbname']},{core_adaptor['host']},{core_adaptor['port']},{core_adaptor['user']},{core_adaptor['pass']}"
+        f" --db_details {core_adaptor['dbname']},{core_adaptor['host']},\
+            {core_adaptor['port']},{core_adaptor['user']},{core_adaptor['pass']}"
         f" --output_dir {get('output_path')}"
         f" --num_threads {get('num_threads')}"
         " --run_masking --run_repeats --run_simple_features --load_to_ensembl_db"

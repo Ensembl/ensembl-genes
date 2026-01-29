@@ -1,3 +1,20 @@
+#!/usr/bin/env python3
+# See the NOTICE file distributed with this work for additional information
+# regarding copyright ownership.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# pylint:disable=duplicate-code
+
 """
 create_pipe_reg.py
 
@@ -15,6 +32,7 @@ Functions:
 - update_registry_path_and_create_entry: Updates resource_description in pipeline DB.
 - create_registry_entry: Adds new DBAdaptor entries into the local registry file.
 """
+
 import shutil
 from pathlib import Path
 import os
@@ -22,24 +40,19 @@ import logging
 from typing import Dict, Any
 
 
-
-from mysql_helper import mysql_update
+from ensembl.genes.info_from_registry.mysql_helper import mysql_update
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s",
-    handlers=[
-        logging.FileHandler("pipeline_setup.log"),
-        logging.StreamHandler()
-    ]
+    handlers=[logging.FileHandler("pipeline_setup.log"), logging.StreamHandler()],
 )
 logger = logging.getLogger(__name__)
 
 
 def update_registry_path_in_pipedb(
-    parent_dir: str,
-    server_info: Dict[str, Dict[str, Any]]
+    parent_dir: str, server_info: Dict[str, Dict[str, Any]]
 ) -> None:
     """
     Updates the resource_description table in the pipeline database by replacing
@@ -62,21 +75,25 @@ def update_registry_path_in_pipedb(
     """
     logger.info("Updating registry path in pipeline DB")
     registry_file = os.path.join(
-        os.environ.get("ENSCODE"),
+        str(os.environ.get("ENSCODE")),
         "ensembl-analysis",
         "scripts",
         "genebuild",
         "gbiab",
         "support_files",
-        "Databases.pm"
+        "Databases.pm",
     )
-    logger.debug(f"parennt_dir : {parent_dir}")
+    logger.debug(  # pylint: disable=logging-fstring-interpolation
+        f"parent_dir : {parent_dir}"
+    )
     new_registry_file = Path(parent_dir).resolve() / "Databases.pm"
 
     if not new_registry_file.exists():
         raise OSError(f"Registry file doesn't exist: {new_registry_file}")
 
-    logger.info(f"Registry file exist at {new_registry_file}")
+    logger.info(  # pylint: disable=logging-fstring-interpolation
+        f"Registry file exist at {new_registry_file}"
+    )
 
     update_resources_query = """
 		UPDATE resource_description 
@@ -96,53 +113,52 @@ def update_registry_path_in_pipedb(
     if success:
         logger.info("Registry path updated successfully.")
     else:
-        raise RuntimeError(f"Failed to update registry path.")
-        logger.error("Failed to update registry path.")
+        raise RuntimeError("Failed to update registry path.")
 
 
 def create_registry_entry(
     settings: Dict[str, Any],
-    server_info: Dict[str, Dict[str, Any]],
-    core_adaptor: Dict[str, str]
+    server_info: Dict[str, Dict[str, Any]],  # pylint: disable=unused-argument
+    core_adaptor: Dict[str, str],
 ) -> Path:
     """
-        Updates the local registry file with new DBAdaptor connection details for a
-        core database, using the provided connection settings.
+    Updates the local registry file with new DBAdaptor connection details for a
+    core database, using the provided connection settings.
 
-        Parameters:
-        ----------
-        settings : dict
-            Must contain:
-                - 'base_output_dir': str, where the local Databases.pm file is placed.
+    Parameters:
+    ----------
+    settings : Dict[str, Any],
+        Must contain:
+            - 'base_output_dir': str, where the local Databases.pm file is placed.
 
-        server_info : dict
-            Used to pass to `update_registry_path_and_create_entry`.
+    server_info : Dict[str, Dict[str, Any]],
+        Used to pass to `update_registry_path_and_create_entry`.
 
-        core_adaptor : dict
-            Must contain:
-                - 'host', 'port', 'dbname', 'user', 'pass', 'species', 'group'
+    core_adaptor : Dict[str, str],
+        Must contain:
+            - 'host', 'port', 'dbname', 'user', 'pass', 'species', 'group'
 
-        Returns:
-        -------
-        Path to the modified local registry file (Databases.pm)
+    Returns:
+    -------
+    Path to the modified local registry file (Databases.pm)
 
-        Raises:
-        ------
-        FileNotFoundError:
-            If the registry file does not exist after copying.
+    Raises:
+    ------
+    FileNotFoundError:
+        If the registry file does not exist after copying.
 
-        RuntimeError:
-            If there is an error overwriting the original registry file.
-        """
+    RuntimeError:
+        If there is an error overwriting the original registry file.
+    """
     registry_path = Path(settings["base_output_dir"]) / "Databases.pm"
     registry_file = os.path.join(
-        os.environ.get("ENSCODE"),
+        str(os.environ.get("ENSCODE")),
         "ensembl-analysis",
         "scripts",
         "genebuild",
         "gbiab",
         "support_files",
-        "Databases.pm"
+        "Databases.pm",
     )
 
     if not registry_path.exists():
@@ -187,6 +203,8 @@ def create_registry_entry(
     try:
         shutil.move(str(tmp_path), str(registry_path))
     except Exception as e:
-        raise RuntimeError(f"Issue overwriting the old registry: {e}")
+        raise RuntimeError(  # pylint: disable=raise-missing-from
+            f"Issue overwriting the old registry: {e}"
+        )
 
     return registry_path

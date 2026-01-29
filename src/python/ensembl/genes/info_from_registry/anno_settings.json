@@ -1,13 +1,13 @@
 {
-  "diamond_validation_db": "/hps/nobackup/flicek/ensembl/genebuild/blastdb/uniprot_euk_diamond/uniprot_euk.fa.dmnd",
-  "num_threads": "20",
-  "validation_type": "moderate",
-  "use_existing_short_read_dir": "",
-  "use_existing_repeatmodeler_library": "",
-  "rnaseq_main_file_min_lines": "5",
-  "rnaseq_genus_file_min_lines": "10",
-  "busco_threshold": "70",
-  "busco_lower_threshold": "50",
-  "busco_difference_threshold": "10",
-  "config": "EnsemblAnnoHelixer_conf.pm"
+    "diamond_validation_db": "/hps/nobackup/flicek/ensembl/genebuild/blastdb/uniprot_euk_diamond/uniprot_euk.fa.dmnd",
+    "num_threads": "20",
+    "validation_type": "moderate",
+    "use_existing_short_read_dir": "",
+    "use_existing_repeatmodeler_library": "",
+    "rnaseq_main_file_min_lines": "5",
+    "rnaseq_genus_file_min_lines": "10",
+    "busco_threshold": "70",
+    "busco_lower_threshold": "50",
+    "busco_difference_threshold": "10",
+    "config": "EnsemblAnnoHelixer_conf.pm"
 }

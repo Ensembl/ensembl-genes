@@ -1,3 +1,19 @@
+#!/usr/bin/env python3
+# See the NOTICE file distributed with this work for additional information
+# regarding copyright ownership.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# pylint:disable=line-too-long, too-many-lines, logging-fstring-interpolation, unspecified-encoding, redefined-outer-name,duplicate-code
 """
 This script connects to a genomic assembly registry, extracts assembly metadata,
 and initializes annotation pipelines based on predefined configurations.
@@ -10,36 +26,46 @@ Typical usage:
     python start_pipeline_from_registry.py --gcas gca_list.txt ---settings_file settings.json
 """
 
+import argparse
+import logging
 import os
 from pathlib import Path
 import sys
-from typing import Optional, Dict, Any
-import shutil
-import pymysql # type: ignore
-import argparse
-import logging
-from build_anno_commands import (build_annotation_commands)
-from check_if_annotated import (check_if_annotated)
-from mysql_helper import mysql_fetch_data
-from taxonomy_helper import (assign_clade,assign_clade_info_custom_loading, get_parent_taxon)
-from create_pipe_reg import create_registry_entry
-from create_config import edit_config_anno, edit_config_main
-from assign_species_prefix import get_species_prefix # type: ignore
-from assign_stable_space import get_stable_space
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from metrics.busco_lineage_selector import get_dataset_match
 import json
+from typing import Optional, Dict, Any, Union
+import shutil
+import pymysql  # type: ignore
+
+from ensembl.genes.info_from_registry.build_anno_commands import (
+    build_annotation_commands,
+)
+from ensembl.genes.info_from_registry.check_if_annotated import check_if_annotated
+from ensembl.genes.info_from_registry.mysql_helper import mysql_fetch_data
+from ensembl.genes.info_from_registry.taxonomy_helper import (
+    assign_clade,
+    assign_clade_info_custom_loading,
+    get_parent_taxon,
+)
+from ensembl.genes.info_from_registry.create_pipe_reg import create_registry_entry
+from ensembl.genes.info_from_registry.create_config import (
+    edit_config_anno,
+    edit_config_main,
+)
+from ensembl.genes.info_from_registry.assign_species_prefix import get_species_prefix
+from ensembl.genes.info_from_registry.assign_stable_space import get_stable_space
+from ensembl.genes.metrics.busco_lineage_selector import get_dataset_match
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s",
-    handlers=[
-        logging.FileHandler("pipeline_setup.log"),
-        logging.StreamHandler()
-    ]
+    handlers=[logging.FileHandler("pipeline_setup.log"), logging.StreamHandler()],
 )
 logger = logging.getLogger(__name__)
+
 
 def load_settings(settings_file: str) -> dict:
     """
@@ -78,17 +104,18 @@ def load_anno_settings() -> dict:
     """
     logger.info("Loading anno settings json")
     settings = os.path.join(
-         os.environ.get("ENSCODE"),
-         "ensembl-genes",
-         "src",
-         "python",
-         "ensembl",
-         "genes",
-         "info_from_registry",
-         "anno_settings.json"
-     )
+        str(os.environ.get("ENSCODE")),
+        "ensembl-genes",
+        "src",
+        "python",
+        "ensembl",
+        "genes",
+        "info_from_registry",
+        "anno_settings.json",
+    )
     with open(settings, "r") as f:
         return json.load(f)
+
 
 def load_main_settings() -> dict:
     """
@@ -104,17 +131,18 @@ def load_main_settings() -> dict:
     """
     logger.info("Loading main settings json")
     settings = os.path.join(
-         os.environ.get("ENSCODE"),
-         "ensembl-genes",
-         "src",
-         "python",
-         "ensembl",
-         "genes",
-         "info_from_registry",
-         "main_settings.json"
-     )
+        str(os.environ.get("ENSCODE")),
+        "ensembl-genes",
+        "src",
+        "python",
+        "ensembl",
+        "genes",
+        "info_from_registry",
+        "main_settings.json",
+    )
     with open(settings, "r") as f:
         return json.load(f)
+
 
 def get_server_settings_anno(settings: dict) -> dict:
     """
@@ -137,7 +165,15 @@ def get_server_settings_anno(settings: dict) -> dict:
     logger.info("Getting server settings")
     custom = settings.get("custom_server", {})
     # Check if all custom_server values are non-empty
-    if all(custom.get(k) for k in ["pipeline_db_host", "pipeline_db_port", "core_db_host", "core_db_port"]):
+    if all(  # pylint:disable=no-else-return
+        custom.get(k)
+        for k in [
+            "pipeline_db_host",
+            "pipeline_db_port",
+            "core_db_host",
+            "core_db_port",
+        ]
+    ):
         logger.info("Custom server settings detected")
         return {
             "pipeline_db": {
@@ -150,45 +186,49 @@ def get_server_settings_anno(settings: dict) -> dict:
                 "db_host": custom["core_db_host"],
                 "db_user": settings["user"],
                 "db_port": custom["core_db_port"],
-                "db_password": settings["password"]}
+                "db_password": settings["password"],
+            },
         }
     else:
         # Fallback based on server_set
         server_set = str(settings.get("server_set", "1"))  # default to "1" if missing
 
-        if server_set == "1":
+        if server_set == "1":  # pylint:disable=no-else-return
             logger.info("Server set 1 detected")
             return {
                 "pipeline_db": {
-                "db_host": os.environ.get("GBS4"),
-                "db_user": settings["user"],
-                "db_port": int(os.environ.get("GBP4")),
-                "db_password": settings["password"],
-            },
-            "core_db": {
-                "db_host": os.environ.get("GBS3"),
-                "db_user": settings["user"],
-                "db_port": int(os.environ.get("GBP3")),
-                "db_password": settings["password"]}
+                    "db_host": os.environ.get("GBS4"),
+                    "db_user": settings["user"],
+                    "db_port": str(os.environ.get("GBP4")),
+                    "db_password": settings["password"],
+                },
+                "core_db": {
+                    "db_host": os.environ.get("GBS3"),
+                    "db_user": settings["user"],
+                    "db_port": str(os.environ.get("GBP3")),
+                    "db_password": settings["password"],
+                },
             }
 
         elif server_set == "2":
             logger.info("Server set 2 detected")
             return {
                 "pipeline_db": {
-                "db_host": os.environ.get("GBS7"),
-                "db_user": settings["user"],
-                "db_port": int(os.environ.get("GBP7")),
-                "db_password": settings["password"],
-            },
-            "core_db": {
-                "db_host": os.environ.get("GBS6"),
-                "db_user": settings["user"],
-                "db_port": int(os.environ.get("GBP6")),
-                "db_password": settings["password"],}
+                    "db_host": os.environ.get("GBS7"),
+                    "db_user": settings["user"],
+                    "db_port": str(os.environ.get("GBP7")),
+                    "db_password": settings["password"],
+                },
+                "core_db": {
+                    "db_host": os.environ.get("GBS6"),
+                    "db_user": settings["user"],
+                    "db_port": str(os.environ.get("GBP6")),
+                    "db_password": settings["password"],
+                },
             }
         else:
             raise ValueError(f"Unknown server_set value: {server_set}")
+
 
 def get_server_settings_main(settings: dict) -> dict:
     """
@@ -211,7 +251,17 @@ def get_server_settings_main(settings: dict) -> dict:
     logger.info("Getting server settings")
     custom = settings.get("custom_server", {})
     # Check if all custom_server values are non-empty
-    if all(custom.get(k) for k in ["pipeline_db_host", "pipeline_db_port", "core_db_host", "core_db_port", "databases_host", "databases_port"]):
+    if all(  # pylint:disable=no-else-return
+        custom.get(k)
+        for k in [
+            "pipeline_db_host",
+            "pipeline_db_port",
+            "core_db_host",
+            "core_db_port",
+            "databases_host",
+            "databases_port",
+        ]
+    ):
         logger.info("Custom server settings detected")
         return {
             "pipeline_db": {
@@ -224,67 +274,73 @@ def get_server_settings_main(settings: dict) -> dict:
                 "db_host": custom["core_db_host"],
                 "db_user": settings["user"],
                 "db_port": custom["core_db_port"],
-                "db_password": settings["password"]},
+                "db_password": settings["password"],
+            },
             "databases": {
                 "db_host": custom["databases_host"],
                 "db_user": settings["user"],
                 "db_port": custom["databases_port"],
-                "db_password": settings["password"]}
+                "db_password": settings["password"],
+            },
         }
     else:
         # Fallback based on server_set
         server_set = str(settings.get("server_set", "1"))  # default to "1" if missing
 
-        if server_set == "1":
+        if server_set == "1":  # pylint:disable=no-else-return
             logger.info("Server set 1 detected")
             return {
                 "pipeline_db": {
-                "db_host": os.environ.get("GBS4"),
-                "db_user": settings["user"],
-                "db_port": int(os.environ.get("GBP4")),
-                "db_password": settings["password"],
-            },
-            "core_db": {
-                "db_host": os.environ.get("GBS2"),
-                "db_user": settings["user"],
-                "db_port": int(os.environ.get("GBP2")),
-                "db_password": settings["password"]},
-            "databases": {
-                "db_host": os.environ.get("GBS3"),
-                "db_user": settings["user"],
-                "db_port": int(os.environ.get("GBP3")),
-                "db_password": settings["password"]
+                    "db_host": os.environ.get("GBS4"),
+                    "db_user": settings["user"],
+                    "db_port": str(os.environ.get("GBP4")),
+                    "db_password": settings["password"],
+                },
+                "core_db": {
+                    "db_host": os.environ.get("GBS2"),
+                    "db_user": settings["user"],
+                    "db_port": str(os.environ.get("GBP2")),
+                    "db_password": settings["password"],
+                },
+                "databases": {
+                    "db_host": os.environ.get("GBS3"),
+                    "db_user": settings["user"],
+                    "db_port": str(os.environ.get("GBP3")),
+                    "db_password": settings["password"],
+                },
             }
-            }
-
 
         elif server_set == "2":
             logger.info("Server set 2 detected")
             return {
                 "pipeline_db": {
-                "db_host": os.environ.get("GBS7"),
-                "db_user": settings["user"],
-                "db_port": int(os.environ.get("GBP7")),
-                "db_password": settings["password"],
-            },
-            "core_db": {
-                "db_host": os.environ.get("GBS5"),
-                "db_user": settings["user"],
-                "db_port": int(os.environ.get("GBP5")),
-                "db_password": settings["password"]},
-            "databases": {
-                "db_host": os.environ.get("GBS6"),
-                "db_user": settings["user"],
-                "db_port": int(os.environ.get("GBP6")),
-                "db_password": settings["password"]
-            }
+                    "db_host": os.environ.get("GBS7"),
+                    "db_user": settings["user"],
+                    "db_port": str(os.environ.get("GBP7")),
+                    "db_password": settings["password"],
+                },
+                "core_db": {
+                    "db_host": os.environ.get("GBS5"),
+                    "db_user": settings["user"],
+                    "db_port": str(os.environ.get("GBP5")),
+                    "db_password": settings["password"],
+                },
+                "databases": {
+                    "db_host": os.environ.get("GBS6"),
+                    "db_user": settings["user"],
+                    "db_port": str(os.environ.get("GBP6")),
+                    "db_password": settings["password"],
+                },
             }
         else:
             raise ValueError(f"Unknown server_set value: {server_set}")
 
 
-
-def get_metadata_from_registry(server_info: dict, assembly_accession, settings: dict) -> Optional[Dict[str, Any]]:
+def get_metadata_from_registry(
+    server_info: dict,  # pylint:disable=redefined-outer-name
+    assembly_accession,
+    settings: dict,
+) -> Optional[Dict[str, Any]]:
     """
     Retrieve registry metadata for a given genome assembly accession or list of accessions.
 
@@ -350,11 +406,13 @@ def get_metadata_from_registry(server_info: dict, assembly_accession, settings: 
             user=server_info["registry"]["db_user"],
             port=server_info["registry"]["db_port"],
             database=server_info["registry"]["db_name"],
-            password= "",
+            password="",
             params=assembly_accessions,
         )
         if not registry_info:
-            raise ValueError(f"No registry data found for accessions: {assembly_accessions}")
+            raise ValueError(
+                f"No registry data found for accessions: {assembly_accessions}"
+            )
 
         logger.info(f"Registry query successful for {assembly_accessions}")
         return registry_info[0]
@@ -363,7 +421,12 @@ def get_metadata_from_registry(server_info: dict, assembly_accession, settings: 
         logger.error("MySQL error: %s", err)
         return {}
 
-def add_generated_data(server_info: dict, assembly_accession: str, settings: dict) -> dict:
+
+def add_generated_data(  # pylint:disable=too-many-locals
+    server_info: dict,  # pylint:disable=redefined-outer-name
+    assembly_accession: str,
+    settings: dict,
+) -> dict:
     """
     Enrich registry metadata with clade assignments and derived pipeline variables.
 
@@ -376,9 +439,13 @@ def add_generated_data(server_info: dict, assembly_accession: str, settings: dic
         dict: Enriched metadata dictionary with added fields for pipeline usage.
     """
 
-    registry_info = get_metadata_from_registry(server_info, assembly_accession, settings)
-    logger.info(f"Data collected from registry {assembly_accession}")
-    clade, genus_id, clade_metadata = assign_clade(server_info,registry_info)
+    registry_info = get_metadata_from_registry(
+        server_info, assembly_accession, settings
+    )
+    if registry_info is None:
+        raise RuntimeError(f"No registry metadata found for {assembly_accession}")
+    logger.info("Data collected from registry %s", assembly_accession)
+    clade, genus_id, clade_metadata = assign_clade(server_info, registry_info)
     registry_info["clade"] = clade
     registry_info["genus_taxon_id"] = genus_id
 
@@ -390,7 +457,9 @@ def add_generated_data(server_info: dict, assembly_accession: str, settings: dic
     info_dict["strain_type"] = "strain"
 
     if "assembly_name" in registry_info and " " in registry_info["assembly_name"]:
-        registry_info["assembly_name"] = registry_info["assembly_name"].replace(" ", "_")
+        registry_info["assembly_name"] = registry_info["assembly_name"].replace(
+            " ", "_"
+        )
 
     if "alternate_haplotype" in registry_info.get("assembly_name", ""):
         info_dict["common_name"] = "alternate haplotype"
@@ -418,7 +487,7 @@ def add_generated_data(server_info: dict, assembly_accession: str, settings: dic
     else:
         production_name = ""
 
-    production_gca = assembly_accession.replace('.', 'v').replace('_', '').lower()
+    production_gca = assembly_accession.replace(".", "v").replace("_", "").lower()
     production_name += f"_{production_gca}"
 
     # Update dictionary
@@ -428,11 +497,14 @@ def add_generated_data(server_info: dict, assembly_accession: str, settings: dic
     info_dict["species_url"] = (
         f"{registry_info['species_name'].capitalize()}_{assembly_accession}"
     )
-    info_dict["core_dbname"] = f"{settings['dbowner']}_{production_gca}_core_{settings['release_number']}_1"
+    info_dict["core_dbname"] = (
+        f"{settings['dbowner']}_{production_gca}_core_{settings['release_number']}_1"
+    )
 
     logger.info(f"Values formatted for {assembly_accession}")
 
     return info_dict
+
 
 def get_rna_and_busco_check_threshold(anno_settings: dict) -> dict:
     """
@@ -448,15 +520,17 @@ def get_rna_and_busco_check_threshold(anno_settings: dict) -> dict:
     """
 
     return {
-    "busco_threshold": anno_settings["busco_threshold"],
-    "busco_lower_threshold": anno_settings["busco_lower_threshold"],
-    "busco_difference_threshold": anno_settings["busco_difference_threshold"],
-    "rnaseq_main_file_min_lines": anno_settings["rnaseq_main_file_min_lines"],
-    "rnaseq_genus_file_min_lines": anno_settings["rnaseq_genus_file_min_lines"],
-}
+        "busco_threshold": anno_settings["busco_threshold"],
+        "busco_lower_threshold": anno_settings["busco_lower_threshold"],
+        "busco_difference_threshold": anno_settings["busco_difference_threshold"],
+        "rnaseq_main_file_min_lines": anno_settings["rnaseq_main_file_min_lines"],
+        "rnaseq_genus_file_min_lines": anno_settings["rnaseq_genus_file_min_lines"],
+    }
 
 
-def get_info_for_pipeline_anno(settings: dict, info_dict: dict, assembly_accession: str, anno_settings: dict) -> dict:
+def get_info_for_pipeline_anno(  # pylint:disable=too-many-locals
+    settings: dict, info_dict: dict, assembly_accession: str, anno_settings: dict
+) -> dict:
     """
     Prepare and add file paths and pipeline-specific parameters needed for running annotation.
 
@@ -473,9 +547,7 @@ def get_info_for_pipeline_anno(settings: dict, info_dict: dict, assembly_accessi
     logger.info("Getting info for pipeline settings for %s", assembly_accession)
     output_path = Path(settings["base_output_dir"]) / assembly_accession
     genome_files_dir = output_path / "genome_files"
-    toplevel_genome_file = (
-        output_path / f"{info_dict['species_name']}_toplevel.fa"
-    )
+    toplevel_genome_file = output_path / f"{info_dict['species_name']}_toplevel.fa"
 
     short_read_dir = output_path / "short_read_fastq"
     if "use_existing_short_read_dir" in anno_settings and os.path.isdir(
@@ -485,9 +557,7 @@ def get_info_for_pipeline_anno(settings: dict, info_dict: dict, assembly_accessi
 
     long_read_dir = output_path / "long_read_fastq"
     gst_dir = output_path / "gst"
-    rnaseq_summary_file = (
-        short_read_dir / f"{info_dict['production_name']}.csv"
-    )
+    rnaseq_summary_file = short_read_dir / f"{info_dict['production_name']}.csv"
     rnaseq_summary_file_genus = (
         short_read_dir / f"{info_dict['production_name']}_gen.csv"
     )
@@ -495,14 +565,12 @@ def get_info_for_pipeline_anno(settings: dict, info_dict: dict, assembly_accessi
         long_read_dir / f"{info_dict['production_name']}_long_read.csv"
     )
     reheadered_toplevel_genome_file = (
-            output_path
-            / f"{info_dict['species_name']}_reheadered_toplevel.fa"
+        output_path / f"{info_dict['species_name']}_reheadered_toplevel.fa"
     )
     diamond_validation_db = Path(anno_settings["diamond_validation_db"])
     current_genebuild = settings["current_genebuild"]
     num_threads = anno_settings["num_threads"]
     ensembl_release = settings["release_number"]
-
 
     # Add values back to dictionary
     info_dict.update(
@@ -520,14 +588,17 @@ def get_info_for_pipeline_anno(settings: dict, info_dict: dict, assembly_accessi
             "long_read_summary_file": str(long_read_summary_file),
             "current_genebuild": current_genebuild,
             "assembly_accession": str(assembly_accession),
-            "num_threads":str(num_threads),
-            "ensembl_release": ensembl_release
+            "num_threads": str(num_threads),
+            "ensembl_release": ensembl_release,
         }
     )
 
     return info_dict
 
-def get_info_for_pipeline_main(settings: dict, info_dict: dict, assembly_accession: str) -> dict:
+
+def get_info_for_pipeline_main(  # pylint:disable=too-many-locals
+    settings: dict, info_dict: dict, assembly_accession: str
+) -> dict:
     """
     Prepare and add file paths and pipeline-specific parameters needed for running annotation.
 
@@ -541,7 +612,11 @@ def get_info_for_pipeline_main(settings: dict, info_dict: dict, assembly_accessi
     """
 
     logger.info("Getting info for pipeline settings for GCA %s", assembly_accession)
-    output_path = Path(settings["base_output_dir"]) / info_dict["species_name"] / assembly_accession
+    output_path = (
+        Path(settings["base_output_dir"])
+        / info_dict["species_name"]
+        / assembly_accession
+    )
     rnaseq_dir = output_path / "rnaseq"
     long_read_dir = output_path / "long_read"
     gst_dir = output_path / "gst"
@@ -551,7 +626,7 @@ def get_info_for_pipeline_main(settings: dict, info_dict: dict, assembly_accessi
     current_genebuild = settings["current_genebuild"]
     registry_file = output_path / "Databases.pm"
     release_number = settings["release_number"]
-    dbname_accession = assembly_accession.replace('.', 'v').replace('_', '').lower()
+    dbname_accession = assembly_accession.replace(".", "v").replace("_", "").lower()
     email_address = settings["email"]
     dbowner = settings["dbowner"]
     user_r = settings["user_r"]
@@ -559,11 +634,13 @@ def get_info_for_pipeline_main(settings: dict, info_dict: dict, assembly_accessi
     password = settings["password"]
     server_set = settings["server_set"]
     pipeline_name = settings["pipeline_name"]
-    long_read_summary_file = long_read_dir / f"{info_dict['species_name']}_long_read.csv"
-    long_read_summary_file_genus = long_read_dir / f"{info_dict['species_name']}_long_read_gen.csv"
+    long_read_summary_file = (
+        long_read_dir / f"{info_dict['species_name']}_long_read.csv"
+    )
+    long_read_summary_file_genus = (
+        long_read_dir / f"{info_dict['species_name']}_long_read_gen.csv"
+    )
     pipe_db_name = f"{dbowner}_{dbname_accession}_pipe_{release_number}"
-
-
 
     # Add values back to dictionary
     info_dict.update(
@@ -580,7 +657,7 @@ def get_info_for_pipeline_main(settings: dict, info_dict: dict, assembly_accessi
             "assembly_accession": str(assembly_accession),
             "release_number": release_number,
             "dbname_accession": str(dbname_accession),
-            "email_address":str(email_address),
+            "email_address": str(email_address),
             "dbowner": str(dbowner),
             "user_r": str(user_r),
             "user": str(user),
@@ -589,20 +666,35 @@ def get_info_for_pipeline_main(settings: dict, info_dict: dict, assembly_accessi
             "pipeline_name": str(pipeline_name),
             "long_read_summary_file": str(long_read_summary_file),
             "long_read_summary_file_genus": str(long_read_summary_file_genus),
-            "pipe_db_name": str(pipe_db_name)
+            "pipe_db_name": str(pipe_db_name),
         }
     )
 
     return info_dict
 
+
 def copy_general_module():
+    """Copy config modules
+
+    Raises:
+        OSError: Raised if 'ENSCODE' environment variable is not set.
+        FileNotFoundError: Raised if the example file does not exist.
+    """
     logger.info("Copying general module")
     enscode = os.environ.get("ENSCODE")
     if not enscode:
         raise OSError("Environment variable 'ENSCODE' is not set")
 
     analysis_path = os.path.join(enscode, "ensembl-analysis")
-    general_file = Path(analysis_path) / "modules" / "Bio" / "EnsEMBL" / "Analysis" / "Config" / "General.pm"
+    general_file = (
+        Path(analysis_path)
+        / "modules"
+        / "Bio"
+        / "EnsEMBL"
+        / "Analysis"
+        / "Config"
+        / "General.pm"
+    )
     example_file = general_file.with_suffix(".pm.example")
 
     # Copy if missing
@@ -615,52 +707,67 @@ def copy_general_module():
     else:
         logger.info(f"{general_file} already exists, nothing to do.")
 
+
 def current_projection_source_db(projection_source_production_name: str) -> dict:
     """
-    Find the reference core database and server info for the given projection_source_production_name.
+    Find the reference core database and server info for the given 
+    projection_source_production_name.
     If not found, fall back to homo_sapiens core.
     Args:
-        projection_source_production_name (str): Name to look for in core name (comes from clade_settings).
+        projection_source_production_name (str): Name to look for in core \
+            name (comes from clade_settings).
     Returns a dictionary with keys: db_name, server, port
     Raises:
         RuntimeError: If database could not be found.
 
     """
     projection_json = os.path.join(
-         os.environ.get("ENSCODE"),
-         "ensembl-genes",
-         "src",
-         "python",
-         "ensembl",
-         "genes",
-         "info_from_registry",
-         "projection_source.json"
-     )
+        str(os.environ.get("ENSCODE")),
+        "ensembl-genes",
+        "src",
+        "python",
+        "ensembl",
+        "genes",
+        "info_from_registry",
+        "projection_source.json",
+    )
     try:
         with open(projection_json, "r") as f:
             data = json.load(f)
     except Exception as e:
-        raise RuntimeError(f"Failed to read JSON file {projection_json}: {e}")
+        raise RuntimeError(  # pylint:disable=raise-missing-from
+            f"Failed to read JSON file {projection_json}: {e}"
+        )
 
     # Find a matching nested dictionary
     matched_key = None
     for key, subdict in data.items():
-        if isinstance(subdict, dict) and projection_source_production_name in subdict.values():
+        if (
+            isinstance(subdict, dict)
+            and projection_source_production_name in subdict.values()
+        ):
             matched_key = key
             break
 
     # Fallback logic
-    if matched_key:
-        logger.info(f"Match found for '{projection_source_production_name}' in '{matched_key}'")
+    if matched_key:  # pylint:disable=no-else-return
+        logger.info(
+            f"Match found for '{projection_source_production_name}' in '{matched_key}'"
+        )
         return data[matched_key]
     elif "homo_sapiens" in data:
-        logger.warning(f"No match for '{projection_source_production_name}'. Falling back to 'homo_sapiens'.")
+        logger.warning(
+            f"No match for '{projection_source_production_name}'. \
+                Falling back to 'homo_sapiens'."
+        )
         return data["homo_sapiens"]
     else:
-        raise RuntimeError(f"No match for '{projection_source_production_name}' and 'homo_sapiens' not found in {json_path}.")
+        raise RuntimeError(
+            f"No match for '{projection_source_production_name}' and 'homo_sapiens' not found in json."
+        )
 
 
-def custom_loading(settings:dict) -> dict[str, str]:
+def custom_loading(settings: dict) -> dict[str, str]:
     """
     Load custom key-value pairs from an INI-style initialization file specified in settings.
 
@@ -682,7 +789,7 @@ def custom_loading(settings:dict) -> dict[str, str]:
 
     # Initialize variables
     custom_dict = {}
-    custom_loading = False
+    custom_loading = False  # pylint:disable=unused-variable,redefined-outer-name
 
     if init_file.exists():
         try:
@@ -703,7 +810,9 @@ def custom_loading(settings:dict) -> dict[str, str]:
                         print(f"Line format not recognised. Skipping line:\n{line}")
 
         except OSError as e:
-            raise Exception(f"Could not open or read {init_file}") from e
+            raise Exception(  # pylint:disable=broad-exception-raised
+                f"Could not open or read {init_file}"
+            ) from e
 
     return custom_dict
 
@@ -730,7 +839,10 @@ def create_dir(path: str | Path, mode: Optional[int] = None) -> None:
     except Exception as e:
         raise RuntimeError(f"Failed to create dir: {path}") from e
 
-def main(gcas: str, settings_file: str) -> tuple[dict, dict, dict]:
+
+def main(  # pylint:disable=too-many-branches, too-many-statements, too-many-locals
+    gcas: str, settings_file: str
+) -> tuple[dict, dict, dict]:
     """
     Create parameters for annotation pipeline.
 
@@ -750,27 +862,27 @@ def main(gcas: str, settings_file: str) -> tuple[dict, dict, dict]:
     with open(gcas, "r") as f:
         lines = [line.strip() for line in f if line.strip()]
 
-    gca_dict = {gca: {} for gca in lines}
+    gca_dict: dict[str, dict[str, Any]] = {gca: {} for gca in lines}
     logger.info(f"Found {len(gca_dict)} GCAs")
 
     # Check if init_file exists
     has_init_file = settings.get("init_file") and os.path.isfile(settings["init_file"])
 
-    all_output_params = {}
+    all_output_params = {}  # pylint:disable=redefined-outer-name
 
     # Loop through GCAs
     for gca in gca_dict:
         gca_dict[gca]["assembly_accession"] = gca
 
         # Registry info
-        server_info = {
+        server_info = {  # pylint:disable=redefined-outer-name
             "registry": {
                 "db_host": os.environ.get("GBS1"),
                 "db_user": settings["user_r"],
                 "db_user_w": settings["user"],
-                "db_port": int(os.environ.get("GBP1")),
+                "db_port": str(os.environ.get("GBP1")),
                 "db_name": "gb_assembly_metadata",
-                "password": settings["password"]
+                "password": settings["password"],
             }
         }
         logger.info(server_info["registry"])
@@ -782,7 +894,9 @@ def main(gcas: str, settings_file: str) -> tuple[dict, dict, dict]:
         # Create output params
         info_dict = add_generated_data(server_info, gca, settings)
 
-        if 'repbase_library' in info_dict and isinstance(info_dict['repbase_library'], str):
+        if "repbase_library" in info_dict and isinstance(
+            info_dict["repbase_library"], str
+        ):
             # Vertebrate (main) pipeline
             pipeline_type = "main"
 
@@ -800,7 +914,6 @@ def main(gcas: str, settings_file: str) -> tuple[dict, dict, dict]:
             info_dict["dna_db_host"] = server_info["core_db"]["db_host"]
             info_dict["dna_db_port"] = server_info["core_db"]["db_port"]
 
-
             if main_settings.get("replace_repbase_with_red_to_mask") == 1:
                 info_dict["first_choice_repeat"] = "repeatdetector"
 
@@ -817,19 +930,31 @@ def main(gcas: str, settings_file: str) -> tuple[dict, dict, dict]:
             parent_name = get_parent_taxon(server_info, info_dict["species_taxon_id"])
             parent_name = parent_name.lower().replace(" ", "_")
             info_dict["repeatmodeler_library"] = os.path.join(
-                os.environ["REPEATMODELER_DIR"], "species", parent_name, f"{parent_name}.repeatmodeler.fa"
+                os.environ["REPEATMODELER_DIR"],
+                "species",
+                parent_name,
+                f"{parent_name}.repeatmodeler.fa",
             )
 
             output_params = get_info_for_pipeline_main(settings, info_dict, gca)
             create_dir(output_params["output_path"])
             edit_config_main(main_settings, output_params, pipeline_type)
 
-            projection_source_info = current_projection_source_db(output_params["projection_source_production_name"])
-            output_params.update(projection_source_info)  # Adds db_name, server, port to output_params
+            projection_source_info = current_projection_source_db(
+                output_params["projection_source_production_name"]
+            )
+            output_params.update(
+                projection_source_info
+            )  # Adds db_name, server, port to output_params
 
-            output_params["stable_id_prefix"] = get_species_prefix(output_params["taxon_id"], server_info)
+            output_params["stable_id_prefix"] = get_species_prefix(
+                output_params["taxon_id"], server_info
+            )
             output_params["stable_id_start"] = get_stable_space(
-                output_params["taxon_id"], gca, output_params["assembly_id"], server_info
+                output_params["taxon_id"],
+                gca,
+                output_params["assembly_id"],
+                server_info,
             )
             edit_config_main(main_settings, output_params, pipeline_type)
             copy_general_module()
@@ -837,27 +962,34 @@ def main(gcas: str, settings_file: str) -> tuple[dict, dict, dict]:
         else:
             # Non-vertebrate (anno) pipeline
             pipeline_type = "anno"
-            gca_dict[gca]["pipe_db_name"] = f"{settings['dbowner']}_{settings['pipeline_name']}_pipe_{settings['release_number']}"
+            gca_dict[gca][
+                "pipe_db_name"
+            ] = f"{settings['dbowner']}_{settings['pipeline_name']}_pipe_{settings['release_number']}"
             server_settings = get_server_settings_anno(settings)
             server_info.update(server_settings)
 
-            server_info.setdefault("pipeline_db", {})["db_name"] = gca_dict[gca]["pipe_db_name"]
+            server_info.setdefault("pipeline_db", {})["db_name"] = gca_dict[gca][
+                "pipe_db_name"
+            ]
             server_info.setdefault("core_db", {})["db_name"] = info_dict["core_dbname"]
             info_dict["core_db"] = server_info["core_db"]
             info_dict["registry_db"] = server_info["registry"]
-            
+
             # Assign BUSCO lineage
             busco_lineage_file = os.path.join(
-            os.environ.get("ENSCODE"),
-            "ensembl-genes",
-            "src",
-            "python",
-            "ensembl",
-            "genes",
-            "metrics",
-            "busco_lineage.json")
+                str(os.environ.get("ENSCODE")),
+                "ensembl-genes",
+                "src",
+                "python",
+                "ensembl",
+                "genes",
+                "metrics",
+                "busco_lineage.json",
+            )
 
-            with open(busco_lineage_file, "r") as f:
+            with open(
+                busco_lineage_file, "r"
+            ) as f:  # pylint:disable=unspecified-encoding
                 dataset = json.load(f)
 
             ncbi_url = f"https://api.ncbi.nlm.nih.gov/datasets/v2alpha/taxonomy/taxon/{info_dict['taxon_id']}/dataset_report"
@@ -865,10 +997,14 @@ def main(gcas: str, settings_file: str) -> tuple[dict, dict, dict]:
             busco_group_find = get_dataset_match(ncbi_url, dataset)
 
             if busco_group_find is not None:
-                logger.info(f"Closest BUSCO lineage identified as {busco_group_find} for taxon ID {info_dict['taxon_id']}")
+                logger.info(
+                    f"Closest BUSCO lineage identified as {busco_group_find} for taxon ID {info_dict['taxon_id']}"
+                )
                 info_dict["busco_group"] = busco_group_find
             else:
-                logger.info(f"Falling back on BUSCO lineage from clade settings {info_dict['busco_group']}")
+                logger.info(
+                    f"Falling back on BUSCO lineage from clade settings {info_dict['busco_group']}"
+                )
 
             # Load anno settings
             anno_settings = load_anno_settings()
@@ -885,27 +1021,40 @@ def main(gcas: str, settings_file: str) -> tuple[dict, dict, dict]:
             }
             registry_path = create_registry_entry(settings, server_info, core_adaptor)
 
-            output_params = get_info_for_pipeline_anno(settings, info_dict, gca, anno_settings)
+            output_params = get_info_for_pipeline_anno(
+                settings, info_dict, gca, anno_settings
+            )
             output_params["registry_file"] = Path(registry_path)
 
-            build_annotation_commands(core_adaptor, output_params, anno_settings, settings)
+            build_annotation_commands(
+                core_adaptor, output_params, anno_settings, settings
+            )
 
             rna_busco_settings = get_rna_and_busco_check_threshold(anno_settings)
             output_params.update(rna_busco_settings)
-            output_params["stable_id_prefix"] = get_species_prefix(output_params["taxon_id"], server_info)
-            output_params["stable_id_start"] = get_stable_space(
-                output_params["taxon_id"], gca, output_params["assembly_id"], server_info
+            output_params["stable_id_prefix"] = get_species_prefix(
+                output_params["taxon_id"], server_info
             )
-            #Create directories
+            output_params["stable_id_start"] = get_stable_space(
+                output_params["taxon_id"],
+                gca,
+                output_params["assembly_id"],
+                server_info,
+            )
+            # Create directories
             create_dir(output_params["output_path"])
-            dirs_to_create = [output_params["genome_files_dir"], output_params["short_read_dir"], output_params["long_read_dir"], output_params["gst_dir"]]
+            dirs_to_create = [
+                output_params["genome_files_dir"],
+                output_params["short_read_dir"],
+                output_params["long_read_dir"],
+                output_params["gst_dir"],
+            ]
 
             for d in dirs_to_create:
                 try:
                     os.makedirs(d, exist_ok=True)
                 except Exception as e:
                     raise RuntimeError(f"Failed to create dir: {d}") from e
-
 
         # Store output params
         output_params["pipeline"] = pipeline_type
@@ -915,24 +1064,28 @@ def main(gcas: str, settings_file: str) -> tuple[dict, dict, dict]:
     # -------------------------
     # Save JSONs
     # -------------------------
-    saved_paths = {}
+    saved_paths: Dict[str, Union[Path, Dict[str, Path]]] = {}
 
     # Save anno GCAs as a single file
-    anno_params = {g: p for g, p in all_output_params.items() if p["pipeline"] == "anno"}
+    anno_params = {
+        g: p for g, p in all_output_params.items() if p["pipeline"] == "anno"
+    }
 
-    #Edit anno config
+    # Edit anno config
     if anno_params:
         # Call edit_config_anno ONCE here with only the generic settings
         first_gca_params = next(iter(anno_params.values()))
         edit_config_anno(
-            anno_settings, 
-            settings, 
-            first_gca_params,   # just need a representative dict with registry_file, db names, etc.
-            "anno", 
-            server_settings
+            anno_settings,
+            settings,
+            first_gca_params,  # just need a representative dict with registry_file, db names, etc.
+            "anno",
+            server_settings,
         )
 
-        anno_json_path = Path(settings["base_output_dir"]) / "non_vert_pipeline_params.json"
+        anno_json_path = (
+            Path(settings["base_output_dir"]) / "non_vert_pipeline_params.json"
+        )
         anno_json_path.parent.mkdir(parents=True, exist_ok=True)
         with anno_json_path.open("w") as f:
             json.dump(anno_params, f, indent=2, default=str)
@@ -940,7 +1093,9 @@ def main(gcas: str, settings_file: str) -> tuple[dict, dict, dict]:
         saved_paths["anno"] = anno_json_path
 
     # Save main GCAs as separate files
-    main_params = {g: p for g, p in all_output_params.items() if p["pipeline"] == "main"}
+    main_params = {
+        g: p for g, p in all_output_params.items() if p["pipeline"] == "main"
+    }
     main_json_paths = {}
     for gca, params in main_params.items():
         path = Path(params["output_path"]) / "main_pipeline_params.json"
@@ -972,14 +1127,14 @@ if __name__ == "__main__":
         "--gcas",
         type=str,
         required=True,
-        help="Path to file containing GCA accessions (one per line)."
+        help="Path to file containing GCA accessions (one per line).",
     )
 
     parser.add_argument(
         "--settings_file",
         type=str,
         required=True,
-        help="Path to file containing edited settings."
+        help="Path to file containing edited settings.",
     )
 
     args = parser.parse_args()

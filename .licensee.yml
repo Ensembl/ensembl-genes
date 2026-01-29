@@ -1,0 +1,11 @@
+ignore:
+  - "*.yml"
+  - "*.toml"
+  - "*.css"
+  - ".python-version"
+  - ".github/**"
+  - "docs/**"
+  - "mkdocs/**"
+  - "site/**"
+  - "tests/**"
+  - "tests/**/**"

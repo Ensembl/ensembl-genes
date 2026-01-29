@@ -1,16 +1,29 @@
 #!/usr/bin/env python3
-
+# See the NOTICE file distributed with this work for additional information
+# regarding copyright ownership.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# pylint: disable=missing-module-docstring,consider-using-in,  too-many-locals, too-many-return-statements, missing-timeout, no-else-return, too-many-statements, too-many-arguments, too-many-branches, too-many-nested-blocks, logging-not-lazy, logging-fstring-interpolation, consider-using-dict-items, broad-exception-caught, line-too-long, unused-argument, missing-function-docstring, unspecified-encoding, broad-exception-raised
 import argparse
 import json
-import os
 import re
 import sys
 import time
 from ftplib import FTP, error_perm, error_temp
-from typing import Dict, List, Tuple, Optional
+from typing import Any, Dict, Optional, Tuple
+import socket
 import pymysql
 import requests
-import socket
 
 
 class EnsemblFTP:
@@ -18,13 +31,23 @@ class EnsemblFTP:
     Robust FTP client for Ensembl/EBI with reconnect + tolerant shutdown.
     """
 
-    def __init__(self, timeout: int = 30, max_retries: int = 2, retry_sleep: float = 3.0) -> None:
+    def __init__(
+        self, timeout: int = 30, max_retries: int = 2, retry_sleep: float = 3.0
+    ) -> None:
+        """
+        Initialize EnsemblFTP client and connect to Ensembl and EBI FTP servers.
+
+        Args:
+            timeout (int, optional): Timeout for FTP connections. Defaults to 30.
+            max_retries (int, optional): Maximum number of retries for failed operations. Defaults to 2.
+            retry_sleep (float, optional): Sleep duration between retries. Defaults to 3.0.
+        """
         self.timeout = timeout
         self.max_retries = max_retries
         self.retry_sleep = retry_sleep
 
-        self.ensembl_ftp = None
-        self.ebi_ftp = None
+        self.ensembl_ftp: Optional[FTP] = None
+        self.ebi_ftp: Optional[FTP] = None
 
         self._connect_ensembl()
         self._connect_ebi()
@@ -34,6 +57,7 @@ class EnsemblFTP:
 
     # ---- connections ----
     def _connect_ensembl(self):
+        """Connect to Ensembl FTP server."""
         try:
             self.ensembl_ftp = FTP("ftp.ensembl.org", timeout=self.timeout)
             self.ensembl_ftp.set_pasv(True)
@@ -43,6 +67,7 @@ class EnsemblFTP:
             raise
 
     def _connect_ebi(self):
+        """Connect to EBI FTP server."""
         try:
             self.ebi_ftp = FTP("ftp.ebi.ac.uk", timeout=self.timeout)
             self.ebi_ftp.set_pasv(True)
@@ -51,15 +76,21 @@ class EnsemblFTP:
             self.ebi_ftp = None
             raise
 
-    def _retry(self, fn, which: str, *args, **kwargs):
+    def _retry(self, fn, which: str, *args, **kwargs) -> Any:
         """
         Retry FTP operation; on failure, reconnect that endpoint and try again.
         """
-        last_exc = None
+        last_exc: Optional[BaseException] = None
         for _ in range(self.max_retries):
             try:
                 return fn(*args, **kwargs)
-            except (ConnectionResetError, EOFError, OSError, error_temp, socket.timeout) as e:
+            except (
+                ConnectionResetError,
+                EOFError,
+                OSError,
+                error_temp,
+                socket.timeout,
+            ) as e:
                 last_exc = e
                 try:
                     if which == "ensembl":
@@ -69,29 +100,59 @@ class EnsemblFTP:
                 except Exception:
                     pass
                 time.sleep(self.retry_sleep)
+        assert last_exc is not None
         raise last_exc
 
     # ---- utils ----
+    def _require_ftp(self, ftp: Optional[FTP]) -> FTP:
+        if ftp is None:
+            raise RuntimeError("FTP connection is not available")
+        return ftp
+
     def return_to_root(self, ftp_connection: FTP) -> None:
+        """Return to root
+
+        Args:
+            ftp_connection (FTP): Ftp path
+        """
         which = "ensembl" if ftp_connection is self.ensembl_ftp else "ebi"
         self._retry(ftp_connection.cwd, which, "/")
 
     # ---- lookups ----
-    def check_for_file(
+    def check_for_file(  # pylint: disable=too-many-locals, too-many-arguments
         self,
         species_name: str,
         prod_name: str,
         accession: str,
         source: str,
-        file_type: str
+        file_type: str,
     ) -> str:
+        """
+        Check for existence of specific file types on FTP servers.
+
+        Args:
+            species_name (str): _species_name_
+            prod_name (str): _prod_name_
+            accession (str): GCA accession
+            source (str): _source_
+            file_type (str): type of file to check for: "repeatmodeler" or "busco"
+
+        Returns:
+            str: URL to the file if found, else empty string
+        """
+        # Initialize all file names upfront to avoid possibly-used-before-assignment
+        file_name_protein: str | None = None
+        file_name_alternative: str | None = None
+        file_name: str | None = None
+
         if file_type == "repeatmodeler":
             ftp_connection = self.ebi_ftp
             which = "ebi"
             ftp_path = self.ebi_ftp_path
             path = (
                 "pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/"
-                + species_name + "/"
+                + species_name
+                + "/"
             )
             file_name = accession + ".repeatmodeler.fa"
         elif file_type == "busco":
@@ -100,9 +161,12 @@ class EnsemblFTP:
             ftp_path = self.ensembl_ftp_path
             path = (
                 "pub/rapid-release/species/"
-                + species_name + "/"
-                + accession + "/"
-                + source + "/statistics/"
+                + species_name
+                + "/"
+                + accession
+                + "/"
+                + source
+                + "/statistics/"
             )
             file_name_protein = prod_name + "_protein_busco_short_summary.txt"
             file_name_alternative = prod_name + "_busco_short_summary.txt"
@@ -110,18 +174,23 @@ class EnsemblFTP:
             return ""
 
         try:
+            ftp_connection = self._require_ftp(ftp_connection)
             self.return_to_root(ftp_connection)
             self._retry(ftp_connection.cwd, which, path)
             files_list = self._retry(ftp_connection.nlst, which)
 
             if file_type == "busco":
-                if file_name_protein in files_list:
+                if file_name_protein and file_name_protein in files_list:
                     return ftp_path + path + file_name_protein
-                if file_name_alternative in files_list:
+                if file_name_alternative and file_name_alternative in files_list:
                     return ftp_path + path + file_name_alternative
                 return ""
             else:
-                return ftp_path + path + file_name if file_name in files_list else ""
+                return (
+                    ftp_path + path + file_name
+                    if file_name and file_name in files_list
+                    else ""
+                )
         except error_perm as e:
             if "550" in str(e):
                 return ""
@@ -135,16 +204,26 @@ class EnsemblFTP:
             return ""
 
     def check_pre_release_file(
-        self,
-        species_name: str,
-        accession: str,
-        extension: str
+        self, species_name: str, accession: str, extension: str
     ) -> str:
+        """
+        Check for pre-release files on EBI FTP server.
+
+        Args:
+            species_name (str): _species_name_
+            accession (str): GCA accession
+            extension (str): File extension to look for (e.g., ".gtf.gz")
+
+        Returns:
+            str: URL to the pre-release file if found, else empty string
+        """
         ftp = self.ebi_ftp
         which = "ebi"
         base = self.ebi_ftp_path
         path = f"pub/databases/ensembl/pre-release/{species_name}/{accession}/"
         try:
+
+            ftp = self._require_ftp(ftp)
             self.return_to_root(ftp)
             self._retry(ftp.cwd, which, path)
             for fname in self._retry(ftp.nlst, which):
@@ -173,38 +252,22 @@ class EnsemblFTP:
                     pass
 
 
-
-
 def mysql_fetch_data(
-    query: str,
-    database: str,
-    host: str,
-    port: int,
-    user: str,
-    password: str
+    query: str, database: str, host: str, port: int, user: str, password: str
 ) -> Tuple:
     """
     Fetch data from a MySQL database using a given query.
 
-    Parameters
-    ----------
-    query : str
-        The SQL query to execute.
-    database : str
-        The database name.
-    host : str
-        The database host.
-    port : int
-        The database port.
-    user : str
-        The username for the database.
-    password : str
-        The password for the database.
+    Args:
+        query (str): SQL query to execute.
+        database (str): Name of the database.
+        host (str): Database host.
+        port (int): Database port.
+        user (str): Database user.
+        password (str): Database password.
 
-    Returns
-    -------
-    Tuple
-        A tuple of results fetched from the database query.
+    Returns:
+    Tuple containing the fetched rows from the database.
     """
     conn = pymysql.connect(
         host=host, user=user, passwd=password, port=port, database=database.strip()
@@ -215,6 +278,7 @@ def mysql_fetch_data(
     cursor.close()
     conn.close()
     return info
+
 
 def check_url_status(url):
     """
@@ -227,41 +291,40 @@ def check_url_status(url):
         bool: True if the URL returns a 200 status code, False otherwise.
     """
     try:
-        response = requests.head(url, allow_redirects=True, timeout=5)  # Use HEAD for efficiency
+        response = requests.head(
+            url, allow_redirects=True, timeout=5
+        )  # Use HEAD for efficiency
         return response.status_code == 200
     except requests.RequestException as e:
         print(f"Error checking URL {url}: {e}")
         return False
 
+
 def write_yaml(
-        info_dict: Dict[str, str],
+    info_dict: Dict[str, str],
     icon: str,
     yaml_out,
     project: str,
     use_server: str,
     alternate: str,
-        guuid: str,
-    ftp_client: EnsemblFTP
+    guuid: str,
+    ftp_client: EnsemblFTP,
 ) -> None:
     """
     Write YAML content for a species entry based on the provided metadata and project type.
 
-    Parameters
-    ----------
-    info_dict : Dict[str, str]
-        Dictionary containing species metadata.
-    icon : str
-        Icon filename for the species.
-    yaml_out : file-like object
-        The output file handle for writing the YAML.
-    project : str
-        The project name (e.g., 'aquafaang', 'asg', 'bge', ...).
-    use_server : str
-        Which server the data was fetched from ('st5', 'st6' or 'main').
-    alternate : str
-        Alternate assembly name, if available.
-    ftp_client : EnsemblFTP
-        An initialized FTP client instance for checking extra files.
+    Args:
+        info_dict (Dict[str, str]): Metadata dictionary for the species.
+        icon (str): Icon URL or identifier for the species.
+        yaml_out: Output stream to write the YAML content.
+        project (str): Project type (e.g., "vgp", "dtol", etc.).
+        use_server (str): Server to use ("st5", "st6", "main").
+        alternate (str): Alternate assembly name if applicable.
+        guuid (str): Genome unique identifier.
+        ftp_client (EnsemblFTP): FTP client instance for file checks.
+
+    Returns:
+        None
     """
     prod_url_list = ["bos_taurus_hybrid", "bos_indicus_hybrid"]
 
@@ -269,7 +332,7 @@ def write_yaml(
     try:
         date = info_dict["genebuild.last_geneset_update"].replace("-", "_")
     except KeyError:
-        date = ''
+        date = ""
     species_name = info_dict["species.scientific_name"].replace(" ", "_")
     species_name = species_name.replace(".", "")
     lc_species_name = species_name.lower()
@@ -280,7 +343,9 @@ def write_yaml(
     uc_prod_name = info_dict["species.production_name"].capitalize()
 
     # Get submitter from assembly report
-    assembly_report_url = f"https://www.ncbi.nlm.nih.gov/assembly/{info_dict['assembly.accession']}"
+    assembly_report_url = (
+        f"https://www.ncbi.nlm.nih.gov/assembly/{info_dict['assembly.accession']}"
+    )
     assembly_report_response = requests.get(assembly_report_url)
     submitter_match = re.search(
         r"Submitter: </dt><dd>([^<]*)</dd><dt>", assembly_report_response.text
@@ -310,14 +375,16 @@ def write_yaml(
             yaml += f"  annotation_method: {method}\n"
 
         # ==== annotation_gtf ====
-        gtf = f"{ftp_base}/{species_name}/{info_dict['assembly.accession']}/" \
-              f"{source}/geneset/{date}/genes.gtf.gz"
+        gtf = (
+            f"{ftp_base}/{species_name}/{info_dict['assembly.accession']}/"
+            f"{source}/geneset/{date}/genes.gtf.gz"
+        )
         if check_url_status(gtf):
             yaml += f"  annotation_gtf: {gtf}\n"
         else:
-            fb = ftp_client.check_pre_release_file(species_name,
-                                                  info_dict["assembly.accession"],
-                                                  ".gtf.gz")
+            fb = ftp_client.check_pre_release_file(
+                species_name, info_dict["assembly.accession"], ".gtf.gz"
+            )
             if fb:
                 yaml += f"  annotation_gtf: {fb}\n"
         # ==== annotation_gff3: try gzipped, then uncompressed, then pre‑release ====
@@ -325,7 +392,7 @@ def write_yaml(
             f"{ftp_base}/{species_name}/{info_dict['assembly.accession']}/"
             f"{source}/geneset/{date}/genes.gff3.gz"
         )
-        gff    = (
+        gff = (
             f"{ftp_base}/{species_name}/{info_dict['assembly.accession']}/"
             f"{source}/geneset/{date}/genes.gff3"
         )
@@ -336,37 +403,39 @@ def write_yaml(
         else:
             # fallback: look in pre‑release for gzipped first, then uncompressed
             fb = ftp_client.check_pre_release_file(
-                species_name,
-                info_dict["assembly.accession"],
-                ".gff3.gz"
+                species_name, info_dict["assembly.accession"], ".gff3.gz"
             )
             if not fb:
                 fb = ftp_client.check_pre_release_file(
-                    species_name,
-                    info_dict["assembly.accession"],
-                    ".gff3"
+                    species_name, info_dict["assembly.accession"], ".gff3"
                 )
             if fb:
                 yaml += f"  annotation_gff3: {fb}\n"
         # ==== proteins ====
-        pep = f"{ftp_base}/{species_name}/{info_dict['assembly.accession']}/" \
-              f"{source}/geneset/{date}/pep.fa.gz"
+        pep = (
+            f"{ftp_base}/{species_name}/{info_dict['assembly.accession']}/"
+            f"{source}/geneset/{date}/pep.fa.gz"
+        )
         if check_url_status(pep):
             yaml += f"  proteins: {pep}\n"
         # ==== transcripts ====
-        cdna = f"{ftp_base}/{species_name}/{info_dict['assembly.accession']}/" \
-               f"{source}/geneset/{date}/cdna.fa.gz"
+        cdna = (
+            f"{ftp_base}/{species_name}/{info_dict['assembly.accession']}/"
+            f"{source}/geneset/{date}/cdna.fa.gz"
+        )
         if check_url_status(cdna):
             yaml += f"  transcripts: {cdna}\n"
         # ==== softmasked genome ====
-        soft = f"{ftp_base}/{species_name}/{info_dict['assembly.accession']}/genome/" \
-               f"softmasked.fa.gz"
+        soft = (
+            f"{ftp_base}/{species_name}/{info_dict['assembly.accession']}/genome/"
+            f"softmasked.fa.gz"
+        )
         if check_url_status(soft):
             yaml += f"  softmasked_genome: {soft}\n"
         else:
-            fb = ftp_client.check_pre_release_file(species_name,
-                                                  info_dict["assembly.accession"],
-                                                  ".dna.softmasked.fa.gz")
+            fb = ftp_client.check_pre_release_file(
+                species_name, info_dict["assembly.accession"], ".dna.softmasked.fa.gz"
+            )
             if fb:
                 yaml += f"  softmasked_genome: {fb}\n"
         rm_file = ftp_client.check_for_file(
@@ -374,27 +443,29 @@ def write_yaml(
             info_dict["species.production_name"],
             info_dict["assembly.accession"],
             source,
-            "repeatmodeler"
+            "repeatmodeler",
         )
         if rm_file:
             yaml += f"  repeat_library: {rm_file}\n"
         # ==== ftp dumps ====
-        dumps =  f"{ftp_base}/{species_name}/{info_dict['assembly.accession']}"
+        dumps = f"{ftp_base}/{species_name}/{info_dict['assembly.accession']}"
         if check_url_status(dumps):
             yaml += f"  ftp_dumps: {ftp_base}/{species_name}/{info_dict['assembly.accession']}/\n"
         else:
             yaml += f"  ftp_dumps: https://ftp.ebi.ac.uk/pub/databases/ensembl/pre-release/{species_name}/{info_dict['assembly.accession']}/\n"
-            
+
         main_species_url = "http://www.ensembl.org/info/about/species.html"
         main_species_response = requests.get(main_species_url)
         if info_dict["assembly.accession"] in main_species_response.text:
-            yaml += f"  ensembl_link: https://www.ensembl.org/{species_name}/Info/Index\n"
+            yaml += (
+                f"  ensembl_link: https://www.ensembl.org/{species_name}/Info/Index\n"
+            )
         else:
             beta_link = f"https://beta.ensembl.org/species/{guuid}"
             if check_url_status(beta_link):
                 yaml += f"  beta_link: https://beta.ensembl.org/species/{guuid}\n"
             else:
-                yaml += f"  beta_link: Coming soon!\n"
+                yaml += "  beta_link: Coming soon!\n"
 
         if project in ("dtol", "erga", "cbp", "bge", "asg"):
             try:
@@ -405,7 +476,7 @@ def write_yaml(
                     info_dict["species.production_name"],
                     info_dict["assembly.accession"],
                     source,
-                    "busco"
+                    "busco",
                 )
                 if busco_file:
                     yaml += f"  busco_score: {busco_file}\n"
@@ -440,7 +511,7 @@ def write_yaml(
             # Annotation method is always Ensembl genebuild on main
             yaml += "  annotation_method: Ensembl genebuild\n"
 
-        source = 'ensembl'  # for consistency with busco retrieval logic
+        source = "ensembl"  # for consistency with busco retrieval logic
 
         yaml += (
             f"  annotation_gtf: {ftp_base}/gtf/{info_dict['species.production_name']}/"
@@ -467,19 +538,25 @@ def write_yaml(
             info_dict["species.production_name"],
             info_dict["assembly.accession"],
             source,
-            "repeatmodeler"
+            "repeatmodeler",
         )
         if rm_file:
             yaml += f"  repeat_library: {rm_file}\n"
 
         yaml += f"  ftp_dumps: {ftp_base}\n"
         if info_dict["species.production_name"] in prod_url_list:
-            yaml += f"  ensembl_link: https://www.ensembl.org/{uc_prod_name}/Info/Index\n"
+            yaml += (
+                f"  ensembl_link: https://www.ensembl.org/{uc_prod_name}/Info/Index\n"
+            )
         elif project == "geneswitch":
             # geneswitch project frozen at e102
-            yaml += f"  ensembl_link: https://e102.ensembl.org/{species_name}/Info/Index\n"
+            yaml += (
+                f"  ensembl_link: https://e102.ensembl.org/{species_name}/Info/Index\n"
+            )
         else:
-            yaml += f"  ensembl_link: https://www.ensembl.org/{species_name}/Info/Index\n"
+            yaml += (
+                f"  ensembl_link: https://www.ensembl.org/{species_name}/Info/Index\n"
+            )
 
         if project in ("dtol", "erga", "cbp", "bge", "asg"):
             try:
@@ -490,7 +567,7 @@ def write_yaml(
                     info_dict["species.production_name"],
                     info_dict["assembly.accession"],
                     source,
-                    "busco"
+                    "busco",
                 )
                 if busco_file:
                     yaml += f"  busco_score: {busco_file}\n"
@@ -504,6 +581,7 @@ def write_yaml(
                 yaml += f"  alternate: {alternate_url}\n"
 
     print(yaml, file=yaml_out)
+
 
 def check_database_on_server(db, server_key, server_dict):
     """
@@ -525,17 +603,20 @@ def check_database_on_server(db, server_key, server_dict):
             port=server_dict[server_key]["db_port"],
         )
         with conn.cursor() as cur:
-            #print(f"Checking for DB '{db}' on server '{server_key}'", file=sys.stderr)
-            cur.execute("SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = %s", (db,))
+            # print(f"Checking for DB '{db}' on server '{server_key}'", file=sys.stderr)
+            cur.execute(
+                "SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = %s",
+                (db,),
+            )
             result = cur.fetchone()
-            #print(f"Query result on {server_key}: {result}", file=sys.stderr)
+            # print(f"Query result on {server_key}: {result}", file=sys.stderr)
             return result is not None
 
     except pymysql.MySQLError as e:
         print(f"Error connecting to {server_key}: {e}")
         return False
     finally:
-        if 'conn' in locals() and conn:
+        if "conn" in locals() and conn:
             conn.close()
 
 
@@ -579,7 +660,17 @@ def main() -> None:
     parser.add_argument(
         "-p",
         "--project",
-        choices=["aquafaang", "asg", "bge", "bovreg", "cbp", "dtol", "erga", "geneswitch", "vgp"],
+        choices=[
+            "aquafaang",
+            "asg",
+            "bge",
+            "bovreg",
+            "cbp",
+            "dtol",
+            "erga",
+            "geneswitch",
+            "vgp",
+        ],
         help="Name of the project this set of databases belongs to",
         required=True,
     )
@@ -634,12 +725,12 @@ def main() -> None:
 
     # Open the output YAML file
     with open(f"{project}_species.yaml", "w") as yaml_out:
-        #will replace with guiid eventually
+        # will replace with guiid eventually
         for line in sorted_db_list:
-            db = line.split('\t')[0].strip()
-            guuid = line.split('\t')[1].strip()
-            if guuid == 'unknown':
-                use_server = 'gb1'
+            db = line.split("\t")[0].strip()
+            guuid = line.split("\t")[1].strip()
+            if guuid == "unknown":
+                use_server = "gb1"
             else:
                 use_server = find_database_server(db, server_dict)
 
@@ -666,7 +757,9 @@ def main() -> None:
 
             # Check if assembly has an alternate
             # update this with query from the metadata db
-            alternate_assembly_name = info_dict["assembly.name"] + "_alternate_haplotype"
+            alternate_assembly_name = (
+                info_dict["assembly.name"] + "_alternate_haplotype"
+            )
             alternate_query = (
                 "SELECT organism.url_name "
                 "FROM assembly "
@@ -686,7 +779,9 @@ def main() -> None:
 
             # Retrieve classification info
             # replace this with call to datasets
-            class_query = "SELECT meta_value FROM meta WHERE meta_key='species.classification'"
+            class_query = (
+                "SELECT meta_value FROM meta WHERE meta_key='species.classification'"
+            )
             classifications = mysql_fetch_data(
                 class_query,
                 db,
@@ -707,8 +802,17 @@ def main() -> None:
 
             if chordate and icon == "Metazoa.png":
                 icon = "Chordates.png"
-                
-            write_yaml(info_dict, icon, yaml_out, project, use_server, alternate, guuid, ftp_client)
+
+            write_yaml(
+                info_dict,
+                icon,
+                yaml_out,
+                project,
+                use_server,
+                alternate,
+                guuid,
+                ftp_client,
+            )
 
     ftp_client.close_connections()
 

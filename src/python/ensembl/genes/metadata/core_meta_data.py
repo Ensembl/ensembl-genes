@@ -1,117 +1,217 @@
-import requests
-import xmltodict
+#!/usr/bin/env python3
+# See the NOTICE file distributed with this work for additional information
+# regarding copyright ownership.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# pylint: disable=missing-module-docstring, consider-using-with, logging-not-lazy, logging-fstring-interpolation, consider-using-dict-items, unspecified-encoding,invalid-name , broad-exception-caught, line-too-long, redefined-outer-name, missing-timeout, unused-argument, missing-function-docstring
 import json
-from datetime import datetime
-import argparse
-import pymysql
 import re
+import argparse
+from datetime import datetime
+from pathlib import Path
+from typing import Any, Dict, List, Tuple
+
 import logging
 import logging.config
-from pathlib import Path
+import requests
+import pymysql
+import xmltodict
+
+# Module logger (configured in __main__ via logging.config)
+logger: logging.Logger = logging.getLogger(__name__)
 
 
-def mysql_fetch_data(query, database, host, port, user):
+def mysql_fetch_data(
+    query: str, database: str, host: str, port: int, user: str
+) -> List[Tuple[Any, ...]]:
+    """
+    Run a simple SELECT query and return fetched rows.
+    Returns an empty list on error.
+
+    Args:
+        query (str): SQL SELECT query to execute.
+        database (str): Name of the database.
+        host (str): Host address of the MySQL server.
+        port (int): Port number of the MySQL server.
+        user (str): Username to connect to the database.
+
+    Returns:
+        List of tuples representing query results.
+    """
+    conn = None
+    cursor = None
+    info: List[Tuple[Any, ...]] = []
     try:
-        conn = pymysql.connect(host=host, user=user, port=port, database=database.strip())
-
+        conn = pymysql.connect(
+            host=host, user=user, port=port, database=database.strip()
+        )
         cursor = conn.cursor()
         cursor.execute(query)
-        info = cursor.fetchall()
-
-    except pymysql.Error as err:
-        print(err)
-
-    cursor.close()
-    conn.close()
+        info = list(cursor.fetchall())
+    except pymysql.Error:
+        logger.exception("MySQL error while executing query: %s", query)
+    finally:
+        if cursor is not None:
+            try:
+                cursor.close()
+            except Exception:
+                logger.exception("Error closing cursor")
+        if conn is not None:
+            try:
+                conn.close()
+            except Exception:
+                logger.exception("Error closing connection")
     return info
 
 
-def get_ena_metadata(accession, truth_dict):
+def get_ena_metadata(accession: str, truth_dict: Dict[str, Any]) -> Dict[str, str]:
+    """Fetch assembly metadata from ENA XML API.
+
+    Args:
+        accession (str): Assembly accession (e.g., GCA_000001405.28)
+        truth_dict (Dict[str, Any]): Dictionary containing truth values for metadata.
+
+    Returns:
+        Dict[str, str]: Dictionary containing metadata from ENA.
+    """
+    return_dict: Dict[str, str] = {}
     assembly_url = f"https://www.ebi.ac.uk/ena/browser/api/xml/{accession}"
     assembly_xml = requests.get(assembly_url)
     assembly_dict = xmltodict.parse(assembly_xml.text)
 
-    assembly_attribs = assembly_dict["ASSEMBLY_SET"]["ASSEMBLY"]["ASSEMBLY_ATTRIBUTES"]["ASSEMBLY_ATTRIBUTE"]
+    assembly_attribs = assembly_dict["ASSEMBLY_SET"]["ASSEMBLY"]["ASSEMBLY_ATTRIBUTES"][
+        "ASSEMBLY_ATTRIBUTE"
+    ]
     # fix if single or multiple items
-    if isinstance(assembly_attribs, dict): 
+    if isinstance(assembly_attribs, dict):
         assembly_attribs = [assembly_attribs]
 
-    return_dict = {}
+    # assembly metadata
+    return_dict["assembly.name"] = (
+        (
+            assembly_dict.get("ASSEMBLY_SET", {}).get("ASSEMBLY", {}).get("NAME", "")
+        ).replace(" ", "_")
+        if assembly_dict.get("ASSEMBLY_SET", {}).get("ASSEMBLY", {}).get("NAME")
+        else ""
+    )
 
-    # assembly meta data
-    # assembly name
-    try:
-        return_dict["assembly.name"] = assembly_dict["ASSEMBLY_SET"]["ASSEMBLY"]["NAME"].replace(" ", "_")
-    except KeyError:
-        return_dict["assembly.name"] = ""
-    # assembly level
-    try:
-        return_dict["assembly.level"] = assembly_dict["ASSEMBLY_SET"]["ASSEMBLY"]["ASSEMBLY_LEVEL"]
-    except KeyError:
-        return_dict["assembly.level"] = ""
+    return_dict["assembly.level"] = (
+        assembly_dict.get("ASSEMBLY_SET", {})
+        .get("ASSEMBLY", {})
+        .get("ASSEMBLY_LEVEL", "")
+    )
 
     for attrib_set in assembly_attribs:
         # assembly date
-        if attrib_set["TAG"] == "ENA-LAST-UPDATED":
-            return_dict["assembly.date"] = attrib_set["VALUE"]
+        if attrib_set.get("TAG") == "ENA-LAST-UPDATED":
+            return_dict["assembly.date"] = attrib_set.get("VALUE", "")
 
-        # organism meta data
-        # sample id
-        if "organism.biosample_id" not in truth_dict:
-            try:
-                return_dict["organism.biosample_id"] = assembly_dict["ASSEMBLY_SET"]["ASSEMBLY"]["SAMPLE_REF"]["IDENTIFIERS"]["PRIMARY_ID"]
-            except KeyError:
-                logger.critical(
-                    " | BIOSAMPLE_ID | organism.biosample_id could not be found in the ENA metadata, this is a required key!"
-                )
-        # taxonomy id
-        # found a species that has incorrect taxon id in INSDC records, hardcoding the fix
-        if accession == "GCA_944452655.1" or accession == "GCA_944452715.1":
-            return_dict["organism.taxonomy_id"] = "1539398"
+    # organism metadata: sample id
+    if "organism.biosample_id" not in truth_dict:
+        biosample_id = (
+            assembly_dict.get("ASSEMBLY_SET", {})
+            .get("ASSEMBLY", {})
+            .get("SAMPLE_REF", {})
+            .get("IDENTIFIERS", {})
+            .get("PRIMARY_ID", "")
+        )
+        if biosample_id:
+            return_dict["organism.biosample_id"] = biosample_id
         else:
-            try:
-                return_dict["organism.taxonomy_id"] = assembly_dict["ASSEMBLY_SET"]["ASSEMBLY"]["TAXON"]["TAXON_ID"]
-            except KeyError:
-                logger.warning(" | TAXONOMY_ID | organism.taxonomy_id could not be found in the ENA metadata")
+            logger.critical(
+                " | BIOSAMPLE_ID | organism.biosample_id could not be found in the ENA metadata, this is a required key!"
+            )
 
-        return return_dict
-
-
-def get_ncbi_metadata(accession, assembly_name, scientific_name, search):
-    organism = f"{accession}_{assembly_name}"
-    ncbi_url = f"https://ftp.ncbi.nlm.nih.gov/genomes/all/{accession[0:3]}/{accession[4:7]}/{accession[7:10]}/{accession[10:13]}/{organism}/{organism}_assembly_report.txt"
-    ncbi_return = requests.get(ncbi_url).text.split("\n")
-
-    return_dict = {}
-    return_dict["assembly.ucsc_alias"] = ""
-    return_dict["organism.strain"] = ""
-    return_dict["organism.strain_type"] = ""
-
-    if search == "ucsc":
-        for line in ncbi_return:
-            ucscREGEX = re.search("\# Synonyms\: +([a-zA-Z0-9]+)", line)
-            if ucscREGEX:
-                ucsc_alias = ucscREGEX.group(1)
-                return_dict["assembly.ucsc_alias"] = ucsc_alias
-
-    elif search == "biosample":
-        for line in ncbi_return:
-            strainREGEX = re.search("\# Infraspecific name: +([A-Za-z]+)=([a-zA-Z0-9 -\.\/]+)", line)
-            if strainREGEX:
-                strain_type = strainREGEX.group(1)
-                strain = strainREGEX.group(2)
-                return_dict["organism.strain"] = strain
-                return_dict["organism.strain_type"] = strain_type
+    # taxonomy id (workaround for bad records)
+    if accession in ("GCA_944452655.1", "GCA_944452715.1"):
+        return_dict["organism.taxonomy_id"] = "1539398"
+    else:
+        tax_id = (
+            assembly_dict.get("ASSEMBLY_SET", {})
+            .get("ASSEMBLY", {})
+            .get("TAXON", {})
+            .get("TAXON_ID", "")
+        )
+        if tax_id:
+            return_dict["organism.taxonomy_id"] = tax_id
+        else:
+            logger.warning(
+                " | TAXONOMY_ID | organism.taxonomy_id could not be found in the ENA metadata"
+            )
 
     return return_dict
 
 
-def get_biosample_metadata(biosample_id, assembly_accession, assembly_name, scientific_name):
+def get_ncbi_metadata(
+    accession: str, assembly_name: str, scientific_name: str, search: str
+) -> Dict[str, str]:
+    """Fetch assembly metadata from NCBI assembly report.
+
+    Args:
+        accession (str): Assembly accession (e.g., GCA_000001405.28)
+        assembly_name (str): Assembly name (e.g., GRCh38)
+        scientific_name (str): Scientific name of the organism
+        search (str): Type of metadata to search for ("ucsc" or "biosample")
+
+    Returns:
+        Dict[str, str]: Dictionary containing metadata from NCBI.
+    """
+    organism = f"{accession}_{assembly_name}"
+    ncbi_url = f"https://ftp.ncbi.nlm.nih.gov/genomes/all/{accession[0:3]}/{accession[4:7]}/{accession[7:10]}/{accession[10:13]}/{organism}/{organism}_assembly_report.txt"
+    ncbi_return = requests.get(ncbi_url).text.splitlines()
+
+    return_dict: Dict[str, str] = {
+        "assembly.ucsc_alias": "",
+        "organism.strain": "",
+        "organism.strain_type": "",
+    }
+
+    if search == "ucsc":
+        for line in ncbi_return:
+            ucsc_match = re.search(r"# Synonyms:\s*([A-Za-z0-9]+)", line)
+            if ucsc_match:
+                return_dict["assembly.ucsc_alias"] = ucsc_match.group(1)
+
+    elif search == "biosample":
+        for line in ncbi_return:
+            strain_match = re.search(
+                r"# Infraspecific name:\s*([A-Za-z]+)=([A-Za-z0-9 \-\./]+)", line
+            )
+            if strain_match:
+                return_dict["organism.strain_type"] = strain_match.group(1)
+                return_dict["organism.strain"] = strain_match.group(2)
+
+    return return_dict
+
+
+def get_biosample_metadata(
+    biosample_id: str, assembly_accession: str, assembly_name: str, scientific_name: str
+) -> Dict[str, str]:
+    """Fetch assembly metadata from EBI BioSample API.
+
+    Args:
+        biosample_id (str): BioSample accession (e.g., SAMN00000001)
+        assembly_accession (str): Assembly accession (e.g., GCA_000001405.28)
+        assembly_name (str): Assembly name (e.g., GRCh38)
+        scientific_name (str): Scientific name of the organism
+
+    Returns:
+        Dict[str, str]: Dictionary containing metadata from BioSample.
+    """
+
     biosample_url = f"https://www.ebi.ac.uk/biosamples/samples/{biosample_id}"
     biosample_return = requests.get(biosample_url).text
-    return_dict = {}
-    return_dict["organism.strain"] = ""
-    return_dict["organism.strain_type"] = ""
+    return_dict: Dict[str, str] = {"organism.strain": "", "organism.strain_type": ""}
 
     try:
         biosample_data = json.loads(biosample_return)
@@ -120,7 +220,9 @@ def get_biosample_metadata(biosample_id, assembly_accession, assembly_name, scie
 
         for strain_type in strain_types:
             try:
-                return_dict["organism.strain"] = biosample_data["characteristics"][strain_type][0]["text"]
+                return_dict["organism.strain"] = biosample_data["characteristics"][
+                    strain_type
+                ][0]["text"]
                 return_dict["organism.strain_type"] = strain_type
                 break
             except KeyError:
@@ -130,15 +232,21 @@ def get_biosample_metadata(biosample_id, assembly_accession, assembly_name, scie
             return_dict["organism.strain"] = "European"
 
         try:
-            return_dict["assembly.tol_id"] = biosample_data["characteristics"]["tolid"][0]["text"]
+            return_dict["assembly.tol_id"] = biosample_data["characteristics"]["tolid"][
+                0
+            ]["text"]
         except KeyError:
             return_dict["assembly.tol_id"] = ""
 
     except json.decoder.JSONDecodeError:
-        # I couldn't get the biosample info from ENA because metadata is so ridiculously poorly recorded so I'm going to try and grab it from NCBI... FML
-        biosample_dict = get_ncbi_metadata(assembly_accession, assembly_name, scientific_name, "biosample")
-        return_dict["organism.strain"] = biosample_dict["organism.strain"]
-        return_dict["organism.strain_type"] = biosample_dict["organism.strain_type"]
+        # fallback to NCBI
+        biosample_dict = get_ncbi_metadata(
+            assembly_accession, assembly_name, scientific_name, "biosample"
+        )
+        return_dict["organism.strain"] = biosample_dict.get("organism.strain", "")
+        return_dict["organism.strain_type"] = biosample_dict.get(
+            "organism.strain_type", ""
+        )
         return_dict["assembly.tol_id"] = ""
 
     return return_dict
@@ -178,16 +286,20 @@ if __name__ == "__main__":
         required=False,
     )
     parser.add_argument(
-        "-t", "--team", required=True, type=lambda x: x.capitalize(), help="Team responsible for the database"
+        "-t",
+        "--team",
+        required=True,
+        type=lambda x: x.capitalize(),
+        help="Team responsible for the database",
     )
 
     parser.add_argument(
         "-v",
         "--verbose",
         action="store_true",
-        help="Enable verbose output (check that all required keys are not NULL/ empty)"
+        help="Enable verbose output (check that all required keys are not NULL/ empty)",
     )
-    
+
     args = parser.parse_args()
 
     server_info = {
@@ -213,32 +325,32 @@ if __name__ == "__main__":
     db = args.db_name
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
-    if (args.production_name):
+    if args.production_name:
         sql_out = open(output_dir / f"{args.production_name}.sql", "w")
     else:
         sql_out = open(output_dir / f"{db}.sql", "w")
-        
+
     print(f"Working on database: {db}")
     print(f"USE {db};", file=sql_out)
 
     # set up logger
-    if (args.production_name):
+    if args.production_name:
         log_file_path = output_dir / f"{args.production_name}_metadata.log"
     else:
         log_file_path = output_dir / f"{db}_metadata.log"
     log_ini_path = metadata_dir / "logging.conf"
     logging.config.fileConfig(
         log_ini_path,
-        defaults={"logfilename": log_file_path},
+        defaults={"logfilename": str(log_file_path)},
         disable_existing_loggers=True,
     )
     logger = logging.getLogger()
     logger.propagate = False
 
     core_dict = {}
-    if (args.production_name):
-        core_dict['species.production_name'] = args.production_name
-        #getting species_id via the production_name
+    if args.production_name:
+        core_dict["species.production_name"] = args.production_name
+        # getting species_id via the production_name
         species_query = f"SELECT species_id FROM meta WHERE meta_key='species.production_name' AND meta_value='{core_dict['species.production_name']}';"
         species_meta = mysql_fetch_data(
             species_query,
@@ -248,11 +360,14 @@ if __name__ == "__main__":
             database=db,
         )
         species_id = species_meta[0][0]
-        print("species ID: "+str(species_id))
+        print("species ID: " + str(species_id))
     else:
         species_id = 1
-        print("WARNING: no production_name provided, using default species ID ="+str(species_id))
-        
+        print(
+            "WARNING: no production_name provided, using default species ID ="
+            + str(species_id)
+        )
+
     # get all existing assembly, species and genebuild metadata from the core db
     core_query = f"SELECT meta_key,meta_value FROM meta WHERE species_id = {species_id} AND (meta_key LIKE 'assembly%' OR meta_key LIKE 'species%' OR meta_key LIKE 'genebuild%' OR meta_key LIKE 'organism%' OR meta_key LIKE 'sample%' OR meta_key LIKE 'annotation%' OR meta_key LIKE 'gencode%');"
     print(core_query)
@@ -266,7 +381,6 @@ if __name__ == "__main__":
     for meta_pair in core_meta:
         core_dict[meta_pair[0]] = meta_pair[1]
 
-        
     # get the assembly metadata from the sources of truth (sources of truth in parentheses)
     # expected assembly meta_keys: assembly.accession (from core), assembly.date (from ena), assembly.is_reference (static), assembly.name (ena), assembly.provider_name (core or default), assembly.provider_url (core or default), assembly.level (ena), assembly.tolid (biosample), assembly.ucsc_alias (ncbi), assembly.long_name, assembly.url_name (static)
     # expected organism meta_keys: organism.taxonomy_id (ena), organism.species_taxonomy_id (taxonomy db), organism.common_name (taxonomy db), organism.strain (biosample), organism.scientific_name (taxonomy db), organism.scientific_parlance_name (static), organism.strain_type (biosample), organism.sample_accession (ena)
@@ -284,7 +398,7 @@ if __name__ == "__main__":
         # if the core comes from the main site, we need to put the GCF back as the main accession
         truth_dict["assembly.alt_accession"] = core_dict["assembly.alt_accession"]
         core_dict["assembly.accession"] = core_dict["assembly.accession_refseq"]
-        truth_dict["assembly.accession_body"] =	"RefSeq"
+        truth_dict["assembly.accession_body"] = "RefSeq"
 
     # Some goddamn ENA assembly records do not have the BioSample ID, so I'm hardcoding them, I swear to jaysus, I'm so done with metadata!!!
     if db == "caenorhabditis_elegans_core_57_110_282":
@@ -416,17 +530,16 @@ if __name__ == "__main__":
     if "assembly.provider_name" not in core_dict:
         truth_dict["assembly.provider_name"] = "ENA"
         truth_dict["assembly.provider_url"] = "https://www.ebi.ac.uk/ena/browser/home"
-        logger.warning(" | ASSEMBLY_PROVIDER | No assembly provider information found, using default, ENA.")
+        logger.warning(
+            " | ASSEMBLY_PROVIDER | No assembly provider information found, using default, ENA."
+        )
 
     provider_dict = {}
-    with open(provider_static_file, 'r') as f:
+    with open(provider_static_file, "r") as f:
         for line in f:
-            parts = line.strip().split('\t')
-            if len(parts) > 2: 
-                provider_dict[parts[0]] = {
-                    'name': parts[1],
-                    'url': parts[2]
-                }
+            parts = line.strip().split("\t")
+            if len(parts) > 2:
+                provider_dict[parts[0]] = {"name": parts[1], "url": parts[2]}
 
     # genebuild.provider_name and _url keys: check if annotation.provider_name and _url keys exist, if not check spreadsheet, else set to default "Ensembl", "Ensembl url" (full_genebuild, anno, braker, hprc)
     # genebuild.version key is now being used for metadata loading, we are setting it to the first genebuild.version for everything (unless there is already a value set for this key), data teams need to be aware when handing over an updated annotation, i.e. assembly is same as an existing genome, but the gene set has been updated (new data, or a fix)
@@ -442,36 +555,48 @@ if __name__ == "__main__":
             truth_dict["genebuild.method_display"] = "BRAKER2"
             truth_dict["genebuild.annotation_source"] = "braker"
             truth_dict["genebuild.provider_name"] = "Ensembl"
-            truth_dict["genebuild.provider_url"] = "https://beta.ensembl.org/help/articles/braker-2-genome-annotation"
+            truth_dict["genebuild.provider_url"] = (
+                "https://beta.ensembl.org/help/articles/braker-2-genome-annotation"
+            )
         elif "HELIXER" in core_dict["sample.gene_text"]:
             truth_dict["genebuild.version"] = "HLX01"
             truth_dict["genebuild.method"] = "helixer"
             truth_dict["genebuild.method_display"] = "Helixer"
             truth_dict["genebuild.annotation_source"] = "helixer"
             truth_dict["genebuild.provider_name"] = "Ensembl"
-            truth_dict["genebuild.provider_url"] = "https://beta.ensembl.org/info/genome/helixer-genome-annotation"
+            truth_dict["genebuild.provider_url"] = (
+                "https://beta.ensembl.org/info/genome/helixer-genome-annotation"
+            )
         # otherwise check the genebuild.method for annotation key updates/additions
         elif core_dict["genebuild.method"] == "full_genebuild":
             truth_dict["genebuild.version"] = "ENS01"
             truth_dict["genebuild.method_display"] = "Ensembl Genebuild"
             truth_dict["genebuild.annotation_source"] = "ensembl"
             truth_dict["genebuild.provider_name"] = "Ensembl"
-            truth_dict["genebuild.provider_url"] = "https://beta.ensembl.org/help/articles/vertebrate-genome-annotation"
+            truth_dict["genebuild.provider_url"] = (
+                "https://beta.ensembl.org/help/articles/vertebrate-genome-annotation"
+            )
         elif core_dict["genebuild.method"] == "anno":
             truth_dict["genebuild.version"] = "ENS01"
             truth_dict["genebuild.method_display"] = "Ensembl Genebuild"
             truth_dict["genebuild.annotation_source"] = "ensembl"
             truth_dict["genebuild.provider_name"] = "Ensembl"
-            truth_dict["genebuild.provider_url"] = "https://beta.ensembl.org/help/articles/non-vertebrate-genome-annotation"
+            truth_dict["genebuild.provider_url"] = (
+                "https://beta.ensembl.org/help/articles/non-vertebrate-genome-annotation"
+            )
         elif core_dict["genebuild.method"] == "projection_build":
             truth_dict["genebuild.version"] = "ENS01"
             truth_dict["genebuild.annotation_source"] = "ensembl"
             truth_dict["genebuild.provider_name"] = "Ensembl"
             if core_dict["species.scientific_name"] == "homo sapiens":
-                truth_dict["genebuild.provider_url"] = "https://beta.ensembl.org/help/articles/human-genome-automated-annotation"
+                truth_dict["genebuild.provider_url"] = (
+                    "https://beta.ensembl.org/help/articles/human-genome-automated-annotation"
+                )
                 truth_dict["genebuild.method_display"] = "Mapping from GRCh38"
             else:
-                truth_dict["genebuild.provider_url"] = "https://beta.ensembl.org/help/articles/vertebrate-genome-annotation"
+                truth_dict["genebuild.provider_url"] = (
+                    "https://beta.ensembl.org/help/articles/vertebrate-genome-annotation"
+                )
                 truth_dict["genebuild.method_display"] = "Mapping from reference"
         # for non-genebuilds, I don't have a set of rules (as above), so I rely on the core meta keys and the static
         elif core_dict["genebuild.method"] == "import":
@@ -480,73 +605,118 @@ if __name__ == "__main__":
             if "genebuild.version" not in core_dict:
                 truth_dict["genebuild.version"] = "EXT01"
             # try to get the annotation source
-            if "species.annotation_source" in core_dict and "genebuild.annotation_source" not in core_dict:
-                truth_dict["genebuild.annotation_source"] = core_dict["species.annotation_source"]
+            if (
+                "species.annotation_source" in core_dict
+                and "genebuild.annotation_source" not in core_dict
+            ):
+                truth_dict["genebuild.annotation_source"] = core_dict[
+                    "species.annotation_source"
+                ]
             elif "genebuild.annotation_source" not in core_dict:
-                logger.critical(" | GENEBUILD_PROVIDER_URL | No genebuild.annotation_source could be found in the core db, this is a required key!")
+                logger.critical(
+                    " | GENEBUILD_PROVIDER_URL | No genebuild.annotation_source could be found in the core db, this is a required key!"
+                )
             # try to get the annotation provider name from core
-            if "annotation.provider_name" in core_dict and "genebuild.provider_name" not in core_dict:
-                truth_dict["genebuild.provider_name"] = core_dict["annotation.provider_name"]
-            #otherwise get it from provider_static.txt
-            elif core_dict["species.production_name"] in provider_dict and "genebuild.provider_name" not in core_dict:
-                truth_dict["genebuild.provider_name"] = provider_dict[core_dict["species.production_name"]["name"]]
+            if (
+                "annotation.provider_name" in core_dict
+                and "genebuild.provider_name" not in core_dict
+            ):
+                truth_dict["genebuild.provider_name"] = core_dict[
+                    "annotation.provider_name"
+                ]
+            # otherwise get it from provider_static.txt
+            elif (
+                core_dict["species.production_name"] in provider_dict
+                and "genebuild.provider_name" not in core_dict
+            ):
+                truth_dict["genebuild.provider_name"] = provider_dict[
+                    core_dict["species.production_name"]["name"]
+                ]
             elif "genebuild.provider_name" not in core_dict:
-                logger.critical(" | GENEBUILD_PROVIDER_NAME | No genebuild.provider_name could be found either in the core db or in provider_static.txt, this is a required key!")    
-            # try to get the annotation provider url from core                    
-            if "annotation.provider_url" in core_dict and "genebuild.provider_url" not in core_dict:
-                truth_dict["genebuild.provider_url"] = core_dict["annotation.provider_url"]
-            #otherwise get it from provider_static.txt
-            elif core_dict["species.production_name"] in provider_dict and "genebuild.provider_url" not in core_dict:
-                truth_dict["genebuild.provider_url"] = provider_dict[core_dict["species.production_name"]["url"]]
+                logger.critical(
+                    " | GENEBUILD_PROVIDER_NAME | No genebuild.provider_name could be found either in the core db or in provider_static.txt, this is a required key!"
+                )
+            # try to get the annotation provider url from core
+            if (
+                "annotation.provider_url" in core_dict
+                and "genebuild.provider_url" not in core_dict
+            ):
+                truth_dict["genebuild.provider_url"] = core_dict[
+                    "annotation.provider_url"
+                ]
+            # otherwise get it from provider_static.txt
+            elif (
+                core_dict["species.production_name"] in provider_dict
+                and "genebuild.provider_url" not in core_dict
+            ):
+                truth_dict["genebuild.provider_url"] = provider_dict[
+                    core_dict["species.production_name"]["url"]
+                ]
             elif "genebuild.provider_url" not in core_dict:
-                logger.critical(" | GENEBUILD_PROVIDER_URL | No genebuild.provider_url could be found either in the core db or in provider_static.txt, this is a required key!")
-            
-                 
+                logger.critical(
+                    " | GENEBUILD_PROVIDER_URL | No genebuild.provider_url could be found either in the core db or in provider_static.txt, this is a required key!"
+                )
+
     else:
-        logger.warning(" | GENEBUILD_METHOD | No genebuild.method, assuming this is an Ensembl annotation")
+        logger.warning(
+            " | GENEBUILD_METHOD | No genebuild.method, assuming this is an Ensembl annotation"
+        )
         truth_dict["genebuild.version"] = "ENS01"
         truth_dict["genebuild.annotation_source"] = "ensembl"
         truth_dict["genebuild.provider_name"] = "Ensembl"
-        truth_dict["genebuild.provider_url"] = "https://rapid.ensembl.org/info/genome/genebuild/full_genebuild.html"
+        truth_dict["genebuild.provider_url"] = (
+            "https://rapid.ensembl.org/info/genome/genebuild/full_genebuild.html"
+        )
 
     # if the genebuild.version already exists in the core db, I'll just leave that value
     if "genebuild.version" in core_dict and core_dict["genebuild.version"] != "":
         truth_dict["genebuild.version"] = core_dict["genebuild.version"]
 
-    #if the sample gene info is in the core db, update the meta key names
+    # if the sample gene info is in the core db, update the meta key names
     try:
         truth_dict["genebuild.sample_gene"] = core_dict["sample.gene_param"]
     except KeyError:
-        logger.critical(" | SAMPLE.GENE_PARAM | No sample.gene_param could be found in the core db, this is a required key!")
+        logger.critical(
+            " | SAMPLE.GENE_PARAM | No sample.gene_param could be found in the core db, this is a required key!"
+        )
     try:
         truth_dict["genebuild.sample_location"] = core_dict["sample.location_param"]
     except KeyError:
-        logger.critical(" | SAMPLE.LOCATION_PARAM | No sample.location_param could be found in the core db, this is a required key!")
-        
-    #let's do a check for the genebuild.last_geneset_update key because it's required by web
+        logger.critical(
+            " | SAMPLE.LOCATION_PARAM | No sample.location_param could be found in the core db, this is a required key!"
+        )
+
+    # let's do a check for the genebuild.last_geneset_update key because it's required by web
     try:
-        truth_dict["genebuild.last_geneset_update"] = core_dict["genebuild.last_geneset_update"]
+        truth_dict["genebuild.last_geneset_update"] = core_dict[
+            "genebuild.last_geneset_update"
+        ]
     except KeyError:
-        logger.warning(" | GENEBUILD.LAST_GENESET_UPDATE | No genebuild.last_geneset_update could be found in the core db, this is a required key, I'm setting it to today.")
+        logger.warning(
+            " | GENEBUILD.LAST_GENESET_UPDATE | No genebuild.last_geneset_update could be found in the core db, this is a required key, I'm setting it to today."
+        )
         truth_dict["genebuild.last_geneset_update"] = datetime.now().strftime("%Y-%m")
 
-        
-    #update the remaining species keys -> organisms keys
+    # update the remaining species keys -> organisms keys
     try:
         truth_dict["organism.production_name"] = core_dict["species.production_name"]
     except KeyError:
-        logger.critical(" | SPECIES.PRODUCTION_NAME | No species.production_name could be found in the core db, this is a required key!")
+        logger.critical(
+            " | SPECIES.PRODUCTION_NAME | No species.production_name could be found in the core db, this is a required key!"
+        )
 
     # Set the team responsible for this genome
     truth_dict["genebuild.team_responsible"] = args.team
-        
+
     # if the expected meta_key does not exist in the core metadata but there is a truth value, INSERT
     # if the expected meta_key exists in the core metadata but the meta_value does not match the truth value and truth value is not NULL, UPDATE
     # if the expected meta_key exists in the core metadata and matches the truth value, NO ACTION
     for meta_key in truth_dict:
         # Escape single quotes in truth_dict[meta_key]
-        meta_value = truth_dict[meta_key].replace("'", "''") if truth_dict[meta_key] else None
-        
+        meta_value = (
+            truth_dict[meta_key].replace("'", "''") if truth_dict[meta_key] else None
+        )
+
         if meta_key not in core_dict:
             if truth_dict[meta_key]:
                 print(
@@ -585,7 +755,10 @@ if __name__ == "__main__":
 
     # report if there has been a change in common name
     if "species.common_name" in core_dict:
-        if core_dict["species.common_name"].lower() != truth_dict["organism.common_name"].lower():
+        if (
+            core_dict["species.common_name"].lower()
+            != truth_dict["organism.common_name"].lower()
+        ):
             logger.warning(
                 ' | COMMON NAME | The value for species.common_name in your meta table: "'
                 + core_dict["species.common_name"]
@@ -597,15 +770,18 @@ if __name__ == "__main__":
     meta_keys_to_remove = [
         "species.strain",
         "strain.type",
-        ]
+    ]
     for remove_key in meta_keys_to_remove:
         print(
             f"DELETE from meta WHERE meta_key='{remove_key}';",
             file=sql_out,
         )
-            
+
     if args.verbose:
         # Print with the 'required' column if -v flag is present
-        print("\n".join(f"{key:<28}   {val:<20}   {'required' if key in required_meta_keys else ''}" 
-                    for key, val in truth_dict.items()))
-
+        print(
+            "\n".join(
+                f"{key:<28}   {val:<20}   {'required' if key in required_meta_keys else ''}"
+                for key, val in truth_dict.items()
+            )
+        )

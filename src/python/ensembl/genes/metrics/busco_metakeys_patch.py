@@ -22,7 +22,7 @@ from typing import Dict, Optional, Union
 import pymysql
 
 
-def parse_busco_file(
+def parse_busco_file(  # pylint: disable=too-many-locals, too-many-statements, unspecified-encoding
     file_path: str,
 ) -> Dict[
     str, Union[str, int, float]
@@ -191,6 +191,7 @@ def process_busco_file(
     """
     Parses the BUSCO file, generates a JSON, writes it to an output file,
     and generates SQL patches.
+
     Args:
         busco_file (str): Busco file to process
         dbname (str) : db name
@@ -311,18 +312,18 @@ def main():
         sql_patches = process_busco_file(
             args.file, args.db, args.output_dir, args.assembly_id
         )
-        with open(
+        with open(  # pylint: disable =unspecified-encoding
             Path(args.output_dir) / f"{args.db}.sql", "a"
-        ) as f_in:  # pylint: disable =unspecified-encoding
+        ) as f_in:
             f_in.write(sql_patches)
 
     elif args.input_dir:
         # Process all files that end with 'busco_short_summary'
         busco_files = list(Path(args.input_dir).rglob("*busco_short_summary.txt"))
 
-        with open(
+        with open(  # pylint: disable =unspecified-encoding
             Path(args.output_dir) / f"{args.db}.sql", "a"
-        ) as f:  # pylint: disable =unspecified-encoding
+        ) as f:
             for file in busco_files:
                 print(f"Processing file: {file}")
                 sql_patches = process_busco_file(
