@@ -2,6 +2,6 @@ pytest
 pylint
 Sphinx
 requests
-pymysql==1.0.2
+pymysql==1.1.1
 sqlalchemy==2.0.46
 pandas
