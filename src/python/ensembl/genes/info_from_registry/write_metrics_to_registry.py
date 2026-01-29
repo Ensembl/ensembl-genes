@@ -215,7 +215,7 @@ def write_genebuild_metrics(
         )
 
 
-def main(  # pylint:disable=too-many-arguments, too-many-positional-arguments, too-many-locals
+def main(  # pylint:disable=too-many-arguments, too-many-locals
     registry_host: str,
     registry_port: int,
     registry_user: str,

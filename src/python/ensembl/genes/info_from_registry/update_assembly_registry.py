@@ -54,7 +54,7 @@ def ensure_genebuilder_exists(
 
 
 # fetch_current_record is now fetch_current_genebuild_record imported from registry_helper
-def insert_new_record(  # pylint:disable=too-many-arguments, too-many-positional-arguments
+def insert_new_record(  # pylint:disable=too-many-arguments
     connection: pymysql.connections.Connection,
     assembly_id: int,
     assembly: str,
@@ -119,7 +119,7 @@ def insert_new_record(  # pylint:disable=too-many-arguments, too-many-positional
         print(f"Inserted new record for GCA {assembly} with status '{status}'")
 
 
-def update_existing_record(  # pylint:disable=too-many-arguments, too-many-positional-arguments
+def update_existing_record(  # pylint:disable=too-many-arguments
     connection: pymysql.connections.Connection,
     record_id: int,
     status: str,
@@ -193,7 +193,7 @@ def set_old_record_historical(
         print(f"Set record {record_id} to historical")
 
 
-def main(  # pylint:disable=too-many-arguments, too-many-statements, too-many-branches, too-many-locals, too-many-positional-arguments
+def main(  # pylint:disable=too-many-arguments, too-many-statements, too-many-branches, too-many-locals
     host: str,
     port: int,
     user: str,

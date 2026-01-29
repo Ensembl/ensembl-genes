@@ -320,7 +320,7 @@ def format_species_name(species_name: str) -> str:
     return species_title.replace(" ", "_").replace("-", "_").replace(".", "_")
 
 
-def create_ftp_directory_structure(  # pylint: disable=too-many-locals, too-many-arguments, too-many-positional-arguments
+def create_ftp_directory_structure(  # pylint: disable=too-many-locals, too-many-arguments
     output_path: str,
     species_name: str,
     gca_string: str,

@@ -91,3 +91,6 @@ disable = ["duplicate-code"]
 [tool.pixi.project]
 name = "ensembl-genes"
 channels = ["pypi"]
+
+[tool.pylint."MESSAGES CONTROL"]
+disable = ["import-error"]

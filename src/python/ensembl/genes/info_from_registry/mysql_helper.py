@@ -61,7 +61,7 @@ def mysql_get_connection(
         return None
 
 
-def mysql_fetch_data(  # pylint:disable=too-many-arguments, too-many-positional-arguments
+def mysql_fetch_data(  # pylint:disable=too-many-arguments
     query: str,
     database: str,
     host: str,
@@ -109,7 +109,7 @@ def mysql_fetch_data(  # pylint:disable=too-many-arguments, too-many-positional-
         return []
 
 
-def mysql_update(  # pylint:disable=too-many-arguments, too-many-positional-arguments
+def mysql_update(  # pylint:disable=too-many-arguments
     query: str,
     database: str,
     host: str,

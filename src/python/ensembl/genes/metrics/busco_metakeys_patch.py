@@ -22,7 +22,7 @@ from typing import Dict, Optional, Union
 import pymysql
 
 
-def parse_busco_file(  # pylint: disable=too-many-locals, too-many-statements, too-many-positional-arguments, unspecified-encoding
+def parse_busco_file(  # pylint: disable=too-many-locals, too-many-statements, unspecified-encoding
     file_path: str,
 ) -> Dict[
     str, Union[str, int, float]
@@ -232,7 +232,7 @@ def process_busco_file(
     return sql_patches
 
 
-def execute_sql_patches(  # pylint: disable=too-many-arguments, too-many-locals, too-many-positional-arguments
+def execute_sql_patches(  # pylint: disable=too-many-arguments, too-many-locals
     db_name: str,
     sql_statements: str,
     host: str,
