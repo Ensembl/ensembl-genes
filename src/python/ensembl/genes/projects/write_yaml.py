@@ -119,7 +119,7 @@ class EnsemblFTP:
         self._retry(ftp_connection.cwd, which, "/")
 
     # ---- lookups ----
-    def check_for_file(
+    def check_for_file(  # pylint: disable=too-many-locals, too-many-arguments
         self,
         species_name: str,
         prod_name: str,
@@ -129,6 +129,7 @@ class EnsemblFTP:
     ) -> str:
         """
         Check for existence of specific file types on FTP servers.
+
         Args:
             species_name (str): _species_name_
             prod_name (str): _prod_name_
@@ -139,6 +140,11 @@ class EnsemblFTP:
         Returns:
             str: URL to the file if found, else empty string
         """
+        # Initialize all file names upfront to avoid possibly-used-before-assignment
+        file_name_protein: str | None = None
+        file_name_alternative: str | None = None
+        file_name: str | None = None
+
         if file_type == "repeatmodeler":
             ftp_connection = self.ebi_ftp
             which = "ebi"
@@ -174,13 +180,17 @@ class EnsemblFTP:
             files_list = self._retry(ftp_connection.nlst, which)
 
             if file_type == "busco":
-                if file_name_protein in files_list:
+                if file_name_protein and file_name_protein in files_list:
                     return ftp_path + path + file_name_protein
-                if file_name_alternative in files_list:
+                if file_name_alternative and file_name_alternative in files_list:
                     return ftp_path + path + file_name_alternative
                 return ""
             else:
-                return ftp_path + path + file_name if file_name in files_list else ""
+                return (
+                    ftp_path + path + file_name
+                    if file_name and file_name in files_list
+                    else ""
+                )
         except error_perm as e:
             if "550" in str(e):
                 return ""

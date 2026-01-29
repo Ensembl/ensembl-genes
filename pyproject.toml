@@ -94,3 +94,6 @@ channels = ["pypi"]
 
 [tool.pylint."MESSAGES CONTROL"]
 disable = ["import-error"]
+
+[tool.pylint."DESIGN"]
+max-positional-arguments = 20
