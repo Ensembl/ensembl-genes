@@ -34,11 +34,18 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-
+      
       - name: Update NOTICE file
         run: |
-          sed -i "s/$(date +%Y --date='1 year ago')/$(date +%Y)/" NOTICE
+          old_year=$(date +%Y --date='1 year ago')
+          new_year=$(date +%Y)
+          sed -i "s/$old_year/$new_year/g" NOTICE
 
+          if git diff --quiet; then
+            echo "No year change needed — exiting"
+            exit 0
+          fi
+          
       - uses: EndBug/add-and-commit@v9
         with:
           new_branch: ${{ env.branch_name }}
