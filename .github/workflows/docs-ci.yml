@@ -1,14 +1,6 @@
 name: 'Docs: Build (MkDocs)'
 
 on:
-  push:
-    branches: [ main ]
-    paths:
-      - 'mkdocs/**'
-      - 'docs/**'
-      - 'src/**'
-      - 'pyproject.toml'
-      - 'mkdocs.yml'
   pull_request:
     paths:
       - 'mkdocs/**'
