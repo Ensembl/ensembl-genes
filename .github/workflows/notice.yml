@@ -16,11 +16,8 @@
 name: "Update NOTICE copyright year at the start of every year"
 
 on:
-  #schedule:
-  #  - cron:  '15 15 1 1 *'
-  push:
-    branches: [ "fix/documentation" ]
-
+  schedule:
+   - cron:  '15 15 1 1 *'
 
 jobs:
   notice_update:
@@ -45,7 +42,7 @@ jobs:
             echo "No year change needed — exiting"
             exit 0
           fi
-          
+
       - uses: EndBug/add-and-commit@v9
         with:
           new_branch: ${{ env.branch_name }}
