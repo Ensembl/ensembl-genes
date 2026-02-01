@@ -39,7 +39,7 @@ docs = [
 cicd = [
     "black>=24,<25",
     "pylint>=3,<5",
-    "pytest>=7,<9",
+    "pytest>=7,<10",
     "mypy",
     "types-PyMySQL",
     "types-requests",
