@@ -51,6 +51,97 @@ def run_gffcompare(
 
     subprocess.run(cmd2, check=True)
 
+def parse_annotation(annotation_file: Path):
+    """Dispatch parser based on file extension."""
+    ext = annotation_file.suffix.lower()
+
+    if ext in [".gff", ".gff3"]:
+        return parse_gff(annotation_file)
+    elif ext == ".gtf":
+        return parse_gtf(annotation_file)
+    else:
+        raise ValueError(f"Unsupported file type: {ext}")
+
+def parse_gtf(gtf_file):
+    """Parse GTF and build structure without requiring CDS."""
+    genes = {}
+    transcripts = defaultdict(list)
+    exons = defaultdict(list)
+    cds = defaultdict(list)
+
+    gene_bounds = defaultdict(lambda: [10**12, 0])  # min, max
+
+    with open(gtf_file) as f:
+        for line in f:
+            if line.startswith("#"):
+                continue
+
+            parts = line.strip().split("\t")
+            if len(parts) < 9:
+                continue
+
+            chrom, source, feature, start, end, score, strand, phase, attributes = parts
+            start, end = int(start), int(end)
+
+            # Parse GTF attributes
+            attr_dict = {}
+            for attr in attributes.split(";"):
+                attr = attr.strip()
+                if not attr:
+                    continue
+                key, val = attr.split(" ", 1)
+                attr_dict[key] = val.strip('"')
+
+            gene_id = attr_dict.get("gene_id")
+            transcript_id = attr_dict.get("transcript_id")
+
+            if not gene_id:
+                continue
+
+            # Track gene bounds from all features
+            gene_bounds[gene_id][0] = min(gene_bounds[gene_id][0], start)
+            gene_bounds[gene_id][1] = max(gene_bounds[gene_id][1], end)
+
+            if feature == "transcript":
+                transcripts[gene_id].append({
+                    "id": transcript_id,
+                    "chrom": chrom,
+                    "start": start,
+                    "end": end,
+                    "strand": strand,
+                    "length": end - start + 1
+                })
+
+            elif feature == "exon":
+                exons[gene_id].append({
+                    "chrom": chrom,
+                    "start": start,
+                    "end": end,
+                    "strand": strand,
+                    "length": end - start + 1
+                })
+
+            elif feature == "CDS":
+                cds[gene_id].append({
+                    "chrom": chrom,
+                    "start": start,
+                    "end": end,
+                    "strand": strand,
+                    "length": end - start + 1
+                })
+
+    # Create gene entries from collected bounds
+    for gene_id, (start, end) in gene_bounds.items():
+        genes[gene_id] = {
+            "chrom": chrom,
+            "start": start,
+            "end": end,
+            "strand": strand,
+            "length": end - start + 1
+        }
+
+    return genes, transcripts, exons, cds
+
 
 def parse_gff(gff_file):
 	"""Parse GFF3/GTF file and extract gene/transcript information"""
@@ -169,10 +260,10 @@ def compare_annotations(file1, file2, name1="Funannotate", name2="EnsemblAnno"):
 	"""Main comparison function"""
 
 	print(f"Parsing {name1} annotation...")
-	genes1, trans1, exons1, cds1 = parse_gff(file1)
+	genes1, trans1, exons1, cds1 = parse_annotation(Path(file1))
 
 	print(f"Parsing {name2} annotation...")
-	genes2, trans2, exons2, cds2 = parse_gff(file2)
+	genes2, trans2, exons2, cds2 = parse_annotation(Path(file2))
 
 	print("\n" + "=" * 60)
 	print("ANNOTATION STATISTICS")
