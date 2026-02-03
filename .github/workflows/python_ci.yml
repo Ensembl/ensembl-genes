@@ -17,7 +17,6 @@ name: "Python CI"
 
 on:
   push:
-    branches: [ "fix/documentation" ]
   pull_request:
     branches: [ "main" ]
 
