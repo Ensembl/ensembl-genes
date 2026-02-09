@@ -3690,7 +3690,68 @@
 <span class="normal">560</span>
 <span class="normal">561</span>
 <span class="normal">562</span>
-<span class="normal">563</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span>  <span class="c1"># pylint:disable=too-many-arguments, too-many-statements, too-many-branches, too-many-locals</span>
+<span class="normal">563</span>
+<span class="normal">564</span>
+<span class="normal">565</span>
+<span class="normal">566</span>
+<span class="normal">567</span>
+<span class="normal">568</span>
+<span class="normal">569</span>
+<span class="normal">570</span>
+<span class="normal">571</span>
+<span class="normal">572</span>
+<span class="normal">573</span>
+<span class="normal">574</span>
+<span class="normal">575</span>
+<span class="normal">576</span>
+<span class="normal">577</span>
+<span class="normal">578</span>
+<span class="normal">579</span>
+<span class="normal">580</span>
+<span class="normal">581</span>
+<span class="normal">582</span>
+<span class="normal">583</span>
+<span class="normal">584</span>
+<span class="normal">585</span>
+<span class="normal">586</span>
+<span class="normal">587</span>
+<span class="normal">588</span>
+<span class="normal">589</span>
+<span class="normal">590</span>
+<span class="normal">591</span>
+<span class="normal">592</span>
+<span class="normal">593</span>
+<span class="normal">594</span>
+<span class="normal">595</span>
+<span class="normal">596</span>
+<span class="normal">597</span>
+<span class="normal">598</span>
+<span class="normal">599</span>
+<span class="normal">600</span>
+<span class="normal">601</span>
+<span class="normal">602</span>
+<span class="normal">603</span>
+<span class="normal">604</span>
+<span class="normal">605</span>
+<span class="normal">606</span>
+<span class="normal">607</span>
+<span class="normal">608</span>
+<span class="normal">609</span>
+<span class="normal">610</span>
+<span class="normal">611</span>
+<span class="normal">612</span>
+<span class="normal">613</span>
+<span class="normal">614</span>
+<span class="normal">615</span>
+<span class="normal">616</span>
+<span class="normal">617</span>
+<span class="normal">618</span>
+<span class="normal">619</span>
+<span class="normal">620</span>
+<span class="normal">621</span>
+<span class="normal">622</span>
+<span class="normal">623</span>
+<span class="normal">624</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span>  <span class="c1"># pylint:disable=too-many-arguments, too-many-statements, too-many-branches, too-many-locals</span>
     <span class="n">host</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">port</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">user</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -3886,14 +3947,75 @@
                     <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Status is already &#39;</span><span class="si">{</span><span class="n">status</span><span class="si">}</span><span class="s2">&#39;. No changes needed.&quot;</span><span class="p">)</span>
                     <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 
-            <span class="c1"># Block backwards transitions from completed</span>
+            <span class="c1"># Block backwards transitions from completed (unless new version provided)</span>
             <span class="k">elif</span> <span class="n">current_status</span> <span class="o">==</span> <span class="n">completed_status</span> <span class="ow">and</span> <span class="n">status</span> <span class="ow">in</span> <span class="n">active_statuses</span><span class="p">:</span>
-                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;ERROR: Cannot move backwards from &#39;completed&#39; to &#39;</span><span class="si">{</span><span class="n">status</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
-                <span class="nb">print</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Completed is a terminal-like status. To restart work, </span><span class="se">\</span>
-<span class="s2">                        use a new genebuild_version.&quot;</span>
+                <span class="c1"># Check if version changed - if so, allow new attempt</span>
+                <span class="n">effective_version</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">genebuild_version</span> <span class="k">if</span> <span class="n">genebuild_version</span> <span class="k">else</span> <span class="n">current_version</span>
                 <span class="p">)</span>
-                <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="n">effective_version</span> <span class="o">!=</span> <span class="n">current_version</span><span class="p">:</span>
+                    <span class="c1"># Validate the new version against ALL existing versions for this assembly</span>
+                    <span class="n">highest_version</span> <span class="o">=</span> <span class="n">fetch_highest_genebuild_version</span><span class="p">(</span>
+                        <span class="n">connection</span><span class="p">,</span> <span class="n">assembly</span>
+                    <span class="p">)</span>
+                    <span class="k">if</span> <span class="n">highest_version</span> <span class="ow">and</span> <span class="n">effective_version</span> <span class="o">&lt;=</span> <span class="n">highest_version</span><span class="p">:</span>
+                        <span class="nb">print</span><span class="p">(</span>
+                            <span class="sa">f</span><span class="s2">&quot;ERROR: Genebuild version &#39;</span><span class="si">{</span><span class="n">effective_version</span><span class="si">}</span><span class="s2">&#39; already exists &quot;</span>
+                            <span class="sa">f</span><span class="s2">&quot;or is lower than existing version &#39;</span><span class="si">{</span><span class="n">highest_version</span><span class="si">}</span><span class="s2">&#39; &quot;</span>
+                            <span class="sa">f</span><span class="s2">&quot;for assembly </span><span class="si">{</span><span class="n">assembly</span><span class="si">}</span><span class="s2">&quot;</span>
+                        <span class="p">)</span>
+                        <span class="nb">print</span><span class="p">(</span>
+                            <span class="s2">&quot;Versions must be unique per assembly across all genebuilders.&quot;</span>
+                        <span class="p">)</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Please use a version higher than &#39;</span><span class="si">{</span><span class="n">highest_version</span><span class="si">}</span><span class="s2">&#39;.&quot;</span><span class="p">)</span>
+                        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+                    <span class="nb">print</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;Moving from &#39;completed&#39; to &#39;</span><span class="si">{</span><span class="n">status</span><span class="si">}</span><span class="s2">&#39; &quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;with new version </span><span class="si">{</span><span class="n">effective_version</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="p">)</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Creating new attempt.&quot;</span><span class="p">)</span>
+
+                    <span class="n">method_to_insert</span> <span class="o">=</span> <span class="p">(</span>
+                        <span class="n">annotation_method</span> <span class="k">if</span> <span class="n">annotation_method</span> <span class="k">else</span> <span class="s2">&quot;pending&quot;</span>
+                    <span class="p">)</span>
+                    <span class="n">source_to_insert</span> <span class="o">=</span> <span class="p">(</span>
+                        <span class="n">annotation_source</span> <span class="k">if</span> <span class="n">annotation_source</span> <span class="k">else</span> <span class="n">current_source</span>
+                    <span class="p">)</span>
+
+                    <span class="n">set_old_record_historical</span><span class="p">(</span><span class="n">connection</span><span class="p">,</span> <span class="n">record_id</span><span class="p">,</span> <span class="n">dev</span><span class="p">)</span>
+                    <span class="n">insert_new_record</span><span class="p">(</span>
+                        <span class="n">connection</span><span class="p">,</span>
+                        <span class="n">assembly_id</span><span class="p">,</span>
+                        <span class="n">assembly</span><span class="p">,</span>
+                        <span class="n">genebuilder</span><span class="p">,</span>
+                        <span class="n">status</span><span class="p">,</span>
+                        <span class="n">source_to_insert</span><span class="p">,</span>
+                        <span class="n">method_to_insert</span><span class="p">,</span>
+                        <span class="n">current_date</span><span class="p">,</span>
+                        <span class="n">release_type</span><span class="p">,</span>
+                        <span class="n">effective_version</span><span class="p">,</span>
+                        <span class="n">dev</span><span class="p">,</span>
+                    <span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c1"># No version provided or same as current - reject</span>
+                    <span class="n">highest_version</span> <span class="o">=</span> <span class="n">fetch_highest_genebuild_version</span><span class="p">(</span>
+                        <span class="n">connection</span><span class="p">,</span> <span class="n">assembly</span>
+                    <span class="p">)</span>
+                    <span class="n">suggested_version</span> <span class="o">=</span> <span class="p">(</span>
+                        <span class="n">increment_genebuild_version</span><span class="p">(</span><span class="n">highest_version</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">highest_version</span>
+                        <span class="k">else</span> <span class="s2">&quot;ENS02&quot;</span>
+                    <span class="p">)</span>
+                    <span class="nb">print</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;ERROR: Cannot move backwards from &#39;completed&#39; to &#39;</span><span class="si">{</span><span class="n">status</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
+                    <span class="p">)</span>
+                    <span class="nb">print</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;To restart work, provide a new --genebuild_version higher &quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;than &#39;</span><span class="si">{</span><span class="n">highest_version</span><span class="si">}</span><span class="s2">&#39; (e.g., </span><span class="si">{</span><span class="n">suggested_version</span><span class="si">}</span><span class="s2">)&quot;</span>
+                    <span class="p">)</span>
+                    <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 
             <span class="c1"># Block backwards transitions from terminal statuses</span>
             <span class="k">elif</span> <span class="n">current_status</span> <span class="ow">in</span> <span class="n">terminal_statuses</span> <span class="ow">and</span> <span class="n">status</span> <span class="ow">in</span> <span class="p">(</span>
