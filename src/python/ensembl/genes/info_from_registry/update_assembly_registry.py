@@ -389,14 +389,75 @@ def main(  # pylint:disable=too-many-arguments, too-many-statements, too-many-br
                     print(f"Status is already '{status}'. No changes needed.")
                     sys.exit(0)
 
-            # Block backwards transitions from completed
+            # Block backwards transitions from completed (unless new version provided)
             elif current_status == completed_status and status in active_statuses:
-                print(f"ERROR: Cannot move backwards from 'completed' to '{status}'")
-                print(
-                    f"Completed is a terminal-like status. To restart work, \
-                        use a new genebuild_version."
+                # Check if version changed - if so, allow new attempt
+                effective_version = (
+                    genebuild_version if genebuild_version else current_version
                 )
-                sys.exit(1)
+
+                if effective_version != current_version:
+                    # Validate the new version against ALL existing versions for this assembly
+                    highest_version = fetch_highest_genebuild_version(
+                        connection, assembly
+                    )
+                    if highest_version and effective_version <= highest_version:
+                        print(
+                            f"ERROR: Genebuild version '{effective_version}' already exists "
+                            f"or is lower than existing version '{highest_version}' "
+                            f"for assembly {assembly}"
+                        )
+                        print(
+                            "Versions must be unique per assembly across all genebuilders."
+                        )
+                        print(f"Please use a version higher than '{highest_version}'.")
+                        sys.exit(1)
+
+                    print(
+                        f"Moving from 'completed' to '{status}' "
+                        f"with new version {effective_version}"
+                    )
+                    print("Creating new attempt.")
+
+                    method_to_insert = (
+                        annotation_method if annotation_method else "pending"
+                    )
+                    source_to_insert = (
+                        annotation_source if annotation_source else current_source
+                    )
+
+                    set_old_record_historical(connection, record_id, dev)
+                    insert_new_record(
+                        connection,
+                        assembly_id,
+                        assembly,
+                        genebuilder,
+                        status,
+                        source_to_insert,
+                        method_to_insert,
+                        current_date,
+                        release_type,
+                        effective_version,
+                        dev,
+                    )
+                else:
+                    # No version provided or same as current - reject
+                    highest_version = fetch_highest_genebuild_version(
+                        connection, assembly
+                    )
+                    suggested_version = (
+                        increment_genebuild_version(highest_version)
+                        if highest_version
+                        else "ENS02"
+                    )
+                    print(
+                        f"ERROR: Cannot move backwards from 'completed' to '{status}'"
+                    )
+                    print(
+                        f"To restart work, provide a new --genebuild_version higher "
+                        f"than '{highest_version}' (e.g., {suggested_version})"
+                    )
+                    sys.exit(1)
 
             # Block backwards transitions from terminal statuses
             elif current_status in terminal_statuses and status in (
