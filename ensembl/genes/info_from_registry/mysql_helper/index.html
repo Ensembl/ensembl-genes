@@ -3135,7 +3135,8 @@ informative messages and errors during execution.</p>
 <span class="normal">153</span>
 <span class="normal">154</span>
 <span class="normal">155</span>
-<span class="normal">156</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">mysql_update</span><span class="p">(</span>  <span class="c1"># pylint:disable=too-many-arguments</span>
+<span class="normal">156</span>
+<span class="normal">157</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">mysql_update</span><span class="p">(</span>  <span class="c1"># pylint:disable=too-many-arguments</span>
     <span class="n">query</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">database</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">host</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -3159,11 +3160,12 @@ informative messages and errors during execution.</p>
 <span class="sd">    Returns:</span>
 <span class="sd">        bool: True if the query was executed successfully, False otherwise.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="k">try</span><span class="p">:</span>
         <span class="n">conn</span> <span class="o">=</span> <span class="n">pymysql</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span>
             <span class="n">host</span><span class="o">=</span><span class="n">host</span><span class="p">,</span>
             <span class="n">user</span><span class="o">=</span><span class="n">user</span><span class="p">,</span>
-            <span class="n">port</span><span class="o">=</span><span class="n">port</span><span class="p">,</span>
+            <span class="n">port</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">port</span><span class="p">),</span>
             <span class="n">password</span><span class="o">=</span><span class="n">password</span><span class="p">,</span>
             <span class="n">database</span><span class="o">=</span><span class="n">database</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span>
             <span class="n">cursorclass</span><span class="o">=</span><span class="n">pymysql</span><span class="o">.</span><span class="n">cursors</span><span class="o">.</span><span class="n">DictCursor</span><span class="p">,</span>
