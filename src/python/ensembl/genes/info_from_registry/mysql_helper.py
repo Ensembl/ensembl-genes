@@ -133,11 +133,12 @@ def mysql_update(  # pylint:disable=too-many-arguments
     Returns:
         bool: True if the query was executed successfully, False otherwise.
     """
+
     try:
         conn = pymysql.connect(
             host=host,
             user=user,
-            port=port,
+            port=int(port),
             password=password,
             database=database.strip(),
             cursorclass=pymysql.cursors.DictCursor,
