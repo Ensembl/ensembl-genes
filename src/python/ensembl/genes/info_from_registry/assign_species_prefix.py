@@ -54,8 +54,10 @@ def get_special_cases() -> dict[str, str]:
         "ensembl",
         "genes",
         "info_from_registry",
-        "anno_settings.json",
+        "stable_id_special_cases.json",
     )
+
+    logger.info(f"Loading special-cases from: {json_path}")
     with open(json_path, "r") as file:  # pylint: disable=unspecified-encoding
         special_cases = json.load(file)
     return special_cases
@@ -214,6 +216,9 @@ def get_species_prefix(taxon_id: int, server_info: dict) -> Optional[str]:
 
     # Special cases
     special_cases = get_special_cases()
+    logger.info(f"{special_cases}")
+    logger.info(f"Loaded {len(special_cases)} special-cases")
+    
 
     if str(taxon_id) in special_cases:
         logger.info(f"The prefix is a special case for taxon ID: {taxon_id}")
