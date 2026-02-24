@@ -57,7 +57,9 @@ def get_special_cases() -> dict[str, str]:
         "stable_id_special_cases.json",
     )
 
-    logger.info(f"Loading special-cases from: {json_path}") # pylint: disable=f-string-without-interpolation
+    logger.info(
+        f"Loading special-cases from: {json_path}"
+    )  # pylint: disable=f-string-without-interpolation
     with open(json_path, "r") as file:  # pylint: disable=unspecified-encoding
         special_cases = json.load(file)
     return special_cases
@@ -160,7 +162,9 @@ def insert_prefix_into_db(
         raise
 
 
-def create_prefix(existing_prefix_list: list[str], taxon_id: int, server_info: dict) -> str:
+def create_prefix(
+    existing_prefix_list: list[str], taxon_id: int, server_info: dict
+) -> str:
     """Create a new species prefix for a given taxon ID and insert it into the database.
     It will retry up to 10,000 times to ensure uniqueness.
 
@@ -190,7 +194,9 @@ def create_prefix(existing_prefix_list: list[str], taxon_id: int, server_info: d
             if insert_prefix_into_db(prefix, taxon_id, conn):
                 logger.info(f"Successfully inserted: {prefix}")
                 return prefix
-            existing_prefix_list.append(prefix)  # optimize by adding to "existing prefixes"
+            existing_prefix_list.append(
+                prefix
+            )  # optimize by adding to "existing prefixes"
     raise RuntimeError("Failed to generate unique prefix after many attempts.")
 
 
@@ -240,8 +246,10 @@ def get_species_prefix(taxon_id: int, server_info: dict) -> Optional[str]:
         if output_registry:
             logger.info(f"Prefix found in old registry: {output_registry}")
 
-        prefix_metadata_query = f"SELECT DISTINCT prefix FROM species_prefix \
-            WHERE lowest_taxon_id = {taxon_id}"
+        prefix_metadata_query = (
+            "SELECT DISTINCT prefix FROM species_prefix "
+            f"WHERE lowest_taxon_id = {taxon_id}"
+        )
         output_metadata = mysql_fetch_data(
             prefix_metadata_query,
             host=server_info["registry"]["db_host"],
