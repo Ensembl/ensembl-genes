@@ -23,7 +23,7 @@
       
       
       <link rel="icon" href="../../../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.2">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.3">
     
     
       
@@ -1140,10 +1140,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#ensembl.genes.info_from_registry.assign_species_prefix.exiting_prefix" class="md-nav__link">
+  <a href="#ensembl.genes.info_from_registry.assign_species_prefix.existing_prefix" class="md-nav__link">
     <span class="md-ellipsis">
       
-        <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;exiting_prefix
+        <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;existing_prefix
       
     </span>
   </a>
@@ -2500,10 +2500,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#ensembl.genes.info_from_registry.assign_species_prefix.exiting_prefix" class="md-nav__link">
+  <a href="#ensembl.genes.info_from_registry.assign_species_prefix.existing_prefix" class="md-nav__link">
     <span class="md-ellipsis">
       
-        <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;exiting_prefix
+        <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;existing_prefix
       
     </span>
   </a>
@@ -2642,7 +2642,7 @@ metadata databases.</p>
 
 
 <h3 id="ensembl.genes.info_from_registry.assign_species_prefix.create_prefix" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">create_prefix</span><span class="p">(</span><span class="n">existing_prefix</span><span class="p">,</span> <span class="n">taxon_id</span><span class="p">,</span> <span class="n">server_info</span><span class="p">)</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">create_prefix</span><span class="p">(</span><span class="n">existing_prefix_list</span><span class="p">,</span> <span class="n">taxon_id</span><span class="p">,</span> <span class="n">server_info</span><span class="p">)</span></code>
 
 <a href="#ensembl.genes.info_from_registry.assign_species_prefix.create_prefix" class="headerlink" title="Permanent link">&para;</a></h3>
 
@@ -2666,7 +2666,7 @@ It will retry up to 10,000 times to ensure uniqueness.</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
-                <code>existing_prefix</code>
+                <code>existing_prefix_list</code>
             </td>
             <td>
                   <code><span title="list">list</span>[<span title="str">str</span>]</code>
@@ -2795,12 +2795,12 @@ It will retry up to 10,000 times to ensure uniqueness.</p>
 <span class="normal">191</span>
 <span class="normal">192</span>
 <span class="normal">193</span>
-<span class="normal">194</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">create_prefix</span><span class="p">(</span><span class="n">existing_prefix</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">taxon_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">server_info</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="normal">194</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">create_prefix</span><span class="p">(</span><span class="n">existing_prefix_list</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">taxon_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">server_info</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a new species prefix for a given taxon ID and insert it into the database.</span>
 <span class="sd">    It will retry up to 10,000 times to ensure uniqueness.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        existing_prefix (list[str]): A list of existing species prefixes.</span>
+<span class="sd">        existing_prefix_list (list[str]): A list of existing species prefixes.</span>
 <span class="sd">        taxon_id (int): The taxon ID for the new prefix.</span>
 <span class="sd">        server_info (dict): Information about the database server.</span>
 
@@ -2821,11 +2821,11 @@ It will retry up to 10,000 times to ensure uniqueness.</p>
 
     <span class="k">with</span> <span class="n">conn</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">):</span>  <span class="c1"># max attempts</span>
-            <span class="n">prefix</span> <span class="o">=</span> <span class="n">generate_random_prefix</span><span class="p">(</span><span class="n">existing_prefix</span><span class="p">)</span>
+            <span class="n">prefix</span> <span class="o">=</span> <span class="n">generate_random_prefix</span><span class="p">(</span><span class="n">existing_prefix_list</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">insert_prefix_into_db</span><span class="p">(</span><span class="n">prefix</span><span class="p">,</span> <span class="n">taxon_id</span><span class="p">,</span> <span class="n">conn</span><span class="p">):</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Successfully inserted: </span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
                 <span class="k">return</span> <span class="n">prefix</span>
-            <span class="n">existing_prefix</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">prefix</span><span class="p">)</span>  <span class="c1"># optimize by adding to &quot;existing prefixes&quot;</span>
+            <span class="n">existing_prefix_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">prefix</span><span class="p">)</span>  <span class="c1"># optimize by adding to &quot;existing prefixes&quot;</span>
     <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Failed to generate unique prefix after many attempts.&quot;</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -2836,10 +2836,10 @@ It will retry up to 10,000 times to ensure uniqueness.</p>
 <div class="doc doc-object doc-function">
 
 
-<h3 id="ensembl.genes.info_from_registry.assign_species_prefix.exiting_prefix" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">exiting_prefix</span><span class="p">(</span><span class="n">server_info</span><span class="p">)</span></code>
+<h3 id="ensembl.genes.info_from_registry.assign_species_prefix.existing_prefix" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">existing_prefix</span><span class="p">(</span><span class="n">server_info</span><span class="p">)</span></code>
 
-<a href="#ensembl.genes.info_from_registry.assign_species_prefix.exiting_prefix" class="headerlink" title="Permanent link">&para;</a></h3>
+<a href="#ensembl.genes.info_from_registry.assign_species_prefix.existing_prefix" class="headerlink" title="Permanent link">&para;</a></h3>
 
 
     <div class="doc doc-contents ">
@@ -2937,7 +2937,7 @@ It will retry up to 10,000 times to ensure uniqueness.</p>
 <span class="normal"> 97</span>
 <span class="normal"> 98</span>
 <span class="normal"> 99</span>
-<span class="normal">100</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">exiting_prefix</span><span class="p">(</span><span class="n">server_info</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="normal">100</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">existing_prefix</span><span class="p">(</span><span class="n">server_info</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Get a list of existing species prefixes from the gb assembly registry and metadata databases.</span>
 
 <span class="sd">    Args:</span>
@@ -2969,9 +2969,9 @@ It will retry up to 10,000 times to ensure uniqueness.</p>
     <span class="n">prefix_list</span> <span class="o">=</span> <span class="p">[</span>
         <span class="nb">list</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">values</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">output_registry</span><span class="p">)</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">output_metadata</span><span class="p">)</span>
     <span class="p">]</span>
-    <span class="n">existing_prefix</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">prefix_list</span><span class="p">))</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Num Existing prefix: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">existing_prefix</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">existing_prefix</span>
+    <span class="n">existing_prefix_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">prefix_list</span><span class="p">))</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Num Existing prefix: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">existing_prefix_list</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">existing_prefix_list</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -2982,7 +2982,7 @@ It will retry up to 10,000 times to ensure uniqueness.</p>
 
 
 <h3 id="ensembl.genes.info_from_registry.assign_species_prefix.generate_random_prefix" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">generate_random_prefix</span><span class="p">(</span><span class="n">existing_prefix</span><span class="p">)</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">generate_random_prefix</span><span class="p">(</span><span class="n">existing_prefix_list</span><span class="p">)</span></code>
 
 <a href="#ensembl.genes.info_from_registry.assign_species_prefix.generate_random_prefix" class="headerlink" title="Permanent link">&para;</a></h3>
 
@@ -3005,7 +3005,7 @@ It will retry up to 10,000 times to ensure uniqueness.</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
-                <code>existing_prefix</code>
+                <code>existing_prefix_list</code>
             </td>
             <td>
                   <code><span title="list">list</span>[<span title="str">str</span>]</code>
@@ -3067,17 +3067,17 @@ It will retry up to 10,000 times to ensure uniqueness.</p>
 <span class="normal">119</span>
 <span class="normal">120</span>
 <span class="normal">121</span>
-<span class="normal">122</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">generate_random_prefix</span><span class="p">(</span><span class="n">existing_prefix</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="normal">122</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">generate_random_prefix</span><span class="p">(</span><span class="n">existing_prefix_list</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Generate a random species prefix that does not already exist in the provided list.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        existing_prefix (list[str]): A list of existing species prefixes.</span>
+<span class="sd">        existing_prefix_list (list[str]): A list of existing species prefixes.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        str: A random three/four letter prefix.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">letters</span> <span class="o">=</span> <span class="n">string</span><span class="o">.</span><span class="n">ascii_uppercase</span>
-    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">existing_prefix</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">26</span><span class="o">**</span><span class="mi">3</span><span class="p">:</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">existing_prefix_list</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">26</span><span class="o">**</span><span class="mi">3</span><span class="p">:</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Creating prefix: four random letters&quot;</span><span class="p">)</span>
         <span class="n">length</span> <span class="o">=</span> <span class="mi">4</span>
     <span class="k">else</span><span class="p">:</span>
@@ -3085,7 +3085,7 @@ It will retry up to 10,000 times to ensure uniqueness.</p>
         <span class="n">length</span> <span class="o">=</span> <span class="mi">3</span>
     <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
         <span class="n">candidate</span> <span class="o">=</span> <span class="s2">&quot;ENS&quot;</span> <span class="o">+</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">random</span><span class="o">.</span><span class="n">choices</span><span class="p">(</span><span class="n">letters</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="n">length</span><span class="p">))</span>
-        <span class="k">if</span> <span class="n">candidate</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">existing_prefix</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">candidate</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">existing_prefix_list</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">candidate</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -3152,7 +3152,7 @@ Returns:
         <span class="s2">&quot;stable_id_special_cases.json&quot;</span><span class="p">,</span>
     <span class="p">)</span>
 
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Loading special-cases from: </span><span class="si">{</span><span class="n">json_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Loading special-cases from: </span><span class="si">{</span><span class="n">json_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="c1"># pylint: disable=f-string-without-interpolation</span>
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">json_path</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>  <span class="c1"># pylint: disable=unspecified-encoding</span>
         <span class="n">special_cases</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">special_cases</span>
@@ -3359,8 +3359,7 @@ where the prefix is predefined.
 <span class="normal">292</span>
 <span class="normal">293</span>
 <span class="normal">294</span>
-<span class="normal">295</span>
-<span class="normal">296</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_species_prefix</span><span class="p">(</span><span class="n">taxon_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">server_info</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="normal">295</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_species_prefix</span><span class="p">(</span><span class="n">taxon_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">server_info</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    This function retrieves the species prefix from the assembly registry</span>
 <span class="sd">    and metadata databases.</span>
@@ -3384,7 +3383,6 @@ where the prefix is predefined.
     <span class="n">special_cases</span> <span class="o">=</span> <span class="n">get_special_cases</span><span class="p">()</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">special_cases</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Loaded </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">special_cases</span><span class="p">)</span><span class="si">}</span><span class="s2"> special-cases&quot;</span><span class="p">)</span>
-
 
     <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">taxon_id</span><span class="p">)</span> <span class="ow">in</span> <span class="n">special_cases</span><span class="p">:</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The prefix is a special case for taxon ID: </span><span class="si">{</span><span class="n">taxon_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
@@ -3430,8 +3428,8 @@ where the prefix is predefined.
         <span class="c1"># no prefix, create new prefix</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">prefix_list</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Creating a new prefix for taxon ID: </span><span class="si">{</span><span class="n">taxon_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="n">existing_prefix</span> <span class="o">=</span> <span class="n">exiting_prefix</span><span class="p">(</span><span class="n">server_info</span><span class="p">)</span>
-            <span class="n">species_prefix</span> <span class="o">=</span> <span class="n">create_prefix</span><span class="p">(</span><span class="n">existing_prefix</span><span class="p">,</span> <span class="n">taxon_id</span><span class="p">,</span> <span class="n">server_info</span><span class="p">)</span>
+            <span class="n">existing_prefix_list</span> <span class="o">=</span> <span class="n">existing_prefix</span><span class="p">(</span><span class="n">server_info</span><span class="p">)</span>
+            <span class="n">species_prefix</span> <span class="o">=</span> <span class="n">create_prefix</span><span class="p">(</span><span class="n">existing_prefix_list</span><span class="p">,</span> <span class="n">taxon_id</span><span class="p">,</span> <span class="n">server_info</span><span class="p">)</span>
 
         <span class="c1"># unique prefix detected</span>
         <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">prefix_list</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
