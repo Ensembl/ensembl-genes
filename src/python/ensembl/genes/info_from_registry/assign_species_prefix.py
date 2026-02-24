@@ -25,7 +25,7 @@ import os
 import random
 import string
 from typing import Optional
-import pymysql  # type: ignore
+import pymysql  # pylint: disable=import-error  # type: ignore
 
 from ensembl.genes.info_from_registry.mysql_helper import mysql_fetch_data
 
@@ -57,13 +57,13 @@ def get_special_cases() -> dict[str, str]:
         "stable_id_special_cases.json",
     )
 
-    logger.info(f"Loading special-cases from: {json_path}")
+    logger.info(f"Loading special-cases from: {json_path}") # pylint: disable=f-string-without-interpolation
     with open(json_path, "r") as file:  # pylint: disable=unspecified-encoding
         special_cases = json.load(file)
     return special_cases
 
 
-def exiting_prefix(server_info: dict) -> list[str]:
+def existing_prefix(server_info: dict) -> list[str]:
     """Get a list of existing species prefixes from the gb assembly registry and metadata databases.
 
     Args:
@@ -95,22 +95,22 @@ def exiting_prefix(server_info: dict) -> list[str]:
     prefix_list = [
         list(item.values())[0] for item in list(output_registry) + list(output_metadata)
     ]
-    existing_prefix = list(set(prefix_list))
-    logger.debug(f"Num Existing prefix: {len(existing_prefix)}")
-    return existing_prefix
+    existing_prefix_list = list(set(prefix_list))
+    logger.debug(f"Num Existing prefix: {len(existing_prefix_list)}")
+    return existing_prefix_list
 
 
-def generate_random_prefix(existing_prefix: list[str]) -> str:
+def generate_random_prefix(existing_prefix_list: list[str]) -> str:
     """Generate a random species prefix that does not already exist in the provided list.
 
     Args:
-        existing_prefix (list[str]): A list of existing species prefixes.
+        existing_prefix_list (list[str]): A list of existing species prefixes.
 
     Returns:
         str: A random three/four letter prefix.
     """
     letters = string.ascii_uppercase
-    if len(existing_prefix) >= 26**3:
+    if len(existing_prefix_list) >= 26**3:
         logger.info("Creating prefix: four random letters")
         length = 4
     else:
@@ -118,7 +118,7 @@ def generate_random_prefix(existing_prefix: list[str]) -> str:
         length = 3
     while True:
         candidate = "ENS" + "".join(random.choices(letters, k=length))
-        if candidate not in existing_prefix:
+        if candidate not in existing_prefix_list:
             return candidate
 
 
@@ -160,12 +160,12 @@ def insert_prefix_into_db(
         raise
 
 
-def create_prefix(existing_prefix: list[str], taxon_id: int, server_info: dict) -> str:
+def create_prefix(existing_prefix_list: list[str], taxon_id: int, server_info: dict) -> str:
     """Create a new species prefix for a given taxon ID and insert it into the database.
     It will retry up to 10,000 times to ensure uniqueness.
 
     Args:
-        existing_prefix (list[str]): A list of existing species prefixes.
+        existing_prefix_list (list[str]): A list of existing species prefixes.
         taxon_id (int): The taxon ID for the new prefix.
         server_info (dict): Information about the database server.
 
@@ -186,11 +186,11 @@ def create_prefix(existing_prefix: list[str], taxon_id: int, server_info: dict) 
 
     with conn:
         for _ in range(10):  # max attempts
-            prefix = generate_random_prefix(existing_prefix)
+            prefix = generate_random_prefix(existing_prefix_list)
             if insert_prefix_into_db(prefix, taxon_id, conn):
                 logger.info(f"Successfully inserted: {prefix}")
                 return prefix
-            existing_prefix.append(prefix)  # optimize by adding to "existing prefixes"
+            existing_prefix_list.append(prefix)  # optimize by adding to "existing prefixes"
     raise RuntimeError("Failed to generate unique prefix after many attempts.")
 
 
@@ -218,7 +218,6 @@ def get_species_prefix(taxon_id: int, server_info: dict) -> Optional[str]:
     special_cases = get_special_cases()
     logger.info(f"{special_cases}")
     logger.info(f"Loaded {len(special_cases)} special-cases")
-    
 
     if str(taxon_id) in special_cases:
         logger.info(f"The prefix is a special case for taxon ID: {taxon_id}")
@@ -264,8 +263,8 @@ def get_species_prefix(taxon_id: int, server_info: dict) -> Optional[str]:
         # no prefix, create new prefix
         if len(prefix_list) == 0:
             logger.info(f"Creating a new prefix for taxon ID: {taxon_id}")
-            existing_prefix = exiting_prefix(server_info)
-            species_prefix = create_prefix(existing_prefix, taxon_id, server_info)
+            existing_prefix_list = existing_prefix(server_info)
+            species_prefix = create_prefix(existing_prefix_list, taxon_id, server_info)
 
         # unique prefix detected
         elif len(prefix_list) == 1:
