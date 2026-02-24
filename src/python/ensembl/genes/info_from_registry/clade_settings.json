@@ -35,6 +35,15 @@
         "species_division": "EnsemblProtists",
         "busco_group": "plasmodium_odb12"
     },
+	"apicomplexa": {
+        "taxon_id": 5794,
+        "max_intron_length": 100000,
+        "protein_file": "/nfs/production/flicek/ensembl/genebuild/genebuild_virtual_user/protein_sets/apicomplexa_uniprot_proteins.fa",
+        "busco_protein_file": "/nfs/production/flicek/ensembl/genebuild/genebuild_virtual_user/protein_sets/apicomplexa_orthodb_proteins.fa",
+        "rfam_accessions_file": "/hps/nobackup/flicek/ensembl/genebuild/blastdb/ncrna/Rfam_14.1/clade_accessions/rfam_apicomplexa_ids.txt",
+        "species_division": "EnsemblProtists",
+        "busco_group": "apicomplexa_odb12"
+    },
     "hymenoptera": {
         "taxon_id": 7399,
         "max_intron_length": 100000,
