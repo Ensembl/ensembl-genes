@@ -741,9 +741,7 @@ def current_projection_source_db(projection_source_production_name: str) -> dict
 
     # Find a matching nested dictionary
     if projection_source_production_name in data:
-        logger.info(
-            f"Match found for '{projection_source_production_name}'"
-        )
+        logger.info(f"Match found for '{projection_source_production_name}'")
         return data[projection_source_production_name]
 
     # Fallback
