@@ -740,31 +740,24 @@ def current_projection_source_db(projection_source_production_name: str) -> dict
         )
 
     # Find a matching nested dictionary
-    matched_key = None
-    for key, subdict in data.items():
-        if (
-            isinstance(subdict, dict)
-            and projection_source_production_name in subdict.values()
-        ):
-            matched_key = key
-            break
-
-    # Fallback logic
-    if matched_key:  # pylint:disable=no-else-return
+    if projection_source_production_name in data:
         logger.info(
-            f"Match found for '{projection_source_production_name}' in '{matched_key}'"
+            f"Match found for '{projection_source_production_name}'"
         )
-        return data[matched_key]
-    elif "homo_sapiens" in data:
+        return data[projection_source_production_name]
+
+    # Fallback
+    if "homo_sapiens" in data:
         logger.warning(
-            f"No match for '{projection_source_production_name}'. \
-                Falling back to 'homo_sapiens'."
+            f"No match for '{projection_source_production_name}'. "
+            "Falling back to 'homo_sapiens'."
         )
         return data["homo_sapiens"]
-    else:
-        raise RuntimeError(
-            f"No match for '{projection_source_production_name}' and 'homo_sapiens' not found in json."
-        )
+
+    raise RuntimeError(
+        f"No match for '{projection_source_production_name}' "
+        "and 'homo_sapiens' not found in json."
+    )
 
 
 def custom_loading(settings: dict) -> dict[str, str]:
