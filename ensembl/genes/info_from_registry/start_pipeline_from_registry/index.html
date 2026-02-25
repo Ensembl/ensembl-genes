@@ -3406,7 +3406,9 @@ parent directories. If 'mode' is provided, it changes the directory's permission
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/python/ensembl/genes/info_from_registry/start_pipeline_from_registry.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">813</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">811</span>
+<span class="normal">812</span>
+<span class="normal">813</span>
 <span class="normal">814</span>
 <span class="normal">815</span>
 <span class="normal">816</span>
@@ -3424,9 +3426,7 @@ parent directories. If 'mode' is provided, it changes the directory's permission
 <span class="normal">828</span>
 <span class="normal">829</span>
 <span class="normal">830</span>
-<span class="normal">831</span>
-<span class="normal">832</span>
-<span class="normal">833</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">create_dir</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span> <span class="n">mode</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">831</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">create_dir</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span> <span class="n">mode</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Create a directory and optionally set its permissions.</span>
 
@@ -3523,9 +3523,7 @@ Raises:
 <span class="normal">755</span>
 <span class="normal">756</span>
 <span class="normal">757</span>
-<span class="normal">758</span>
-<span class="normal">759</span>
-<span class="normal">760</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">current_projection_source_db</span><span class="p">(</span><span class="n">projection_source_production_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="normal">758</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">current_projection_source_db</span><span class="p">(</span><span class="n">projection_source_production_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Find the reference core database and server info for the given </span>
 <span class="sd">    projection_source_production_name.</span>
@@ -3558,9 +3556,7 @@ Raises:
 
     <span class="c1"># Find a matching nested dictionary</span>
     <span class="k">if</span> <span class="n">projection_source_production_name</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Match found for &#39;</span><span class="si">{</span><span class="n">projection_source_production_name</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
-        <span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Match found for &#39;</span><span class="si">{</span><span class="n">projection_source_production_name</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">data</span><span class="p">[</span><span class="n">projection_source_production_name</span><span class="p">]</span>
 
     <span class="c1"># Fallback</span>
@@ -3677,7 +3673,9 @@ Lines that do not conform to key=value format or are blank are skipped with a me
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/python/ensembl/genes/info_from_registry/start_pipeline_from_registry.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">763</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">761</span>
+<span class="normal">762</span>
+<span class="normal">763</span>
 <span class="normal">764</span>
 <span class="normal">765</span>
 <span class="normal">766</span>
@@ -3722,9 +3720,7 @@ Lines that do not conform to key=value format or are blank are skipped with a me
 <span class="normal">805</span>
 <span class="normal">806</span>
 <span class="normal">807</span>
-<span class="normal">808</span>
-<span class="normal">809</span>
-<span class="normal">810</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">custom_loading</span><span class="p">(</span><span class="n">settings</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+<span class="normal">808</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">custom_loading</span><span class="p">(</span><span class="n">settings</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Load custom key-value pairs from an INI-style initialization file specified in settings.</span>
 
@@ -5788,7 +5784,9 @@ the environment variable 'ENSCODEf'.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/python/ensembl/genes/info_from_registry/start_pipeline_from_registry.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 836</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 834</span>
+<span class="normal"> 835</span>
+<span class="normal"> 836</span>
 <span class="normal"> 837</span>
 <span class="normal"> 838</span>
 <span class="normal"> 839</span>
@@ -6062,9 +6060,7 @@ the environment variable 'ENSCODEf'.</p>
 <span class="normal">1107</span>
 <span class="normal">1108</span>
 <span class="normal">1109</span>
-<span class="normal">1110</span>
-<span class="normal">1111</span>
-<span class="normal">1112</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span>  <span class="c1"># pylint:disable=too-many-branches, too-many-statements, too-many-locals</span>
+<span class="normal">1110</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span>  <span class="c1"># pylint:disable=too-many-branches, too-many-statements, too-many-locals</span>
     <span class="n">gcas</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">settings_file</span><span class="p">:</span> <span class="nb">str</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">dict</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
