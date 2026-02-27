@@ -1,18 +1,4 @@
 #!/usr/bin/env python3
-# See the NOTICE file distributed with this work for additional information
-# regarding copyright ownership.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
 """
 Beta Metadata Patcher Script
 
@@ -30,7 +16,7 @@ Usage:
     python beta_patcher.py patches.csv --jira-ticket EBD-1111 --core-suffix _core_115_1
 """
 
-# pylint: disable=logging-fstring-interpolation, unspecified-encoding, broad-exception-caught, unused-variable
+# pylint: disable=logging-fstring-interpolation, unspecified-encoding, broad-exception-caught, unused-variable, too-many-lines
 import argparse
 import csv
 import logging
@@ -384,6 +370,61 @@ def _write_validation_sql(  # pylint: disable= too-many-arguments
         validate_file.write(f"WHERE genome.genome_uuid = '{genome_uuid}';\n\n")
 
 
+def get_existing_dataset_attribute_ids(
+    genome_uuid: str, dataset_type: str, attribute_name: str
+) -> List[int]:
+    """
+    Fetch existing dataset_attribute_id primary keys for a genome+dataset+attribute.
+
+    A genome may be attached to multiple releases, resulting in multiple genome_dataset
+    entries pointing to different dataset_ids. Querying by primary key ensures UPDATE
+    statements target specific rows without triggering UNIQUE constraint violations
+    that the DELETE+INSERT pattern would cause.
+
+    Args:
+        genome_uuid: Genome UUID to query
+        dataset_type: Dataset type (e.g. genebuild)
+        attribute_name: Attribute name (e.g. genebuild.version)
+
+    Returns:
+        List of dataset_attribute_id integers (one per genome_dataset entry), or []
+    """
+    adaptor = get_genome_adaptor()
+    if not adaptor:
+        return []
+
+    try:
+        query = text(
+            """
+            SELECT dataset_attribute.dataset_attribute_id
+            FROM dataset_attribute
+            JOIN attribute ON dataset_attribute.attribute_id = attribute.attribute_id
+            JOIN dataset ON dataset_attribute.dataset_id = dataset.dataset_id
+            JOIN genome_dataset ON dataset.dataset_id = genome_dataset.dataset_id
+            JOIN genome ON genome_dataset.genome_id = genome.genome_id
+            WHERE genome.genome_uuid = :genome_uuid
+            AND dataset.name = :dataset_type
+            AND attribute.name = :attribute_name
+        """
+        )
+
+        with adaptor.metadata_db.connect() as conn:
+            result = conn.execute(
+                query,
+                {
+                    "genome_uuid": genome_uuid,
+                    "dataset_type": dataset_type,
+                    "attribute_name": attribute_name,
+                },
+            )
+            return [row[0] for row in result]
+    except Exception as e:
+        logging.warning(
+            f"Failed to fetch dataset_attribute_ids for {genome_uuid}/{attribute_name}: {e}"
+        )
+        return []
+
+
 def _write_patch_sql(  # pylint: disable=too-many-arguments
     patch_file,
     genome_uuid: str,
@@ -391,33 +432,46 @@ def _write_patch_sql(  # pylint: disable=too-many-arguments
     escaped_value: str,
     table_location: str,
     dataset_type: str,
+    existing_attribute_ids: Optional[List[int]] = None,
 ):
     """Writes the patch UPDATE/INSERT statements for a patch."""
     patch_file.write(f"-- {genome_uuid} | {attribute_name} (table: {table_location})\n")
     if table_location == "dataset_attribute":
-        # DELETE existing attribute value
-        patch_file.write("DELETE dataset_attribute FROM dataset_attribute\n")
-        patch_file.write(_metadata_db_joins() + "\n")
-        patch_file.write(
-            _metadata_db_where(genome_uuid, dataset_type, attribute_name) + ";\n\n"
-        )
-
-        # INSERT new value
-        patch_file.write(
-            "INSERT INTO dataset_attribute (dataset_id, attribute_id, value)\n"
-        )
-        patch_file.write(
-            "SELECT dataset.dataset_id, attribute.attribute_id, " f"'{escaped_value}'\n"
-        )
-        patch_file.write("FROM dataset\n")
-        patch_file.write(
-            "JOIN genome_dataset ON dataset.dataset_id = genome_dataset.dataset_id\n"
-        )
-        patch_file.write("JOIN genome ON genome_dataset.genome_id = genome.genome_id\n")
-        patch_file.write("JOIN attribute ON attribute.name = " f"'{attribute_name}'\n")
-        patch_file.write(
-            f"WHERE genome.genome_uuid = '{genome_uuid}'\nAND dataset.name = '{dataset_type}';\n\n"
-        )
+        if existing_attribute_ids:
+            # UPDATE specific rows by primary key.
+            # This avoids the UNIQUE constraint issue caused by DELETE+INSERT when a genome
+            # is in multiple releases (multiple genome_dataset rows → same dataset_id
+            # inserted twice).
+            ids_str = ", ".join(str(i) for i in existing_attribute_ids)
+            patch_file.write(
+                f"UPDATE dataset_attribute SET value = '{escaped_value}'\n"
+                f"WHERE dataset_attribute_id IN ({ids_str});\n\n"
+            )
+        else:
+            # No existing attribute rows found — INSERT as a new attribute.
+            patch_file.write(
+                "INSERT INTO dataset_attribute (dataset_id, attribute_id, value)\n"
+            )
+            patch_file.write(
+                "SELECT dataset.dataset_id, attribute.attribute_id, "
+                f"'{escaped_value}'\n"
+            )
+            patch_file.write("FROM dataset\n")
+            patch_file.write(
+                "JOIN genome_dataset ON dataset.dataset_id = genome_dataset.dataset_id\n"
+            )
+            patch_file.write(
+                "JOIN genome ON genome_dataset.genome_id = genome.genome_id\n"
+            )
+            patch_file.write(
+                "JOIN attribute ON attribute.name = " f"'{attribute_name}'\n"
+            )
+            patch_file.write(
+                f"""
+                WHERE genome.genome_uuid = '{genome_uuid}'
+                AND dataset.name = '{dataset_type}';\n\n
+                """
+            )
     else:
         column_name = attribute_name.split(".")[-1]
         table_map = {
@@ -449,11 +503,16 @@ def write_metadata_patch_for_genome(  # pylint: disable=too-many-arguments
     """
     Write validation and patch SQL for a single genome.
     """
-    valid_tables = ["dataset_attribute", "genome", "organism", "assembly"]
+
     for attribute_name, new_value, table_location in patches:
         escaped_value = new_value.replace("'", "''")
 
-        if table_location not in valid_tables:
+        if table_location not in [
+            "dataset_attribute",
+            "genome",
+            "organism",
+            "assembly",
+        ]:
             msg = f"-- ERROR: Invalid table_location '{table_location}' for {attribute_name}\n"
             validate_file.write(msg)
             patch_file.write(msg)
@@ -476,6 +535,15 @@ def write_metadata_patch_for_genome(  # pylint: disable=too-many-arguments
                 if skip:
                     continue
 
+        # For dataset_attribute, look up existing primary keys so the patch can use
+        # entry-specific UPDATE statements rather than DELETE+INSERT (which breaks the
+        # UNIQUE constraint when a genome is linked to multiple releases).
+        existing_attribute_ids: Optional[List[int]] = None
+        if table_location == "dataset_attribute":
+            existing_attribute_ids = get_existing_dataset_attribute_ids(
+                genome_uuid, dataset_type, attribute_name
+            )
+
         # Write SQL
         _write_validation_sql(
             validate_file,
@@ -492,6 +560,7 @@ def write_metadata_patch_for_genome(  # pylint: disable=too-many-arguments
             escaped_value,
             table_location,
             dataset_type,
+            existing_attribute_ids,
         )
 
 
