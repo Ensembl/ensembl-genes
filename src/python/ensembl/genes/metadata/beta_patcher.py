@@ -103,13 +103,14 @@ def get_genome_by_uuid(genome_uuid: str) -> Optional[Dict]:
         return None
 
     try:
-        results = adaptor.fetch_genomes_by_genome_uuid(genome_uuid=genome_uuid)
+        results = adaptor.fetch_genomes_by_genome_uuid(
+            genome_uuid=genome_uuid, status="All"
+        )
         if results:
             genome, organism, assembly, release, site = results[0]
             return {
                 "genome_uuid": genome.genome_uuid,
                 "production_name": genome.production_name,
-                "genebuild_version": genome.genebuild_version,
                 "genebuild_date": genome.genebuild_date,
                 "organism": {
                     "organism_uuid": organism.organism_uuid,
