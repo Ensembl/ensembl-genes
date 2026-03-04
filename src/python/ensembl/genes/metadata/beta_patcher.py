@@ -16,7 +16,7 @@ Usage:
     python beta_patcher.py patches.csv --jira-ticket EBD-1111 --core-suffix _core_115_1
 """
 
-# pylint: disable=logging-fstring-interpolation, unspecified-encoding, broad-exception-caught, unused-variable, too-many-lines
+# pylint: disable=logging-fstring-interpolation, unspecified-encoding, broad-exception-caught, unused-variable, too-many-lines, too-many-locals
 import argparse
 import csv
 import logging
@@ -230,6 +230,84 @@ def get_affected_genomes_and_teams(
     except Exception as e:
         logging.warning(f"Failed to fetch affected genomes for {genome_uuid}: {e}")
         return []
+
+
+_VALUE_UNKNOWN = object()  # Sentinel: current DB value could not be determined
+
+
+def get_current_metadata_value(
+    genome_uuid: str,
+    attribute_name: str,
+    table_location: str,
+    dataset_type: str,
+):
+    """
+    Fetch the current value of a metadata field from the DB.
+
+    Returns:
+        _VALUE_UNKNOWN  — adaptor unavailable or query failed (skip the check)
+        None            — DB value is NULL
+        str             — current DB value
+    """
+    adaptor = get_genome_adaptor()
+    if not adaptor:
+        return _VALUE_UNKNOWN
+
+    try:
+        with adaptor.metadata_db.connect() as conn:
+            if table_location == "dataset_attribute":
+                row = conn.execute(
+                    text(
+                        """
+                        SELECT dataset_attribute.value
+                        FROM dataset_attribute
+                        JOIN attribute
+                          ON dataset_attribute.attribute_id = attribute.attribute_id
+                        JOIN dataset
+                          ON dataset_attribute.dataset_id = dataset.dataset_id
+                        JOIN genome_dataset
+                          ON dataset.dataset_id = genome_dataset.dataset_id
+                        JOIN genome
+                          ON genome_dataset.genome_id = genome.genome_id
+                        WHERE genome.genome_uuid = :genome_uuid
+                          AND dataset.name = :dataset_type
+                          AND attribute.name = :attribute_name
+                        LIMIT 1
+                    """
+                    ),
+                    {
+                        "genome_uuid": genome_uuid,
+                        "dataset_type": dataset_type,
+                        "attribute_name": attribute_name,
+                    },
+                ).fetchone()
+            else:
+                column_name = attribute_name.split(".")[-1]
+                table_from = {
+                    "genome": "genome",
+                    "organism": (
+                        "organism JOIN genome ON organism.organism_id = genome.organism_id"
+                    ),
+                    "assembly": (
+                        "assembly JOIN genome ON assembly.assembly_id = genome.assembly_id"
+                    ),
+                }[table_location]
+                row = conn.execute(
+                    text(
+                        f"SELECT {table_location}.{column_name} FROM {table_from} "
+                        "WHERE genome.genome_uuid = :genome_uuid LIMIT 1"
+                    ),
+                    {"genome_uuid": genome_uuid},
+                ).fetchone()
+
+        if row is None:
+            return _VALUE_UNKNOWN  # attribute/row not found in DB
+        return row[0]  # str or None (NULL)
+    except Exception as e:
+        logging.warning(
+            f"Could not fetch current value for {genome_uuid}/{attribute_name}: {e}"
+        )
+        return _VALUE_UNKNOWN
 
 
 _core_db_cache: Dict[str, Optional[Tuple[str, str]]] = {}
@@ -561,6 +639,25 @@ def write_metadata_patch_for_genome(  # pylint: disable=too-many-arguments
 
     for attribute_name, new_value, table_location in patches:
         sql_literal = _to_sql_literal(new_value)
+
+        # Skip if the DB already has the proposed value
+        proposed_db_value = None if new_value == NULL_SENTINEL else new_value
+        current_value = get_current_metadata_value(
+            genome_uuid, attribute_name, table_location, dataset_type
+        )
+        if current_value is not _VALUE_UNKNOWN and current_value == proposed_db_value:
+            msg = (
+                f"-- SKIPPED (no change): {genome_uuid} | {attribute_name} "
+                f"already = {sql_literal}\n\n"
+            )
+            validate_file.write(msg)
+            patch_file.write(msg)
+            if logger:
+                logger.info(
+                    f"  Skipping {genome_uuid} | {attribute_name}: "
+                    f"already matches proposed value {sql_literal}"
+                )
+            continue
 
         if table_location not in [
             "dataset_attribute",
