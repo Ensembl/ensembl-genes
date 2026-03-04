@@ -106,28 +106,15 @@ def get_genome_by_uuid(genome_uuid: str) -> Optional[Dict]:
         return None
 
     try:
-        results = adaptor.fetch_genomes_by_genome_uuid(
-            genome_uuid=genome_uuid, status=None
+        query = text(
+            "SELECT genome_uuid, production_name FROM genome WHERE genome_uuid = :genome_uuid"
         )
-        if results:
-            genome, organism, assembly, release, site = results[0]
+        with adaptor.metadata_db.connect() as conn:
+            row = conn.execute(query, {"genome_uuid": genome_uuid}).fetchone()
+        if row:
             return {
-                "genome_uuid": genome.genome_uuid,
-                "production_name": genome.production_name,
-                "genebuild_date": genome.genebuild_date,
-                "organism": {
-                    "organism_uuid": organism.organism_uuid,
-                    "taxonomy_id": organism.taxonomy_id,
-                    "scientific_name": organism.scientific_name,
-                    "strain": organism.strain,
-                    "biosample_id": organism.biosample_id,
-                },
-                "assembly": {
-                    "assembly_uuid": assembly.assembly_uuid,
-                    "accession": assembly.accession,
-                    "name": assembly.name,
-                    "level": assembly.level,
-                },
+                "genome_uuid": row[0],
+                "production_name": row[1],
             }
         return None
     except Exception as e:
