@@ -259,12 +259,24 @@ def find_core_db(
                 dbs = sorted(row[0] for row in result)
             engine.dispose()
             if dbs:
-                if len(dbs) > 1:
+                # Prefer an exact match: DB starts with exactly {production_name}_core_
+                # (avoids picking GCA/breed variants when the production_name is a plain binomial,
+                # and ensures GCA production names match their own DB rather than a related one)
+                exact = [db for db in dbs if db.startswith(f"{production_name}_core_")]
+                if exact:
+                    chosen = sorted(exact)[-1]
+                    if len(exact) > 1:
+                        logging.warning(
+                            f"Multiple exact core DBs for {production_name} on {label}: "
+                            f"{exact}. Using {chosen}"
+                        )
+                else:
+                    chosen = sorted(dbs)[-1]
                     logging.warning(
-                        f"Multiple core DBs for {production_name} on {label}: {dbs}. "
-                        f"Using {dbs[-1]}"
+                        f"No exact core DB match for {production_name} on {label} "
+                        f"(candidates: {dbs}). Using {chosen}"
                     )
-                _core_db_cache[production_name] = (label, dbs[-1])
+                _core_db_cache[production_name] = (label, chosen)
                 return _core_db_cache[production_name]
         except Exception as e:
             logging.warning(f"Failed to search {label} for {production_name}: {e}")
