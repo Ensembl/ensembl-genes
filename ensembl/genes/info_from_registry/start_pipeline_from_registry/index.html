@@ -5012,7 +5012,7 @@ to environment-variable-based defaults depending on the 'server_set' parameter.<
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Final server settings: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">result</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">result</span>
 
-    <span class="k">elif</span> <span class="n">server_set</span> <span class="o">==</span> <span class="s2">&quot;2&quot;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">server_set</span> <span class="o">==</span> <span class="s2">&quot;2&quot;</span><span class="p">:</span>
         <span class="n">raw_pipeline_port</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;GBP7&quot;</span><span class="p">)</span>
         <span class="n">raw_core_port</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;GBP6&quot;</span><span class="p">)</span>
 
@@ -5400,7 +5400,7 @@ to environment-variable-based defaults depending on the 'server_set' parameter.<
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Final server settings: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">result</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">result</span>
 
-    <span class="k">elif</span> <span class="n">server_set</span> <span class="o">==</span> <span class="s2">&quot;2&quot;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">server_set</span> <span class="o">==</span> <span class="s2">&quot;2&quot;</span><span class="p">:</span>
         <span class="n">raw_pipeline_port</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;GBP7&quot;</span><span class="p">)</span>
         <span class="n">raw_core_port</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;GBP5&quot;</span><span class="p">)</span>
         <span class="n">raw_databases_port</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;GBP6&quot;</span><span class="p">)</span>
