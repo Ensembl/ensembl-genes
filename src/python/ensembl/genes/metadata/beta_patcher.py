@@ -1158,18 +1158,18 @@ See patches_template.csv for a complete example.
 
     # Core server URIs for auto-discovery
     parser.add_argument(
-        "--st5-uri",
-        type=str,
-        default=os.getenv("ST5_URI"),
-        help="MySQL URI for st5 core server, e.g. mysql+pymysql://user:pass@host:port/ "
-        "(overrides ST5_URI env var)",
-    )
-    parser.add_argument(
         "--st6-uri",
         type=str,
-        default=os.getenv("ST6_URI"),
-        help="MySQL URI for st6 core server, e.g. mysql+pymysql://user:pass@host:port/ "
-        "(overrides ST6_URI env var)",
+        default=os.getenv("ST6_URI", "mysql+pymysql://ensro:@mysql-ens-sta-6:4695/"),
+        help="MySQL URI for st6 core server (default: mysql-ens-sta-6:4695, "
+        "overrides ST6_URI env var)",
+    )
+    parser.add_argument(
+        "--st5-uri",
+        type=str,
+        default=os.getenv("ST5_URI", "mysql+pymysql://ensro:@mysql-ens-sta-5:4684/"),
+        help="MySQL URI for st5 core server (default: mysql-ens-sta-5:4684, "
+        "overrides ST5_URI env var)",
     )
 
     # Database connection (uses environment variables METADATA_URI and TAXONOMY_URI)
@@ -1240,11 +1240,12 @@ See patches_template.csv for a complete example.
         )
         return 1
 
+    # st6 first — it's the primary staging server for 114 cores
     server_uris: Dict[str, str] = {}
-    if args.st5_uri:
-        server_uris["st5"] = args.st5_uri
     if args.st6_uri:
         server_uris["st6"] = args.st6_uri
+    if args.st5_uri:
+        server_uris["st5"] = args.st5_uri
     if server_uris:
         logger.info(f"Core DB auto-discovery enabled on: {list(server_uris.keys())}")
     else:
