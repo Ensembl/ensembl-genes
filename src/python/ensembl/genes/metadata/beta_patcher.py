@@ -25,7 +25,7 @@ import sys
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
-from sqlalchemy import text
+from sqlalchemy import create_engine, text
 
 NULL_SENTINEL = r"\N"  # Use \N in CSV desired_meta_value to set NULL
 
@@ -230,6 +230,48 @@ def get_affected_genomes_and_teams(
     except Exception as e:
         logging.warning(f"Failed to fetch affected genomes for {genome_uuid}: {e}")
         return []
+
+
+_core_db_cache: Dict[str, Optional[Tuple[str, str]]] = {}
+
+
+def find_core_db(
+    production_name: str, server_uris: Dict[str, str]
+) -> Optional[Tuple[str, str]]:
+    """
+    Find the core database for a production_name by searching server_uris.
+
+    Searches each server for a database matching '{production_name}%_core_%',
+    returns (server_label, db_name) for the best (latest sorted) match, or None.
+    Results are cached by production_name.
+    """
+    if production_name in _core_db_cache:
+        return _core_db_cache[production_name]
+
+    for label, uri in server_uris.items():
+        try:
+            engine = create_engine(uri)
+            with engine.connect() as conn:
+                result = conn.execute(
+                    text("SHOW DATABASES LIKE :pattern"),
+                    {"pattern": f"{production_name}%\\_core\\_%"},
+                )
+                dbs = sorted(row[0] for row in result)
+            engine.dispose()
+            if dbs:
+                if len(dbs) > 1:
+                    logging.warning(
+                        f"Multiple core DBs for {production_name} on {label}: {dbs}. "
+                        f"Using {dbs[-1]}"
+                    )
+                _core_db_cache[production_name] = (label, dbs[-1])
+                return _core_db_cache[production_name]
+        except Exception as e:
+            logging.warning(f"Failed to search {label} for {production_name}: {e}")
+
+    logging.warning(f"No core DB found for {production_name} on any server")
+    _core_db_cache[production_name] = None
+    return None
 
 
 def _to_sql_literal(value: str, null_as_string: bool = False) -> str:
@@ -724,16 +766,22 @@ def check_thoas_requirements(patches: List[Dict], logger: logging.Logger) -> boo
     return False
 
 
-def resolve_genome_info(patch: Dict, logger: logging.Logger) -> Optional[Dict]:
+def resolve_genome_info(
+    patch: Dict, logger: logging.Logger, server_uris: Optional[Dict[str, str]] = None
+) -> Optional[Dict]:
     """
-    Resolve production name from genome UUID.
+    Resolve production name from genome UUID, and locate the core database.
+
+    If server_uris is provided, searches those servers for the core DB.
+    Otherwise falls back to appending patch['core_suffix'] to production_name.
 
     Args:
         patch: Patch dictionary from CSV
         logger: Logger instance
+        server_uris: Optional dict of {label: uri} for core DB server discovery
 
     Returns:
-        Dict with genome_uuid, production_name, core_db_name, or None if failed
+        Dict with genome_uuid, production_name, core_server, core_db_name, or None if failed
     """
     row_num = patch["row_num"]
     genome_uuid = patch["genome_uuid"]
@@ -752,18 +800,33 @@ def resolve_genome_info(patch: Dict, logger: logging.Logger) -> Optional[Dict]:
     production_name = genome_info["production_name"]
     logger.info(f"Row {row_num}: Found production_name: {production_name}")
 
-    # Build core database name
-    core_db_name = f"{production_name}{patch['core_suffix']}"
+    if server_uris:
+        match = find_core_db(production_name, server_uris)
+        if match:
+            core_server, core_db_name = match
+            logger.info(f"Row {row_num}: Found core DB {core_db_name} on {core_server}")
+        else:
+            logger.warning(
+                f"Row {row_num}: No core DB found for {production_name} — skipping core patch"
+            )
+            core_server, core_db_name = None, None
+    else:
+        core_server = None
+        core_db_name = f"{production_name}{patch['core_suffix']}"
 
     return {
         "genome_uuid": genome_uuid,
         "production_name": production_name,
+        "core_server": core_server,
         "core_db_name": core_db_name,
     }
 
 
 def group_patches_by_genome(
-    patches: List[Dict], logger: logging.Logger, jira_ticket: str = ""
+    patches: List[Dict],
+    logger: logging.Logger,
+    jira_ticket: str = "",
+    server_uris: Optional[Dict[str, str]] = None,
 ) -> Dict[str, Dict]:
     """
     Group patches by genome UUID.
@@ -772,6 +835,7 @@ def group_patches_by_genome(
         patches: List of patch dictionaries from CSV
         logger: Logger instance
         jira_ticket: Jira ticket reference
+        server_uris: Optional dict of {label: uri} for core DB server discovery
 
     Returns:
         Dict mapping genome_uuid to genome info and list of patches
@@ -780,7 +844,7 @@ def group_patches_by_genome(
 
     for patch in patches:
         # Resolve genome information
-        genome_info = resolve_genome_info(patch, logger)
+        genome_info = resolve_genome_info(patch, logger, server_uris)
 
         if not genome_info:
             logger.warning(
@@ -795,6 +859,7 @@ def group_patches_by_genome(
             grouped[genome_uuid] = {
                 "genome_uuid": genome_uuid,
                 "production_name": genome_info["production_name"],
+                "core_server": genome_info["core_server"],
                 "core_db_name": genome_info["core_db_name"],
                 "dataset_type": patch["dataset_type"],
                 "species_id": patch["species_id"],
@@ -837,10 +902,6 @@ def generate_all_patches(  # pylint: disable=too-many-locals
     metadata_patch_file = output_dir / f"patch_metadata_{jira_ticket}.sql"
     metadata_validate_file = output_dir / f"validate_metadata_{jira_ticket}.sql"
 
-    # Core DB files
-    core_patch_file = output_dir / f"patch_core_{jira_ticket}.sql"
-    core_validate_file = output_dir / f"validate_core_{jira_ticket}.sql"
-
     try:
         # Write metadata patches
         with (
@@ -875,35 +936,51 @@ def generate_all_patches(  # pylint: disable=too-many-locals
                     team_filter,
                 )
 
-        # Write core patches
-        with (
-            open(core_validate_file, "w") as val_f,
-            open(core_patch_file, "w") as patch_f,
-        ):
-            val_f.write(
-                f"-- Validation: Core DBs | {jira_ticket} | {datetime.now().isoformat()}\n\n"
-            )
+        # Group core patches by server label (None → "core" for the legacy single-file case)
+        by_server: Dict[str, List[Dict]] = {}
+        for genome_data in grouped_patches.values():
+            if not genome_data["core_db_name"]:
+                continue
+            label = genome_data["core_server"] or "core"
+            by_server.setdefault(label, []).append(genome_data)
 
-            patch_f.write(
-                f"-- Patch: Core DBs | {jira_ticket} | {datetime.now().isoformat()}\n"
-            )
-            patch_f.write(f"-- Validate first: {core_validate_file.name}\n\n")
+        core_files_written = []
+        for server_label, server_genomes in by_server.items():
+            suffix = f"_{server_label}" if server_label != "core" else ""
+            c_patch_file = output_dir / f"patch_core_{jira_ticket}{suffix}.sql"
+            c_validate_file = output_dir / f"validate_core_{jira_ticket}{suffix}.sql"
 
-            for genome_uuid, genome_data in grouped_patches.items():
-                production_name = genome_data["production_name"]
-                core_db_name = genome_data["core_db_name"]
-                patches = genome_data["patches"]
-                logger.info(f"  Core: {core_db_name}: {len(patches)} patches")
-
-                write_core_patch_for_genome(
-                    val_f, patch_f, core_db_name, patches, genome_data["species_id"]
+            with (
+                open(c_validate_file, "w") as val_f,
+                open(c_patch_file, "w") as patch_f,
+            ):
+                val_f.write(
+                    f"-- Validation: Core DBs ({server_label}) | "
+                    f"{jira_ticket} | {datetime.now().isoformat()}\n\n"
                 )
+                patch_f.write(
+                    f"-- Patch: Core DBs ({server_label}) | "
+                    f"{jira_ticket} | {datetime.now().isoformat()}\n"
+                )
+                patch_f.write(f"-- Validate first: {c_validate_file.name}\n\n")
+
+                for genome_data in server_genomes:
+                    core_db_name = genome_data["core_db_name"]
+                    patches = genome_data["patches"]
+                    logger.info(
+                        f"  Core ({server_label}): {core_db_name}: {len(patches)} patches"
+                    )
+                    write_core_patch_for_genome(
+                        val_f, patch_f, core_db_name, patches, genome_data["species_id"]
+                    )
+
+            core_files_written += [c_validate_file, c_patch_file]
 
         logger.info("Generated files:")
         logger.info(f"  {metadata_validate_file}")
         logger.info(f"  {metadata_patch_file}")
-        logger.info(f"  {core_validate_file}")
-        logger.info(f"  {core_patch_file}")
+        for f in core_files_written:
+            logger.info(f"  {f}")
 
         return True
 
@@ -961,12 +1038,29 @@ See patches_template.csv for a complete example.
         help="Jira ticket reference (e.g., EBD-1111)",
     )
 
-    # Core database suffix
+    # Core database suffix (fallback when no server URIs provided)
     parser.add_argument(
         "--core-suffix",
         type=str,
         default="_core_114_1",
-        help="Suffix to append to production_name for core DB name (default: _core_114_1)",
+        help="Suffix to append to production_name for core DB name (default: _core_114_1). "
+        "Ignored when --st5-uri / --st6-uri are provided.",
+    )
+
+    # Core server URIs for auto-discovery
+    parser.add_argument(
+        "--st5-uri",
+        type=str,
+        default=os.getenv("ST5_URI"),
+        help="MySQL URI for st5 core server, e.g. mysql+pymysql://user:pass@host:port/ "
+        "(overrides ST5_URI env var)",
+    )
+    parser.add_argument(
+        "--st6-uri",
+        type=str,
+        default=os.getenv("ST6_URI"),
+        help="MySQL URI for st6 core server, e.g. mysql+pymysql://user:pass@host:port/ "
+        "(overrides ST6_URI env var)",
     )
 
     # Database connection (uses environment variables METADATA_URI and TAXONOMY_URI)
@@ -1037,7 +1131,19 @@ See patches_template.csv for a complete example.
         )
         return 1
 
-    grouped_patches = group_patches_by_genome(patches, logger, args.jira_ticket)
+    server_uris: Dict[str, str] = {}
+    if args.st5_uri:
+        server_uris["st5"] = args.st5_uri
+    if args.st6_uri:
+        server_uris["st6"] = args.st6_uri
+    if server_uris:
+        logger.info(f"Core DB auto-discovery enabled on: {list(server_uris.keys())}")
+    else:
+        logger.info(f"Core DB suffix fallback: {args.core_suffix}")
+
+    grouped_patches = group_patches_by_genome(
+        patches, logger, args.jira_ticket, server_uris or None
+    )
     logger.info(f"Grouped into {len(grouped_patches)} genome(s)")
 
     if not grouped_patches:
