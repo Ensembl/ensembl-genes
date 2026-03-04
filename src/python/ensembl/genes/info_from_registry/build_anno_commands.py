@@ -48,8 +48,8 @@ def build_annotation_commands(
 
     anno_commandline = (
         f" --genome_file {get('reheadered_toplevel_genome_file')}"
-        f" --db_details {core_adaptor['dbname']},{core_adaptor['host']},\
-            {core_adaptor['port']},{core_adaptor['user']},{core_adaptor['pass']}"
+        f" --db_details {core_adaptor['dbname']},{core_adaptor['host']},"
+        f"{core_adaptor['port']},{core_adaptor['user']},{core_adaptor['pass']}"
         f" --output_dir {get('output_path')}"
         f" --short_read_fastq_dir {get('short_read_dir')}"
         f" --long_read_fastq_dir {get('long_read_dir')}"
@@ -77,8 +77,8 @@ def build_annotation_commands(
 
     anno_red_commandline = (
         f" --genome_file {get('reheadered_toplevel_genome_file')}"
-        f" --db_details {core_adaptor['dbname']},{core_adaptor['host']},\
-            {core_adaptor['port']},{core_adaptor['user']},{core_adaptor['pass']}"
+        f" --db_details {core_adaptor['dbname']},{core_adaptor['host']},"
+        f"{core_adaptor['port']},{core_adaptor['user']},{core_adaptor['pass']}"
         f" --output_dir {get('output_path')}"
         f" --num_threads {get('num_threads')}"
         " --run_masking --run_repeats --run_simple_features --load_to_ensembl_db"

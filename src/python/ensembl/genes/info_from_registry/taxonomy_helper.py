@@ -208,8 +208,10 @@ def assign_clade(
                 )
 
                 logging.info(
-                    f"Hierarchy match: Assigned clade '{internal_clade}' \
-                        via {taxon_class} taxon_id {current_taxon_id}"
+                    (
+                        f"Hierarchy match: Assigned clade '{internal_clade}' "
+                        f"via {taxon_class} taxon_id {current_taxon_id}"
+                    )
                 )
                 return internal_clade, genus_taxon_id, clade_details
 
@@ -218,8 +220,7 @@ def assign_clade(
         f"No clade found for taxon {registry_info['taxon_id']} in full hierarchy."
     )
     raise RuntimeError(
-        f"No clade found for taxon {registry_info['taxon_id']} in full hierarchy. "
-        "Please check clade settings."
+        f"No clade found for taxon {registry_info['taxon_id']} in full hierarchy."
     )
 
 
