@@ -234,7 +234,7 @@ def get_server_settings_anno(settings: dict) -> dict:
         logger.info("Final server settings: %s", result)
         return result
 
-    elif server_set == "2":
+    if server_set == "2":
         raw_pipeline_port = os.environ.get("GBP7")
         raw_core_port = os.environ.get("GBP6")
 
@@ -375,7 +375,7 @@ def get_server_settings_main(settings: dict) -> dict:
         logger.info("Final server settings: %s", result)
         return result
 
-    elif server_set == "2":
+    if server_set == "2":
         raw_pipeline_port = os.environ.get("GBP7")
         raw_core_port = os.environ.get("GBP5")
         raw_databases_port = os.environ.get("GBP6")
