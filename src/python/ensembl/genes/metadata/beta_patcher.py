@@ -27,6 +27,9 @@ from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 from sqlalchemy import text
 
+NULL_SENTINEL = r"\N"  # Use \N in CSV desired_meta_value to set NULL
+
+
 try:
     from ensembl.production.metadata.api.adaptors.genome import GenomeAdaptor
 
@@ -240,6 +243,17 @@ def get_affected_genomes_and_teams(
         return []
 
 
+def _to_sql_literal(value: str, null_as_string: bool = False) -> str:
+    """Convert a patch value to a SQL literal.
+
+    If value is NULL_SENTINEL (\\N), returns 'NULL' for metadata DB (actual SQL NULL)
+    or \"'NULL'\" for core DB (string literal), controlled by null_as_string.
+    """
+    if value == NULL_SENTINEL:
+        return "'NULL'" if null_as_string else "NULL"
+    return f"'{value.replace(chr(39), chr(39) * 2)}'"
+
+
 # Helper functions to ensure SELECTs actually validate UPDATEs
 def _metadata_db_joins() -> str:
     """Generate standardized JOIN clauses for metadata DB queries."""
@@ -334,7 +348,7 @@ def _write_validation_sql(  # pylint: disable= too-many-arguments
     validate_file,
     genome_uuid: str,
     attribute_name: str,
-    escaped_value: str,
+    sql_literal: str,
     table_location: str,
     dataset_type: str,
 ):
@@ -345,7 +359,7 @@ def _write_validation_sql(  # pylint: disable= too-many-arguments
     if table_location == "dataset_attribute":
         validate_file.write(
             "SELECT genome.genome_uuid, dataset_attribute.value AS current_value, "
-            f"'{escaped_value}' AS proposed_value\nFROM dataset_attribute\n"
+            f"{sql_literal} AS proposed_value\nFROM dataset_attribute\n"
         )
         validate_file.write(_metadata_db_joins() + "\n")
         validate_file.write(
@@ -360,9 +374,9 @@ def _write_validation_sql(  # pylint: disable= too-many-arguments
         }
         validate_file.write(
             f"""
-            SELECT 
+            SELECT
                 genome.genome_uuid, {table_location}.{column_name} AS current_value,
-                '{escaped_value}' AS proposed_value\n
+                {sql_literal} AS proposed_value\n
             """
         )
         validate_file.write(f"FROM {table_map[table_location]}\n")
@@ -428,7 +442,7 @@ def _write_patch_sql(  # pylint: disable=too-many-arguments
     patch_file,
     genome_uuid: str,
     attribute_name: str,
-    escaped_value: str,
+    sql_literal: str,
     table_location: str,
     dataset_type: str,
     existing_attribute_ids: Optional[List[int]] = None,
@@ -443,7 +457,7 @@ def _write_patch_sql(  # pylint: disable=too-many-arguments
             # inserted twice).
             ids_str = ", ".join(str(i) for i in existing_attribute_ids)
             patch_file.write(
-                f"UPDATE dataset_attribute SET value = '{escaped_value}'\n"
+                f"UPDATE dataset_attribute SET value = {sql_literal}\n"
                 f"WHERE dataset_attribute_id IN ({ids_str});\n\n"
             )
         else:
@@ -452,8 +466,7 @@ def _write_patch_sql(  # pylint: disable=too-many-arguments
                 "INSERT INTO dataset_attribute (dataset_id, attribute_id, value)\n"
             )
             patch_file.write(
-                "SELECT dataset.dataset_id, attribute.attribute_id, "
-                f"'{escaped_value}'\n"
+                "SELECT dataset.dataset_id, attribute.attribute_id, " f"{sql_literal}\n"
             )
             patch_file.write("FROM dataset\n")
             patch_file.write(
@@ -480,12 +493,12 @@ def _write_patch_sql(  # pylint: disable=too-many-arguments
             ON organism.organism_id = genome.organism_id SET
             """,
             "assembly": """
-            UPDATE assembly JOIN genome 
+            UPDATE assembly JOIN genome
             ON assembly.assembly_id = genome.assembly_id SET
             """,
         }
         patch_file.write(
-            f"{table_map[table_location]} {table_location}.{column_name} = '{escaped_value}'\n"
+            f"{table_map[table_location]} {table_location}.{column_name} = {sql_literal}\n"
         )
         patch_file.write(f"WHERE genome.genome_uuid = '{genome_uuid}';\n\n")
 
@@ -504,7 +517,7 @@ def write_metadata_patch_for_genome(  # pylint: disable=too-many-arguments
     """
 
     for attribute_name, new_value, table_location in patches:
-        escaped_value = new_value.replace("'", "''")
+        sql_literal = _to_sql_literal(new_value)
 
         if table_location not in [
             "dataset_attribute",
@@ -548,7 +561,7 @@ def write_metadata_patch_for_genome(  # pylint: disable=too-many-arguments
             validate_file,
             genome_uuid,
             attribute_name,
-            escaped_value,
+            sql_literal,
             table_location,
             dataset_type,
         )
@@ -556,7 +569,7 @@ def write_metadata_patch_for_genome(  # pylint: disable=too-many-arguments
             patch_file,
             genome_uuid,
             attribute_name,
-            escaped_value,
+            sql_literal,
             table_location,
             dataset_type,
             existing_attribute_ids,
@@ -587,7 +600,7 @@ def write_core_patch_for_genome(
         species_id: Species ID
     """
     for meta_key, new_value, _table_location in patches:
-        escaped_value = new_value.replace("'", "''")
+        sql_literal = _to_sql_literal(new_value, null_as_string=True)
 
         # Write validation SQL
         validate_file.write(f"-- {database} | {meta_key}\n")
@@ -595,7 +608,7 @@ def write_core_patch_for_genome(
         validate_file.write(f"SELECT '{database}' AS database_name, ")
         validate_file.write(f"'{meta_key}' AS meta_key, ")
         validate_file.write("meta_value AS current_value, ")
-        validate_file.write(f"'{escaped_value}' AS proposed_value\n")
+        validate_file.write(f"{sql_literal} AS proposed_value\n")
         validate_file.write("FROM meta\n")
         validate_file.write(_core_db_where(meta_key, species_id))
         validate_file.write(";\n\n")
@@ -604,11 +617,11 @@ def write_core_patch_for_genome(
         patch_file.write(f"-- {database} | {meta_key}\n")
         patch_file.write(f"USE {database};\n")
         patch_file.write("UPDATE meta\n")
-        patch_file.write(f"SET meta_value = '{escaped_value}'\n")
+        patch_file.write(f"SET meta_value = {sql_literal}\n")
         patch_file.write(_core_db_where(meta_key, species_id))
         patch_file.write(";\n\n")
         patch_file.write("INSERT IGNORE INTO meta (species_id, meta_key, meta_value)\n")
-        patch_file.write(f"VALUES ({species_id}, '{meta_key}', '{escaped_value}');\n\n")
+        patch_file.write(f"VALUES ({species_id}, '{meta_key}', {sql_literal});\n\n")
 
 
 def read_csv_patches(csv_file: Path, core_suffix: str = "_core_114_1") -> List[Dict]:
@@ -618,7 +631,8 @@ def read_csv_patches(csv_file: Path, core_suffix: str = "_core_114_1") -> List[D
     CSV columns:
     - genome_uuid (required)
     - meta_key (required)
-    - desired_meta_value (required)
+    - desired_meta_value (required) — use \\N to set NULL (actual NULL in metadata DB,
+      string 'NULL' in core DB)
     - dataset_type (optional, default: genebuild)
     - species_id (optional, default: 1)
     - table_location (optional, default: dataset_attribute)
@@ -659,12 +673,23 @@ def read_csv_patches(csv_file: Path, core_suffix: str = "_core_114_1") -> List[D
                 )
                 continue
 
+            species_id_raw = (row.get("species_id") or "1").strip()
+            try:
+                species_id = int(species_id_raw)
+            except ValueError:
+                logging.error(
+                    f"Row {row_num}: Invalid species_id value {species_id_raw!r}. "
+                    "This is usually caused by an unquoted comma in a desired_meta_value "
+                    "field — wrap the value in double quotes in the CSV."
+                )
+                continue
+
             patch = {
                 "genome_uuid": row["genome_uuid"].strip(),
                 "meta_key": row["meta_key"].strip(),
                 "desired_meta_value": row["desired_meta_value"].strip(),
                 "dataset_type": row.get("dataset_type", "genebuild").strip(),
-                "species_id": int(row.get("species_id", 1)),
+                "species_id": species_id,
                 "table_location": row.get(
                     "table_location", "dataset_attribute"
                 ).strip(),
