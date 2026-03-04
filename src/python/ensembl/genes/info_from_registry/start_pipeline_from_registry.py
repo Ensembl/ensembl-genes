@@ -264,8 +264,7 @@ def get_server_settings_anno(settings: dict) -> dict:
         logger.info("Final server settings: %s", result)
         return result
 
-    else:
-        raise ValueError(f"Unknown server_set value: {server_set}")
+    raise ValueError(f"Unknown server_set value: {server_set}")
 
 
 def get_server_settings_main(settings: dict) -> dict:
@@ -414,8 +413,7 @@ def get_server_settings_main(settings: dict) -> dict:
         logger.info("Final server settings: %s", result)
         return result
 
-    else:
-        raise ValueError(f"Unknown server_set value: {server_set}")
+    raise ValueError(f"Unknown server_set value: {server_set}")
 
 
 def get_metadata_from_registry(
