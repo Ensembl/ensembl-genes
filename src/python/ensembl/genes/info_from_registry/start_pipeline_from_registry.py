@@ -163,9 +163,10 @@ def get_server_settings_anno(settings: dict) -> dict:
     """
 
     logger.info("Getting server settings")
+
     custom = settings.get("custom_server", {})
-    # Check if all custom_server values are non-empty
-    if all(  # pylint:disable=no-else-return
+
+    if all(
         custom.get(k)
         for k in [
             "pipeline_db_host",
@@ -175,7 +176,14 @@ def get_server_settings_anno(settings: dict) -> dict:
         ]
     ):
         logger.info("Custom server settings detected")
-        return {
+
+        logger.info(
+            "Custom ports: pipeline=%s core=%s",
+            custom.get("pipeline_db_port"),
+            custom.get("core_db_port"),
+        )
+
+        result = {
             "pipeline_db": {
                 "db_host": custom["pipeline_db_host"],
                 "db_user": settings["user"],
@@ -189,45 +197,74 @@ def get_server_settings_anno(settings: dict) -> dict:
                 "db_password": settings["password"],
             },
         }
-    else:
-        # Fallback based on server_set
-        server_set = str(settings.get("server_set", "1"))  # default to "1" if missing
 
-        if server_set == "1":  # pylint:disable=no-else-return
-            logger.info("Server set 1 detected")
-            return {
-                "pipeline_db": {
-                    "db_host": os.environ.get("GBS4"),
-                    "db_user": settings["user"],
-                    "db_port": str(os.environ.get("GBP4")),
-                    "db_password": settings["password"],
-                },
-                "core_db": {
-                    "db_host": os.environ.get("GBS3"),
-                    "db_user": settings["user"],
-                    "db_port": str(os.environ.get("GBP3")),
-                    "db_password": settings["password"],
-                },
-            }
+        logger.info("Final server settings: %s", result)
+        return result
 
-        elif server_set == "2":
-            logger.info("Server set 2 detected")
-            return {
-                "pipeline_db": {
-                    "db_host": os.environ.get("GBS7"),
-                    "db_user": settings["user"],
-                    "db_port": str(os.environ.get("GBP7")),
-                    "db_password": settings["password"],
-                },
-                "core_db": {
-                    "db_host": os.environ.get("GBS6"),
-                    "db_user": settings["user"],
-                    "db_port": str(os.environ.get("GBP6")),
-                    "db_password": settings["password"],
-                },
-            }
-        else:
-            raise ValueError(f"Unknown server_set value: {server_set}")
+    server_set = str(settings.get("server_set", "1"))
+    logger.info("Using server_set=%s", server_set)
+
+    if server_set == "1":
+        raw_pipeline_port = os.environ.get("GBP4")
+        raw_core_port = os.environ.get("GBP3")
+
+        logger.info(
+            "Env vars (set 1): GBS4=%s GBP4=%s | GBS3=%s GBP3=%s",
+            os.environ.get("GBS4"),
+            raw_pipeline_port,
+            os.environ.get("GBS3"),
+            raw_core_port,
+        )
+
+        result = {
+            "pipeline_db": {
+                "db_host": os.environ.get("GBS4"),
+                "db_user": settings["user"],
+                "db_port": int(raw_pipeline_port) if raw_pipeline_port else None,
+                "db_password": settings["password"],
+            },
+            "core_db": {
+                "db_host": os.environ.get("GBS3"),
+                "db_user": settings["user"],
+                "db_port": int(raw_core_port) if raw_core_port else None,
+                "db_password": settings["password"],
+            },
+        }
+
+        logger.info("Final server settings: %s", result)
+        return result
+
+    if server_set == "2":
+        raw_pipeline_port = os.environ.get("GBP7")
+        raw_core_port = os.environ.get("GBP6")
+
+        logger.info(
+            "Env vars (set 2): GBS7=%s GBP7=%s | GBS6=%s GBP6=%s",
+            os.environ.get("GBS7"),
+            raw_pipeline_port,
+            os.environ.get("GBS6"),
+            raw_core_port,
+        )
+
+        result = {
+            "pipeline_db": {
+                "db_host": os.environ.get("GBS7"),
+                "db_user": settings["user"],
+                "db_port": int(raw_pipeline_port) if raw_pipeline_port else None,
+                "db_password": settings["password"],
+            },
+            "core_db": {
+                "db_host": os.environ.get("GBS6"),
+                "db_user": settings["user"],
+                "db_port": int(raw_core_port) if raw_core_port else None,
+                "db_password": settings["password"],
+            },
+        }
+
+        logger.info("Final server settings: %s", result)
+        return result
+
+    raise ValueError(f"Unknown server_set value: {server_set}")
 
 
 def get_server_settings_main(settings: dict) -> dict:
@@ -251,7 +288,7 @@ def get_server_settings_main(settings: dict) -> dict:
     logger.info("Getting server settings")
     custom = settings.get("custom_server", {})
     # Check if all custom_server values are non-empty
-    if all(  # pylint:disable=no-else-return
+    if all(
         custom.get(k)
         for k in [
             "pipeline_db_host",
@@ -263,7 +300,15 @@ def get_server_settings_main(settings: dict) -> dict:
         ]
     ):
         logger.info("Custom server settings detected")
-        return {
+
+        logger.info(
+            "Custom ports: pipeline=%s core=%s databases=%s",
+            custom.get("pipeline_db_port"),
+            custom.get("core_db_port"),
+            custom.get("databases_port"),
+        )
+
+        result = {
             "pipeline_db": {
                 "db_host": custom["pipeline_db_host"],
                 "db_user": settings["user"],
@@ -283,57 +328,92 @@ def get_server_settings_main(settings: dict) -> dict:
                 "db_password": settings["password"],
             },
         }
-    else:
-        # Fallback based on server_set
-        server_set = str(settings.get("server_set", "1"))  # default to "1" if missing
 
-        if server_set == "1":  # pylint:disable=no-else-return
-            logger.info("Server set 1 detected")
-            return {
-                "pipeline_db": {
-                    "db_host": os.environ.get("GBS4"),
-                    "db_user": settings["user"],
-                    "db_port": str(os.environ.get("GBP4")),
-                    "db_password": settings["password"],
-                },
-                "core_db": {
-                    "db_host": os.environ.get("GBS2"),
-                    "db_user": settings["user"],
-                    "db_port": str(os.environ.get("GBP2")),
-                    "db_password": settings["password"],
-                },
-                "databases": {
-                    "db_host": os.environ.get("GBS3"),
-                    "db_user": settings["user"],
-                    "db_port": str(os.environ.get("GBP3")),
-                    "db_password": settings["password"],
-                },
-            }
+        logger.info("Final server settings: %s", result)
+        return result
 
-        elif server_set == "2":
-            logger.info("Server set 2 detected")
-            return {
-                "pipeline_db": {
-                    "db_host": os.environ.get("GBS7"),
-                    "db_user": settings["user"],
-                    "db_port": str(os.environ.get("GBP7")),
-                    "db_password": settings["password"],
-                },
-                "core_db": {
-                    "db_host": os.environ.get("GBS5"),
-                    "db_user": settings["user"],
-                    "db_port": str(os.environ.get("GBP5")),
-                    "db_password": settings["password"],
-                },
-                "databases": {
-                    "db_host": os.environ.get("GBS6"),
-                    "db_user": settings["user"],
-                    "db_port": str(os.environ.get("GBP6")),
-                    "db_password": settings["password"],
-                },
-            }
-        else:
-            raise ValueError(f"Unknown server_set value: {server_set}")
+    server_set = str(settings.get("server_set", "1"))
+    logger.info("Using server_set=%s", server_set)
+
+    if server_set == "1":
+        raw_pipeline_port = os.environ.get("GBP4")
+        raw_core_port = os.environ.get("GBP2")
+        raw_databases_port = os.environ.get("GBP3")
+
+        logger.info(
+            "Env vars (set 1): GBS4=%s GBP4=%s | GBS2=%s GBP2=%s | GBS3=%s GBP3=%s",
+            os.environ.get("GBS4"),
+            raw_pipeline_port,
+            os.environ.get("GBS2"),
+            raw_core_port,
+            os.environ.get("GBS3"),
+            raw_databases_port,
+        )
+
+        result = {
+            "pipeline_db": {
+                "db_host": os.environ.get("GBS4"),
+                "db_user": settings["user"],
+                "db_port": int(raw_pipeline_port) if raw_pipeline_port else None,
+                "db_password": settings["password"],
+            },
+            "core_db": {
+                "db_host": os.environ.get("GBS2"),
+                "db_user": settings["user"],
+                "db_port": int(raw_core_port) if raw_core_port else None,
+                "db_password": settings["password"],
+            },
+            "databases": {
+                "db_host": os.environ.get("GBS3"),
+                "db_user": settings["user"],
+                "db_port": int(raw_databases_port) if raw_databases_port else None,
+                "db_password": settings["password"],
+            },
+        }
+
+        logger.info("Final server settings: %s", result)
+        return result
+
+    if server_set == "2":
+        raw_pipeline_port = os.environ.get("GBP7")
+        raw_core_port = os.environ.get("GBP5")
+        raw_databases_port = os.environ.get("GBP6")
+
+        logger.info(
+            "Env vars (set 2): GBS7=%s GBP7=%s | GBS5=%s GBP5=%s | GBS6=%s GBP6=%s",
+            os.environ.get("GBS7"),
+            raw_pipeline_port,
+            os.environ.get("GBS5"),
+            raw_core_port,
+            os.environ.get("GBS6"),
+            raw_databases_port,
+        )
+
+        result = {
+            "pipeline_db": {
+                "db_host": os.environ.get("GBS7"),
+                "db_user": settings["user"],
+                "db_port": int(raw_pipeline_port) if raw_pipeline_port else None,
+                "db_password": settings["password"],
+            },
+            "core_db": {
+                "db_host": os.environ.get("GBS5"),
+                "db_user": settings["user"],
+                "db_port": int(raw_core_port) if raw_core_port else None,
+                "db_password": settings["password"],
+            },
+            "databases": {
+                "db_host": os.environ.get("GBS6"),
+                "db_user": settings["user"],
+                "db_port": int(raw_databases_port) if raw_databases_port else None,
+                "db_password": settings["password"],
+            },
+        }
+
+        logger.info("Final server settings: %s", result)
+        return result
+
+    raise ValueError(f"Unknown server_set value: {server_set}")
 
 
 def get_metadata_from_registry(
