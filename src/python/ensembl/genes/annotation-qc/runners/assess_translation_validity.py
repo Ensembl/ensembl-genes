@@ -14,6 +14,7 @@ from dataclasses import asdict
 from pathlib import Path
 
 import pandas as pd
+import os
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
@@ -41,9 +42,16 @@ def pair_cds_with_sequences(annotation, fasta) -> dict:
 	"""
 	cds_df = annotation[annotation["Feature"] == "CDS"]
 
+	if "transcript_id" in cds_df.columns and cds_df["transcript_id"].notna().any():
+		group_col = "transcript_id"
+	elif "Parent" in cds_df.columns:
+		group_col = "Parent"
+		cds_df = cds_df.assign(Parent=cds_df["Parent"].str.replace(r"^transcript:", "", regex=True))
+	else:
+		raise ValueError("Annotation has no 'transcript_id' or 'Parent' column — cannot group CDS by transcript.")
 
 	transcript_sequences = {}
-	for transcript_id, group in cds_df.groupby("transcript_id"):
+	for transcript_id, group in cds_df.groupby(group_col):
 		strand = group["Strand"].iloc[0]
 		group = group.sort_values("Start", ascending=(strand == "+"))
 
@@ -95,6 +103,7 @@ def register(subparsers):
 
 
 def _run(args):
+	os.makedirs(args.outdir, exist_ok=True)
 	annotation = parse_annotation(args.annotation)
 	fasta = parse_fasta(args.genome)
 	results = run_cds_qc(annotation, fasta)

@@ -1,6 +1,5 @@
-from dataclasses import dataclass
 
-import pyranges1 as pr
+from dataclasses import dataclass
 
 @dataclass
 class CDSMetrics:
