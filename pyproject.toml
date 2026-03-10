@@ -2,7 +2,7 @@
 name = "ensembl-genes"
 version = "0.1.0"
 description = "Tools for genome annotation"
-requires-python = ">=3.11"
+requires-python = ">=3.12"
 authors = [
     {name = "Ensembl", email = "dev@ensembl.org"},
 ]
@@ -20,7 +20,9 @@ dependencies = [
     "requests",
     "sqlalchemy >=1.4.16",
     "xmltodict",
-    "pandas"
+    "pandas",
+    "pyfaidx",
+    "pyranges1 >= 1.3"
 ]
 
 [project.optional-dependencies]
