@@ -20,11 +20,8 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from parsers.annotation import parse_annotation
 from parsers.sequence import parse_fasta
-from metrics.events import compute_cds_metrics
-
-
-
-
+from parsers.diamond import parse_diamond_hits
+from metrics.events import compute_cds_metrics, get_genetic_code, GeneticCode, STANDARD_CODE
 
 
 def pair_cds_with_sequences(annotation, fasta) -> dict:
@@ -73,21 +70,33 @@ def pair_cds_with_sequences(annotation, fasta) -> dict:
 	return transcript_sequences
 
 
-def run_cds_qc(annotation, fasta) -> pd.DataFrame:
+def run_cds_qc(annotation, fasta, genetic_code: GeneticCode = STANDARD_CODE) -> pd.DataFrame:
 	"""
 	Run CDS validity checks for all transcripts in the annotation.
 	Args:
 		annotation: PyRanges object containing annotation features
 		fasta: pyfaidx Fasta object for the genomic sequence
+		genetic_code: GeneticCode to use for stop codon evaluation (default: standard)
 	Returns:
 		DataFrame with one row per transcript and CDSMetrics columns
 	"""
 	cds_sequences = pair_cds_with_sequences(annotation, fasta)
 	records = [
-		{"transcript_id": tid, **asdict(compute_cds_metrics(seq))}
+		{"transcript_id": tid, **asdict(compute_cds_metrics(seq, genetic_code))}
 		for tid, seq in cds_sequences.items()
 	]
 	return pd.DataFrame(records)
+
+def _add_args(parser):
+	parser.add_argument("--annotation", required=True, help="Path to GFF3 or GTF annotation file.")
+	parser.add_argument("--genome", required=True, help="Path to genomic FASTA file.")
+	parser.add_argument("--outdir", default=".", help="Directory to save results CSV (default: current directory).")
+	parser.add_argument("--genetic-code", type=int, default=1, dest="genetic_code",
+		metavar="TABLE_ID",
+		help="NCBI genetic code table ID (default: 1 = standard). See https://www.ncbi.nlm.nih.gov/Taxonomy/Utils/wprintgc.cgi")
+	parser.add_argument("--diamond-hits", default=None, dest="diamond_hits",
+		help="Path to DIAMOND tabular hits TSV (optional). Best hit per transcript is merged into results.")
+
 
 # CLI integration for shared annotation-qc framework
 def register(subparsers):
@@ -96,37 +105,34 @@ def register(subparsers):
 		"translation-validity",
 		help="Assess CDS translation validity (start/stop codons, frame, internal stops).",
 	)
-	p.add_argument("--annotation", required=True, help="Path to GFF3 or GTF annotation file.")
-	p.add_argument("--genome", required=True, help="Path to genomic FASTA file.")
-	p.add_argument("--outdir", default=".", help="Directory to save results CSV (default: current directory).")
+	_add_args(p)
 	p.set_defaults(func=_run)
 
 
 def _run(args):
 	os.makedirs(args.outdir, exist_ok=True)
+	genetic_code = get_genetic_code(args.genetic_code)
+	print(f"Using genetic code: {genetic_code.table_id} ({genetic_code.name})")
 	annotation = parse_annotation(args.annotation)
 	fasta = parse_fasta(args.genome)
-	results = run_cds_qc(annotation, fasta)
+	results = run_cds_qc(annotation, fasta, genetic_code)
+	if args.diamond_hits:
+		diamond_df = parse_diamond_hits(args.diamond_hits)
+		best_hits = (
+			diamond_df.sort_values("bitscore", ascending=False)
+			.drop_duplicates(subset="qseqid")
+			.rename(columns={"qseqid": "transcript_id"})
+		)
+		results = results.merge(best_hits, on="transcript_id", how="left")
 	print("Writing results to CSV...")
 	results.to_csv(f"{args.outdir}/translation_validity_results.csv", index=False)
 	return results
-
-# Standalone CLI entry point for direct execution
-def parse_args():
-	parser = argparse.ArgumentParser(description="Assess the validity of translations in gene annotations.")
-	parser.add_argument("--annotation", required=True, help="Path to the gene annotation file (GFF3 or GTF).")
-	parser.add_argument("--genome", required=True, help="Path to the genome FASTA file.")
-	return parser.parse_args()
 
 
 def main():
-	args = parse_args()
-	annotation = parse_annotation(args.annotation)
-	fasta = parse_fasta(args.genome)
-	results = run_cds_qc(annotation, fasta)
-	print("Writing results to CSV...")
-	results.to_csv(f"{args.outdir}/translation_validity_results.csv", index=False)
-	return results
+	parser = argparse.ArgumentParser(description="Assess the validity of translations in gene annotations.")
+	_add_args(parser)
+	_run(parser.parse_args())
 
 
 if __name__ == "__main__":

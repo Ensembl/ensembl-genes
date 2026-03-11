@@ -22,7 +22,8 @@ dependencies = [
     "xmltodict",
     "pandas",
     "pyfaidx",
-    "pyranges1 >= 1.3"
+    "pyranges1 >= 1.3",
+    "biopython"
 ]
 
 [project.optional-dependencies]
