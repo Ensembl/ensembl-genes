@@ -51,6 +51,14 @@ def get_genetic_code(table_id: int) -> GeneticCode:
 
 STANDARD_CODE = get_genetic_code(1)
 
+# Documented alternative initiation codons (near cognates).
+# Position-3 variants (ATA, ATC, ATT) are NOT included: wobble-position
+# substitutions are not recognised by the initiator tRNA.
+NEAR_COGNATE_STARTS: FrozenSet[str] = frozenset({
+    "CTG", "GTG", "TTG",  # position 1 variants (A→C/G/T)
+    "ACG",                 # position 2 variant  (T→C)
+})
+
 
 @dataclass
 class CDSMetrics:
@@ -66,7 +74,8 @@ class CDSMetrics:
 	stop_codon : str
 		Last 3 nucleotides if available, else "".
 	start_status : str
-		"canonical" (ATG), "non_ATG", or "missing".
+		"canonical" (ATG), "near_cognate" (1-nt substitution from ATG),
+		"non_cognate" (all other non-ATG codons), or "missing".
 	stop_status : str
 		"canonical" (valid stop for the genetic code), "noncanonical", or "missing".
 	frame_ok : bool
@@ -92,7 +101,7 @@ def compute_cds_metrics(seq_nt: str, genetic_code: GeneticCode = STANDARD_CODE) 
 
 	Evaluates:
 	  - CDS length (nt)
-	  - start codon and status (ATG => canonical)
+	  - start codon and status (ATG => canonical, 1-nt variant => near_cognate, other => non_cognate)
 	  - stop codon and status (valid stop for genetic code => canonical)
 	  - frame correctness (length % 3 == 0)
 	  - internal in-frame stops (excluding terminal codon)
@@ -119,7 +128,12 @@ def compute_cds_metrics(seq_nt: str, genetic_code: GeneticCode = STANDARD_CODE) 
 		start_status = "missing"
 		stop_status = "missing"
 	else:
-		start_status = "canonical" if start_codon == "ATG" else "non_ATG"
+		if start_codon == "ATG":
+			start_status = "canonical"
+		elif start_codon in NEAR_COGNATE_STARTS:
+			start_status = "near_cognate"
+		else:
+			start_status = "non_cognate"
 		stop_status = "canonical" if stop_codon in genetic_code.stop_codons else "noncanonical"
 
 	frame_error = (length_of_cds % 3) != 0
@@ -143,4 +157,77 @@ def compute_cds_metrics(seq_nt: str, genetic_code: GeneticCode = STANDARD_CODE) 
 		frame_ok=frame_ok,
 		frame_error=frame_error,
 		has_internal_stop=has_internal_stop
+	)
+
+
+# Canonical splice-site dinucleotide pairs (donor–acceptor).
+# GT-AG: U2 spliceosome, major class (~99 % of junctions)
+# GC-AG: U2 spliceosome, minor class (~1 %)
+# AT-AC: U12 spliceosome, minor class (<0.1 %)
+CANONICAL_SPLICE_PAIRS: FrozenSet[str] = frozenset({"GT-AG", "GC-AG", "AT-AC"})
+
+
+@dataclass
+class SpliceJunctionMetrics:
+	"""
+	Metrics for a single splice junction derived from the intron sequence.
+
+	Attributes
+	----------
+	donor_dinucleotide : str
+		First two nucleotides of the intron (5' splice site), e.g. "GT".
+		Empty string if the intron sequence is too short.
+	acceptor_dinucleotide : str
+		Last two nucleotides of the intron (3' splice site), e.g. "AG".
+		Empty string if the intron sequence is too short.
+	junction_type : str
+		Donor and acceptor joined by a hyphen, e.g. "GT-AG", or "unknown"
+		if either dinucleotide could not be extracted.
+	is_canonical : bool
+		True if the junction type is one of GT-AG, GC-AG, or AT-AC.
+	"""
+	donor_dinucleotide: str
+	acceptor_dinucleotide: str
+	junction_type: str
+	is_canonical: bool
+
+
+def assess_splice_junction(intron_seq: str) -> SpliceJunctionMetrics:
+	"""
+	Assess the canonicality of a splice junction from the intron sequence.
+
+	Extracts the donor dinucleotide (first 2 nt) and acceptor dinucleotide
+	(last 2 nt) of the intron, classifies the junction type, and flags
+	whether it is canonical.
+
+	Parameters
+	----------
+	intron_seq : str
+		Nucleotide sequence of the intron (None-like treated as "").
+		Must be at least 4 nt for non-overlapping donor/acceptor sites.
+
+	Returns
+	-------
+	SpliceJunctionMetrics
+		Computed splice junction metrics.
+	"""
+	seq = (intron_seq or "").upper()
+
+	if len(seq) < 4:
+		return SpliceJunctionMetrics(
+			donor_dinucleotide="",
+			acceptor_dinucleotide="",
+			junction_type="unknown",
+			is_canonical=False,
+		)
+
+	donor = seq[:2]
+	acceptor = seq[-2:]
+	junction_type = f"{donor}-{acceptor}"
+
+	return SpliceJunctionMetrics(
+		donor_dinucleotide=donor,
+		acceptor_dinucleotide=acceptor,
+		junction_type=junction_type,
+		is_canonical=junction_type in CANONICAL_SPLICE_PAIRS,
 	)

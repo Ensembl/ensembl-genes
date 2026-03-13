@@ -14,10 +14,11 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
 
-from runners import assess_translation_validity
+from runners import assess_translation_validity, genebuild_stats
 
 RUNNERS = [
 	assess_translation_validity,
+	genebuild_stats,
 ]
 
 

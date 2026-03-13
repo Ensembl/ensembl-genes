@@ -1,8 +1,17 @@
 
 from __future__ import annotations
 
+from dataclasses import asdict
+
 import pandas as pd
 from typing import Tuple
+
+from metrics.events import (
+    assess_splice_junction,
+    compute_cds_metrics,
+    GeneticCode,
+    STANDARD_CODE,
+)
 
 
 # ---------------------------------------------------------------------------
@@ -537,6 +546,7 @@ def compute_transcript_utr_stats(gff) -> pd.DataFrame:
 
         * ``transcript_id``
         * ``gene_id``
+        * ``biotype``              – gene biotype (e.g. protein_coding, lncRNA)
         * ``five_prime_utr_length``  – total spliced 5' UTR length (bp)
         * ``three_prime_utr_length`` – total spliced 3' UTR length (bp)
         * ``five_prime_utr_junctions``  – intron count within 5' UTR
@@ -554,6 +564,15 @@ def compute_transcript_utr_stats(gff) -> pd.DataFrame:
         tx_df["Parent"].str.split(",").str[0].str.removeprefix("gene:")
     )
     base = tx_df[["transcript_id", "gene_id"]].copy()
+
+    gene_df = gff[gff["Feature"].isin(_GENE_FEATURE_TYPES)].copy()
+    missing = gene_df["gene_id"].isna()
+    if missing.any():
+        gene_df.loc[missing, "gene_id"] = (
+            gene_df.loc[missing, "ID"].str.split(":", n=1).str[-1]
+        )
+    gene_biotype = gene_df.set_index("gene_id")["biotype"].to_dict()
+    base.insert(2, "biotype", base["gene_id"].map(gene_biotype).fillna(""))
 
     def _utr_metrics(feature_name: str):
         utr = gff[gff["Feature"] == feature_name].reset_index(drop=True).copy()
@@ -649,3 +668,462 @@ def compute_pseudogene_stats(gff) -> dict:
         "Total introns": m["total_introns"],
         "Average intron length": m["avg_intron_len"],
     }
+
+
+def compute_cds_utr5_overlap(gff) -> pd.DataFrame:
+    """
+    Identify CDS exon segments that overlap annotated 5' UTR exon segments.
+
+    Both CDS and five_prime_UTR features in GFF3 represent individual exonic
+    intervals, so the comparison is strictly exon-to-exon — intronic gaps
+    between UTR segments are never tested.  An overlap between a CDS exon and
+    a 5' UTR exon on the same transcript indicates an annotation inconsistency
+    at the start of the coding sequence (a "skipped start").
+
+    Parameters
+    ----------
+    gff:
+        PyRanges object returned by ``parsers.annotation.parse_annotation``.
+
+    Returns
+    -------
+    pd.DataFrame
+        One row per coding transcript (i.e. every transcript that has at
+        least one CDS feature).  Columns:
+
+        * ``transcript_id``
+        * ``gene_id``
+        * ``n_cds_segments``          – total CDS exon segments for this transcript
+        * ``n_cds_overlapping_utr5``  – CDS exon segments that overlap at
+          least one five_prime_UTR exon segment
+        * ``has_overlap``             – True if n_cds_overlapping_utr5 > 0
+    """
+    _cols = ["transcript_id", "gene_id", "n_cds_segments", "n_cds_overlapping_utr5", "has_overlap"]
+
+    cds_df = gff[gff["Feature"] == "CDS"].reset_index(drop=True).copy()
+    if cds_df.empty:
+        return pd.DataFrame(columns=_cols)
+
+    # Resolve transcript_id from Parent if not already present
+    if cds_df["transcript_id"].isna().all():
+        cds_df["transcript_id"] = (
+            cds_df["Parent"].str.split(",").str[0].str.removeprefix("transcript:")
+        )
+
+    # Propagate gene_id via transcript→gene lookup
+    tx_df = (
+        gff[gff["Feature"].isin(_TRANSCRIPT_FEATURE_TYPES)]
+        .reset_index(drop=True)
+        .copy()
+    )
+    tx_df["gene_id"] = tx_df["Parent"].str.split(",").str[0].str.removeprefix("gene:")
+    tx_to_gene = tx_df.set_index("transcript_id")["gene_id"].to_dict()
+    cds_df["gene_id"] = cds_df["transcript_id"].map(tx_to_gene)
+
+    # Summary per transcript: gene_id + total CDS segment count
+    per_tx = (
+        cds_df.groupby("transcript_id")
+        .agg(gene_id=("gene_id", "first"), n_cds_segments=("Start", "count"))
+        .reset_index()
+    )
+
+    utr5_df = gff[gff["Feature"] == "five_prime_UTR"].reset_index(drop=True).copy()
+    if utr5_df.empty:
+        per_tx["n_cds_overlapping_utr5"] = 0
+        per_tx["has_overlap"] = False
+        return per_tx[_cols]
+
+    if utr5_df["transcript_id"].isna().all():
+        utr5_df["transcript_id"] = (
+            utr5_df["Parent"].str.split(",").str[0].str.removeprefix("transcript:")
+        )
+
+    # Cross-join CDS exons with UTR5 exons on transcript_id, then test overlap.
+    # Using inner join so only transcripts that carry both features are checked.
+    merged = cds_df[["transcript_id", "Start", "End"]].merge(
+        utr5_df[["transcript_id", "Start", "End"]].rename(
+            columns={"Start": "utr5_start", "End": "utr5_end"}
+        ),
+        on="transcript_id",
+        how="inner",
+    )
+
+    # Overlap: CDS_start < UTR5_end AND CDS_end > UTR5_start  (half-open coords)
+    overlapping = merged[(merged["Start"] < merged["utr5_end"]) & (merged["End"] > merged["utr5_start"])]
+
+    # Count unique CDS exon intervals per transcript that participate in an overlap
+    overlap_counts = (
+        overlapping
+        .drop_duplicates(subset=["transcript_id", "Start", "End"])
+        .groupby("transcript_id")
+        .size()
+        .rename("n_cds_overlapping_utr5")
+    )
+
+    per_tx["n_cds_overlapping_utr5"] = (
+        per_tx["transcript_id"].map(overlap_counts).fillna(0).astype(int)
+    )
+    per_tx["has_overlap"] = per_tx["n_cds_overlapping_utr5"] > 0
+
+    return per_tx[_cols]
+
+
+def compute_cds_utr5_overlap_summary(cds_utr5_df: pd.DataFrame) -> dict:
+    """
+    Summarise CDS / 5' UTR exon overlap results as a flat metrics dict.
+
+    Parameters
+    ----------
+    cds_utr5_df:
+        DataFrame returned by ``compute_cds_utr5_overlap``.
+
+    Returns
+    -------
+    dict
+        Stats keys: Coding transcripts assessed,
+        With CDS/5' UTR overlap, % with CDS/5' UTR overlap.
+    """
+    n = len(cds_utr5_df)
+    if n == 0:
+        return {
+            "Coding transcripts assessed": 0,
+            "With CDS/5' UTR overlap": "",
+            "% with CDS/5' UTR overlap": "",
+        }
+    n_overlap = int(cds_utr5_df["has_overlap"].sum())
+    return {
+        "Coding transcripts assessed": n,
+        "With CDS/5' UTR overlap": n_overlap,
+        "% with CDS/5' UTR overlap": round(100 * n_overlap / n, 2),
+    }
+
+
+def compute_translation_summary_stats(translation_df: pd.DataFrame) -> dict:
+    """
+    Aggregate per-transcript CDS translation metrics to a flat summary dict.
+
+    Parameters
+    ----------
+    translation_df:
+        DataFrame returned by ``compute_translation_metrics``.
+
+    Returns
+    -------
+    dict
+        Stats keys: Coding transcripts assessed,
+        Canonical start (ATG), % canonical start,
+        Near-cognate start, % near-cognate start,
+        Non-cognate start, % non-cognate start, Missing start,
+        Canonical stop, % canonical stop,
+        Noncanonical stop, Missing stop,
+        Frame errors, % frame errors,
+        With internal stops, % with internal stops.
+    """
+    n = len(translation_df)
+    if n == 0:
+        return {"Coding transcripts assessed": 0}
+
+    def _count(col, val):
+        return int((translation_df[col] == val).sum())
+
+    def _pct(count):
+        return round(100 * count / n, 2)
+
+    n_canon_start  = _count("start_status", "canonical")
+    n_near         = _count("start_status", "near_cognate")
+    n_non          = _count("start_status", "non_cognate")
+    n_miss_start   = _count("start_status", "missing")
+    n_canon_stop   = _count("stop_status", "canonical")
+    n_noncan_stop  = _count("stop_status", "noncanonical")
+    n_miss_stop    = _count("stop_status", "missing")
+    n_frame_err    = int(translation_df["frame_error"].sum())
+    n_internal     = int(translation_df["has_internal_stop"].sum())
+
+    return {
+        "Coding transcripts assessed": n,
+        "Canonical start (ATG)":    n_canon_start,
+        "% canonical start":        _pct(n_canon_start),
+        "Near-cognate start":       n_near,
+        "% near-cognate start":     _pct(n_near),
+        "Non-cognate start":        n_non,
+        "% non-cognate start":      _pct(n_non),
+        "Missing start":            n_miss_start,
+        "Canonical stop":           n_canon_stop,
+        "% canonical stop":         _pct(n_canon_stop),
+        "Noncanonical stop":        n_noncan_stop,
+        "Missing stop":             n_miss_stop,
+        "Frame errors":             n_frame_err,
+        "% frame errors":           _pct(n_frame_err),
+        "With internal stops":      n_internal,
+        "% with internal stops":    _pct(n_internal),
+    }
+
+
+def compute_splice_junction_summary_stats(splice_df: pd.DataFrame) -> dict:
+    """
+    Aggregate per-intron splice junction metrics to a flat summary dict.
+
+    Parameters
+    ----------
+    splice_df:
+        DataFrame returned by ``compute_splice_junction_metrics``.
+
+    Returns
+    -------
+    dict
+        Stats keys: Introns assessed,
+        Canonical junctions, % canonical junctions,
+        GT-AG junctions, % GT-AG junctions,
+        GC-AG junctions, AT-AC junctions,
+        Noncanonical junctions, % noncanonical junctions,
+        Unknown junctions.
+    """
+    n = len(splice_df)
+    if n == 0:
+        return {"Introns assessed": 0}
+
+    def _pct(count):
+        return round(100 * count / n, 2)
+
+    n_canonical    = int(splice_df["is_canonical"].sum())
+    n_gtag         = int((splice_df["junction_type"] == "GT-AG").sum())
+    n_gcag         = int((splice_df["junction_type"] == "GC-AG").sum())
+    n_atac         = int((splice_df["junction_type"] == "AT-AC").sum())
+    n_unknown      = int((splice_df["junction_type"] == "unknown").sum())
+    n_noncanonical = n - n_canonical - n_unknown
+
+    return {
+        "Introns assessed":             n,
+        "Canonical junctions":          n_canonical,
+        "% canonical junctions":        _pct(n_canonical),
+        "GT-AG junctions":              n_gtag,
+        "% GT-AG junctions":            _pct(n_gtag),
+        "GC-AG junctions":              n_gcag,
+        "AT-AC junctions":              n_atac,
+        "Noncanonical junctions":       n_noncanonical,
+        "% noncanonical junctions":     _pct(n_noncanonical),
+        "Unknown junctions":            n_unknown,
+    }
+
+
+# ---------------------------------------------------------------------------
+# Sequence-based event QC (requires genome FASTA)
+# ---------------------------------------------------------------------------
+
+_RC_TABLE = str.maketrans("ACGTacgt", "TGCAtgca")
+
+
+def _reverse_complement(seq: str) -> str:
+    return seq.translate(_RC_TABLE)[::-1]
+
+
+def _extract_cds_sequences(gff, fasta) -> dict:
+    """
+    Extract and concatenate CDS nucleotide sequences per transcript.
+
+    CDS intervals are sorted by genomic start; minus-strand intervals are
+    individually reverse-complemented so the returned sequence always runs
+    5' → 3' in coding direction.
+
+    Parameters
+    ----------
+    gff:
+        PyRanges object from parse_annotation.
+    fasta:
+        pyfaidx Fasta object from parse_fasta.
+
+    Returns
+    -------
+    dict mapping transcript_id → concatenated CDS nucleotide sequence (str).
+    """
+    cds_df = gff[gff["Feature"] == "CDS"].copy()
+    if cds_df.empty:
+        return {}
+
+    if "transcript_id" in cds_df.columns and cds_df["transcript_id"].notna().any():
+        group_col = "transcript_id"
+    elif "Parent" in cds_df.columns:
+        group_col = "Parent"
+        cds_df = cds_df.assign(
+            Parent=cds_df["Parent"].str.replace(r"^transcript:", "", regex=True)
+        )
+    else:
+        return {}
+
+    sequences = {}
+    for tx_id, group in cds_df.groupby(group_col):
+        strand = group["Strand"].iloc[0]
+        group = group.sort_values("Start", ascending=(strand == "+"))
+        parts = []
+        for _, row in group.iterrows():
+            try:
+                interval = fasta[row["Chromosome"]][int(row["Start"]):int(row["End"])]
+                parts.append(
+                    interval.seq if strand == "+" else interval.reverse.complement.seq
+                )
+            except KeyError:
+                parts.append("")
+        sequences[tx_id] = "".join(parts)
+    return sequences
+
+
+def _extract_intron_records(exon_df: pd.DataFrame, tx_col: str = "transcript_id") -> pd.DataFrame:
+    """
+    Derive intron coordinate records from exon coordinates.
+
+    Uses the same cumulative-max approach as ``_compute_introns`` so that
+    overlapping or adjacent exons produce no intron.  intron_number is
+    1-based in transcript order (5'→3'): ascending genomic position for
+    plus-strand, descending for minus-strand.
+
+    Returns
+    -------
+    pd.DataFrame
+        Columns: tx_col, Chromosome, Strand, intron_start, intron_end,
+        intron_number.
+    """
+    _empty = pd.DataFrame(
+        columns=[tx_col, "Chromosome", "Strand", "intron_start", "intron_end", "intron_number"]
+    )
+    if exon_df.empty:
+        return _empty
+
+    df = (
+        exon_df[[tx_col, "Chromosome", "Strand", "Start", "End"]]
+        .copy()
+        .sort_values([tx_col, "Start"])
+    )
+    df["cum_max_end"] = df.groupby(tx_col)["End"].cummax()
+    df["prev_cum_max_end"] = df.groupby(tx_col)["cum_max_end"].shift(1)
+
+    gap_mask = df["prev_cum_max_end"].notna() & (df["prev_cum_max_end"] < df["Start"])
+    introns = df[gap_mask].copy()
+    if introns.empty:
+        return _empty
+
+    introns["intron_start"] = introns["prev_cum_max_end"].astype(int)
+    introns["intron_end"] = introns["Start"].astype(int)
+
+    intron_numbers = pd.Series(index=introns.index, dtype=int)
+    for _, _group in introns.groupby(tx_col, sort=False):
+        _ascending = _group["Strand"].iloc[0] != "-"
+        intron_numbers.loc[_group.index] = (
+            _group["intron_start"].rank(method="first", ascending=_ascending).astype(int)
+        )
+    introns["intron_number"] = intron_numbers
+
+    return introns[[tx_col, "Chromosome", "Strand", "intron_start", "intron_end", "intron_number"]].reset_index(drop=True)
+
+
+def compute_translation_metrics(gff, fasta, genetic_code: GeneticCode = STANDARD_CODE) -> pd.DataFrame:
+    """
+    Compute CDS translation validity metrics for all coding transcripts.
+
+    Extracts the spliced CDS nucleotide sequence for each transcript from the
+    genome FASTA and evaluates start/stop codon identity, reading-frame
+    correctness, and the presence of internal stop codons.  No alignment
+    evidence is required.
+
+    Parameters
+    ----------
+    gff:
+        PyRanges object from parse_annotation.
+    fasta:
+        pyfaidx Fasta object from parse_fasta.
+    genetic_code:
+        GeneticCode for stop codon recognition. Defaults to standard (table 1).
+
+    Returns
+    -------
+    pd.DataFrame
+        One row per coding transcript with columns:
+        transcript_id, cds_len_nt, start_codon, stop_codon,
+        start_status, stop_status, frame_ok, frame_error, has_internal_stop.
+    """
+    _cols = [
+        "transcript_id", "cds_len_nt", "start_codon", "stop_codon",
+        "start_status", "stop_status", "frame_ok", "frame_error", "has_internal_stop",
+    ]
+    sequences = _extract_cds_sequences(gff, fasta)
+    if not sequences:
+        return pd.DataFrame(columns=_cols)
+    records = [
+        {"transcript_id": tid, **asdict(compute_cds_metrics(seq, genetic_code))}
+        for tid, seq in sequences.items()
+    ]
+    return pd.DataFrame(records)
+
+
+def compute_splice_junction_metrics(gff, fasta) -> pd.DataFrame:
+    """
+    Compute splice junction metrics for every intron in the annotation.
+
+    For each intron derived from exon features, extracts the donor (5') and
+    acceptor (3') dinucleotides from the genome FASTA — handling strand
+    orientation — and classifies the junction type via
+    ``events.assess_splice_junction``.
+
+    Parameters
+    ----------
+    gff:
+        PyRanges object from parse_annotation.
+    fasta:
+        pyfaidx Fasta object from parse_fasta.
+
+    Returns
+    -------
+    pd.DataFrame
+        One row per intron with columns:
+        transcript_id, intron_number, chromosome, intron_start, intron_end,
+        strand, donor_dinucleotide, acceptor_dinucleotide,
+        junction_type, is_canonical.
+    """
+    _cols = [
+        "transcript_id", "intron_number", "chromosome",
+        "intron_start", "intron_end", "strand",
+        "donor_dinucleotide", "acceptor_dinucleotide", "junction_type", "is_canonical",
+    ]
+
+    exon_df = gff[gff["Feature"] == "exon"].reset_index(drop=True).copy()
+    if exon_df.empty:
+        return pd.DataFrame(columns=_cols)
+
+    if exon_df["transcript_id"].isna().all():
+        exon_df["transcript_id"] = (
+            exon_df["Parent"].str.split(",").str[0].str.removeprefix("transcript:")
+        )
+
+    intron_df = _extract_intron_records(exon_df)
+    if intron_df.empty:
+        return pd.DataFrame(columns=_cols)
+
+    rows = []
+    for _, row in intron_df.iterrows():
+        chrom = row["Chromosome"]
+        strand = row["Strand"]
+        i_start = int(row["intron_start"])
+        i_end = int(row["intron_end"])
+
+        try:
+            if strand == "+":
+                donor_nt = fasta[chrom][i_start:i_start + 2].seq
+                acceptor_nt = fasta[chrom][i_end - 2:i_end].seq
+            else:
+                # 5' splice site is at the genomic right end of the intron
+                donor_nt = _reverse_complement(fasta[chrom][i_end - 2:i_end].seq)
+                acceptor_nt = _reverse_complement(fasta[chrom][i_start:i_start + 2].seq)
+            metrics = assess_splice_junction(donor_nt + acceptor_nt)
+        except KeyError:
+            metrics = assess_splice_junction("")  # returns junction_type="unknown"
+
+        rows.append({
+            "transcript_id": row["transcript_id"],
+            "intron_number": row["intron_number"],
+            "chromosome": chrom,
+            "intron_start": i_start,
+            "intron_end": i_end,
+            "strand": strand,
+            **asdict(metrics),
+        })
+
+    return pd.DataFrame(rows)
