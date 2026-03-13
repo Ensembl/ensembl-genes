@@ -17,22 +17,14 @@ from pathlib import Path
 def safe_agg(df: pd.DataFrame, columns: list[str], method: str = "sum") -> pd.Series:
     """
     Aggregate only the columns that exist in the DataFrame.
-
-    Args:
-        df: DataFrame with metrics as columns (after pivot if long format).
-        columns: List of column names to aggregate.
-        method: Aggregation method: 'sum', 'mean', 'min', 'max'.
-
-    Returns:
-        A Series with a single value of the aggregation.
     """
     existing = [c for c in columns if c in df.columns]
+
     if not existing:
-        # Return 0 for sums, NaN for mean/min/max
         if method == "sum":
-            return pd.Series([0], index=[0])
+            return pd.Series(0, index=df.index)
         else:
-            return pd.Series([float("nan")], index=[0])
+            return pd.Series(float("nan"), index=df.index)
 
     if method == "sum":
         return df[existing].sum(axis=1)
@@ -44,6 +36,13 @@ def safe_agg(df: pd.DataFrame, columns: list[str], method: str = "sum") -> pd.Se
         return df[existing].max(axis=1)
     else:
         raise ValueError(f"Unsupported aggregation method: {method}")
+
+
+def safe_col(df: pd.DataFrame, col: str) -> pd.Series:
+    """Return column if present, otherwise a Series of zeros aligned to df."""
+    if col in df.columns:
+        return df[col]
+    return pd.Series(0, index=df.index)
 
 
 def select_and_rename_metrics(input_csv: Path, output_csv: Path) -> None:
@@ -89,17 +88,15 @@ def select_and_rename_metrics(input_csv: Path, output_csv: Path) -> None:
         "y_rna",
     ]
 
-    df["average_coding_sequence_length"] = (
-        df["mrna_total_exon_length_(bp)"] / df["mrna_number_of_mrna"]
+    df["average_coding_sequence_length"] = safe_col(
+        df, "mrna_total_exon_length_(bp)"
+    ) / safe_col(df, "mrna_number_of_mrna")
+
+    df["nc_small_non_coding_genes"] = safe_agg(
+        df, [f"{t}_number_of_ncrna_gene" for t in small_nc_types]
     )
 
-    df["nc_small_non_coding_genes"] = df[
-        [f"{t}_number_of_ncrna_gene" for t in small_nc_types]
-    ].sum(axis=1)
-
-    df["nc_total_transcripts"] = df[[f"{t}_number_of_{t}" for t in nc_types]].sum(
-        axis=1
-    )
+    df["nc_total_transcripts"] = safe_agg(df, [f"{t}_number_of_{t}" for t in nc_types])
 
     df["nc_total_exons"] = safe_agg(
         df, [f"{t}_number_of_exon" for t in nc_types], method="sum"
@@ -109,8 +106,8 @@ def select_and_rename_metrics(input_csv: Path, output_csv: Path) -> None:
         df, [f"{t}_number_of_intron_in_exon" for t in nc_types], method="sum"
     )
 
-    df["nc_non_coding_genes"] = df[[f"{t}_number_of_ncrna_gene" for t in nc_types]].sum(
-        axis=1
+    df["nc_non_coding_genes"] = safe_agg(
+        df, [f"{t}_number_of_ncrna_gene" for t in nc_types]
     )
 
     df["nc_transcripts_per_gene"] = (
@@ -118,16 +115,12 @@ def select_and_rename_metrics(input_csv: Path, output_csv: Path) -> None:
     )
 
     df["nc_total_exon_length"] = safe_agg(
-        df, [f"{t}_total_exon_length_(bp)" for t in nc_types], method="sum"
+        df, [f"{t}_total_exon_length_(bp)" for t in nc_types]
     )
 
     df["nc_average_exons_per_transcript"] = (
         df["nc_total_exons"] / df["nc_total_transcripts"]
     )
-
-    df["nc_total_exon_length"] = df[
-        [f"{t}_total_exon_length_(bp)" for t in nc_types]
-    ].sum(axis=1)
 
     df["nc_average_exon_length"] = df["nc_total_exon_length"] / df["nc_total_exons"]
 
@@ -139,29 +132,35 @@ def select_and_rename_metrics(input_csv: Path, output_csv: Path) -> None:
         df["nc_total_intron_length"] / df["nc_total_introns"]
     )
 
-    df["nc_total_transcript_length"] = df[
-        [f"{t}_total_{t}_length_(bp)" for t in nc_types]
-    ].sum(axis=1)
+    df["nc_total_transcript_length"] = safe_agg(
+        df, [f"{t}_total_{t}_length_(bp)" for t in nc_types]
+    )
 
     df["nc_average_sequence_length"] = (
         df["nc_total_transcript_length"] / df["nc_non_coding_genes"]
     )
 
-    df["ps_average_sequence_length"] = (
-        df["pseudogenic_transcript_total_exon_length_(bp)"]
-        / df["pseudogenic_transcript_number_of_pseudogenic_transcript"]
-    )
+    # Only create ps_average_sequence_length if both columns exist
+    if (
+        "pseudogenic_transcript_total_exon_length_(bp)" in df.columns
+        and "pseudogenic_transcript_number_of_pseudogenic_transcript" in df.columns
+    ):
+
+        df["ps_average_sequence_length"] = (
+            df["pseudogenic_transcript_total_exon_length_(bp)"]
+            / df["pseudogenic_transcript_number_of_pseudogenic_transcript"]
+        )
 
     df["total_transcripts"] = (
-        df["mrna_number_of_mrna"]
-        + df["nc_total_transcripts"]
-        + df["pseudogenic_transcript_number_of_pseudogenic_transcript"]
+        safe_col(df, "mrna_number_of_mrna")
+        + safe_col(df, "nc_total_transcripts")
+        + safe_col(df, "pseudogenic_transcript_number_of_pseudogenic_transcript")
     )
 
     df["total_genes"] = (
-        df["mrna_number_of_gene"]
-        + df["nc_non_coding_genes"]
-        + df["pseudogenic_transcript_number_of_pseudogene"]
+        safe_col(df, "mrna_number_of_gene")
+        + safe_col(df, "nc_non_coding_genes")
+        + safe_col(df, "pseudogenic_transcript_number_of_pseudogene")
     )
 
     df["transcripts_per_gene"] = df["total_transcripts"] / df["total_genes"]
