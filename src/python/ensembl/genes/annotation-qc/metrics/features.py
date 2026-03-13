@@ -196,6 +196,9 @@ def _prepare_dataframes(gff) -> tuple:
         gene_df.loc[missing, "gene_id"] = (
             gene_df.loc[missing, "ID"].str.split(":", n=1).str[-1]
         )
+    # Ensembl GFF3 uses "biotype"; GENCODE GFF3 uses "gene_type"
+    if "biotype" not in gene_df.columns or gene_df["biotype"].isna().all():
+        gene_df["biotype"] = gene_df["gene_type"] if "gene_type" in gene_df.columns else ""
     gene_df["group"] = gene_df["biotype"].fillna("").apply(_biotype_group)
 
     # --- Transcript features ---
@@ -571,6 +574,8 @@ def compute_transcript_utr_stats(gff) -> pd.DataFrame:
         gene_df.loc[missing, "gene_id"] = (
             gene_df.loc[missing, "ID"].str.split(":", n=1).str[-1]
         )
+    if "biotype" not in gene_df.columns or gene_df["biotype"].isna().all():
+        gene_df["biotype"] = gene_df["gene_type"] if "gene_type" in gene_df.columns else ""
     gene_biotype = gene_df.set_index("gene_id")["biotype"].to_dict()
     base.insert(2, "biotype", base["gene_id"].map(gene_biotype).fillna(""))
 
@@ -672,13 +677,17 @@ def compute_pseudogene_stats(gff) -> dict:
 
 def compute_cds_utr5_overlap(gff) -> pd.DataFrame:
     """
-    Identify CDS exon segments that overlap annotated 5' UTR exon segments.
+    Identify coding transcripts whose CDS exons overlap five_prime_UTR exons
+    from any transcript of the same gene.
 
-    Both CDS and five_prime_UTR features in GFF3 represent individual exonic
-    intervals, so the comparison is strictly exon-to-exon — intronic gaps
-    between UTR segments are never tested.  An overlap between a CDS exon and
-    a 5' UTR exon on the same transcript indicates an annotation inconsistency
-    at the start of the coding sequence (a "skipped start").
+    This is a gene-level, cross-transcript comparison.  A CDS exon on
+    transcript A overlapping a five_prime_UTR exon on transcript B (same gene)
+    indicates that transcript A has a potential N-terminal extension (NTE):
+    its coding sequence starts upstream of the canonical CDS start used by
+    other isoforms.
+
+    The comparison is strictly exon-to-exon (both CDS and five_prime_UTR
+    features represent individual exonic intervals in GFF3).
 
     Parameters
     ----------
@@ -695,7 +704,8 @@ def compute_cds_utr5_overlap(gff) -> pd.DataFrame:
         * ``gene_id``
         * ``n_cds_segments``          – total CDS exon segments for this transcript
         * ``n_cds_overlapping_utr5``  – CDS exon segments that overlap at
-          least one five_prime_UTR exon segment
+          least one five_prime_UTR exon segment from any transcript of the
+          same gene
         * ``has_overlap``             – True if n_cds_overlapping_utr5 > 0
     """
     _cols = ["transcript_id", "gene_id", "n_cds_segments", "n_cds_overlapping_utr5", "has_overlap"]
@@ -738,14 +748,17 @@ def compute_cds_utr5_overlap(gff) -> pd.DataFrame:
             utr5_df["Parent"].str.split(",").str[0].str.removeprefix("transcript:")
         )
 
-    # Cross-join CDS exons with UTR5 exons on transcript_id, then test overlap.
-    # Using inner join so only transcripts that carry both features are checked.
-    merged = cds_df[["transcript_id", "Start", "End"]].merge(
-        utr5_df[["transcript_id", "Start", "End"]].rename(
+    # Propagate gene_id to UTR5 features so we can join on gene_id
+    utr5_df["gene_id"] = utr5_df["transcript_id"].map(tx_to_gene)
+
+    # Join CDS exons with UTR5 exons on gene_id (cross-transcript within gene).
+    # Left join preserves all coding transcripts in the output.
+    merged = cds_df[["transcript_id", "gene_id", "Start", "End"]].merge(
+        utr5_df[["gene_id", "Start", "End"]].rename(
             columns={"Start": "utr5_start", "End": "utr5_end"}
         ),
-        on="transcript_id",
-        how="inner",
+        on="gene_id",
+        how="left",
     )
 
     # Overlap: CDS_start < UTR5_end AND CDS_end > UTR5_start  (half-open coords)

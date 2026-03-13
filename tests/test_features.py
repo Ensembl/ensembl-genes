@@ -145,6 +145,40 @@ def test_overlap_n_cds_segments_counted():
     assert df.loc[0, "n_cds_overlapping_utr5"] == 1
 
 
+def test_overlap_cross_transcript_nte():
+    # NTE scenario: TX_long (same gene) has CDS starting upstream of TX_short's CDS,
+    # inside the region annotated as five_prime_UTR on TX_short.
+    # TX_short: UTR5 [0,100), CDS [100,200)
+    # TX_long:  CDS [50,200) — starts inside TX_short's UTR5 → overlap expected
+    rows = [
+        {"Feature": "mRNA",           "transcript_id": "TX_short", "Parent": "gene:G1", "Start": 0, "End": 1000},
+        {"Feature": "CDS",            "transcript_id": "TX_short", "Parent": "transcript:TX_short", "Start": 100, "End": 200},
+        {"Feature": "five_prime_UTR", "transcript_id": "TX_short", "Parent": "transcript:TX_short", "Start": 0,   "End": 100},
+        {"Feature": "mRNA",           "transcript_id": "TX_long",  "Parent": "gene:G1", "Start": 0, "End": 1000},
+        {"Feature": "CDS",            "transcript_id": "TX_long",  "Parent": "transcript:TX_long",  "Start": 50,  "End": 200},
+    ]
+    df = compute_cds_utr5_overlap(_gff(rows)).set_index("transcript_id")
+    # TX_long's CDS [50,200) overlaps TX_short's UTR5 [0,100)
+    assert df.loc["TX_long", "has_overlap"]
+    # TX_short's CDS [100,200) is adjacent to its own UTR5 [0,100) — no overlap
+    assert not df.loc["TX_short", "has_overlap"]
+
+
+def test_overlap_cross_transcript_no_cross_gene_bleed():
+    # UTR5 from a different gene must not trigger overlap in an unrelated gene
+    rows = [
+        # Gene G1: TX1 has CDS at [50,200) — no UTR5 anywhere in G1
+        {"Feature": "mRNA", "transcript_id": "TX1", "Parent": "gene:G1", "Start": 0, "End": 1000},
+        {"Feature": "CDS",  "transcript_id": "TX1", "Parent": "transcript:TX1", "Start": 50, "End": 200},
+        # Gene G2: TX2 has UTR5 [0,100) that spans the same coordinates
+        {"Feature": "mRNA",           "transcript_id": "TX2", "Parent": "gene:G2", "Start": 0, "End": 1000},
+        {"Feature": "CDS",            "transcript_id": "TX2", "Parent": "transcript:TX2", "Start": 200, "End": 300},
+        {"Feature": "five_prime_UTR", "transcript_id": "TX2", "Parent": "transcript:TX2", "Start": 0,   "End": 100},
+    ]
+    df = compute_cds_utr5_overlap(_gff(rows)).set_index("transcript_id")
+    assert not df.loc["TX1", "has_overlap"]
+
+
 # ---------------------------------------------------------------------------
 # compute_translation_metrics
 # ---------------------------------------------------------------------------
