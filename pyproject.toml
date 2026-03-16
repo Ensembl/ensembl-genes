@@ -27,7 +27,7 @@ dependencies = [
 docs = [
     "sphinx>=7,<10",
 
-    "mkdocs",
+    "mkdocs<2",
     "mkdocs-material",
     "mkdocs-gen-files",
     "mkdocstrings[python]",
