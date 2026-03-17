@@ -1,18 +1,4 @@
 #!/usr/bin/env python3
-# See the NOTICE file distributed with this work for additional information
-# regarding copyright ownership.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
 """
 Beta Metadata Patcher Script
 
@@ -30,7 +16,7 @@ Usage:
     python beta_patcher.py patches.csv --jira-ticket EBD-1111 --core-suffix _core_115_1
 """
 
-# pylint: disable=logging-fstring-interpolation, unspecified-encoding, broad-exception-caught, unused-variable
+# pylint: disable=logging-fstring-interpolation, unspecified-encoding, broad-exception-caught, unused-variable, too-many-lines, too-many-locals
 import argparse
 import csv
 import logging
@@ -39,7 +25,10 @@ import sys
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
-from sqlalchemy import text
+from sqlalchemy import create_engine, text
+
+NULL_SENTINEL = r"\N"  # Use \N in CSV desired_meta_value to set NULL
+
 
 try:
     from ensembl.production.metadata.api.adaptors.genome import GenomeAdaptor
@@ -117,27 +106,15 @@ def get_genome_by_uuid(genome_uuid: str) -> Optional[Dict]:
         return None
 
     try:
-        results = adaptor.fetch_genomes_by_genome_uuid(genome_uuid=genome_uuid)
-        if results:
-            genome, organism, assembly, release, site = results[0]
+        query = text(
+            "SELECT genome_uuid, production_name FROM genome WHERE genome_uuid = :genome_uuid"
+        )
+        with adaptor.metadata_db.connect() as conn:
+            row = conn.execute(query, {"genome_uuid": genome_uuid}).fetchone()
+        if row:
             return {
-                "genome_uuid": genome.genome_uuid,
-                "production_name": genome.production_name,
-                "genebuild_version": genome.genebuild_version,
-                "genebuild_date": genome.genebuild_date,
-                "organism": {
-                    "organism_uuid": organism.organism_uuid,
-                    "taxonomy_id": organism.taxonomy_id,
-                    "scientific_name": organism.scientific_name,
-                    "strain": organism.strain,
-                    "biosample_id": organism.biosample_id,
-                },
-                "assembly": {
-                    "assembly_uuid": assembly.assembly_uuid,
-                    "accession": assembly.accession,
-                    "name": assembly.name,
-                    "level": assembly.level,
-                },
+                "genome_uuid": row[0],
+                "production_name": row[1],
             }
         return None
     except Exception as e:
@@ -255,6 +232,149 @@ def get_affected_genomes_and_teams(
         return []
 
 
+_VALUE_UNKNOWN = object()  # Sentinel: current DB value could not be determined
+
+
+def get_current_metadata_value(
+    genome_uuid: str,
+    attribute_name: str,
+    table_location: str,
+    dataset_type: str,
+):
+    """
+    Fetch the current value of a metadata field from the DB.
+
+    Returns:
+        _VALUE_UNKNOWN  — adaptor unavailable or query failed (skip the check)
+        None            — DB value is NULL
+        str             — current DB value
+    """
+    adaptor = get_genome_adaptor()
+    if not adaptor:
+        return _VALUE_UNKNOWN
+
+    try:
+        with adaptor.metadata_db.connect() as conn:
+            if table_location == "dataset_attribute":
+                row = conn.execute(
+                    text(
+                        """
+                        SELECT dataset_attribute.value
+                        FROM dataset_attribute
+                        JOIN attribute
+                          ON dataset_attribute.attribute_id = attribute.attribute_id
+                        JOIN dataset
+                          ON dataset_attribute.dataset_id = dataset.dataset_id
+                        JOIN genome_dataset
+                          ON dataset.dataset_id = genome_dataset.dataset_id
+                        JOIN genome
+                          ON genome_dataset.genome_id = genome.genome_id
+                        WHERE genome.genome_uuid = :genome_uuid
+                          AND dataset.name = :dataset_type
+                          AND attribute.name = :attribute_name
+                        LIMIT 1
+                    """
+                    ),
+                    {
+                        "genome_uuid": genome_uuid,
+                        "dataset_type": dataset_type,
+                        "attribute_name": attribute_name,
+                    },
+                ).fetchone()
+            else:
+                column_name = attribute_name.split(".")[-1]
+                table_from = {
+                    "genome": "genome",
+                    "organism": (
+                        "organism JOIN genome ON organism.organism_id = genome.organism_id"
+                    ),
+                    "assembly": (
+                        "assembly JOIN genome ON assembly.assembly_id = genome.assembly_id"
+                    ),
+                }[table_location]
+                row = conn.execute(
+                    text(
+                        f"SELECT {table_location}.{column_name} FROM {table_from} "
+                        "WHERE genome.genome_uuid = :genome_uuid LIMIT 1"
+                    ),
+                    {"genome_uuid": genome_uuid},
+                ).fetchone()
+
+        if row is None:
+            return _VALUE_UNKNOWN  # attribute/row not found in DB
+        return row[0]  # str or None (NULL)
+    except Exception as e:
+        logging.warning(
+            f"Could not fetch current value for {genome_uuid}/{attribute_name}: {e}"
+        )
+        return _VALUE_UNKNOWN
+
+
+_core_db_cache: Dict[str, Optional[Tuple[str, str]]] = {}
+
+
+def find_core_db(
+    production_name: str, server_uris: Dict[str, str]
+) -> Optional[Tuple[str, str]]:
+    """
+    Find the core database for a production_name by searching server_uris.
+
+    Searches each server for a database matching '{production_name}%_core_%',
+    returns (server_label, db_name) for the best (latest sorted) match, or None.
+    Results are cached by production_name.
+    """
+    if production_name in _core_db_cache:
+        return _core_db_cache[production_name]
+
+    for label, uri in server_uris.items():
+        try:
+            engine = create_engine(uri)
+            with engine.connect() as conn:
+                result = conn.execute(
+                    text("SHOW DATABASES LIKE :pattern"),
+                    {"pattern": f"{production_name}%\\_core\\_%"},
+                )
+                dbs = sorted(row[0] for row in result)
+            engine.dispose()
+            if dbs:
+                # Prefer an exact match: DB starts with exactly {production_name}_core_
+                # (avoids picking GCA/breed variants when the production_name is a plain binomial,
+                # and ensures GCA production names match their own DB rather than a related one)
+                exact = [db for db in dbs if db.startswith(f"{production_name}_core_")]
+                if exact:
+                    chosen = sorted(exact)[-1]
+                    if len(exact) > 1:
+                        logging.warning(
+                            f"Multiple exact core DBs for {production_name} on {label}: "
+                            f"{exact}. Using {chosen}"
+                        )
+                else:
+                    chosen = sorted(dbs)[-1]
+                    logging.warning(
+                        f"No exact core DB match for {production_name} on {label} "
+                        f"(candidates: {dbs}). Using {chosen}"
+                    )
+                _core_db_cache[production_name] = (label, chosen)
+                return _core_db_cache[production_name]
+        except Exception as e:
+            logging.warning(f"Failed to search {label} for {production_name}: {e}")
+
+    logging.warning(f"No core DB found for {production_name} on any server")
+    _core_db_cache[production_name] = None
+    return None
+
+
+def _to_sql_literal(value: str, null_as_string: bool = False) -> str:
+    """Convert a patch value to a SQL literal.
+
+    If value is NULL_SENTINEL (\\N), returns 'NULL' for metadata DB (actual SQL NULL)
+    or \"'NULL'\" for core DB (string literal), controlled by null_as_string.
+    """
+    if value == NULL_SENTINEL:
+        return "'NULL'" if null_as_string else "NULL"
+    return f"'{value.replace(chr(39), chr(39) * 2)}'"
+
+
 # Helper functions to ensure SELECTs actually validate UPDATEs
 def _metadata_db_joins() -> str:
     """Generate standardized JOIN clauses for metadata DB queries."""
@@ -349,7 +469,7 @@ def _write_validation_sql(  # pylint: disable= too-many-arguments
     validate_file,
     genome_uuid: str,
     attribute_name: str,
-    escaped_value: str,
+    sql_literal: str,
     table_location: str,
     dataset_type: str,
 ):
@@ -360,7 +480,7 @@ def _write_validation_sql(  # pylint: disable= too-many-arguments
     if table_location == "dataset_attribute":
         validate_file.write(
             "SELECT genome.genome_uuid, dataset_attribute.value AS current_value, "
-            f"'{escaped_value}' AS proposed_value\nFROM dataset_attribute\n"
+            f"{sql_literal} AS proposed_value\nFROM dataset_attribute\n"
         )
         validate_file.write(_metadata_db_joins() + "\n")
         validate_file.write(
@@ -375,49 +495,116 @@ def _write_validation_sql(  # pylint: disable= too-many-arguments
         }
         validate_file.write(
             f"""
-            SELECT 
+            SELECT
                 genome.genome_uuid, {table_location}.{column_name} AS current_value,
-                '{escaped_value}' AS proposed_value\n
+                {sql_literal} AS proposed_value\n
             """
         )
         validate_file.write(f"FROM {table_map[table_location]}\n")
         validate_file.write(f"WHERE genome.genome_uuid = '{genome_uuid}';\n\n")
 
 
+def get_existing_dataset_attribute_ids(
+    genome_uuid: str, dataset_type: str, attribute_name: str
+) -> List[int]:
+    """
+    Fetch existing dataset_attribute_id primary keys for a genome+dataset+attribute.
+
+    A genome may be attached to multiple releases, resulting in multiple genome_dataset
+    entries pointing to different dataset_ids. Querying by primary key ensures UPDATE
+    statements target specific rows without triggering UNIQUE constraint violations
+    that the DELETE+INSERT pattern would cause.
+
+    Args:
+        genome_uuid: Genome UUID to query
+        dataset_type: Dataset type (e.g. genebuild)
+        attribute_name: Attribute name (e.g. genebuild.version)
+
+    Returns:
+        List of dataset_attribute_id integers (one per genome_dataset entry), or []
+    """
+    adaptor = get_genome_adaptor()
+    if not adaptor:
+        return []
+
+    try:
+        query = text(
+            """
+            SELECT dataset_attribute.dataset_attribute_id
+            FROM dataset_attribute
+            JOIN attribute ON dataset_attribute.attribute_id = attribute.attribute_id
+            JOIN dataset ON dataset_attribute.dataset_id = dataset.dataset_id
+            JOIN genome_dataset ON dataset.dataset_id = genome_dataset.dataset_id
+            JOIN genome ON genome_dataset.genome_id = genome.genome_id
+            WHERE genome.genome_uuid = :genome_uuid
+            AND dataset.name = :dataset_type
+            AND attribute.name = :attribute_name
+        """
+        )
+
+        with adaptor.metadata_db.connect() as conn:
+            result = conn.execute(
+                query,
+                {
+                    "genome_uuid": genome_uuid,
+                    "dataset_type": dataset_type,
+                    "attribute_name": attribute_name,
+                },
+            )
+            return [row[0] for row in result]
+    except Exception as e:
+        logging.warning(
+            f"Failed to fetch dataset_attribute_ids for {genome_uuid}/{attribute_name}: {e}"
+        )
+        return []
+
+
 def _write_patch_sql(  # pylint: disable=too-many-arguments
     patch_file,
     genome_uuid: str,
     attribute_name: str,
-    escaped_value: str,
+    sql_literal: str,
     table_location: str,
     dataset_type: str,
+    existing_attribute_ids: Optional[List[int]] = None,
 ):
     """Writes the patch UPDATE/INSERT statements for a patch."""
     patch_file.write(f"-- {genome_uuid} | {attribute_name} (table: {table_location})\n")
     if table_location == "dataset_attribute":
-        # DELETE existing attribute value
-        patch_file.write("DELETE dataset_attribute FROM dataset_attribute\n")
-        patch_file.write(_metadata_db_joins() + "\n")
-        patch_file.write(
-            _metadata_db_where(genome_uuid, dataset_type, attribute_name) + ";\n\n"
-        )
-
-        # INSERT new value
-        patch_file.write(
-            "INSERT INTO dataset_attribute (dataset_id, attribute_id, value)\n"
-        )
-        patch_file.write(
-            "SELECT dataset.dataset_id, attribute.attribute_id, " f"'{escaped_value}'\n"
-        )
-        patch_file.write("FROM dataset\n")
-        patch_file.write(
-            "JOIN genome_dataset ON dataset.dataset_id = genome_dataset.dataset_id\n"
-        )
-        patch_file.write("JOIN genome ON genome_dataset.genome_id = genome.genome_id\n")
-        patch_file.write("JOIN attribute ON attribute.name = " f"'{attribute_name}'\n")
-        patch_file.write(
-            f"WHERE genome.genome_uuid = '{genome_uuid}'\nAND dataset.name = '{dataset_type}';\n\n"
-        )
+        if existing_attribute_ids:
+            # UPDATE specific rows by primary key.
+            # This avoids the UNIQUE constraint issue caused by DELETE+INSERT when a genome
+            # is in multiple releases (multiple genome_dataset rows → same dataset_id
+            # inserted twice).
+            ids_str = ", ".join(str(i) for i in existing_attribute_ids)
+            patch_file.write(
+                f"UPDATE dataset_attribute SET value = {sql_literal}\n"
+                f"WHERE dataset_attribute_id IN ({ids_str});\n\n"
+            )
+        else:
+            # No existing attribute rows found — INSERT as a new attribute.
+            patch_file.write(
+                "INSERT INTO dataset_attribute (dataset_id, attribute_id, value)\n"
+            )
+            patch_file.write(
+                "SELECT dataset.dataset_id, attribute.attribute_id, " f"{sql_literal}\n"
+            )
+            patch_file.write("FROM dataset\n")
+            patch_file.write(
+                "JOIN genome_dataset ON dataset.dataset_id = genome_dataset.dataset_id\n"
+            )
+            patch_file.write(
+                "JOIN genome ON genome_dataset.genome_id = genome.genome_id\n"
+            )
+            patch_file.write(
+                "JOIN attribute ON attribute.name = " f"'{attribute_name}'\n"
+            )
+            patch_file.write(
+                f"""
+                WHERE genome.genome_uuid = '{genome_uuid}'
+                AND dataset.name = '{dataset_type}';\n\n
+                """
+            )
     else:
         column_name = attribute_name.split(".")[-1]
         table_map = {
@@ -427,12 +614,12 @@ def _write_patch_sql(  # pylint: disable=too-many-arguments
             ON organism.organism_id = genome.organism_id SET
             """,
             "assembly": """
-            UPDATE assembly JOIN genome 
+            UPDATE assembly JOIN genome
             ON assembly.assembly_id = genome.assembly_id SET
             """,
         }
         patch_file.write(
-            f"{table_map[table_location]} {table_location}.{column_name} = '{escaped_value}'\n"
+            f"{table_map[table_location]} {table_location}.{column_name} = {sql_literal}\n"
         )
         patch_file.write(f"WHERE genome.genome_uuid = '{genome_uuid}';\n\n")
 
@@ -449,11 +636,35 @@ def write_metadata_patch_for_genome(  # pylint: disable=too-many-arguments
     """
     Write validation and patch SQL for a single genome.
     """
-    valid_tables = ["dataset_attribute", "genome", "organism", "assembly"]
-    for attribute_name, new_value, table_location in patches:
-        escaped_value = new_value.replace("'", "''")
 
-        if table_location not in valid_tables:
+    for attribute_name, new_value, table_location in patches:
+        sql_literal = _to_sql_literal(new_value)
+
+        # Skip if the DB already has the proposed value
+        proposed_db_value = None if new_value == NULL_SENTINEL else new_value
+        current_value = get_current_metadata_value(
+            genome_uuid, attribute_name, table_location, dataset_type
+        )
+        if current_value is not _VALUE_UNKNOWN and current_value == proposed_db_value:
+            msg = (
+                f"-- SKIPPED (no change): {genome_uuid} | {attribute_name} "
+                f"already = {sql_literal}\n\n"
+            )
+            validate_file.write(msg)
+            patch_file.write(msg)
+            if logger:
+                logger.info(
+                    f"  Skipping {genome_uuid} | {attribute_name}: "
+                    f"already matches proposed value {sql_literal}"
+                )
+            continue
+
+        if table_location not in [
+            "dataset_attribute",
+            "genome",
+            "organism",
+            "assembly",
+        ]:
             msg = f"-- ERROR: Invalid table_location '{table_location}' for {attribute_name}\n"
             validate_file.write(msg)
             patch_file.write(msg)
@@ -476,12 +687,21 @@ def write_metadata_patch_for_genome(  # pylint: disable=too-many-arguments
                 if skip:
                     continue
 
+        # For dataset_attribute, look up existing primary keys so the patch can use
+        # entry-specific UPDATE statements rather than DELETE+INSERT (which breaks the
+        # UNIQUE constraint when a genome is linked to multiple releases).
+        existing_attribute_ids: Optional[List[int]] = None
+        if table_location == "dataset_attribute":
+            existing_attribute_ids = get_existing_dataset_attribute_ids(
+                genome_uuid, dataset_type, attribute_name
+            )
+
         # Write SQL
         _write_validation_sql(
             validate_file,
             genome_uuid,
             attribute_name,
-            escaped_value,
+            sql_literal,
             table_location,
             dataset_type,
         )
@@ -489,9 +709,10 @@ def write_metadata_patch_for_genome(  # pylint: disable=too-many-arguments
             patch_file,
             genome_uuid,
             attribute_name,
-            escaped_value,
+            sql_literal,
             table_location,
             dataset_type,
+            existing_attribute_ids,
         )
 
 
@@ -519,7 +740,7 @@ def write_core_patch_for_genome(
         species_id: Species ID
     """
     for meta_key, new_value, _table_location in patches:
-        escaped_value = new_value.replace("'", "''")
+        sql_literal = _to_sql_literal(new_value, null_as_string=True)
 
         # Write validation SQL
         validate_file.write(f"-- {database} | {meta_key}\n")
@@ -527,7 +748,7 @@ def write_core_patch_for_genome(
         validate_file.write(f"SELECT '{database}' AS database_name, ")
         validate_file.write(f"'{meta_key}' AS meta_key, ")
         validate_file.write("meta_value AS current_value, ")
-        validate_file.write(f"'{escaped_value}' AS proposed_value\n")
+        validate_file.write(f"{sql_literal} AS proposed_value\n")
         validate_file.write("FROM meta\n")
         validate_file.write(_core_db_where(meta_key, species_id))
         validate_file.write(";\n\n")
@@ -536,11 +757,11 @@ def write_core_patch_for_genome(
         patch_file.write(f"-- {database} | {meta_key}\n")
         patch_file.write(f"USE {database};\n")
         patch_file.write("UPDATE meta\n")
-        patch_file.write(f"SET meta_value = '{escaped_value}'\n")
+        patch_file.write(f"SET meta_value = {sql_literal}\n")
         patch_file.write(_core_db_where(meta_key, species_id))
         patch_file.write(";\n\n")
         patch_file.write("INSERT IGNORE INTO meta (species_id, meta_key, meta_value)\n")
-        patch_file.write(f"VALUES ({species_id}, '{meta_key}', '{escaped_value}');\n\n")
+        patch_file.write(f"VALUES ({species_id}, '{meta_key}', {sql_literal});\n\n")
 
 
 def read_csv_patches(csv_file: Path, core_suffix: str = "_core_114_1") -> List[Dict]:
@@ -550,7 +771,8 @@ def read_csv_patches(csv_file: Path, core_suffix: str = "_core_114_1") -> List[D
     CSV columns:
     - genome_uuid (required)
     - meta_key (required)
-    - desired_meta_value (required)
+    - desired_meta_value (required) — use \\N to set NULL (actual NULL in metadata DB,
+      string 'NULL' in core DB)
     - dataset_type (optional, default: genebuild)
     - species_id (optional, default: 1)
     - table_location (optional, default: dataset_attribute)
@@ -591,12 +813,23 @@ def read_csv_patches(csv_file: Path, core_suffix: str = "_core_114_1") -> List[D
                 )
                 continue
 
+            species_id_raw = (row.get("species_id") or "1").strip()
+            try:
+                species_id = int(species_id_raw)
+            except ValueError:
+                logging.error(
+                    f"Row {row_num}: Invalid species_id value {species_id_raw!r}. "
+                    "This is usually caused by an unquoted comma in a desired_meta_value "
+                    "field — wrap the value in double quotes in the CSV."
+                )
+                continue
+
             patch = {
                 "genome_uuid": row["genome_uuid"].strip(),
                 "meta_key": row["meta_key"].strip(),
                 "desired_meta_value": row["desired_meta_value"].strip(),
                 "dataset_type": row.get("dataset_type", "genebuild").strip(),
-                "species_id": int(row.get("species_id", 1)),
+                "species_id": species_id,
                 "table_location": row.get(
                     "table_location", "dataset_attribute"
                 ).strip(),
@@ -642,16 +875,22 @@ def check_thoas_requirements(patches: List[Dict], logger: logging.Logger) -> boo
     return False
 
 
-def resolve_genome_info(patch: Dict, logger: logging.Logger) -> Optional[Dict]:
+def resolve_genome_info(
+    patch: Dict, logger: logging.Logger, server_uris: Optional[Dict[str, str]] = None
+) -> Optional[Dict]:
     """
-    Resolve production name from genome UUID.
+    Resolve production name from genome UUID, and locate the core database.
+
+    If server_uris is provided, searches those servers for the core DB.
+    Otherwise falls back to appending patch['core_suffix'] to production_name.
 
     Args:
         patch: Patch dictionary from CSV
         logger: Logger instance
+        server_uris: Optional dict of {label: uri} for core DB server discovery
 
     Returns:
-        Dict with genome_uuid, production_name, core_db_name, or None if failed
+        Dict with genome_uuid, production_name, core_server, core_db_name, or None if failed
     """
     row_num = patch["row_num"]
     genome_uuid = patch["genome_uuid"]
@@ -670,18 +909,33 @@ def resolve_genome_info(patch: Dict, logger: logging.Logger) -> Optional[Dict]:
     production_name = genome_info["production_name"]
     logger.info(f"Row {row_num}: Found production_name: {production_name}")
 
-    # Build core database name
-    core_db_name = f"{production_name}{patch['core_suffix']}"
+    if server_uris:
+        match = find_core_db(production_name, server_uris)
+        if match:
+            core_server, core_db_name = match
+            logger.info(f"Row {row_num}: Found core DB {core_db_name} on {core_server}")
+        else:
+            logger.warning(
+                f"Row {row_num}: No core DB found for {production_name} — skipping core patch"
+            )
+            core_server, core_db_name = None, None
+    else:
+        core_server = None
+        core_db_name = f"{production_name}{patch['core_suffix']}"
 
     return {
         "genome_uuid": genome_uuid,
         "production_name": production_name,
+        "core_server": core_server,
         "core_db_name": core_db_name,
     }
 
 
 def group_patches_by_genome(
-    patches: List[Dict], logger: logging.Logger, jira_ticket: str = ""
+    patches: List[Dict],
+    logger: logging.Logger,
+    jira_ticket: str = "",
+    server_uris: Optional[Dict[str, str]] = None,
 ) -> Dict[str, Dict]:
     """
     Group patches by genome UUID.
@@ -690,6 +944,7 @@ def group_patches_by_genome(
         patches: List of patch dictionaries from CSV
         logger: Logger instance
         jira_ticket: Jira ticket reference
+        server_uris: Optional dict of {label: uri} for core DB server discovery
 
     Returns:
         Dict mapping genome_uuid to genome info and list of patches
@@ -698,7 +953,7 @@ def group_patches_by_genome(
 
     for patch in patches:
         # Resolve genome information
-        genome_info = resolve_genome_info(patch, logger)
+        genome_info = resolve_genome_info(patch, logger, server_uris)
 
         if not genome_info:
             logger.warning(
@@ -713,6 +968,7 @@ def group_patches_by_genome(
             grouped[genome_uuid] = {
                 "genome_uuid": genome_uuid,
                 "production_name": genome_info["production_name"],
+                "core_server": genome_info["core_server"],
                 "core_db_name": genome_info["core_db_name"],
                 "dataset_type": patch["dataset_type"],
                 "species_id": patch["species_id"],
@@ -755,10 +1011,6 @@ def generate_all_patches(  # pylint: disable=too-many-locals
     metadata_patch_file = output_dir / f"patch_metadata_{jira_ticket}.sql"
     metadata_validate_file = output_dir / f"validate_metadata_{jira_ticket}.sql"
 
-    # Core DB files
-    core_patch_file = output_dir / f"patch_core_{jira_ticket}.sql"
-    core_validate_file = output_dir / f"validate_core_{jira_ticket}.sql"
-
     try:
         # Write metadata patches
         with (
@@ -793,35 +1045,51 @@ def generate_all_patches(  # pylint: disable=too-many-locals
                     team_filter,
                 )
 
-        # Write core patches
-        with (
-            open(core_validate_file, "w") as val_f,
-            open(core_patch_file, "w") as patch_f,
-        ):
-            val_f.write(
-                f"-- Validation: Core DBs | {jira_ticket} | {datetime.now().isoformat()}\n\n"
-            )
+        # Group core patches by server label (None → "core" for the legacy single-file case)
+        by_server: Dict[str, List[Dict]] = {}
+        for genome_data in grouped_patches.values():
+            if not genome_data["core_db_name"]:
+                continue
+            label = genome_data["core_server"] or "core"
+            by_server.setdefault(label, []).append(genome_data)
 
-            patch_f.write(
-                f"-- Patch: Core DBs | {jira_ticket} | {datetime.now().isoformat()}\n"
-            )
-            patch_f.write(f"-- Validate first: {core_validate_file.name}\n\n")
+        core_files_written = []
+        for server_label, server_genomes in by_server.items():
+            suffix = f"_{server_label}" if server_label != "core" else ""
+            c_patch_file = output_dir / f"patch_core_{jira_ticket}{suffix}.sql"
+            c_validate_file = output_dir / f"validate_core_{jira_ticket}{suffix}.sql"
 
-            for genome_uuid, genome_data in grouped_patches.items():
-                production_name = genome_data["production_name"]
-                core_db_name = genome_data["core_db_name"]
-                patches = genome_data["patches"]
-                logger.info(f"  Core: {core_db_name}: {len(patches)} patches")
-
-                write_core_patch_for_genome(
-                    val_f, patch_f, core_db_name, patches, genome_data["species_id"]
+            with (
+                open(c_validate_file, "w") as val_f,
+                open(c_patch_file, "w") as patch_f,
+            ):
+                val_f.write(
+                    f"-- Validation: Core DBs ({server_label}) | "
+                    f"{jira_ticket} | {datetime.now().isoformat()}\n\n"
                 )
+                patch_f.write(
+                    f"-- Patch: Core DBs ({server_label}) | "
+                    f"{jira_ticket} | {datetime.now().isoformat()}\n"
+                )
+                patch_f.write(f"-- Validate first: {c_validate_file.name}\n\n")
+
+                for genome_data in server_genomes:
+                    core_db_name = genome_data["core_db_name"]
+                    patches = genome_data["patches"]
+                    logger.info(
+                        f"  Core ({server_label}): {core_db_name}: {len(patches)} patches"
+                    )
+                    write_core_patch_for_genome(
+                        val_f, patch_f, core_db_name, patches, genome_data["species_id"]
+                    )
+
+            core_files_written += [c_validate_file, c_patch_file]
 
         logger.info("Generated files:")
         logger.info(f"  {metadata_validate_file}")
         logger.info(f"  {metadata_patch_file}")
-        logger.info(f"  {core_validate_file}")
-        logger.info(f"  {core_patch_file}")
+        for f in core_files_written:
+            logger.info(f"  {f}")
 
         return True
 
@@ -879,12 +1147,29 @@ See patches_template.csv for a complete example.
         help="Jira ticket reference (e.g., EBD-1111)",
     )
 
-    # Core database suffix
+    # Core database suffix (fallback when no server URIs provided)
     parser.add_argument(
         "--core-suffix",
         type=str,
         default="_core_114_1",
-        help="Suffix to append to production_name for core DB name (default: _core_114_1)",
+        help="Suffix to append to production_name for core DB name (default: _core_114_1). "
+        "Ignored when --st5-uri / --st6-uri are provided.",
+    )
+
+    # Core server URIs for auto-discovery
+    parser.add_argument(
+        "--st6-uri",
+        type=str,
+        default=os.getenv("ST6_URI", "mysql+pymysql://ensro:@mysql-ens-sta-6:4695/"),
+        help="MySQL URI for st6 core server (default: mysql-ens-sta-6:4695, "
+        "overrides ST6_URI env var)",
+    )
+    parser.add_argument(
+        "--st5-uri",
+        type=str,
+        default=os.getenv("ST5_URI", "mysql+pymysql://ensro:@mysql-ens-sta-5:4684/"),
+        help="MySQL URI for st5 core server (default: mysql-ens-sta-5:4684, "
+        "overrides ST5_URI env var)",
     )
 
     # Database connection (uses environment variables METADATA_URI and TAXONOMY_URI)
@@ -955,7 +1240,20 @@ See patches_template.csv for a complete example.
         )
         return 1
 
-    grouped_patches = group_patches_by_genome(patches, logger, args.jira_ticket)
+    # st6 first — it's the primary staging server for 114 cores
+    server_uris: Dict[str, str] = {}
+    if args.st6_uri:
+        server_uris["st6"] = args.st6_uri
+    if args.st5_uri:
+        server_uris["st5"] = args.st5_uri
+    if server_uris:
+        logger.info(f"Core DB auto-discovery enabled on: {list(server_uris.keys())}")
+    else:
+        logger.info(f"Core DB suffix fallback: {args.core_suffix}")
+
+    grouped_patches = group_patches_by_genome(
+        patches, logger, args.jira_ticket, server_uris or None
+    )
     logger.info(f"Grouped into {len(grouped_patches)} genome(s)")
 
     if not grouped_patches:
