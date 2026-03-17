@@ -181,7 +181,7 @@ def select_and_rename_metrics(input_csv: Path, output_csv: Path) -> None:
         "genebuild.stats.average_coding_exons_per_coding_tr": "mrna_mean_exons_per_cds",
         "genebuild.stats.average_coding_exons_per_transcrip": "mrna_mean_exons_per_mrna",
         "genebuild.stats.average_coding_exon_length": "mrna_mean_cds_piece_length_(bp)",
-        "genebuild.stats.average_coding_exon_length": "mrna_mean_transcipt_exon_length_(bp)",
+        "genebuild.stats.average_exon_length": "mrna_mean_transcipt_exon_length_(bp)",
         "genebuild.stats.average_coding_genomic_span": "mrna_mean_gene_length_(bp)",
         "genebuild.stats.average_coding_intron_length": "mrna_mean_intron_in_exon_length_(bp)",
         "genebuild.stats.average_coding_sequence_length": "average_coding_sequence_length",
