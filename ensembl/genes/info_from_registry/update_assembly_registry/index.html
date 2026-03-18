@@ -2719,7 +2719,8 @@
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/python/ensembl/genes/info_from_registry/update_assembly_registry.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">35</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">34</span>
+<span class="normal">35</span>
 <span class="normal">36</span>
 <span class="normal">37</span>
 <span class="normal">38</span>
@@ -2736,8 +2737,7 @@
 <span class="normal">49</span>
 <span class="normal">50</span>
 <span class="normal">51</span>
-<span class="normal">52</span>
-<span class="normal">53</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">ensure_genebuilder_exists</span><span class="p">(</span>
+<span class="normal">52</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">ensure_genebuilder_exists</span><span class="p">(</span>
     <span class="n">connection</span><span class="p">:</span> <span class="n">pymysql</span><span class="o">.</span><span class="n">connections</span><span class="o">.</span><span class="n">Connection</span><span class="p">,</span> <span class="n">genebuilder</span><span class="p">:</span> <span class="nb">str</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -2953,7 +2953,8 @@
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/python/ensembl/genes/info_from_registry/update_assembly_registry.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 57</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 56</span>
+<span class="normal"> 57</span>
 <span class="normal"> 58</span>
 <span class="normal"> 59</span>
 <span class="normal"> 60</span>
@@ -3014,8 +3015,7 @@
 <span class="normal">115</span>
 <span class="normal">116</span>
 <span class="normal">117</span>
-<span class="normal">118</span>
-<span class="normal">119</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">insert_new_record</span><span class="p">(</span>  <span class="c1"># pylint:disable=too-many-arguments</span>
+<span class="normal">118</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">insert_new_record</span><span class="p">(</span>  <span class="c1"># pylint:disable=too-many-arguments</span>
     <span class="n">connection</span><span class="p">:</span> <span class="n">pymysql</span><span class="o">.</span><span class="n">connections</span><span class="o">.</span><span class="n">Connection</span><span class="p">,</span>
     <span class="n">assembly_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">assembly</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -3323,7 +3323,8 @@
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/python/ensembl/genes/info_from_registry/update_assembly_registry.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">196</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">195</span>
+<span class="normal">196</span>
 <span class="normal">197</span>
 <span class="normal">198</span>
 <span class="normal">199</span>
@@ -3727,31 +3728,7 @@
 <span class="normal">597</span>
 <span class="normal">598</span>
 <span class="normal">599</span>
-<span class="normal">600</span>
-<span class="normal">601</span>
-<span class="normal">602</span>
-<span class="normal">603</span>
-<span class="normal">604</span>
-<span class="normal">605</span>
-<span class="normal">606</span>
-<span class="normal">607</span>
-<span class="normal">608</span>
-<span class="normal">609</span>
-<span class="normal">610</span>
-<span class="normal">611</span>
-<span class="normal">612</span>
-<span class="normal">613</span>
-<span class="normal">614</span>
-<span class="normal">615</span>
-<span class="normal">616</span>
-<span class="normal">617</span>
-<span class="normal">618</span>
-<span class="normal">619</span>
-<span class="normal">620</span>
-<span class="normal">621</span>
-<span class="normal">622</span>
-<span class="normal">623</span>
-<span class="normal">624</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span>  <span class="c1"># pylint:disable=too-many-arguments, too-many-statements, too-many-branches, too-many-locals</span>
+<span class="normal">600</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span>  <span class="c1"># pylint:disable=too-many-arguments, too-many-statements, too-many-branches, too-many-locals</span>
     <span class="n">host</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">port</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">user</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -3824,19 +3801,13 @@
                 <span class="n">highest_version</span> <span class="o">=</span> <span class="n">fetch_highest_genebuild_version</span><span class="p">(</span><span class="n">connection</span><span class="p">,</span> <span class="n">assembly</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">highest_version</span><span class="p">:</span>
                     <span class="k">if</span> <span class="n">genebuild_version</span> <span class="o">&lt;=</span> <span class="n">highest_version</span><span class="p">:</span>
-                        <span class="nb">print</span><span class="p">(</span>
-                            <span class="sa">f</span><span class="s2">&quot;ERROR: Genebuild version &#39;</span><span class="si">{</span><span class="n">genebuild_version</span><span class="si">}</span><span class="s2">&#39; already exists </span><span class="se">\</span>
-<span class="s2">                                or is lower than existing version &#39;</span><span class="si">{</span><span class="n">highest_version</span><span class="si">}</span><span class="s2">&#39; </span><span class="se">\</span>
-<span class="s2">                                    for assembly </span><span class="si">{</span><span class="n">assembly</span><span class="si">}</span><span class="s2">&quot;</span>
+                        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                            <span class="sa">f</span><span class="s2">&quot;Genebuild version &#39;</span><span class="si">{</span><span class="n">genebuild_version</span><span class="si">}</span><span class="s2">&#39; already exists or is lower &quot;</span>
+                            <span class="sa">f</span><span class="s2">&quot;than existing version &#39;</span><span class="si">{</span><span class="n">highest_version</span><span class="si">}</span><span class="s2">&#39; for assembly </span><span class="si">{</span><span class="n">assembly</span><span class="si">}</span><span class="s2">. &quot;</span>
+                            <span class="sa">f</span><span class="s2">&quot;Versions must be unique per assembly across all genebuilders. &quot;</span>
+                            <span class="sa">f</span><span class="s2">&quot;Please use a version higher than &#39;</span><span class="si">{</span><span class="n">highest_version</span><span class="si">}</span><span class="s2">&#39; &quot;</span>
+                            <span class="sa">f</span><span class="s2">&quot;or omit --genebuild_version to auto-increment.&quot;</span>
                         <span class="p">)</span>
-                        <span class="nb">print</span><span class="p">(</span>
-                            <span class="sa">f</span><span class="s2">&quot;Versions must be unique per assembly across all genebuilders.&quot;</span>
-                        <span class="p">)</span>
-                        <span class="nb">print</span><span class="p">(</span>
-                            <span class="sa">f</span><span class="s2">&quot;Please use a version higher than &#39;</span><span class="si">{</span><span class="n">highest_version</span><span class="si">}</span><span class="s2">&#39; </span><span class="se">\</span>
-<span class="s2">                                or omit --genebuild_version to auto-increment.&quot;</span>
-                        <span class="p">)</span>
-                        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
                 <span class="n">version_to_insert</span> <span class="o">=</span> <span class="n">genebuild_version</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="c1"># Auto-determine version: check if ANY version exists for this assembly</span>
@@ -3945,7 +3916,7 @@
                     <span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Status is already &#39;</span><span class="si">{</span><span class="n">status</span><span class="si">}</span><span class="s2">&#39;. No changes needed.&quot;</span><span class="p">)</span>
-                    <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+                    <span class="k">return</span>
 
             <span class="c1"># Block backwards transitions from completed (unless new version provided)</span>
             <span class="k">elif</span> <span class="n">current_status</span> <span class="o">==</span> <span class="n">completed_status</span> <span class="ow">and</span> <span class="n">status</span> <span class="ow">in</span> <span class="n">active_statuses</span><span class="p">:</span>
@@ -3960,16 +3931,12 @@
                         <span class="n">connection</span><span class="p">,</span> <span class="n">assembly</span>
                     <span class="p">)</span>
                     <span class="k">if</span> <span class="n">highest_version</span> <span class="ow">and</span> <span class="n">effective_version</span> <span class="o">&lt;=</span> <span class="n">highest_version</span><span class="p">:</span>
-                        <span class="nb">print</span><span class="p">(</span>
-                            <span class="sa">f</span><span class="s2">&quot;ERROR: Genebuild version &#39;</span><span class="si">{</span><span class="n">effective_version</span><span class="si">}</span><span class="s2">&#39; already exists &quot;</span>
-                            <span class="sa">f</span><span class="s2">&quot;or is lower than existing version &#39;</span><span class="si">{</span><span class="n">highest_version</span><span class="si">}</span><span class="s2">&#39; &quot;</span>
-                            <span class="sa">f</span><span class="s2">&quot;for assembly </span><span class="si">{</span><span class="n">assembly</span><span class="si">}</span><span class="s2">&quot;</span>
+                        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                            <span class="sa">f</span><span class="s2">&quot;Genebuild version &#39;</span><span class="si">{</span><span class="n">effective_version</span><span class="si">}</span><span class="s2">&#39; already exists or is lower &quot;</span>
+                            <span class="sa">f</span><span class="s2">&quot;than existing version &#39;</span><span class="si">{</span><span class="n">highest_version</span><span class="si">}</span><span class="s2">&#39; for assembly </span><span class="si">{</span><span class="n">assembly</span><span class="si">}</span><span class="s2">. &quot;</span>
+                            <span class="sa">f</span><span class="s2">&quot;Versions must be unique per assembly across all genebuilders. &quot;</span>
+                            <span class="sa">f</span><span class="s2">&quot;Please use a version higher than &#39;</span><span class="si">{</span><span class="n">highest_version</span><span class="si">}</span><span class="s2">&#39;.&quot;</span>
                         <span class="p">)</span>
-                        <span class="nb">print</span><span class="p">(</span>
-                            <span class="s2">&quot;Versions must be unique per assembly across all genebuilders.&quot;</span>
-                        <span class="p">)</span>
-                        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Please use a version higher than &#39;</span><span class="si">{</span><span class="n">highest_version</span><span class="si">}</span><span class="s2">&#39;.&quot;</span><span class="p">)</span>
-                        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 
                     <span class="nb">print</span><span class="p">(</span>
                         <span class="sa">f</span><span class="s2">&quot;Moving from &#39;completed&#39; to &#39;</span><span class="si">{</span><span class="n">status</span><span class="si">}</span><span class="s2">&#39; &quot;</span>
@@ -4008,14 +3975,11 @@
                         <span class="k">if</span> <span class="n">highest_version</span>
                         <span class="k">else</span> <span class="s2">&quot;ENS02&quot;</span>
                     <span class="p">)</span>
-                    <span class="nb">print</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;ERROR: Cannot move backwards from &#39;completed&#39; to &#39;</span><span class="si">{</span><span class="n">status</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
-                    <span class="p">)</span>
-                    <span class="nb">print</span><span class="p">(</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;Cannot move backwards from &#39;completed&#39; to &#39;</span><span class="si">{</span><span class="n">status</span><span class="si">}</span><span class="s2">&#39;. &quot;</span>
                         <span class="sa">f</span><span class="s2">&quot;To restart work, provide a new --genebuild_version higher &quot;</span>
-                        <span class="sa">f</span><span class="s2">&quot;than &#39;</span><span class="si">{</span><span class="n">highest_version</span><span class="si">}</span><span class="s2">&#39; (e.g., </span><span class="si">{</span><span class="n">suggested_version</span><span class="si">}</span><span class="s2">)&quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;than &#39;</span><span class="si">{</span><span class="n">highest_version</span><span class="si">}</span><span class="s2">&#39; (e.g., </span><span class="si">{</span><span class="n">suggested_version</span><span class="si">}</span><span class="s2">).&quot;</span>
                     <span class="p">)</span>
-                    <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 
             <span class="c1"># Block backwards transitions from terminal statuses</span>
             <span class="k">elif</span> <span class="n">current_status</span> <span class="ow">in</span> <span class="n">terminal_statuses</span> <span class="ow">and</span> <span class="n">status</span> <span class="ow">in</span> <span class="p">(</span>
@@ -4033,16 +3997,12 @@
                         <span class="n">connection</span><span class="p">,</span> <span class="n">assembly</span>
                     <span class="p">)</span>
                     <span class="k">if</span> <span class="n">highest_version</span> <span class="ow">and</span> <span class="n">effective_version</span> <span class="o">&lt;=</span> <span class="n">highest_version</span><span class="p">:</span>
-                        <span class="nb">print</span><span class="p">(</span>
-                            <span class="sa">f</span><span class="s2">&quot;ERROR: Genebuild version &#39;</span><span class="si">{</span><span class="n">effective_version</span><span class="si">}</span><span class="s2">&#39; already exists </span><span class="se">\</span>
-<span class="s2">                                or is lower than existing version &#39;</span><span class="si">{</span><span class="n">highest_version</span><span class="si">}</span><span class="s2">&#39; </span><span class="se">\</span>
-<span class="s2">                                    for assembly </span><span class="si">{</span><span class="n">assembly</span><span class="si">}</span><span class="s2">&quot;</span>
+                        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                            <span class="sa">f</span><span class="s2">&quot;Genebuild version &#39;</span><span class="si">{</span><span class="n">effective_version</span><span class="si">}</span><span class="s2">&#39; already exists or is lower &quot;</span>
+                            <span class="sa">f</span><span class="s2">&quot;than existing version &#39;</span><span class="si">{</span><span class="n">highest_version</span><span class="si">}</span><span class="s2">&#39; for assembly </span><span class="si">{</span><span class="n">assembly</span><span class="si">}</span><span class="s2">. &quot;</span>
+                            <span class="sa">f</span><span class="s2">&quot;Versions must be unique per assembly across all genebuilders. &quot;</span>
+                            <span class="sa">f</span><span class="s2">&quot;Please use a version higher than &#39;</span><span class="si">{</span><span class="n">highest_version</span><span class="si">}</span><span class="s2">&#39;.&quot;</span>
                         <span class="p">)</span>
-                        <span class="nb">print</span><span class="p">(</span>
-                            <span class="sa">f</span><span class="s2">&quot;Versions must be unique per assembly across all genebuilders.&quot;</span>
-                        <span class="p">)</span>
-                        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Please use a version higher than &#39;</span><span class="si">{</span><span class="n">highest_version</span><span class="si">}</span><span class="s2">&#39;.&quot;</span><span class="p">)</span>
-                        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
                     <span class="nb">print</span><span class="p">(</span>
                         <span class="sa">f</span><span class="s2">&quot;Moving from terminal status &#39;</span><span class="si">{</span><span class="n">current_status</span><span class="si">}</span><span class="s2">&#39; to </span><span class="se">\</span>
 <span class="s2">                            &#39;</span><span class="si">{</span><span class="n">status</span><span class="si">}</span><span class="s2">&#39; with new version </span><span class="si">{</span><span class="n">effective_version</span><span class="si">}</span><span class="s2">&quot;</span>
@@ -4080,15 +4040,12 @@
                         <span class="k">if</span> <span class="n">highest_version</span>
                         <span class="k">else</span> <span class="s2">&quot;ENS02&quot;</span>
                     <span class="p">)</span>
-                    <span class="nb">print</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;ERROR: Cannot move from terminal status &#39;</span><span class="si">{</span><span class="n">current_status</span><span class="si">}</span><span class="s2">&#39; </span><span class="se">\</span>
-<span class="s2">                            to &#39;</span><span class="si">{</span><span class="n">status</span><span class="si">}</span><span class="s2">&#39; with same genebuild_version &#39;</span><span class="si">{</span><span class="n">current_version</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;Cannot move from terminal status &#39;</span><span class="si">{</span><span class="n">current_status</span><span class="si">}</span><span class="s2">&#39; to &#39;</span><span class="si">{</span><span class="n">status</span><span class="si">}</span><span class="s2">&#39; &quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;with same genebuild_version &#39;</span><span class="si">{</span><span class="n">current_version</span><span class="si">}</span><span class="s2">&#39;. &quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;To restart work, provide a new --genebuild_version higher &quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;than &#39;</span><span class="si">{</span><span class="n">highest_version</span><span class="si">}</span><span class="s2">&#39; (e.g., </span><span class="si">{</span><span class="n">suggested_version</span><span class="si">}</span><span class="s2">).&quot;</span>
                     <span class="p">)</span>
-                    <span class="nb">print</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;To restart work, you must provide a new --genebuild_version higher </span><span class="se">\</span>
-<span class="s2">                            than &#39;</span><span class="si">{</span><span class="n">highest_version</span><span class="si">}</span><span class="s2">&#39; (e.g., </span><span class="si">{</span><span class="n">suggested_version</span><span class="si">}</span><span class="s2">)&quot;</span>
-                    <span class="p">)</span>
-                    <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 
             <span class="c1"># Terminal to terminal transition - UPDATE same record</span>
             <span class="k">elif</span> <span class="n">current_status</span> <span class="ow">in</span> <span class="n">terminal_statuses</span> <span class="ow">and</span> <span class="n">status</span> <span class="ow">in</span> <span class="n">terminal_statuses</span><span class="p">:</span>
@@ -4169,17 +4126,14 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;DEV MODE: No changes were made to the database&quot;</span><span class="p">)</span>
 
-    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">connection</span><span class="p">:</span>
             <span class="n">connection</span><span class="o">.</span><span class="n">rollback</span><span class="p">()</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;ERROR: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
-        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">raise</span>
 
     <span class="k">finally</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">connection</span><span class="p">:</span>
             <span class="n">connection</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-
-    <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -4265,7 +4219,8 @@
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/python/ensembl/genes/info_from_registry/update_assembly_registry.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">172</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">171</span>
+<span class="normal">172</span>
 <span class="normal">173</span>
 <span class="normal">174</span>
 <span class="normal">175</span>
@@ -4285,8 +4240,7 @@
 <span class="normal">189</span>
 <span class="normal">190</span>
 <span class="normal">191</span>
-<span class="normal">192</span>
-<span class="normal">193</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">set_old_record_historical</span><span class="p">(</span>
+<span class="normal">192</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">set_old_record_historical</span><span class="p">(</span>
     <span class="n">connection</span><span class="p">:</span> <span class="n">pymysql</span><span class="o">.</span><span class="n">connections</span><span class="o">.</span><span class="n">Connection</span><span class="p">,</span> <span class="n">record_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">dev</span><span class="p">:</span> <span class="nb">bool</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -4473,7 +4427,8 @@
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/python/ensembl/genes/info_from_registry/update_assembly_registry.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">122</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">121</span>
+<span class="normal">122</span>
 <span class="normal">123</span>
 <span class="normal">124</span>
 <span class="normal">125</span>
@@ -4519,8 +4474,7 @@
 <span class="normal">165</span>
 <span class="normal">166</span>
 <span class="normal">167</span>
-<span class="normal">168</span>
-<span class="normal">169</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">update_existing_record</span><span class="p">(</span>  <span class="c1"># pylint:disable=too-many-arguments</span>
+<span class="normal">168</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">update_existing_record</span><span class="p">(</span>  <span class="c1"># pylint:disable=too-many-arguments</span>
     <span class="n">connection</span><span class="p">:</span> <span class="n">pymysql</span><span class="o">.</span><span class="n">connections</span><span class="o">.</span><span class="n">Connection</span><span class="p">,</span>
     <span class="n">record_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">status</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
