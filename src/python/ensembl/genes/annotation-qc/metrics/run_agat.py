@@ -207,7 +207,7 @@ def main() -> None:
     input_gff3 = Path(args.gff3)
     outdir = Path(args.outdir)
     outdir.mkdir(parents=True, exist_ok=True)
-    my_levels = Path(args.feature_levels)
+    my_levels = Path(args.feature_levels) if args.feature_levels else None
     agat_path = Path(args.agat_path) if args.agat_path else Path(AGAT_SIF)
 
     full_stats_txt = outdir / f"{input_gff3.stem}_agat_stats.txt"
