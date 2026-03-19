@@ -33,10 +33,10 @@ It processes genome annotation files (typically GFF3/GTF) and generates summary 
 
 ```bash
 python run_agat.py \
-    --input <annotation.gff3> \
-    --output <output_dir> \
-    --levels gene,transcript,exon \
-    --agat_path <path_to_agat>
+    --gff3 <annotation.gff3> \
+    --outdir <output_dir> \
+    --feature_levels <fetaure_levels.yaml> OPTIONAL \
+    --agat_path <path_to_agat> OPTIONAL
 ```
 
  levels - path to feature levels config
