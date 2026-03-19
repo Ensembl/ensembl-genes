@@ -14,9 +14,6 @@ Dependencies:
     - AGAT >= 1.4.2
 
 Output files (written to --outdir):
-    - <stem>_canonical.gff3         : GFF3 with only Ensembl canonical transcripts
-    - <stem>_all.gff3               : Full GFF3 (copy of input)
-    - <stem>_canonical_agat_stats.txt / .csv
     - <stem>_all_agat_stats.txt     / .csv
 """
 
