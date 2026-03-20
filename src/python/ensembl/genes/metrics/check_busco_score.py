@@ -70,18 +70,18 @@ def evaluate_busco(
         exit 0 if the protein BUSCO score soddisfy criteria, otherwise exit 42
     """
     try:
-        with open(genome_json_path) as g_file:  # pylint:disable=unspecified-encoding
+        with open(genome_json_path, encoding="utf-8") as g_file:
             genome_data = json.load(g_file)
-    except Exception as err_msg:  # pylint: disable=broad-except
+    except OSError as err_msg:
         print(f"Failed to load genome BUSCO JSON: {err_msg}")
-        sys.exit(42)
+        return False
 
     try:
-        with open(protein_json_path) as p_file:  # pylint:disable=unspecified-encoding
+        with open(protein_json_path, encoding="utf-8") as p_file:
             protein_data = json.load(p_file)
-    except Exception as err_msg:  # pylint: disable=broad-except
+    except OSError as err_msg:
         print(f"Failed to load protein BUSCO JSON: {err_msg}")
-        sys.exit(42)
+        return False
 
     genome_busco_key = next((k for k in genome_data if k.endswith(".busco")), None)
     protein_busco_key = next((k for k in protein_data if k.endswith(".busco")), None)
@@ -99,16 +99,15 @@ def evaluate_busco(
         print(
             f"Protein BUSCO completeness {protein_busco_score}% is above threshold (70%)"
         )
-        sys.exit(0)
+        return True
     if min_range_protein_score < protein_busco_score < max_range_protein_score:
         difference = protein_busco_score - genome_busco_score
         print(f"Difference (protein - genome): {difference:.2f}%")
-        if difference <= diff_prot_gen_mode:
-            sys.exit(0)
-        else:
-            sys.exit(42)
+
+        return difference <= diff_prot_gen_mode
+
     print(f"Protein BUSCO completeness {protein_busco_score}% is too low")
-    sys.exit(42)
+    return False
 
 
 def main():
@@ -145,18 +144,14 @@ def main():
     )
     args = parser.parse_args()
 
-    try:  # pylint: disable=broad-except
-        evaluate_busco(
+    result = evaluate_busco(
             args.genome,
             args.protein,
             args.min_range_protein_score,
             args.max_range_protein_score,
             args.diff_prot_gen_mode,
         )
-
-    except Exception as err_msg:  # pylint: disable=broad-except
-        print(f"ERROR: {err_msg}")
-        sys.exit(42)
+    sys.exit(0 if result else 42)
 
 
 if __name__ == "__main__":
