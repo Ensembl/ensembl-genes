@@ -44,7 +44,7 @@ def evaluate_busco(
     min_range_protein_score: int,
     max_range_protein_score: int,
     diff_prot_gen_mode: int,
-) -> None:
+) -> bool:
     """Evaluate BUSCO scores from genome and protein JSON files.
     This function loads the BUSCO JSON files for genome and protein,
     extracts the completeness scores, and compares them to determine
@@ -145,12 +145,12 @@ def main():
     args = parser.parse_args()
 
     result = evaluate_busco(
-            args.genome,
-            args.protein,
-            args.min_range_protein_score,
-            args.max_range_protein_score,
-            args.diff_prot_gen_mode,
-        )
+        args.genome,
+        args.protein,
+        args.min_range_protein_score,
+        args.max_range_protein_score,
+        args.diff_prot_gen_mode,
+    )
     sys.exit(0 if result else 42)
 
 
