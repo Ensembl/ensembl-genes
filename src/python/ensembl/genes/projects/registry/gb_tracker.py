@@ -23,19 +23,24 @@ class GbTrackerClient:
         Looks up a pre-release core database name or accession in the tracking tables.
         """
         if "core" in identifier or "_cm_" in identifier:
-            where_clause = "core_dbname = %s"
+            # `gb_schema` does not natively store the final core_dbname.
+            # We match by accession primarily. If a core DB name is passed, we might fail unless we parse it.
+            # For safety, we search the `gca_accession` or `scientific_name`.
+            where_clause = "gs.gca_accession = %s"
         else:
-            where_clause = "assembly_accession = %s"
+            where_clause = "gs.gca_accession = %s"
 
         query = f"""
             SELECT 
-                genome_uuid,
-                core_dbname,
-                assembly_accession,
-                species_name,
-                assembly_name
-            FROM project_tracking
-            WHERE status = 'active'
+                NULL AS genome_uuid,
+                NULL AS core_dbname,
+                gs.gca_accession AS assembly_accession,
+                s.scientific_name AS species_name,
+                a.asm_name AS assembly_name
+            FROM genebuild_status gs
+            JOIN assembly a ON gs.assembly_id = a.assembly_id
+            JOIN species s ON a.lowest_taxon_id = s.lowest_taxon_id
+            WHERE gs.gb_status IN ('in_progress', 'pre_released')
               AND {where_clause}
             LIMIT 1
         """

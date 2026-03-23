@@ -54,12 +54,3 @@ class GenomeMetadata:
     
     # Extensible payload for unforeseen additions
     extra: Dict[str, Any] = field(default_factory=dict)
-    
-    def __post_init__(self):
-        # Infer parent of origin from assembly name if not already set
-        if not self.parent_of_origin and self.assembly_name:
-            asm_lower = self.assembly_name.lower()
-            if "_mat" in asm_lower or "maternal" in asm_lower:
-                self.parent_of_origin = "maternal"
-            elif "_pat" in asm_lower or "paternal" in asm_lower:
-                self.parent_of_origin = "paternal"

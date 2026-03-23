@@ -39,6 +39,26 @@ def patch_ncbi_data(meta: GenomeMetadata, config: ProjectConfig) -> None:
             bio_regex = re.search(r"\/biosample\/([A-Z0-9]+)\/\"", line)
             if bio_regex:
                 biosample_id = bio_regex.group(1)
+                
+        # Find parent_of_origin from authoritative Assembly type semantics
+        if not meta.parent_of_origin:
+            asm_type_regex = re.search(r"Assembly type<\/dt><dd>([^<]+)<\/dd>", line)
+            if asm_type_regex:
+                asm_type = asm_type_regex.group(1).lower()
+                if "maternal" in asm_type:
+                    meta.parent_of_origin = "maternal"
+                elif "paternal" in asm_type:
+                    meta.parent_of_origin = "paternal"
+
+    # Fallback heuristic for parent_of_origin if authoritative metadata is missing
+    if not meta.parent_of_origin and meta.assembly_name:
+        asm_lower = meta.assembly_name.lower()
+        if "_mat" in asm_lower or "maternal" in asm_lower:
+            meta.parent_of_origin = "maternal"
+            logger.info(f"Fallback heuristic used for {meta.accession}: inferred maternal parent_of_origin from assembly name.")
+        elif "_pat" in asm_lower or "paternal" in asm_lower:
+            meta.parent_of_origin = "paternal"
+            logger.info(f"Fallback heuristic used for {meta.accession}: inferred paternal parent_of_origin from assembly name.")
 
     # Hardcoded override for HPRC project (as done in hprc_write_yaml.py)
     if config.schema_type == "hprc":

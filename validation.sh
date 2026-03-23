@@ -4,6 +4,12 @@ set -e
 echo "🚀 Starting validation of the new configuration-driven YAML pipeline"
 
 export PYTHONPATH=src/python
+if [ ! -d "venv" ]; then
+    echo "Creating virtual environment..."
+    python3 -m venv venv
+    ./venv/bin/pip install pymysql pyyaml requests
+fi
+source venv/bin/activate
 INPUT_FILE="dummy_input.txt"
 
 echo "Creating test input file $INPUT_FILE..."

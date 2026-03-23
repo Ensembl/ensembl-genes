@@ -16,6 +16,7 @@ from ensembl.genes.projects.config import get_project_config
 from ensembl.genes.projects.models import GenomeMetadata
 from ensembl.genes.projects.yaml_renderer import YamlRenderer
 from ensembl.genes.projects.registry.metadata_db import MetadataDbClient
+from ensembl.genes.projects.registry.gb_tracker import GbTrackerClient
 from ensembl.genes.projects.registry.ncbi_entrez import patch_ncbi_data
 
 def _load_server_config() -> dict:
@@ -43,6 +44,15 @@ def main():
         dbname=meta_conf["db_name"]
     )
     
+    gb_client = GbTrackerClient(
+        host=meta_conf["db_host"],
+        port=meta_conf["db_port"],
+        user=meta_conf["db_user"]
+    )
+    
+    import logging
+    logger = logging.getLogger(__name__)
+    
     # Read inputs
     try:
         with open(args.input_file, 'r') as f:
@@ -55,13 +65,27 @@ def main():
     failed = []
     
     for identifier in identifiers:
+        # Prefer metadata DB
         meta = metadata_client.fetch_by_identifier(identifier)
-        if meta:
-            patch_ncbi_data(meta, config)
-            doc = renderer.render(meta)
-            yaml_docs.append(doc)
-        else:
+        
+        # Fallback to gb_schema tracking for pre-release
+        if not meta:
+            meta = gb_client.fetch_by_identifier(identifier)
+            if meta:
+                logger.info(f"Routed '{identifier}' through gb_schema tracking as pre-release data.")
+        
+        # Explicit fallback logging for remaining failures requiring core DB
+        if not meta:
+            logger.warning(
+                f"Validation failed for '{identifier}'. Core DB fallback required but deprecated. "
+                f"Ensure this accession is indexed in ensembl_metadata_qrp or gb_schema."
+            )
             failed.append(identifier)
+            continue
+            
+        patch_ncbi_data(meta, config)
+        doc = renderer.render(meta)
+        yaml_docs.append(doc)
             
     # Write output
     with open(args.output, 'w') as f:

@@ -91,11 +91,7 @@ class YamlRenderer:
         if meta.population:
             doc["population"] = meta.population
             
-        if meta.parent_of_origin:
-            doc["parent_of_origin"] = meta.parent_of_origin
-            
         doc["assembly_accession"] = meta.accession
-        doc["assembly_link"] = f"https://www.ebi.ac.uk/ena/browser/view/{meta.accession}"
         
         if meta.assembly_submitter:
             doc["assembly_submitter"] = meta.assembly_submitter
@@ -106,7 +102,7 @@ class YamlRenderer:
         doc["transcripts"] = self._build_rapid_ftp_url(meta, "cdna")
         doc["ftp_dumps"] = self._build_rapid_ftp_url(meta, "base")
         
-        doc["rapid_link"] = f"{self.config.rapid_base_url}/{meta.species_name}"
+        doc["rapid_link"] = f"https://beta.ensembl.org/species/{meta.genome_uuid}"
         
         if self.config.check_ftp_variants:
             if meta.has_variants_clinvar:
