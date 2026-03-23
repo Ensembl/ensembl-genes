@@ -59,8 +59,14 @@ class YamlRenderer:
         doc["annotation_gff3"] = self._build_ftp_url(meta, "geneset", "genes.gff3.gz")
         doc["proteins"] = self._build_ftp_url(meta, "geneset", "pep.fa.gz")
         doc["transcripts"] = self._build_ftp_url(meta, "geneset", "cdna.fa.gz")
-        doc["softmasked_genome"] = self._build_ftp_url(meta, "genome", "softmasked.fa.gz")
-        doc["ftp_dumps"] = f"https://ftp.ebi.ac.uk/pub/ensemblorganisms/{meta.species_name}/{meta.accession}/"
+        
+        ftp_species_name = meta.species_name.capitalize().replace(" ", "_")
+        if meta.is_released:
+            doc["softmasked_genome"] = f"https://ftp.ebi.ac.uk/pub/ensemblorganisms/{ftp_species_name}/{meta.accession}/genome/softmasked.fa.gz"
+            doc["ftp_dumps"] = f"https://ftp.ebi.ac.uk/pub/ensemblorganisms/{ftp_species_name}/{meta.accession}/"
+        else:
+            doc["softmasked_genome"] = f"https://ftp.ebi.ac.uk/pub/databases/ensembl/pre-release/{ftp_species_name}/{meta.accession}/{meta.accession}.dna.softmasked.fa.gz"
+            doc["ftp_dumps"] = f"https://ftp.ebi.ac.uk/pub/databases/ensembl/pre-release/{ftp_species_name}/{meta.accession}/"
         
         if self.config.check_ftp_repeats:
             pass # In reality, we'd check FTP existence
@@ -138,9 +144,17 @@ class YamlRenderer:
 
     def _build_ftp_url(self, meta: GenomeMetadata, category: str, file_suffix: str) -> str:
         """Helper to build standard FTP URLs for standard/mouse schemas."""
-        date = meta.annotation_date or "2024_01"
-        source = "ensembl"
-        return f"https://ftp.ebi.ac.uk/pub/ensemblorganisms/{meta.species_name}/{meta.accession}/{source}/{category}/{date}/{file_suffix}"
+        ftp_species_name = meta.species_name.capitalize().replace(" ", "_")
+        
+        if meta.is_released:
+            date = meta.annotation_date
+            if not date:
+                date = "unknown_date"
+            source = "ensembl"
+            return f"https://ftp.ebi.ac.uk/pub/ensemblorganisms/{ftp_species_name}/{meta.accession}/{source}/{category}/{date}/{file_suffix}"
+        else:
+            clean_suffix = file_suffix.replace("genes.", "")
+            return f"https://ftp.ebi.ac.uk/pub/databases/ensembl/pre-release/{ftp_species_name}/{meta.accession}/{meta.accession}.{clean_suffix}"
         
     def _build_rapid_ftp_url(self, meta: GenomeMetadata, resource_type: str) -> str:
         """Helper to build Rapid Release FTP URLs"""

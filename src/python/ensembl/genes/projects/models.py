@@ -45,6 +45,7 @@ class GenomeMetadata:
     is_on_rapid: bool = False
     is_on_beta: bool = False
     is_on_main: bool = False
+    is_released: bool = False
     
     # FTP Resources Validation (Checked existence)
     has_repeat_library: bool = False

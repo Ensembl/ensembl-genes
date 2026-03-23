@@ -38,15 +38,23 @@ class MetadataDbClient:
                 organism.scientific_name,
                 organism.strain,
                 organism.taxonomy_id,
-                assembly.name AS assembly_name
+                assembly.name AS assembly_name,
+                MAX(CASE WHEN attribute.name = 'genebuild.method_display' THEN dataset_attribute.value END) AS annotation_method,
+                MAX(CASE WHEN attribute.name = 'genebuild.last_geneset_update' THEN dataset_attribute.value END) AS geneset_date,
+                MAX(CASE WHEN attribute.name = 'genebuild.busco' THEN dataset_attribute.value END) AS busco_score,
+                MAX(CASE WHEN attribute.name = 'genebuild.busco_dataset' THEN dataset_attribute.value END) AS busco_lineage
             FROM genome
             JOIN assembly ON genome.assembly_id = assembly.assembly_id
             JOIN organism ON genome.organism_id = organism.organism_id
             JOIN genome_dataset ON genome.genome_id = genome_dataset.genome_id
             JOIN dataset ON genome_dataset.dataset_id = dataset.dataset_id
             JOIN dataset_source ON dataset.dataset_source_id = dataset_source.dataset_source_id
+            LEFT JOIN dataset_attribute ON dataset.dataset_id = dataset_attribute.dataset_id
+            LEFT JOIN attribute ON dataset_attribute.attribute_id = attribute.attribute_id 
+                AND attribute.name IN ('genebuild.method_display', 'genebuild.last_geneset_update', 'genebuild.busco', 'genebuild.busco_dataset')
             WHERE dataset.name = 'genebuild'
               AND {where_clause}
+            GROUP BY genome.genome_uuid, dataset_source.name, assembly.accession, organism.scientific_name, organism.strain, organism.taxonomy_id, assembly.name
             LIMIT 1
         """
         
@@ -68,7 +76,7 @@ class MetadataDbClient:
             logger.warning(f"No metadata found for identifier: {identifier}")
             return None
             
-        species_name = row['scientific_name'].replace(" ", "_").lower() if row['scientific_name'] else ""
+        species_name = row['scientific_name'] if row['scientific_name'] else ""
         
         # Proper alternate pairing: look for assemblies of the exact same taxonomy & strain
         # but with a different accession. Returns the rapid-release URL.
@@ -105,5 +113,10 @@ class MetadataDbClient:
             assembly_name=row['assembly_name'],
             strain=row['strain'],
             taxon_id=row['taxonomy_id'],
-            alternate_of=alternate_url
+            alternate_of=alternate_url,
+            annotation_method=row.get('annotation_method'),
+            annotation_date=row.get('geneset_date'),
+            busco_score=row.get('busco_score'),
+            busco_lineage=row.get('busco_lineage'),
+            is_released=True
         )

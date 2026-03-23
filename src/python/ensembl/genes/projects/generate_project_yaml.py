@@ -44,10 +44,11 @@ def main():
         dbname=meta_conf["db_name"]
     )
     
+    gb_conf = server_conf["gb1"]
     gb_client = GbTrackerClient(
-        host=meta_conf["db_host"],
-        port=meta_conf["db_port"],
-        user=meta_conf["db_user"]
+        host=gb_conf["db_host"],
+        port=gb_conf["db_port"],
+        user=gb_conf["db_user"]
     )
     
     import logging
@@ -65,31 +66,41 @@ def main():
     failed = []
     
     for identifier in identifiers:
-        # Prefer metadata DB
-        meta = metadata_client.fetch_by_identifier(identifier)
-        
-        # Fallback to gb_schema tracking for pre-release
-        if not meta:
+        if "-" in identifier and len(identifier) == 36:
+            # Explicitly a Genome UUID -> Released genome track
+            meta = metadata_client.fetch_by_identifier(identifier)
+            if not meta:
+                logger.warning(
+                    f"Validation failed for '{identifier}'. Could not find UUID in metadata DB. "
+                    f"Ensure this UUID is indexed in ensembl_metadata_qrp."
+                )
+                failed.append(identifier)
+                continue
+        else:
+            # Treat as core DB name -> Pre-release genome track
             meta = gb_client.fetch_by_identifier(identifier)
             if meta:
                 logger.info(f"Routed '{identifier}' through gb_schema tracking as pre-release data.")
-        
-        # Explicit fallback logging for remaining failures requiring core DB
-        if not meta:
-            logger.warning(
-                f"Validation failed for '{identifier}'. Core DB fallback required but deprecated. "
-                f"Ensure this accession is indexed in ensembl_metadata_qrp or gb_schema."
-            )
-            failed.append(identifier)
-            continue
+            else:
+                logger.warning(
+                    f"Validation failed for '{identifier}'. Could not find DB in gb_schema. "
+                    f"Core DB fallback is deprecated."
+                )
+                failed.append(identifier)
+                continue
             
         patch_ncbi_data(meta, config)
         doc = renderer.render(meta)
         yaml_docs.append(doc)
             
     # Write output
+    yaml_docs.sort(key=lambda x: x.get('species', x.get('assembly', '')))
+    
     with open(args.output, 'w') as f:
-        yaml.dump(yaml_docs, f, default_flow_style=False, sort_keys=False)
+        for i, doc in enumerate(yaml_docs):
+            if i > 0:
+                f.write("\n")
+            yaml.dump([doc], f, default_flow_style=False, sort_keys=False)
         
     print(f"Successfully generated {args.output} for {len(yaml_docs)} genomes using {config.schema_type} schema format.")
     if failed:

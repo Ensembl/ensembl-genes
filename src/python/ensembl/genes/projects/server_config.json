@@ -16,7 +16,7 @@
     "db_port": 4483,
     "db_user": "ensro",
     "db_pass": "",
-    "db_name": "ensembl_metadata_qrp"
+    "db_name": "ensembl_genome_metadata"
   },
   "st5": {
       "db_host": "mysql-ens-sta-5.ebi.ac.uk",

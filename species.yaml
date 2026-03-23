@@ -1,0 +1,12 @@
+- species: Channa striata
+  accession: GCA_034621705.1
+  annotation_method: Ensembl Genebuild
+  annotation_gtf: https://ftp.ebi.ac.uk/pub/ensemblorganisms/Channa_striata/GCA_034621705.1/ensembl/geneset/2024-05/genes.gtf.gz
+  annotation_gff3: https://ftp.ebi.ac.uk/pub/ensemblorganisms/Channa_striata/GCA_034621705.1/ensembl/geneset/2024-05/genes.gff3.gz
+  proteins: https://ftp.ebi.ac.uk/pub/ensemblorganisms/Channa_striata/GCA_034621705.1/ensembl/geneset/2024-05/pep.fa.gz
+  transcripts: https://ftp.ebi.ac.uk/pub/ensemblorganisms/Channa_striata/GCA_034621705.1/ensembl/geneset/2024-05/cdna.fa.gz
+  softmasked_genome: https://ftp.ebi.ac.uk/pub/ensemblorganisms/Channa_striata/GCA_034621705.1/genome/softmasked.fa.gz
+  ftp_dumps: https://ftp.ebi.ac.uk/pub/ensemblorganisms/Channa_striata/GCA_034621705.1/
+  beta_link: https://beta.ensembl.org/species/0003e543-fe3d-4cc5-beea-02d2bfaa90f4
+  busco_score: C:94.9%[S:93.5%,D:1.4%],F:1.1%,M:4.0%,n:3640
+  busco_lineage: actinopterygii_odb10
