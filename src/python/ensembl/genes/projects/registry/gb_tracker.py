@@ -37,6 +37,7 @@ class GbTrackerClient:
                 NULL AS core_dbname,
                 gs.gca_accession AS assembly_accession,
                 s.scientific_name AS species_name,
+                s.taxon_id,
                 a.asm_name AS assembly_name,
                 gs.annotation_method
             FROM genebuild_status gs
@@ -79,6 +80,7 @@ class GbTrackerClient:
             accession=row['assembly_accession'],
             species_name=row['species_name'],
             assembly_name=row['assembly_name'],
+            taxon_id=row.get('taxon_id'),
             annotation_method=anno_method,
             is_on_rapid=False,
             is_on_beta=False,

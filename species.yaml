@@ -1,12 +1,27 @@
-- species: Channa striata
-  accession: GCA_034621705.1
+- species: Aix sponsa
+  image: Birds.png
+  accession: GCA_051175885.2
   annotation_method: Ensembl Genebuild
-  annotation_gtf: https://ftp.ebi.ac.uk/pub/ensemblorganisms/Channa_striata/GCA_034621705.1/ensembl/geneset/2024-05/genes.gtf.gz
-  annotation_gff3: https://ftp.ebi.ac.uk/pub/ensemblorganisms/Channa_striata/GCA_034621705.1/ensembl/geneset/2024-05/genes.gff3.gz
-  proteins: https://ftp.ebi.ac.uk/pub/ensemblorganisms/Channa_striata/GCA_034621705.1/ensembl/geneset/2024-05/pep.fa.gz
-  transcripts: https://ftp.ebi.ac.uk/pub/ensemblorganisms/Channa_striata/GCA_034621705.1/ensembl/geneset/2024-05/cdna.fa.gz
-  softmasked_genome: https://ftp.ebi.ac.uk/pub/ensemblorganisms/Channa_striata/GCA_034621705.1/genome/softmasked.fa.gz
-  ftp_dumps: https://ftp.ebi.ac.uk/pub/ensemblorganisms/Channa_striata/GCA_034621705.1/
-  beta_link: https://beta.ensembl.org/species/0003e543-fe3d-4cc5-beea-02d2bfaa90f4
-  busco_score: C:94.9%[S:93.5%,D:1.4%],F:1.1%,M:4.0%,n:3640
-  busco_lineage: actinopterygii_odb10
+  annotation_gtf: https://ftp.ebi.ac.uk/pub/databases/ensembl/pre-release/Aix_sponsa/GCA_051175885.2/aix_sponsa_gca051175885v2.gtf.gz
+  annotation_gff3: https://ftp.ebi.ac.uk/pub/databases/ensembl/pre-release/Aix_sponsa/GCA_051175885.2/aix_sponsa_gca051175885v2.gff3.gz
+  proteins: https://ftp.ebi.ac.uk/pub/databases/ensembl/pre-release/Aix_sponsa/GCA_051175885.2/GCA_051175885.2.pep.fa.gz
+  transcripts: https://ftp.ebi.ac.uk/pub/databases/ensembl/pre-release/Aix_sponsa/GCA_051175885.2/GCA_051175885.2.cdna.fa.gz
+  softmasked_genome: https://ftp.ebi.ac.uk/pub/databases/ensembl/pre-release/Aix_sponsa/GCA_051175885.2/aix_sponsa_gca051175885v2.dna.softmasked.fa.gz
+  ftp_dumps: https://ftp.ebi.ac.uk/pub/databases/ensembl/pre-release/Aix_sponsa/GCA_051175885.2/
+  beta_link: Coming soon!
+  busco_score: C:94.6%[S:94.4%,D:0.2%],F:1.7%,M:3.7%,n:6841
+  busco_lineage: galloanserae_odb12
+
+- species: Anthonomus rubi
+  image: Arthropods.png
+  accession: GCA_050242925.2
+  annotation_method: Ensembl Genebuild
+  annotation_gtf: https://ftp.ebi.ac.uk/pub/ensemblorganisms/Anthonomus_rubi/GCA_050242925.2/ensembl/geneset/2025_09/genes.gtf.gz
+  annotation_gff3: https://ftp.ebi.ac.uk/pub/ensemblorganisms/Anthonomus_rubi/GCA_050242925.2/ensembl/geneset/2025_09/genes.gff3.gz
+  proteins: https://ftp.ebi.ac.uk/pub/ensemblorganisms/Anthonomus_rubi/GCA_050242925.2/ensembl/geneset/2025_09/pep.fa.gz
+  transcripts: https://ftp.ebi.ac.uk/pub/ensemblorganisms/Anthonomus_rubi/GCA_050242925.2/ensembl/geneset/2025_09/cdna.fa.gz
+  softmasked_genome: https://ftp.ebi.ac.uk/pub/ensemblorganisms/Anthonomus_rubi/GCA_050242925.2/genome/softmasked.fa.gz
+  ftp_dumps: https://ftp.ebi.ac.uk/pub/ensemblorganisms/Anthonomus_rubi/GCA_050242925.2/
+  beta_link: https://beta.ensembl.org/species/1dcc7d74-710b-4b82-8aa6-9fd5fb3b2157
+  busco_score: C:81.0%[S:76.8%,D:4.2%],F:8.2%,M:10.8%,n:3754
+  busco_lineage: endopterygota_odb12

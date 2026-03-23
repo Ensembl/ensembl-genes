@@ -33,7 +33,10 @@ def main():
     args = parser.parse_args()
     
     config = get_project_config(args.project)
-    renderer = YamlRenderer(config)
+    from ensembl.genes.projects.write_yaml import EnsemblFTP
+    ftp_client = EnsemblFTP(timeout=30)
+    renderer = YamlRenderer(config, ftp_client)
+    
     server_conf = _load_server_config()
     meta_conf = server_conf["meta_beta"]
     
@@ -91,7 +94,12 @@ def main():
             
         patch_ncbi_data(meta, config)
         doc = renderer.render(meta)
-        yaml_docs.append(doc)
+        if doc:
+            yaml_docs.append(doc)
+        else:
+            # Exclude and warn
+            logger.warning(f"Excluding {identifier}: Neither released nor fallback pre-release data found on FTP.")
+            failed.append(identifier)
             
     # Write output
     yaml_docs.sort(key=lambda x: x.get('species', x.get('assembly', '')))
