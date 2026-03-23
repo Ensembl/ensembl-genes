@@ -12,8 +12,8 @@
     "db_pass": ""
   },
   "meta_beta": {
-    "db_host": "mysql-ens-meta-prod-1.ebi.ac.uk",
-    "db_port": 4483,
+    "db_host": "mysql-ens-production-1.ebi.ac.uk",
+    "db_port": 4721,
     "db_user": "ensro",
     "db_pass": "",
     "db_name": "ensembl_genome_metadata"
