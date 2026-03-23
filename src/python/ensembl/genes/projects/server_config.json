@@ -11,11 +11,12 @@
     "db_user": "ensro",
     "db_pass": ""
   },
-  "meta": {
+  "meta_beta": {
     "db_host": "mysql-ens-meta-prod-1.ebi.ac.uk",
     "db_port": 4483,
     "db_user": "ensro",
-    "db_pass": ""
+    "db_pass": "",
+    "db_name": "ensembl_metadata_qrp"
   },
   "st5": {
       "db_host": "mysql-ens-sta-5.ebi.ac.uk",
@@ -35,5 +36,4 @@
       "db_user": "ensro",
       "db_pass": ""
    }
-    
 }
