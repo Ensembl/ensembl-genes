@@ -121,8 +121,13 @@ class YamlRenderer:
             if fb_gff:
                 doc["annotation_gff3"] = fb_gff
                 
-            doc["proteins"] = f"https://ftp.ebi.ac.uk/pub/databases/ensembl/pre-release/{ftp_species_name}/{meta.accession}/{meta.accession}.pep.fa.gz"
-            doc["transcripts"] = f"https://ftp.ebi.ac.uk/pub/databases/ensembl/pre-release/{ftp_species_name}/{meta.accession}/{meta.accession}.cdna.fa.gz"
+            fb_pep = self.ftp_client.check_pre_release_file(ftp_species_name, meta.accession, ".pep.fa.gz") if self.ftp_client else ""
+            if fb_pep:
+                doc["proteins"] = fb_pep
+                
+            fb_cdna = self.ftp_client.check_pre_release_file(ftp_species_name, meta.accession, ".cdna.fa.gz") if self.ftp_client else ""
+            if fb_cdna:
+                doc["transcripts"] = fb_cdna
             
             fb_soft = self.ftp_client.check_pre_release_file(ftp_species_name, meta.accession, ".dna.softmasked.fa.gz") if self.ftp_client else ""
             if fb_soft:
@@ -159,29 +164,28 @@ class YamlRenderer:
         doc: Dict[str, Any] = {}
         
         doc["assembly"] = meta.assembly_name
-        if meta.population:
-            doc["population"] = meta.population
+        if meta.parent_of_origin:
+            doc["parent_of_origin"] = meta.parent_of_origin
             
         doc["assembly_accession"] = meta.accession
+        doc["assembly_link"] = f"https://www.ebi.ac.uk/ena/browser/view/{meta.accession}"
         
         if meta.assembly_submitter:
             doc["assembly_submitter"] = meta.assembly_submitter
             
-        doc["annotation_gtf"] = self._build_rapid_ftp_url(meta, "gtf")
-        doc["annotation_gff3"] = self._build_rapid_ftp_url(meta, "gff3")
-        doc["proteins"] = self._build_rapid_ftp_url(meta, "pep")
-        doc["transcripts"] = self._build_rapid_ftp_url(meta, "cdna")
-        doc["ftp_dumps"] = self._build_rapid_ftp_url(meta, "base")
+        ftp_species_name = meta.species_name.capitalize().replace(" ", "_")
         
-        doc["rapid_link"] = f"https://beta.ensembl.org/species/{meta.genome_uuid}"
+        doc["annotation_gtf"] = self._build_ftp_url(meta, "geneset", "genes.gtf.gz", ftp_species_name)
+        doc["annotation_gff3"] = self._build_ftp_url(meta, "geneset", "genes.gff3.gz", ftp_species_name)
+        doc["proteins"] = self._build_ftp_url(meta, "geneset", "pep.fa.gz", ftp_species_name)
+        doc["transcripts"] = self._build_ftp_url(meta, "geneset", "cdna.fa.gz", ftp_species_name)
         
-        if self.config.check_ftp_variants:
-            if meta.has_variants_clinvar:
-                doc["variants_clinvar"] = self._build_rapid_ftp_url(meta, "clinvar")
-            if meta.has_variants_gnomad:
-                doc["variants_gnomad"] = self._build_rapid_ftp_url(meta, "gnomad")
-            if meta.has_variants_vep:
-                doc["variants_vep"] = self._build_rapid_ftp_url(meta, "vep")
+        vep_url = f"https://ftp.ebi.ac.uk/pub/ensemblorganisms/{ftp_species_name}/{meta.accession}/vep/ensembl/geneset/"
+        if check_url_status(vep_url):
+            doc["variants_vep"] = vep_url
+            
+        doc["ftp_dumps"] = f"https://ftp.ebi.ac.uk/pub/ensemblorganisms/{ftp_species_name}/{meta.accession}/"
+        doc["beta_link"] = f"https://beta.ensembl.org/species/{meta.genome_uuid}"
 
         return {k: v for k, v in doc.items() if v is not None}
 

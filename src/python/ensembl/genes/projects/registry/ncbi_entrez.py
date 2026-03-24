@@ -5,11 +5,33 @@ Performs web scraping for submitters and HPRC population data.
 import re
 import requests
 import logging
+from typing import Optional
 from ensembl.genes.projects.models import GenomeMetadata
 from ensembl.genes.projects.config import ProjectConfig
 
 logger = logging.getLogger(__name__)
 
+def _fetch_assembly_report_type(accession: str, assembly_name: str) -> Optional[str]:
+    """Downloads the authoritative assembly report from NCBI genomes FTP to parse maternal/paternal."""
+    if not accession or not assembly_name:
+        return None
+    parts = accession.split('_')
+    if len(parts) < 2: return None
+    num = parts[1].split('.')[0]
+    if len(num) < 9: return None
+    
+    url = f"https://ftp.ncbi.nlm.nih.gov/genomes/all/{parts[0]}/{num[0:3]}/{num[3:6]}/{num[6:9]}/{accession}_{assembly_name.replace(' ', '_')}/{accession}_{assembly_name.replace(' ', '_')}_assembly_report.txt"
+    try:
+        res = requests.get(url, timeout=10)
+        if res.status_code == 200:
+            for line in res.text.splitlines():
+                if line.startswith("# Assembly type:"):
+                    lower = line.lower()
+                    if "maternal" in lower: return "maternal"
+                    if "paternal" in lower: return "paternal"
+    except Exception as e:
+        logger.warning(f"Failed to fetch assembly report for {accession}: {e}")
+    return None
 
 def patch_ncbi_data(meta: GenomeMetadata, config: ProjectConfig) -> None:
     """Modifies the GenomeMetadata inline with NCBI scraped data."""
@@ -39,16 +61,10 @@ def patch_ncbi_data(meta: GenomeMetadata, config: ProjectConfig) -> None:
             bio_regex = re.search(r"\/biosample\/([A-Z0-9]+)\/\"", line)
             if bio_regex:
                 biosample_id = bio_regex.group(1)
-                
-        # Find parent_of_origin from authoritative Assembly type semantics
-        if not meta.parent_of_origin:
-            asm_type_regex = re.search(r"Assembly type<\/dt><dd>([^<]+)<\/dd>", line)
-            if asm_type_regex:
-                asm_type = asm_type_regex.group(1).lower()
-                if "maternal" in asm_type:
-                    meta.parent_of_origin = "maternal"
-                elif "paternal" in asm_type:
-                    meta.parent_of_origin = "paternal"
+
+    # Find parent_of_origin from authoritative FTP Assembly Report semantics
+    if not meta.parent_of_origin:
+        meta.parent_of_origin = _fetch_assembly_report_type(meta.accession, meta.assembly_name)
 
     # Fallback heuristic for parent_of_origin if authoritative metadata is missing
     if not meta.parent_of_origin and meta.assembly_name:
