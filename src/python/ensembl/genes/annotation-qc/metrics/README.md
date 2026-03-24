@@ -2,7 +2,7 @@
 
 ## Overview
 
-`run_agat.py` is a Python wrapper script used in the Ensembl gene annotation QC pipeline to compute annotation statistics using **AGAT (Another Gff Analysis Toolkit)**.
+`features.py` is a Python wrapper script used in the Ensembl gene annotation QC pipeline to compute annotation statistics using **AGAT (Another Gff Analysis Toolkit)**.
 
 It processes genome annotation files (typically GFF3/GTF) and generates summary metrics describing gene models, transcripts, exons, CDS features, and other structural properties. These metrics are commonly used to assess annotation quality and completeness.
 
@@ -17,8 +17,7 @@ It processes genome annotation files (typically GFF3/GTF) and generates summary 
   - Exon/CDS statistics
   - Feature lengths and distributions
 - Supports configurable feature levels (e.g. gene, transcript, exon)
-- Produces summary statistics in text format
-- Designed for integration into Ensembl genebuild pipelines
+- Produces summary statistics in text  and csv format
 
 ---
 
@@ -33,15 +32,19 @@ It processes genome annotation files (typically GFF3/GTF) and generates summary 
 
 ```bash
 python run_agat.py \
-    --gff3 <annotation.gff3> \
-    --outdir <output_dir> \
-    --feature_levels <fetaure_levels.yaml> OPTIONAL \
-    --agat_path <path_to_agat> OPTIONAL
+    --input <annotation.gff3>       # Path to your input GFF3 file
+    --output <output_dir>           # Directory where results will be saved
+    --feature_levels <feature_levels.yaml>     # (Optional) Specify feature levels to extract
+    --agat_path <path_to_agat>      # (Optional) Path to AGAT singularity, if not provided default container will be used
 ```
-
- levels - path to feature levels config
- agat_path - path to agat singularity
 
 ## Output
 Raw agat results in the output folder plus a csv.
+
+lll
+## References
+```
+Dainat J. 2022. Another Gtf/Gff Analysis Toolkit (AGAT): Resolve interoperability issues and accomplish more with your annotations. Plant and Animal Genome XXIX Conference. https://github.com/NBISweden/AGAT.
+```
+
  
