@@ -189,7 +189,6 @@ def select_and_rename_metrics(input_csv: Path, output_csv: Path) -> None:
         # coding new
         "genebuild.stats.single_exon_coding_genes": "mrna_number_of_single_exon_gene",
         "genebuild.stats.single_exon_coding_transcripts": "mrna_number_of_single_exon_mrna",
-        "genebuild.stats.overlapping_coding_genes": "mrna_number_gene_overlapping",
         "genebuild.stats.coding_transcripts_with_both_utrs": "mrna_number_of_mrnas_with_utr_both_sides",
         "genebuild.stats.coding_transcripts_with_utr": "mrna_number_of_mrnas_with_at_least_one_utr",
         "genebuild.stats.average_cds_intron_length": "mrna_mean_intron_in_cds_length_(bp)",
@@ -215,7 +214,6 @@ def select_and_rename_metrics(input_csv: Path, output_csv: Path) -> None:
         "genebuild.stats.nc_average_sequence_length": "nc_average_sequence_length",
         # non coding new
         "genebuild.stats.nc_single_exon_long_non_coding_genes": "lnc_rna_number_of_single_exon_ncrna_gene",
-        "genebuild.stats.nc_overlapping_long_non_coding_genes": "lnc_rna_number_ncrna_gene_overlapping",
         "genebuild.stats.nc_mirna_genes": "mirna_number_of_ncrna_gene",
         "genebuild.stats.nc_unclassified_genes": "ncrna_number_of_ncrna_gene",
         "genebuild.stats.nc_rrna_genes": "rrna_number_of_ncrna_gene",
@@ -238,6 +236,18 @@ def select_and_rename_metrics(input_csv: Path, output_csv: Path) -> None:
         "genebuild.stats.ps_average_genomic_span": "pseudogenic_transcript_mean_pseudogene_length_(bp)",
         "genebuild.stats.ps_average_intron_length": "pseudogenic_transcript_mean_intron_in_exon_length_(bp)",
         "genebuild.stats.ps_average_sequence_length": "ps_average_sequence_length",
+        # overlapping
+        "genebuild.stats.long_non_coding_genes_overlapping_nc": "lnc_rna_number_ncrna_gene_overlapping",
+        "genebuild.stats.mirna_genes_overlapping_nc": "mirna_number_ncrna_gene_overlapping",
+        "genebuild.stats.overlapping_coding_genes": "mrna_number_gene_overlapping",
+        "genebuild.stats.nc_overlapping_nc": "ncrna_number_ncrna_gene_overlapping",
+        "genebuild.stats.ps_overlapping_ps": "pseudogenic_transcript_number_pseudogene_overlapping",
+        "genebuild.stats.rrna_overlapping_rrna": "rrna_number_ncrna_gene_overlapping",
+        "genebuild.stats.small_non_coding_overlapping_nc": "scrna_number_ncrna_gene_overlapping",
+        "genebuild.stats.snorna_overlapping_nc": "snorna_number_ncrna_gene_overlapping",
+        "genebuild.stats.snrna_overlapping_nc": "snrna_number_ncrna_gene_overlapping",
+        "genebuild.stats.trna_overlapping_nc": "trna_number_ncrna_gene_overlapping",
+        "genebuild.stats.yrna_overlapping_nc": "y_rna_number_ncrna_gene_overlapping",
     }
 
     df_final = df.T.reset_index()
