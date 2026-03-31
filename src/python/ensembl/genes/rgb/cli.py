@@ -23,6 +23,7 @@ from .summary import summarize_loci, load_mapping
 from .layer_map import fetch_layer_static, parse_config_block, to_yaml
 from .report import compute_retention_by_biotype
 from .compete import analyze_competition
+from .represent import represent_layer_vs_core
 
 
 def _add_common_db_args(p: argparse.ArgumentParser) -> None:
@@ -447,6 +448,56 @@ def main(argv: Optional[list[str]] = None) -> int:
         print(f"[compete] wrote per_locus_competition.tsv and competitive_summary.tsv → {comp_dir}")
         return 0
     p_comp.set_defaults(func=_do_compete)
+
+    p_repr = sub.add_parser("represent", help="Transcript-level splicing representation of layer vs core (locus-free)")
+    _add_common_out_args(p_repr)
+    p_repr.add_argument("--run_id", required=True)
+    p_repr.add_argument("--splice_tolerance_bp", type=int, default=5)
+    p_repr.add_argument("--intron_subset_frac", type=float, default=0.8)
+    p_repr.add_argument("--single_exon_overlap_frac", type=float, default=0.8)
+    def _do_repr(a):
+        out_root = os.path.join(a.output_dir, a.run_id)
+        extract_dir = os.path.join(out_root, "extract")
+        rep_dir = os.path.join(out_root, "represent")
+        ensure_dir(rep_dir)
+        def _load(path):
+            if a.format == "parquet" and os.path.exists(path + ".parquet"):
+                return pd.read_parquet(path + ".parquet")
+            sep = "\t" if a.format == "tsv" else ","
+            p = path + f".{a.format}"
+            if not os.path.exists(p) or os.path.getsize(p) == 0:
+                return pd.DataFrame()
+            df = pd.read_csv(p, sep=sep, low_memory=False)
+            if "seq_region_name" in df.columns:
+                df["seq_region_name"] = df["seq_region_name"].astype("string")
+            return df
+        layer_ex = _load(os.path.join(extract_dir, "layer_exons"))
+        core_ex  = _load(os.path.join(extract_dir, "core_exons"))
+        layer_tx = _load(os.path.join(extract_dir, "layer_transcripts"))
+        core_tx  = _load(os.path.join(extract_dir, "core_transcripts"))
+        if layer_tx.empty or core_tx.empty:
+            print("[represent] Missing transcripts in extract/. Re-run extract with proper coord_system.", file=sys.stderr)
+            return 2
+        if layer_ex.empty or core_ex.empty:
+            print("[represent] Missing exon chains; representation will be empty.", file=sys.stderr)
+        df = represent_layer_vs_core(
+            layer_exons=layer_ex,
+            core_exons=core_ex,
+            layer_tx=layer_tx,
+            core_tx=core_tx,
+            tol_bp=a.splice_tolerance_bp,
+            intron_subset_frac=a.intron_subset_frac,
+            single_exon_overlap_frac=a.single_exon_overlap_frac,
+        )
+        outp = os.path.join(rep_dir, f"layer_tx_representation.{a.format}")
+        if a.format == "parquet":
+            df.to_parquet(outp, index=False)
+        else:
+            sep = "\t" if a.format == "tsv" else ","
+            df.to_csv(outp, sep=sep, index=False)
+        print(f"[represent] wrote {len(df)} rows → {outp}")
+        return 0
+    p_repr.set_defaults(func=_do_repr)
 
     args = p.parse_args(argv)
     return args.func(args)
