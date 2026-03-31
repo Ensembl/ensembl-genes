@@ -58,7 +58,8 @@ def cmd_extract(args: argparse.Namespace) -> int:
         from .db import detect_coord_system, has_toplevel
         if requested in (None, "", "auto"):
             cs = detect_coord_system(core_conn)
-            if cs:
+            # Prefer chromosome > scaffold; if neither, prefer toplevel over contig
+            if cs in ("chromosome", "scaffold"):
                 resolved = cs
             elif has_toplevel(core_conn):
                 resolved = "toplevel"
@@ -87,16 +88,19 @@ def cmd_extract(args: argparse.Namespace) -> int:
     write_manifest(manifest, os.path.join(out_root, "manifest.extract.json"))
 
     # Extract genes in one go per DB (region‑chunked within helper)
+    # For 'toplevel' we filter regions by attrib, but do not constrain cs.name in per-region queries
+    query_cs = None if resolved == "toplevel" else resolved
+
     with connect(core_params) as core_conn:
-        core_genes = extract_all_genes(core_conn, seq_regions, resolved)
-        core_tx = extract_all_transcripts(core_conn, seq_regions, resolved)
+        core_genes = extract_all_genes(core_conn, seq_regions, query_cs)
+        core_tx = extract_all_transcripts(core_conn, seq_regions, query_cs)
         core_tr = extract_all_translations(core_conn)
-        core_ex = extract_all_exon_chains(core_conn, seq_regions, resolved)
+        core_ex = extract_all_exon_chains(core_conn, seq_regions, query_cs)
     with connect(layer_params) as layer_conn:
-        layer_genes = extract_all_genes(layer_conn, seq_regions, resolved)
-        layer_tx = extract_all_transcripts(layer_conn, seq_regions, resolved)
+        layer_genes = extract_all_genes(layer_conn, seq_regions, query_cs)
+        layer_tx = extract_all_transcripts(layer_conn, seq_regions, query_cs)
         layer_tr = extract_all_translations(layer_conn)
-        layer_ex = extract_all_exon_chains(layer_conn, seq_regions, resolved)
+        layer_ex = extract_all_exon_chains(layer_conn, seq_regions, query_cs)
 
     # Write outputs
     core_path = os.path.join(out_dir, f"core_genes.{args.format}")
@@ -382,7 +386,10 @@ def main(argv: Optional[list[str]] = None) -> int:
             if a.format == "parquet" and os.path.exists(path + ".parquet"):
                 return pd.read_parquet(path + ".parquet")
             sep = "\t" if a.format == "tsv" else ","
-            df = pd.read_csv(path + f".{a.format}", sep=sep, low_memory=False)
+            p = path + f".{a.format}"
+            if not os.path.exists(p) or os.path.getsize(p) == 0:
+                return pd.DataFrame()
+            df = pd.read_csv(p, sep=sep, low_memory=False)
             if "seq_region_name" in df.columns:
                 df["seq_region_name"] = df["seq_region_name"].astype("string")
             return df
@@ -392,6 +399,9 @@ def main(argv: Optional[list[str]] = None) -> int:
         layer_tr = _load(os.path.join(extract_dir, "layer_translations"))
         core_ex = _load(os.path.join(extract_dir, "core_exons")) if a.representation == "intron_subset" else None
         layer_ex = _load(os.path.join(extract_dir, "layer_exons")) if a.representation == "intron_subset" else None
+        if core_tx.empty and layer_tx.empty:
+            print("[report] No transcripts available in extract/. Re-run extract with --coord_system_name chromosome or toplevel.", file=sys.stderr)
+            return 2
         # Load layer map
         m = load_mapping(a.layer_map)
         by_bt, by_tier, cw, by_logic = compute_retention_by_biotype(
