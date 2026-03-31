@@ -62,11 +62,12 @@ def compute_retention_by_biotype(
             core_biotypes.extend([None] * len(grp))
             continue
         for _, r in grp.iterrows():
-            ov = _interval_overlap(
-                pd.Series([int(r.seq_region_start)]*len(core_grp)),
-                pd.Series([int(r.seq_region_end)]*len(core_grp)),
-                core_grp["seq_region_start"].astype(int),
-                core_grp["seq_region_end"].astype(int),
+            start = int(r.seq_region_start)
+            end = int(r.seq_region_end)
+            ov = (
+                core_grp["seq_region_start"].astype(int) <= end
+            ) & (
+                core_grp["seq_region_end"].astype(int) >= start
             )
             is_built = bool(ov.any())
             built_flags.append(1 if is_built else 0)
