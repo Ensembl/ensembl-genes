@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from collections import Counter, defaultdict
 from typing import Dict, Tuple
 
 import pandas as pd
@@ -16,11 +15,11 @@ def compute_retention_by_biotype(
     layer_tx: pd.DataFrame,
     layer_tr: pd.DataFrame,
     biotype_to_tier: Dict[str, Dict[str, object]] | Dict[str, Tuple[str, int]]
-) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
-    """Return (retention_by_biotype, retention_by_tier, crosswalk) dataframes.
+) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+    """Return (retention_by_biotype, retention_by_tier, crosswalk, by_logic) dataframes.
 
-    - A layer transcript is considered 'built' if it overlaps any core transcript
-      on the same strand within the same strict locus (via gene_to_locus).
+    A layer transcript is 'built' if it overlaps any core transcript on the same strand
+    within the same strict locus (we map transcripts to locus via gene_id).
     """
     # Normalize mapping structure
     b2t: Dict[str, Tuple[str, int]] = {}
@@ -35,23 +34,21 @@ def compute_retention_by_biotype(
 
     # Map transcripts to strict locus via gene_id
     layer_tx2 = layer_tx.merge(
-        gene_map[gene_map.db_kind == "layer"][["gene_id", "locus_id_strict"]],
+        gene_map[gene_map.db_kind == "layer"][['gene_id', 'locus_id_strict']],
         on="gene_id",
         how="left",
     )
     core_tx2 = core_tx.merge(
-        gene_map[gene_map.db_kind == "core"]["locus_id_strict"].drop_duplicates().to_frame(),
-        left_on="gene_id",
-        right_index=False,
+        gene_map[gene_map.db_kind == "core"][['gene_id', 'locus_id_strict']],
+        on="gene_id",
         how="left",
-    )
-    core_tx2 = core_tx2.merge(
-        gene_map[gene_map.db_kind == "core"][["gene_id", "locus_id_strict"]], on="gene_id", how="left"
     )
 
     # Build an index of core transcripts per locus for fast lookup
     core_by_loc = {k: g for k, g in core_tx2.groupby("locus_id_strict")}
 
+    # Basic features
+    layer_tx2["biotype"] = layer_tx2["biotype"].fillna("unknown").astype(str)
     layer_tx2["tx_len_bp"] = (layer_tx2["seq_region_end"].astype(int) - layer_tx2["seq_region_start"].astype(int) + 1)
     has_tr = set(layer_tr["transcript_id"].astype(int).tolist()) if not layer_tr.empty else set()
     layer_tx2["has_cds"] = layer_tx2["transcript_id"].astype(int).isin(has_tr).astype(int)
@@ -64,8 +61,6 @@ def compute_retention_by_biotype(
             built_flags.extend([0] * len(grp))
             core_biotypes.extend([None] * len(grp))
             continue
-        # same-strand by locus; compute overlap against any core tx in this locus
-        # vectorized approach: for each layer tx row, check if any core overlap
         for _, r in grp.iterrows():
             ov = _interval_overlap(
                 pd.Series([int(r.seq_region_start)]*len(core_grp)),
@@ -75,12 +70,7 @@ def compute_retention_by_biotype(
             )
             is_built = bool(ov.any())
             built_flags.append(1 if is_built else 0)
-            if is_built:
-                # assign one overlapping core biotype (first)
-                cb = core_grp.loc[ov].iloc[0]["biotype"]
-                core_biotypes.append(cb)
-            else:
-                core_biotypes.append(None)
+            core_biotypes.append(core_grp.loc[ov].iloc[0]["biotype"] if is_built else None)
 
     layer_tx2["built"] = built_flags
     layer_tx2["core_biotype"] = core_biotypes
@@ -93,7 +83,6 @@ def compute_retention_by_biotype(
         built_pct = (nb / n) if n else 0.0
         left_cds_pct = (df.loc[df["built"] == 0, "has_cds"].mean() if nl else 0.0)
         med_len = float(df["tx_len_bp"].median()) if n else 0.0
-        # Tier info
         bt = str(df.name)
         tier, idx = b2t.get(bt, ("", 0))
         return pd.Series(
@@ -128,11 +117,10 @@ def compute_retention_by_biotype(
         .reset_index(name="n_pairs")
         .rename(columns={"biotype": "layer_biotype"})
     )
-    # add pct of layer biotype
     total_by_bt = layer_tx2.loc[layer_tx2["built"] == 1].groupby("biotype").size().to_dict()
     cw["pct_of_layer_biotype"] = cw.apply(lambda r: r["n_pairs"] / max(1, total_by_bt.get(r["layer_biotype"], 0)), axis=1)
 
-    # Also produce per-logic_name retention to aid diagnostics when biotype mapping is sparse
+    # Per-logic_name retention (useful when biotype mapping is sparse)
     def agg_ln(df: pd.DataFrame) -> pd.Series:
         n = len(df)
         nb = int(df["built"].sum())
@@ -143,6 +131,7 @@ def compute_retention_by_biotype(
             "n_built_tx": int(nb),
             "built_pct": float((nb / n) if n else 0.0),
         })
+
     by_logic = layer_tx2.groupby("logic_name").apply(agg_ln).reset_index(drop=True)
 
     return by_bt, by_tier, cw, by_logic

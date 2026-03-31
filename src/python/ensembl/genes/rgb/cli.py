@@ -370,7 +370,10 @@ def main(argv: Optional[list[str]] = None) -> int:
             if a.format == "parquet" and os.path.exists(path + ".parquet"):
                 return pd.read_parquet(path + ".parquet")
             sep = "\t" if a.format == "tsv" else ","
-            return pd.read_csv(path + f".{a.format}", sep=sep)
+            df = pd.read_csv(path + f".{a.format}", sep=sep, low_memory=False)
+            if "seq_region_name" in df.columns:
+                df["seq_region_name"] = df["seq_region_name"].astype("string")
+            return df
         gene_map = _load(os.path.join(loci_dir, "gene_to_locus"))
         core_tx = _load(os.path.join(extract_dir, "core_transcripts"))
         layer_tx = _load(os.path.join(extract_dir, "layer_transcripts"))
