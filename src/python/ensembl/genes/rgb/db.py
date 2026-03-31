@@ -40,16 +40,28 @@ def connect(params: DBParams):
 def list_seq_regions(
     conn, coord_system_name: Optional[str] = None, allowlist: Optional[Iterable[str]] = None
 ) -> List[str]:
-    sql = [
-        "SELECT sr.name AS name",
-        "FROM seq_region sr",
-    ]
+    sql: List[str] = []
     params: Tuple = ()
-    if coord_system_name:
-        sql.append("JOIN coord_system cs ON sr.coord_system_id = cs.coord_system_id")
-        sql.append("WHERE cs.name = %s")
-        params = (coord_system_name,)
-    sql.append("ORDER BY name")
+    if coord_system_name and coord_system_name.lower() == "toplevel":
+        sql = [
+            "SELECT sr.name AS name",
+            "FROM seq_region sr",
+            "JOIN seq_region_attrib sra ON sr.seq_region_id = sra.seq_region_id",
+            "JOIN attrib_type at ON sra.attrib_type_id = at.attrib_type_id",
+            "WHERE at.code = 'toplevel'",
+            "ORDER BY name",
+        ]
+    else:
+        sql = [
+            "SELECT sr.name AS name",
+            "FROM seq_region sr",
+        ]
+        if coord_system_name:
+            sql.append("JOIN coord_system cs ON sr.coord_system_id = cs.coord_system_id")
+            sql.append("WHERE cs.name = %s")
+            params = (coord_system_name,)
+        sql.append("ORDER BY name")
+
     with conn.cursor() as cur:
         cur.execute("\n".join(sql), params)
         rows = [r["name"] for r in cur.fetchall()]
@@ -57,6 +69,30 @@ def list_seq_regions(
         allow = set(allowlist)
         rows = [r for r in rows if r in allow]
     return rows
+
+
+def detect_coord_system(conn) -> Optional[str]:
+    with conn.cursor() as cur:
+        cur.execute("SELECT DISTINCT name FROM coord_system")
+        names = {r["name"] for r in cur.fetchall()}
+    # Preference order
+    for cand in ("chromosome", "scaffold", "contig"):
+        if cand in names:
+            return cand
+    return None
+
+
+def has_toplevel(conn) -> bool:
+    with conn.cursor() as cur:
+        cur.execute(
+            """
+            SELECT COUNT(*) AS n
+            FROM attrib_type at
+            WHERE at.code = 'toplevel'
+            """
+        )
+        row = cur.fetchone()
+        return bool(row and row.get("n", 0) > 0)
 
 
 def _gene_query(coord_system_name: Optional[str]) -> str:

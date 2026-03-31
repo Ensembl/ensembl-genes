@@ -19,6 +19,8 @@ from .io import append_tsv, write_df, write_manifest
 from .loci import build_loci
 from .utils import ensure_dir, make_run_id
 from .summary import summarize_loci, load_mapping
+from .layer_map import fetch_layer_static, parse_config_block, to_yaml
+from .report import compute_retention_by_biotype
 
 
 def _add_common_db_args(p: argparse.ArgumentParser) -> None:
@@ -28,7 +30,7 @@ def _add_common_db_args(p: argparse.ArgumentParser) -> None:
     p.add_argument("--password", default="")
     p.add_argument("--core_db", required=True)
     p.add_argument("--layer_db", required=True)
-    p.add_argument("--coord_system_name", default=None)
+    p.add_argument("--coord_system_name", default=None, help="coord_system.name (chromosome|scaffold), 'toplevel', or 'auto' (default)")
 
 
 def _add_common_out_args(p: argparse.ArgumentParser) -> None:
@@ -46,9 +48,28 @@ def cmd_extract(args: argparse.Namespace) -> int:
     layer_params = DBParams(args.host, args.port, args.user, args.password, args.layer_db)
 
     # Determine seq_regions to process
+    # Resolve coord_system selection
+    requested = (args.coord_system_name or "auto").lower()
+    resolved = None
+    resolved_layer = None
     with connect(core_params) as core_conn, connect(layer_params) as layer_conn:
-        core_regions = set(list_seq_regions(core_conn, args.coord_system_name))
-        layer_regions = set(list_seq_regions(layer_conn, args.coord_system_name))
+        from .db import detect_coord_system, has_toplevel
+        if requested in (None, "", "auto"):
+            cs = detect_coord_system(core_conn)
+            if cs:
+                resolved = cs
+            elif has_toplevel(core_conn):
+                resolved = "toplevel"
+            else:
+                resolved = None
+        elif requested == "toplevel":
+            resolved = "toplevel"
+        else:
+            resolved = requested
+
+        # List regions under the resolved mode
+        core_regions = set(list_seq_regions(core_conn, resolved))
+        layer_regions = set(list_seq_regions(layer_conn, resolved))
         seq_regions = sorted(core_regions.union(layer_regions))
 
     manifest = {
@@ -56,7 +77,8 @@ def cmd_extract(args: argparse.Namespace) -> int:
         "run_id": run_id,
         "core_db": args.core_db,
         "layer_db": args.layer_db,
-        "coord_system_name": args.coord_system_name,
+        "coord_system_requested": args.coord_system_name,
+        "coord_system_resolved": resolved,
         "seq_regions": seq_regions,
         "format": args.format,
     }
@@ -214,25 +236,62 @@ def cmd_export(args: argparse.Namespace) -> int:
         sep = "\t" if args.format == "tsv" else ","
         df = pd.read_csv(summ_path, sep=sep)
 
+    def annotate_counts(df_in: pd.DataFrame) -> pd.DataFrame:
+        # Load core genes to compute same/opp strand overlaps
+        extract_dir = os.path.join(out_root, "extract")
+        core_genes_path = os.path.join(extract_dir, f"core_genes.{args.format}")
+        if args.format == "parquet" and os.path.exists(core_genes_path):
+            cg = pd.read_parquet(core_genes_path)
+        else:
+            sep = "\t" if args.format == "tsv" else ","
+            cg = pd.read_csv(core_genes_path, sep=sep)
+        rows = []
+        for r in df_in.itertuples():
+            seq = str(r.seq_region_name)
+            s = int(r.locus_start) - args.bed_pad_bp
+            e = int(r.locus_end) + args.bed_pad_bp
+            strand = int(r.seq_region_strand)
+            sub = cg[cg.seq_region_name.astype(str) == seq]
+            same = sub[sub.seq_region_strand == strand]
+            opp = sub[sub.seq_region_strand == -strand]
+            same_n = int(((same.seq_region_start <= e) & (same.seq_region_end >= s)).sum())
+            opp_n = int(((opp.seq_region_start <= e) & (opp.seq_region_end >= s)).sum())
+            rows.append((same_n, opp_n, s, e))
+        out = df_in.copy()
+        out["same_strand_core"] = [r[0] for r in rows]
+        out["opp_strand_core"] = [r[1] for r in rows]
+        out["bed_start0"] = [max(0, r[2]-1) for r in rows]
+        out["bed_end0"] = [r[3] for r in rows]
+        return out
+
     def to_bed(df_in: pd.DataFrame, path: str) -> None:
         tmp = df_in.copy()
+        tmp = annotate_counts(tmp)
         tmp["chrom"] = tmp.seq_region_name
-        tmp["start0"] = (tmp.locus_start - args.bed_pad_bp - 1).clip(lower=0)
-        tmp["end0"] = tmp.locus_end + args.bed_pad_bp
         tmp["name"] = (
             "LOCUS:" + tmp.seq_region_name.astype(str)
             + ":" + tmp.seq_region_strand.astype(str)
             + ":" + tmp.locus_start.astype(int).astype(str)
             + ":" + tmp.locus_end.astype(int).astype(str)
+            + "|score:" + (tmp.get("no_core_score", 0.0).fillna(0.0)).map(lambda x: f"{x:.2f}")
+            + "|same:" + tmp.same_strand_core.astype(int).astype(str)
+            + "|opp:" + tmp.opp_strand_core.astype(int).astype(str)
         )
-        tmp["score"] = (tmp.get("no_core_score", 0.0) * 1000).astype(int).clip(lower=0, upper=1000)
+        tmp["score"] = (tmp.get("no_core_score", 0.0).fillna(0.0) * 1000).astype(int).clip(lower=0, upper=1000)
         tmp["strand"] = tmp.seq_region_strand.map({1: "+", -1: "-"}).fillna(".")
-        cols = ["chrom", "start0", "end0", "name", "score", "strand"]
+        cols = ["chrom", "bed_start0", "bed_end0", "name", "score", "strand"]
         tmp[cols].to_csv(path, sep="\t", header=False, index=False)
 
     # Evidence-rich no-core
     miss = df[(df.evidence_rich_no_core_flag == 1) & (df.no_core_score >= args.no_core_min_score)]
     miss = miss.sort_values(["no_core_score", "layer_span_bp"], ascending=[False, False]).head(args.top_n)
+    # Apply strand-based filtering if requested
+    if not miss.empty and args.strand_filter != "none":
+        miss_ann = annotate_counts(miss)
+        if args.strand_filter == "same_empty":
+            miss = miss_ann[miss_ann.same_strand_core == 0]
+        elif args.strand_filter == "both_empty":
+            miss = miss_ann[(miss_ann.same_strand_core == 0) & (miss_ann.opp_strand_core == 0)]
     to_bed(miss, os.path.join(review_dir, "missing_gene_highconf.bed"))
 
     # Underbuilt loci
@@ -276,8 +335,56 @@ def main(argv: Optional[list[str]] = None) -> int:
     p_exp.add_argument("--run_id", required=True)
     p_exp.add_argument("--no_core_min_score", type=float, default=0.6)
     p_exp.add_argument("--top_n", type=int, default=500)
-    p_exp.add_argument("--bed_pad_bp", type=int, default=2000)
+    p_exp.add_argument("--bed_pad_bp", type=int, default=0)
+    p_exp.add_argument("--strand_filter", choices=["none", "same_empty", "both_empty"], default="same_empty",
+                       help="Filter missing set by core presence on same/both strands")
     p_exp.set_defaults(func=cmd_export)
+
+    p_lmap = sub.add_parser("layer-map", help="Parse LayerAnnotationStatic.pm into a YAML mapping (biotype→tier)")
+    p_lmap.add_argument("--config_key", default="mammals_basic")
+    p_lmap.add_argument("--layer_static_url", default="https://raw.githubusercontent.com/Ensembl/ensembl-analysis/refs/heads/main/modules/Bio/EnsEMBL/Analysis/Hive/Config/LayerAnnotationStatic.pm")
+    p_lmap.add_argument("--out", required=True)
+    def _do_lmap(a):
+        text = fetch_layer_static(a.layer_static_url)
+        lm = parse_config_block(text, a.config_key)
+        mapping = lm.biotype_to_tier()
+        yaml_text = to_yaml(mapping)
+        with open(a.out, "w", encoding="utf-8") as fh:
+            fh.write(yaml_text)
+        print(f"[layer-map] wrote {len(mapping)} biotypes for '{a.config_key}' → {a.out}")
+        return 0
+    p_lmap.set_defaults(func=_do_lmap)
+
+    p_rep = sub.add_parser("report", help="Produce retention/loss matrices by layer biotype/tier and a biotype crosswalk")
+    _add_common_out_args(p_rep)
+    p_rep.add_argument("--run_id", required=True)
+    p_rep.add_argument("--layer_map", required=True, help="YAML from layer-map (biotype→tier)")
+    def _do_report(a):
+        out_root = os.path.join(a.output_dir, a.run_id)
+        extract_dir = os.path.join(out_root, "extract")
+        loci_dir = os.path.join(out_root, "loci")
+        rep_dir = os.path.join(out_root, "report")
+        ensure_dir(rep_dir)
+        # Load data
+        def _load(path):
+            if a.format == "parquet" and os.path.exists(path + ".parquet"):
+                return pd.read_parquet(path + ".parquet")
+            sep = "\t" if a.format == "tsv" else ","
+            return pd.read_csv(path + f".{a.format}", sep=sep)
+        gene_map = _load(os.path.join(loci_dir, "gene_to_locus"))
+        core_tx = _load(os.path.join(extract_dir, "core_transcripts"))
+        layer_tx = _load(os.path.join(extract_dir, "layer_transcripts"))
+        layer_tr = _load(os.path.join(extract_dir, "layer_translations"))
+        # Load layer map
+        m = load_mapping(a.layer_map)
+        by_bt, by_tier, cw, by_logic = compute_retention_by_biotype(gene_map, core_tx, layer_tx, layer_tr, m)
+        by_bt.to_csv(os.path.join(rep_dir, "source_retention_by_layer_biotype.tsv"), sep="\t", index=False)
+        by_tier.to_csv(os.path.join(rep_dir, "source_retention_by_tier.tsv"), sep="\t", index=False)
+        cw.to_csv(os.path.join(rep_dir, "biotype_crosswalk.tsv"), sep="\t", index=False)
+        by_logic.to_csv(os.path.join(rep_dir, "source_retention_by_logic_name.tsv"), sep="\t", index=False)
+        print(f"[report] wrote matrices → {rep_dir}")
+        return 0
+    p_rep.set_defaults(func=_do_report)
 
     args = p.parse_args(argv)
     return args.func(args)
