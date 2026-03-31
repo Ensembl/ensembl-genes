@@ -65,6 +65,7 @@ live_tracking = "ensembl.genes.tracking.live_tracking:main"
 check_for_transcriptomic = "ensembl.genes.transcriptomic_data.check_for_transcriptomic:main"
 get_transcriptomic_data = "ensembl.genes.transcriptomic_data.get_transcriptomic_data:main"
 select_transcriptomic_data = "ensembl.genes.transcriptomic_data.select_transcriptomic_data:main"
+rgb = "ensembl.genes.rgb.cli:main"
 
 
 [build-system]
@@ -80,6 +81,13 @@ where = ["src/python"]
 
 [tool.setuptools]
 package-dir = {"" = "src/python"}
+include-package-data = true
+
+[tool.setuptools.package-data]
+"ensembl.genes.rgb" = [
+    "docs/*.md",
+    "examples/*.yaml",
+]
 
 [tool.mypy]
 ignore_missing_imports = true
