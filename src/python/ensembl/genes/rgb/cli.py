@@ -21,6 +21,7 @@ from .utils import ensure_dir, make_run_id
 from .summary import summarize_loci, load_mapping
 from .layer_map import fetch_layer_static, parse_config_block, to_yaml
 from .report import compute_retention_by_biotype
+from .compete import analyze_competition
 
 
 def _add_common_db_args(p: argparse.ArgumentParser) -> None:
@@ -388,6 +389,37 @@ def main(argv: Optional[list[str]] = None) -> int:
         print(f"[report] wrote matrices → {rep_dir}")
         return 0
     p_rep.set_defaults(func=_do_report)
+
+    p_comp = sub.add_parser("compete", help="Per-locus competitive evidence analysis (which tiers win; why no build)")
+    _add_common_out_args(p_comp)
+    p_comp.add_argument("--run_id", required=True)
+    p_comp.add_argument("--layer_map", required=True, help="YAML from layer-map (biotype→tier)")
+    def _do_compete(a):
+        out_root = os.path.join(a.output_dir, a.run_id)
+        extract_dir = os.path.join(out_root, "extract")
+        loci_dir = os.path.join(out_root, "loci")
+        comp_dir = os.path.join(out_root, "compete")
+        ensure_dir(comp_dir)
+        def _load(path):
+            if a.format == "parquet" and os.path.exists(path + ".parquet"):
+                return pd.read_parquet(path + ".parquet")
+            sep = "\t" if a.format == "tsv" else ","
+            df = pd.read_csv(path + f".{a.format}", sep=sep, low_memory=False)
+            if "seq_region_name" in df.columns:
+                df["seq_region_name"] = df["seq_region_name"].astype("string")
+            return df
+        loci = _load(os.path.join(loci_dir, "loci.strict"))
+        mapping = _load(os.path.join(loci_dir, "gene_to_locus"))
+        core_tx = _load(os.path.join(extract_dir, "core_transcripts"))
+        layer_tx = _load(os.path.join(extract_dir, "layer_transcripts"))
+        layer_tr = _load(os.path.join(extract_dir, "layer_translations"))
+        b2t = load_mapping(a.layer_map)
+        per_locus, agg = analyze_competition(loci, mapping, core_tx, layer_tx, layer_tr, b2t)
+        per_locus.to_csv(os.path.join(comp_dir, "per_locus_competition.tsv"), sep="\t", index=False)
+        agg.to_csv(os.path.join(comp_dir, "competitive_summary.tsv"), sep="\t", index=False)
+        print(f"[compete] wrote per_locus_competition.tsv and competitive_summary.tsv → {comp_dir}")
+        return 0
+    p_comp.set_defaults(func=_do_compete)
 
     args = p.parse_args(argv)
     return args.func(args)

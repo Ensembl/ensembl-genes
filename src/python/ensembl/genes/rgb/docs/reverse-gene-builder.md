@@ -50,7 +50,8 @@ This document specifies a locus‑centric, genome‑wide audit that accounts for
 - `rgb loci --output_dir /abs/out --locus_gap_bp 5000 --run_id <from-extract>`
 - `rgb summarize --output_dir /abs/out --run_id <from-extract> --evidence_class_map /abs/map.yaml`
  - `rgb layer-map --config_key mammals_basic --out /abs/out/<run_id>/layer_map.yaml`
- - `rgb report --output_dir /abs/out --run_id <from-extract> --layer_map /abs/out/<run_id>/layer_map.yaml`
+- `rgb report --output_dir /abs/out --run_id <from-extract> --layer_map /abs/out/<run_id>/layer_map.yaml`
+ - `rgb compete --output_dir /abs/out --run_id <from-extract> --layer_map /abs/out/<run_id>/layer_map.yaml`
  - `rgb export --output_dir /abs/out --run_id <from-extract> --no_core_min_score 0.6 --top_n 500`
 
 ## Acceptance (Phase 1–2)
@@ -58,7 +59,8 @@ This document specifies a locus‑centric, genome‑wide audit that accounts for
 - Human‑scale genome finishes ≤ 2h and ≤ 16 GB RAM (guideline; depends on DB and network).
 - Loci counts and simple sanity checks logged per seq_region.
  - Locus summary contains presence, span, compression, coverage, diversity metrics, and coarse diagnostic flags.
- - Report includes per-layer-biotype/tier retention matrices and crosswalks.
+- Report includes per-layer-biotype/tier retention matrices and crosswalks.
+ - Compete includes per-locus winning tier/logic_name and no-build categorization.
 
 ## Risks and mitigations
 - Logic name inflation: require mapping file in later phases; log top unmapped sources.
