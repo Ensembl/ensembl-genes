@@ -114,7 +114,12 @@ def get_ena_metadata(accession: str, truth_dict: Dict[str, Any]) -> Dict[str, st
     for attrib_set in assembly_attribs:
         # assembly date
         if attrib_set.get("TAG") == "ENA-LAST-UPDATED":
-            return_dict["assembly.date"] = attrib_set.get("VALUE", "")
+            raw_date = attrib_set.get("VALUE", "")
+            # normalise from YYYY-MM-DD to YYYY-MM (or leave shorter strings as-is)
+            if len(raw_date) >= 7:
+                return_dict["assembly.date"] = raw_date[:7]
+            else:
+                return_dict["assembly.date"] = raw_date
 
     # organism metadata: sample id
     if "organism.biosample_id" not in truth_dict:
@@ -720,7 +725,8 @@ if __name__ == "__main__":
         if meta_key not in core_dict:
             if truth_dict[meta_key]:
                 print(
-                    f"INSERT IGNORE INTO meta (species_id, meta_key, meta_value) VALUES({species_id}, '{meta_key}', '{meta_value}');",
+                    f"INSERT IGNORE INTO meta (species_id, meta_key, meta_value) "
+                    f"VALUES({species_id}, '{meta_key}', '{meta_value}');",
                     file=sql_out,
                 )
         elif truth_dict[meta_key] != core_dict[meta_key] and truth_dict[meta_key] != "":
