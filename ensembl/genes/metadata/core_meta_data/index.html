@@ -23,7 +23,7 @@
       
       
       <link rel="icon" href="../../../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.5">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
     
     
       
@@ -4472,12 +4472,7 @@
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/python/ensembl/genes/metadata/core_meta_data.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">197</span>
-<span class="normal">198</span>
-<span class="normal">199</span>
-<span class="normal">200</span>
-<span class="normal">201</span>
-<span class="normal">202</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">202</span>
 <span class="normal">203</span>
 <span class="normal">204</span>
 <span class="normal">205</span>
@@ -4527,7 +4522,12 @@
 <span class="normal">249</span>
 <span class="normal">250</span>
 <span class="normal">251</span>
-<span class="normal">252</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_biosample_metadata</span><span class="p">(</span>
+<span class="normal">252</span>
+<span class="normal">253</span>
+<span class="normal">254</span>
+<span class="normal">255</span>
+<span class="normal">256</span>
+<span class="normal">257</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_biosample_metadata</span><span class="p">(</span>
     <span class="n">biosample_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">assembly_accession</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">assembly_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">scientific_name</span><span class="p">:</span> <span class="nb">str</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Fetch assembly metadata from EBI BioSample API.</span>
@@ -4750,7 +4750,12 @@
 <span class="normal">149</span>
 <span class="normal">150</span>
 <span class="normal">151</span>
-<span class="normal">152</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_ena_metadata</span><span class="p">(</span><span class="n">accession</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">truth_dict</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+<span class="normal">152</span>
+<span class="normal">153</span>
+<span class="normal">154</span>
+<span class="normal">155</span>
+<span class="normal">156</span>
+<span class="normal">157</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_ena_metadata</span><span class="p">(</span><span class="n">accession</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">truth_dict</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Fetch assembly metadata from ENA XML API.</span>
 
 <span class="sd">    Args:</span>
@@ -4790,7 +4795,12 @@
     <span class="k">for</span> <span class="n">attrib_set</span> <span class="ow">in</span> <span class="n">assembly_attribs</span><span class="p">:</span>
         <span class="c1"># assembly date</span>
         <span class="k">if</span> <span class="n">attrib_set</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;TAG&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;ENA-LAST-UPDATED&quot;</span><span class="p">:</span>
-            <span class="n">return_dict</span><span class="p">[</span><span class="s2">&quot;assembly.date&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">attrib_set</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;VALUE&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+            <span class="n">raw_date</span> <span class="o">=</span> <span class="n">attrib_set</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;VALUE&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+            <span class="c1"># normalise from YYYY-MM-DD to YYYY-MM (or leave shorter strings as-is)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">raw_date</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">7</span><span class="p">:</span>
+                <span class="n">return_dict</span><span class="p">[</span><span class="s2">&quot;assembly.date&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">raw_date</span><span class="p">[:</span><span class="mi">7</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">return_dict</span><span class="p">[</span><span class="s2">&quot;assembly.date&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">raw_date</span>
 
     <span class="c1"># organism metadata: sample id</span>
     <span class="k">if</span> <span class="s2">&quot;organism.biosample_id&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">truth_dict</span><span class="p">:</span>
@@ -4950,12 +4960,7 @@
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/python/ensembl/genes/metadata/core_meta_data.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">155</span>
-<span class="normal">156</span>
-<span class="normal">157</span>
-<span class="normal">158</span>
-<span class="normal">159</span>
-<span class="normal">160</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">160</span>
 <span class="normal">161</span>
 <span class="normal">162</span>
 <span class="normal">163</span>
@@ -4989,7 +4994,12 @@
 <span class="normal">191</span>
 <span class="normal">192</span>
 <span class="normal">193</span>
-<span class="normal">194</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_ncbi_metadata</span><span class="p">(</span>
+<span class="normal">194</span>
+<span class="normal">195</span>
+<span class="normal">196</span>
+<span class="normal">197</span>
+<span class="normal">198</span>
+<span class="normal">199</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_ncbi_metadata</span><span class="p">(</span>
     <span class="n">accession</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">assembly_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">scientific_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">search</span><span class="p">:</span> <span class="nb">str</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Fetch assembly metadata from NCBI assembly report.</span>
