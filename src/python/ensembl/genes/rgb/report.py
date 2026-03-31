@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Dict, Tuple
+from typing import Dict, Tuple, Optional
 
 import pandas as pd
 
@@ -14,7 +14,11 @@ def compute_retention_by_biotype(
     core_tx: pd.DataFrame,
     layer_tx: pd.DataFrame,
     layer_tr: pd.DataFrame,
-    biotype_to_tier: Dict[str, Dict[str, object]] | Dict[str, Tuple[str, int]]
+    biotype_to_tier: Dict[str, Dict[str, object]] | Dict[str, Tuple[str, int]],
+    *,
+    representation: str = "intron_subset",
+    core_exons: Optional[pd.DataFrame] = None,
+    layer_exons: Optional[pd.DataFrame] = None,
 ) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """Return (retention_by_biotype, retention_by_tier, crosswalk, by_logic) dataframes.
 
@@ -53,6 +57,46 @@ def compute_retention_by_biotype(
     has_tr = set(layer_tr["transcript_id"].astype(int).tolist()) if not layer_tr.empty else set()
     layer_tx2["has_cds"] = layer_tx2["transcript_id"].astype(int).isin(has_tr).astype(int)
 
+    # Optionally build intron/exon helpers
+    core_introns = {}
+    layer_introns = {}
+    core_exon_lists = {}
+    layer_exon_lists = {}
+    if representation == "intron_subset" and core_exons is not None and layer_exons is not None:
+        def build_introns(df: pd.DataFrame) -> Dict[int, frozenset]:
+            intr = {}
+            for tid, g in df.sort_values(["transcript_id","exon_rank"]).groupby("transcript_id"):
+                g = g.sort_values("exon_rank")
+                starts = g["exon_start"].astype(int).to_list()
+                ends = g["exon_end"].astype(int).to_list()
+                pairs = []
+                for i in range(len(starts)-1):
+                    # intron spans between exons; store as (prev_end, next_start)
+                    pairs.append((ends[i], starts[i+1]))
+                intr[tid] = frozenset(pairs)
+            return intr
+        def build_exon_lists(df: pd.DataFrame) -> Dict[int, list]:
+            ex = {}
+            for tid, g in df.groupby("transcript_id"):
+                ex[tid] = list(zip(g["exon_start"].astype(int), g["exon_end"].astype(int)))
+            return ex
+        core_introns = build_introns(core_exons)
+        layer_introns = build_introns(layer_exons)
+        core_exon_lists = build_exon_lists(core_exons)
+        layer_exon_lists = build_exon_lists(layer_exons)
+
+    def exon_overlap_fraction(single_exon: Tuple[int,int], exons: list[Tuple[int,int]]) -> float:
+        s, e = single_exon
+        L = e - s + 1
+        if L <= 0:
+            return 0.0
+        cov = 0
+        for (xs, xe) in exons:
+            a = max(s, xs); b = min(e, xe)
+            if a <= b:
+                cov += (b - a + 1)
+        return cov / L
+
     built_flags = []
     core_biotypes = []
     for loc_id, grp in layer_tx2.groupby("locus_id_strict"):
@@ -62,16 +106,40 @@ def compute_retention_by_biotype(
             core_biotypes.extend([None] * len(grp))
             continue
         for _, r in grp.iterrows():
-            start = int(r.seq_region_start)
-            end = int(r.seq_region_end)
-            ov = (
-                core_grp["seq_region_start"].astype(int) <= end
-            ) & (
-                core_grp["seq_region_end"].astype(int) >= start
-            )
-            is_built = bool(ov.any())
-            built_flags.append(1 if is_built else 0)
-            core_biotypes.append(core_grp.loc[ov].iloc[0]["biotype"] if is_built else None)
+            if representation == "intron_subset" and core_introns and layer_introns:
+                lid = int(r.transcript_id)
+                lintr = layer_introns.get(lid, frozenset())
+                # subset check for multi-exon; fallback for single-exon
+                is_built = False
+                cb = None
+                if len(lintr) >= 1:
+                    # check any core transcript in locus has a superset of introns
+                    for _, cr in core_grp.iterrows():
+                        cintr = core_introns.get(int(cr.transcript_id), frozenset())
+                        if lintr.issubset(cintr):
+                            is_built = True
+                            cb = cr["biotype"]
+                            break
+                else:
+                    # single-exon: if any core transcript’s exon union covers >=80% of layer exon
+                    l_exons = layer_exon_lists.get(lid, [])
+                    if l_exons:
+                        se = l_exons[0]
+                        for _, cr in core_grp.iterrows():
+                            c_exons = core_exon_lists.get(int(cr.transcript_id), [])
+                            if exon_overlap_fraction(se, c_exons) >= 0.8:
+                                is_built = True
+                                cb = cr["biotype"]
+                                break
+                built_flags.append(1 if is_built else 0)
+                core_biotypes.append(cb)
+            else:
+                # overlap mode (previous behavior)
+                start = int(r.seq_region_start); end = int(r.seq_region_end)
+                ov = (core_grp["seq_region_start"].astype(int) <= end) & (core_grp["seq_region_end"].astype(int) >= start)
+                is_built = bool(ov.any())
+                built_flags.append(1 if is_built else 0)
+                core_biotypes.append(core_grp.loc[ov].iloc[0]["biotype"] if is_built else None)
 
     layer_tx2["built"] = built_flags
     layer_tx2["core_biotype"] = core_biotypes

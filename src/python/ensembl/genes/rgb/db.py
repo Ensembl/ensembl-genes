@@ -247,3 +247,64 @@ def extract_all_translations(conn) -> pd.DataFrame:
             ]
         )
     return pd.DataFrame(rows)
+
+
+def _exon_chain_query(coord_system_name: Optional[str]) -> str:
+    where_cs = (
+        "JOIN coord_system cs ON sr.coord_system_id = cs.coord_system_id AND cs.name = %s"
+        if coord_system_name
+        else ""
+    )
+    return f'''
+SELECT
+  t.transcript_id,
+  sr.name AS seq_region_name,
+  t.seq_region_strand AS seq_region_strand,
+  et.rank AS exon_rank,
+  e.seq_region_start AS exon_start,
+  e.seq_region_end AS exon_end
+FROM exon_transcript et
+JOIN exon e ON et.exon_id = e.exon_id
+JOIN transcript t ON et.transcript_id = t.transcript_id
+JOIN seq_region sr ON t.seq_region_id = sr.seq_region_id
+{where_cs}
+WHERE sr.name = %s
+ORDER BY t.transcript_id, et.rank;
+'''
+
+
+def fetch_exon_chain_for_region(
+    conn, seq_region_name: str, coord_system_name: Optional[str]
+) -> pd.DataFrame:
+    sql = _exon_chain_query(coord_system_name)
+    params = (coord_system_name, seq_region_name) if coord_system_name else (seq_region_name,)
+    with conn.cursor() as cur:
+        cur.execute(sql, params)
+        rows = cur.fetchall()
+    if not rows:
+        return pd.DataFrame(
+            columns=[
+                "transcript_id",
+                "seq_region_name",
+                "seq_region_strand",
+                "exon_rank",
+                "exon_start",
+                "exon_end",
+            ]
+        )
+    return pd.DataFrame(rows)
+
+
+def extract_all_exon_chains(
+    conn,
+    seq_regions: Iterable[str],
+    coord_system_name: Optional[str],
+) -> pd.DataFrame:
+    dfs = []
+    for sr in seq_regions:
+        df = fetch_exon_chain_for_region(conn, sr, coord_system_name)
+        if not df.empty:
+            dfs.append(df)
+    if not dfs:
+        return pd.DataFrame()
+    return pd.concat(dfs, ignore_index=True)

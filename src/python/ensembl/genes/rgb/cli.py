@@ -13,6 +13,7 @@ from .db import (
     extract_all_genes,
     extract_all_transcripts,
     extract_all_translations,
+    extract_all_exon_chains,
     list_seq_regions,
 )
 from .io import append_tsv, write_df, write_manifest
@@ -87,13 +88,15 @@ def cmd_extract(args: argparse.Namespace) -> int:
 
     # Extract genes in one go per DB (region‑chunked within helper)
     with connect(core_params) as core_conn:
-        core_genes = extract_all_genes(core_conn, seq_regions, args.coord_system_name)
-        core_tx = extract_all_transcripts(core_conn, seq_regions, args.coord_system_name)
+        core_genes = extract_all_genes(core_conn, seq_regions, resolved)
+        core_tx = extract_all_transcripts(core_conn, seq_regions, resolved)
         core_tr = extract_all_translations(core_conn)
+        core_ex = extract_all_exon_chains(core_conn, seq_regions, resolved)
     with connect(layer_params) as layer_conn:
-        layer_genes = extract_all_genes(layer_conn, seq_regions, args.coord_system_name)
-        layer_tx = extract_all_transcripts(layer_conn, seq_regions, args.coord_system_name)
+        layer_genes = extract_all_genes(layer_conn, seq_regions, resolved)
+        layer_tx = extract_all_transcripts(layer_conn, seq_regions, resolved)
         layer_tr = extract_all_translations(layer_conn)
+        layer_ex = extract_all_exon_chains(layer_conn, seq_regions, resolved)
 
     # Write outputs
     core_path = os.path.join(out_dir, f"core_genes.{args.format}")
@@ -102,6 +105,8 @@ def cmd_extract(args: argparse.Namespace) -> int:
     layer_tx_path = os.path.join(out_dir, f"layer_transcripts.{args.format}")
     core_tr_path = os.path.join(out_dir, f"core_translations.{args.format}")
     layer_tr_path = os.path.join(out_dir, f"layer_translations.{args.format}")
+    core_ex_path = os.path.join(out_dir, f"core_exons.{args.format}")
+    layer_ex_path = os.path.join(out_dir, f"layer_exons.{args.format}")
 
     write_df(core_genes, core_path, fmt=args.format)
     write_df(layer_genes, layer_path, fmt=args.format)
@@ -109,6 +114,8 @@ def cmd_extract(args: argparse.Namespace) -> int:
     write_df(layer_tx, layer_tx_path, fmt=args.format)
     write_df(core_tr, core_tr_path, fmt=args.format)
     write_df(layer_tr, layer_tr_path, fmt=args.format)
+    write_df(core_ex, core_ex_path, fmt=args.format)
+    write_df(layer_ex, layer_ex_path, fmt=args.format)
 
     print(f"[extract] wrote {len(core_genes)} core genes → {core_path}")
     print(f"[extract] wrote {len(layer_genes)} layer genes → {layer_path}")
@@ -116,6 +123,8 @@ def cmd_extract(args: argparse.Namespace) -> int:
     print(f"[extract] wrote {len(layer_tx)} layer transcripts → {layer_tx_path}")
     print(f"[extract] wrote {len(core_tr)} core translations → {core_tr_path}")
     print(f"[extract] wrote {len(layer_tr)} layer translations → {layer_tr_path}")
+    print(f"[extract] wrote {len(core_ex)} core exons → {core_ex_path}")
+    print(f"[extract] wrote {len(layer_ex)} layer exons → {layer_ex_path}")
     print(f"[extract] run_id={run_id}")
     return 0
 
@@ -360,6 +369,8 @@ def main(argv: Optional[list[str]] = None) -> int:
     _add_common_out_args(p_rep)
     p_rep.add_argument("--run_id", required=True)
     p_rep.add_argument("--layer_map", required=True, help="YAML from layer-map (biotype→tier)")
+    p_rep.add_argument("--representation", choices=["overlap","intron_subset"], default="intron_subset",
+                       help="Representation criterion: overlap (looser) or intron_subset (stricter, recommended)")
     def _do_report(a):
         out_root = os.path.join(a.output_dir, a.run_id)
         extract_dir = os.path.join(out_root, "extract")
@@ -379,9 +390,15 @@ def main(argv: Optional[list[str]] = None) -> int:
         core_tx = _load(os.path.join(extract_dir, "core_transcripts"))
         layer_tx = _load(os.path.join(extract_dir, "layer_transcripts"))
         layer_tr = _load(os.path.join(extract_dir, "layer_translations"))
+        core_ex = _load(os.path.join(extract_dir, "core_exons")) if a.representation == "intron_subset" else None
+        layer_ex = _load(os.path.join(extract_dir, "layer_exons")) if a.representation == "intron_subset" else None
         # Load layer map
         m = load_mapping(a.layer_map)
-        by_bt, by_tier, cw, by_logic = compute_retention_by_biotype(gene_map, core_tx, layer_tx, layer_tr, m)
+        by_bt, by_tier, cw, by_logic = compute_retention_by_biotype(
+            gene_map, core_tx, layer_tx, layer_tr, m,
+            representation=a.representation,
+            core_exons=core_ex, layer_exons=layer_ex,
+        )
         by_bt.to_csv(os.path.join(rep_dir, "source_retention_by_layer_biotype.tsv"), sep="\t", index=False)
         by_tier.to_csv(os.path.join(rep_dir, "source_retention_by_tier.tsv"), sep="\t", index=False)
         cw.to_csv(os.path.join(rep_dir, "biotype_crosswalk.tsv"), sep="\t", index=False)
