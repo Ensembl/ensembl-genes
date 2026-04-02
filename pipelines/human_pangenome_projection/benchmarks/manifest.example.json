@@ -1,0 +1,39 @@
+{
+  "cases": [
+    {
+      "name": "long_genes",
+      "report_json": "long_genes/stats.json",
+      "thresholds": {
+        "gene_mapping_rate": 0.98,
+        "splice_site_validation_rate": 0.98,
+        "start_codon_validation_rate": 0.98,
+        "stop_codon_validation_rate": 0.98
+      }
+    },
+    {
+      "name": "ig_tr_short_genes",
+      "report_json": "ig_tr/stats.json",
+      "thresholds": {
+        "gene_mapping_rate": 0.95,
+        "transcript_mapping_rate": 0.95,
+        "protein_qc_ok_rate": 0.90
+      }
+    },
+    {
+      "name": "segmental_duplications",
+      "report_json": "segmental_duplications/stats.json",
+      "thresholds": {
+        "gene_mapping_rate": 0.96,
+        "splice_site_validation_rate": 0.95
+      }
+    },
+    {
+      "name": "sex_chrom_scenarios",
+      "report_json": "sex_chromosomes/stats.json",
+      "thresholds": {
+        "gene_mapping_rate": 0.97,
+        "transcript_mapping_rate": 0.97
+      }
+    }
+  ]
+}

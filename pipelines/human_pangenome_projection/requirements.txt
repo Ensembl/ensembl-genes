@@ -1,0 +1,23 @@
+# Core dependencies
+pysam>=0.22.0           # FASTA indexing and reading
+biopython>=1.82         # Sequence handling and translation
+edlib>=1.3.9            # Fast edit-distance fallback for internal realignment rescue
+
+# CLI and utilities
+click>=8.1.0            # Command-line interface
+tqdm>=4.66.0            # Progress bars
+rich>=13.7.0            # Rich console output
+
+# Data processing
+pandas>=2.1.0           # Statistics and data manipulation
+numpy>=1.26.0           # Numerical operations
+
+# Testing
+pytest>=7.4.0           # Unit testing
+pytest-cov>=4.1.0       # Coverage reporting
+
+# Optional: for benchmarking
+# liftoff>=1.6.3        # For comparison benchmarks
+
+# Networking
+requests>=2.31.0
