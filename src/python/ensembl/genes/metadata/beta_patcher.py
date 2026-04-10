@@ -18,6 +18,7 @@ Usage:
 
 # pylint: disable=logging-fstring-interpolation, unspecified-encoding, broad-exception-caught, unused-variable, too-many-lines, too-many-locals
 import argparse
+import os
 import csv
 import logging
 import os
@@ -59,7 +60,7 @@ def setup_logging(output_dir: Path, genome_uuid: str) -> logging.Logger:
     return logging.getLogger(__name__)
 
 
-def get_genome_adaptor() -> Optional[GenomeAdaptor]:
+def get_genome_adaptor() -> Optional["GenomeAdaptor"]:
     """
     Create a GenomeAdaptor instance using environment variables.
 
@@ -91,6 +92,42 @@ def get_genome_adaptor() -> Optional[GenomeAdaptor]:
         return None
 
 
+def _get_metadata_connection():
+    """Return an object exposing ``connect()`` for metadata DB access.
+
+    Preference order:
+    1) ensembl-metadata-api adaptor (unless BETA_PATCHER_FORCE_DIRECT=1)
+    2) Direct SQLAlchemy engine from METADATA_URI
+    Returns None if neither is available.
+    """
+    # Forced direct connection (avoid ORM mismatches like genebuild_version)
+    if os.getenv("BETA_PATCHER_FORCE_DIRECT") == "1":
+        uri = os.getenv("METADATA_URI")
+        if not uri:
+            return None
+        try:
+            return create_engine(uri)
+        except Exception as e:
+            logging.error(f"Failed to create engine from METADATA_URI: {e}")
+            return None
+
+    # Try API adaptor first when available
+    if METADATA_API_AVAILABLE:
+        adaptor = get_genome_adaptor()
+        if adaptor and getattr(adaptor, "metadata_db", None):
+            return adaptor.metadata_db
+
+    # Fallback to direct engine via env
+    uri = os.getenv("METADATA_URI")
+    if not uri:
+        return None
+    try:
+        return create_engine(uri)
+    except Exception as e:
+        logging.error(f"Failed to create engine from METADATA_URI: {e}")
+        return None
+
+
 def get_genome_by_uuid(genome_uuid: str) -> Optional[Dict]:
     """
     Fetch genome details by UUID using ensembl-metadata-api.
@@ -101,15 +138,15 @@ def get_genome_by_uuid(genome_uuid: str) -> Optional[Dict]:
     Returns:
         Dict containing genome information or None if not found
     """
-    adaptor = get_genome_adaptor()
-    if not adaptor:
+    conn_provider = _get_metadata_connection()
+    if not conn_provider:
         return None
 
     try:
         query = text(
             "SELECT genome_uuid, production_name FROM genome WHERE genome_uuid = :genome_uuid"
         )
-        with adaptor.metadata_db.connect() as conn:
+        with conn_provider.connect() as conn:
             row = conn.execute(query, {"genome_uuid": genome_uuid}).fetchone()
         if row:
             return {
@@ -135,8 +172,8 @@ def get_team_responsible_for_genome(
     Returns:
         Team responsible string or None if not found
     """
-    adaptor = get_genome_adaptor()
-    if not adaptor:
+    conn_provider = _get_metadata_connection()
+    if not conn_provider:
         return None
 
     try:
@@ -154,7 +191,7 @@ def get_team_responsible_for_genome(
         """
         )
 
-        with adaptor.metadata_db.connect() as conn:
+        with conn_provider.connect() as conn:
             result = conn.execute(
                 query, {"genome_uuid": genome_uuid, "dataset_type": dataset_type}
             )
@@ -186,8 +223,8 @@ def get_affected_genomes_and_teams(
     if table_location not in ["organism", "assembly"]:
         return []
 
-    adaptor = get_genome_adaptor()
-    if not adaptor:
+    conn_provider = _get_metadata_connection()
+    if not conn_provider:
         return []
 
     try:
@@ -213,7 +250,7 @@ def get_affected_genomes_and_teams(
             )
 
         affected_genomes = []
-        with adaptor.metadata_db.connect() as conn:
+        with conn_provider.connect() as conn:
             result = conn.execute(query, {"genome_uuid": genome_uuid})
             for row in result:
                 uuid, prod_name = row
@@ -249,12 +286,12 @@ def get_current_metadata_value(
         None            — DB value is NULL
         str             — current DB value
     """
-    adaptor = get_genome_adaptor()
-    if not adaptor:
+    conn_provider = _get_metadata_connection()
+    if not conn_provider:
         return _VALUE_UNKNOWN
 
     try:
-        with adaptor.metadata_db.connect() as conn:
+        with conn_provider.connect() as conn:
             if table_location == "dataset_attribute":
                 row = conn.execute(
                     text(
@@ -523,8 +560,8 @@ def get_existing_dataset_attribute_ids(
     Returns:
         List of dataset_attribute_id integers (one per genome_dataset entry), or []
     """
-    adaptor = get_genome_adaptor()
-    if not adaptor:
+    conn_provider = _get_metadata_connection()
+    if not conn_provider:
         return []
 
     try:
@@ -542,7 +579,7 @@ def get_existing_dataset_attribute_ids(
         """
         )
 
-        with adaptor.metadata_db.connect() as conn:
+        with conn_provider.connect() as conn:
             result = conn.execute(
                 query,
                 {
@@ -895,21 +932,24 @@ def resolve_genome_info(
     row_num = patch["row_num"]
     genome_uuid = patch["genome_uuid"]
 
+    offline = os.getenv("BETA_PATCHER_OFFLINE", "0") == "1"
     logger.info(
         f"Row {row_num}: Fetching production_name for genome_uuid: {genome_uuid}"
     )
-    genome_info = get_genome_by_uuid(genome_uuid)
+    production_name: Optional[str] = None
+    if not offline:
+        genome_info = get_genome_by_uuid(genome_uuid)
+        if not genome_info:
+            # Allow offline-style fallback even if API/URIs are misconfigured
+            logger.warning(
+                f"Row {row_num}: Could not fetch genome information for UUID: {genome_uuid}; "
+                "continuing in offline mode (metadata-only)."
+            )
+        else:
+            production_name = genome_info["production_name"]
+            logger.info(f"Row {row_num}: Found production_name: {production_name}")
 
-    if not genome_info:
-        logger.error(
-            f"Row {row_num}: Could not fetch genome information for UUID: {genome_uuid}"
-        )
-        return None
-
-    production_name = genome_info["production_name"]
-    logger.info(f"Row {row_num}: Found production_name: {production_name}")
-
-    if server_uris:
+    if production_name and server_uris:
         match = find_core_db(production_name, server_uris)
         if match:
             core_server, core_db_name = match
@@ -921,11 +961,12 @@ def resolve_genome_info(
             core_server, core_db_name = None, None
     else:
         core_server = None
-        core_db_name = f"{production_name}{patch['core_suffix']}"
+        # Only build core DB name when production_name is known
+        core_db_name = f"{production_name}{patch['core_suffix']}" if production_name else None
 
     return {
         "genome_uuid": genome_uuid,
-        "production_name": production_name,
+        "production_name": production_name or f"UNKNOWN_{genome_uuid[:8]}",
         "core_server": core_server,
         "core_db_name": core_db_name,
     }
@@ -1202,6 +1243,11 @@ See patches_template.csv for a complete example.
     )
 
     args = parser.parse_args()
+
+    # Offline mode: skip API/DB lookups and core discovery
+    # Usage: export BETA_PATCHER_OFFLINE=1 (or set via env before running)
+    if os.getenv("BETA_PATCHER_OFFLINE") == "1":
+        logging.getLogger(__name__).warning("Offline mode enabled: skipping metadata API lookups and core discovery")
 
     # Validate CSV file exists
     if not args.csv_file.exists():
