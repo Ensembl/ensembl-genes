@@ -199,15 +199,20 @@ class YamlRenderer:
             
         doc["accession"] = meta.accession
         
-        doc["annotation_gtf"] = self._build_ftp_url(meta, "geneset", "genes.gtf.gz")
-        doc["annotation_gff3"] = self._build_ftp_url(meta, "geneset", "genes.gff3.gz")
-        doc["proteins"] = self._build_ftp_url(meta, "geneset", "pep.fa.gz")
-        doc["transcripts"] = self._build_ftp_url(meta, "geneset", "cdna.fa.gz")
-        doc["softmasked_genome"] = self._build_ftp_url(meta, "genome", "softmasked.fa.gz")
-        doc["ftp_dumps"] = f"https://ftp.ebi.ac.uk/pub/ensemblorganisms/{meta.species_name}/{meta.accession}/"
+        ftp_species_name = meta.species_name.capitalize().replace(" ", "_")
+        
+        doc["annotation_gtf"] = self._build_ftp_url(meta, "geneset", "genes.gtf.gz", ftp_species_name)
+        doc["annotation_gff3"] = self._build_ftp_url(meta, "geneset", "genes.gff3.gz", ftp_species_name)
+        doc["proteins"] = self._build_ftp_url(meta, "geneset", "pep.fa.gz", ftp_species_name)
+        doc["transcripts"] = self._build_ftp_url(meta, "geneset", "cdna.fa.gz", ftp_species_name)
+        doc["softmasked_genome"] = self._build_ftp_url(meta, "genome", "softmasked.fa.gz", ftp_species_name)
+        doc["ftp_dumps"] = f"https://ftp.ebi.ac.uk/pub/ensemblorganisms/{ftp_species_name}/{meta.accession}/"
         
         if self.config.allow_beta_urls:
             doc["beta_link"] = f"https://beta.ensembl.org/species/{meta.genome_uuid}"
+            
+        if meta.alternate_of:
+            doc["alternate"] = meta.alternate_of
             
         return {k: v for k, v in doc.items() if v is not None}
 

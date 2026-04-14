@@ -1,24 +1,21 @@
-- assembly: HG01891.alt.pat.f1_v2
-  parent_of_origin: paternal
-  assembly_accession: GCA_018467165.1
-  assembly_link: https://www.ebi.ac.uk/ena/browser/view/GCA_018467165.1
-  assembly_submitter: UCSC Genomics Institute
-  annotation_gtf: https://ftp.ebi.ac.uk/pub/ensemblorganisms/Homo_sapiens/GCA_018467165.1/ensembl/geneset/2022_07/genes.gtf.gz
-  annotation_gff3: https://ftp.ebi.ac.uk/pub/ensemblorganisms/Homo_sapiens/GCA_018467165.1/ensembl/geneset/2022_07/genes.gff3.gz
-  proteins: https://ftp.ebi.ac.uk/pub/ensemblorganisms/Homo_sapiens/GCA_018467165.1/ensembl/geneset/2022_07/pep.fa.gz
-  transcripts: https://ftp.ebi.ac.uk/pub/ensemblorganisms/Homo_sapiens/GCA_018467165.1/ensembl/geneset/2022_07/cdna.fa.gz
-  variants_vep: https://ftp.ebi.ac.uk/pub/ensemblorganisms/Homo_sapiens/GCA_018467165.1/vep/ensembl/geneset/
-  ftp_dumps: https://ftp.ebi.ac.uk/pub/ensemblorganisms/Homo_sapiens/GCA_018467165.1/
-  beta_link: https://beta.ensembl.org/species/ef299a72-e235-4c94-b0b7-e3ff0630fbec
+- species: Mus musculus
+  strain: CBA/J
+  accession: GCA_001624475.1
+  annotation_gtf: https://ftp.ebi.ac.uk/pub/ensemblorganisms/Mus_musculus/GCA_001624475.1/ensembl/geneset/2018_01/genes.gtf.gz
+  annotation_gff3: https://ftp.ebi.ac.uk/pub/ensemblorganisms/Mus_musculus/GCA_001624475.1/ensembl/geneset/2018_01/genes.gff3.gz
+  proteins: https://ftp.ebi.ac.uk/pub/ensemblorganisms/Mus_musculus/GCA_001624475.1/ensembl/geneset/2018_01/pep.fa.gz
+  transcripts: https://ftp.ebi.ac.uk/pub/ensemblorganisms/Mus_musculus/GCA_001624475.1/ensembl/geneset/2018_01/cdna.fa.gz
+  softmasked_genome: https://ftp.ebi.ac.uk/pub/ensemblorganisms/Mus_musculus/GCA_001624475.1/ensembl/genome/2018_01/softmasked.fa.gz
+  ftp_dumps: https://ftp.ebi.ac.uk/pub/ensemblorganisms/Mus_musculus/GCA_001624475.1/
+  beta_link: https://beta.ensembl.org/species/2afef36f-3660-4b8c-819b-d1e5a77c9918
 
-- assembly: T2T-CHM13v2.0
-  assembly_accession: GCA_009914755.4
-  assembly_link: https://www.ebi.ac.uk/ena/browser/view/GCA_009914755.4
-  assembly_submitter: T2T Consortium
-  annotation_gtf: https://ftp.ebi.ac.uk/pub/ensemblorganisms/Homo_sapiens/GCA_009914755.4/ensembl/geneset/2022_07/genes.gtf.gz
-  annotation_gff3: https://ftp.ebi.ac.uk/pub/ensemblorganisms/Homo_sapiens/GCA_009914755.4/ensembl/geneset/2022_07/genes.gff3.gz
-  proteins: https://ftp.ebi.ac.uk/pub/ensemblorganisms/Homo_sapiens/GCA_009914755.4/ensembl/geneset/2022_07/pep.fa.gz
-  transcripts: https://ftp.ebi.ac.uk/pub/ensemblorganisms/Homo_sapiens/GCA_009914755.4/ensembl/geneset/2022_07/cdna.fa.gz
-  variants_vep: https://ftp.ebi.ac.uk/pub/ensemblorganisms/Homo_sapiens/GCA_009914755.4/vep/ensembl/geneset/
-  ftp_dumps: https://ftp.ebi.ac.uk/pub/ensemblorganisms/Homo_sapiens/GCA_009914755.4/
-  beta_link: https://beta.ensembl.org/species/4c07817b-c7c5-463f-8624-982286bc4355
+- species: Mus musculus
+  strain: NOD/ShiLtJ
+  accession: GCA_001624675.1
+  annotation_gtf: https://ftp.ebi.ac.uk/pub/ensemblorganisms/Mus_musculus/GCA_001624675.1/ensembl/geneset/2018_01/genes.gtf.gz
+  annotation_gff3: https://ftp.ebi.ac.uk/pub/ensemblorganisms/Mus_musculus/GCA_001624675.1/ensembl/geneset/2018_01/genes.gff3.gz
+  proteins: https://ftp.ebi.ac.uk/pub/ensemblorganisms/Mus_musculus/GCA_001624675.1/ensembl/geneset/2018_01/pep.fa.gz
+  transcripts: https://ftp.ebi.ac.uk/pub/ensemblorganisms/Mus_musculus/GCA_001624675.1/ensembl/geneset/2018_01/cdna.fa.gz
+  softmasked_genome: https://ftp.ebi.ac.uk/pub/ensemblorganisms/Mus_musculus/GCA_001624675.1/ensembl/genome/2018_01/softmasked.fa.gz
+  ftp_dumps: https://ftp.ebi.ac.uk/pub/ensemblorganisms/Mus_musculus/GCA_001624675.1/
+  beta_link: https://beta.ensembl.org/species/d5d87e18-bcb2-4ef7-94c8-782fb45c17da

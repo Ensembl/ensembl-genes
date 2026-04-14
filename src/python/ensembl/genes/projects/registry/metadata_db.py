@@ -83,7 +83,7 @@ class MetadataDbClient:
         alternate_url = None
         if row.get('strain'):
             alt_query = """
-                SELECT organism.url_name
+                SELECT genome.url_name
                 FROM genome
                 JOIN organism ON genome.organism_id = organism.organism_id
                 JOIN assembly ON genome.assembly_id = assembly.assembly_id
