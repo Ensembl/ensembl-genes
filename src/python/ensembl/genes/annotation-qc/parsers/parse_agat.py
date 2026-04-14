@@ -1,23 +1,27 @@
 """
 Select and rename AGAT metrics to Ensembl Genebuild stat names.
 
-Reads a CSV of AGAT-format metrics, filters to the subset of metrics that
-have a known Genebuild equivalent, renames them, and writes the result to a
-new CSV file.
+Reads an AGAT stats *text* file, parses it to a table of metrics,
+computes derived metrics, maps them to Genebuild stat names using a JSON
+config, and writes the result to a CSV.
 
 Usage:
-    python select_and_rename_metrics.py --input <input.csv> --output <output.csv>
+    python parse_agat.py \
+        --input_txt <agat_stats.txt> \
+        [--mapping_json <value_map.json>] \
+        --output <genebuild_stats.csv>
 """
 
 import argparse
-import pandas as pd
+import csv
+import json
+import re
 from pathlib import Path
+import pandas as pd
 
 
 def safe_agg(df: pd.DataFrame, columns: list[str], method: str = "sum") -> pd.Series:
-    """
-    Aggregate only the columns that exist in the DataFrame.
-    """
+    """Aggregate only the columns that exist in the DataFrame."""
     existing = [c for c in columns if c in df.columns]
 
     if not existing:
@@ -45,24 +49,74 @@ def safe_col(df: pd.DataFrame, col: str) -> pd.Series:
     return pd.Series(0, index=df.index)
 
 
-def select_and_rename_metrics(input_csv: Path, output_csv: Path) -> None:
-    """Filter and rename AGAT metric rows to their Genebuild equivalents.
-
-    Reads a CSV whose rows each represent a single metric (with at least a
-    ``metric`` column containing the AGAT metric name), drops any rows whose
-    metric name is not present in the hard-coded mapping, renames the
-    remaining metrics to their corresponding Genebuild stat names, and writes
-    the resulting DataFrame to *output_csv*.
-
-    Args:
-        input_csv: Path to the input CSV file containing AGAT metric data.
-        output_csv: Path where the filtered and renamed CSV will be written.
-
-    Returns:
-        None.  Results are written directly to *output_csv*.
+def parse_agat_txt_to_df(stats_file: Path) -> pd.DataFrame:
     """
+    Parse an AGAT statistics text report into a DataFrame with columns
+    ['metric', 'value'].
+    """
+    rows: list[tuple[str, str]] = []
+    current_section: str | None = None
+    minus_isoform = False
 
-    original = pd.read_csv(input_csv)
+    section_pattern = re.compile(r"-+\s*(.+?)\s*-+")
+    value_pattern = re.compile(r"(.+?)\s+([0-9.]+)$")
+
+    with stats_file.open() as f:
+        for line in f:
+            line = line.strip()
+
+            if not line:
+                continue
+
+            # Detect isoform message
+            if "shortest isoforms excluded" in line.lower():
+                minus_isoform = True
+                continue
+
+            # Detect section header
+            section_match = section_pattern.match(line)
+            if section_match:
+                current_section = section_match.group(1).strip()
+                minus_isoform = False
+                continue
+
+            match = value_pattern.match(line)
+            if match:
+                metric = match.group(1).strip()
+                value = match.group(2)
+
+                if current_section:
+                    metric = f"{current_section}_{metric}"
+
+                metric = metric.replace(" ", "_").lower()
+
+                if minus_isoform:
+                    metric = f"{metric}_minus_shortest_isoform"
+
+                rows.append((metric, value))
+
+    df = pd.DataFrame(rows, columns=["metric", "value"])
+    return df
+
+
+def select_and_rename_metrics(
+    input_txt: Path, mapping_json: Path | None, output_csv: Path
+) -> None:
+    """
+    Parse AGAT text, compute derived metrics, and map to Genebuild equivalents.
+
+    If mapping_json is None, load 'value_map.json' from the same folder
+    as this script.
+    """
+    # 0. Resolve mapping path
+    if mapping_json is None:
+        script_dir = Path(__file__).resolve().parent
+        mapping_json = script_dir / "value_map.json"
+
+    # 1. Parse txt -> DataFrame of metrics
+    original = parse_agat_txt_to_df(input_txt)
+
+    # 2. Pivot to one-row-wide DataFrame with metrics as columns
     df = original.set_index("metric").T
 
     # metrics to keep and their new names
@@ -145,7 +199,6 @@ def select_and_rename_metrics(input_csv: Path, output_csv: Path) -> None:
         "pseudogenic_transcript_total_exon_length_(bp)" in df.columns
         and "pseudogenic_transcript_number_of_pseudogenic_transcript" in df.columns
     ):
-
         df["ps_average_sequence_length"] = (
             df["pseudogenic_transcript_total_exon_length_(bp)"]
             / df["pseudogenic_transcript_number_of_pseudogenic_transcript"]
@@ -165,100 +218,21 @@ def select_and_rename_metrics(input_csv: Path, output_csv: Path) -> None:
 
     df["transcripts_per_gene"] = df["total_transcripts"] / df["total_genes"]
 
-    new_map = {
-        # coding
-        "genebuild.stats.coding_genes": "mrna_number_of_gene",
-        "genebuild.stats.coding_transcripts": "mrna_number_of_mrna",
-        "genebuild.stats.coding_transcripts_per_gene": "mrna_mean_mrnas_per_gene",
-        "genebuild.stats.total_coding_exons": "mrna_number_of_exon_in_cds",
-        "genebuild.stats.total_transcript_exons": "mrna_number_of_exon",
-        "genebuild.stats.total_coding_introns": "mrna_number_of_intron_in_exon",
-        "genebuild.stats.longest_coding_gene_length": "mrna_longest_gene_(bp)",
-        "genebuild.stats.shortest_coding_gene_length": "mrna_shortest_gene_(bp)",
-        "genebuild.stats.total_transcripts": "total_transcripts",
-        # coding averages
-        "genebuild.stats.average_cds_length": "mrna_mean_cds_length_(bp)",
-        "genebuild.stats.average_coding_exons_per_coding_tr": "mrna_mean_exons_per_cds",
-        "genebuild.stats.average_coding_exons_per_transcrip": "mrna_mean_exons_per_mrna",
-        "genebuild.stats.average_coding_exon_length": "mrna_mean_cds_piece_length_(bp)",
-        "genebuild.stats.average_exon_length": "mrna_mean_transcipt_exon_length_(bp)",
-        "genebuild.stats.average_coding_genomic_span": "mrna_mean_gene_length_(bp)",
-        "genebuild.stats.average_coding_intron_length": "mrna_mean_intron_in_exon_length_(bp)",
-        "genebuild.stats.average_coding_sequence_length": "average_coding_sequence_length",
-        "genebuild.stats.transcripts_per_gene": "transcripts_per_gene",
-        # coding new
-        "genebuild.stats.single_exon_coding_genes": "mrna_number_of_single_exon_gene",
-        "genebuild.stats.single_exon_coding_transcripts": "mrna_number_of_single_exon_mrna",
-        "genebuild.stats.coding_transcripts_with_both_utrs": "mrna_number_of_mrnas_with_utr_both_sides",
-        "genebuild.stats.coding_transcripts_with_utr": "mrna_number_of_mrnas_with_at_least_one_utr",
-        "genebuild.stats.average_cds_intron_length": "mrna_mean_intron_in_cds_length_(bp)",
-        "genebuild.stats.longest_transcript_length": "mrna_longest_mrna_(bp)",
-        "genebuild.stats.longest_cds_length": "mrna_longest_cds_(bp)",
-        "genebuild.stats.average_five_prime_utr_length": "mrna_mean_five_prime_utr_length_(bp)",
-        "genebuild.stats.average_three_prime_utr_length": "mrna_mean_three_prime_utr_length_(bp)",
-        # non coding
-        "genebuild.stats.nc_long_non_coding_genes": "lnc_rna_number_of_ncrna_gene",
-        "genebuild.stats.nc_misc_non_coding_genes": "ncrna_number_of_ncrna_gene",
-        "genebuild.stats.nc_small_non_coding_genes": "nc_small_non_coding_genes",
-        "genebuild.stats.nc_total_transcripts": "nc_total_transcripts",
-        "genebuild.stats.nc_total_exons": "nc_total_exons",
-        "genebuild.stats.nc_total_introns": "nc_total_introns",
-        "genebuild.stats.nc_transcripts_per_gene": "nc_transcripts_per_gene",
-        "genebuild.stats.nc_non_coding_genes": "nc_non_coding_genes",
-        "genebuild.stats.nc_longest_gene_length": "lnc_rna_longest_ncrna_gene_(bp)",
-        "genebuild.stats.nc_shortest_gene_length": "nc_shortest_gene_length",
-        # non coding averages
-        "genebuild.stats.nc_average_exons_per_transcript": "nc_average_exons_per_transcript",
-        "genebuild.stats.nc_average_exon_length": "nc_average_exon_length",
-        "genebuild.stats.nc_average_intron_length": "nc_average_intron_length",
-        "genebuild.stats.nc_average_sequence_length": "nc_average_sequence_length",
-        # non coding new
-        "genebuild.stats.nc_single_exon_long_non_coding_genes": "lnc_rna_number_of_single_exon_ncrna_gene",
-        "genebuild.stats.nc_mirna_genes": "mirna_number_of_ncrna_gene",
-        "genebuild.stats.nc_unclassified_genes": "ncrna_number_of_ncrna_gene",
-        "genebuild.stats.nc_rrna_genes": "rrna_number_of_ncrna_gene",
-        "genebuild.stats.nc_scrna_genes": "scrna_number_of_ncrna_gene",
-        "genebuild.stats.nc_snorna_genes": "snorna_number_of_ncrna_gene",
-        "genebuild.stats.nc_snrna_genes": "snrna_number_of_ncrna_gene",
-        "genebuild.stats.nc_trna_genes": "trna_number_of_ncrna_gene",
-        "genebuild.stats.nc_y_rna_genes": "y_rna_number_of_ncrna_gene",
-        # pseudogenes
-        "genebuild.stats.ps_pseudogenes": "pseudogenic_transcript_number_of_pseudogene",
-        "genebuild.stats.ps_total_transcripts": "pseudogenic_transcript_number_of_pseudogenic_transcript",
-        "genebuild.stats.ps_total_exons": "pseudogenic_transcript_number_of_exon",
-        "genebuild.stats.ps_total_introns": "pseudogenic_transcript_number_of_intron_in_exon",
-        "genebuild.stats.ps_transcripts_per_gene": "pseudogenic_transcript_mean_pseudogenic_transcripts_per_pseudogene",
-        "genebuild.stats.ps_longest_gene_length": "pseudogenic_transcript_longest_pseudogene_(bp)",
-        "genebuild.stats.ps_shortest_gene_length": "pseudogenic_transcript_shortest_pseudogene_(bp)",
-        # pseudogenes averages
-        "genebuild.stats.ps_average_exons_per_transcript": "pseudogenic_transcript_mean_exons_per_pseudogenic_transcript",
-        "genebuild.stats.ps_average_exon_length": "pseudogenic_transcript_mean_exon_length_(bp)",
-        "genebuild.stats.ps_average_genomic_span": "pseudogenic_transcript_mean_pseudogene_length_(bp)",
-        "genebuild.stats.ps_average_intron_length": "pseudogenic_transcript_mean_intron_in_exon_length_(bp)",
-        "genebuild.stats.ps_average_sequence_length": "ps_average_sequence_length",
-        # overlapping
-        "genebuild.stats.long_non_coding_genes_overlapping_nc": "lnc_rna_number_ncrna_gene_overlapping",
-        "genebuild.stats.mirna_genes_overlapping_nc": "mirna_number_ncrna_gene_overlapping",
-        "genebuild.stats.overlapping_coding_genes": "mrna_number_gene_overlapping",
-        "genebuild.stats.nc_overlapping_nc": "ncrna_number_ncrna_gene_overlapping",
-        "genebuild.stats.ps_overlapping_ps": "pseudogenic_transcript_number_pseudogene_overlapping",
-        "genebuild.stats.rrna_overlapping_rrna": "rrna_number_ncrna_gene_overlapping",
-        "genebuild.stats.small_non_coding_overlapping_nc": "scrna_number_ncrna_gene_overlapping",
-        "genebuild.stats.snorna_overlapping_nc": "snorna_number_ncrna_gene_overlapping",
-        "genebuild.stats.snrna_overlapping_nc": "snrna_number_ncrna_gene_overlapping",
-        "genebuild.stats.trna_overlapping_nc": "trna_number_ncrna_gene_overlapping",
-        "genebuild.stats.yrna_overlapping_nc": "y_rna_number_ncrna_gene_overlapping",
-    }
+    # 3. Load mapping from JSON (genebuild -> AGAT metric)
+    with Path(mapping_json).open() as fh:
+        new_map: dict[str, str] = json.load(fh)
 
+    # 4. Apply mapping
     df_final = df.T.reset_index()
     df_final.columns = ["metric", "value"]
 
+    # We need AGAT -> Genebuild for filtering & renaming
     agat_to_genebuild = {v: k for k, v in new_map.items()}
 
     df_final = df_final[df_final["metric"].isin(agat_to_genebuild.keys())].copy()
     df_final["metric"] = df_final["metric"].map(agat_to_genebuild)
 
-    # Convert numeric columns
+    # 5. Convert numeric columns
     def format_value(x):
         x = round(float(x), 2)
         if x.is_integer():
@@ -271,15 +245,30 @@ def select_and_rename_metrics(input_csv: Path, output_csv: Path) -> None:
 
 
 def main() -> None:
-    """Parse command-line arguments and run the metric selection/renaming step."""
+    """Parse command-line arguments and run the parsing/mapping step."""
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("--input", required=True, help="Input CSV")
+    parser.add_argument(
+        "--input_txt",
+        required=True,
+        help="AGAT stats text file (output of agat_sp_statistics.pl)",
+    )
+    parser.add_argument(
+        "--mapping_json",
+        help="JSON mapping {genebuild.stat: agat_metric_name} "
+        "(defaults to value_map.json in this folder)",
+    )
     parser.add_argument("--output", required=True, help="Output CSV")
 
     args = parser.parse_args()
 
-    select_and_rename_metrics(Path(args.input), Path(args.output))
+    mapping_path = Path(args.mapping_json) if args.mapping_json else None
+
+    select_and_rename_metrics(
+        Path(args.input_txt),
+        mapping_path,
+        Path(args.output),
+    )
 
 
 if __name__ == "__main__":
