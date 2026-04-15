@@ -20,6 +20,11 @@ from pathlib import Path
 import pandas as pd
 
 
+def numeric_series(series: pd.Series) -> pd.Series:
+    """Coerce a Series to numeric values, using 0 for non-numeric entries."""
+    return pd.to_numeric(series, errors="coerce").fillna(0)
+
+
 def safe_agg(df: pd.DataFrame, columns: list[str], method: str = "sum") -> pd.Series:
     """Aggregate only the columns that exist in the DataFrame."""
     existing = [c for c in columns if c in df.columns]
@@ -30,14 +35,16 @@ def safe_agg(df: pd.DataFrame, columns: list[str], method: str = "sum") -> pd.Se
         else:
             return pd.Series(float("nan"), index=df.index)
 
+    numeric_df = df[existing].apply(pd.to_numeric, errors="coerce")
+
     if method == "sum":
-        return df[existing].sum(axis=1)
+        return numeric_df.sum(axis=1)
     elif method == "mean":
-        return df[existing].mean(axis=1)
+        return numeric_df.mean(axis=1)
     elif method == "min":
-        return df[existing].min(axis=1)
+        return numeric_df.min(axis=1)
     elif method == "max":
-        return df[existing].max(axis=1)
+        return numeric_df.max(axis=1)
     else:
         raise ValueError(f"Unsupported aggregation method: {method}")
 
@@ -45,7 +52,7 @@ def safe_agg(df: pd.DataFrame, columns: list[str], method: str = "sum") -> pd.Se
 def safe_col(df: pd.DataFrame, col: str) -> pd.Series:
     """Return column if present, otherwise a Series of zeros aligned to df."""
     if col in df.columns:
-        return df[col]
+        return numeric_series(df[col])
     return pd.Series(0, index=df.index)
 
 
@@ -199,10 +206,9 @@ def select_and_rename_metrics(
         "pseudogenic_transcript_total_exon_length_(bp)" in df.columns
         and "pseudogenic_transcript_number_of_pseudogenic_transcript" in df.columns
     ):
-        df["ps_average_sequence_length"] = (
-            df["pseudogenic_transcript_total_exon_length_(bp)"]
-            / df["pseudogenic_transcript_number_of_pseudogenic_transcript"]
-        )
+        df["ps_average_sequence_length"] = safe_col(
+            df, "pseudogenic_transcript_total_exon_length_(bp)"
+        ) / safe_col(df, "pseudogenic_transcript_number_of_pseudogenic_transcript")
 
     df["total_transcripts"] = (
         safe_col(df, "mrna_number_of_mrna")
