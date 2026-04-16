@@ -67,6 +67,7 @@ def main():
         
     yaml_docs: List[dict] = []
     failed = []
+    emitted_accessions = set()
     
     for identifier in identifiers:
         if "-" in identifier and len(identifier) == 36:
@@ -96,10 +97,28 @@ def main():
         doc = renderer.render(meta)
         if doc:
             yaml_docs.append(doc)
+            emitted_accessions.add(meta.accession)
         else:
             # Exclude and warn
             logger.warning(f"Excluding {identifier}: Neither released nor fallback pre-release data found on FTP.")
             failed.append(identifier)
+            
+    # GB Registry Discovery Pass
+    gb_candidates = gb_client.fetch_project_pre_releases(config)
+    discovered_count = 0
+    for meta in gb_candidates:
+        if meta.accession in emitted_accessions:
+            continue
+            
+        patch_ncbi_data(meta, config)
+        doc = renderer.render(meta)
+        if doc:
+            yaml_docs.append(doc)
+            emitted_accessions.add(meta.accession)
+            discovered_count += 1
+            logger.info(f"Discovered and appended GB-only pre-release: {meta.accession}")
+        else:
+            logger.debug(f"Discovered GB-only pre-release {meta.accession} skipped: required FTP files missing.")
             
     # Write output
     yaml_docs.sort(key=lambda x: x.get('species', x.get('assembly', '')))
