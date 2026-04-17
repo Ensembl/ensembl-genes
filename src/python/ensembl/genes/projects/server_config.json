@@ -34,6 +34,7 @@
       "db_host": "mysql-ens-genebuild-prod-1.ebi.ac.uk",
       "db_port": 4527,
       "db_user": "ensro",
-      "db_pass": ""
+      "db_pass": "",
+      "db_name": "gb_assembly_metadata"
    }
 }
