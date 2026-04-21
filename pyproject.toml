@@ -65,6 +65,7 @@ live_tracking = "ensembl.genes.tracking.live_tracking:main"
 check_for_transcriptomic = "ensembl.genes.transcriptomic_data.check_for_transcriptomic:main"
 get_transcriptomic_data = "ensembl.genes.transcriptomic_data.get_transcriptomic_data:main"
 select_transcriptomic_data = "ensembl.genes.transcriptomic_data.select_transcriptomic_data:main"
+parse_agat = "ensembl.genes.annotation-qc.parsers.parse_agat:main"
 
 
 [build-system]
