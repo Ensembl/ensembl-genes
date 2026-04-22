@@ -34,6 +34,7 @@ class GenomeMetadata:
     population: Optional[str] = None    # used by HPRC
     
     # Annotation properties
+    annotation_source: Optional[str] = None
     annotation_method: Optional[str] = None
     annotation_date: Optional[str] = None
     

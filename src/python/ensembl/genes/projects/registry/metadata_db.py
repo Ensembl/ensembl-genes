@@ -40,6 +40,7 @@ class MetadataDbClient:
                 organism.taxonomy_id,
                 assembly.name AS assembly_name,
                 MAX(CASE WHEN attribute.name = 'genebuild.method_display' THEN dataset_attribute.value END) AS annotation_method,
+                MAX(CASE WHEN attribute.name = 'genebuild.annotation_source' THEN dataset_attribute.value END) AS annotation_source,
                 MAX(CASE WHEN attribute.name = 'genebuild.last_geneset_update' THEN dataset_attribute.value END) AS geneset_date,
                 MAX(CASE WHEN attribute.name = 'genebuild.busco' THEN dataset_attribute.value END) AS busco_score,
                 MAX(CASE WHEN attribute.name = 'genebuild.busco_dataset' THEN dataset_attribute.value END) AS busco_lineage
@@ -51,7 +52,7 @@ class MetadataDbClient:
             JOIN dataset_source ON dataset.dataset_source_id = dataset_source.dataset_source_id
             LEFT JOIN dataset_attribute ON dataset.dataset_id = dataset_attribute.dataset_id
             LEFT JOIN attribute ON dataset_attribute.attribute_id = attribute.attribute_id 
-                AND attribute.name IN ('genebuild.method_display', 'genebuild.last_geneset_update', 'genebuild.busco', 'genebuild.busco_dataset')
+                AND attribute.name IN ('genebuild.method_display', 'genebuild.annotation_source', 'genebuild.last_geneset_update', 'genebuild.busco', 'genebuild.busco_dataset')
             WHERE dataset.name = 'genebuild'
               AND {where_clause}
             GROUP BY genome.genome_uuid, dataset_source.name, assembly.accession, organism.scientific_name, organism.strain, organism.taxonomy_id, assembly.name
@@ -114,6 +115,7 @@ class MetadataDbClient:
             strain=row['strain'],
             taxon_id=row['taxonomy_id'],
             alternate_of=alternate_url,
+            annotation_source=row.get('annotation_source'),
             annotation_method=row.get('annotation_method'),
             annotation_date=row.get('geneset_date'),
             busco_score=row.get('busco_score'),

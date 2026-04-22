@@ -111,6 +111,12 @@ class YamlRenderer:
             # Pre-release logic
             fb_gtf = self.ftp_client.check_pre_release_file(ftp_species_name, meta.accession, ".gtf.gz") if self.ftp_client else ""
             if not fb_gtf:
+                attempted_rel = self._build_ftp_url(meta, "geneset", "genes.gtf.gz", ftp_species_name)
+                logger.warning(
+                    f"Excluding {meta.accession}: No valid FTP targets found.\n"
+                    f"Tried released:\n- {attempted_rel}\n"
+                    f"Tried pre-release:\n- .../pre-release/{ftp_species_name}/{meta.accession}/*"
+                )
                 return {} # Suppress entirely if neither exists!
                 
             doc["annotation_gtf"] = fb_gtf
@@ -223,7 +229,7 @@ class YamlRenderer:
             date = date.replace("-", "_")
         if not date:
             date = "unknown_date"
-        source = "ensembl"
+        source = (meta.annotation_source or "ensembl").lower().strip()
         return f"https://ftp.ebi.ac.uk/pub/ensemblorganisms/{ftp_species_name}/{meta.accession}/{source}/{category}/{date}/{file_suffix}"
         
     def _build_rapid_ftp_url(self, meta: GenomeMetadata, resource_type: str) -> str:
