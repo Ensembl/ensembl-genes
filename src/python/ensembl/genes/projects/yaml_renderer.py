@@ -58,6 +58,25 @@ class YamlRenderer:
             logger.warning(f"Failed to fetch taxonomy for {taxon_id}: {e}")
         return []
 
+    def _get_ftp_species_variants(self, species_name: str) -> list[str]:
+        import re
+        base = species_name.capitalize().replace(" ", "_")
+        variants = [base]
+
+        v2 = base.replace(".", "")
+        if v2 not in variants:
+            variants.append(v2)
+
+        v3 = base.replace(".", "_")
+        if v3 not in variants:
+            variants.append(v3)
+
+        v4 = re.sub(r'_+', '_', v3)
+        if v4 not in variants:
+            variants.append(v4)
+
+        return variants
+
     def _render_standard(self, meta: GenomeMetadata) -> Dict[str, Any]:
         """Renders Schema A: Standard Projects (VGP, DToL, ERGA)"""
         doc: Dict[str, Any] = {}
@@ -82,16 +101,27 @@ class YamlRenderer:
         doc["accession"] = meta.accession
         doc["annotation_method"] = meta.annotation_method or "BRAKER2"
         
-        ftp_species_name = meta.species_name.capitalize().replace(" ", "_")
+        ftp_species_name_base = meta.species_name.capitalize().replace(" ", "_")
+        ftp_species_name = ftp_species_name_base
+        variants = self._get_ftp_species_variants(meta.species_name)
         
         # Determine tracking paths and test fallbacks (Fix 1 and 2)
         target_Released = meta.is_released
         
         # If released, we build normal FTPs. If they 404, we degrade to pre_release if possible
         if target_Released:
-            released_gtf = self._build_ftp_url(meta, "geneset", "genes.gtf.gz", ftp_species_name)
-            if not check_url_status(released_gtf):
-                # Degrade to Pre-release
+            resolved_rel_variant = None
+            for variant in variants:
+                released_gtf = self._build_ftp_url(meta, "geneset", "genes.gtf.gz", variant)
+                if check_url_status(released_gtf):
+                    resolved_rel_variant = variant
+                    break
+            
+            if resolved_rel_variant:
+                ftp_species_name = resolved_rel_variant
+                if resolved_rel_variant != ftp_species_name_base:
+                    logger.info(f"Resolved FTP species name via fallback:\n{ftp_species_name_base} -> {resolved_rel_variant}")
+            else:
                 target_Released = False
                 
         # If still released (or not degraded)
@@ -109,15 +139,27 @@ class YamlRenderer:
                     doc["annotation_gff3"] = uncompressed_gff
         else:
             # Pre-release logic
-            fb_gtf = self.ftp_client.check_pre_release_file(ftp_species_name, meta.accession, ".gtf.gz") if self.ftp_client else ""
+            fb_gtf = ""
+            resolved_pre_variant = None
+            if self.ftp_client:
+                for variant in variants:
+                    fb_gtf = self.ftp_client.check_pre_release_file(variant, meta.accession, ".gtf.gz")
+                    if fb_gtf:
+                        resolved_pre_variant = variant
+                        break
+            
             if not fb_gtf:
-                attempted_rel = self._build_ftp_url(meta, "geneset", "genes.gtf.gz", ftp_species_name)
+                attempted_rel = self._build_ftp_url(meta, "geneset", "genes.gtf.gz", ftp_species_name_base)
                 logger.warning(
                     f"Excluding {meta.accession}: No valid FTP targets found.\n"
                     f"Tried released:\n- {attempted_rel}\n"
-                    f"Tried pre-release:\n- .../pre-release/{ftp_species_name}/{meta.accession}/*"
+                    f"Tried pre-release:\n- .../pre-release/{ftp_species_name_base}/{meta.accession}/*"
                 )
                 return {} # Suppress entirely if neither exists!
+                
+            ftp_species_name = resolved_pre_variant
+            if resolved_pre_variant != ftp_species_name_base:
+                logger.info(f"Resolved FTP species name via fallback:\n{ftp_species_name_base} -> {resolved_pre_variant}")
                 
             doc["annotation_gtf"] = fb_gtf
             
@@ -179,7 +221,21 @@ class YamlRenderer:
         if meta.assembly_submitter:
             doc["assembly_submitter"] = meta.assembly_submitter
             
-        ftp_species_name = meta.species_name.capitalize().replace(" ", "_")
+        ftp_species_name_base = meta.species_name.capitalize().replace(" ", "_")
+        ftp_species_name = ftp_species_name_base
+        variants = self._get_ftp_species_variants(meta.species_name)
+        
+        resolved_variant = None
+        for variant in variants:
+            test_url = self._build_ftp_url(meta, "geneset", "genes.gtf.gz", variant)
+            if check_url_status(test_url):
+                resolved_variant = variant
+                break
+                
+        if resolved_variant:
+            ftp_species_name = resolved_variant
+            if resolved_variant != ftp_species_name_base:
+                logger.info(f"Resolved FTP species name via fallback:\n{ftp_species_name_base} -> {resolved_variant}")
         
         doc["annotation_gtf"] = self._build_ftp_url(meta, "geneset", "genes.gtf.gz", ftp_species_name)
         doc["annotation_gff3"] = self._build_ftp_url(meta, "geneset", "genes.gff3.gz", ftp_species_name)
@@ -205,7 +261,21 @@ class YamlRenderer:
             
         doc["accession"] = meta.accession
         
-        ftp_species_name = meta.species_name.capitalize().replace(" ", "_")
+        ftp_species_name_base = meta.species_name.capitalize().replace(" ", "_")
+        ftp_species_name = ftp_species_name_base
+        variants = self._get_ftp_species_variants(meta.species_name)
+        
+        resolved_variant = None
+        for variant in variants:
+            test_url = self._build_ftp_url(meta, "geneset", "genes.gtf.gz", variant)
+            if check_url_status(test_url):
+                resolved_variant = variant
+                break
+                
+        if resolved_variant:
+            ftp_species_name = resolved_variant
+            if resolved_variant != ftp_species_name_base:
+                logger.info(f"Resolved FTP species name via fallback:\n{ftp_species_name_base} -> {resolved_variant}")
         
         doc["annotation_gtf"] = self._build_ftp_url(meta, "geneset", "genes.gtf.gz", ftp_species_name)
         doc["annotation_gff3"] = self._build_ftp_url(meta, "geneset", "genes.gff3.gz", ftp_species_name)
