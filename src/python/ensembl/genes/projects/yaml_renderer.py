@@ -77,6 +77,109 @@ class YamlRenderer:
 
         return variants
 
+    def _resolve_ftp_assets(self, meta: GenomeMetadata) -> Dict[str, Any]:
+        import re
+        ftp_species_name_base = meta.species_name.capitalize().replace(" ", "_")
+        variants = self._get_ftp_species_variants(meta.species_name)
+        
+        metadata_date = meta.annotation_date.replace("-", "_") if meta.annotation_date else "unknown_date"
+        source = (meta.annotation_source or "ensembl").lower().strip()
+        
+        target_Released = meta.is_released
+        resolved_rel_variant = None
+        resolved_date = metadata_date
+        audit_decision = "excluded"
+        audit_reason = "No released or pre-release FTP assets found."
+        
+        # 1. Try Released logic
+        if target_Released:
+            for variant in variants:
+                base_url = f"https://ftp.ebi.ac.uk/pub/ensemblorganisms/{variant}/{meta.accession}/{source}/geneset/"
+                
+                # 1a. Try metadata date first
+                gtf_test = f"{base_url}{metadata_date}/genes.gtf.gz"
+                gff3_test = f"{base_url}{metadata_date}/genes.gff3.gz"
+                if check_url_status(gtf_test) and check_url_status(gff3_test):
+                    resolved_rel_variant = variant
+                    resolved_date = metadata_date
+                    break
+                    
+                # 1b. If metadata date fails, list directories
+                try:
+                    response = requests.get(base_url, timeout=10)
+                    if response.status_code == 200:
+                        matches = re.findall(r'href="(\d{4}_\d{2})/?', response.text)
+                        dates = sorted(list(set(matches)), reverse=True)
+                        for d in dates:
+                            gtf_d = f"{base_url}{d}/genes.gtf.gz"
+                            gff3_d = f"{base_url}{d}/genes.gff3.gz"
+                            if check_url_status(gtf_d) and check_url_status(gff3_d):
+                                resolved_rel_variant = variant
+                                resolved_date = d
+                                logger.info(f"Resolved FTP date {d} differs from metadata {metadata_date}")
+                                break
+                except Exception as e:
+                    logger.debug(f"Error fetching directory {base_url}: {e}")
+                    
+                if resolved_rel_variant:
+                    break
+                    
+            if resolved_rel_variant:
+                audit_decision = "included_released"
+                audit_reason = "Found released FTP assets."
+                return {
+                    "is_released": True,
+                    "ftp_species_name": resolved_rel_variant,
+                    "resolved_date": resolved_date,
+                    "audit_decision": audit_decision,
+                    "audit_reason": audit_reason
+                }
+        
+        # 2. Try Pre-release Fallback
+        resolved_pre_variant = None
+        pre_release_urls = {}
+        if self.ftp_client:
+            for variant in variants:
+                fb_gtf = self.ftp_client.check_pre_release_file(variant, meta.accession, ".gtf.gz")
+                if fb_gtf:
+                    resolved_pre_variant = variant
+                    pre_release_urls["annotation_gtf"] = fb_gtf
+                    
+                    fb_gff = self.ftp_client.check_pre_release_file(variant, meta.accession, ".gff3.gz")
+                    if not fb_gff:
+                        fb_gff = self.ftp_client.check_pre_release_file(variant, meta.accession, ".gff3")
+                    if fb_gff: pre_release_urls["annotation_gff3"] = fb_gff
+                    
+                    fb_pep = self.ftp_client.check_pre_release_file(variant, meta.accession, ".pep.fa.gz")
+                    if fb_pep: pre_release_urls["proteins"] = fb_pep
+                    
+                    fb_cdna = self.ftp_client.check_pre_release_file(variant, meta.accession, ".cdna.fa.gz")
+                    if fb_cdna: pre_release_urls["transcripts"] = fb_cdna
+                    
+                    fb_soft = self.ftp_client.check_pre_release_file(variant, meta.accession, ".dna.softmasked.fa.gz")
+                    if fb_soft: pre_release_urls["softmasked_genome"] = fb_soft
+                    break
+
+        if resolved_pre_variant:
+            audit_decision = "included_prerelease"
+            audit_reason = "Found pre-release FTP assets."
+            return {
+                "is_released": False,
+                "ftp_species_name": resolved_pre_variant,
+                "resolved_date": metadata_date,
+                "audit_decision": audit_decision,
+                "audit_reason": audit_reason,
+                "pre_release_urls": pre_release_urls
+            }
+            
+        return {
+            "is_released": False,
+            "ftp_species_name": ftp_species_name_base,
+            "resolved_date": metadata_date,
+            "audit_decision": "excluded",
+            "audit_reason": audit_reason
+        }
+
     def _render_standard(self, meta: GenomeMetadata) -> Dict[str, Any]:
         """Renders Schema A: Standard Projects (VGP, DToL, ERGA)"""
         doc: Dict[str, Any] = {}
@@ -101,85 +204,33 @@ class YamlRenderer:
         doc["accession"] = meta.accession
         doc["annotation_method"] = meta.annotation_method or "BRAKER2"
         
-        ftp_species_name_base = meta.species_name.capitalize().replace(" ", "_")
-        ftp_species_name = ftp_species_name_base
-        variants = self._get_ftp_species_variants(meta.species_name)
+        ftp_resolution = self._resolve_ftp_assets(meta)
+        target_Released = ftp_resolution["is_released"]
+        ftp_species_name = ftp_resolution["ftp_species_name"]
         
-        # Determine tracking paths and test fallbacks (Fix 1 and 2)
-        target_Released = meta.is_released
+        doc["__audit_decision__"] = ftp_resolution["audit_decision"]
+        doc["__audit_reason__"] = ftp_resolution["audit_reason"]
+        doc["__audit_resolved_date__"] = ftp_resolution["resolved_date"]
         
-        # If released, we build normal FTPs. If they 404, we degrade to pre_release if possible
+        if ftp_resolution["audit_decision"] == "excluded":
+            return doc # Returns only audit keys
+
         if target_Released:
-            resolved_rel_variant = None
-            for variant in variants:
-                released_gtf = self._build_ftp_url(meta, "geneset", "genes.gtf.gz", variant)
-                if check_url_status(released_gtf):
-                    resolved_rel_variant = variant
-                    break
-            
-            if resolved_rel_variant:
-                ftp_species_name = resolved_rel_variant
-                if resolved_rel_variant != ftp_species_name_base:
-                    logger.info(f"Resolved FTP species name via fallback:\n{ftp_species_name_base} -> {resolved_rel_variant}")
-            else:
-                target_Released = False
-                
-        # If still released (or not degraded)
-        if target_Released:
+            meta.annotation_date = ftp_resolution["resolved_date"].replace("_", "-")
             doc["annotation_gtf"] = self._build_ftp_url(meta, "geneset", "genes.gtf.gz", ftp_species_name)
             doc["annotation_gff3"] = self._build_ftp_url(meta, "geneset", "genes.gff3.gz", ftp_species_name)
             doc["proteins"] = self._build_ftp_url(meta, "geneset", "pep.fa.gz", ftp_species_name)
             doc["transcripts"] = self._build_ftp_url(meta, "geneset", "cdna.fa.gz", ftp_species_name)
             doc["softmasked_genome"] = f"https://ftp.ebi.ac.uk/pub/ensemblorganisms/{ftp_species_name}/{meta.accession}/genome/softmasked.fa.gz"
             
-            # Additional pre-release specific check on GFF uncompressed legacy rule
             if not check_url_status(doc["annotation_gff3"]):
                 uncompressed_gff = self._build_ftp_url(meta, "geneset", "genes.gff3", ftp_species_name)
                 if check_url_status(uncompressed_gff):
                     doc["annotation_gff3"] = uncompressed_gff
         else:
-            # Pre-release logic
-            fb_gtf = ""
-            resolved_pre_variant = None
-            if self.ftp_client:
-                for variant in variants:
-                    fb_gtf = self.ftp_client.check_pre_release_file(variant, meta.accession, ".gtf.gz")
-                    if fb_gtf:
-                        resolved_pre_variant = variant
-                        break
-            
-            if not fb_gtf:
-                attempted_rel = self._build_ftp_url(meta, "geneset", "genes.gtf.gz", ftp_species_name_base)
-                logger.warning(
-                    f"Excluding {meta.accession}: No valid FTP targets found.\n"
-                    f"Tried released:\n- {attempted_rel}\n"
-                    f"Tried pre-release:\n- .../pre-release/{ftp_species_name_base}/{meta.accession}/*"
-                )
-                return {} # Suppress entirely if neither exists!
-                
-            ftp_species_name = resolved_pre_variant
-            if resolved_pre_variant != ftp_species_name_base:
-                logger.info(f"Resolved FTP species name via fallback:\n{ftp_species_name_base} -> {resolved_pre_variant}")
-                
-            doc["annotation_gtf"] = fb_gtf
-            
-            fb_gff = self.ftp_client.check_pre_release_file(ftp_species_name, meta.accession, ".gff3.gz") if self.ftp_client else ""
-            if not fb_gff:
-                fb_gff = self.ftp_client.check_pre_release_file(ftp_species_name, meta.accession, ".gff3") if self.ftp_client else ""
-            if fb_gff:
-                doc["annotation_gff3"] = fb_gff
-                
-            fb_pep = self.ftp_client.check_pre_release_file(ftp_species_name, meta.accession, ".pep.fa.gz") if self.ftp_client else ""
-            if fb_pep:
-                doc["proteins"] = fb_pep
-                
-            fb_cdna = self.ftp_client.check_pre_release_file(ftp_species_name, meta.accession, ".cdna.fa.gz") if self.ftp_client else ""
-            if fb_cdna:
-                doc["transcripts"] = fb_cdna
-            
-            fb_soft = self.ftp_client.check_pre_release_file(ftp_species_name, meta.accession, ".dna.softmasked.fa.gz") if self.ftp_client else ""
-            if fb_soft:
-                doc["softmasked_genome"] = fb_soft
+            pre_urls = ftp_resolution.get("pre_release_urls", {})
+            for k, v in pre_urls.items():
+                doc[k] = v
         
         if target_Released:
             doc["ftp_dumps"] = f"https://ftp.ebi.ac.uk/pub/ensemblorganisms/{ftp_species_name}/{meta.accession}/"
@@ -221,26 +272,27 @@ class YamlRenderer:
         if meta.assembly_submitter:
             doc["assembly_submitter"] = meta.assembly_submitter
             
-        ftp_species_name_base = meta.species_name.capitalize().replace(" ", "_")
-        ftp_species_name = ftp_species_name_base
-        variants = self._get_ftp_species_variants(meta.species_name)
+        ftp_resolution = self._resolve_ftp_assets(meta)
+        target_Released = ftp_resolution["is_released"]
+        ftp_species_name = ftp_resolution["ftp_species_name"]
         
-        resolved_variant = None
-        for variant in variants:
-            test_url = self._build_ftp_url(meta, "geneset", "genes.gtf.gz", variant)
-            if check_url_status(test_url):
-                resolved_variant = variant
-                break
-                
-        if resolved_variant:
-            ftp_species_name = resolved_variant
-            if resolved_variant != ftp_species_name_base:
-                logger.info(f"Resolved FTP species name via fallback:\n{ftp_species_name_base} -> {resolved_variant}")
+        doc["__audit_decision__"] = ftp_resolution["audit_decision"]
+        doc["__audit_reason__"] = ftp_resolution["audit_reason"]
+        doc["__audit_resolved_date__"] = ftp_resolution["resolved_date"]
         
-        doc["annotation_gtf"] = self._build_ftp_url(meta, "geneset", "genes.gtf.gz", ftp_species_name)
-        doc["annotation_gff3"] = self._build_ftp_url(meta, "geneset", "genes.gff3.gz", ftp_species_name)
-        doc["proteins"] = self._build_ftp_url(meta, "geneset", "pep.fa.gz", ftp_species_name)
-        doc["transcripts"] = self._build_ftp_url(meta, "geneset", "cdna.fa.gz", ftp_species_name)
+        if ftp_resolution["audit_decision"] == "excluded":
+            return doc # Returns only audit keys
+
+        if target_Released:
+            meta.annotation_date = ftp_resolution["resolved_date"].replace("_", "-")
+            doc["annotation_gtf"] = self._build_ftp_url(meta, "geneset", "genes.gtf.gz", ftp_species_name)
+            doc["annotation_gff3"] = self._build_ftp_url(meta, "geneset", "genes.gff3.gz", ftp_species_name)
+            doc["proteins"] = self._build_ftp_url(meta, "geneset", "pep.fa.gz", ftp_species_name)
+            doc["transcripts"] = self._build_ftp_url(meta, "geneset", "cdna.fa.gz", ftp_species_name)
+        else:
+            pre_urls = ftp_resolution.get("pre_release_urls", {})
+            for k, v in pre_urls.items():
+                doc[k] = v
         
         vep_url = f"https://ftp.ebi.ac.uk/pub/ensemblorganisms/{ftp_species_name}/{meta.accession}/vep/ensembl/geneset/"
         if check_url_status(vep_url):
@@ -261,28 +313,33 @@ class YamlRenderer:
             
         doc["accession"] = meta.accession
         
-        ftp_species_name_base = meta.species_name.capitalize().replace(" ", "_")
-        ftp_species_name = ftp_species_name_base
-        variants = self._get_ftp_species_variants(meta.species_name)
+        ftp_resolution = self._resolve_ftp_assets(meta)
+        target_Released = ftp_resolution["is_released"]
+        ftp_species_name = ftp_resolution["ftp_species_name"]
         
-        resolved_variant = None
-        for variant in variants:
-            test_url = self._build_ftp_url(meta, "geneset", "genes.gtf.gz", variant)
-            if check_url_status(test_url):
-                resolved_variant = variant
-                break
+        doc["__audit_decision__"] = ftp_resolution["audit_decision"]
+        doc["__audit_reason__"] = ftp_resolution["audit_reason"]
+        doc["__audit_resolved_date__"] = ftp_resolution["resolved_date"]
+        
+        if ftp_resolution["audit_decision"] == "excluded":
+            return doc # Returns only audit keys
+
+        if target_Released:
+            meta.annotation_date = ftp_resolution["resolved_date"].replace("_", "-")
+            doc["annotation_gtf"] = self._build_ftp_url(meta, "geneset", "genes.gtf.gz", ftp_species_name)
+            doc["annotation_gff3"] = self._build_ftp_url(meta, "geneset", "genes.gff3.gz", ftp_species_name)
+            doc["proteins"] = self._build_ftp_url(meta, "geneset", "pep.fa.gz", ftp_species_name)
+            doc["transcripts"] = self._build_ftp_url(meta, "geneset", "cdna.fa.gz", ftp_species_name)
+            doc["softmasked_genome"] = self._build_ftp_url(meta, "genome", "softmasked.fa.gz", ftp_species_name)
+        else:
+            pre_urls = ftp_resolution.get("pre_release_urls", {})
+            for k, v in pre_urls.items():
+                doc[k] = v
                 
-        if resolved_variant:
-            ftp_species_name = resolved_variant
-            if resolved_variant != ftp_species_name_base:
-                logger.info(f"Resolved FTP species name via fallback:\n{ftp_species_name_base} -> {resolved_variant}")
-        
-        doc["annotation_gtf"] = self._build_ftp_url(meta, "geneset", "genes.gtf.gz", ftp_species_name)
-        doc["annotation_gff3"] = self._build_ftp_url(meta, "geneset", "genes.gff3.gz", ftp_species_name)
-        doc["proteins"] = self._build_ftp_url(meta, "geneset", "pep.fa.gz", ftp_species_name)
-        doc["transcripts"] = self._build_ftp_url(meta, "geneset", "cdna.fa.gz", ftp_species_name)
-        doc["softmasked_genome"] = self._build_ftp_url(meta, "genome", "softmasked.fa.gz", ftp_species_name)
-        doc["ftp_dumps"] = f"https://ftp.ebi.ac.uk/pub/ensemblorganisms/{ftp_species_name}/{meta.accession}/"
+        if target_Released:
+            doc["ftp_dumps"] = f"https://ftp.ebi.ac.uk/pub/ensemblorganisms/{ftp_species_name}/{meta.accession}/"
+        else:
+            doc["ftp_dumps"] = f"https://ftp.ebi.ac.uk/pub/databases/ensembl/pre-release/{ftp_species_name}/{meta.accession}/"
         
         if self.config.allow_beta_urls:
             doc["beta_link"] = f"https://beta.ensembl.org/species/{meta.genome_uuid}"

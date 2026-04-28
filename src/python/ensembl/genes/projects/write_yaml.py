@@ -294,6 +294,13 @@ def check_url_status(url):
         response = requests.head(
             url, allow_redirects=True, timeout=5
         )  # Use HEAD for efficiency
+        if response.status_code == 200:
+            return True
+        elif response.status_code in [404, 403]:
+            return False
+        # Fallback to GET for other HTTP errors (e.g. 405 Method Not Allowed)
+        response = requests.get(url, allow_redirects=True, stream=True, timeout=5)
+        response.close()
         return response.status_code == 200
     except requests.RequestException as e:
         print(f"Error checking URL {url}: {e}")

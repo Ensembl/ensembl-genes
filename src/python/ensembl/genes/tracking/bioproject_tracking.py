@@ -441,13 +441,29 @@ def add_ftp(  # pylint:disable=too-many-locals, too-many-branches
 
                 scientific_name = result[0][0].replace(" ", "_").replace(".", "")
                 ftp_link = f"https://ftp.ebi.ac.uk/pub/databases/ensembl/pre-release/{scientific_name}/{accession}"
+                
+                try:
+                    import requests
+                    res = requests.head(ftp_link + "/", allow_redirects=True, timeout=5)
+                    if res.status_code == 200:
+                        ftp_status = "OK"
+                    elif res.status_code in [404, 403]:
+                        ftp_status = "Not Found"
+                    else:
+                        res_get = requests.get(ftp_link + "/", stream=True, allow_redirects=True, timeout=5)
+                        ftp_status = "OK" if res_get.status_code == 200 else "Not Found"
+                        res_get.close()
+                except:
+                    ftp_status = "Error"
 
                 # attach to matching entries
                 for m in matches:
                     if m.get("dbname") == dbname:
                         m["ftp"] = ftp_link
+                        m["ftp_status"] = ftp_status
                 if annotation.get("dbname") == dbname:
                     annotation["ftp"] = ftp_link  # top-level
+                    annotation["ftp_status"] = ftp_status
 
         elif release_type == "live":
             # Build map guuid->match for easy updates
@@ -477,13 +493,28 @@ def add_ftp(  # pylint:disable=too-many-locals, too-many-branches
                 scientific_name = scientific_name.replace(" ", "_").replace(".", "")
                 source = source.lower()
                 ftp_link = f"https://ftp.ebi.ac.uk/pub/ensemblorganisms/{scientific_name}/{accession}/{source}/geneset/{date}/"
+                
+                try:
+                    res = requests.head(ftp_link + "genes.gtf.gz", allow_redirects=True, timeout=5)
+                    if res.status_code == 200:
+                        ftp_status = "OK"
+                    elif res.status_code in [404, 403]:
+                        ftp_status = "Not Found"
+                    else:
+                        res_get = requests.get(ftp_link + "genes.gtf.gz", stream=True, allow_redirects=True, timeout=5)
+                        ftp_status = "OK" if res_get.status_code == 200 else "Not Found"
+                        res_get.close()
+                except:
+                    ftp_status = "Error"
 
                 if guuid in by_guuid:
                     by_guuid[guuid]["ftp"] = ftp_link
                     by_guuid[guuid]["date"] = date
+                    by_guuid[guuid]["ftp_status"] = ftp_status
                 if annotation.get("guuid") == guuid:
                     annotation["ftp"] = ftp_link
                     annotation["date"] = date
+                    annotation["ftp_status"] = ftp_status
 
     return annotations
 
@@ -605,6 +636,7 @@ def write_report(
                 if include_ftp:
                     row.append(str(m.get("date") or details.get("date") or ""))
                     row.append(str(m.get("ftp") or details.get("ftp") or "N/A"))
+                    row.append(str(m.get("ftp_status") or details.get("ftp_status") or "Unknown"))
 
                 file.write("\t".join(row) + "\n")
                 lines_written += 1

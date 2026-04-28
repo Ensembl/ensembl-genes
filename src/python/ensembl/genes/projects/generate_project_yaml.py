@@ -29,6 +29,7 @@ def main():
     parser.add_argument("--project", required=True, help="Project name (e.g. vgp, hprc, mouse_genomes)")
     parser.add_argument("input_file", help="File containing list of DB names, GUUIDs, or Accessions")
     parser.add_argument("--output", default="species.yaml", help="Output YAML file")
+    parser.add_argument("--audit-file", help="Optional output TSV file for audit logs")
     
     args = parser.parse_args()
     
@@ -95,12 +96,21 @@ def main():
             
         patch_ncbi_data(meta, config)
         doc = renderer.render(meta)
-        if doc:
+        
+        audit_decision = doc.pop("__audit_decision__", "excluded")
+        audit_reason = doc.pop("__audit_reason__", "No document returned")
+        audit_resolved_date = doc.pop("__audit_resolved_date__", "")
+        
+        if args.audit_file:
+            with open(args.audit_file, "a") as af:
+                af.write(f"{identifier}\t{meta.accession}\t{meta.species_name}\t{meta.annotation_date}\t{audit_resolved_date}\t{meta.annotation_source}\t{audit_decision}\t{audit_reason}\n")
+                
+        if doc and audit_decision != "excluded":
             yaml_docs.append(doc)
             emitted_accessions.add(meta.accession)
         else:
             # Exclude and warn
-            logger.warning(f"Excluding {identifier}: Neither released nor fallback pre-release data found on FTP.")
+            logger.warning(f"Excluding {identifier}: {audit_reason}")
             failed.append(identifier)
             
     # GB Registry Discovery Pass
@@ -112,13 +122,22 @@ def main():
             
         patch_ncbi_data(meta, config)
         doc = renderer.render(meta)
-        if doc:
+        
+        audit_decision = doc.pop("__audit_decision__", "excluded")
+        audit_reason = doc.pop("__audit_reason__", "No document returned")
+        audit_resolved_date = doc.pop("__audit_resolved_date__", "")
+        
+        if args.audit_file:
+            with open(args.audit_file, "a") as af:
+                af.write(f"discovered_gb\t{meta.accession}\t{meta.species_name}\t{meta.annotation_date}\t{audit_resolved_date}\t{meta.annotation_source}\t{audit_decision}\t{audit_reason}\n")
+                
+        if doc and audit_decision != "excluded":
             yaml_docs.append(doc)
             emitted_accessions.add(meta.accession)
             discovered_count += 1
             logger.info(f"Discovered and appended GB-only pre-release: {meta.accession}")
         else:
-            logger.debug(f"Discovered GB-only pre-release {meta.accession} skipped: required FTP files missing.")
+            logger.debug(f"Discovered GB-only pre-release {meta.accession} skipped: {audit_reason}")
             
     # Write output
     yaml_docs.sort(key=lambda x: x.get('species', x.get('assembly', '')))
