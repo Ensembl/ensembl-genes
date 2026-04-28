@@ -2,7 +2,7 @@
 Converts internal GenomeMetadata objects into specific project YAML schemas.
 """
 import copy
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, List
 from ensembl.genes.projects.models import GenomeMetadata
 from ensembl.genes.projects.config import ProjectConfig
 from ensembl.genes.projects.write_yaml import check_url_status
@@ -58,7 +58,7 @@ class YamlRenderer:
             logger.warning(f"Failed to fetch taxonomy for {taxon_id}: {e}")
         return []
 
-    def _get_ftp_species_variants(self, species_name: str) -> list[str]:
+    def _get_ftp_species_variants(self, species_name: str) -> List[str]:
         import re
         base = species_name.capitalize().replace(" ", "_")
         variants = [base]
