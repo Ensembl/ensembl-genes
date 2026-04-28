@@ -190,13 +190,18 @@ class YamlRenderer:
             species_entry += f" {meta.strain}"
         doc["species"] = species_entry
         
-        # Icon mapping
+        # Icon mapping — mirrors legacy write_yaml.py priority logic exactly:
+        # 1. first-match-wins scan through lineage (most-specific class takes precedence)
+        # 2. if still Metazoa.png but taxon is within Chordata, fall back to Chordates.png
         if self.config.project_name in ["vgp", "dtol", "erga", "darwin_tree_of_life", "cbp", "bge", "asg"]:
             icon = "Metazoa.png"
             class_list = self._fetch_taxonomy_classes(meta.taxon_id)
             for classification in class_list:
                 if classification in self.icons:
                     icon = self.icons[classification]
+                    break  # first match wins; most-specific lineage entry takes precedence
+            if icon == "Metazoa.png" and "Chordata" in class_list:
+                icon = "Chordates.png"
             doc["image"] = icon
         elif self.config.scrape_ncbi_submitter and meta.assembly_submitter:
             doc["submitted_by"] = meta.assembly_submitter
@@ -222,6 +227,12 @@ class YamlRenderer:
             doc["proteins"] = self._build_ftp_url(meta, "geneset", "pep.fa.gz", ftp_species_name)
             doc["transcripts"] = self._build_ftp_url(meta, "geneset", "cdna.fa.gz", ftp_species_name)
             doc["softmasked_genome"] = f"https://ftp.ebi.ac.uk/pub/ensemblorganisms/{ftp_species_name}/{meta.accession}/genome/softmasked.fa.gz"
+            
+            # repeat_library — checked before emitting; omitted if file does not exist
+            repeat_species = meta.species_name.lower().replace(" ", "_")
+            repeat_url = f"https://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/{repeat_species}/{meta.accession}.repeatmodeler.fa"
+            if check_url_status(repeat_url):
+                doc["repeat_library"] = repeat_url
             
             if not check_url_status(doc["annotation_gff3"]):
                 uncompressed_gff = self._build_ftp_url(meta, "geneset", "genes.gff3", ftp_species_name)
