@@ -118,7 +118,7 @@ def select_and_rename_metrics(
     # 0. Resolve mapping path
     if mapping_json is None:
         script_dir = Path(__file__).resolve().parent
-        mapping_json = script_dir / "value_map.json"
+        mapping_json = script_dir.parent / "config" / "value_map.json"
 
     # 1. Parse txt -> DataFrame of metrics
     original = parse_agat_txt_to_df(input_txt)
