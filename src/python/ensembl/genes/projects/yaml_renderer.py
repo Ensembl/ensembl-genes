@@ -53,6 +53,10 @@ class YamlRenderer:
                 if isinstance(taxa_set, list): taxa_set = taxa_set[0]
                 lineage = taxa_set.get('LineageEx', {}).get('Taxon', [])
                 if isinstance(lineage, dict): lineage = [lineage]
+                # NCBI LineageEx is ordered root→leaf; reverse to leaf→root so that
+                # the first icon match is always the most-specific classification,
+                # exactly replicating the legacy core-DB species.classification ordering.
+                lineage = list(reversed(lineage))
                 return [t.get('ScientificName') for t in lineage if 'ScientificName' in t]
         except Exception as e:
             logger.warning(f"Failed to fetch taxonomy for {taxon_id}: {e}")
@@ -184,22 +188,23 @@ class YamlRenderer:
         """Renders Schema A: Standard Projects (VGP, DToL, ERGA)"""
         doc: Dict[str, Any] = {}
         
-        # Core fields
-        species_entry = meta.species_name
-        if meta.strain:
-            species_entry += f" {meta.strain}"
-        doc["species"] = species_entry
+        # species display name must only come from the scientific name — never from strain,
+        # sample description, habitat text, or any other free-text metadata field.
+        # (strain is displayed separately in _render_mouse; it must never appear here.)
+        doc["species"] = meta.species_name
         
         # Icon mapping — mirrors legacy write_yaml.py priority logic exactly:
-        # 1. first-match-wins scan through lineage (most-specific class takes precedence)
-        # 2. if still Metazoa.png but taxon is within Chordata, fall back to Chordates.png
+        # class_list is already leaf→root (reversed in _fetch_taxonomy_classes), so
+        # first-match-wins picks the most-specific mapped classification.
+        # Chordata fallback: if nothing more specific matched, chordates get Chordates.png
+        # rather than the generic Metazoa.png.
         if self.config.project_name in ["vgp", "dtol", "erga", "darwin_tree_of_life", "cbp", "bge", "asg"]:
             icon = "Metazoa.png"
             class_list = self._fetch_taxonomy_classes(meta.taxon_id)
             for classification in class_list:
                 if classification in self.icons:
                     icon = self.icons[classification]
-                    break  # first match wins; most-specific lineage entry takes precedence
+                    break  # first match wins (list is leaf→root, so most-specific class wins)
             if icon == "Metazoa.png" and "Chordata" in class_list:
                 icon = "Chordates.png"
             doc["image"] = icon
