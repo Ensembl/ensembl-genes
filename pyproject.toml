@@ -66,6 +66,7 @@ check_for_transcriptomic = "ensembl.genes.transcriptomic_data.check_for_transcri
 get_transcriptomic_data = "ensembl.genes.transcriptomic_data.get_transcriptomic_data:main"
 select_transcriptomic_data = "ensembl.genes.transcriptomic_data.select_transcriptomic_data:main"
 rgb = "ensembl.genes.rgb.cli:main"
+rgb_observability = "ensembl.genes.rgb.observability:main"
 
 
 [build-system]
@@ -87,6 +88,7 @@ include-package-data = true
 "ensembl.genes.rgb" = [
     "docs/*.md",
     "examples/*.yaml",
+    "examples/*.tsv",
 ]
 
 [tool.mypy]

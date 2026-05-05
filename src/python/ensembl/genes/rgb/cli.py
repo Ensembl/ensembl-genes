@@ -115,7 +115,10 @@ def cmd_loci(args: argparse.Namespace) -> int:
                 if fmt == "parquet":
                     return pd.read_parquet(path)
                 sep = "\t" if fmt == "tsv" else ","
-                return pd.read_csv(path, sep=sep)
+                try:
+                    return pd.read_csv(path, sep=sep)
+                except pd.errors.EmptyDataError:
+                    return pd.DataFrame()
         raise FileNotFoundError(f"Could not find {path_base} with any supported extension in {extract_dir}")
 
     core_genes = _load("core_genes")
@@ -151,7 +154,10 @@ def _load_table(extract_dir: str, base: str, prefer_fmt: str) -> pd.DataFrame:
             if fmt == "parquet":
                 return pd.read_parquet(path)
             sep = "\t" if fmt == "tsv" else ","
-            return pd.read_csv(path, sep=sep)
+            try:
+                return pd.read_csv(path, sep=sep)
+            except pd.errors.EmptyDataError:
+                return pd.DataFrame()
     raise FileNotFoundError(f"Could not find {base} with any supported extension in {extract_dir}")
 
 

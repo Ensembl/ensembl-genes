@@ -136,3 +136,29 @@ dmypy.json
 
 # Cython debug symbols
 cython_debug/
+
+# Local HPRC patch investigation artefacts.
+# These are fetched reports, chunk files, temporary audit tables, and local
+# beta-patching review outputs. Keep durable HPRC code/data on a dedicated
+# branch or under a documented package path before tracking it.
+Conflicts/
+hprc_*.csv
+hprc_*.tsv
+hprc_chunks/
+hprc_chunk_outputs/
+hprc_reports/
+hprc_reports_full/
+hprc_retry_chunks/
+hprc_retry_outputs/
+hprc_source_chunks/
+hprc_source_chunk_outputs/
+hprc_source_reports_full/
+tmp_*.csv
+tmp_*.tsv
+tmp_*_reports/
+tmp_hprc_reports*/
+tmp_source_reports/
+samplesheets/
+scripts/hprc_*.py
+src/python/ensembl/genes/annotation-qc/
+src/python/ensembl/genes/metadata/hprc_patch_validation.sql

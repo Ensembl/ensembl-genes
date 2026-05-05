@@ -1,0 +1,4 @@
+expected_gene_id	seq_region_name	seq_region_start	seq_region_end	seq_region_strand	projection_status	projection_identity	projection_coverage	assembly_gap_overlap_bp	repeat_overlap_bp
+EXP0001	1	100000	105000	1	mapped	0.998	0.990	0	0
+EXP0002	1	250000	252000	-1	mapped	0.950	0.800	500	0
+EXP0003	2	500000	507500	1	partial	0.870	0.620	0	250

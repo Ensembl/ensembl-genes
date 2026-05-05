@@ -1,0 +1,4 @@
+expected_gene_id	expected_source	reference_stable_id	symbol	biotype	orthogroup_id	busco_id	expected_copy_number	confidence
+EXP0001	prior_ensembl	ENSOLDG00000000001	GENE1	protein_coding	OG0001		1	high
+EXP0002	busco	12345at6789		protein_coding		12345at6789	1	medium
+EXP0003	refseq	XP_REF_000003	GENE3	protein_coding	OG0003		1	medium

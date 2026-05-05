@@ -1,0 +1,3 @@
+expected_gene_id	query_protein_id	expected_source	reference_stable_id	symbol	biotype	orthogroup_id	busco_id	confidence
+EXP_PROT0001	OLDPROT0001	prior_ensembl_protein	OLDGENE0001	GENE1	protein_coding	OG0001		high
+EXP_PROT0002	REFSEQPROT0002	refseq_protein	REFSEQGENE0002	GENE2	protein_coding	OG0002	123at456	medium
