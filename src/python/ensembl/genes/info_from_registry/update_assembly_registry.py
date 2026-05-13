@@ -315,7 +315,7 @@ def main(  # pylint:disable=too-many-arguments, too-many-statements, too-many-br
             print(f"Current status: '{current_status}', requested status: '{status}'")
 
             # Status categories
-            terminal_statuses = ["live", "pre_released", "handed_over", "archive"]
+            terminal_statuses = ["live", "pre_released", "handed_over", "archive", "coming_soon"]
             active_statuses = ["insufficient_data", "in_progress", "check_busco"]
             completed_status = "completed"  # terminal-like status
 
