@@ -3,7 +3,7 @@
 Main entry point for generating project-specific genome metadata YAML files.
 
 Usage:
-  python generate_project_yaml.py --project vgp input_dbs.txt
+  python -m ensembl.genes.projects.generate_project_yaml input_guuids.txt --project vgp --output species.yaml --audit-file audit.tsv
 """
 import argparse
 import sys
@@ -36,16 +36,29 @@ def _load_server_config() -> dict:
         return json.load(f)
 
 def main():
-    parser = argparse.ArgumentParser(description="Generate Ensembl project species.yaml")
-    parser.add_argument("--project", required=True, help="Project name (e.g. vgp, hprc, mouse_genomes)")
-    parser.add_argument("input_file", help="File containing list of DB names, GUUIDs, or Accessions")
-    parser.add_argument("--output", default="species.yaml", help="Output YAML file")
-    parser.add_argument("--audit-file", help="Optional output TSV file for audit logs")
+    parser = argparse.ArgumentParser(
+        description="Generate Ensembl project species.yaml",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog='''\
+Examples:
+  python -m ensembl.genes.projects.generate_project_yaml cbp_guuids.txt \\
+      --project cbp \\
+      --output cbp_species.yaml \\
+      --audit-file cbp_audit.tsv
+
+Note: The input file should primarily contain Genome UUIDs (one per line). 
+For pre-release discovery without UUIDs, you may still rely on the registry tracking.
+'''
+    )
+    parser.add_argument("input_file", help="Positional input file containing a list of GUUIDs (one per line)")
+    parser.add_argument("--project", required=True, help="Project name (e.g. cbp, vgp, dtol, bge, asg, erga, hprc, mouse_genomes)")
+    parser.add_argument("--output", default="species.yaml", help="Output YAML file (default: species.yaml)")
+    parser.add_argument("--audit-file", help="Optional output TSV file for audit logs (highly recommended)")
     
     args = parser.parse_args()
     
     config = get_project_config(args.project)
-    from ensembl.genes.projects.write_yaml import EnsemblFTP
+    from ensembl.genes.projects.ftp_client import EnsemblFTP
     ftp_client = EnsemblFTP(timeout=30)
     renderer = YamlRenderer(config, ftp_client)
     

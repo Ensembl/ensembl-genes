@@ -1,7 +1,10 @@
 import os.path, sys, getopt, re
 import pymysql
 import requests
+import warnings
 from ftplib import FTP
+
+warnings.warn("hprc_write_yaml.py is deprecated. Please use generate_project_yaml.py with --project hprc instead.", DeprecationWarning)
 
 def get_population(accession):
     assembly_link = "https://www.ncbi.nlm.nih.gov/assembly/"+accession

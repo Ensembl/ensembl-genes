@@ -5,7 +5,7 @@ import copy
 from typing import Dict, Any, Optional, List
 from ensembl.genes.projects.models import GenomeMetadata
 from ensembl.genes.projects.config import ProjectConfig
-from ensembl.genes.projects.write_yaml import check_url_status
+from ensembl.genes.projects.ftp_client import check_url_status
 import requests
 import xmltodict
 import logging
