@@ -17,6 +17,14 @@
 """Script to track assemblies from NCBI BioProject/Taxon IDs and their presence in Ensembl.
 Generates a report of assembly accessions, Ensembl database info, taxonomy classification,
 and FTP links if available.
+
+Also supports project-specific discovery via --project_name. Currently supported:
+  hprc  - Fetches release 2 assembly GCAs from the HPRC data portal catalog.
+
+Usage examples:
+  python -m ensembl.genes.tracking.bioproject_tracking --bioproject_id PRJNA12345
+  python -m ensembl.genes.tracking.bioproject_tracking --taxon_id 9606
+  python -m ensembl.genes.tracking.bioproject_tracking --project_name hprc --report_file hprc_report.tsv
 """
 
 import argparse
@@ -233,6 +241,87 @@ def get_assembly_accessions(  # pylint:disable=too-many-branches, too-many-state
         f"[Datasets API] Retrieved {len(assembly_accessions)} assemblies (latest only)."
     )
     return assembly_accessions
+
+
+# -----------------------------------
+# Project-specific discovery
+# -----------------------------------
+
+# Human taxon ID — all HPRC assemblies are Homo sapiens
+_HUMAN_TAXON_ID = 9606
+
+# Stable URL for the HPRC catalog JSON; served as a static file from GitHub.
+_HPRC_CATALOG_URL = (
+    "https://raw.githubusercontent.com/human-pangenomics/"
+    "hprc-data-explorer/main/catalog/output/assemblies.json"
+)
+
+
+def fetch_hprc_assemblies() -> Dict[str, Dict[str, int]]:
+    """Fetches HPRC release 2 assembly GCAs from the HPRC data portal catalog.
+
+    The HPRC data explorer stores its catalog as a static JSON file in its
+    GitHub repository.  Each entry has a ``release`` field ("1" or "2") and a
+    ``genbankAccession`` field containing the GCA accession.  This function
+    downloads that JSON, filters to release "2", extracts valid GCA accessions,
+    de-duplicates, and returns them in the same ``{accession: {"taxon_id": …}}``
+    format used by ``get_assembly_accessions``.
+
+    Returns:
+        Dict[str, Dict[str, int]]: Mapping from GCA accession to taxon info.
+
+    Raises:
+        SystemExit: If the catalog cannot be fetched or yields zero GCAs.
+    """
+    logging.info("Fetching HPRC catalog from %s", _HPRC_CATALOG_URL)
+    try:
+        response = requests.get(_HPRC_CATALOG_URL, timeout=30)
+        response.raise_for_status()
+        catalog = response.json()
+    except requests.RequestException as exc:
+        logging.error("Failed to fetch HPRC catalog: %s", exc)
+        sys.exit(1)
+    except json.JSONDecodeError as exc:
+        logging.error("Failed to parse HPRC catalog JSON: %s", exc)
+        sys.exit(1)
+
+    accessions: Dict[str, Dict[str, int]] = {}
+    for entry in catalog:
+        release = str(entry.get("release", "")).strip()
+        gca = (entry.get("genbankAccession") or "").strip()
+        if release == "2" and gca.startswith("GCA_"):
+            accessions[gca] = {"taxon_id": _HUMAN_TAXON_ID}
+
+    if not accessions:
+        logging.error("No HPRC release 2 GCA accessions found in catalog.")
+        sys.exit(1)
+
+    logging.info(
+        "Discovered %d unique HPRC release 2 GCA accessions.", len(accessions)
+    )
+    return accessions
+
+
+def fetch_project_assemblies(project_name: str) -> Dict[str, Dict[str, int]]:
+    """Dispatcher for project-specific assembly discovery.
+
+    Args:
+        project_name: Lowercase project identifier (e.g. "hprc").
+
+    Returns:
+        Dict[str, Dict[str, int]]: Mapping from GCA accession to taxon info.
+
+    Raises:
+        SystemExit: If the project name is not recognised.
+    """
+    name = project_name.lower().strip()
+    if name == "hprc":
+        return fetch_hprc_assemblies()
+    else:
+        logging.error(
+            "Unsupported --project_name '%s'. Currently supported: hprc", project_name
+        )
+        sys.exit(1)
 
 
 # -----------------------------------
@@ -649,24 +738,42 @@ def write_report(
 def main():
     """
     Main entry point of the script.
-    Parses command-line arguments to determine if a BioProject ID or Taxon ID is provided,
-    whether to filter only haploid assemblies, the desired output file path, the taxonomic
-    rank to retrieve, and whether to include FTP links. It then:
-      1. Fetches assembly accessions from the NCBI API based on the provided ID.
-      2. Fetches corresponding Ensembl live database information from the local MySQL database.
-      3. Retrieves taxonomy information for the specified rank from the NCBI API.
+    Parses command-line arguments to determine if a BioProject ID, Taxon ID,
+    or project name is provided, whether to filter only haploid assemblies,
+    the desired output file path, the taxonomic rank to retrieve, and whether
+    to include FTP links.  It then:
+      1. Fetches assembly accessions (NCBI API or project-specific portal).
+      2. Fetches corresponding Ensembl live database information.
+      3. Retrieves taxonomy information for the specified rank.
       4. Optionally adds FTP links if requested.
       5. Writes all collected data into a tab-separated report file.
-    Usage Example:
-        python script_name.py --bioproject_id PRJNA12345 --haploid --rank order --ftp
+
+    Usage Examples:
+        python -m ensembl.genes.tracking.bioproject_tracking --bioproject_id PRJNA12345 --haploid --rank order --ftp
+        python -m ensembl.genes.tracking.bioproject_tracking --project_name hprc --report_file hprc_report.tsv
+
     Returns:
         None
     """
     parser = argparse.ArgumentParser(
-        description="Fetch assembly data and report annotations."
+        description="Fetch assembly data and report annotations.",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""Examples:
+  python -m ensembl.genes.tracking.bioproject_tracking --bioproject_id PRJNA12345
+  python -m ensembl.genes.tracking.bioproject_tracking --taxon_id 9606
+  python -m ensembl.genes.tracking.bioproject_tracking --project_name hprc --report_file hprc_report.tsv
+
+Supported --project_name values: hprc
+""",
     )
     parser.add_argument("--bioproject_id", type=str, help="NCBI BioProject ID")
     parser.add_argument("--taxon_id", type=str, help="Taxonomy ID")
+    parser.add_argument(
+        "--project_name",
+        type=str,
+        help="Project-specific discovery (e.g. 'hprc'). "
+        "Mutually exclusive with --bioproject_id and --taxon_id.",
+    )
     parser.add_argument(
         "--haploid", action="store_true", help="Fetch only haploid assemblies"
     )
@@ -688,15 +795,28 @@ def main():
 
     args = parser.parse_args()
 
-    # Determine which ID is provided and which query type is relevant
-    if not args.bioproject_id and not args.taxon_id:
-        parser.error("You must provide either --bioproject_id or --taxon_id")
-
-    accessions_taxon = get_assembly_accessions(
-        args.bioproject_id or args.taxon_id,
-        "bioproject" if args.bioproject_id else "taxon",
-        args.haploid,
+    # Validate mutually exclusive options
+    provided = sum(
+        bool(x) for x in [args.bioproject_id, args.taxon_id, args.project_name]
     )
+    if provided == 0:
+        parser.error(
+            "You must provide exactly one of --bioproject_id, --taxon_id, or --project_name"
+        )
+    if provided > 1:
+        parser.error(
+            "--bioproject_id, --taxon_id, and --project_name are mutually exclusive"
+        )
+
+    # Discover assemblies
+    if args.project_name:
+        accessions_taxon = fetch_project_assemblies(args.project_name)
+    else:
+        accessions_taxon = get_assembly_accessions(
+            args.bioproject_id or args.taxon_id,
+            "bioproject" if args.bioproject_id else "taxon",
+            args.haploid,
+        )
 
     # Fetch annotations (live)
     live_annotations, missing_annotations = get_ensembl_live(accessions_taxon)
@@ -742,7 +862,11 @@ def main():
         all_annotations = live_annotations
 
     # Console summary
-    if args.bioproject_id:
+    if args.project_name:
+        print(
+            f"Found {len(accessions_taxon)} assemblies via --project_name {args.project_name}"
+        )
+    elif args.bioproject_id:
         print(
             f"Found {len(accessions_taxon)} assemblies under BioProject ID {args.bioproject_id}"
         )
