@@ -147,3 +147,51 @@ grep excluded cbp_audit.tsv
 # See what genomes successfully fell back to pre-release FTP:
 grep included_prerelease cbp_audit.tsv
 ```
+
+### Changelog / Regression Detection
+Compare a newly generated YAML against a previous version to detect added, removed, or modified entries:
+```bash
+python -m ensembl.genes.projects.generate_project_yaml ./cbp_guuids.txt \
+  --project cbp \
+  --output cbp_species.yaml \
+  --changelog old_cbp_species.yaml
+```
+
+This prints a human-readable diff summary to stdout, for example:
+```
+=== CHANGELOG SUMMARY ===
+
+Added (3):
+  - GCA_XXXXX (Drosophila melanogaster)
+
+Removed (2):
+  - GCA_YYYYY (Bombus terrestris)
+
+Modified (4):
+  - GCA_ZZZZZ (Papilio machaon)
+    - annotation_gtf:
+        OLD: .../2025_09/genes.gtf.gz
+        NEW: .../2025_10/genes.gtf.gz
+    - image:
+        OLD: Lepidoptera.png
+        NEW: Arthropods.png
+
+Total: 3 added, 2 removed, 4 modified.
+```
+
+To also write a machine-readable TSV changelog:
+```bash
+python -m ensembl.genes.projects.generate_project_yaml ./cbp_guuids.txt \
+  --project cbp \
+  --output cbp_species.yaml \
+  --changelog old_cbp_species.yaml \
+  --changelog-output cbp_changelog.tsv
+```
+
+The TSV contains columns: `status`, `accession`, `species`, `field`, `old_value`, `new_value`.
+
+**Comparison details:**
+- The comparison key is the `accession` field (or `assembly_accession` for HPRC, or `species`/`assembly` as fallback).
+- URL trailing slashes and date format differences (`YYYY-MM` vs `YYYY_MM`) are normalised before comparison.
+- Internal audit fields are excluded from the diff.
+- The changelog is purely informational — it never alters the generated YAML or fails the run.

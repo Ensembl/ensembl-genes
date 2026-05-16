@@ -46,6 +46,13 @@ Examples:
       --output cbp_species.yaml \\
       --audit-file cbp_audit.tsv
 
+  # Compare against a previous YAML to detect regressions:
+  python -m ensembl.genes.projects.generate_project_yaml cbp_guuids.txt \\
+      --project cbp \\
+      --output cbp_species.yaml \\
+      --changelog old_cbp_species.yaml \\
+      --changelog-output cbp_changelog.tsv
+
 Note: The input file should primarily contain Genome UUIDs (one per line). 
 For pre-release discovery without UUIDs, you may still rely on the registry tracking.
 '''
@@ -54,6 +61,8 @@ For pre-release discovery without UUIDs, you may still rely on the registry trac
     parser.add_argument("--project", required=True, help="Project name (e.g. cbp, vgp, dtol, bge, asg, erga, hprc, mouse_genomes)")
     parser.add_argument("--output", default="species.yaml", help="Output YAML file (default: species.yaml)")
     parser.add_argument("--audit-file", help="Optional output TSV file for audit logs (highly recommended)")
+    parser.add_argument("--changelog", help="Path to a previous YAML file to compare against the new output")
+    parser.add_argument("--changelog-output", help="Path to write a machine-readable TSV changelog (optional)")
     
     args = parser.parse_args()
     
@@ -236,6 +245,33 @@ For pre-release discovery without UUIDs, you may still rely on the registry trac
     print(f"Successfully generated {args.output} for {len(yaml_docs)} genomes using {config.schema_type} schema format.")
     if failed:
         print(f"Warning: Failed to retrieve metadata for {len(failed)} identifiers: {failed}", file=sys.stderr)
+
+    # --- Changelog comparison (purely informational) ---
+    if args.changelog:
+        from ensembl.genes.projects.changelog import (
+            load_yaml_as_keyed_dict,
+            compare_yamls,
+            format_changelog,
+            write_changelog_tsv,
+        )
+
+        try:
+            old_docs = load_yaml_as_keyed_dict(args.changelog)
+        except Exception as e:
+            print(f"Warning: Could not load previous YAML for changelog: {e}", file=sys.stderr)
+            old_docs = None
+
+        if old_docs is not None:
+            # Build keyed dict from the just-written output
+            new_docs = load_yaml_as_keyed_dict(args.output)
+
+            added, removed, modified = compare_yamls(old_docs, new_docs)
+            report = format_changelog(added, removed, modified)
+            print(report)
+
+            if args.changelog_output:
+                write_changelog_tsv(args.changelog_output, added, removed, modified)
+                print(f"Changelog TSV written to {args.changelog_output}")
 
 if __name__ == "__main__":
     main()
