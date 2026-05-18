@@ -111,7 +111,12 @@ def parse_busco_file(  # pylint: disable=too-many-locals, too-many-statements, u
         if mode_match == "euk_genome_min":
             erroneus = score_match.group(7)
 
-        if mode_match in ("genome", "euk_genome_met", "euk_genome_min", "prok_genome_prod"):
+        if mode_match in (
+            "genome",
+            "euk_genome_met",
+            "euk_genome_min",
+            "prok_genome_prod",
+        ):
             # Extract the BUSCO version
             data["assembly.busco_version"] = str(version)
             # Extract the BUSCO dataset
@@ -186,10 +191,12 @@ def generate_sql_patches(
 
 
 def process_busco_file(
-    busco_file: str, dbname: str, output_dir: str, assembly_id: str = "", species_id: int = 1,
+    busco_file: str,
+    dbname: str,
+    output_dir: str,
+    assembly_id: str = "",
+    species_id: int = 1,
 ) -> str:
-
-
     """
     Parses the BUSCO file, generates a JSON, writes it to an output file,
     and generates SQL patches.
@@ -222,7 +229,9 @@ def process_busco_file(
 
     # Write the JSON output to the dynamically named file
     output_path = Path(output_dir) / output_file_name
-    with open(output_path, "w", encoding="utf-8") as outfile:  # pylint: disable =unspecified-encoding
+    with open(
+        output_path, "w", encoding="utf-8"
+    ) as outfile:  # pylint: disable =unspecified-encoding
         outfile.write(busco_json)
 
     # Output the JSON
@@ -308,7 +317,9 @@ def main():
     )
     parser.add_argument("-password", required=True, type=str, help="Server password")
     parser.add_argument("-assembly_id", type=str, help="Registry assembly id")
-    parser.add_argument("-species_id", type=str, help="Species id to use in the meta table", default="1")
+    parser.add_argument(
+        "-species_id", type=str, help="Species id to use in the meta table", default="1"
+    )
     # Parse arguments
     args = parser.parse_args()
     if args.file:
