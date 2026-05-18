@@ -2697,10 +2697,7 @@
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/python/ensembl/genes/metrics/busco_metakeys_patch.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">235</span>
-<span class="normal">236</span>
-<span class="normal">237</span>
-<span class="normal">238</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">238</span>
 <span class="normal">239</span>
 <span class="normal">240</span>
 <span class="normal">241</span>
@@ -2733,7 +2730,10 @@
 <span class="normal">268</span>
 <span class="normal">269</span>
 <span class="normal">270</span>
-<span class="normal">271</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">execute_sql_patches</span><span class="p">(</span>  <span class="c1"># pylint: disable=too-many-arguments, too-many-locals</span>
+<span class="normal">271</span>
+<span class="normal">272</span>
+<span class="normal">273</span>
+<span class="normal">274</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">execute_sql_patches</span><span class="p">(</span>  <span class="c1"># pylint: disable=too-many-arguments, too-many-locals</span>
     <span class="n">db_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">sql_statements</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">host</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -2982,10 +2982,7 @@
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/python/ensembl/genes/metrics/busco_metakeys_patch.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">274</span>
-<span class="normal">275</span>
-<span class="normal">276</span>
-<span class="normal">277</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">277</span>
 <span class="normal">278</span>
 <span class="normal">279</span>
 <span class="normal">280</span>
@@ -3044,7 +3041,11 @@
 <span class="normal">333</span>
 <span class="normal">334</span>
 <span class="normal">335</span>
-<span class="normal">336</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
+<span class="normal">336</span>
+<span class="normal">337</span>
+<span class="normal">338</span>
+<span class="normal">339</span>
+<span class="normal">340</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Main function to parse a BUSCO result file and output the parsed data in JSON format.</span>
 
@@ -3078,6 +3079,7 @@
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-password&quot;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Server password&quot;</span><span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-assembly_id&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Registry assembly id&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-species_id&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Species id to use in the meta table&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;1&quot;</span><span class="p">)</span>
     <span class="c1"># Parse arguments</span>
     <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
     <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">file</span><span class="p">:</span>
@@ -3389,7 +3391,7 @@
     <span class="c1"># If match is not None, extract the group and assign it to mode_match</span>
     <span class="k">if</span> <span class="n">mode_pattern</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">mode_match</span> <span class="o">=</span> <span class="n">mode_pattern</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">mode_match</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;genome&quot;</span><span class="p">,</span> <span class="s2">&quot;euk_genome_met&quot;</span><span class="p">,</span> <span class="s2">&quot;euk_genome_min&quot;</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">mode_match</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;genome&quot;</span><span class="p">,</span> <span class="s2">&quot;euk_genome_met&quot;</span><span class="p">,</span> <span class="s2">&quot;euk_genome_min&quot;</span><span class="p">,</span> <span class="s2">&quot;prok_genome_prod&quot;</span><span class="p">):</span>
         <span class="n">busco_mode</span> <span class="o">=</span> <span class="s2">&quot;genome&quot;</span>
     <span class="k">elif</span> <span class="n">mode_match</span> <span class="o">==</span> <span class="s2">&quot;proteins&quot;</span><span class="p">:</span>
         <span class="n">busco_mode</span> <span class="o">=</span> <span class="s2">&quot;protein&quot;</span>
@@ -3422,7 +3424,7 @@
         <span class="k">if</span> <span class="n">mode_match</span> <span class="o">==</span> <span class="s2">&quot;euk_genome_min&quot;</span><span class="p">:</span>
             <span class="n">erroneus</span> <span class="o">=</span> <span class="n">score_match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">7</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">mode_match</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;genome&quot;</span><span class="p">,</span> <span class="s2">&quot;euk_genome_met&quot;</span><span class="p">,</span> <span class="s2">&quot;euk_genome_min&quot;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">mode_match</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;genome&quot;</span><span class="p">,</span> <span class="s2">&quot;euk_genome_met&quot;</span><span class="p">,</span> <span class="s2">&quot;euk_genome_min&quot;</span><span class="p">,</span> <span class="s2">&quot;prok_genome_prod&quot;</span><span class="p">):</span>
             <span class="c1"># Extract the BUSCO version</span>
             <span class="n">data</span><span class="p">[</span><span class="s2">&quot;assembly.busco_version&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">version</span><span class="p">)</span>
             <span class="c1"># Extract the BUSCO dataset</span>
@@ -3468,7 +3470,7 @@
 
 
 <h3 id="ensembl.genes.metrics.busco_metakeys_patch.process_busco_file" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">process_busco_file</span><span class="p">(</span><span class="n">busco_file</span><span class="p">,</span> <span class="n">dbname</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">,</span> <span class="n">assembly_id</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">process_busco_file</span><span class="p">(</span><span class="n">busco_file</span><span class="p">,</span> <span class="n">dbname</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">,</span> <span class="n">assembly_id</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">species_id</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span></code>
 
 <a href="#ensembl.genes.metrics.busco_metakeys_patch.process_busco_file" class="headerlink" title="Permanent link">&para;</a></h3>
 
@@ -3553,6 +3555,22 @@ and generates SQL patches.</p>
                   <code>&#39;&#39;</code>
             </td>
           </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>species_id</code>
+            </td>
+            <td>
+                  <code><span title="int">int</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>species_id Defaults to 1.</p>
+              </div>
+            </td>
+            <td>
+                  <code>1</code>
+            </td>
+          </tr>
       </tbody>
     </table>
 
@@ -3626,9 +3644,14 @@ and generates SQL patches.</p>
 <span class="normal">229</span>
 <span class="normal">230</span>
 <span class="normal">231</span>
-<span class="normal">232</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">process_busco_file</span><span class="p">(</span>
-    <span class="n">busco_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">dbname</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">assembly_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+<span class="normal">232</span>
+<span class="normal">233</span>
+<span class="normal">234</span>
+<span class="normal">235</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">process_busco_file</span><span class="p">(</span>
+    <span class="n">busco_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">dbname</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">assembly_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">species_id</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+
+
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Parses the BUSCO file, generates a JSON, writes it to an output file,</span>
 <span class="sd">    and generates SQL patches.</span>
@@ -3638,6 +3661,7 @@ and generates SQL patches.</p>
 <span class="sd">        dbname (str) : db name</span>
 <span class="sd">        output_dir (str): Output directory path</span>
 <span class="sd">        assembly_id (str, optional): Metadata used in downstream analyses.</span>
+<span class="sd">        species_id (int, optional): species_id Defaults to 1.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        str: list of Mysql patches</span>
@@ -3660,14 +3684,14 @@ and generates SQL patches.</p>
 
     <span class="c1"># Write the JSON output to the dynamically named file</span>
     <span class="n">output_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">output_dir</span><span class="p">)</span> <span class="o">/</span> <span class="n">output_file_name</span>
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">output_path</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">outfile</span><span class="p">:</span>  <span class="c1"># pylint: disable =unspecified-encoding</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">output_path</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">outfile</span><span class="p">:</span>  <span class="c1"># pylint: disable =unspecified-encoding</span>
         <span class="n">outfile</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">busco_json</span><span class="p">)</span>
 
     <span class="c1"># Output the JSON</span>
     <span class="nb">print</span><span class="p">(</span><span class="n">busco_json</span><span class="p">)</span>
 
     <span class="c1"># Generate SQL patches from the JSON</span>
-    <span class="n">sql_patches</span> <span class="o">=</span> <span class="n">generate_sql_patches</span><span class="p">(</span><span class="n">dbname</span><span class="p">,</span> <span class="n">busco_data</span><span class="p">)</span>
+    <span class="n">sql_patches</span> <span class="o">=</span> <span class="n">generate_sql_patches</span><span class="p">(</span><span class="n">dbname</span><span class="p">,</span> <span class="n">busco_data</span><span class="p">,</span> <span class="n">species_id</span><span class="o">=</span><span class="n">species_id</span><span class="p">)</span>
 
     <span class="c1"># Return SQL patches to write them to an SQL file later</span>
     <span class="k">return</span> <span class="n">sql_patches</span>
