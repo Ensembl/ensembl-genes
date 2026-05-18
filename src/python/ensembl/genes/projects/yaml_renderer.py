@@ -62,29 +62,67 @@ class YamlRenderer:
             logger.warning(f"Failed to fetch taxonomy for {taxon_id}: {e}")
         return []
 
-    def _get_ftp_species_variants(self, species_name: str) -> List[str]:
+    def _normalise_species_for_ftp(self, species_name: str) -> List[str]:
         import re
-        base = species_name.capitalize().replace(" ", "_")
-        variants = [base]
+        variants = []
+        
+        # Ensure first letter is capitalized without lowercasing the rest
+        if not species_name:
+            return variants
+        capitalized_species = species_name[0].upper() + species_name[1:]
 
-        v2 = base.replace(".", "")
-        if v2 not in variants:
-            variants.append(v2)
+        # A. Canonical Ensembl-style: replace spaces, hyphens, dots with underscores
+        canonical = re.sub(r'[ \-\.]', '_', capitalized_species)
+        # C. Collapse multiple underscores
+        canonical = re.sub(r'_+', '_', canonical)
+        variants.append(canonical)
 
-        v3 = base.replace(".", "_")
-        if v3 not in variants:
-            variants.append(v3)
+        # B. Minimal normalisation (current behavior fallback): replace spaces with underscores only
+        minimal = capitalized_species.replace(" ", "_")
+        if minimal not in variants:
+            variants.append(minimal)
 
-        v4 = re.sub(r'_+', '_', v3)
-        if v4 not in variants:
-            variants.append(v4)
+        # C. Collapse multiple underscores for minimal
+        minimal_collapsed = re.sub(r'_+', '_', minimal)
+        if minimal_collapsed not in variants:
+            variants.append(minimal_collapsed)
+
+        # D. Lowercase variants (for pre-release/repeat paths if needed)
+        lowercase_variants = [v.lower() for v in variants]
+        for lv in lowercase_variants:
+            if lv not in variants:
+                variants.append(lv)
+
+        # Preserve legacy fallbacks just in case
+        legacy_v2 = minimal.replace(".", "")
+        if legacy_v2 not in variants:
+            variants.append(legacy_v2)
+
+        legacy_v3 = minimal.replace(".", "_")
+        if legacy_v3 not in variants:
+            variants.append(legacy_v3)
+
+        legacy_v4 = re.sub(r'_+', '_', legacy_v3)
+        if legacy_v4 not in variants:
+            variants.append(legacy_v4)
+            
+        # Reorder if we have a cached success for this species
+        if hasattr(self, '_ftp_species_cache') and species_name in self._ftp_species_cache:
+            known_good = self._ftp_species_cache[species_name]
+            if known_good in variants:
+                variants.remove(known_good)
+            variants.insert(0, known_good)
 
         return variants
 
     def _resolve_ftp_assets(self, meta: GenomeMetadata) -> Dict[str, Any]:
         import re
+        if not hasattr(self, '_ftp_species_cache'):
+            self._ftp_species_cache = {}
+            
+        # Original old base logic for checking if we used a fallback
         ftp_species_name_base = meta.species_name.capitalize().replace(" ", "_")
-        variants = self._get_ftp_species_variants(meta.species_name)
+        variants = self._normalise_species_for_ftp(meta.species_name)
         
         metadata_date = meta.annotation_date.replace("-", "_") if meta.annotation_date else "unknown_date"
         source = (meta.annotation_source or "ensembl").lower().strip()
@@ -129,6 +167,10 @@ class YamlRenderer:
                     break
                     
             if resolved_rel_variant:
+                self._ftp_species_cache[meta.species_name] = resolved_rel_variant
+                if resolved_rel_variant != ftp_species_name_base:
+                    logger.info(f"Resolved FTP species name:\n      input=\"{meta.species_name}\"\n      used=\"{resolved_rel_variant}\"")
+                
                 audit_decision = "included_released"
                 audit_reason = "Found released FTP assets."
                 return {
@@ -165,6 +207,10 @@ class YamlRenderer:
                     break
 
         if resolved_pre_variant:
+            self._ftp_species_cache[meta.species_name] = resolved_pre_variant
+            if resolved_pre_variant != ftp_species_name_base:
+                logger.info(f"Resolved FTP species name:\n      input=\"{meta.species_name}\"\n      used=\"{resolved_pre_variant}\"")
+                
             audit_decision = "included_prerelease"
             audit_reason = "Found pre-release FTP assets."
             return {
@@ -234,7 +280,7 @@ class YamlRenderer:
             doc["softmasked_genome"] = f"https://ftp.ebi.ac.uk/pub/ensemblorganisms/{ftp_species_name}/{meta.accession}/genome/softmasked.fa.gz"
             
             # repeat_library — checked before emitting; omitted if file does not exist
-            repeat_species = meta.species_name.lower().replace(" ", "_")
+            repeat_species = ftp_species_name.lower()
             repeat_url = f"https://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/{repeat_species}/{meta.accession}.repeatmodeler.fa"
             if check_url_status(repeat_url):
                 doc["repeat_library"] = repeat_url
