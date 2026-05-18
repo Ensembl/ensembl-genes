@@ -78,7 +78,7 @@ def parse_busco_file(  # pylint: disable=too-many-locals, too-many-statements, u
     # If match is not None, extract the group and assign it to mode_match
     if mode_pattern is not None:
         mode_match = mode_pattern.group(1)
-    if mode_match in ("genome", "euk_genome_met", "euk_genome_min"):
+    if mode_match in ("genome", "euk_genome_met", "euk_genome_min", "prok_genome_prod"):
         busco_mode = "genome"
     elif mode_match == "proteins":
         busco_mode = "protein"
@@ -111,7 +111,7 @@ def parse_busco_file(  # pylint: disable=too-many-locals, too-many-statements, u
         if mode_match == "euk_genome_min":
             erroneus = score_match.group(7)
 
-        if mode_match in ("genome", "euk_genome_met", "euk_genome_min"):
+        if mode_match in ("genome", "euk_genome_met", "euk_genome_min", "prok_genome_prod"):
             # Extract the BUSCO version
             data["assembly.busco_version"] = str(version)
             # Extract the BUSCO dataset
@@ -186,8 +186,10 @@ def generate_sql_patches(
 
 
 def process_busco_file(
-    busco_file: str, dbname: str, output_dir: str, assembly_id: str = ""
+    busco_file: str, dbname: str, output_dir: str, assembly_id: str = "", species_id: int = 1,
 ) -> str:
+
+
     """
     Parses the BUSCO file, generates a JSON, writes it to an output file,
     and generates SQL patches.
@@ -197,6 +199,7 @@ def process_busco_file(
         dbname (str) : db name
         output_dir (str): Output directory path
         assembly_id (str, optional): Metadata used in downstream analyses.
+        species_id (int, optional): species_id Defaults to 1.
 
     Returns:
         str: list of Mysql patches
@@ -219,14 +222,14 @@ def process_busco_file(
 
     # Write the JSON output to the dynamically named file
     output_path = Path(output_dir) / output_file_name
-    with open(output_path, "w") as outfile:  # pylint: disable =unspecified-encoding
+    with open(output_path, "w", encoding="utf-8") as outfile:  # pylint: disable =unspecified-encoding
         outfile.write(busco_json)
 
     # Output the JSON
     print(busco_json)
 
     # Generate SQL patches from the JSON
-    sql_patches = generate_sql_patches(dbname, busco_data)
+    sql_patches = generate_sql_patches(dbname, busco_data, species_id=species_id)
 
     # Return SQL patches to write them to an SQL file later
     return sql_patches
@@ -305,6 +308,7 @@ def main():
     )
     parser.add_argument("-password", required=True, type=str, help="Server password")
     parser.add_argument("-assembly_id", type=str, help="Registry assembly id")
+    parser.add_argument("-species_id", type=str, help="Species id to use in the meta table", default="1")
     # Parse arguments
     args = parser.parse_args()
     if args.file:
