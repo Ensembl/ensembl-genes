@@ -74,5 +74,6 @@ def get_project_config(project_name: str) -> ProjectConfig:
         return ProjectConfig(
             project_name=name_lower,
             schema_type="standard",
-            scrape_ncbi_submitter=True
+            scrape_ncbi_submitter=True,
+            bioproject_scoping=[name_lower.upper()]
         )

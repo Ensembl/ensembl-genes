@@ -244,17 +244,25 @@ class YamlRenderer:
         # first-match-wins picks the most-specific mapped classification.
         # Chordata fallback: if nothing more specific matched, chordates get Chordates.png
         # rather than the generic Metazoa.png.
-        if self.config.project_name in ["vgp", "dtol", "erga", "darwin_tree_of_life", "cbp", "bge", "asg"]:
-            icon = "Metazoa.png"
+        icon = "Metazoa.png"
+        if not meta.taxon_id:
+            logger.warning(f"taxon_id is missing for {meta.accession}. Falling back to default image.")
+        else:
             class_list = self._fetch_taxonomy_classes(meta.taxon_id)
             for classification in class_list:
                 if classification in self.icons:
                     icon = self.icons[classification]
+                    logger.debug(f"Assigned image {icon} for {meta.accession} based on classification {classification}")
                     break  # first match wins (list is leaf→root, so most-specific class wins)
             if icon == "Metazoa.png" and "Chordata" in class_list:
                 icon = "Chordates.png"
-            doc["image"] = icon
-        elif self.config.scrape_ncbi_submitter and meta.assembly_submitter:
+                logger.debug(f"Assigned fallback Chordata image {icon} for {meta.accession}")
+            elif icon == "Metazoa.png":
+                logger.debug(f"Assigned default Metazoa image for {meta.accession}")
+                
+        doc["image"] = icon
+        
+        if self.config.scrape_ncbi_submitter and meta.assembly_submitter:
             doc["submitted_by"] = meta.assembly_submitter
             
         doc["accession"] = meta.accession
