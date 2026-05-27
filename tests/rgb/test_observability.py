@@ -13,6 +13,7 @@ from ensembl.genes.rgb.observability import (
     build_feature_profile,
     build_non_busco_high_confidence_losses,
     build_recommendations,
+    build_rescue_patterns,
     build_release_readiness,
     build_same_assembly_structure_audit,
     audit_reference_protein_set,
@@ -37,7 +38,10 @@ def _transcripts(rows):
 
 def _translations(transcript_ids):
     return pd.DataFrame(
-        [{"translation_id": idx + 1, "transcript_id": tid} for idx, tid in enumerate(transcript_ids)]
+        [
+            {"translation_id": idx + 1, "transcript_id": tid}
+            for idx, tid in enumerate(transcript_ids)
+        ]
     )
 
 
@@ -141,6 +145,48 @@ def test_evidence_fate_flags_coding_orphan_as_rescue_candidate():
     assert represented["review_priority"] == "P4"
 
 
+def test_rescue_patterns_group_recurrent_loss_signatures():
+    evidence = pd.DataFrame(
+        [
+            {
+                "layer_gene_id": 11,
+                "layer_stable_id": "LAYER_A",
+                "seq_region_name": "chr1",
+                "seq_region_start": 100,
+                "seq_region_end": 300,
+                "seq_region_strand": 1,
+                "layer_biotype": "protein_coding",
+                "layer_logic_name": "protein2genome_high",
+                "layer_coding_transcript_count": 1,
+                "layer_span_coverage_by_core": 0.0,
+                "failure_class": "no_core_gene_built",
+            },
+            {
+                "layer_gene_id": 12,
+                "layer_stable_id": "LAYER_B",
+                "seq_region_name": "chr2",
+                "seq_region_start": 500,
+                "seq_region_end": 800,
+                "seq_region_strand": 1,
+                "layer_biotype": "protein_coding",
+                "layer_logic_name": "protein2genome_high",
+                "layer_coding_transcript_count": 1,
+                "layer_span_coverage_by_core": 0.0,
+                "failure_class": "no_core_gene_built",
+            },
+        ]
+    )
+
+    patterns, candidates = build_rescue_patterns(evidence, pd.DataFrame())
+
+    assert len(patterns) == 1
+    assert patterns.iloc[0]["rescue_route"] == "layer_candidate_rescue"
+    assert patterns.iloc[0]["trigger_count"] == 2
+    assert "protein2genome_high" in patterns.iloc[0]["pattern_signature"]
+    assert set(candidates["candidate_id"]) == {"LAYER_A", "LAYER_B"}
+    assert candidates.iloc[0]["suggested_action"].startswith("resurrect this source")
+
+
 def test_expected_presence_classifies_clean_missing_and_assembly_limited_cases():
     core_genes = _genes(
         [
@@ -234,12 +280,17 @@ def test_expected_presence_classifies_clean_missing_and_assembly_limited_cases()
         ]
     )
 
-    presence = audit_expected_presence(expected_genes, expected_projections, core_genes, layer_genes)
+    presence = audit_expected_presence(
+        expected_genes, expected_projections, core_genes, layer_genes
+    )
 
     by_id = presence.set_index("expected_gene_id")
     assert by_id.loc["EXP_PRESENT", "presence_class"] == "present_clean"
     assert by_id.loc["EXP_PRESENT", "review_priority"] == "P4"
-    assert by_id.loc["EXP_MISSING_WITH_EVIDENCE", "presence_class"] == "missing_with_evidence"
+    assert (
+        by_id.loc["EXP_MISSING_WITH_EVIDENCE", "presence_class"]
+        == "missing_with_evidence"
+    )
     assert by_id.loc["EXP_MISSING_WITH_EVIDENCE", "review_priority"] == "P1"
     assert by_id.loc["EXP_GAP", "presence_class"] == "assembly_limited"
     assert by_id.loc["EXP_GAP", "suggested_action"] == "check_assembly_gap"
@@ -283,7 +334,10 @@ def test_review_loci_merges_actionable_evidence_and_expected_rows():
     review = build_review_loci(evidence, expected, top_n=10)
 
     assert list(review["audit_track"]) == ["evidence_fate", "expected_presence"]
-    assert list(review["suggested_action"]) == ["try_candidate_rescue", "check_assembly_gap"]
+    assert list(review["suggested_action"]) == [
+        "try_candidate_rescue",
+        "check_assembly_gap",
+    ]
 
 
 def test_profiles_capture_sources_busco_copy_number_and_feature_metrics():
@@ -366,7 +420,9 @@ def test_profiles_capture_sources_busco_copy_number_and_feature_metrics():
     expected_source_profile = build_expected_source_profile(expected)
     busco_crosswalk = build_busco_crosswalk(expected)
     copy_number = build_copy_number_audit(expected)
-    feature_profile = build_feature_profile(evidence, expected, review, copy_number, busco_crosswalk)
+    feature_profile = build_feature_profile(
+        evidence, expected, review, copy_number, busco_crosswalk
+    )
     recommendations = build_recommendations(
         evidence,
         expected,
@@ -490,11 +546,19 @@ def test_expected_tables_from_core_gene_table_can_generate_same_coordinate_input
 
     assert list(expected["expected_gene_id"]) == ["OLD1", "OLD2"]
     assert list(expected["expected_source"]) == ["prior_ensembl", "prior_ensembl"]
-    assert projections.set_index("expected_gene_id").loc["OLD1", "projection_status"] == "mapped"
-    assert projections.set_index("expected_gene_id").loc["OLD2", "projection_status"] == "unmapped"
+    assert (
+        projections.set_index("expected_gene_id").loc["OLD1", "projection_status"]
+        == "mapped"
+    )
+    assert (
+        projections.set_index("expected_gene_id").loc["OLD2", "projection_status"]
+        == "unmapped"
+    )
 
 
-def test_expected_tables_from_gff3_can_generate_expected_genes_and_projections(tmp_path):
+def test_expected_tables_from_gff3_can_generate_expected_genes_and_projections(
+    tmp_path,
+):
     gff3 = tmp_path / "expected.gff3"
     gff3.write_text(
         "\n".join(
@@ -521,8 +585,14 @@ def test_expected_tables_from_gff3_can_generate_expected_genes_and_projections(t
     assert by_id.loc["gene1", "expected_source"] == "refseq_gff3"
     assert by_id.loc["gene1", "symbol"] == "GENE1"
     assert by_id.loc["gene1", "orthogroup_id"] == "OG1"
-    assert projections.set_index("expected_gene_id").loc["gene1", "projection_status"] == "mapped"
-    assert projections.set_index("expected_gene_id").loc["gene2", "projection_status"] == "unmapped"
+    assert (
+        projections.set_index("expected_gene_id").loc["gene1", "projection_status"]
+        == "mapped"
+    )
+    assert (
+        projections.set_index("expected_gene_id").loc["gene2", "projection_status"]
+        == "unmapped"
+    )
 
 
 def test_same_assembly_structure_audit_classifies_gffcompare_rows():
@@ -633,7 +703,9 @@ def test_reference_protein_audit_finds_protein_supported_missing_core_gene():
 
     by_id = audit.set_index("expected_gene_id")
     assert by_id.loc["EXP_PROT1", "protein_hit_class"] == "protein_supported_built"
-    assert by_id.loc["EXP_PROT2", "protein_hit_class"] == "protein_supported_no_core_gene"
+    assert (
+        by_id.loc["EXP_PROT2", "protein_hit_class"] == "protein_supported_no_core_gene"
+    )
     assert by_id.loc["EXP_PROT2", "review_priority"] == "P1"
 
 
@@ -783,8 +855,12 @@ def test_run_audit_writes_framework_outputs(tmp_path):
     layer_genes.to_csv(extract_dir / "layer_genes.tsv", sep="\t", index=False)
     core_tx.to_csv(extract_dir / "core_transcripts.tsv", sep="\t", index=False)
     layer_tx.to_csv(extract_dir / "layer_transcripts.tsv", sep="\t", index=False)
-    _translations([101]).to_csv(extract_dir / "core_translations.tsv", sep="\t", index=False)
-    _translations([1001]).to_csv(extract_dir / "layer_translations.tsv", sep="\t", index=False)
+    _translations([101]).to_csv(
+        extract_dir / "core_translations.tsv", sep="\t", index=False
+    )
+    _translations([1001]).to_csv(
+        extract_dir / "layer_translations.tsv", sep="\t", index=False
+    )
     expected_genes_path = tmp_path / "expected_genes.tsv"
     expected_projections_path = tmp_path / "expected_projections.tsv"
     expected_genes.to_csv(expected_genes_path, sep="\t", index=False)
@@ -825,6 +901,8 @@ def test_run_audit_writes_framework_outputs(tmp_path):
         "busco_proxy_calibration.tsv",
         "copy_number_audit.tsv",
         "biotype_transition.tsv",
+        "rescue_pattern_summary.tsv",
+        "rescue_candidate_loci.tsv",
         "recommendations.tsv",
         "release_readiness.tsv",
         "feature_profile.tsv",
@@ -836,7 +914,9 @@ def test_run_audit_writes_framework_outputs(tmp_path):
     for name in expected_outputs:
         assert (obs_dir / name).exists()
     assert (obs_dir / "review_beds" / "missing_with_evidence.bed").exists()
-    assert (obs_dir / "completeness_beds" / "non_busco_high_confidence_losses.bed").exists()
+    assert (
+        obs_dir / "completeness_beds" / "non_busco_high_confidence_losses.bed"
+    ).exists()
 
 
 def test_template_and_validation_helpers(tmp_path):
@@ -882,9 +962,13 @@ def test_template_and_validation_helpers(tmp_path):
             "run_id": None,
             "format": "tsv",
             "expected_genes": str(tmp_path / "templates" / "expected_genes.tsv"),
-            "expected_projections": str(tmp_path / "templates" / "expected_projections.tsv"),
+            "expected_projections": str(
+                tmp_path / "templates" / "expected_projections.tsv"
+            ),
             "expected_proteins": str(tmp_path / "templates" / "expected_proteins.tsv"),
-            "reference_protein_hits": str(tmp_path / "templates" / "reference_protein_hits.tsv"),
+            "reference_protein_hits": str(
+                tmp_path / "templates" / "reference_protein_hits.tsv"
+            ),
             "gffcompare_tmap": None,
         },
     )()
@@ -989,4 +1073,6 @@ def test_cli_audit_smoke_with_expected_gff3_protein_hits_and_release_gates(tmp_p
     readiness = pd.read_csv(obs_dir / "release_readiness.tsv", sep="\t")
     assert "busco_floor" in set(readiness[readiness["status"] == "FAIL"]["gate_id"])
     protein_audit = pd.read_csv(obs_dir / "reference_protein_audit.tsv", sep="\t")
-    assert protein_audit.iloc[0]["protein_hit_class"] == "protein_supported_no_core_gene"
+    assert (
+        protein_audit.iloc[0]["protein_hit_class"] == "protein_supported_no_core_gene"
+    )

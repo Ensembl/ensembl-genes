@@ -66,6 +66,7 @@ check_for_transcriptomic = "ensembl.genes.transcriptomic_data.check_for_transcri
 get_transcriptomic_data = "ensembl.genes.transcriptomic_data.get_transcriptomic_data:main"
 select_transcriptomic_data = "ensembl.genes.transcriptomic_data.select_transcriptomic_data:main"
 rgb = "ensembl.genes.rgb.cli:main"
+rgb_busco_diagnostics = "ensembl.genes.rgb.busco_diagnostics:main"
 rgb_observability = "ensembl.genes.rgb.observability:main"
 
 

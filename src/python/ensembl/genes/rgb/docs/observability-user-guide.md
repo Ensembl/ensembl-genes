@@ -434,6 +434,28 @@ have hits, but it cannot count no-hit proteins because it does not know the
 full denominator. For a BUSCO-like completeness statement, always provide the
 expected protein catalogue.
 
+### Optional BUSCO genome-vs-protein diagnostic
+
+Use this when BUSCO genome mode finds a locus but BUSCO protein mode is missing
+or fragmented. This folds in the targeted `feature/BUSCO_audit` diagnostic:
+it explains whether the problem looks like no core gene, layer evidence not
+selected, non-coding core annotation, missing translation, or canonical/isoform
+choice.
+
+```bash
+rgb_observability audit \
+  --output_dir /path/to/rgb-out \
+  --run_id <run_id> \
+  --genome_busco /path/to/genome/full_table.tsv \
+  --protein_busco /path/to/protein/full_table.tsv \
+  --hmmer_dir /path/to/busco_protein/run_<lineage>/hmmer_output/initial_run_results \
+  --busco_dataset_dir /path/to/<lineage>_odb<version>
+```
+
+`--hmmer_dir` and `--busco_dataset_dir` are optional. HMMER output is what lets
+the audit report candidate isoforms that satisfy BUSCO-like HMM coverage and
+e-value checks.
+
 ## Run the audit
 
 Without expected genes:
@@ -459,6 +481,15 @@ rgb_observability audit \
   --bed_pad_bp 500
 ```
 
+Add `--verbose` to `run`, `audit`, or `validate-inputs` for timestamped
+progress updates during long jobs. Verbose messages are written to stderr and
+include elapsed time since the command started, for example:
+
+```text
+[observability 2026-05-27T10:15:04 +12.8s] auditing fate of layer evidence against final core
+[observability 2026-05-27T10:15:37 +45.3s] writing observability outputs to /path/to/rgb-out/<run_id>/observability
+```
+
 During local development before reinstalling the package, the same command can
 be run as:
 
@@ -481,11 +512,17 @@ The audit writes to:
 | `source_profile.tsv` | Layer source/biotype profile: orphan counts, P1 counts, median core coverage |
 | `expected_source_profile.tsv` | Expected source/confidence profile: retained/missing/assembly-limited counts |
 | `busco_expected_crosswalk.tsv` | BUSCO-linked expected genes and their broader presence classifications |
+| `busco_diagnostic_audit.tsv` | BUSCO genome-vs-protein failures with core/layer/HMMER diagnostic classes |
+| `busco_isoform_suggestions.tsv` | HMMER-supported transcript isoforms that may satisfy BUSCO |
+| `busco_diagnostic_summary.tsv` | Counts by BUSCO diagnostic class and priority |
+| `busco_diagnostic_issues.bed` | BED6 browser track for BUSCO diagnostic problem loci |
 | `completeness_profile.tsv` | Completeness by expected-gene panel, not just BUSCO |
 | `non_busco_high_confidence_losses.tsv` | High-confidence expected-gene losses outside BUSCO |
 | `busco_proxy_calibration.tsv` | BUSCO-linked vs non-BUSCO completeness comparison |
 | `copy_number_audit.tsv` | Expected vs observed copy number by orthogroup, BUSCO id, or expected gene id |
 | `biotype_transition.tsv` | Layer-to-core and expected-to-core biotype transitions |
+| `rescue_pattern_summary.tsv` | Recurrent recoverable loss signatures grouped by source, biotype, BUSCO, and expected-gene class |
+| `rescue_candidate_loci.tsv` | Exact loci/features belonging to each rescue pattern for targeted resurrection |
 | `same_assembly_structure.tsv` | GffCompare `.tmap` rows classified for same-assembly structure comparison |
 | `same_assembly_structure_summary.tsv` | Counts by GffCompare class-derived structure class |
 | `reference_protein_audit.tsv` | BUSCO-like audit for arbitrary expected protein sets |

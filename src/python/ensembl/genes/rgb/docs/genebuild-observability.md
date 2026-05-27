@@ -921,7 +921,7 @@ from genome-wide core/layer extraction and locus construction. It needs to move
 from span/count metrics to transcript/CDS/protein representation and stable
 table contracts.
 
-The BUSCO audit branch should be folded in as a BUSCO diagnostic module. Its
-main value is targeted explanation of BUSCO genome-vs-protein disagreements,
-especially canonical/protein issues. It should not own the overall completeness
+The BUSCO audit branch is folded in as a BUSCO diagnostic module. Its main
+value is targeted explanation of BUSCO genome-vs-protein disagreements,
+especially canonical/protein issues. It does not own the overall completeness
 story.

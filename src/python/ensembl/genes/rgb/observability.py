@@ -1,16 +1,24 @@
 from __future__ import annotations
 
 import argparse
+import datetime
 import gzip
 import json
 import os
 import sys
+import time
 from dataclasses import dataclass
 from typing import Iterable, Optional
 from urllib.parse import unquote
 
 import pandas as pd
 
+from .busco_diagnostics import (
+    build_busco_diagnostic_audit,
+    load_busco_metadata,
+    parse_busco_table,
+    write_busco_diagnostic_bed,
+)
 from .db import (
     DBParams,
     connect,
@@ -26,6 +34,18 @@ from .utils import ensure_dir, make_run_id
 
 PRIORITY_RANK = {"P0": 0, "P1": 1, "P2": 2, "P3": 3, "P4": 4}
 CONFIDENCE_RANK = {"high": 0, "medium": 1, "low": 2, "unknown": 3}
+
+
+def _verbose(
+    args: argparse.Namespace, message: str, start_time: Optional[float] = None
+) -> None:
+    if not getattr(args, "verbose", False):
+        return
+    stamp = datetime.datetime.now().isoformat(timespec="seconds")
+    elapsed = ""
+    if start_time is not None:
+        elapsed = f" +{time.monotonic() - start_time:.1f}s"
+    print(f"[observability {stamp}{elapsed}] {message}", file=sys.stderr)
 
 
 @dataclass(frozen=True)
@@ -55,7 +75,9 @@ def _paths_from_args(args: argparse.Namespace) -> AuditPaths:
     run_dir = getattr(args, "run_dir", None)
     if run_dir:
         run_dir = os.path.abspath(run_dir)
-        return AuditPaths(os.path.dirname(run_dir), os.path.basename(run_dir), args.format)
+        return AuditPaths(
+            os.path.dirname(run_dir), os.path.basename(run_dir), args.format
+        )
     output_dir = getattr(args, "output_dir", None)
     run_id = getattr(args, "run_id", None)
     if not output_dir or not run_id:
@@ -82,7 +104,9 @@ def _read_table(path: str, fmt: Optional[str] = None) -> pd.DataFrame:
         return pd.DataFrame()
 
 
-def _load_named_table(base_dir: str, base: str, prefer_fmt: str, required: bool = True) -> pd.DataFrame:
+def _load_named_table(
+    base_dir: str, base: str, prefer_fmt: str, required: bool = True
+) -> pd.DataFrame:
     for fmt in (prefer_fmt, "tsv", "csv", "parquet"):
         path = os.path.join(base_dir, f"{base}.{fmt}")
         if os.path.exists(path):
@@ -173,7 +197,9 @@ def _normalise_gene_table(df: pd.DataFrame, source_kind: str) -> pd.DataFrame:
     if not out.empty:
         out["seq_region_name"] = out["seq_region_name"].astype(str)
         out["seq_region_strand"] = out["seq_region_strand"].map(_normalise_strand)
-        out["seq_region_start"] = out["seq_region_start"].map(lambda x: _int_value(x, 0))
+        out["seq_region_start"] = out["seq_region_start"].map(
+            lambda x: _int_value(x, 0)
+        )
         out["seq_region_end"] = out["seq_region_end"].map(lambda x: _int_value(x, 0))
     return out[cols + ["source_kind"]]
 
@@ -198,7 +224,9 @@ def _normalise_transcript_table(df: pd.DataFrame, source_kind: str) -> pd.DataFr
     if not out.empty:
         out["seq_region_name"] = out["seq_region_name"].astype(str)
         out["seq_region_strand"] = out["seq_region_strand"].map(_normalise_strand)
-        out["seq_region_start"] = out["seq_region_start"].map(lambda x: _int_value(x, 0))
+        out["seq_region_start"] = out["seq_region_start"].map(
+            lambda x: _int_value(x, 0)
+        )
         out["seq_region_end"] = out["seq_region_end"].map(lambda x: _int_value(x, 0))
     return out[cols + ["source_kind"]]
 
@@ -221,16 +249,23 @@ def _gene_support_by_id(tx_df: pd.DataFrame, tr_df: pd.DataFrame) -> pd.DataFram
         return _empty(columns)
     tx = tx_df.copy()
     tr_ids = _translation_ids(tr_df)
-    tx["has_translation"] = tx["transcript_id"].map(lambda x: int(_int_value(x, -1) in tr_ids))
+    tx["has_translation"] = tx["transcript_id"].map(
+        lambda x: int(_int_value(x, -1) in tr_ids)
+    )
     grouped = (
         tx.groupby("gene_id", dropna=False)
-        .agg(transcript_count=("transcript_id", "count"), coding_transcript_count=("has_translation", "sum"))
+        .agg(
+            transcript_count=("transcript_id", "count"),
+            coding_transcript_count=("has_translation", "sum"),
+        )
         .reset_index()
     )
     return grouped[columns]
 
 
-def _best_overlap(query: pd.Series, targets: pd.DataFrame, same_strand: bool = True) -> tuple[Optional[pd.Series], int]:
+def _best_overlap(
+    query: pd.Series, targets: pd.DataFrame, same_strand: bool = True
+) -> tuple[Optional[pd.Series], int]:
     if targets.empty:
         return None, 0
     seq = _string_value(query.get("seq_region_name"))
@@ -255,7 +290,9 @@ def _best_overlap(query: pd.Series, targets: pd.DataFrame, same_strand: bool = T
     return best_row, best_bp
 
 
-def _overlap_count(query: pd.Series, targets: pd.DataFrame, same_strand: Optional[bool]) -> int:
+def _overlap_count(
+    query: pd.Series, targets: pd.DataFrame, same_strand: Optional[bool]
+) -> int:
     if targets.empty:
         return 0
     seq = _string_value(query.get("seq_region_name"))
@@ -322,13 +359,33 @@ def _evidence_fate_class(
             "check_biotype_assignment",
         )
     if coverage < 0.50:
-        return ("represented_partial", "core_span_underrepresents_evidence", "P2", "inspect_browser")
+        return (
+            "represented_partial",
+            "core_span_underrepresents_evidence",
+            "P2",
+            "inspect_browser",
+        )
     if coverage < 0.80:
-        return ("represented_partial", "partial_core_representation", "P2", "inspect_browser")
+        return (
+            "represented_partial",
+            "partial_core_representation",
+            "P2",
+            "inspect_browser",
+        )
     if collapse_group_size > 1 and layer_biotype == core_biotype:
-        return ("collapsed_into_core", "possible_transcript_or_model_collapse", "P3", "inspect_collapse_group")
+        return (
+            "collapsed_into_core",
+            "possible_transcript_or_model_collapse",
+            "P3",
+            "inspect_collapse_group",
+        )
     if coverage >= 0.95:
-        return ("represented_exact_or_near_span", "represented_span_only", "P4", "no_action")
+        return (
+            "represented_exact_or_near_span",
+            "represented_span_only",
+            "P4",
+            "no_action",
+        )
     return ("represented_near", "represented_span_only", "P4", "no_action")
 
 
@@ -356,9 +413,13 @@ def audit_evidence_fate(
             df["transcript_count"] = 0
         if "coding_transcript_count" not in df.columns:
             df["coding_transcript_count"] = 0
-        df["transcript_count"] = pd.to_numeric(df["transcript_count"], errors="coerce").fillna(0).astype(int)
+        df["transcript_count"] = (
+            pd.to_numeric(df["transcript_count"], errors="coerce").fillna(0).astype(int)
+        )
         df["coding_transcript_count"] = (
-            pd.to_numeric(df["coding_transcript_count"], errors="coerce").fillna(0).astype(int)
+            pd.to_numeric(df["coding_transcript_count"], errors="coerce")
+            .fillna(0)
+            .astype(int)
         )
 
     preliminary: list[dict] = []
@@ -380,17 +441,31 @@ def audit_evidence_fate(
                 "layer_biotype": _string_value(row.get("biotype"), "unknown"),
                 "layer_logic_name": _string_value(row.get("logic_name"), "unknown"),
                 "layer_transcript_count": _int_value(row.get("transcript_count")),
-                "layer_coding_transcript_count": _int_value(row.get("coding_transcript_count")),
-                "best_core_gene_id": best_core.get("gene_id") if best_core is not None else pd.NA,
-                "best_core_stable_id": _string_value(best_core.get("stable_id")) if best_core is not None else "",
+                "layer_coding_transcript_count": _int_value(
+                    row.get("coding_transcript_count")
+                ),
+                "best_core_gene_id": (
+                    best_core.get("gene_id") if best_core is not None else pd.NA
+                ),
+                "best_core_stable_id": (
+                    _string_value(best_core.get("stable_id"))
+                    if best_core is not None
+                    else ""
+                ),
                 "best_core_biotype": (
-                    _string_value(best_core.get("biotype"), "unknown") if best_core is not None else ""
+                    _string_value(best_core.get("biotype"), "unknown")
+                    if best_core is not None
+                    else ""
                 ),
                 "best_core_transcript_count": (
-                    _int_value(best_core.get("transcript_count")) if best_core is not None else 0
+                    _int_value(best_core.get("transcript_count"))
+                    if best_core is not None
+                    else 0
                 ),
                 "best_core_coding_transcript_count": (
-                    _int_value(best_core.get("coding_transcript_count")) if best_core is not None else 0
+                    _int_value(best_core.get("coding_transcript_count"))
+                    if best_core is not None
+                    else 0
                 ),
                 "same_strand_core_count": same_count,
                 "opposite_strand_core_count": opp_count,
@@ -398,7 +473,9 @@ def audit_evidence_fate(
                 "layer_span_bp": layer_span,
                 "layer_span_coverage_by_core": coverage,
                 "representation_class": _coverage_class(coverage),
-                "_layer_has_coding": bool(_int_value(row.get("coding_transcript_count")) > 0),
+                "_layer_has_coding": bool(
+                    _int_value(row.get("coding_transcript_count")) > 0
+                ),
             }
         )
 
@@ -453,7 +530,9 @@ def audit_evidence_fate(
     )
     return out.drop(columns=["_row_index", "_layer_has_coding"]).sort_values(
         ["review_priority", "failure_class", "seq_region_name", "seq_region_start"],
-        key=lambda s: s.map(PRIORITY_RANK).fillna(9) if s.name == "review_priority" else s,
+        key=lambda s: (
+            s.map(PRIORITY_RANK).fillna(9) if s.name == "review_priority" else s
+        ),
     )
 
 
@@ -475,8 +554,12 @@ def _normalise_expected_genes(df: pd.DataFrame) -> pd.DataFrame:
             out[col] = pd.NA
     if "expected_gene_id" not in df.columns and "reference_stable_id" in df.columns:
         out["expected_gene_id"] = out["reference_stable_id"]
-    out["confidence"] = out["confidence"].map(lambda x: _string_value(x, "unknown").lower())
-    out["expected_copy_number"] = out["expected_copy_number"].map(lambda x: _int_value(x, 1) or 1)
+    out["confidence"] = out["confidence"].map(
+        lambda x: _string_value(x, "unknown").lower()
+    )
+    out["expected_copy_number"] = out["expected_copy_number"].map(
+        lambda x: _int_value(x, 1) or 1
+    )
     return out[cols]
 
 
@@ -511,11 +594,21 @@ def _normalise_expected_projections(df: pd.DataFrame) -> pd.DataFrame:
         out["seq_region_start"] = out["seq_region_start"].map(lambda x: _int_value(x))
         out["seq_region_end"] = out["seq_region_end"].map(lambda x: _int_value(x))
         out["seq_region_strand"] = out["seq_region_strand"].map(_normalise_strand)
-        out["projection_status"] = out["projection_status"].map(lambda x: _string_value(x, "mapped").lower())
-        out["projection_coverage"] = out["projection_coverage"].map(lambda x: _numeric_value(x, 0.0))
-        out["projection_identity"] = out["projection_identity"].map(lambda x: _numeric_value(x, 0.0))
-        out["assembly_gap_overlap_bp"] = out["assembly_gap_overlap_bp"].map(lambda x: _int_value(x, 0))
-        out["repeat_overlap_bp"] = out["repeat_overlap_bp"].map(lambda x: _int_value(x, 0))
+        out["projection_status"] = out["projection_status"].map(
+            lambda x: _string_value(x, "mapped").lower()
+        )
+        out["projection_coverage"] = out["projection_coverage"].map(
+            lambda x: _numeric_value(x, 0.0)
+        )
+        out["projection_identity"] = out["projection_identity"].map(
+            lambda x: _numeric_value(x, 0.0)
+        )
+        out["assembly_gap_overlap_bp"] = out["assembly_gap_overlap_bp"].map(
+            lambda x: _int_value(x, 0)
+        )
+        out["repeat_overlap_bp"] = out["repeat_overlap_bp"].map(
+            lambda x: _int_value(x, 0)
+        )
     return out[cols]
 
 
@@ -531,42 +624,115 @@ def _expected_presence_class(
 ) -> tuple[str, str, str, str, str]:
     confidence = _string_value(expected.get("confidence"), "unknown").lower()
     expected_biotype = _string_value(expected.get("biotype"), "unknown")
-    projection_status = _string_value(projection.get("projection_status"), "mapped").lower()
+    projection_status = _string_value(
+        projection.get("projection_status"), "mapped"
+    ).lower()
     projection_coverage = _numeric_value(projection.get("projection_coverage"), 0.0)
     gap_bp = _int_value(projection.get("assembly_gap_overlap_bp"), 0)
-    expected_span = _span_bp(projection.get("seq_region_start"), projection.get("seq_region_end"))
+    expected_span = _span_bp(
+        projection.get("seq_region_start"), projection.get("seq_region_end")
+    )
     core_cov = core_overlap / expected_span if expected_span else 0.0
 
     if projection_status in ("unmapped", "missing") or expected_span == 0:
         if confidence == "high":
-            return ("unresolved", "projection_unmapped", "P2", "add_or_check_projection", "unassessable")
-        return ("unresolved", "projection_unmapped", "P3", "add_or_check_projection", "unassessable")
+            return (
+                "unresolved",
+                "projection_unmapped",
+                "P2",
+                "add_or_check_projection",
+                "unassessable",
+            )
+        return (
+            "unresolved",
+            "projection_unmapped",
+            "P3",
+            "add_or_check_projection",
+            "unassessable",
+        )
 
     if gap_bp > 0 and best_core is None:
-        return ("assembly_limited", "assembly_gap_limited", "P2", "check_assembly_gap", "gap_limited")
+        return (
+            "assembly_limited",
+            "assembly_gap_limited",
+            "P2",
+            "check_assembly_gap",
+            "gap_limited",
+        )
 
     if best_core is None:
         if best_layer is not None or layer_overlap > 0:
             priority = "P1" if confidence == "high" else "P2"
-            return ("missing_with_evidence", "no_core_gene_built", priority, "try_candidate_rescue", "intact")
+            return (
+                "missing_with_evidence",
+                "no_core_gene_built",
+                priority,
+                "try_candidate_rescue",
+                "intact",
+            )
         if projection_coverage >= 0.50 or projection_status in ("mapped", "partial"):
             priority = "P1" if confidence == "high" else "P2"
-            return ("projection_only", "projected_expected_gene_not_built", priority, "inspect_browser", "intact")
-        return ("missing_no_evidence", "evidence_absent_on_assembly", "P3", "mark_possible_true_loss", "uncertain")
+            return (
+                "projection_only",
+                "projected_expected_gene_not_built",
+                priority,
+                "inspect_browser",
+                "intact",
+            )
+        return (
+            "missing_no_evidence",
+            "evidence_absent_on_assembly",
+            "P3",
+            "mark_possible_true_loss",
+            "uncertain",
+        )
 
     core_biotype = _string_value(best_core.get("biotype"), "unknown")
     if core_overlap_count > 1:
-        return ("split", "split_gene_candidate", "P2", "inspect_split_candidate", "intact")
+        return (
+            "split",
+            "split_gene_candidate",
+            "P2",
+            "inspect_split_candidate",
+            "intact",
+        )
     if core_expected_count_for_best_core > 1:
-        return ("fused", "fused_gene_candidate", "P2", "inspect_fusion_candidate", "intact")
-    if expected_biotype == "protein_coding" and core_biotype not in ("protein_coding", "unknown"):
-        return ("present_wrong_biotype", "wrong_biotype", "P1", "check_biotype_assignment", "intact")
+        return (
+            "fused",
+            "fused_gene_candidate",
+            "P2",
+            "inspect_fusion_candidate",
+            "intact",
+        )
+    if expected_biotype == "protein_coding" and core_biotype not in (
+        "protein_coding",
+        "unknown",
+    ):
+        return (
+            "present_wrong_biotype",
+            "wrong_biotype",
+            "P1",
+            "check_biotype_assignment",
+            "intact",
+        )
     if core_cov >= 0.80:
         return ("present_clean", "represented_span_only", "P4", "no_action", "intact")
     if core_cov > 0:
         priority = "P1" if confidence == "high" else "P2"
-        return ("present_degraded", "core_span_underrepresents_expected_gene", priority, "inspect_browser", "intact")
-    return ("unresolved", "no_span_match_after_overlap_selection", "P3", "inspect_browser", "uncertain")
+        return (
+            "present_degraded",
+            "core_span_underrepresents_expected_gene",
+            priority,
+            "inspect_browser",
+            "intact",
+        )
+    return (
+        "unresolved",
+        "no_span_match_after_overlap_selection",
+        "P3",
+        "inspect_browser",
+        "uncertain",
+    )
 
 
 def audit_expected_presence(
@@ -603,7 +769,9 @@ def audit_expected_presence(
         projections["assembly_gap_overlap_bp"] = 0
         projections["repeat_overlap_bp"] = 0
     else:
-        projections = expected[["expected_gene_id"]].merge(projections, on="expected_gene_id", how="left")
+        projections = expected[["expected_gene_id"]].merge(
+            projections, on="expected_gene_id", how="left"
+        )
         missing_projection = projections["projection_status"].isna()
         projections.loc[missing_projection, "seq_region_name"] = ""
         projections.loc[missing_projection, "seq_region_start"] = 0
@@ -631,7 +799,9 @@ def audit_expected_presence(
         best_layer, layer_overlap = _best_overlap(query, layer, same_strand=True)
         core_count = _overlap_count(query, core, same_strand=True)
         expected_id = _string_value(row.get("expected_gene_id"))
-        best_core_id = _string_value(best_core.get("gene_id")) if best_core is not None else ""
+        best_core_id = (
+            _string_value(best_core.get("gene_id")) if best_core is not None else ""
+        )
         if expected_id and best_core_id:
             best_core_by_expected[expected_id] = best_core_id
         preliminary.append(
@@ -649,20 +819,40 @@ def audit_expected_presence(
                 "seq_region_start": _int_value(row.get("seq_region_start")),
                 "seq_region_end": _int_value(row.get("seq_region_end")),
                 "seq_region_strand": _normalise_strand(row.get("seq_region_strand")),
-                "projection_status": _string_value(row.get("projection_status"), "mapped"),
+                "projection_status": _string_value(
+                    row.get("projection_status"), "mapped"
+                ),
                 "projection_identity": _numeric_value(row.get("projection_identity")),
                 "projection_coverage": _numeric_value(row.get("projection_coverage")),
-                "assembly_gap_overlap_bp": _int_value(row.get("assembly_gap_overlap_bp")),
-                "repeat_overlap_bp": _int_value(row.get("repeat_overlap_bp")),
-                "best_core_gene_id": best_core.get("gene_id") if best_core is not None else pd.NA,
-                "best_core_stable_id": _string_value(best_core.get("stable_id")) if best_core is not None else "",
-                "best_core_biotype": (
-                    _string_value(best_core.get("biotype"), "unknown") if best_core is not None else ""
+                "assembly_gap_overlap_bp": _int_value(
+                    row.get("assembly_gap_overlap_bp")
                 ),
-                "best_layer_gene_id": best_layer.get("gene_id") if best_layer is not None else pd.NA,
-                "best_layer_stable_id": _string_value(best_layer.get("stable_id")) if best_layer is not None else "",
+                "repeat_overlap_bp": _int_value(row.get("repeat_overlap_bp")),
+                "best_core_gene_id": (
+                    best_core.get("gene_id") if best_core is not None else pd.NA
+                ),
+                "best_core_stable_id": (
+                    _string_value(best_core.get("stable_id"))
+                    if best_core is not None
+                    else ""
+                ),
+                "best_core_biotype": (
+                    _string_value(best_core.get("biotype"), "unknown")
+                    if best_core is not None
+                    else ""
+                ),
+                "best_layer_gene_id": (
+                    best_layer.get("gene_id") if best_layer is not None else pd.NA
+                ),
+                "best_layer_stable_id": (
+                    _string_value(best_layer.get("stable_id"))
+                    if best_layer is not None
+                    else ""
+                ),
                 "best_layer_logic_name": (
-                    _string_value(best_layer.get("logic_name"), "unknown") if best_layer is not None else ""
+                    _string_value(best_layer.get("logic_name"), "unknown")
+                    if best_layer is not None
+                    else ""
                 ),
                 "core_overlap_bp": core_overlap,
                 "layer_overlap_bp": layer_overlap,
@@ -673,7 +863,9 @@ def audit_expected_presence(
             }
         )
 
-    core_expected_counts = pd.Series(list(best_core_by_expected.values())).value_counts().to_dict()
+    core_expected_counts = (
+        pd.Series(list(best_core_by_expected.values())).value_counts().to_dict()
+    )
     classified: list[dict] = []
     for row in preliminary:
         best_core_id = _string_value(row.get("best_core_gene_id"))
@@ -691,7 +883,9 @@ def audit_expected_presence(
         expected_span = _span_bp(row["seq_region_start"], row["seq_region_end"])
         row["expected_span_bp"] = expected_span
         row["expected_span_coverage_by_core"] = (
-            float(row["core_overlap_bp"]) / float(expected_span) if expected_span else 0.0
+            float(row["core_overlap_bp"]) / float(expected_span)
+            if expected_span
+            else 0.0
         )
         row["presence_class"] = presence
         row["failure_class"] = failure
@@ -708,9 +902,11 @@ def audit_expected_presence(
     out = pd.DataFrame(classified)
     return out.sort_values(
         ["review_priority", "confidence", "seq_region_name", "seq_region_start"],
-        key=lambda s: s.map(PRIORITY_RANK).fillna(9)
-        if s.name == "review_priority"
-        else (s.map(CONFIDENCE_RANK).fillna(9) if s.name == "confidence" else s),
+        key=lambda s: (
+            s.map(PRIORITY_RANK).fillna(9)
+            if s.name == "review_priority"
+            else (s.map(CONFIDENCE_RANK).fillna(9) if s.name == "confidence" else s)
+        ),
     )
 
 
@@ -721,14 +917,18 @@ def build_or_load_loci(
     gap_bp: int,
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
     loci = _load_named_table(paths.loci_dir, "loci.strict", paths.fmt, required=False)
-    mapping = _load_named_table(paths.loci_dir, "gene_to_locus", paths.fmt, required=False)
+    mapping = _load_named_table(
+        paths.loci_dir, "gene_to_locus", paths.fmt, required=False
+    )
     if not loci.empty and not mapping.empty:
         return loci, mapping
     loci, _, mapping = build_loci(core_genes, layer_genes, gap_bp=gap_bp)
     return loci, mapping
 
 
-def build_audit_loci(loci: pd.DataFrame, expected_presence: pd.DataFrame, review_loci: pd.DataFrame) -> pd.DataFrame:
+def build_audit_loci(
+    loci: pd.DataFrame, expected_presence: pd.DataFrame, review_loci: pd.DataFrame
+) -> pd.DataFrame:
     columns = [
         "locus_id",
         "seq_region_name",
@@ -761,13 +961,19 @@ def build_audit_loci(loci: pd.DataFrame, expected_presence: pd.DataFrame, review
     review_counts = []
     p1_counts = []
     for _, locus in out.iterrows():
-        expected_counts.append(_interval_row_count(locus, expected_presence, "expected_gene_id"))
+        expected_counts.append(
+            _interval_row_count(locus, expected_presence, "expected_gene_id")
+        )
         review_counts.append(_interval_row_count(locus, review_loci, "subject_id"))
         if review_loci.empty:
             p1_counts.append(0)
         else:
             p1_counts.append(
-                _interval_row_count(locus, review_loci[review_loci["review_priority"] == "P1"], "subject_id")
+                _interval_row_count(
+                    locus,
+                    review_loci[review_loci["review_priority"] == "P1"],
+                    "subject_id",
+                )
             )
     out["expected_gene_count"] = expected_counts
     out["review_locus_count"] = review_counts
@@ -790,12 +996,16 @@ def _interval_row_count(locus: pd.Series, rows: pd.DataFrame, id_col: str) -> in
         subset = subset[subset["seq_region_strand"].map(_normalise_strand) == strand]
     ids = set()
     for _, row in subset.iterrows():
-        if _overlap_bp(start, end, row.get("seq_region_start"), row.get("seq_region_end")):
+        if _overlap_bp(
+            start, end, row.get("seq_region_start"), row.get("seq_region_end")
+        ):
             ids.add(_string_value(row.get(id_col), default=str(len(ids))))
     return len(ids)
 
 
-def _failure_summary(evidence_fate: pd.DataFrame, expected_presence: pd.DataFrame) -> pd.DataFrame:
+def _failure_summary(
+    evidence_fate: pd.DataFrame, expected_presence: pd.DataFrame
+) -> pd.DataFrame:
     rows: list[dict] = []
     if not evidence_fate.empty:
         grouped = (
@@ -814,7 +1024,9 @@ def _failure_summary(evidence_fate: pd.DataFrame, expected_presence: pd.DataFram
             )
     if not expected_presence.empty:
         grouped = (
-            expected_presence.groupby(["presence_class", "failure_class", "review_priority"], dropna=False)
+            expected_presence.groupby(
+                ["presence_class", "failure_class", "review_priority"], dropna=False
+            )
             .size()
             .reset_index(name="count")
         )
@@ -827,7 +1039,9 @@ def _failure_summary(evidence_fate: pd.DataFrame, expected_presence: pd.DataFram
                     "count": int(row["count"]),
                 }
             )
-    return pd.DataFrame(rows, columns=["audit_track", "class", "review_priority", "count"])
+    return pd.DataFrame(
+        rows, columns=["audit_track", "class", "review_priority", "count"]
+    )
 
 
 def build_source_profile(evidence_fate: pd.DataFrame) -> pd.DataFrame:
@@ -846,21 +1060,30 @@ def build_source_profile(evidence_fate: pd.DataFrame) -> pd.DataFrame:
     rows = []
     grouped = evidence_fate.groupby(["layer_logic_name", "layer_biotype"], dropna=False)
     for (logic_name, biotype), group in grouped:
-        top_failure = group["failure_class"].value_counts().index[0] if not group.empty else ""
+        top_failure = (
+            group["failure_class"].value_counts().index[0] if not group.empty else ""
+        )
         rows.append(
             {
                 "layer_logic_name": logic_name,
                 "layer_biotype": biotype,
                 "n_layer_models": int(len(group)),
-                "n_coding_models": int((group["layer_coding_transcript_count"] > 0).sum()),
-                "n_orphan_models": int((group["fate_class"] == "orphan_evidence").sum()),
+                "n_coding_models": int(
+                    (group["layer_coding_transcript_count"] > 0).sum()
+                ),
+                "n_orphan_models": int(
+                    (group["fate_class"] == "orphan_evidence").sum()
+                ),
                 "n_p1_models": int((group["review_priority"] == "P1").sum()),
-                "median_core_coverage": float(group["layer_span_coverage_by_core"].median()),
+                "median_core_coverage": float(
+                    group["layer_span_coverage_by_core"].median()
+                ),
                 "top_failure_class": top_failure,
             }
         )
     return pd.DataFrame(rows, columns=columns).sort_values(
-        ["n_p1_models", "n_orphan_models", "n_layer_models"], ascending=[False, False, False]
+        ["n_p1_models", "n_orphan_models", "n_layer_models"],
+        ascending=[False, False, False],
     )
 
 
@@ -881,22 +1104,33 @@ def build_expected_source_profile(expected_presence: pd.DataFrame) -> pd.DataFra
     rows = []
     grouped = expected_presence.groupby(["expected_source", "confidence"], dropna=False)
     for (source, confidence), group in grouped:
-        top_presence = group["presence_class"].value_counts().index[0] if not group.empty else ""
+        top_presence = (
+            group["presence_class"].value_counts().index[0] if not group.empty else ""
+        )
         rows.append(
             {
                 "expected_source": source,
                 "confidence": confidence,
                 "n_expected_genes": int(len(group)),
-                "n_present_clean": int((group["presence_class"] == "present_clean").sum()),
-                "n_missing_with_evidence": int((group["presence_class"] == "missing_with_evidence").sum()),
-                "n_projection_only": int((group["presence_class"] == "projection_only").sum()),
-                "n_assembly_limited": int((group["presence_class"] == "assembly_limited").sum()),
+                "n_present_clean": int(
+                    (group["presence_class"] == "present_clean").sum()
+                ),
+                "n_missing_with_evidence": int(
+                    (group["presence_class"] == "missing_with_evidence").sum()
+                ),
+                "n_projection_only": int(
+                    (group["presence_class"] == "projection_only").sum()
+                ),
+                "n_assembly_limited": int(
+                    (group["presence_class"] == "assembly_limited").sum()
+                ),
                 "n_p1_genes": int((group["review_priority"] == "P1").sum()),
                 "top_presence_class": top_presence,
             }
         )
     return pd.DataFrame(rows, columns=columns).sort_values(
-        ["n_p1_genes", "n_missing_with_evidence", "n_expected_genes"], ascending=[False, False, False]
+        ["n_p1_genes", "n_missing_with_evidence", "n_expected_genes"],
+        ascending=[False, False, False],
     )
 
 
@@ -915,12 +1149,16 @@ def build_busco_crosswalk(expected_presence: pd.DataFrame) -> pd.DataFrame:
     ]
     if expected_presence.empty or "busco_id" not in expected_presence.columns:
         return _empty(columns)
-    busco = expected_presence[expected_presence["busco_id"].map(lambda x: _string_value(x) != "")].copy()
+    busco = expected_presence[
+        expected_presence["busco_id"].map(lambda x: _string_value(x) != "")
+    ].copy()
     if busco.empty:
         return _empty(columns)
     return busco[columns].sort_values(
         ["review_priority", "busco_id"],
-        key=lambda s: s.map(PRIORITY_RANK).fillna(9) if s.name == "review_priority" else s,
+        key=lambda s: (
+            s.map(PRIORITY_RANK).fillna(9) if s.name == "review_priority" else s
+        ),
     )
 
 
@@ -976,13 +1214,27 @@ def _panel_rows(expected_presence: pd.DataFrame) -> list[tuple[str, str, pd.Data
     if not busco.empty:
         panels.append(("busco_linked", "Expected genes linked to BUSCO markers", busco))
     same_species = expected_presence[
-        expected_presence["expected_source"].astype(str).isin(["prior_ensembl", "same_species", "previous_ensembl"])
+        expected_presence["expected_source"]
+        .astype(str)
+        .isin(["prior_ensembl", "same_species", "previous_ensembl"])
     ]
     if not same_species.empty:
-        panels.append(("same_species_reference", "Previous or same-species expected genes", same_species))
+        panels.append(
+            (
+                "same_species_reference",
+                "Previous or same-species expected genes",
+                same_species,
+            )
+        )
     for source, group in expected_presence.groupby("expected_source", dropna=False):
         source_name = _string_value(source, "unknown")
-        panels.append((f"source:{source_name}", f"Expected genes from source {source_name}", group))
+        panels.append(
+            (
+                f"source:{source_name}",
+                f"Expected genes from source {source_name}",
+                group,
+            )
+        )
     return panels
 
 
@@ -1013,7 +1265,9 @@ def build_completeness_profile(expected_presence: pd.DataFrame) -> pd.DataFrame:
             continue
         n_present_any = int(panel.apply(_is_present_any, axis=1).sum())
         n_present_clean = int((panel["presence_class"] == "present_clean").sum())
-        n_missing_with_evidence = int((panel["presence_class"] == "missing_with_evidence").sum())
+        n_missing_with_evidence = int(
+            (panel["presence_class"] == "missing_with_evidence").sum()
+        )
         n_projection_only = int((panel["presence_class"] == "projection_only").sum())
         n_assembly_limited = int((panel["presence_class"] == "assembly_limited").sum())
         n_actionable_loss = int(panel.apply(_is_missing_actionable, axis=1).sum())
@@ -1042,7 +1296,9 @@ def build_completeness_profile(expected_presence: pd.DataFrame) -> pd.DataFrame:
     return pd.DataFrame(rows, columns=columns)
 
 
-def build_non_busco_high_confidence_losses(expected_presence: pd.DataFrame) -> pd.DataFrame:
+def build_non_busco_high_confidence_losses(
+    expected_presence: pd.DataFrame,
+) -> pd.DataFrame:
     columns = [
         "expected_gene_id",
         "expected_source",
@@ -1081,7 +1337,9 @@ def build_non_busco_high_confidence_losses(expected_presence: pd.DataFrame) -> p
             out[col] = ""
     return out[columns].sort_values(
         ["review_priority", "expected_source", "seq_region_name", "seq_region_start"],
-        key=lambda s: s.map(PRIORITY_RANK).fillna(9) if s.name == "review_priority" else s,
+        key=lambda s: (
+            s.map(PRIORITY_RANK).fillna(9) if s.name == "review_priority" else s
+        ),
     )
 
 
@@ -1101,13 +1359,17 @@ def build_busco_proxy_calibration(expected_presence: pd.DataFrame) -> pd.DataFra
         return _empty(columns)
 
     wanted = completeness[
-        completeness["panel_id"].isin(["busco_linked", "high_confidence_non_busco", "high_confidence"])
+        completeness["panel_id"].isin(
+            ["busco_linked", "high_confidence_non_busco", "high_confidence"]
+        )
     ].copy()
     rows = []
     for _, row in wanted.iterrows():
         panel_id = row["panel_id"]
         if panel_id == "busco_linked":
-            interpretation = "BUSCO-linked expected genes; sentinel conserved coding panel"
+            interpretation = (
+                "BUSCO-linked expected genes; sentinel conserved coding panel"
+            )
         elif panel_id == "high_confidence_non_busco":
             interpretation = "High-confidence expected genes that BUSCO does not cover"
         else:
@@ -1129,7 +1391,9 @@ def build_busco_proxy_calibration(expected_presence: pd.DataFrame) -> pd.DataFra
     if "busco_linked" in by_panel and "high_confidence_non_busco" in by_panel:
         busco = by_panel["busco_linked"]
         non_busco = by_panel["high_confidence_non_busco"]
-        delta = float(non_busco["actionable_loss_fraction"]) - float(busco["actionable_loss_fraction"])
+        delta = float(non_busco["actionable_loss_fraction"]) - float(
+            busco["actionable_loss_fraction"]
+        )
         rows.append(
             {
                 "comparison": "non_busco_minus_busco_actionable_loss",
@@ -1170,7 +1434,9 @@ def build_copy_number_audit(expected_presence: pd.DataFrame) -> pd.DataFrame:
             continue
         expected_copy_number = max(1, int(group["expected_copy_number"].max()))
         observed_core_ids = {
-            _string_value(x) for x in group["best_core_stable_id"].tolist() if _string_value(x)
+            _string_value(x)
+            for x in group["best_core_stable_id"].tolist()
+            if _string_value(x)
         }
         observed = len(observed_core_ids)
         if observed == 0:
@@ -1194,12 +1460,16 @@ def build_copy_number_audit(expected_presence: pd.DataFrame) -> pd.DataFrame:
                 "copy_number_class": klass,
                 "n_expected_rows": int(len(group)),
                 "review_priority": priority,
-                "member_expected_gene_ids": ",".join(sorted(group["expected_gene_id"].astype(str).tolist())),
+                "member_expected_gene_ids": ",".join(
+                    sorted(group["expected_gene_id"].astype(str).tolist())
+                ),
             }
         )
     return pd.DataFrame(rows, columns=columns).sort_values(
         ["review_priority", "copy_number_class", "copy_group_id"],
-        key=lambda s: s.map(PRIORITY_RANK).fillna(9) if s.name == "review_priority" else s,
+        key=lambda s: (
+            s.map(PRIORITY_RANK).fillna(9) if s.name == "review_priority" else s
+        ),
     )
 
 
@@ -1219,11 +1489,21 @@ def _copy_group_source(row: pd.Series) -> str:
     return "expected_gene_id"
 
 
-def build_biotype_transition(evidence_fate: pd.DataFrame, expected_presence: pd.DataFrame) -> pd.DataFrame:
-    columns = ["transition_track", "source_biotype", "core_biotype", "count", "p1_count"]
+def build_biotype_transition(
+    evidence_fate: pd.DataFrame, expected_presence: pd.DataFrame
+) -> pd.DataFrame:
+    columns = [
+        "transition_track",
+        "source_biotype",
+        "core_biotype",
+        "count",
+        "p1_count",
+    ]
     rows = []
     if not evidence_fate.empty:
-        grouped = evidence_fate.groupby(["layer_biotype", "best_core_biotype"], dropna=False)
+        grouped = evidence_fate.groupby(
+            ["layer_biotype", "best_core_biotype"], dropna=False
+        )
         for (source_bt, core_bt), group in grouped:
             rows.append(
                 {
@@ -1235,7 +1515,9 @@ def build_biotype_transition(evidence_fate: pd.DataFrame, expected_presence: pd.
                 }
             )
     if not expected_presence.empty:
-        grouped = expected_presence.groupby(["expected_biotype", "best_core_biotype"], dropna=False)
+        grouped = expected_presence.groupby(
+            ["expected_biotype", "best_core_biotype"], dropna=False
+        )
         for (source_bt, core_bt), group in grouped:
             rows.append(
                 {
@@ -1248,7 +1530,9 @@ def build_biotype_transition(evidence_fate: pd.DataFrame, expected_presence: pd.
             )
     if not rows:
         return _empty(columns)
-    return pd.DataFrame(rows, columns=columns).sort_values(["p1_count", "count"], ascending=[False, False])
+    return pd.DataFrame(rows, columns=columns).sort_values(
+        ["p1_count", "count"], ascending=[False, False]
+    )
 
 
 GFFCOMPARE_TMAP_COLUMNS = [
@@ -1339,24 +1623,34 @@ def build_same_assembly_structure_audit(tmap: pd.DataFrame) -> pd.DataFrame:
 
     rows = []
     for _, row in tmap.iterrows():
-        structure_class, priority, action = _gffcompare_structure_class(row.get("class_code"))
+        structure_class, priority, action = _gffcompare_structure_class(
+            row.get("class_code")
+        )
         reference_gene_id = _string_value(row.get("reference_gene_id"))
         reference_transcript_id = _string_value(row.get("reference_transcript_id"))
         query_gene_id = _string_value(row.get("query_gene_id"))
         query_transcript_id = _string_value(row.get("query_transcript_id"))
         rows.append(
             {
-                "reference_gene_id": "" if reference_gene_id == "-" else reference_gene_id,
-                "reference_transcript_id": "" if reference_transcript_id == "-" else reference_transcript_id,
+                "reference_gene_id": (
+                    "" if reference_gene_id == "-" else reference_gene_id
+                ),
+                "reference_transcript_id": (
+                    "" if reference_transcript_id == "-" else reference_transcript_id
+                ),
                 "query_gene_id": "" if query_gene_id == "-" else query_gene_id,
-                "query_transcript_id": "" if query_transcript_id == "-" else query_transcript_id,
+                "query_transcript_id": (
+                    "" if query_transcript_id == "-" else query_transcript_id
+                ),
                 "class_code": _string_value(row.get("class_code"), "-"),
                 "structure_match_class": structure_class,
                 "review_priority": priority,
                 "suggested_action": action,
                 "num_exons": _int_value(row.get("num_exons"), 0),
                 "length": _int_value(row.get("length"), 0),
-                "reference_match_length": _int_value(row.get("reference_match_length"), 0),
+                "reference_match_length": _int_value(
+                    row.get("reference_match_length"), 0
+                ),
                 "review_reason": (
                     f"gffcompare_class={_string_value(row.get('class_code'), '-')}; "
                     f"reference={reference_gene_id}|{reference_transcript_id}; "
@@ -1366,24 +1660,34 @@ def build_same_assembly_structure_audit(tmap: pd.DataFrame) -> pd.DataFrame:
         )
     return pd.DataFrame(rows, columns=columns).sort_values(
         ["review_priority", "class_code", "reference_gene_id", "query_gene_id"],
-        key=lambda s: s.map(PRIORITY_RANK).fillna(9)
-        if s.name == "review_priority"
-        else (s.map(GFFCOMPARE_CLASS_RANK).fillna(9) if s.name == "class_code" else s),
+        key=lambda s: (
+            s.map(PRIORITY_RANK).fillna(9)
+            if s.name == "review_priority"
+            else (
+                s.map(GFFCOMPARE_CLASS_RANK).fillna(9) if s.name == "class_code" else s
+            )
+        ),
     )
 
 
-def build_same_assembly_structure_summary(same_assembly_structure: pd.DataFrame) -> pd.DataFrame:
+def build_same_assembly_structure_summary(
+    same_assembly_structure: pd.DataFrame,
+) -> pd.DataFrame:
     columns = ["class_code", "structure_match_class", "review_priority", "count"]
     if same_assembly_structure.empty:
         return _empty(columns)
     return (
-        same_assembly_structure.groupby(["class_code", "structure_match_class", "review_priority"], dropna=False)
+        same_assembly_structure.groupby(
+            ["class_code", "structure_match_class", "review_priority"], dropna=False
+        )
         .size()
         .reset_index(name="count")
         .sort_values(
             ["review_priority", "count"],
             ascending=[True, False],
-            key=lambda s: s.map(PRIORITY_RANK).fillna(9) if s.name == "review_priority" else s,
+            key=lambda s: (
+                s.map(PRIORITY_RANK).fillna(9) if s.name == "review_priority" else s
+            ),
         )
     )
 
@@ -1429,10 +1733,13 @@ def _normalise_expected_proteins(df: pd.DataFrame) -> pd.DataFrame:
     if "expected_gene_id" not in df.columns and "query_protein_id" in df.columns:
         out["expected_gene_id"] = out["query_protein_id"]
     out["expected_gene_id"] = out.apply(
-        lambda r: _string_value(r.get("expected_gene_id")) or _string_value(r.get("query_protein_id")),
+        lambda r: _string_value(r.get("expected_gene_id"))
+        or _string_value(r.get("query_protein_id")),
         axis=1,
     )
-    out["confidence"] = out["confidence"].map(lambda x: _string_value(x, "unknown").lower())
+    out["confidence"] = out["confidence"].map(
+        lambda x: _string_value(x, "unknown").lower()
+    )
     return out[EXPECTED_PROTEIN_COLUMNS]
 
 
@@ -1450,13 +1757,25 @@ def _normalise_reference_protein_hits(df: pd.DataFrame) -> pd.DataFrame:
     for col in REFERENCE_PROTEIN_HIT_COLUMNS:
         if col not in out.columns:
             out[col] = pd.NA
-    for col in ("percent_identity", "query_coverage", "target_coverage", "alignment_score"):
+    for col in (
+        "percent_identity",
+        "query_coverage",
+        "target_coverage",
+        "alignment_score",
+    ):
         out[col] = out[col].map(lambda x: _numeric_value(x, 0.0))
-    for col in ("hit_rank", "seq_region_start", "seq_region_end", "frameshift_count", "stop_codon_count"):
+    for col in (
+        "hit_rank",
+        "seq_region_start",
+        "seq_region_end",
+        "frameshift_count",
+        "stop_codon_count",
+    ):
         out[col] = out[col].map(lambda x: _int_value(x, 0))
     out["seq_region_strand"] = out["seq_region_strand"].map(_normalise_strand)
     out["expected_gene_id"] = out.apply(
-        lambda r: _string_value(r.get("expected_gene_id")) or _string_value(r.get("query_protein_id")),
+        lambda r: _string_value(r.get("expected_gene_id"))
+        or _string_value(r.get("query_protein_id")),
         axis=1,
     )
     return out[REFERENCE_PROTEIN_HIT_COLUMNS]
@@ -1502,7 +1821,11 @@ def _protein_hit_class(
     if frameshift_count > 0 or stop_codon_count > 0:
         return ("protein_hit_degraded", "P2", "inspect_frameshift_or_stop")
     if best_core is None:
-        return ("protein_supported_no_core_gene", "P1", "try_candidate_rescue_from_protein")
+        return (
+            "protein_supported_no_core_gene",
+            "P1",
+            "try_candidate_rescue_from_protein",
+        )
     return ("protein_supported_built", "P4", "no_action")
 
 
@@ -1546,7 +1869,9 @@ def audit_reference_protein_set(
     hits = _normalise_reference_protein_hits(protein_hits)
     expected = _normalise_expected_proteins(expected_proteins)
     if expected.empty and not hits.empty:
-        expected = hits[["expected_gene_id", "query_protein_id"]].drop_duplicates().copy()
+        expected = (
+            hits[["expected_gene_id", "query_protein_id"]].drop_duplicates().copy()
+        )
         expected["expected_source"] = "reference_protein_set"
         expected["reference_stable_id"] = expected["expected_gene_id"]
         expected["symbol"] = ""
@@ -1559,11 +1884,15 @@ def audit_reference_protein_set(
         return _empty(columns)
 
     core = _normalise_gene_table(core_genes, "core")
-    hits_by_expected = {str(k): v for k, v in hits.groupby("expected_gene_id", dropna=False)}
+    hits_by_expected = {
+        str(k): v for k, v in hits.groupby("expected_gene_id", dropna=False)
+    }
     rows = []
     for _, expected_row in expected.iterrows():
         expected_id = _string_value(expected_row.get("expected_gene_id"))
-        query_protein_id = _string_value(expected_row.get("query_protein_id")) or expected_id
+        query_protein_id = (
+            _string_value(expected_row.get("query_protein_id")) or expected_id
+        )
         group = hits_by_expected.get(expected_id, pd.DataFrame())
         if group.empty and query_protein_id:
             group = hits[hits["query_protein_id"].astype(str) == query_protein_id]
@@ -1582,7 +1911,9 @@ def audit_reference_protein_set(
                 if not matches.empty:
                     best_core = matches.iloc[0]
             if best_core is None:
-                best_core, core_overlap = _best_overlap(_protein_hit_query(best_hit), core, same_strand=True)
+                best_core, core_overlap = _best_overlap(
+                    _protein_hit_query(best_hit), core, same_strand=True
+                )
             elif _string_value(best_hit.get("seq_region_name")):
                 core_overlap = _overlap_bp(
                     best_hit.get("seq_region_start"),
@@ -1600,33 +1931,89 @@ def audit_reference_protein_set(
             {
                 "expected_gene_id": expected_id,
                 "query_protein_id": query_protein_id,
-                "expected_source": _string_value(expected_row.get("expected_source"), "reference_protein_set"),
-                "reference_stable_id": _string_value(expected_row.get("reference_stable_id")),
+                "expected_source": _string_value(
+                    expected_row.get("expected_source"), "reference_protein_set"
+                ),
+                "reference_stable_id": _string_value(
+                    expected_row.get("reference_stable_id")
+                ),
                 "symbol": _string_value(expected_row.get("symbol")),
                 "biotype": _string_value(expected_row.get("biotype"), "protein_coding"),
                 "orthogroup_id": _string_value(expected_row.get("orthogroup_id")),
                 "busco_id": _string_value(expected_row.get("busco_id")),
-                "confidence": _string_value(expected_row.get("confidence"), "unknown").lower(),
-                "best_target_gene_id": _string_value(best_hit.get("target_gene_id")) if best_hit is not None else "",
+                "confidence": _string_value(
+                    expected_row.get("confidence"), "unknown"
+                ).lower(),
+                "best_target_gene_id": (
+                    _string_value(best_hit.get("target_gene_id"))
+                    if best_hit is not None
+                    else ""
+                ),
                 "best_target_stable_id": (
-                    _string_value(best_hit.get("target_stable_id")) if best_hit is not None else ""
+                    _string_value(best_hit.get("target_stable_id"))
+                    if best_hit is not None
+                    else ""
                 ),
                 "best_target_transcript_id": (
-                    _string_value(best_hit.get("target_transcript_id")) if best_hit is not None else ""
+                    _string_value(best_hit.get("target_transcript_id"))
+                    if best_hit is not None
+                    else ""
                 ),
-                "seq_region_name": _string_value(best_hit.get("seq_region_name")) if best_hit is not None else "",
-                "seq_region_start": _int_value(best_hit.get("seq_region_start")) if best_hit is not None else 0,
-                "seq_region_end": _int_value(best_hit.get("seq_region_end")) if best_hit is not None else 0,
-                "seq_region_strand": _normalise_strand(best_hit.get("seq_region_strand"))
-                if best_hit is not None
-                else 0,
-                "aligner": _string_value(best_hit.get("aligner")) if best_hit is not None else "",
-                "percent_identity": _numeric_value(best_hit.get("percent_identity")) if best_hit is not None else 0.0,
-                "query_coverage": _numeric_value(best_hit.get("query_coverage")) if best_hit is not None else 0.0,
-                "target_coverage": _numeric_value(best_hit.get("target_coverage")) if best_hit is not None else 0.0,
-                "frameshift_count": _int_value(best_hit.get("frameshift_count")) if best_hit is not None else 0,
-                "stop_codon_count": _int_value(best_hit.get("stop_codon_count")) if best_hit is not None else 0,
-                "best_core_stable_id": _string_value(best_core.get("stable_id")) if best_core is not None else "",
+                "seq_region_name": (
+                    _string_value(best_hit.get("seq_region_name"))
+                    if best_hit is not None
+                    else ""
+                ),
+                "seq_region_start": (
+                    _int_value(best_hit.get("seq_region_start"))
+                    if best_hit is not None
+                    else 0
+                ),
+                "seq_region_end": (
+                    _int_value(best_hit.get("seq_region_end"))
+                    if best_hit is not None
+                    else 0
+                ),
+                "seq_region_strand": (
+                    _normalise_strand(best_hit.get("seq_region_strand"))
+                    if best_hit is not None
+                    else 0
+                ),
+                "aligner": (
+                    _string_value(best_hit.get("aligner"))
+                    if best_hit is not None
+                    else ""
+                ),
+                "percent_identity": (
+                    _numeric_value(best_hit.get("percent_identity"))
+                    if best_hit is not None
+                    else 0.0
+                ),
+                "query_coverage": (
+                    _numeric_value(best_hit.get("query_coverage"))
+                    if best_hit is not None
+                    else 0.0
+                ),
+                "target_coverage": (
+                    _numeric_value(best_hit.get("target_coverage"))
+                    if best_hit is not None
+                    else 0.0
+                ),
+                "frameshift_count": (
+                    _int_value(best_hit.get("frameshift_count"))
+                    if best_hit is not None
+                    else 0
+                ),
+                "stop_codon_count": (
+                    _int_value(best_hit.get("stop_codon_count"))
+                    if best_hit is not None
+                    else 0
+                ),
+                "best_core_stable_id": (
+                    _string_value(best_core.get("stable_id"))
+                    if best_core is not None
+                    else ""
+                ),
                 "core_overlap_bp": core_overlap,
                 "protein_hit_class": protein_class,
                 "review_priority": priority,
@@ -1640,22 +2027,30 @@ def audit_reference_protein_set(
         )
     return pd.DataFrame(rows, columns=columns).sort_values(
         ["review_priority", "protein_hit_class", "expected_gene_id"],
-        key=lambda s: s.map(PRIORITY_RANK).fillna(9) if s.name == "review_priority" else s,
+        key=lambda s: (
+            s.map(PRIORITY_RANK).fillna(9) if s.name == "review_priority" else s
+        ),
     )
 
 
-def build_reference_protein_summary(reference_protein_audit: pd.DataFrame) -> pd.DataFrame:
+def build_reference_protein_summary(
+    reference_protein_audit: pd.DataFrame,
+) -> pd.DataFrame:
     columns = ["protein_hit_class", "review_priority", "count"]
     if reference_protein_audit.empty:
         return _empty(columns)
     return (
-        reference_protein_audit.groupby(["protein_hit_class", "review_priority"], dropna=False)
+        reference_protein_audit.groupby(
+            ["protein_hit_class", "review_priority"], dropna=False
+        )
         .size()
         .reset_index(name="count")
         .sort_values(
             ["review_priority", "count"],
             ascending=[True, False],
-            key=lambda s: s.map(PRIORITY_RANK).fillna(9) if s.name == "review_priority" else s,
+            key=lambda s: (
+                s.map(PRIORITY_RANK).fillna(9) if s.name == "review_priority" else s
+            ),
         )
     )
 
@@ -1673,7 +2068,13 @@ def build_feature_profile(
 ) -> pd.DataFrame:
     rows: list[dict] = []
 
-    def add(group: str, name: str, value: float, denominator: Optional[float], description: str) -> None:
+    def add(
+        group: str,
+        name: str,
+        value: float,
+        denominator: Optional[float],
+        description: str,
+    ) -> None:
         fraction = value / denominator if denominator else pd.NA
         rows.append(
             {
@@ -1717,7 +2118,13 @@ def build_feature_profile(
         )
 
     n_expected = float(len(expected_presence))
-    add("expected_presence", "expected_gene_count", n_expected, None, "Expected genes audited")
+    add(
+        "expected_presence",
+        "expected_gene_count",
+        n_expected,
+        None,
+        "Expected genes audited",
+    )
     if n_expected:
         for presence_class in (
             "present_clean",
@@ -1758,13 +2165,23 @@ def build_feature_profile(
         add(
             "copy_number",
             "copy_number_issue_count",
-            float((copy_number_audit["copy_number_class"] != "copy_number_as_expected").sum()),
+            float(
+                (
+                    copy_number_audit["copy_number_class"] != "copy_number_as_expected"
+                ).sum()
+            ),
             n_copy,
             "Copy-number groups not matching expectation",
         )
 
     n_busco = float(len(busco_crosswalk))
-    add("busco", "busco_expected_gene_count", n_busco, None, "Expected genes with BUSCO IDs")
+    add(
+        "busco",
+        "busco_expected_gene_count",
+        n_busco,
+        None,
+        "Expected genes with BUSCO IDs",
+    )
     if n_busco:
         add(
             "busco",
@@ -1775,7 +2192,11 @@ def build_feature_profile(
         )
 
     if completeness_profile is not None and not completeness_profile.empty:
-        for panel_id in ("high_confidence", "high_confidence_non_busco", "busco_linked"):
+        for panel_id in (
+            "high_confidence",
+            "high_confidence_non_busco",
+            "busco_linked",
+        ):
             panel = completeness_profile[completeness_profile["panel_id"] == panel_id]
             if panel.empty:
                 continue
@@ -1814,11 +2235,17 @@ def build_feature_profile(
             "Reference proteins audited with BUSCO-like protein-set logic",
         )
         if n_reference_proteins:
-            for klass in ("protein_supported_built", "protein_supported_no_core_gene", "protein_hit_degraded"):
+            for klass in (
+                "protein_supported_built",
+                "protein_supported_no_core_gene",
+                "protein_hit_degraded",
+            ):
                 add(
                     "reference_protein",
                     f"{klass}_count",
-                    float((reference_protein_audit["protein_hit_class"] == klass).sum()),
+                    float(
+                        (reference_protein_audit["protein_hit_class"] == klass).sum()
+                    ),
                     n_reference_proteins,
                     f"Reference proteins classified as {klass}",
                 )
@@ -1836,21 +2263,35 @@ def build_feature_profile(
             add(
                 "same_assembly_structure",
                 "exact_intron_chain_count",
-                float((same_assembly_structure["structure_match_class"] == "exact_intron_chain").sum()),
+                float(
+                    (
+                        same_assembly_structure["structure_match_class"]
+                        == "exact_intron_chain"
+                    ).sum()
+                ),
                 n_same_assembly,
                 "Same-assembly query transcripts with exact intron-chain matches",
             )
             add(
                 "same_assembly_structure",
                 "p1_or_p2_structure_issue_count",
-                float(same_assembly_structure["review_priority"].isin(["P1", "P2"]).sum()),
+                float(
+                    same_assembly_structure["review_priority"].isin(["P1", "P2"]).sum()
+                ),
                 n_same_assembly,
                 "Same-assembly transcript rows requiring structure review",
             )
 
     return pd.DataFrame(
         rows,
-        columns=["metric_group", "metric_name", "value", "denominator", "fraction", "description"],
+        columns=[
+            "metric_group",
+            "metric_name",
+            "value",
+            "denominator",
+            "fraction",
+            "description",
+        ],
     )
 
 
@@ -1932,10 +2373,16 @@ def build_release_readiness(
         )
 
     if not completeness_profile.empty:
-        high = completeness_profile[completeness_profile["panel_id"] == "high_confidence"]
+        high = completeness_profile[
+            completeness_profile["panel_id"] == "high_confidence"
+        ]
         if not high.empty:
             fraction = _numeric_value(high.iloc[0].get("actionable_loss_fraction"), 0.0)
-            status = "FAIL" if fraction > max_high_confidence_actionable_loss_fraction else "PASS"
+            status = (
+                "FAIL"
+                if fraction > max_high_confidence_actionable_loss_fraction
+                else "PASS"
+            )
             add(
                 "high_confidence_actionable_loss",
                 status,
@@ -1949,7 +2396,9 @@ def build_release_readiness(
             )
 
     if not expected_presence.empty:
-        missing_with_evidence = int((expected_presence["presence_class"] == "missing_with_evidence").sum())
+        missing_with_evidence = int(
+            (expected_presence["presence_class"] == "missing_with_evidence").sum()
+        )
         if missing_with_evidence:
             add(
                 "expected_genes_missing_with_evidence",
@@ -1964,8 +2413,12 @@ def build_release_readiness(
             )
 
     if not copy_number_audit.empty:
-        copy_issues = copy_number_audit[copy_number_audit["copy_number_class"] != "copy_number_as_expected"]
-        issue_fraction = len(copy_issues) / len(copy_number_audit) if len(copy_number_audit) else 0.0
+        copy_issues = copy_number_audit[
+            copy_number_audit["copy_number_class"] != "copy_number_as_expected"
+        ]
+        issue_fraction = (
+            len(copy_issues) / len(copy_number_audit) if len(copy_number_audit) else 0.0
+        )
         status = "FAIL" if issue_fraction > max_copy_number_issue_fraction else "PASS"
         add(
             "copy_number_regression",
@@ -1981,7 +2434,10 @@ def build_release_readiness(
 
     if not reference_protein_audit.empty:
         protein_missing = int(
-            (reference_protein_audit["protein_hit_class"] == "protein_supported_no_core_gene").sum()
+            (
+                reference_protein_audit["protein_hit_class"]
+                == "protein_supported_no_core_gene"
+            ).sum()
         )
         if protein_missing:
             add(
@@ -1997,7 +2453,9 @@ def build_release_readiness(
             )
 
     if not same_assembly_structure.empty:
-        p2_structure = int(same_assembly_structure["review_priority"].isin(["P1", "P2"]).sum())
+        p2_structure = int(
+            same_assembly_structure["review_priority"].isin(["P1", "P2"]).sum()
+        )
         if p2_structure:
             add(
                 "same_assembly_structure_regression",
@@ -2025,9 +2483,11 @@ def build_release_readiness(
         )
     return pd.DataFrame(rows, columns=columns).sort_values(
         ["status", "priority", "gate_id"],
-        key=lambda s: s.map({"FAIL": 0, "WARN": 1, "PASS": 2}).fillna(3)
-        if s.name == "status"
-        else (s.map(PRIORITY_RANK).fillna(9) if s.name == "priority" else s),
+        key=lambda s: (
+            s.map({"FAIL": 0, "WARN": 1, "PASS": 2}).fillna(3)
+            if s.name == "status"
+            else (s.map(PRIORITY_RANK).fillna(9) if s.name == "priority" else s)
+        ),
     )
 
 
@@ -2100,7 +2560,9 @@ def build_recommendations(
             "failure_class=no_core_gene_built;layer_coding_transcript_count>0",
             "high",
         )
-        wrong_biotype = evidence_fate[evidence_fate["failure_class"] == "coding_evidence_not_protein_coding"]
+        wrong_biotype = evidence_fate[
+            evidence_fate["failure_class"] == "coding_evidence_not_protein_coding"
+        ]
         add(
             "coding_evidence_biotype_review",
             "P1",
@@ -2146,7 +2608,9 @@ def build_recommendations(
             "presence_class=missing_with_evidence",
             "high",
         )
-        projection_only = expected_presence[expected_presence["presence_class"] == "projection_only"]
+        projection_only = expected_presence[
+            expected_presence["presence_class"] == "projection_only"
+        ]
         add(
             "projection_without_local_support",
             "P2",
@@ -2158,7 +2622,9 @@ def build_recommendations(
             "expected_gene_presence.tsv",
             "presence_class=projection_only",
         )
-        assembly_limited = expected_presence[expected_presence["presence_class"] == "assembly_limited"]
+        assembly_limited = expected_presence[
+            expected_presence["presence_class"] == "assembly_limited"
+        ]
         add(
             "assembly_limited_expected_genes",
             "P2",
@@ -2203,10 +2669,13 @@ def build_recommendations(
 
     if not busco_proxy_calibration.empty:
         delta_rows = busco_proxy_calibration[
-            busco_proxy_calibration["comparison"] == "non_busco_minus_busco_actionable_loss"
+            busco_proxy_calibration["comparison"]
+            == "non_busco_minus_busco_actionable_loss"
         ]
         if not delta_rows.empty:
-            delta = _numeric_value(delta_rows.iloc[0].get("actionable_loss_fraction"), 0.0)
+            delta = _numeric_value(
+                delta_rows.iloc[0].get("actionable_loss_fraction"), 0.0
+            )
             if delta > 0:
                 add(
                     "busco_false_reassurance_risk",
@@ -2223,7 +2692,8 @@ def build_recommendations(
 
     if reference_protein_audit is not None and not reference_protein_audit.empty:
         protein_rescue = reference_protein_audit[
-            reference_protein_audit["protein_hit_class"] == "protein_supported_no_core_gene"
+            reference_protein_audit["protein_hit_class"]
+            == "protein_supported_no_core_gene"
         ]
         add(
             "reference_protein_rescue",
@@ -2253,7 +2723,9 @@ def build_recommendations(
         )
 
     if same_assembly_structure is not None and not same_assembly_structure.empty:
-        structure_issues = same_assembly_structure[same_assembly_structure["review_priority"].isin(["P1", "P2"])]
+        structure_issues = same_assembly_structure[
+            same_assembly_structure["review_priority"].isin(["P1", "P2"])
+        ]
         add(
             "same_assembly_structure_review",
             "P2",
@@ -2272,6 +2744,428 @@ def build_recommendations(
         ["priority", "trigger_count"],
         key=lambda s: s.map(PRIORITY_RANK).fillna(9) if s.name == "priority" else -s,
     )
+
+
+RESCUE_PATTERN_COLUMNS = [
+    "pattern_id",
+    "priority",
+    "rescue_route",
+    "pattern_signature",
+    "trigger_count",
+    "rationale",
+    "resurrection_action",
+    "target_table",
+    "target_filter",
+    "example_loci",
+]
+
+
+RESCUE_CANDIDATE_COLUMNS = [
+    "candidate_track",
+    "rescue_route",
+    "pattern_signature",
+    "review_priority",
+    "seq_region_name",
+    "seq_region_start",
+    "seq_region_end",
+    "seq_region_strand",
+    "candidate_id",
+    "source_name",
+    "biotype",
+    "support_summary",
+    "suggested_action",
+    "target_table",
+    "target_filter",
+]
+
+
+def _example_loci(df: pd.DataFrame, limit: int = 5) -> str:
+    if df.empty or "seq_region_name" not in df.columns:
+        return ""
+    examples = []
+    for _, row in df.head(limit).iterrows():
+        examples.append(
+            f"{row['seq_region_name']}:{int(row['seq_region_start'])}-{int(row['seq_region_end'])}"
+        )
+    return ",".join(examples)
+
+
+def _pattern_sort(df: pd.DataFrame) -> pd.DataFrame:
+    if df.empty:
+        return df
+    return df.sort_values(
+        ["priority", "trigger_count", "pattern_signature"],
+        ascending=[True, False, True],
+        key=lambda s: (s.map(PRIORITY_RANK).fillna(9) if s.name == "priority" else s),
+    ).reset_index(drop=True)
+
+
+def build_rescue_patterns(
+    evidence_fate: pd.DataFrame,
+    expected_presence: pd.DataFrame,
+    busco_diagnostic_audit: Optional[pd.DataFrame] = None,
+    reference_protein_audit: Optional[pd.DataFrame] = None,
+) -> tuple[pd.DataFrame, pd.DataFrame]:
+    pattern_rows: list[dict] = []
+    candidate_rows: list[dict] = []
+
+    def add_pattern(
+        rescue_route: str,
+        priority: str,
+        signature: str,
+        subset: pd.DataFrame,
+        rationale: str,
+        action: str,
+        target_table: str,
+        target_filter: str,
+    ) -> None:
+        if subset.empty:
+            return
+        pattern_id = f"{rescue_route}:{signature}"
+        pattern_rows.append(
+            {
+                "pattern_id": pattern_id,
+                "priority": priority,
+                "rescue_route": rescue_route,
+                "pattern_signature": signature,
+                "trigger_count": len(subset),
+                "rationale": rationale,
+                "resurrection_action": action,
+                "target_table": target_table,
+                "target_filter": target_filter,
+                "example_loci": _example_loci(subset),
+            }
+        )
+
+    def add_candidate(
+        track: str,
+        rescue_route: str,
+        signature: str,
+        priority: str,
+        row: pd.Series,
+        candidate_id: object,
+        source_name: object,
+        biotype: object,
+        support_summary: str,
+        action: str,
+        target_table: str,
+        target_filter: str,
+    ) -> None:
+        candidate_rows.append(
+            {
+                "candidate_track": track,
+                "rescue_route": rescue_route,
+                "pattern_signature": signature,
+                "review_priority": priority,
+                "seq_region_name": row["seq_region_name"],
+                "seq_region_start": int(row["seq_region_start"]),
+                "seq_region_end": int(row["seq_region_end"]),
+                "seq_region_strand": int(
+                    _normalise_strand(row.get("seq_region_strand"))
+                ),
+                "candidate_id": _string_value(candidate_id),
+                "source_name": _string_value(source_name),
+                "biotype": _string_value(biotype),
+                "support_summary": support_summary,
+                "suggested_action": action,
+                "target_table": target_table,
+                "target_filter": target_filter,
+            }
+        )
+
+    if not evidence_fate.empty:
+        coding_orphans = evidence_fate[
+            (evidence_fate["failure_class"] == "no_core_gene_built")
+            & (evidence_fate["layer_coding_transcript_count"] > 0)
+        ]
+        for (logic_name, biotype), group in coding_orphans.groupby(
+            ["layer_logic_name", "layer_biotype"], dropna=False
+        ):
+            signature = f"layer_logic_name={logic_name};layer_biotype={biotype};failure=no_core_gene_built"
+            action = "resurrect this source/biotype subset into a targeted rescue layer or patch list"
+            add_pattern(
+                "layer_candidate_rescue",
+                "P1",
+                signature,
+                group,
+                "Coding layer models repeatedly have no same-strand core representation.",
+                action,
+                "evidence_fate.tsv",
+                signature,
+            )
+            for _, row in group.iterrows():
+                add_candidate(
+                    "evidence_fate",
+                    "layer_candidate_rescue",
+                    signature,
+                    "P1",
+                    row,
+                    row.get("layer_stable_id") or row.get("layer_gene_id"),
+                    logic_name,
+                    biotype,
+                    f"coding_transcripts={_int_value(row.get('layer_coding_transcript_count'))};core_coverage={_numeric_value(row.get('layer_span_coverage_by_core')):.2f}",
+                    action,
+                    "evidence_fate.tsv",
+                    signature,
+                )
+
+        wrong_biotype = evidence_fate[
+            evidence_fate["failure_class"] == "coding_evidence_not_protein_coding"
+        ]
+        if not wrong_biotype.empty:
+            for (
+                logic_name,
+                layer_biotype,
+                core_biotype,
+            ), group in wrong_biotype.groupby(
+                ["layer_logic_name", "layer_biotype", "best_core_biotype"],
+                dropna=False,
+            ):
+                signature = (
+                    f"layer_logic_name={logic_name};layer_biotype={layer_biotype};"
+                    f"core_biotype={core_biotype};failure=coding_evidence_not_protein_coding"
+                )
+                action = "recheck CDS/biotype handling for this recurring represented-but-noncoding pattern"
+                add_pattern(
+                    "biotype_or_cds_rescue",
+                    "P1",
+                    signature,
+                    group,
+                    "Coding layer evidence is represented by core, but as a non-protein-coding model.",
+                    action,
+                    "evidence_fate.tsv",
+                    signature,
+                )
+                for _, row in group.iterrows():
+                    add_candidate(
+                        "evidence_fate",
+                        "biotype_or_cds_rescue",
+                        signature,
+                        "P1",
+                        row,
+                        row.get("best_core_stable_id") or row.get("layer_stable_id"),
+                        logic_name,
+                        layer_biotype,
+                        f"core_biotype={core_biotype};core_coverage={_numeric_value(row.get('layer_span_coverage_by_core')):.2f}",
+                        action,
+                        "evidence_fate.tsv",
+                        signature,
+                    )
+
+        partial = evidence_fate[
+            evidence_fate["failure_class"].isin(
+                ["core_span_underrepresents_evidence", "partial_core_representation"]
+            )
+        ]
+        for (logic_name, biotype, failure), group in partial.groupby(
+            ["layer_logic_name", "layer_biotype", "failure_class"], dropna=False
+        ):
+            signature = f"layer_logic_name={logic_name};layer_biotype={biotype};failure={failure}"
+            action = "resurrect or split only the underrepresented candidates in this recurrent partial pattern"
+            add_pattern(
+                "partial_model_rescue",
+                "P2",
+                signature,
+                group,
+                "Core repeatedly captures only part of this layer source/biotype pattern.",
+                action,
+                "evidence_fate.tsv",
+                signature,
+            )
+            for _, row in group.iterrows():
+                add_candidate(
+                    "evidence_fate",
+                    "partial_model_rescue",
+                    signature,
+                    "P2",
+                    row,
+                    row.get("layer_stable_id") or row.get("layer_gene_id"),
+                    logic_name,
+                    biotype,
+                    f"failure={failure};core_coverage={_numeric_value(row.get('layer_span_coverage_by_core')):.2f}",
+                    action,
+                    "evidence_fate.tsv",
+                    signature,
+                )
+
+    if not expected_presence.empty:
+        expected_losses = expected_presence[
+            expected_presence["presence_class"].isin(
+                ["missing_with_evidence", "present_degraded", "wrong_biotype"]
+            )
+        ]
+        expected_biotype_col = (
+            "expected_biotype"
+            if "expected_biotype" in expected_losses.columns
+            else "biotype"
+        )
+        if not expected_losses.empty:
+            for (
+                source,
+                confidence,
+                biotype,
+                presence,
+            ), group in expected_losses.groupby(
+                [
+                    "expected_source",
+                    "confidence",
+                    expected_biotype_col,
+                    "presence_class",
+                ],
+                dropna=False,
+            ):
+                busco_state = (
+                    "busco_linked"
+                    if group["busco_id"].map(_string_value).ne("").any()
+                    else "non_busco"
+                )
+                signature = (
+                    f"expected_source={source};confidence={confidence};biotype={biotype};"
+                    f"presence={presence};{busco_state}"
+                )
+                action = "rescue this expected-gene subset where local evidence or degraded representation exists"
+                add_pattern(
+                    "expected_gene_subset_rescue",
+                    "P1" if presence == "missing_with_evidence" else "P2",
+                    signature,
+                    group,
+                    "Expected genes show a repeated recoverable loss/degradation pattern.",
+                    action,
+                    "expected_gene_presence.tsv",
+                    signature,
+                )
+                for _, row in group.iterrows():
+                    add_candidate(
+                        "expected_presence",
+                        "expected_gene_subset_rescue",
+                        signature,
+                        _string_value(row.get("review_priority"), "P2"),
+                        row,
+                        row.get("expected_gene_id"),
+                        source,
+                        biotype,
+                        f"presence={presence};confidence={confidence};busco_id={_string_value(row.get('busco_id'))}",
+                        action,
+                        "expected_gene_presence.tsv",
+                        signature,
+                    )
+
+    if busco_diagnostic_audit is not None and not busco_diagnostic_audit.empty:
+        for (
+            diagnostic_class,
+            layer_logic,
+            core_biotypes,
+        ), group in busco_diagnostic_audit.groupby(
+            ["diagnostic_class", "layer_logic_names", "core_biotypes"], dropna=False
+        ):
+            signature = (
+                f"busco_diagnostic={diagnostic_class};layer_logic_names={layer_logic};"
+                f"core_biotypes={core_biotypes}"
+            )
+            if diagnostic_class == "alternative_isoform_satisfies_busco":
+                route = "canonical_isoform_rescue"
+                action = "test canonical transcript changes for this BUSCO-supported isoform subset"
+            elif diagnostic_class == "layer_evidence_not_selected":
+                route = "busco_layer_candidate_rescue"
+                action = "resurrect BUSCO-locus layer candidates matching this source pattern"
+            elif diagnostic_class == "non_coding_core_annotation":
+                route = "busco_biotype_or_cds_rescue"
+                action = "review BUSCO-locus non-coding/core CDS classification for this pattern"
+            else:
+                route = "busco_protein_integrity_rescue"
+                action = "inspect BUSCO-locus protein integrity for this repeated diagnostic class"
+            add_pattern(
+                route,
+                "P1",
+                signature,
+                group,
+                "BUSCO genome-vs-protein failures share the same recoverable diagnostic pattern.",
+                action,
+                "busco_diagnostic_audit.tsv",
+                signature,
+            )
+            for _, row in group.iterrows():
+                add_candidate(
+                    "busco_diagnostic",
+                    route,
+                    signature,
+                    _string_value(row.get("review_priority"), "P1"),
+                    row,
+                    row.get("busco_id"),
+                    layer_logic,
+                    core_biotypes,
+                    f"protein_status={row.get('protein_status')};hmmer={row.get('hmmer_status')};good_isoforms={row.get('good_isoform_count')}",
+                    action,
+                    "busco_diagnostic_audit.tsv",
+                    signature,
+                )
+
+    if reference_protein_audit is not None and not reference_protein_audit.empty:
+        protein_losses = reference_protein_audit[
+            reference_protein_audit["protein_hit_class"].isin(
+                ["protein_supported_no_core_gene", "protein_hit_degraded"]
+            )
+        ]
+        if not protein_losses.empty:
+            group_cols = [
+                col
+                for col in ["protein_hit_class", "expected_source", "aligner"]
+                if col in protein_losses.columns
+            ]
+            for keys, group in protein_losses.groupby(group_cols, dropna=False):
+                key_values = keys if isinstance(keys, tuple) else (keys,)
+                signature = ";".join(
+                    f"{col}={value}" for col, value in zip(group_cols, key_values)
+                )
+                action = "rescue only protein-supported loci matching this repeated hit pattern"
+                add_pattern(
+                    "reference_protein_rescue",
+                    "P1",
+                    signature,
+                    group,
+                    "Reference proteins repeatedly support loci that are absent or degraded in core.",
+                    action,
+                    "reference_protein_audit.tsv",
+                    signature,
+                )
+                for _, row in group.iterrows():
+                    add_candidate(
+                        "reference_protein",
+                        "reference_protein_rescue",
+                        signature,
+                        _string_value(row.get("review_priority"), "P1"),
+                        row,
+                        row.get("query_protein_id"),
+                        row.get("expected_source"),
+                        row.get("biotype"),
+                        f"class={row.get('protein_hit_class')};identity={_numeric_value(row.get('percent_identity')):.2f};coverage={_numeric_value(row.get('query_coverage')):.2f}",
+                        action,
+                        "reference_protein_audit.tsv",
+                        signature,
+                    )
+
+    patterns = (
+        _pattern_sort(pd.DataFrame(pattern_rows, columns=RESCUE_PATTERN_COLUMNS))
+        if pattern_rows
+        else _empty(RESCUE_PATTERN_COLUMNS)
+    )
+    candidates = (
+        pd.DataFrame(candidate_rows, columns=RESCUE_CANDIDATE_COLUMNS).sort_values(
+            [
+                "review_priority",
+                "rescue_route",
+                "pattern_signature",
+                "seq_region_name",
+                "seq_region_start",
+            ],
+            key=lambda s: (
+                s.map(PRIORITY_RANK).fillna(9) if s.name == "review_priority" else s
+            ),
+        )
+        if candidate_rows
+        else _empty(RESCUE_CANDIDATE_COLUMNS)
+    )
+    return patterns, candidates.reset_index(drop=True)
 
 
 def _review_rows_from_evidence(df: pd.DataFrame) -> list[dict]:
@@ -2320,8 +3214,12 @@ def _review_rows_from_expected(df: pd.DataFrame) -> list[dict]:
     return rows
 
 
-def build_review_loci(evidence_fate: pd.DataFrame, expected_presence: pd.DataFrame, top_n: int) -> pd.DataFrame:
-    rows = _review_rows_from_evidence(evidence_fate) + _review_rows_from_expected(expected_presence)
+def build_review_loci(
+    evidence_fate: pd.DataFrame, expected_presence: pd.DataFrame, top_n: int
+) -> pd.DataFrame:
+    rows = _review_rows_from_evidence(evidence_fate) + _review_rows_from_expected(
+        expected_presence
+    )
     if not rows:
         return _empty(
             [
@@ -2342,7 +3240,9 @@ def build_review_loci(evidence_fate: pd.DataFrame, expected_presence: pd.DataFra
     out = out[out["seq_region_end"].astype(int) >= out["seq_region_start"].astype(int)]
     out = out.sort_values(
         ["review_priority", "audit_track", "seq_region_name", "seq_region_start"],
-        key=lambda s: s.map(PRIORITY_RANK).fillna(9) if s.name == "review_priority" else s,
+        key=lambda s: (
+            s.map(PRIORITY_RANK).fillna(9) if s.name == "review_priority" else s
+        ),
     )
     return out.head(top_n).reset_index(drop=True)
 
@@ -2364,13 +3264,22 @@ def write_bed(review_loci: pd.DataFrame, path: str, pad_bp: int = 0) -> None:
                 _string_value(row.get("subject_id"), "subject"),
             ]
         )
-        score = max(0, 1000 - PRIORITY_RANK.get(_string_value(row.get("review_priority"), "P4"), 4) * 200)
-        strand = {1: "+", -1: "-"}.get(_normalise_strand(row.get("seq_region_strand")), ".")
+        score = max(
+            0,
+            1000
+            - PRIORITY_RANK.get(_string_value(row.get("review_priority"), "P4"), 4)
+            * 200,
+        )
+        strand = {1: "+", -1: "-"}.get(
+            _normalise_strand(row.get("seq_region_strand")), "."
+        )
         rows.append([row["seq_region_name"], start0, end0, name, score, strand])
     pd.DataFrame(rows).to_csv(path, sep="\t", header=False, index=False)
 
 
-def write_review_bed_sets(review_loci: pd.DataFrame, output_dir: str, pad_bp: int = 0) -> list[str]:
+def write_review_bed_sets(
+    review_loci: pd.DataFrame, output_dir: str, pad_bp: int = 0
+) -> list[str]:
     bed_dir = os.path.join(output_dir, "review_beds")
     ensure_dir(bed_dir)
     written = []
@@ -2385,14 +3294,20 @@ def write_review_bed_sets(review_loci: pd.DataFrame, output_dir: str, pad_bp: in
         "fused",
     ]
     for class_name in class_names:
-        subset = review_loci[review_loci["class"] == class_name] if not review_loci.empty else review_loci
+        subset = (
+            review_loci[review_loci["class"] == class_name]
+            if not review_loci.empty
+            else review_loci
+        )
         path = os.path.join(bed_dir, f"{class_name}.bed")
         write_bed(subset, path, pad_bp=pad_bp)
         written.append(path)
     return written
 
 
-def write_expected_presence_bed(expected_rows: pd.DataFrame, path: str, pad_bp: int = 0) -> None:
+def write_expected_presence_bed(
+    expected_rows: pd.DataFrame, path: str, pad_bp: int = 0
+) -> None:
     ensure_dir(os.path.dirname(path))
     if expected_rows.empty:
         open(path, "w", encoding="utf-8").close()
@@ -2413,8 +3328,15 @@ def write_expected_presence_bed(expected_rows: pd.DataFrame, path: str, pad_bp: 
                 _string_value(row.get("expected_gene_id"), "expected_gene"),
             ]
         )
-        score = max(0, 1000 - PRIORITY_RANK.get(_string_value(row.get("review_priority"), "P4"), 4) * 200)
-        strand = {1: "+", -1: "-"}.get(_normalise_strand(row.get("seq_region_strand")), ".")
+        score = max(
+            0,
+            1000
+            - PRIORITY_RANK.get(_string_value(row.get("review_priority"), "P4"), 4)
+            * 200,
+        )
+        strand = {1: "+", -1: "-"}.get(
+            _normalise_strand(row.get("seq_region_strand")), "."
+        )
         rows.append([seq, start0, end0, name, score, strand])
     pd.DataFrame(rows).to_csv(path, sep="\t", header=False, index=False)
 
@@ -2433,6 +3355,7 @@ def write_actionable_summary(
     feature_profile: Optional[pd.DataFrame] = None,
     recommendations: Optional[pd.DataFrame] = None,
     release_readiness: Optional[pd.DataFrame] = None,
+    rescue_pattern_summary: Optional[pd.DataFrame] = None,
 ) -> None:
     ensure_dir(os.path.dirname(path))
     lines = [
@@ -2473,7 +3396,9 @@ def write_actionable_summary(
             "copy_number_issue_count",
             "busco_p1_or_p2_issue_count",
         }
-        highlights = feature_profile[feature_profile["metric_name"].isin(highlight_names)]
+        highlights = feature_profile[
+            feature_profile["metric_name"].isin(highlight_names)
+        ]
         for _, row in highlights.iterrows():
             fraction = row["fraction"]
             fraction_text = "" if pd.isna(fraction) else f" ({float(fraction):.1%})"
@@ -2484,6 +3409,14 @@ def write_actionable_summary(
             lines.append(
                 f"- {row['priority']} {row['recommendation_type']}: "
                 f"{row['next_action']} ({int(row['trigger_count'])} triggers)"
+            )
+    if rescue_pattern_summary is not None and not rescue_pattern_summary.empty:
+        lines.extend(["", "## Recurrent rescue patterns", ""])
+        for _, row in rescue_pattern_summary.head(12).iterrows():
+            lines.append(
+                f"- {row['priority']} {row['rescue_route']}: "
+                f"{row['pattern_signature']} ({int(row['trigger_count'])} loci) "
+                f"-> {row['resurrection_action']}"
             )
     if release_readiness is not None and not release_readiness.empty:
         lines.extend(["", "## Release readiness gates", ""])
@@ -2508,43 +3441,119 @@ def write_actionable_summary(
 
 
 def run_audit(args: argparse.Namespace) -> int:
+    start_time = time.monotonic()
     paths = _paths_from_args(args)
     ensure_dir(paths.observability_dir)
+    _verbose(args, f"starting audit for run_id={paths.run_id}", start_time)
 
+    _verbose(args, f"loading RGB extract tables from {paths.extract_dir}", start_time)
     core_genes = _load_named_table(paths.extract_dir, "core_genes", paths.fmt)
     layer_genes = _load_named_table(paths.extract_dir, "layer_genes", paths.fmt)
-    core_tx = _load_named_table(paths.extract_dir, "core_transcripts", paths.fmt, required=False)
-    layer_tx = _load_named_table(paths.extract_dir, "layer_transcripts", paths.fmt, required=False)
-    core_tr = _load_named_table(paths.extract_dir, "core_translations", paths.fmt, required=False)
-    layer_tr = _load_named_table(paths.extract_dir, "layer_translations", paths.fmt, required=False)
+    core_tx = _load_named_table(
+        paths.extract_dir, "core_transcripts", paths.fmt, required=False
+    )
+    layer_tx = _load_named_table(
+        paths.extract_dir, "layer_transcripts", paths.fmt, required=False
+    )
+    core_tr = _load_named_table(
+        paths.extract_dir, "core_translations", paths.fmt, required=False
+    )
+    layer_tr = _load_named_table(
+        paths.extract_dir, "layer_translations", paths.fmt, required=False
+    )
+    _verbose(
+        args,
+        (
+            "loaded extract tables: "
+            f"core_genes={len(core_genes)}, layer_genes={len(layer_genes)}, "
+            f"core_transcripts={len(core_tx)}, layer_transcripts={len(layer_tx)}"
+        ),
+        start_time,
+    )
 
-    loci, gene_to_locus = build_or_load_loci(paths, core_genes, layer_genes, args.locus_gap_bp)
+    _verbose(args, "building or loading audit loci", start_time)
+    loci, gene_to_locus = build_or_load_loci(
+        paths, core_genes, layer_genes, args.locus_gap_bp
+    )
+    _verbose(
+        args,
+        f"loci ready: loci={len(loci)}, gene_to_locus={len(gene_to_locus)}",
+        start_time,
+    )
 
-    evidence_fate = audit_evidence_fate(core_genes, layer_genes, core_tx, layer_tx, core_tr, layer_tr)
+    _verbose(args, "auditing fate of layer evidence against final core", start_time)
+    evidence_fate = audit_evidence_fate(
+        core_genes, layer_genes, core_tx, layer_tx, core_tr, layer_tr
+    )
+    _verbose(args, f"evidence fate rows={len(evidence_fate)}", start_time)
 
     target_seq_regions = sorted(
-        set(core_genes.get("seq_region_name", pd.Series(dtype=str)).dropna().astype(str))
-        | set(layer_genes.get("seq_region_name", pd.Series(dtype=str)).dropna().astype(str))
+        set(
+            core_genes.get("seq_region_name", pd.Series(dtype=str)).dropna().astype(str)
+        )
+        | set(
+            layer_genes.get("seq_region_name", pd.Series(dtype=str))
+            .dropna()
+            .astype(str)
+        )
     )
+    _verbose(
+        args,
+        f"target seq_regions inferred for expected inputs: {len(target_seq_regions)}",
+        start_time,
+    )
+    _verbose(args, "checking whether expected inputs need to be generated", start_time)
     generated_expected = populate_expected_inputs(args, paths, target_seq_regions)
+    _verbose(args, f"expected input mode: {generated_expected.get('mode')}", start_time)
 
     expected_presence = pd.DataFrame()
     if args.expected_genes:
+        _verbose(
+            args, f"auditing expected genes from {args.expected_genes}", start_time
+        )
         expected_genes = _read_table(args.expected_genes)
-        expected_projections = _read_table(args.expected_projections) if args.expected_projections else pd.DataFrame()
-        expected_presence = audit_expected_presence(expected_genes, expected_projections, core_genes, layer_genes)
+        expected_projections = (
+            _read_table(args.expected_projections)
+            if args.expected_projections
+            else pd.DataFrame()
+        )
+        expected_presence = audit_expected_presence(
+            expected_genes, expected_projections, core_genes, layer_genes
+        )
+        _verbose(
+            args, f"expected gene presence rows={len(expected_presence)}", start_time
+        )
 
     same_assembly_structure = pd.DataFrame()
     same_assembly_structure_summary = pd.DataFrame()
     if getattr(args, "gffcompare_tmap", None):
-        same_assembly_structure = build_same_assembly_structure_audit(read_gffcompare_tmap(args.gffcompare_tmap))
-        same_assembly_structure_summary = build_same_assembly_structure_summary(same_assembly_structure)
+        _verbose(
+            args,
+            f"auditing same-assembly structure from {args.gffcompare_tmap}",
+            start_time,
+        )
+        same_assembly_structure = build_same_assembly_structure_audit(
+            read_gffcompare_tmap(args.gffcompare_tmap)
+        )
+        same_assembly_structure_summary = build_same_assembly_structure_summary(
+            same_assembly_structure
+        )
+        _verbose(
+            args,
+            f"same-assembly structure rows={len(same_assembly_structure)}",
+            start_time,
+        )
 
     reference_protein_audit = pd.DataFrame()
     reference_protein_summary = pd.DataFrame()
-    if getattr(args, "expected_proteins", None) or getattr(args, "reference_protein_hits", None):
+    if getattr(args, "expected_proteins", None) or getattr(
+        args, "reference_protein_hits", None
+    ):
+        _verbose(args, "auditing reference protein support", start_time)
         expected_proteins = (
-            _read_table(args.expected_proteins) if getattr(args, "expected_proteins", None) else pd.DataFrame()
+            _read_table(args.expected_proteins)
+            if getattr(args, "expected_proteins", None)
+            else pd.DataFrame()
         )
         reference_protein_hits = (
             _read_table(args.reference_protein_hits)
@@ -2558,8 +3567,62 @@ def run_audit(args: argparse.Namespace) -> int:
             min_identity=args.protein_min_identity,
             min_query_coverage=args.protein_min_query_coverage,
         )
-        reference_protein_summary = build_reference_protein_summary(reference_protein_audit)
+        reference_protein_summary = build_reference_protein_summary(
+            reference_protein_audit
+        )
+        _verbose(
+            args,
+            f"reference protein audit rows={len(reference_protein_audit)}",
+            start_time,
+        )
 
+    busco_diagnostic_audit = pd.DataFrame()
+    busco_isoform_suggestions = pd.DataFrame()
+    busco_diagnostic_summary = pd.DataFrame()
+    if getattr(args, "genome_busco", None) and getattr(args, "protein_busco", None):
+        _verbose(
+            args,
+            (
+                "auditing BUSCO genome/protein disagreement: "
+                f"genome={args.genome_busco}, protein={args.protein_busco}"
+            ),
+            start_time,
+        )
+        genome_busco = parse_busco_table(args.genome_busco, "genome")
+        protein_busco = parse_busco_table(args.protein_busco, "protein")
+        busco_ids = set(genome_busco.get("busco_id", pd.Series(dtype=str))) | set(
+            protein_busco.get("busco_id", pd.Series(dtype=str))
+        )
+        busco_metadata = load_busco_metadata(
+            getattr(args, "busco_dataset_dir", None), busco_ids
+        )
+        busco_diagnostic_audit, busco_isoform_suggestions, busco_diagnostic_summary = (
+            build_busco_diagnostic_audit(
+                genome_busco,
+                protein_busco,
+                core_genes,
+                layer_genes,
+                core_tx,
+                core_tr,
+                busco_metadata=busco_metadata,
+                hmmer_dir=getattr(args, "hmmer_dir", None),
+            )
+        )
+        _verbose(
+            args,
+            (
+                "BUSCO diagnostics ready: "
+                f"problems={len(busco_diagnostic_audit)}, "
+                f"isoform_suggestions={len(busco_isoform_suggestions)}"
+            ),
+            start_time,
+        )
+
+    _verbose(
+        args,
+        "building derived profiles, recommendations, and rescue patterns",
+        start_time,
+    )
     failure_summary = _failure_summary(evidence_fate, expected_presence)
     review_loci = build_review_loci(evidence_fate, expected_presence, args.top_n)
     audit_loci = build_audit_loci(loci, expected_presence, review_loci)
@@ -2567,10 +3630,18 @@ def run_audit(args: argparse.Namespace) -> int:
     expected_source_profile = build_expected_source_profile(expected_presence)
     busco_crosswalk = build_busco_crosswalk(expected_presence)
     completeness_profile = build_completeness_profile(expected_presence)
-    non_busco_high_confidence_losses = build_non_busco_high_confidence_losses(expected_presence)
+    non_busco_high_confidence_losses = build_non_busco_high_confidence_losses(
+        expected_presence
+    )
     busco_proxy_calibration = build_busco_proxy_calibration(expected_presence)
     copy_number_audit = build_copy_number_audit(expected_presence)
     biotype_transition = build_biotype_transition(evidence_fate, expected_presence)
+    rescue_pattern_summary, rescue_candidate_loci = build_rescue_patterns(
+        evidence_fate,
+        expected_presence,
+        busco_diagnostic_audit,
+        reference_protein_audit,
+    )
     recommendations = build_recommendations(
         evidence_fate,
         expected_presence,
@@ -2603,22 +3674,46 @@ def run_audit(args: argparse.Namespace) -> int:
         args.max_copy_number_issue_fraction,
         args.require_expected_genes,
     )
+    _verbose(
+        args,
+        (
+            "derived outputs ready: "
+            f"review_loci={len(review_loci)}, rescue_patterns={len(rescue_pattern_summary)}, "
+            f"recommendations={len(recommendations)}, release_gates={len(release_readiness)}"
+        ),
+        start_time,
+    )
 
     suffix = args.format
-    _write_table(audit_loci, os.path.join(paths.observability_dir, f"audit_loci.{suffix}"), args.format)
+    _verbose(
+        args, f"writing observability outputs to {paths.observability_dir}", start_time
+    )
+    _write_table(
+        audit_loci,
+        os.path.join(paths.observability_dir, f"audit_loci.{suffix}"),
+        args.format,
+    )
     _write_table(
         gene_to_locus,
         os.path.join(paths.observability_dir, f"gene_to_locus.{suffix}"),
         args.format,
     )
-    _write_table(evidence_fate, os.path.join(paths.observability_dir, f"evidence_fate.{suffix}"), args.format)
+    _write_table(
+        evidence_fate,
+        os.path.join(paths.observability_dir, f"evidence_fate.{suffix}"),
+        args.format,
+    )
     if not expected_presence.empty or args.expected_genes:
         _write_table(
             expected_presence,
             os.path.join(paths.observability_dir, f"expected_gene_presence.{suffix}"),
             args.format,
         )
-    _write_table(source_profile, os.path.join(paths.observability_dir, f"source_profile.{suffix}"), args.format)
+    _write_table(
+        source_profile,
+        os.path.join(paths.observability_dir, f"source_profile.{suffix}"),
+        args.format,
+    )
     _write_table(
         expected_source_profile,
         os.path.join(paths.observability_dir, f"expected_source_profile.{suffix}"),
@@ -2636,7 +3731,9 @@ def run_audit(args: argparse.Namespace) -> int:
     )
     _write_table(
         non_busco_high_confidence_losses,
-        os.path.join(paths.observability_dir, f"non_busco_high_confidence_losses.{suffix}"),
+        os.path.join(
+            paths.observability_dir, f"non_busco_high_confidence_losses.{suffix}"
+        ),
         args.format,
     )
     _write_table(
@@ -2655,6 +3752,16 @@ def run_audit(args: argparse.Namespace) -> int:
         args.format,
     )
     _write_table(
+        rescue_pattern_summary,
+        os.path.join(paths.observability_dir, f"rescue_pattern_summary.{suffix}"),
+        args.format,
+    )
+    _write_table(
+        rescue_candidate_loci,
+        os.path.join(paths.observability_dir, f"rescue_candidate_loci.{suffix}"),
+        args.format,
+    )
+    _write_table(
         recommendations,
         os.path.join(paths.observability_dir, f"recommendations.{suffix}"),
         args.format,
@@ -2667,11 +3774,15 @@ def run_audit(args: argparse.Namespace) -> int:
         )
         _write_table(
             same_assembly_structure_summary,
-            os.path.join(paths.observability_dir, f"same_assembly_structure_summary.{suffix}"),
+            os.path.join(
+                paths.observability_dir, f"same_assembly_structure_summary.{suffix}"
+            ),
             args.format,
         )
-    if not reference_protein_audit.empty or getattr(args, "expected_proteins", None) or getattr(
-        args, "reference_protein_hits", None
+    if (
+        not reference_protein_audit.empty
+        or getattr(args, "expected_proteins", None)
+        or getattr(args, "reference_protein_hits", None)
     ):
         _write_table(
             reference_protein_audit,
@@ -2680,19 +3791,64 @@ def run_audit(args: argparse.Namespace) -> int:
         )
         _write_table(
             reference_protein_summary,
-            os.path.join(paths.observability_dir, f"reference_protein_summary.{suffix}"),
+            os.path.join(
+                paths.observability_dir, f"reference_protein_summary.{suffix}"
+            ),
             args.format,
+        )
+    if not busco_diagnostic_audit.empty or (
+        getattr(args, "genome_busco", None) and getattr(args, "protein_busco", None)
+    ):
+        _write_table(
+            busco_diagnostic_audit,
+            os.path.join(paths.observability_dir, f"busco_diagnostic_audit.{suffix}"),
+            args.format,
+        )
+        _write_table(
+            busco_isoform_suggestions,
+            os.path.join(
+                paths.observability_dir, f"busco_isoform_suggestions.{suffix}"
+            ),
+            args.format,
+        )
+        _write_table(
+            busco_diagnostic_summary,
+            os.path.join(paths.observability_dir, f"busco_diagnostic_summary.{suffix}"),
+            args.format,
+        )
+        write_busco_diagnostic_bed(
+            busco_diagnostic_audit,
+            os.path.join(paths.observability_dir, "busco_diagnostic_issues.bed"),
+            pad_bp=args.bed_pad_bp,
         )
     _write_table(
         release_readiness,
         os.path.join(paths.observability_dir, f"release_readiness.{suffix}"),
         args.format,
     )
-    _write_table(feature_profile, os.path.join(paths.observability_dir, f"feature_profile.{suffix}"), args.format)
-    _write_table(failure_summary, os.path.join(paths.observability_dir, f"failure_mode_summary.{suffix}"), args.format)
-    _write_table(review_loci, os.path.join(paths.observability_dir, f"review_loci.{suffix}"), args.format)
-    write_bed(review_loci, os.path.join(paths.observability_dir, "review_loci.bed"), pad_bp=args.bed_pad_bp)
-    review_bed_paths = write_review_bed_sets(review_loci, paths.observability_dir, pad_bp=args.bed_pad_bp)
+    _write_table(
+        feature_profile,
+        os.path.join(paths.observability_dir, f"feature_profile.{suffix}"),
+        args.format,
+    )
+    _write_table(
+        failure_summary,
+        os.path.join(paths.observability_dir, f"failure_mode_summary.{suffix}"),
+        args.format,
+    )
+    _write_table(
+        review_loci,
+        os.path.join(paths.observability_dir, f"review_loci.{suffix}"),
+        args.format,
+    )
+    write_bed(
+        review_loci,
+        os.path.join(paths.observability_dir, "review_loci.bed"),
+        pad_bp=args.bed_pad_bp,
+    )
+    review_bed_paths = write_review_bed_sets(
+        review_loci, paths.observability_dir, pad_bp=args.bed_pad_bp
+    )
     completeness_bed_dir = os.path.join(paths.observability_dir, "completeness_beds")
     write_expected_presence_bed(
         non_busco_high_confidence_losses,
@@ -2712,7 +3868,9 @@ def run_audit(args: argparse.Namespace) -> int:
         pad_bp=args.bed_pad_bp,
     )
     protein_review = (
-        reference_protein_audit[reference_protein_audit["review_priority"].isin(["P1", "P2"])]
+        reference_protein_audit[
+            reference_protein_audit["review_priority"].isin(["P1", "P2"])
+        ]
         if not reference_protein_audit.empty
         else reference_protein_audit
     )
@@ -2732,6 +3890,7 @@ def run_audit(args: argparse.Namespace) -> int:
         feature_profile,
         recommendations,
         release_readiness,
+        rescue_pattern_summary,
     )
     write_manifest(
         {
@@ -2745,6 +3904,10 @@ def run_audit(args: argparse.Namespace) -> int:
             "expected_proteins": getattr(args, "expected_proteins", None),
             "reference_protein_hits": getattr(args, "reference_protein_hits", None),
             "gffcompare_tmap": getattr(args, "gffcompare_tmap", None),
+            "genome_busco": getattr(args, "genome_busco", None),
+            "protein_busco": getattr(args, "protein_busco", None),
+            "hmmer_dir": getattr(args, "hmmer_dir", None),
+            "busco_dataset_dir": getattr(args, "busco_dataset_dir", None),
             "busco_complete_percent": getattr(args, "busco_complete_percent", None),
             "generated_expected_inputs": generated_expected,
             "outputs": {
@@ -2756,13 +3919,19 @@ def run_audit(args: argparse.Namespace) -> int:
                 "expected_source_profile": len(expected_source_profile),
                 "busco_expected_crosswalk": len(busco_crosswalk),
                 "completeness_profile": len(completeness_profile),
-                "non_busco_high_confidence_losses": len(non_busco_high_confidence_losses),
+                "non_busco_high_confidence_losses": len(
+                    non_busco_high_confidence_losses
+                ),
                 "busco_proxy_calibration": len(busco_proxy_calibration),
                 "copy_number_audit": len(copy_number_audit),
                 "biotype_transition": len(biotype_transition),
+                "rescue_pattern_summary": len(rescue_pattern_summary),
+                "rescue_candidate_loci": len(rescue_candidate_loci),
                 "recommendations": len(recommendations),
                 "same_assembly_structure": len(same_assembly_structure),
                 "reference_protein_audit": len(reference_protein_audit),
+                "busco_diagnostic_audit": len(busco_diagnostic_audit),
+                "busco_isoform_suggestions": len(busco_isoform_suggestions),
                 "release_readiness": len(release_readiness),
                 "feature_profile": len(feature_profile),
                 "failure_mode_summary": len(failure_summary),
@@ -2772,51 +3941,137 @@ def run_audit(args: argparse.Namespace) -> int:
         },
         os.path.join(paths.root, "manifest.observability.json"),
     )
-    print(f"[observability] wrote {len(review_loci)} review loci -> {paths.observability_dir}")
-    print(f"[observability] summary: {os.path.join(paths.observability_dir, 'actionable_summary.md')}")
+    print(
+        f"[observability] wrote {len(review_loci)} review loci -> {paths.observability_dir}"
+    )
+    print(
+        f"[observability] summary: {os.path.join(paths.observability_dir, 'actionable_summary.md')}"
+    )
+    _verbose(args, "audit complete", start_time)
     return 0
 
 
 def run_end_to_end(args: argparse.Namespace) -> int:
+    start_time = time.monotonic()
     if not args.run_id:
         args.run_id = make_run_id(args.core_db, args.layer_db)
     paths = _paths_from_args(args)
     ensure_dir(paths.extract_dir)
     ensure_dir(paths.loci_dir)
+    _verbose(args, f"starting end-to-end run for run_id={paths.run_id}", start_time)
 
     core_params = DBParams(args.host, args.port, args.user, args.password, args.core_db)
-    layer_params = DBParams(args.host, args.port, args.user, args.password, args.layer_db)
+    layer_params = DBParams(
+        args.host, args.port, args.user, args.password, args.layer_db
+    )
 
+    _verbose(args, "connecting to core/layer DBs and listing seq_regions", start_time)
     with connect(core_params) as core_conn, connect(layer_params) as layer_conn:
         core_regions = set(list_seq_regions(core_conn, args.coord_system_name))
         layer_regions = set(list_seq_regions(layer_conn, args.coord_system_name))
         seq_regions = sorted(core_regions.union(layer_regions))
+    _verbose(args, f"seq_regions selected: {len(seq_regions)}", start_time)
 
     print(f"[observability-run] run_id={paths.run_id}")
     print(f"[observability-run] extracting {len(seq_regions)} seq_regions")
 
+    _verbose(
+        args,
+        f"extracting core genes/transcripts/translations from {args.core_db}",
+        start_time,
+    )
     with connect(core_params) as core_conn:
         core_genes = extract_all_genes(core_conn, seq_regions, args.coord_system_name)
-        core_tx = extract_all_transcripts(core_conn, seq_regions, args.coord_system_name)
+        core_tx = extract_all_transcripts(
+            core_conn, seq_regions, args.coord_system_name
+        )
         core_tr = extract_all_translations(core_conn)
+    _verbose(
+        args,
+        (
+            "core extraction complete: "
+            f"genes={len(core_genes)}, transcripts={len(core_tx)}, translations={len(core_tr)}"
+        ),
+        start_time,
+    )
+    _verbose(
+        args,
+        f"extracting layer genes/transcripts/translations from {args.layer_db}",
+        start_time,
+    )
     with connect(layer_params) as layer_conn:
         layer_genes = extract_all_genes(layer_conn, seq_regions, args.coord_system_name)
-        layer_tx = extract_all_transcripts(layer_conn, seq_regions, args.coord_system_name)
+        layer_tx = extract_all_transcripts(
+            layer_conn, seq_regions, args.coord_system_name
+        )
         layer_tr = extract_all_translations(layer_conn)
+    _verbose(
+        args,
+        (
+            "layer extraction complete: "
+            f"genes={len(layer_genes)}, transcripts={len(layer_tx)}, translations={len(layer_tr)}"
+        ),
+        start_time,
+    )
 
-    _write_table(core_genes, os.path.join(paths.extract_dir, f"core_genes.{args.format}"), args.format)
-    _write_table(layer_genes, os.path.join(paths.extract_dir, f"layer_genes.{args.format}"), args.format)
-    _write_table(core_tx, os.path.join(paths.extract_dir, f"core_transcripts.{args.format}"), args.format)
-    _write_table(layer_tx, os.path.join(paths.extract_dir, f"layer_transcripts.{args.format}"), args.format)
-    _write_table(core_tr, os.path.join(paths.extract_dir, f"core_translations.{args.format}"), args.format)
-    _write_table(layer_tr, os.path.join(paths.extract_dir, f"layer_translations.{args.format}"), args.format)
+    _verbose(args, f"writing extract tables to {paths.extract_dir}", start_time)
+    _write_table(
+        core_genes,
+        os.path.join(paths.extract_dir, f"core_genes.{args.format}"),
+        args.format,
+    )
+    _write_table(
+        layer_genes,
+        os.path.join(paths.extract_dir, f"layer_genes.{args.format}"),
+        args.format,
+    )
+    _write_table(
+        core_tx,
+        os.path.join(paths.extract_dir, f"core_transcripts.{args.format}"),
+        args.format,
+    )
+    _write_table(
+        layer_tx,
+        os.path.join(paths.extract_dir, f"layer_transcripts.{args.format}"),
+        args.format,
+    )
+    _write_table(
+        core_tr,
+        os.path.join(paths.extract_dir, f"core_translations.{args.format}"),
+        args.format,
+    )
+    _write_table(
+        layer_tr,
+        os.path.join(paths.extract_dir, f"layer_translations.{args.format}"),
+        args.format,
+    )
 
-    loci, expanded, gene_to_locus = build_loci(core_genes, layer_genes, args.locus_gap_bp)
-    _write_table(loci, os.path.join(paths.loci_dir, f"loci.strict.{args.format}"), args.format)
-    _write_table(expanded, os.path.join(paths.loci_dir, f"loci.expanded.{args.format}"), args.format)
-    _write_table(gene_to_locus, os.path.join(paths.loci_dir, f"gene_to_locus.{args.format}"), args.format)
+    _verbose(args, "building loci from extracted core/layer genes", start_time)
+    loci, expanded, gene_to_locus = build_loci(
+        core_genes, layer_genes, args.locus_gap_bp
+    )
+    _verbose(
+        args,
+        f"loci built: strict={len(loci)}, expanded={len(expanded)}, gene_to_locus={len(gene_to_locus)}",
+        start_time,
+    )
+    _write_table(
+        loci, os.path.join(paths.loci_dir, f"loci.strict.{args.format}"), args.format
+    )
+    _write_table(
+        expanded,
+        os.path.join(paths.loci_dir, f"loci.expanded.{args.format}"),
+        args.format,
+    )
+    _write_table(
+        gene_to_locus,
+        os.path.join(paths.loci_dir, f"gene_to_locus.{args.format}"),
+        args.format,
+    )
 
+    _verbose(args, "checking whether expected inputs need to be generated", start_time)
     generated_expected = populate_expected_inputs(args, paths, seq_regions)
+    _verbose(args, f"expected input mode: {generated_expected.get('mode')}", start_time)
 
     write_manifest(
         {
@@ -2843,6 +4098,7 @@ def run_end_to_end(args: argparse.Namespace) -> int:
         },
         os.path.join(paths.root, "manifest.observability.run.json"),
     )
+    _verbose(args, "extract/loci phase complete; starting audit phase", start_time)
     return run_audit(args)
 
 
@@ -2891,17 +4147,31 @@ def expected_tables_from_core_gene_table(
 
         if projection_mode == "same_coordinates":
             seq_region_name = _string_value(row.get("seq_region_name"))
-            seq_region_is_target = not target_region_set or seq_region_name in target_region_set
+            seq_region_is_target = (
+                not target_region_set or seq_region_name in target_region_set
+            )
             projection_rows.append(
                 {
                     "expected_gene_id": expected_gene_id,
                     "seq_region_name": seq_region_name if seq_region_is_target else "",
-                    "seq_region_start": _int_value(row.get("seq_region_start")) if seq_region_is_target else 0,
-                    "seq_region_end": _int_value(row.get("seq_region_end")) if seq_region_is_target else 0,
-                    "seq_region_strand": _normalise_strand(row.get("seq_region_strand"))
-                    if seq_region_is_target
-                    else 0,
-                    "projection_status": "mapped" if seq_region_is_target else "unmapped",
+                    "seq_region_start": (
+                        _int_value(row.get("seq_region_start"))
+                        if seq_region_is_target
+                        else 0
+                    ),
+                    "seq_region_end": (
+                        _int_value(row.get("seq_region_end"))
+                        if seq_region_is_target
+                        else 0
+                    ),
+                    "seq_region_strand": (
+                        _normalise_strand(row.get("seq_region_strand"))
+                        if seq_region_is_target
+                        else 0
+                    ),
+                    "projection_status": (
+                        "mapped" if seq_region_is_target else "unmapped"
+                    ),
                     "projection_identity": 1.0 if seq_region_is_target else 0.0,
                     "projection_coverage": 1.0 if seq_region_is_target else 0.0,
                     "assembly_gap_overlap_bp": 0,
@@ -2963,7 +4233,9 @@ def read_gff3_features(path: str) -> pd.DataFrame:
             parts = line.rstrip("\n").split("\t")
             if len(parts) != 9:
                 continue
-            seq, source, feature_type, start, end, _score, strand, _phase, raw_attrs = parts
+            seq, source, feature_type, start, end, _score, strand, _phase, raw_attrs = (
+                parts
+            )
             attrs = parse_gff3_attributes(raw_attrs)
             feature_id = (
                 attrs.get("ID")
@@ -2972,8 +4244,15 @@ def read_gff3_features(path: str) -> pd.DataFrame:
                 or attrs.get("Name")
                 or f"gff3:{feature_type}:{seq}:{start}:{end}:{strand}:{line_number}"
             )
-            gene_id = attrs.get("gene_id") or attrs.get("gene") or attrs.get("locus_tag") or feature_id
-            symbol = attrs.get("gene_name") or attrs.get("Name") or attrs.get("symbol") or ""
+            gene_id = (
+                attrs.get("gene_id")
+                or attrs.get("gene")
+                or attrs.get("locus_tag")
+                or feature_id
+            )
+            symbol = (
+                attrs.get("gene_name") or attrs.get("Name") or attrs.get("symbol") or ""
+            )
             biotype = (
                 attrs.get("biotype")
                 or attrs.get("gene_biotype")
@@ -2999,7 +4278,8 @@ def read_gff3_features(path: str) -> pd.DataFrame:
                     "gene_id": gene_id,
                     "symbol": symbol,
                     "biotype": biotype,
-                    "orthogroup_id": attrs.get("orthogroup_id", "") or attrs.get("orthogroup", ""),
+                    "orthogroup_id": attrs.get("orthogroup_id", "")
+                    or attrs.get("orthogroup", ""),
                     "busco_id": busco_id,
                 }
             )
@@ -3027,20 +4307,37 @@ def expected_tables_from_gff3(
 
     gene_features = features[features["feature_type"] == "gene"].copy()
     if not gene_features.empty:
-        groups = [(row["feature_id"], pd.DataFrame([row])) for _, row in gene_features.iterrows()]
+        groups = [
+            (row["feature_id"], pd.DataFrame([row]))
+            for _, row in gene_features.iterrows()
+        ]
     else:
-        transcript_types = {"mRNA", "transcript", "lnc_RNA", "ncRNA", "pseudogenic_transcript", "rRNA", "tRNA"}
-        transcript_features = features[features["feature_type"].isin(transcript_types)].copy()
+        transcript_types = {
+            "mRNA",
+            "transcript",
+            "lnc_RNA",
+            "ncRNA",
+            "pseudogenic_transcript",
+            "rRNA",
+            "tRNA",
+        }
+        transcript_features = features[
+            features["feature_type"].isin(transcript_types)
+        ].copy()
         if not transcript_features.empty:
             transcript_features["_expected_group_id"] = transcript_features.apply(
-                lambda r: _string_value(r.get("parent_id")) or _string_value(r.get("feature_id")),
+                lambda r: _string_value(r.get("parent_id"))
+                or _string_value(r.get("feature_id")),
                 axis=1,
             )
-            groups = list(transcript_features.groupby("_expected_group_id", dropna=False))
+            groups = list(
+                transcript_features.groupby("_expected_group_id", dropna=False)
+            )
         else:
             cds_features = features[features["feature_type"] == "CDS"].copy()
             cds_features["_expected_group_id"] = cds_features.apply(
-                lambda r: _string_value(r.get("parent_id")) or _string_value(r.get("feature_id")),
+                lambda r: _string_value(r.get("parent_id"))
+                or _string_value(r.get("feature_id")),
                 axis=1,
             )
             groups = list(cds_features.groupby("_expected_group_id", dropna=False))
@@ -3060,7 +4357,9 @@ def expected_tables_from_gff3(
         start = int(group["seq_region_start"].astype(int).min())
         end = int(group["seq_region_end"].astype(int).max())
         seq_region_name = _string_value(row.get("seq_region_name"))
-        seq_region_is_target = not target_region_set or seq_region_name in target_region_set
+        seq_region_is_target = (
+            not target_region_set or seq_region_name in target_region_set
+        )
         expected_rows.append(
             {
                 "expected_gene_id": expected_gene_id,
@@ -3081,10 +4380,14 @@ def expected_tables_from_gff3(
                     "seq_region_name": seq_region_name if seq_region_is_target else "",
                     "seq_region_start": start if seq_region_is_target else 0,
                     "seq_region_end": end if seq_region_is_target else 0,
-                    "seq_region_strand": _normalise_strand(row.get("seq_region_strand"))
-                    if seq_region_is_target
-                    else 0,
-                    "projection_status": "mapped" if seq_region_is_target else "unmapped",
+                    "seq_region_strand": (
+                        _normalise_strand(row.get("seq_region_strand"))
+                        if seq_region_is_target
+                        else 0
+                    ),
+                    "projection_status": (
+                        "mapped" if seq_region_is_target else "unmapped"
+                    ),
                     "projection_identity": 1.0 if seq_region_is_target else 0.0,
                     "projection_coverage": 1.0 if seq_region_is_target else 0.0,
                     "assembly_gap_overlap_bp": 0,
@@ -3102,7 +4405,11 @@ def _expected_db_params(args: argparse.Namespace) -> DBParams:
         getattr(args, "expected_host", None) or args.host,
         getattr(args, "expected_port", None) or args.port,
         getattr(args, "expected_user", None) or args.user,
-        args.password if getattr(args, "expected_password", None) is None else args.expected_password,
+        (
+            args.password
+            if getattr(args, "expected_password", None) is None
+            else args.expected_password
+        ),
         args.expected_core_db,
     )
 
@@ -3140,7 +4447,9 @@ def populate_expected_inputs_from_core_db(
     expected_params = _expected_db_params(args)
     with connect(expected_params) as expected_conn:
         expected_regions = list_seq_regions(expected_conn, expected_coord_system)
-        expected_genes_raw = extract_all_genes(expected_conn, expected_regions, expected_coord_system)
+        expected_genes_raw = extract_all_genes(
+            expected_conn, expected_regions, expected_coord_system
+        )
 
     expected_genes, expected_projections = expected_tables_from_core_gene_table(
         expected_genes_raw,
@@ -3165,12 +4474,16 @@ def populate_expected_inputs_from_core_db(
         if args.expected_projections:
             generated["mode"] = "from_core_db_with_user_supplied_projections"
         else:
-            expected_projections_path = os.path.join(expected_dir, f"expected_projections.{suffix}")
+            expected_projections_path = os.path.join(
+                expected_dir, f"expected_projections.{suffix}"
+            )
             _write_table(expected_projections, expected_projections_path, args.format)
             args.expected_projections = expected_projections_path
             generated["expected_projections"] = expected_projections_path
             generated["rows"]["expected_projections"] = len(expected_projections)
-            unmapped_count = int((expected_projections["projection_status"] == "unmapped").sum())
+            unmapped_count = int(
+                (expected_projections["projection_status"] == "unmapped").sum()
+            )
             print(
                 f"[observability-run] generated {len(expected_projections)} same-coordinate projections "
                 f"({unmapped_count} unmapped seq_region-name mismatches) -> {expected_projections_path}"
@@ -3236,12 +4549,16 @@ def populate_expected_inputs_from_gff3(
         if args.expected_projections:
             generated["mode"] = "from_gff3_with_user_supplied_projections"
         else:
-            expected_projections_path = os.path.join(expected_dir, f"expected_projections.{suffix}")
+            expected_projections_path = os.path.join(
+                expected_dir, f"expected_projections.{suffix}"
+            )
             _write_table(expected_projections, expected_projections_path, args.format)
             args.expected_projections = expected_projections_path
             generated["expected_projections"] = expected_projections_path
             generated["rows"]["expected_projections"] = len(expected_projections)
-            unmapped_count = int((expected_projections["projection_status"] == "unmapped").sum())
+            unmapped_count = int(
+                (expected_projections["projection_status"] == "unmapped").sum()
+            )
             print(
                 f"[observability-run] generated {len(expected_projections)} GFF3 same-coordinate projections "
                 f"({unmapped_count} unmapped seq_region-name mismatches) -> {expected_projections_path}"
@@ -3261,7 +4578,10 @@ def populate_expected_inputs(
     target_seq_regions: Iterable[str],
 ) -> dict:
     if getattr(args, "expected_genes", None):
-        return {"mode": "user_supplied_expected_genes", "expected_genes": args.expected_genes}
+        return {
+            "mode": "user_supplied_expected_genes",
+            "expected_genes": args.expected_genes,
+        }
     if getattr(args, "expected_gff3", None):
         return populate_expected_inputs_from_gff3(args, paths, target_seq_regions)
     if getattr(args, "expected_core_db", None):
@@ -3301,10 +4621,18 @@ def init_expected_template(args: argparse.Namespace) -> int:
     projections_path = os.path.join(args.out_dir, "expected_projections.tsv")
     proteins_path = os.path.join(args.out_dir, "expected_proteins.tsv")
     protein_hits_path = os.path.join(args.out_dir, "reference_protein_hits.tsv")
-    pd.DataFrame(columns=EXPECTED_GENE_COLUMNS).to_csv(genes_path, sep="\t", index=False)
-    pd.DataFrame(columns=EXPECTED_PROJECTION_COLUMNS).to_csv(projections_path, sep="\t", index=False)
-    pd.DataFrame(columns=EXPECTED_PROTEIN_COLUMNS).to_csv(proteins_path, sep="\t", index=False)
-    pd.DataFrame(columns=REFERENCE_PROTEIN_HIT_COLUMNS).to_csv(protein_hits_path, sep="\t", index=False)
+    pd.DataFrame(columns=EXPECTED_GENE_COLUMNS).to_csv(
+        genes_path, sep="\t", index=False
+    )
+    pd.DataFrame(columns=EXPECTED_PROJECTION_COLUMNS).to_csv(
+        projections_path, sep="\t", index=False
+    )
+    pd.DataFrame(columns=EXPECTED_PROTEIN_COLUMNS).to_csv(
+        proteins_path, sep="\t", index=False
+    )
+    pd.DataFrame(columns=REFERENCE_PROTEIN_HIT_COLUMNS).to_csv(
+        protein_hits_path, sep="\t", index=False
+    )
     print(f"[observability] wrote {genes_path}")
     print(f"[observability] wrote {projections_path}")
     print(f"[observability] wrote {proteins_path}")
@@ -3318,6 +4646,8 @@ def _missing_columns(path: str, required_columns: list[str]) -> list[str]:
 
 
 def validate_inputs(args: argparse.Namespace) -> int:
+    start_time = time.monotonic()
+    _verbose(args, "validating observability inputs", start_time)
     errors = []
     try:
         paths = _paths_from_args(args)
@@ -3326,19 +4656,27 @@ def validate_inputs(args: argparse.Namespace) -> int:
         paths = None
 
     if paths is not None:
+        _verbose(args, f"checking extract tables under {paths.extract_dir}", start_time)
         for base in ("core_genes", "layer_genes"):
             try:
                 _load_named_table(paths.extract_dir, base, args.format)
             except FileNotFoundError as exc:
                 errors.append(str(exc))
-        for base in ("core_transcripts", "layer_transcripts", "core_translations", "layer_translations"):
+        for base in (
+            "core_transcripts",
+            "layer_transcripts",
+            "core_translations",
+            "layer_translations",
+        ):
             try:
                 _load_named_table(paths.extract_dir, base, args.format, required=False)
             except FileNotFoundError:
                 pass
 
     if args.expected_genes:
-        missing = _missing_columns(args.expected_genes, ["expected_gene_id", "confidence"])
+        missing = _missing_columns(
+            args.expected_genes, ["expected_gene_id", "confidence"]
+        )
         if missing:
             errors.append(f"{args.expected_genes} missing columns: {missing}")
     elif args.expected_projections:
@@ -3346,27 +4684,54 @@ def validate_inputs(args: argparse.Namespace) -> int:
     if args.expected_projections:
         missing = _missing_columns(
             args.expected_projections,
-            ["expected_gene_id", "seq_region_name", "seq_region_start", "seq_region_end"],
+            [
+                "expected_gene_id",
+                "seq_region_name",
+                "seq_region_start",
+                "seq_region_end",
+            ],
         )
         if missing:
             errors.append(f"{args.expected_projections} missing columns: {missing}")
     if getattr(args, "expected_proteins", None):
-        missing = _missing_columns(args.expected_proteins, ["expected_gene_id", "query_protein_id", "confidence"])
+        missing = _missing_columns(
+            args.expected_proteins,
+            ["expected_gene_id", "query_protein_id", "confidence"],
+        )
         if missing:
             errors.append(f"{args.expected_proteins} missing columns: {missing}")
     if getattr(args, "reference_protein_hits", None):
         missing = _missing_columns(args.reference_protein_hits, ["query_protein_id"])
         if missing:
             errors.append(f"{args.reference_protein_hits} missing columns: {missing}")
-    if getattr(args, "gffcompare_tmap", None) and not os.path.exists(args.gffcompare_tmap):
+    if getattr(args, "gffcompare_tmap", None) and not os.path.exists(
+        args.gffcompare_tmap
+    ):
         errors.append(f"Could not find gffcompare tmap: {args.gffcompare_tmap}")
     if getattr(args, "expected_gff3", None) and not os.path.exists(args.expected_gff3):
         errors.append(f"Could not find expected GFF3: {args.expected_gff3}")
+    if bool(getattr(args, "genome_busco", None)) != bool(
+        getattr(args, "protein_busco", None)
+    ):
+        errors.append("--genome_busco and --protein_busco must be supplied together")
+    if getattr(args, "genome_busco", None) and not os.path.exists(args.genome_busco):
+        errors.append(f"Could not find genome BUSCO table: {args.genome_busco}")
+    if getattr(args, "protein_busco", None) and not os.path.exists(args.protein_busco):
+        errors.append(f"Could not find protein BUSCO table: {args.protein_busco}")
+    if getattr(args, "hmmer_dir", None) and not os.path.isdir(args.hmmer_dir):
+        errors.append(f"Could not find HMMER directory: {args.hmmer_dir}")
+    if getattr(args, "busco_dataset_dir", None) and not os.path.isdir(
+        args.busco_dataset_dir
+    ):
+        errors.append(
+            f"Could not find BUSCO dataset directory: {args.busco_dataset_dir}"
+        )
 
     if errors:
         for error in errors:
             print(f"[observability-validate] ERROR: {error}", file=sys.stderr)
         return 2
+    _verbose(args, "input validation complete", start_time)
     print("[observability-validate] inputs look usable")
     return 0
 
@@ -3378,7 +4743,9 @@ def build_parser() -> argparse.ArgumentParser:
     )
     sub = parser.add_subparsers(dest="cmd", required=True)
 
-    run = sub.add_parser("run", help="Extract from DBs, build loci, and run the observability audit")
+    run = sub.add_parser(
+        "run", help="Extract from DBs, build loci, and run the observability audit"
+    )
     run.add_argument("--host", required=True)
     run.add_argument("--port", type=int, default=3306)
     run.add_argument("--user", required=True)
@@ -3386,15 +4753,49 @@ def build_parser() -> argparse.ArgumentParser:
     run.add_argument("--core_db", required=True)
     run.add_argument("--layer_db", required=True)
     run.add_argument("--coord_system_name", default=None)
-    run.add_argument("--output_dir", required=True, help="Output root for the generated run directory")
-    run.add_argument("--run_id", help="Optional run id; defaults to an auto-generated id")
+    run.add_argument(
+        "--output_dir",
+        required=True,
+        help="Output root for the generated run directory",
+    )
+    run.add_argument(
+        "--run_id", help="Optional run id; defaults to an auto-generated id"
+    )
     run.add_argument("--format", choices=["tsv", "csv", "parquet"], default="tsv")
-    run.add_argument("--expected_genes", help="Optional expected gene catalogue TSV/CSV/Parquet")
-    run.add_argument("--expected_projections", help="Optional expected gene projection TSV/CSV/Parquet")
-    run.add_argument("--expected_gff3", help="Optional expected annotation GFF3/GFF3.gz")
-    run.add_argument("--expected_proteins", help="Optional expected reference protein catalogue TSV/CSV/Parquet")
-    run.add_argument("--reference_protein_hits", help="Optional BUSCO-like reference protein hit table")
-    run.add_argument("--gffcompare_tmap", help="Optional GffCompare .tmap for same-assembly structure comparison")
+    run.add_argument(
+        "--expected_genes", help="Optional expected gene catalogue TSV/CSV/Parquet"
+    )
+    run.add_argument(
+        "--expected_projections",
+        help="Optional expected gene projection TSV/CSV/Parquet",
+    )
+    run.add_argument(
+        "--expected_gff3", help="Optional expected annotation GFF3/GFF3.gz"
+    )
+    run.add_argument(
+        "--expected_proteins",
+        help="Optional expected reference protein catalogue TSV/CSV/Parquet",
+    )
+    run.add_argument(
+        "--reference_protein_hits",
+        help="Optional BUSCO-like reference protein hit table",
+    )
+    run.add_argument(
+        "--gffcompare_tmap",
+        help="Optional GffCompare .tmap for same-assembly structure comparison",
+    )
+    run.add_argument("--genome_busco", help="Optional BUSCO genome-mode full_table.tsv")
+    run.add_argument(
+        "--protein_busco", help="Optional BUSCO protein-mode full_table.tsv"
+    )
+    run.add_argument(
+        "--hmmer_dir",
+        help="Optional BUSCO HMMER output directory for per-BUSCO .out files",
+    )
+    run.add_argument(
+        "--busco_dataset_dir",
+        help="Optional BUSCO lineage directory for expected length metadata",
+    )
     run.add_argument(
         "--expected_core_db",
         help=(
@@ -3402,9 +4803,17 @@ def build_parser() -> argparse.ArgumentParser:
             "--expected_genes is not supplied"
         ),
     )
-    run.add_argument("--expected_host", help="Host for --expected_core_db; defaults to --host")
-    run.add_argument("--expected_port", type=int, help="Port for --expected_core_db; defaults to --port")
-    run.add_argument("--expected_user", help="User for --expected_core_db; defaults to --user")
+    run.add_argument(
+        "--expected_host", help="Host for --expected_core_db; defaults to --host"
+    )
+    run.add_argument(
+        "--expected_port",
+        type=int,
+        help="Port for --expected_core_db; defaults to --port",
+    )
+    run.add_argument(
+        "--expected_user", help="User for --expected_core_db; defaults to --user"
+    )
     run.add_argument(
         "--expected_password",
         help="Password for --expected_core_db; defaults to --password",
@@ -3456,9 +4865,15 @@ def build_parser() -> argparse.ArgumentParser:
     run.add_argument("--locus_gap_bp", type=int, default=5000)
     run.add_argument("--protein_min_identity", type=float, default=0.30)
     run.add_argument("--protein_min_query_coverage", type=float, default=0.70)
-    run.add_argument("--busco_complete_percent", type=float, help="Optional external BUSCO complete percentage")
+    run.add_argument(
+        "--busco_complete_percent",
+        type=float,
+        help="Optional external BUSCO complete percentage",
+    )
     run.add_argument("--busco_floor_percent", type=float, default=95.0)
-    run.add_argument("--max_high_confidence_actionable_loss_fraction", type=float, default=0.0)
+    run.add_argument(
+        "--max_high_confidence_actionable_loss_fraction", type=float, default=0.0
+    )
     run.add_argument("--max_copy_number_issue_fraction", type=float, default=0.0)
     run.add_argument(
         "--require_expected_genes",
@@ -3467,16 +4882,35 @@ def build_parser() -> argparse.ArgumentParser:
     )
     run.add_argument("--top_n", type=int, default=500)
     run.add_argument("--bed_pad_bp", type=int, default=0)
+    run.add_argument(
+        "--verbose",
+        action="store_true",
+        help="Print timestamped progress updates for long-running audit phases",
+    )
     run.set_defaults(func=run_end_to_end)
 
-    audit = sub.add_parser("audit", help="Run audit over existing RGB extract/loci tables")
-    audit.add_argument("--run_dir", help="Existing RGB run directory containing extract/ and optional loci/")
-    audit.add_argument("--output_dir", help="RGB output root containing <run_id>/extract")
+    audit = sub.add_parser(
+        "audit", help="Run audit over existing RGB extract/loci tables"
+    )
+    audit.add_argument(
+        "--run_dir",
+        help="Existing RGB run directory containing extract/ and optional loci/",
+    )
+    audit.add_argument(
+        "--output_dir", help="RGB output root containing <run_id>/extract"
+    )
     audit.add_argument("--run_id", help="RGB run id")
     audit.add_argument("--format", choices=["tsv", "csv", "parquet"], default="tsv")
-    audit.add_argument("--expected_genes", help="Optional expected gene catalogue TSV/CSV/Parquet")
-    audit.add_argument("--expected_projections", help="Optional expected gene projection TSV/CSV/Parquet")
-    audit.add_argument("--expected_gff3", help="Optional expected annotation GFF3/GFF3.gz")
+    audit.add_argument(
+        "--expected_genes", help="Optional expected gene catalogue TSV/CSV/Parquet"
+    )
+    audit.add_argument(
+        "--expected_projections",
+        help="Optional expected gene projection TSV/CSV/Parquet",
+    )
+    audit.add_argument(
+        "--expected_gff3", help="Optional expected annotation GFF3/GFF3.gz"
+    )
     audit.add_argument(
         "--expected_gff3_source_name",
         default="gff3_annotation",
@@ -3497,15 +4931,44 @@ def build_parser() -> argparse.ArgumentParser:
             "when the GFF3 coordinates are already on the audited assembly"
         ),
     )
-    audit.add_argument("--expected_proteins", help="Optional expected reference protein catalogue TSV/CSV/Parquet")
-    audit.add_argument("--reference_protein_hits", help="Optional BUSCO-like reference protein hit table")
-    audit.add_argument("--gffcompare_tmap", help="Optional GffCompare .tmap for same-assembly structure comparison")
+    audit.add_argument(
+        "--expected_proteins",
+        help="Optional expected reference protein catalogue TSV/CSV/Parquet",
+    )
+    audit.add_argument(
+        "--reference_protein_hits",
+        help="Optional BUSCO-like reference protein hit table",
+    )
+    audit.add_argument(
+        "--gffcompare_tmap",
+        help="Optional GffCompare .tmap for same-assembly structure comparison",
+    )
+    audit.add_argument(
+        "--genome_busco", help="Optional BUSCO genome-mode full_table.tsv"
+    )
+    audit.add_argument(
+        "--protein_busco", help="Optional BUSCO protein-mode full_table.tsv"
+    )
+    audit.add_argument(
+        "--hmmer_dir",
+        help="Optional BUSCO HMMER output directory for per-BUSCO .out files",
+    )
+    audit.add_argument(
+        "--busco_dataset_dir",
+        help="Optional BUSCO lineage directory for expected length metadata",
+    )
     audit.add_argument("--locus_gap_bp", type=int, default=5000)
     audit.add_argument("--protein_min_identity", type=float, default=0.30)
     audit.add_argument("--protein_min_query_coverage", type=float, default=0.70)
-    audit.add_argument("--busco_complete_percent", type=float, help="Optional external BUSCO complete percentage")
+    audit.add_argument(
+        "--busco_complete_percent",
+        type=float,
+        help="Optional external BUSCO complete percentage",
+    )
     audit.add_argument("--busco_floor_percent", type=float, default=95.0)
-    audit.add_argument("--max_high_confidence_actionable_loss_fraction", type=float, default=0.0)
+    audit.add_argument(
+        "--max_high_confidence_actionable_loss_fraction", type=float, default=0.0
+    )
     audit.add_argument("--max_copy_number_issue_fraction", type=float, default=0.0)
     audit.add_argument(
         "--require_expected_genes",
@@ -3514,22 +4977,72 @@ def build_parser() -> argparse.ArgumentParser:
     )
     audit.add_argument("--top_n", type=int, default=500)
     audit.add_argument("--bed_pad_bp", type=int, default=0)
+    audit.add_argument(
+        "--verbose",
+        action="store_true",
+        help="Print timestamped progress updates for long-running audit phases",
+    )
     audit.set_defaults(func=run_audit)
 
-    validate = sub.add_parser("validate-inputs", help="Check existing extract and expected-gene inputs")
-    validate.add_argument("--run_dir", help="Existing RGB run directory containing extract/ and optional loci/")
-    validate.add_argument("--output_dir", help="RGB output root containing <run_id>/extract")
+    validate = sub.add_parser(
+        "validate-inputs", help="Check existing extract and expected-gene inputs"
+    )
+    validate.add_argument(
+        "--run_dir",
+        help="Existing RGB run directory containing extract/ and optional loci/",
+    )
+    validate.add_argument(
+        "--output_dir", help="RGB output root containing <run_id>/extract"
+    )
     validate.add_argument("--run_id", help="RGB run id")
     validate.add_argument("--format", choices=["tsv", "csv", "parquet"], default="tsv")
-    validate.add_argument("--expected_genes", help="Optional expected gene catalogue TSV/CSV/Parquet")
-    validate.add_argument("--expected_projections", help="Optional expected gene projection TSV/CSV/Parquet")
-    validate.add_argument("--expected_gff3", help="Optional expected annotation GFF3/GFF3.gz")
-    validate.add_argument("--expected_proteins", help="Optional expected reference protein catalogue TSV/CSV/Parquet")
-    validate.add_argument("--reference_protein_hits", help="Optional BUSCO-like reference protein hit table")
-    validate.add_argument("--gffcompare_tmap", help="Optional GffCompare .tmap for same-assembly structure comparison")
+    validate.add_argument(
+        "--expected_genes", help="Optional expected gene catalogue TSV/CSV/Parquet"
+    )
+    validate.add_argument(
+        "--expected_projections",
+        help="Optional expected gene projection TSV/CSV/Parquet",
+    )
+    validate.add_argument(
+        "--expected_gff3", help="Optional expected annotation GFF3/GFF3.gz"
+    )
+    validate.add_argument(
+        "--expected_proteins",
+        help="Optional expected reference protein catalogue TSV/CSV/Parquet",
+    )
+    validate.add_argument(
+        "--reference_protein_hits",
+        help="Optional BUSCO-like reference protein hit table",
+    )
+    validate.add_argument(
+        "--gffcompare_tmap",
+        help="Optional GffCompare .tmap for same-assembly structure comparison",
+    )
+    validate.add_argument(
+        "--genome_busco", help="Optional BUSCO genome-mode full_table.tsv"
+    )
+    validate.add_argument(
+        "--protein_busco", help="Optional BUSCO protein-mode full_table.tsv"
+    )
+    validate.add_argument(
+        "--hmmer_dir",
+        help="Optional BUSCO HMMER output directory for per-BUSCO .out files",
+    )
+    validate.add_argument(
+        "--busco_dataset_dir",
+        help="Optional BUSCO lineage directory for expected length metadata",
+    )
+    validate.add_argument(
+        "--verbose",
+        action="store_true",
+        help="Print timestamped progress updates while validating inputs",
+    )
     validate.set_defaults(func=validate_inputs)
 
-    template = sub.add_parser("init-expected-template", help="Write empty expected gene/projection TSV templates")
+    template = sub.add_parser(
+        "init-expected-template",
+        help="Write empty expected gene/projection TSV templates",
+    )
     template.add_argument("--out_dir", required=True)
     template.set_defaults(func=init_expected_template)
     return parser
