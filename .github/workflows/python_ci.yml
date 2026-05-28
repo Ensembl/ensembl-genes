@@ -17,9 +17,9 @@ name: "Python CI"
 
 on:
   push:
-    branches: [ "fix/documentation" ]
+    branches: [ "**" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "**" ]
 
 defaults:
   run:
