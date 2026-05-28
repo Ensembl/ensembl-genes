@@ -71,7 +71,7 @@ for path in sorted(PKG_ROOT.rglob("*.py")):
         f.write(f"# `{module}`\n\n::: {module}\n")
 
     # Add to navigation under "Code reference"
-    nav["Code reference", *module_parts] = out_path.as_posix()
+    nav[("Code reference",) + module_parts] = out_path.as_posix()
 
 # ----------------------------
 # 3a. Capture README.md files
@@ -92,7 +92,7 @@ for readme_path in sorted(PKG_ROOT.rglob("README.md")):
         f.write(content)
 
     # Add README to nav under "Code reference"
-    nav["Code reference", *module_parts] = out_path.as_posix()
+    nav[("Code reference",) + module_parts] = out_path.as_posix()
 # Write summary.md for mkdocs-literate-nav
 summary_path = OUT_DIR / "summary.md"
 with mkdocs_gen_files.open(summary_path, "w") as nav_file:
