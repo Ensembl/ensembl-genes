@@ -13,10 +13,11 @@ Usage:
 """
 
 import argparse
-import csv
 import json
 import re
 from pathlib import Path
+from typing import Dict, List, Optional, Tuple
+
 import pandas as pd
 
 
@@ -25,35 +26,35 @@ def numeric_series(series: pd.Series) -> pd.Series:
     return pd.to_numeric(series, errors="coerce").fillna(0)
 
 
-def safe_agg(df: pd.DataFrame, columns: list[str], method: str = "sum") -> pd.Series:
+def safe_agg(
+    dataframe: pd.DataFrame, columns: List[str], method: str = "sum"
+) -> pd.Series:
     """Aggregate only the columns that exist in the DataFrame."""
-    existing = [c for c in columns if c in df.columns]
+    existing = [column for column in columns if column in dataframe.columns]
 
     if not existing:
         if method == "sum":
-            return pd.Series(0, index=df.index)
-        else:
-            return pd.Series(float("nan"), index=df.index)
+            return pd.Series(0, index=dataframe.index)
+        return pd.Series(float("nan"), index=dataframe.index)
 
-    numeric_df = df[existing].apply(pd.to_numeric, errors="coerce")
+    numeric_df = dataframe[existing].apply(pd.to_numeric, errors="coerce")
 
     if method == "sum":
         return numeric_df.sum(axis=1)
-    elif method == "mean":
+    if method == "mean":
         return numeric_df.mean(axis=1)
-    elif method == "min":
+    if method == "min":
         return numeric_df.min(axis=1)
-    elif method == "max":
+    if method == "max":
         return numeric_df.max(axis=1)
-    else:
-        raise ValueError(f"Unsupported aggregation method: {method}")
+    raise ValueError(f"Unsupported aggregation method: {method}")
 
 
-def safe_col(df: pd.DataFrame, col: str) -> pd.Series:
+def safe_col(dataframe: pd.DataFrame, col: str) -> pd.Series:
     """Return column if present, otherwise a Series of zeros aligned to df."""
-    if col in df.columns:
-        return numeric_series(df[col])
-    return pd.Series(0, index=df.index)
+    if col in dataframe.columns:
+        return numeric_series(dataframe[col])
+    return pd.Series(0, index=dataframe.index)
 
 
 def parse_agat_txt_to_df(stats_file: Path) -> pd.DataFrame:
@@ -61,15 +62,15 @@ def parse_agat_txt_to_df(stats_file: Path) -> pd.DataFrame:
     Parse an AGAT statistics text report into a DataFrame with columns
     ['metric', 'value'].
     """
-    rows: list[tuple[str, str]] = []
-    current_section: str | None = None
+    rows: List[Tuple[str, str]] = []
+    current_section: Optional[str] = None
     minus_isoform = False
 
     section_pattern = re.compile(r"-+\s*(.+?)\s*-+")
     value_pattern = re.compile(r"(.+?)\s+([0-9.]+)$")
 
-    with stats_file.open() as f:
-        for line in f:
+    with stats_file.open(encoding="utf-8") as stats_handle:
+        for line in stats_handle:
             line = line.strip()
 
             if not line:
@@ -102,12 +103,12 @@ def parse_agat_txt_to_df(stats_file: Path) -> pd.DataFrame:
 
                 rows.append((metric, value))
 
-    df = pd.DataFrame(rows, columns=["metric", "value"])
-    return df
+    metrics_df = pd.DataFrame(rows, columns=["metric", "value"])
+    return metrics_df
 
 
 def select_and_rename_metrics(
-    input_txt: Path, mapping_json: Path | None, output_csv: Path
+    input_txt: Path, mapping_json: Optional[Path], output_csv: Path
 ) -> None:
     """
     Parse AGAT text, compute derived metrics, and map to Genebuild equivalents.
@@ -124,7 +125,7 @@ def select_and_rename_metrics(
     original = parse_agat_txt_to_df(input_txt)
 
     # 2. Pivot to one-row-wide DataFrame with metrics as columns
-    df = original.set_index("metric").T
+    metrics_df = original.set_index("metric").T
 
     # metrics to keep and their new names
     nc_types = [
@@ -149,87 +150,102 @@ def select_and_rename_metrics(
         "y_rna",
     ]
 
-    df["average_coding_sequence_length"] = safe_col(
-        df, "mrna_total_exon_length_(bp)"
-    ) / safe_col(df, "mrna_number_of_mrna")
+    metrics_df["average_coding_sequence_length"] = safe_col(
+        metrics_df, "mrna_total_exon_length_(bp)"
+    ) / safe_col(metrics_df, "mrna_number_of_mrna")
 
-    df["nc_small_non_coding_genes"] = safe_agg(
-        df, [f"{t}_number_of_ncrna_gene" for t in small_nc_types]
+    metrics_df["nc_small_non_coding_genes"] = safe_agg(
+        metrics_df, [f"{nc_type}_number_of_ncrna_gene" for nc_type in small_nc_types]
     )
 
-    df["nc_total_transcripts"] = safe_agg(df, [f"{t}_number_of_{t}" for t in nc_types])
-
-    df["nc_total_exons"] = safe_agg(
-        df, [f"{t}_number_of_exon" for t in nc_types], method="sum"
+    metrics_df["nc_total_transcripts"] = safe_agg(
+        metrics_df, [f"{nc_type}_number_of_{nc_type}" for nc_type in nc_types]
     )
 
-    df["nc_total_introns"] = safe_agg(
-        df, [f"{t}_number_of_intron_in_exon" for t in nc_types], method="sum"
+    metrics_df["nc_total_exons"] = safe_agg(
+        metrics_df, [f"{nc_type}_number_of_exon" for nc_type in nc_types], method="sum"
     )
 
-    df["nc_non_coding_genes"] = safe_agg(
-        df, [f"{t}_number_of_ncrna_gene" for t in nc_types]
+    metrics_df["nc_total_introns"] = safe_agg(
+        metrics_df,
+        [f"{nc_type}_number_of_intron_in_exon" for nc_type in nc_types],
+        method="sum",
     )
 
-    df["nc_transcripts_per_gene"] = (
-        df["nc_total_transcripts"] / df["nc_non_coding_genes"]
+    metrics_df["nc_non_coding_genes"] = safe_agg(
+        metrics_df, [f"{nc_type}_number_of_ncrna_gene" for nc_type in nc_types]
     )
 
-    df["nc_total_exon_length"] = safe_agg(
-        df, [f"{t}_total_exon_length_(bp)" for t in nc_types]
+    metrics_df["nc_transcripts_per_gene"] = (
+        metrics_df["nc_total_transcripts"] / metrics_df["nc_non_coding_genes"]
     )
 
-    df["nc_average_exons_per_transcript"] = (
-        df["nc_total_exons"] / df["nc_total_transcripts"]
+    metrics_df["nc_total_exon_length"] = safe_agg(
+        metrics_df, [f"{nc_type}_total_exon_length_(bp)" for nc_type in nc_types]
     )
 
-    df["nc_average_exon_length"] = df["nc_total_exon_length"] / df["nc_total_exons"]
-
-    df["nc_total_intron_length"] = safe_agg(
-        df, [f"{t}_total_intron_length_per_exon_(bp)" for t in nc_types], method="sum"
+    metrics_df["nc_average_exons_per_transcript"] = (
+        metrics_df["nc_total_exons"] / metrics_df["nc_total_transcripts"]
     )
 
-    df["nc_average_intron_length"] = (
-        df["nc_total_intron_length"] / df["nc_total_introns"]
+    metrics_df["nc_average_exon_length"] = (
+        metrics_df["nc_total_exon_length"] / metrics_df["nc_total_exons"]
     )
 
-    df["nc_total_transcript_length"] = safe_agg(
-        df, [f"{t}_total_{t}_length_(bp)" for t in nc_types]
+    metrics_df["nc_total_intron_length"] = safe_agg(
+        metrics_df,
+        [f"{nc_type}_total_intron_length_per_exon_(bp)" for nc_type in nc_types],
+        method="sum",
     )
 
-    df["nc_average_sequence_length"] = (
-        df["nc_total_transcript_length"] / df["nc_non_coding_genes"]
+    metrics_df["nc_average_intron_length"] = (
+        metrics_df["nc_total_intron_length"] / metrics_df["nc_total_introns"]
+    )
+
+    metrics_df["nc_total_transcript_length"] = safe_agg(
+        metrics_df, [f"{nc_type}_total_{nc_type}_length_(bp)" for nc_type in nc_types]
+    )
+
+    metrics_df["nc_average_sequence_length"] = (
+        metrics_df["nc_total_transcript_length"] / metrics_df["nc_non_coding_genes"]
     )
 
     # Only create ps_average_sequence_length if both columns exist
     if (
-        "pseudogenic_transcript_total_exon_length_(bp)" in df.columns
-        and "pseudogenic_transcript_number_of_pseudogenic_transcript" in df.columns
+        "pseudogenic_transcript_total_exon_length_(bp)" in metrics_df.columns
+        and "pseudogenic_transcript_number_of_pseudogenic_transcript"
+        in metrics_df.columns
     ):
-        df["ps_average_sequence_length"] = safe_col(
-            df, "pseudogenic_transcript_total_exon_length_(bp)"
-        ) / safe_col(df, "pseudogenic_transcript_number_of_pseudogenic_transcript")
+        metrics_df["ps_average_sequence_length"] = safe_col(
+            metrics_df, "pseudogenic_transcript_total_exon_length_(bp)"
+        ) / safe_col(
+            metrics_df, "pseudogenic_transcript_number_of_pseudogenic_transcript"
+        )
 
-    df["total_transcripts"] = (
-        safe_col(df, "mrna_number_of_mrna")
-        + safe_col(df, "nc_total_transcripts")
-        + safe_col(df, "pseudogenic_transcript_number_of_pseudogenic_transcript")
+    metrics_df["total_transcripts"] = (
+        safe_col(metrics_df, "mrna_number_of_mrna")
+        + safe_col(metrics_df, "nc_total_transcripts")
+        + safe_col(
+            metrics_df, "pseudogenic_transcript_number_of_pseudogenic_transcript"
+        )
     )
 
-    df["total_genes"] = (
-        safe_col(df, "mrna_number_of_gene")
-        + safe_col(df, "nc_non_coding_genes")
-        + safe_col(df, "pseudogenic_transcript_number_of_pseudogene")
+    metrics_df["total_genes"] = (
+        safe_col(metrics_df, "mrna_number_of_gene")
+        + safe_col(metrics_df, "nc_non_coding_genes")
+        + safe_col(metrics_df, "pseudogenic_transcript_number_of_pseudogene")
     )
 
-    df["transcripts_per_gene"] = df["total_transcripts"] / df["total_genes"]
+    metrics_df["transcripts_per_gene"] = (
+        metrics_df["total_transcripts"] / metrics_df["total_genes"]
+    )
 
     # 3. Load mapping from JSON (genebuild -> AGAT metric)
-    with Path(mapping_json).open() as fh:
-        new_map: dict[str, str] = json.load(fh)
+    with Path(mapping_json).open(encoding="utf-8") as mapping_handle:
+        new_map: Dict[str, str] = json.load(mapping_handle)
 
     # 4. Apply mapping
-    df_final = df.T.reset_index()
+    df_final = metrics_df.T.reset_index()
     df_final.columns = ["metric", "value"]
 
     # We need AGAT -> Genebuild for filtering & renaming
@@ -239,11 +255,11 @@ def select_and_rename_metrics(
     df_final["metric"] = df_final["metric"].map(agat_to_genebuild)
 
     # 5. Convert numeric columns
-    def format_value(x):
-        x = round(float(x), 2)
-        if x.is_integer():
-            return int(x)
-        return x
+    def format_value(value):
+        rounded_value = round(float(value), 2)
+        if rounded_value.is_integer():
+            return int(rounded_value)
+        return rounded_value
 
     df_final["value"] = df_final["value"].apply(format_value)
 
