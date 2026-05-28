@@ -9,7 +9,9 @@ import pandas as pd
 
 from .db import (
     DBParams,
+    cds_from_exons_and_translations,
     connect,
+    extract_all_exons,
     extract_all_genes,
     extract_all_transcripts,
     extract_all_translations,
@@ -43,7 +45,9 @@ def cmd_extract(args: argparse.Namespace) -> int:
     ensure_dir(out_dir)
 
     core_params = DBParams(args.host, args.port, args.user, args.password, args.core_db)
-    layer_params = DBParams(args.host, args.port, args.user, args.password, args.layer_db)
+    layer_params = DBParams(
+        args.host, args.port, args.user, args.password, args.layer_db
+    )
 
     # Determine seq_regions to process
     with connect(core_params) as core_conn, connect(layer_params) as layer_conn:
@@ -65,12 +69,20 @@ def cmd_extract(args: argparse.Namespace) -> int:
     # Extract genes in one go per DB (region‑chunked within helper)
     with connect(core_params) as core_conn:
         core_genes = extract_all_genes(core_conn, seq_regions, args.coord_system_name)
-        core_tx = extract_all_transcripts(core_conn, seq_regions, args.coord_system_name)
+        core_tx = extract_all_transcripts(
+            core_conn, seq_regions, args.coord_system_name
+        )
         core_tr = extract_all_translations(core_conn)
+        core_exons = extract_all_exons(core_conn, seq_regions, args.coord_system_name)
+        core_cds = cds_from_exons_and_translations(core_exons, core_tr)
     with connect(layer_params) as layer_conn:
         layer_genes = extract_all_genes(layer_conn, seq_regions, args.coord_system_name)
-        layer_tx = extract_all_transcripts(layer_conn, seq_regions, args.coord_system_name)
+        layer_tx = extract_all_transcripts(
+            layer_conn, seq_regions, args.coord_system_name
+        )
         layer_tr = extract_all_translations(layer_conn)
+        layer_exons = extract_all_exons(layer_conn, seq_regions, args.coord_system_name)
+        layer_cds = cds_from_exons_and_translations(layer_exons, layer_tr)
 
     # Write outputs
     core_path = os.path.join(out_dir, f"core_genes.{args.format}")
@@ -79,6 +91,10 @@ def cmd_extract(args: argparse.Namespace) -> int:
     layer_tx_path = os.path.join(out_dir, f"layer_transcripts.{args.format}")
     core_tr_path = os.path.join(out_dir, f"core_translations.{args.format}")
     layer_tr_path = os.path.join(out_dir, f"layer_translations.{args.format}")
+    core_exons_path = os.path.join(out_dir, f"core_exons.{args.format}")
+    layer_exons_path = os.path.join(out_dir, f"layer_exons.{args.format}")
+    core_cds_path = os.path.join(out_dir, f"core_cds.{args.format}")
+    layer_cds_path = os.path.join(out_dir, f"layer_cds.{args.format}")
 
     write_df(core_genes, core_path, fmt=args.format)
     write_df(layer_genes, layer_path, fmt=args.format)
@@ -86,6 +102,10 @@ def cmd_extract(args: argparse.Namespace) -> int:
     write_df(layer_tx, layer_tx_path, fmt=args.format)
     write_df(core_tr, core_tr_path, fmt=args.format)
     write_df(layer_tr, layer_tr_path, fmt=args.format)
+    write_df(core_exons, core_exons_path, fmt=args.format)
+    write_df(layer_exons, layer_exons_path, fmt=args.format)
+    write_df(core_cds, core_cds_path, fmt=args.format)
+    write_df(layer_cds, layer_cds_path, fmt=args.format)
 
     print(f"[extract] wrote {len(core_genes)} core genes → {core_path}")
     print(f"[extract] wrote {len(layer_genes)} layer genes → {layer_path}")
@@ -93,6 +113,10 @@ def cmd_extract(args: argparse.Namespace) -> int:
     print(f"[extract] wrote {len(layer_tx)} layer transcripts → {layer_tx_path}")
     print(f"[extract] wrote {len(core_tr)} core translations → {core_tr_path}")
     print(f"[extract] wrote {len(layer_tr)} layer translations → {layer_tr_path}")
+    print(f"[extract] wrote {len(core_exons)} core exons → {core_exons_path}")
+    print(f"[extract] wrote {len(layer_exons)} layer exons → {layer_exons_path}")
+    print(f"[extract] wrote {len(core_cds)} core CDS intervals → {core_cds_path}")
+    print(f"[extract] wrote {len(layer_cds)} layer CDS intervals → {layer_cds_path}")
     print(f"[extract] run_id={run_id}")
     return 0
 
@@ -119,16 +143,28 @@ def cmd_loci(args: argparse.Namespace) -> int:
                     return pd.read_csv(path, sep=sep)
                 except pd.errors.EmptyDataError:
                     return pd.DataFrame()
-        raise FileNotFoundError(f"Could not find {path_base} with any supported extension in {extract_dir}")
+        raise FileNotFoundError(
+            f"Could not find {path_base} with any supported extension in {extract_dir}"
+        )
 
     core_genes = _load("core_genes")
     layer_genes = _load("layer_genes")
 
-    strict_df, expanded_df, map_df = build_loci(core_genes, layer_genes, args.locus_gap_bp)
+    strict_df, expanded_df, map_df = build_loci(
+        core_genes, layer_genes, args.locus_gap_bp
+    )
 
-    write_df(strict_df, os.path.join(loci_dir, f"loci.strict.{args.format}"), fmt=args.format)
-    write_df(expanded_df, os.path.join(loci_dir, f"loci.expanded.{args.format}"), fmt=args.format)
-    write_df(map_df, os.path.join(loci_dir, f"gene_to_locus.{args.format}"), fmt=args.format)
+    write_df(
+        strict_df, os.path.join(loci_dir, f"loci.strict.{args.format}"), fmt=args.format
+    )
+    write_df(
+        expanded_df,
+        os.path.join(loci_dir, f"loci.expanded.{args.format}"),
+        fmt=args.format,
+    )
+    write_df(
+        map_df, os.path.join(loci_dir, f"gene_to_locus.{args.format}"), fmt=args.format
+    )
 
     manifest = {
         "phase": "loci",
@@ -158,7 +194,9 @@ def _load_table(extract_dir: str, base: str, prefer_fmt: str) -> pd.DataFrame:
                 return pd.read_csv(path, sep=sep)
             except pd.errors.EmptyDataError:
                 return pd.DataFrame()
-    raise FileNotFoundError(f"Could not find {base} with any supported extension in {extract_dir}")
+    raise FileNotFoundError(
+        f"Could not find {base} with any supported extension in {extract_dir}"
+    )
 
 
 def cmd_summarize(args: argparse.Namespace) -> int:
@@ -176,7 +214,9 @@ def cmd_summarize(args: argparse.Namespace) -> int:
     loci_df = _load_table(loci_dir, "loci.strict", args.format)
     gene_map = _load_table(loci_dir, "gene_to_locus", args.format)
 
-    evidence_map = load_mapping(args.evidence_class_map) if args.evidence_class_map else {}
+    evidence_map = (
+        load_mapping(args.evidence_class_map) if args.evidence_class_map else {}
+    )
 
     locus_summary = summarize_loci(
         loci_df=loci_df,
@@ -189,7 +229,11 @@ def cmd_summarize(args: argparse.Namespace) -> int:
         locus_gap_bp=args.locus_gap_bp,
     )
 
-    write_df(locus_summary, os.path.join(summaries_dir, f"locus_summary.{args.format}"), fmt=args.format)
+    write_df(
+        locus_summary,
+        os.path.join(summaries_dir, f"locus_summary.{args.format}"),
+        fmt=args.format,
+    )
 
     manifest = {
         "phase": "summarize",
@@ -226,24 +270,37 @@ def cmd_export(args: argparse.Namespace) -> int:
         tmp["start0"] = (tmp.locus_start - args.bed_pad_bp - 1).clip(lower=0)
         tmp["end0"] = tmp.locus_end + args.bed_pad_bp
         tmp["name"] = (
-            "LOCUS:" + tmp.seq_region_name.astype(str)
-            + ":" + tmp.seq_region_strand.astype(str)
-            + ":" + tmp.locus_start.astype(int).astype(str)
-            + ":" + tmp.locus_end.astype(int).astype(str)
+            "LOCUS:"
+            + tmp.seq_region_name.astype(str)
+            + ":"
+            + tmp.seq_region_strand.astype(str)
+            + ":"
+            + tmp.locus_start.astype(int).astype(str)
+            + ":"
+            + tmp.locus_end.astype(int).astype(str)
         )
-        tmp["score"] = (tmp.get("no_core_score", 0.0) * 1000).astype(int).clip(lower=0, upper=1000)
+        tmp["score"] = (
+            (tmp.get("no_core_score", 0.0) * 1000).astype(int).clip(lower=0, upper=1000)
+        )
         tmp["strand"] = tmp.seq_region_strand.map({1: "+", -1: "-"}).fillna(".")
         cols = ["chrom", "start0", "end0", "name", "score", "strand"]
         tmp[cols].to_csv(path, sep="\t", header=False, index=False)
 
     # Evidence-rich no-core
-    miss = df[(df.evidence_rich_no_core_flag == 1) & (df.no_core_score >= args.no_core_min_score)]
-    miss = miss.sort_values(["no_core_score", "layer_span_bp"], ascending=[False, False]).head(args.top_n)
+    miss = df[
+        (df.evidence_rich_no_core_flag == 1)
+        & (df.no_core_score >= args.no_core_min_score)
+    ]
+    miss = miss.sort_values(
+        ["no_core_score", "layer_span_bp"], ascending=[False, False]
+    ).head(args.top_n)
     to_bed(miss, os.path.join(review_dir, "missing_gene_highconf.bed"))
 
     # Underbuilt loci
     under = df[df.underbuilt_locus_flag == 1]
-    under = under.sort_values(["coverage_fraction", "layer_to_core_tx_ratio"], ascending=[True, False]).head(args.top_n)
+    under = under.sort_values(
+        ["coverage_fraction", "layer_to_core_tx_ratio"], ascending=[True, False]
+    ).head(args.top_n)
     to_bed(under, os.path.join(review_dir, "underbuilt_loci.bed"))
 
     print(
@@ -254,26 +311,39 @@ def cmd_export(args: argparse.Namespace) -> int:
 
 def main(argv: Optional[list[str]] = None) -> int:
     argv = list(sys.argv[1:] if argv is None else argv)
-    p = argparse.ArgumentParser(prog="rgb", description="Reverse Gene Builder CLI (Phase 1–2)")
+    p = argparse.ArgumentParser(
+        prog="rgb", description="Reverse Gene Builder CLI (Phase 1–2)"
+    )
     sub = p.add_subparsers(dest="cmd", required=True)
 
-    p_extract = sub.add_parser("extract", help="Extract gene tables from core and layer DBs")
+    p_extract = sub.add_parser(
+        "extract", help="Extract gene tables from core and layer DBs"
+    )
     _add_common_db_args(p_extract)
     _add_common_out_args(p_extract)
     p_extract.add_argument("--run_id", default=None, help="Override auto run id")
     p_extract.set_defaults(func=cmd_extract)
 
-    p_loci = sub.add_parser("loci", help="Build strict/expanded loci from extracted tables")
+    p_loci = sub.add_parser(
+        "loci", help="Build strict/expanded loci from extracted tables"
+    )
     _add_common_out_args(p_loci)
     p_loci.add_argument("--run_id", required=True, help="Run id from extract phase")
     p_loci.add_argument("--locus_gap_bp", type=int, default=5000)
     p_loci.set_defaults(func=cmd_loci)
 
     # summarize command placeholder wired below after function is defined in summary module
-    p_sum = sub.add_parser("summarize", help="Compute locus metrics and flags from extracted tables and loci")
+    p_sum = sub.add_parser(
+        "summarize",
+        help="Compute locus metrics and flags from extracted tables and loci",
+    )
     _add_common_out_args(p_sum)
     p_sum.add_argument("--run_id", required=True)
-    p_sum.add_argument("--evidence_class_map", default=None, help="YAML or 2-col TSV mapping logic_name to class")
+    p_sum.add_argument(
+        "--evidence_class_map",
+        default=None,
+        help="YAML or 2-col TSV mapping logic_name to class",
+    )
     p_sum.add_argument("--locus_gap_bp", type=int, default=5000)
     p_sum.set_defaults(func=cmd_summarize)
 

@@ -1,6 +1,6 @@
 # How to install this repository
 
-This project requires Python 3.11+ (see `pyproject.toml`).
+This project requires Python 3.12+ (see `pyproject.toml`).
 
 ## Basic installation
 

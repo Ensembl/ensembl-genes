@@ -9,6 +9,7 @@ from ensembl.genes.rgb.observability import (
     build_busco_proxy_calibration,
     build_completeness_profile,
     build_copy_number_audit,
+    build_expected_content_audit,
     build_expected_source_profile,
     build_feature_profile,
     build_non_busco_high_confidence_losses,
@@ -296,6 +297,18 @@ def test_expected_presence_classifies_clean_missing_and_assembly_limited_cases()
     assert by_id.loc["EXP_GAP", "suggested_action"] == "check_assembly_gap"
     assert by_id.loc["EXP_NO_PROJECTION_ROW", "presence_class"] == "unresolved"
     assert by_id.loc["EXP_NO_PROJECTION_ROW", "failure_class"] == "projection_unmapped"
+
+    content = build_expected_content_audit(presence).set_index("expected_id")
+    assert content.loc["EXP_PRESENT", "gene_presence_tag"] == "gene_present"
+    assert (
+        content.loc["EXP_MISSING_WITH_EVIDENCE", "gene_presence_tag"]
+        == "gene_missing_but_candidate_available"
+    )
+    assert (
+        content.loc["EXP_MISSING_WITH_EVIDENCE", "recoverability_tag"]
+        == "promote_existing_candidate"
+    )
+    assert content.loc["EXP_GAP", "gene_presence_tag"] == "gene_assembly_limited"
 
 
 def test_review_loci_merges_actionable_evidence_and_expected_rows():
@@ -825,6 +838,50 @@ def test_run_audit_writes_framework_outputs(tmp_path):
             }
         ]
     )
+    layer_exons = pd.DataFrame(
+        [
+            {
+                "transcript_id": 1001,
+                "exon_id": 10001,
+                "seq_region_name": "chr1",
+                "seq_region_start": 500,
+                "seq_region_end": 560,
+                "seq_region_strand": 1,
+                "exon_rank": 1,
+            },
+            {
+                "transcript_id": 1001,
+                "exon_id": 10002,
+                "seq_region_name": "chr1",
+                "seq_region_start": 640,
+                "seq_region_end": 700,
+                "seq_region_strand": 1,
+                "exon_rank": 2,
+            },
+        ]
+    )
+    layer_cds = pd.DataFrame(
+        [
+            {
+                "transcript_id": 1001,
+                "exon_id": 10001,
+                "seq_region_name": "chr1",
+                "seq_region_start": 510,
+                "seq_region_end": 560,
+                "seq_region_strand": 1,
+                "cds_rank": 1,
+            },
+            {
+                "transcript_id": 1001,
+                "exon_id": 10002,
+                "seq_region_name": "chr1",
+                "seq_region_start": 640,
+                "seq_region_end": 690,
+                "seq_region_strand": 1,
+                "cds_rank": 2,
+            },
+        ]
+    )
     expected_genes = pd.DataFrame(
         [
             {
@@ -861,6 +918,8 @@ def test_run_audit_writes_framework_outputs(tmp_path):
     _translations([1001]).to_csv(
         extract_dir / "layer_translations.tsv", sep="\t", index=False
     )
+    layer_exons.to_csv(extract_dir / "layer_exons.tsv", sep="\t", index=False)
+    layer_cds.to_csv(extract_dir / "layer_cds.tsv", sep="\t", index=False)
     expected_genes_path = tmp_path / "expected_genes.tsv"
     expected_projections_path = tmp_path / "expected_projections.tsv"
     expected_genes.to_csv(expected_genes_path, sep="\t", index=False)
@@ -893,6 +952,27 @@ def test_run_audit_writes_framework_outputs(tmp_path):
         "audit_loci.tsv",
         "evidence_fate.tsv",
         "expected_gene_presence.tsv",
+        "expected_content_audit.tsv",
+        "source_model_inventory.tsv",
+        "source_gene.tsv",
+        "source_transcript.tsv",
+        "source_exon.tsv",
+        "source_cds.tsv",
+        "source_intron.tsv",
+        "source_intron_chain.tsv",
+        "source_model_quality.tsv",
+        "expected_to_core_match.tsv",
+        "expected_to_candidate_match.tsv",
+        "transcript_structure_audit.tsv",
+        "intron_feature_audit.tsv",
+        "cds_feature_audit.tsv",
+        "rescue_candidate_models.tsv",
+        "locus_review_summary.tsv",
+        "missing_expected_genes.bed",
+        "candidate_rescue_available.bed",
+        "cds_or_biotype_rescue.bed",
+        "structure_review.bed",
+        "assembly_limited.bed",
         "source_profile.tsv",
         "expected_source_profile.tsv",
         "busco_expected_crosswalk.tsv",
@@ -917,6 +997,10 @@ def test_run_audit_writes_framework_outputs(tmp_path):
     assert (
         obs_dir / "completeness_beds" / "non_busco_high_confidence_losses.bed"
     ).exists()
+    inventory = pd.read_csv(obs_dir / "source_model_inventory.tsv", sep="\t")
+    assert int(inventory["exon_count"].sum()) == 2
+    candidate_match = pd.read_csv(obs_dir / "expected_to_candidate_match.tsv", sep="\t")
+    assert int(candidate_match.iloc[0]["candidate_has_cds"]) == 1
 
 
 def test_template_and_validation_helpers(tmp_path):

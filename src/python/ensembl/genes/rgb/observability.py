@@ -22,13 +22,17 @@ from .busco_diagnostics import (
 from .db import (
     DBParams,
     connect,
+    cds_from_exons_and_translations,
     extract_all_genes,
+    extract_all_exons,
     extract_all_transcripts,
     extract_all_translations,
     list_seq_regions,
 )
 from .io import write_manifest
 from .loci import build_loci
+from .observability_features import combine_source_models
+from .observability_matching import best_overlap_by_query, to_pyranges_frame
 from .utils import ensure_dir, make_run_id
 
 
@@ -102,6 +106,29 @@ def _read_table(path: str, fmt: Optional[str] = None) -> pd.DataFrame:
         return pd.read_csv(path, sep=sep, low_memory=False)
     except pd.errors.EmptyDataError:
         return pd.DataFrame()
+
+
+def load_source_config(path: Optional[str]) -> list[dict[str, object]]:
+    if not path:
+        return []
+    with open(path, "r", encoding="utf-8") as handle:
+        raw = json.load(handle)
+    blocks = raw.get("sources", raw) if isinstance(raw, dict) else raw
+    sources = []
+    for block in blocks:
+        source = {
+            "name": block.get("name", "source"),
+            "role": block.get("role", block.get("source_role", "candidate")),
+            "class": block.get(
+                "class", block.get("source_class", block.get("role", "candidate"))
+            ),
+        }
+        for key in ("genes", "transcripts", "translations", "exons", "cds"):
+            table_path = block.get(key) or block.get(f"{key}_path")
+            if table_path:
+                source[key] = _read_table(table_path)
+        sources.append(source)
+    return sources
 
 
 def _load_named_table(
@@ -540,6 +567,7 @@ def _normalise_expected_genes(df: pd.DataFrame) -> pd.DataFrame:
     cols = [
         "expected_gene_id",
         "expected_source",
+        "expected_source_class",
         "reference_stable_id",
         "symbol",
         "biotype",
@@ -561,6 +589,576 @@ def _normalise_expected_genes(df: pd.DataFrame) -> pd.DataFrame:
         lambda x: _int_value(x, 1) or 1
     )
     return out[cols]
+
+
+def build_expected_content_audit(expected_presence: pd.DataFrame) -> pd.DataFrame:
+    columns = [
+        "expected_id",
+        "expected_source",
+        "expected_source_class",
+        "expected_confidence",
+        "location",
+        "gene_presence_tag",
+        "recoverability_tag",
+        "structure_quality_tag",
+        "cds_quality_tag",
+        "best_core_gene",
+        "best_core_transcript",
+        "best_candidate_source",
+        "best_candidate_transcript",
+        "review_priority",
+        "suggested_action",
+        "short_reason",
+    ]
+    if expected_presence.empty:
+        return _empty(columns)
+
+    presence_map = {
+        "present_clean": "gene_present",
+        "present_degraded": "gene_present_partial",
+        "present_wrong_biotype": "gene_present_partial",
+        "split": "gene_present_partial",
+        "fused": "gene_present_partial",
+        "missing_with_evidence": "gene_missing_but_candidate_available",
+        "projection_only": "gene_missing_no_candidate",
+        "missing_no_evidence": "gene_missing_no_candidate",
+        "assembly_limited": "gene_assembly_limited",
+        "unresolved": "gene_projection_unmapped",
+    }
+    recoverability_map = {
+        "try_candidate_rescue": "promote_existing_candidate",
+        "check_biotype_assignment": "repair_core_from_candidate",
+        "inspect_split_candidate": "manual_review_needed",
+        "inspect_fusion_candidate": "manual_review_needed",
+        "inspect_browser": "manual_review_needed",
+        "check_assembly_gap": "assembly_issue_review",
+        "add_or_check_projection": "projection_fix_needed",
+        "mark_possible_true_loss": "no_recovery_model_found",
+        "no_action": "no_recovery_model_found",
+    }
+    structure_map = {
+        "split": "possible_split_gene",
+        "fused": "possible_fused_gene",
+        "present_clean": "structure_not_assessed",
+        "present_degraded": "terminal_exon_difference",
+    }
+
+    rows: list[dict] = []
+    for _, row in expected_presence.iterrows():
+        presence_class = _string_value(row.get("presence_class"), "unresolved")
+        action = _string_value(row.get("suggested_action"), "manual_review")
+        location = (
+            f"{_string_value(row.get('seq_region_name'))}:"
+            f"{_int_value(row.get('seq_region_start'))}-"
+            f"{_int_value(row.get('seq_region_end'))}:"
+            f"{_normalise_strand(row.get('seq_region_strand'))}"
+        )
+        rows.append(
+            {
+                "expected_id": _string_value(row.get("expected_gene_id")),
+                "expected_source": _string_value(row.get("expected_source"), "unknown"),
+                "expected_source_class": _string_value(
+                    row.get("expected_source_class"),
+                    _string_value(row.get("expected_source"), "unknown"),
+                ),
+                "expected_confidence": _string_value(row.get("confidence"), "unknown"),
+                "location": location,
+                "gene_presence_tag": presence_map.get(presence_class, "gene_uncertain"),
+                "recoverability_tag": recoverability_map.get(
+                    action, "manual_review_needed"
+                ),
+                "structure_quality_tag": (
+                    structure_map.get(presence_class, "intron_chain_missing")
+                    if presence_class.startswith("present")
+                    or presence_class in ("split", "fused")
+                    else "structure_not_assessed"
+                ),
+                "cds_quality_tag": (
+                    "core_wrong_biotype"
+                    if presence_class == "present_wrong_biotype"
+                    else "cds_not_assessed"
+                ),
+                "best_core_gene": _string_value(row.get("best_core_stable_id")),
+                "best_core_transcript": "",
+                "best_candidate_source": _string_value(
+                    row.get("best_layer_logic_name")
+                ),
+                "best_candidate_transcript": "",
+                "review_priority": _string_value(row.get("review_priority"), "P4"),
+                "suggested_action": action,
+                "short_reason": _string_value(row.get("review_reason")),
+            }
+        )
+    return pd.DataFrame(rows, columns=columns)
+
+
+def _best_quality_for_gene(
+    quality: pd.DataFrame, source_role: str, gene_id: object
+) -> pd.Series:
+    if quality.empty:
+        return pd.Series(dtype=object)
+    gene_id_text = _string_value(gene_id)
+    if not gene_id_text:
+        return pd.Series(dtype=object)
+    if source_role == "layer":
+        subset = quality[
+            ~quality["source_role"].astype(str).isin(["final_core", "expected"])
+            & (quality["gene_id"].astype(str) == gene_id_text)
+        ].copy()
+    else:
+        subset = quality[
+            (quality["source_role"].astype(str) == source_role)
+            & (quality["gene_id"].astype(str) == gene_id_text)
+        ].copy()
+    if subset.empty:
+        return pd.Series(dtype=object)
+    subset["_rank_has_cds"] = subset["has_cds"].map(lambda x: _int_value(x))
+    subset["_rank_cds_span"] = subset["cds_span"].map(lambda x: _int_value(x))
+    subset["_rank_exons"] = subset["exon_count"].map(lambda x: _int_value(x))
+    return subset.sort_values(
+        ["_rank_has_cds", "_rank_cds_span", "_rank_exons", "transcript_id"],
+        ascending=[False, False, False, True],
+    ).iloc[0]
+
+
+def _structure_tag(expected_quality: pd.Series, core_quality: pd.Series) -> str:
+    if core_quality.empty:
+        return "intron_chain_missing"
+    expected_introns = _int_value(expected_quality.get("intron_count"), 0)
+    core_introns = _int_value(core_quality.get("intron_count"), 0)
+    expected_chain = _string_value(expected_quality.get("ordered_intron_chain_key"))
+    core_chain = _string_value(core_quality.get("ordered_intron_chain_key"))
+    if expected_introns == 0 and core_introns == 0:
+        return "single_exon_core_match"
+    if expected_chain and expected_chain == core_chain:
+        return "exact_intron_chain_match"
+    if expected_introns and core_introns == 0:
+        return "intron_chain_missing"
+    if expected_introns and core_introns:
+        expected_set = set(expected_chain.split(",")) if expected_chain else set()
+        core_set = set(core_chain.split(",")) if core_chain else set()
+        if expected_set and core_set and expected_set & core_set:
+            if len(core_set - expected_set) > len(expected_set - core_set):
+                return "core_has_extra_introns"
+            return "intron_chain_partial"
+    if core_introns > expected_introns:
+        return "core_has_extra_introns"
+    return "terminal_exon_difference"
+
+
+def _cds_tag(expected_quality: pd.Series, core_quality: pd.Series) -> str:
+    expected_has_cds = _int_value(expected_quality.get("has_cds"), 0) > 0
+    core_has_cds = _int_value(core_quality.get("has_cds"), 0) > 0
+    if expected_has_cds and core_has_cds:
+        expected_span = _int_value(expected_quality.get("cds_span"), 0)
+        core_span = _int_value(core_quality.get("cds_span"), 0)
+        if expected_span and core_span / expected_span < 0.80:
+            return "cds_partial"
+        return "cds_present"
+    if expected_has_cds and not core_has_cds:
+        return "cds_missing"
+    if core_has_cds:
+        return "cds_present"
+    return "cds_missing"
+
+
+def build_expected_match_detail(
+    expected_presence: pd.DataFrame, source_model_quality: pd.DataFrame
+) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+    core_columns = [
+        "expected_id",
+        "core_gene_id",
+        "core_transcript_id",
+        "overlap_bp",
+        "span_coverage",
+        "structure_quality_tag",
+        "cds_quality_tag",
+    ]
+    candidate_columns = [
+        "expected_id",
+        "candidate_source",
+        "candidate_gene_id",
+        "candidate_transcript_id",
+        "overlap_bp",
+        "span_coverage",
+        "candidate_has_cds",
+        "candidate_cds_span",
+    ]
+    structure_columns = [
+        "expected_id",
+        "expected_transcript_id",
+        "core_transcript_id",
+        "candidate_transcript_id",
+        "structure_quality_tag",
+        "expected_intron_count",
+        "core_intron_count",
+        "candidate_intron_count",
+        "short_reason",
+    ]
+    intron_columns = [
+        "expected_id",
+        "core_transcript_id",
+        "candidate_transcript_id",
+        "core_intron_chain",
+        "candidate_intron_chain",
+        "structure_quality_tag",
+    ]
+    cds_columns = [
+        "expected_id",
+        "core_transcript_id",
+        "candidate_transcript_id",
+        "cds_quality_tag",
+        "core_cds_span",
+        "candidate_cds_span",
+        "candidate_has_cds_core_lacks_cds",
+    ]
+    if expected_presence.empty:
+        empty = _empty
+        return (
+            empty(core_columns),
+            empty(candidate_columns),
+            empty(structure_columns),
+            empty(intron_columns),
+            empty(cds_columns),
+        )
+
+    core_rows = []
+    candidate_rows = []
+    structure_rows = []
+    intron_rows = []
+    cds_rows = []
+    for _, row in expected_presence.iterrows():
+        expected_id = _string_value(row.get("expected_gene_id"))
+        expected_gene_id = row.get("expected_gene_id")
+        core_gene_id = row.get("best_core_gene_id")
+        candidate_gene_id = row.get("best_layer_gene_id")
+        expected_quality = _best_quality_for_gene(
+            source_model_quality, "expected", expected_gene_id
+        )
+        core_quality = _best_quality_for_gene(
+            source_model_quality, "final_core", core_gene_id
+        )
+        candidate_quality = _best_quality_for_gene(
+            source_model_quality, "layer", candidate_gene_id
+        )
+        structure_tag = (
+            _structure_tag(expected_quality, core_quality)
+            if not expected_quality.empty
+            else "structure_not_assessed"
+        )
+        cds_tag = (
+            _cds_tag(expected_quality, core_quality)
+            if not expected_quality.empty
+            else "cds_not_assessed"
+        )
+        if _string_value(row.get("best_core_gene_id")):
+            core_rows.append(
+                {
+                    "expected_id": expected_id,
+                    "core_gene_id": _string_value(row.get("best_core_gene_id")),
+                    "core_transcript_id": _string_value(
+                        core_quality.get("transcript_id")
+                    ),
+                    "overlap_bp": _int_value(row.get("core_overlap_bp")),
+                    "span_coverage": _numeric_value(
+                        row.get("expected_span_coverage_by_core")
+                    ),
+                    "structure_quality_tag": structure_tag,
+                    "cds_quality_tag": cds_tag,
+                }
+            )
+        if _string_value(row.get("best_layer_gene_id")):
+            candidate_rows.append(
+                {
+                    "expected_id": expected_id,
+                    "candidate_source": _string_value(
+                        row.get("best_layer_logic_name"), "layer"
+                    ),
+                    "candidate_gene_id": _string_value(row.get("best_layer_gene_id")),
+                    "candidate_transcript_id": _string_value(
+                        candidate_quality.get("transcript_id")
+                    ),
+                    "overlap_bp": _int_value(row.get("layer_overlap_bp")),
+                    "span_coverage": (
+                        _int_value(row.get("layer_overlap_bp"))
+                        / max(1, _int_value(row.get("expected_span_bp"), 1))
+                    ),
+                    "candidate_has_cds": _int_value(candidate_quality.get("has_cds")),
+                    "candidate_cds_span": _int_value(candidate_quality.get("cds_span")),
+                }
+            )
+        candidate_structure_tag = (
+            _structure_tag(expected_quality, candidate_quality)
+            if not expected_quality.empty and not candidate_quality.empty
+            else "structure_not_assessed"
+        )
+        structure_rows.append(
+            {
+                "expected_id": expected_id,
+                "expected_transcript_id": _string_value(
+                    expected_quality.get("transcript_id")
+                ),
+                "core_transcript_id": _string_value(core_quality.get("transcript_id")),
+                "candidate_transcript_id": _string_value(
+                    candidate_quality.get("transcript_id")
+                ),
+                "structure_quality_tag": structure_tag,
+                "expected_intron_count": _int_value(
+                    expected_quality.get("intron_count")
+                ),
+                "core_intron_count": _int_value(core_quality.get("intron_count")),
+                "candidate_intron_count": _int_value(
+                    candidate_quality.get("intron_count")
+                ),
+                "short_reason": (
+                    f"core={structure_tag}; candidate={candidate_structure_tag}"
+                ),
+            }
+        )
+        intron_rows.append(
+            {
+                "expected_id": expected_id,
+                "core_transcript_id": _string_value(core_quality.get("transcript_id")),
+                "candidate_transcript_id": _string_value(
+                    candidate_quality.get("transcript_id")
+                ),
+                "core_intron_chain": _string_value(
+                    core_quality.get("ordered_intron_chain_key")
+                ),
+                "candidate_intron_chain": _string_value(
+                    candidate_quality.get("ordered_intron_chain_key")
+                ),
+                "structure_quality_tag": structure_tag,
+            }
+        )
+        cds_rows.append(
+            {
+                "expected_id": expected_id,
+                "core_transcript_id": _string_value(core_quality.get("transcript_id")),
+                "candidate_transcript_id": _string_value(
+                    candidate_quality.get("transcript_id")
+                ),
+                "cds_quality_tag": cds_tag,
+                "core_cds_span": _int_value(core_quality.get("cds_span")),
+                "candidate_cds_span": _int_value(candidate_quality.get("cds_span")),
+                "candidate_has_cds_core_lacks_cds": int(
+                    _int_value(candidate_quality.get("has_cds")) > 0
+                    and _int_value(core_quality.get("has_cds")) == 0
+                ),
+            }
+        )
+    return (
+        pd.DataFrame(core_rows, columns=core_columns),
+        pd.DataFrame(candidate_rows, columns=candidate_columns),
+        pd.DataFrame(structure_rows, columns=structure_columns),
+        pd.DataFrame(intron_rows, columns=intron_columns),
+        pd.DataFrame(cds_rows, columns=cds_columns),
+    )
+
+
+def enrich_expected_content_audit(
+    expected_content_audit: pd.DataFrame,
+    structure_audit: pd.DataFrame,
+    cds_audit: pd.DataFrame,
+) -> pd.DataFrame:
+    if expected_content_audit.empty:
+        return expected_content_audit
+    out = expected_content_audit.copy()
+    if not structure_audit.empty:
+        structure = structure_audit.set_index("expected_id")
+        out["structure_quality_tag"] = out.apply(
+            lambda r: (
+                _string_value(structure.loc[r["expected_id"], "structure_quality_tag"])
+                if r["expected_id"] in structure.index
+                else r["structure_quality_tag"]
+            ),
+            axis=1,
+        )
+        out["best_core_transcript"] = out.apply(
+            lambda r: (
+                _string_value(structure.loc[r["expected_id"], "core_transcript_id"])
+                if r["expected_id"] in structure.index
+                else r["best_core_transcript"]
+            ),
+            axis=1,
+        )
+        out["best_candidate_transcript"] = out.apply(
+            lambda r: (
+                _string_value(
+                    structure.loc[r["expected_id"], "candidate_transcript_id"]
+                )
+                if r["expected_id"] in structure.index
+                else r["best_candidate_transcript"]
+            ),
+            axis=1,
+        )
+    if not cds_audit.empty:
+        cds = cds_audit.set_index("expected_id")
+        out["cds_quality_tag"] = out.apply(
+            lambda r: (
+                _string_value(cds.loc[r["expected_id"], "cds_quality_tag"])
+                if r["expected_id"] in cds.index
+                else r["cds_quality_tag"]
+            ),
+            axis=1,
+        )
+        rescue_mask = out["gene_presence_tag"].isin(
+            ["gene_missing_but_candidate_available", "gene_present_partial"]
+        ) & out["expected_id"].isin(
+            cds_audit[cds_audit["candidate_has_cds_core_lacks_cds"].astype(int) > 0][
+                "expected_id"
+            ]
+        )
+        out.loc[rescue_mask, "cds_quality_tag"] = "candidate_has_cds_core_lacks_cds"
+    return out
+
+
+def build_rescue_candidate_models(
+    expected_content_audit: pd.DataFrame, expected_to_candidate_match: pd.DataFrame
+) -> pd.DataFrame:
+    columns = [
+        "expected_id",
+        "candidate_source",
+        "candidate_gene_id",
+        "candidate_transcript_id",
+        "recoverability_tag",
+        "review_priority",
+        "suggested_action",
+        "short_reason",
+    ]
+    if expected_content_audit.empty or expected_to_candidate_match.empty:
+        return _empty(columns)
+    content = expected_content_audit.set_index("expected_id")
+    rows = []
+    for _, row in expected_to_candidate_match.iterrows():
+        expected_id = _string_value(row.get("expected_id"))
+        if expected_id not in content.index:
+            continue
+        audit_row = content.loc[expected_id]
+        if _string_value(audit_row.get("recoverability_tag")) not in {
+            "promote_existing_candidate",
+            "repair_core_from_candidate",
+            "manual_review_needed",
+        }:
+            continue
+        rows.append(
+            {
+                "expected_id": expected_id,
+                "candidate_source": _string_value(row.get("candidate_source")),
+                "candidate_gene_id": _string_value(row.get("candidate_gene_id")),
+                "candidate_transcript_id": _string_value(
+                    row.get("candidate_transcript_id")
+                ),
+                "recoverability_tag": _string_value(
+                    audit_row.get("recoverability_tag")
+                ),
+                "review_priority": _string_value(audit_row.get("review_priority")),
+                "suggested_action": _string_value(audit_row.get("suggested_action")),
+                "short_reason": _string_value(audit_row.get("short_reason")),
+            }
+        )
+    return pd.DataFrame(rows, columns=columns)
+
+
+def build_locus_review_summary(
+    expected_content_audit: pd.DataFrame,
+) -> pd.DataFrame:
+    columns = [
+        "gene_presence_tag",
+        "recoverability_tag",
+        "structure_quality_tag",
+        "cds_quality_tag",
+        "review_priority",
+        "expected_count",
+    ]
+    if expected_content_audit.empty:
+        return _empty(columns)
+    return (
+        expected_content_audit.groupby(
+            [
+                "gene_presence_tag",
+                "recoverability_tag",
+                "structure_quality_tag",
+                "cds_quality_tag",
+                "review_priority",
+            ],
+            dropna=False,
+        )
+        .size()
+        .rename("expected_count")
+        .reset_index()[columns]
+    )
+
+
+def build_source_model_inventory(
+    source_feature_tables: dict[str, pd.DataFrame],
+) -> pd.DataFrame:
+    columns = [
+        "source_name",
+        "source_role",
+        "source_class",
+        "gene_count",
+        "transcript_count",
+        "exon_count",
+        "cds_count",
+        "intron_count",
+        "coding_transcript_count",
+    ]
+    keys = set()
+    for table_name in (
+        "source_gene",
+        "source_transcript",
+        "source_exon",
+        "source_cds",
+        "source_intron",
+    ):
+        table = source_feature_tables.get(table_name, pd.DataFrame())
+        if table.empty:
+            continue
+        keys.update(
+            tuple(x)
+            for x in table[["source_name", "source_role", "source_class"]]
+            .drop_duplicates()
+            .itertuples(index=False, name=None)
+        )
+    rows = []
+    for source_name, source_role, source_class in sorted(keys):
+
+        def _count(table_name: str) -> int:
+            table = source_feature_tables.get(table_name, pd.DataFrame())
+            if table.empty:
+                return 0
+            return len(
+                table[
+                    (table["source_name"] == source_name)
+                    & (table["source_role"] == source_role)
+                    & (table["source_class"] == source_class)
+                ]
+            )
+
+        quality = source_feature_tables.get("source_model_quality", pd.DataFrame())
+        coding_count = 0
+        if not quality.empty:
+            subset = quality[
+                (quality["source_name"] == source_name)
+                & (quality["source_role"] == source_role)
+                & (quality["source_class"] == source_class)
+            ]
+            coding_count = int((subset["has_cds"].astype(int) > 0).sum())
+        rows.append(
+            {
+                "source_name": source_name,
+                "source_role": source_role,
+                "source_class": source_class,
+                "gene_count": _count("source_gene"),
+                "transcript_count": _count("source_transcript"),
+                "exon_count": _count("source_exon"),
+                "cds_count": _count("source_cds"),
+                "intron_count": _count("source_intron"),
+                "coding_transcript_count": coding_count,
+            }
+        )
+    return pd.DataFrame(rows, columns=columns)
 
 
 def _normalise_expected_projections(df: pd.DataFrame) -> pd.DataFrame:
@@ -784,20 +1382,67 @@ def audit_expected_presence(
         projections.loc[missing_projection, "repeat_overlap_bp"] = 0
 
     merged = projections.merge(expected, on="expected_gene_id", how="left")
+    merged = merged.reset_index(drop=True)
+    merged["_query_id"] = merged.index.astype(str)
+
+    query_ranges = to_pyranges_frame(
+        merged,
+        feature_id_col="_query_id",
+        feature_prefix="query",
+        source_role="expected",
+    )
+    core_ranges = to_pyranges_frame(
+        core,
+        feature_id_col="gene_id",
+        feature_prefix="target",
+        source_name="core",
+        source_role="final_core",
+        source_class="core_gene",
+    )
+    layer_ranges = to_pyranges_frame(
+        layer,
+        feature_id_col="gene_id",
+        feature_prefix="target",
+        source_name="layer",
+        source_role="layer",
+        source_class="layer_gene",
+    )
+    core_best = best_overlap_by_query(
+        query_ranges,
+        core_ranges,
+        query_id_col="query_id",
+        target_id_col="target_id",
+        same_strand=True,
+    ).set_index("query_id")
+    layer_best = best_overlap_by_query(
+        query_ranges,
+        layer_ranges,
+        query_id_col="query_id",
+        target_id_col="target_id",
+        same_strand=True,
+    ).set_index("query_id")
+    core_by_index = {idx: row for idx, row in core.iterrows()}
+    layer_by_index = {idx: row for idx, row in layer.iterrows()}
+
     preliminary: list[dict] = []
     best_core_by_expected: dict[str, str] = {}
     for _, row in merged.iterrows():
-        query = pd.Series(
-            {
-                "seq_region_name": row.get("seq_region_name"),
-                "seq_region_start": row.get("seq_region_start"),
-                "seq_region_end": row.get("seq_region_end"),
-                "seq_region_strand": row.get("seq_region_strand"),
-            }
+        query_id = _string_value(row.get("_query_id"))
+        core_match = (
+            core_best.loc[query_id] if query_id in core_best.index else pd.Series()
         )
-        best_core, core_overlap = _best_overlap(query, core, same_strand=True)
-        best_layer, layer_overlap = _best_overlap(query, layer, same_strand=True)
-        core_count = _overlap_count(query, core, same_strand=True)
+        layer_match = (
+            layer_best.loc[query_id] if query_id in layer_best.index else pd.Series()
+        )
+        best_core = None
+        best_layer = None
+        if not core_match.empty:
+            best_core = core_by_index.get(core_match.get("target_row_index"))
+        if not layer_match.empty:
+            best_layer = layer_by_index.get(layer_match.get("target_row_index"))
+        core_overlap = _int_value(core_match.get("overlap_bp"), 0)
+        layer_overlap = _int_value(layer_match.get("overlap_bp"), 0)
+        core_count = _int_value(core_match.get("overlap_count"), 0)
         expected_id = _string_value(row.get("expected_gene_id"))
         best_core_id = (
             _string_value(best_core.get("gene_id")) if best_core is not None else ""
@@ -808,6 +1453,10 @@ def audit_expected_presence(
             {
                 "expected_gene_id": expected_id,
                 "expected_source": _string_value(row.get("expected_source"), "unknown"),
+                "expected_source_class": _string_value(
+                    row.get("expected_source_class"),
+                    _string_value(row.get("expected_source"), "unknown"),
+                ),
                 "reference_stable_id": _string_value(row.get("reference_stable_id")),
                 "symbol": _string_value(row.get("symbol")),
                 "expected_biotype": _string_value(row.get("biotype"), "unknown"),
@@ -3341,6 +3990,75 @@ def write_expected_presence_bed(
     pd.DataFrame(rows).to_csv(path, sep="\t", header=False, index=False)
 
 
+def write_expected_content_beds(
+    expected_presence: pd.DataFrame,
+    expected_content_audit: pd.DataFrame,
+    output_dir: str,
+    pad_bp: int = 0,
+) -> list[str]:
+    bed_specs = {
+        "missing_expected_genes.bed": (
+            expected_content_audit["gene_presence_tag"].isin(
+                ["gene_missing_no_candidate", "gene_missing_but_candidate_available"]
+            )
+            if not expected_content_audit.empty
+            else pd.Series(dtype=bool)
+        ),
+        "candidate_rescue_available.bed": (
+            (
+                expected_content_audit["recoverability_tag"]
+                == "promote_existing_candidate"
+            )
+            if not expected_content_audit.empty
+            else pd.Series(dtype=bool)
+        ),
+        "cds_or_biotype_rescue.bed": (
+            expected_content_audit["cds_quality_tag"].isin(
+                [
+                    "candidate_has_cds_core_lacks_cds",
+                    "core_wrong_biotype",
+                    "cds_missing",
+                ]
+            )
+            if not expected_content_audit.empty
+            else pd.Series(dtype=bool)
+        ),
+        "structure_review.bed": (
+            ~expected_content_audit["structure_quality_tag"].isin(
+                [
+                    "exact_intron_chain_match",
+                    "single_exon_core_match",
+                    "structure_not_assessed",
+                ]
+            )
+            if not expected_content_audit.empty
+            else pd.Series(dtype=bool)
+        ),
+        "assembly_limited.bed": (
+            (expected_content_audit["gene_presence_tag"] == "gene_assembly_limited")
+            if not expected_content_audit.empty
+            else pd.Series(dtype=bool)
+        ),
+    }
+    ensure_dir(output_dir)
+    written = []
+    presence = expected_presence.copy()
+    if not presence.empty:
+        presence = presence.rename(columns={"expected_gene_id": "expected_id"})
+    for filename, mask in bed_specs.items():
+        if expected_content_audit.empty or expected_presence.empty:
+            subset = expected_presence
+        else:
+            ids = set(expected_content_audit.loc[mask, "expected_id"])
+            subset = presence[presence["expected_id"].isin(ids)].rename(
+                columns={"expected_id": "expected_gene_id"}
+            )
+        path = os.path.join(output_dir, filename)
+        write_expected_presence_bed(subset, path, pad_bp=pad_bp)
+        written.append(path)
+    return written
+
+
 def _top_counts(df: pd.DataFrame, col: str, limit: int = 8) -> list[tuple[str, int]]:
     if df.empty or col not in df.columns:
         return []
@@ -3461,15 +4179,66 @@ def run_audit(args: argparse.Namespace) -> int:
     layer_tr = _load_named_table(
         paths.extract_dir, "layer_translations", paths.fmt, required=False
     )
+    core_exons = _load_named_table(
+        paths.extract_dir, "core_exons", paths.fmt, required=False
+    )
+    layer_exons = _load_named_table(
+        paths.extract_dir, "layer_exons", paths.fmt, required=False
+    )
+    core_cds = _load_named_table(
+        paths.extract_dir, "core_cds", paths.fmt, required=False
+    )
+    layer_cds = _load_named_table(
+        paths.extract_dir, "layer_cds", paths.fmt, required=False
+    )
+    if core_cds.empty and not core_exons.empty and not core_tr.empty:
+        core_cds = cds_from_exons_and_translations(core_exons, core_tr)
+    if layer_cds.empty and not layer_exons.empty and not layer_tr.empty:
+        layer_cds = cds_from_exons_and_translations(layer_exons, layer_tr)
     _verbose(
         args,
         (
             "loaded extract tables: "
             f"core_genes={len(core_genes)}, layer_genes={len(layer_genes)}, "
-            f"core_transcripts={len(core_tx)}, layer_transcripts={len(layer_tx)}"
+            f"core_transcripts={len(core_tx)}, layer_transcripts={len(layer_tx)}, "
+            f"core_exons={len(core_exons)}, layer_exons={len(layer_exons)}"
         ),
         start_time,
     )
+
+    configured_sources = load_source_config(getattr(args, "source_config", None))
+    source_feature_tables = combine_source_models(
+        [
+            {
+                "name": "core",
+                "role": "final_core",
+                "class": "core_gene",
+                "genes": core_genes,
+                "transcripts": core_tx,
+                "translations": core_tr,
+                "exons": core_exons,
+                "cds": core_cds,
+            },
+            {
+                "name": "layer",
+                "role": "layer",
+                "class": "layer_gene",
+                "genes": layer_genes,
+                "transcripts": layer_tx,
+                "translations": layer_tr,
+                "exons": layer_exons,
+                "cds": layer_cds,
+            },
+            *configured_sources,
+        ]
+    )
+    candidate_genes = source_feature_tables["source_gene"]
+    if not candidate_genes.empty:
+        candidate_genes = candidate_genes[
+            ~candidate_genes["source_role"].isin(["final_core", "expected"])
+        ].copy()
+    else:
+        candidate_genes = layer_genes
 
     _verbose(args, "building or loading audit loci", start_time)
     loci, gene_to_locus = build_or_load_loci(
@@ -3496,6 +4265,11 @@ def run_audit(args: argparse.Namespace) -> int:
             .dropna()
             .astype(str)
         )
+        | set(
+            candidate_genes.get("seq_region_name", pd.Series(dtype=str))
+            .dropna()
+            .astype(str)
+        )
     )
     _verbose(
         args,
@@ -3518,7 +4292,7 @@ def run_audit(args: argparse.Namespace) -> int:
             else pd.DataFrame()
         )
         expected_presence = audit_expected_presence(
-            expected_genes, expected_projections, core_genes, layer_genes
+            expected_genes, expected_projections, core_genes, candidate_genes
         )
         _verbose(
             args, f"expected gene presence rows={len(expected_presence)}", start_time
@@ -3624,6 +4398,24 @@ def run_audit(args: argparse.Namespace) -> int:
         start_time,
     )
     failure_summary = _failure_summary(evidence_fate, expected_presence)
+    expected_content_audit = build_expected_content_audit(expected_presence)
+    (
+        expected_to_core_match,
+        expected_to_candidate_match,
+        transcript_structure_audit,
+        intron_feature_audit,
+        cds_feature_audit,
+    ) = build_expected_match_detail(
+        expected_presence, source_feature_tables["source_model_quality"]
+    )
+    expected_content_audit = enrich_expected_content_audit(
+        expected_content_audit, transcript_structure_audit, cds_feature_audit
+    )
+    rescue_candidate_models = build_rescue_candidate_models(
+        expected_content_audit, expected_to_candidate_match
+    )
+    locus_review_summary = build_locus_review_summary(expected_content_audit)
+    source_model_inventory = build_source_model_inventory(source_feature_tables)
     review_loci = build_review_loci(evidence_fate, expected_presence, args.top_n)
     audit_loci = build_audit_loci(loci, expected_presence, review_loci)
     source_profile = build_source_profile(evidence_fate)
@@ -3709,6 +4501,61 @@ def run_audit(args: argparse.Namespace) -> int:
             os.path.join(paths.observability_dir, f"expected_gene_presence.{suffix}"),
             args.format,
         )
+        _write_table(
+            expected_content_audit,
+            os.path.join(paths.observability_dir, f"expected_content_audit.{suffix}"),
+            args.format,
+        )
+        _write_table(
+            expected_to_core_match,
+            os.path.join(paths.observability_dir, f"expected_to_core_match.{suffix}"),
+            args.format,
+        )
+        _write_table(
+            expected_to_candidate_match,
+            os.path.join(
+                paths.observability_dir, f"expected_to_candidate_match.{suffix}"
+            ),
+            args.format,
+        )
+        _write_table(
+            transcript_structure_audit,
+            os.path.join(
+                paths.observability_dir, f"transcript_structure_audit.{suffix}"
+            ),
+            args.format,
+        )
+        _write_table(
+            intron_feature_audit,
+            os.path.join(paths.observability_dir, f"intron_feature_audit.{suffix}"),
+            args.format,
+        )
+        _write_table(
+            cds_feature_audit,
+            os.path.join(paths.observability_dir, f"cds_feature_audit.{suffix}"),
+            args.format,
+        )
+        _write_table(
+            rescue_candidate_models,
+            os.path.join(paths.observability_dir, f"rescue_candidate_models.{suffix}"),
+            args.format,
+        )
+        _write_table(
+            locus_review_summary,
+            os.path.join(paths.observability_dir, f"locus_review_summary.{suffix}"),
+            args.format,
+        )
+    for feature_name, feature_table in source_feature_tables.items():
+        _write_table(
+            feature_table,
+            os.path.join(paths.observability_dir, f"{feature_name}.{suffix}"),
+            args.format,
+        )
+    _write_table(
+        source_model_inventory,
+        os.path.join(paths.observability_dir, f"source_model_inventory.{suffix}"),
+        args.format,
+    )
     _write_table(
         source_profile,
         os.path.join(paths.observability_dir, f"source_profile.{suffix}"),
@@ -3882,6 +4729,12 @@ def run_audit(args: argparse.Namespace) -> int:
         os.path.join(completeness_bed_dir, "reference_protein_issues.bed"),
         pad_bp=args.bed_pad_bp,
     )
+    expected_content_bed_paths = write_expected_content_beds(
+        expected_presence,
+        expected_content_audit,
+        paths.observability_dir,
+        pad_bp=args.bed_pad_bp,
+    )
     write_actionable_summary(
         os.path.join(paths.observability_dir, "actionable_summary.md"),
         evidence_fate,
@@ -3903,6 +4756,7 @@ def run_audit(args: argparse.Namespace) -> int:
             "expected_gff3": getattr(args, "expected_gff3", None),
             "expected_proteins": getattr(args, "expected_proteins", None),
             "reference_protein_hits": getattr(args, "reference_protein_hits", None),
+            "source_config": getattr(args, "source_config", None),
             "gffcompare_tmap": getattr(args, "gffcompare_tmap", None),
             "genome_busco": getattr(args, "genome_busco", None),
             "protein_busco": getattr(args, "protein_busco", None),
@@ -3915,6 +4769,12 @@ def run_audit(args: argparse.Namespace) -> int:
                 "gene_to_locus": len(gene_to_locus),
                 "evidence_fate": len(evidence_fate),
                 "expected_gene_presence": len(expected_presence),
+                "expected_content_audit": len(expected_content_audit),
+                "expected_to_core_match": len(expected_to_core_match),
+                "expected_to_candidate_match": len(expected_to_candidate_match),
+                "transcript_structure_audit": len(transcript_structure_audit),
+                "intron_feature_audit": len(intron_feature_audit),
+                "cds_feature_audit": len(cds_feature_audit),
                 "source_profile": len(source_profile),
                 "expected_source_profile": len(expected_source_profile),
                 "busco_expected_crosswalk": len(busco_crosswalk),
@@ -3937,6 +4797,10 @@ def run_audit(args: argparse.Namespace) -> int:
                 "failure_mode_summary": len(failure_summary),
                 "review_loci": len(review_loci),
                 "review_beds": len(review_bed_paths),
+                "expected_content_beds": len(expected_content_bed_paths),
+                "rescue_candidate_models": len(rescue_candidate_models),
+                "locus_review_summary": len(locus_review_summary),
+                "source_model_inventory": len(source_model_inventory),
             },
         },
         os.path.join(paths.root, "manifest.observability.json"),
@@ -3986,11 +4850,14 @@ def run_end_to_end(args: argparse.Namespace) -> int:
             core_conn, seq_regions, args.coord_system_name
         )
         core_tr = extract_all_translations(core_conn)
+        core_exons = extract_all_exons(core_conn, seq_regions, args.coord_system_name)
+        core_cds = cds_from_exons_and_translations(core_exons, core_tr)
     _verbose(
         args,
         (
             "core extraction complete: "
-            f"genes={len(core_genes)}, transcripts={len(core_tx)}, translations={len(core_tr)}"
+            f"genes={len(core_genes)}, transcripts={len(core_tx)}, translations={len(core_tr)}, "
+            f"exons={len(core_exons)}, cds={len(core_cds)}"
         ),
         start_time,
     )
@@ -4005,11 +4872,14 @@ def run_end_to_end(args: argparse.Namespace) -> int:
             layer_conn, seq_regions, args.coord_system_name
         )
         layer_tr = extract_all_translations(layer_conn)
+        layer_exons = extract_all_exons(layer_conn, seq_regions, args.coord_system_name)
+        layer_cds = cds_from_exons_and_translations(layer_exons, layer_tr)
     _verbose(
         args,
         (
             "layer extraction complete: "
-            f"genes={len(layer_genes)}, transcripts={len(layer_tx)}, translations={len(layer_tr)}"
+            f"genes={len(layer_genes)}, transcripts={len(layer_tx)}, translations={len(layer_tr)}, "
+            f"exons={len(layer_exons)}, cds={len(layer_cds)}"
         ),
         start_time,
     )
@@ -4041,8 +4911,28 @@ def run_end_to_end(args: argparse.Namespace) -> int:
         args.format,
     )
     _write_table(
+        core_exons,
+        os.path.join(paths.extract_dir, f"core_exons.{args.format}"),
+        args.format,
+    )
+    _write_table(
+        core_cds,
+        os.path.join(paths.extract_dir, f"core_cds.{args.format}"),
+        args.format,
+    )
+    _write_table(
         layer_tr,
         os.path.join(paths.extract_dir, f"layer_translations.{args.format}"),
+        args.format,
+    )
+    _write_table(
+        layer_exons,
+        os.path.join(paths.extract_dir, f"layer_exons.{args.format}"),
+        args.format,
+    )
+    _write_table(
+        layer_cds,
+        os.path.join(paths.extract_dir, f"layer_cds.{args.format}"),
         args.format,
     )
 
@@ -4081,6 +4971,7 @@ def run_end_to_end(args: argparse.Namespace) -> int:
             "layer_db": args.layer_db,
             "expected_core_db": getattr(args, "expected_core_db", None),
             "expected_gff3": getattr(args, "expected_gff3", None),
+            "source_config": getattr(args, "source_config", None),
             "coord_system_name": args.coord_system_name,
             "seq_regions": seq_regions,
             "format": args.format,
@@ -4091,7 +4982,11 @@ def run_end_to_end(args: argparse.Namespace) -> int:
                 "core_transcripts": len(core_tx),
                 "layer_transcripts": len(layer_tx),
                 "core_translations": len(core_tr),
+                "core_exons": len(core_exons),
+                "core_cds": len(core_cds),
                 "layer_translations": len(layer_tr),
+                "layer_exons": len(layer_exons),
+                "layer_cds": len(layer_cds),
                 "loci": len(loci),
                 "gene_to_locus": len(gene_to_locus),
             },
@@ -4135,6 +5030,7 @@ def expected_tables_from_core_gene_table(
             {
                 "expected_gene_id": expected_gene_id,
                 "expected_source": expected_source,
+                "expected_source_class": "previous_annotation_projection",
                 "reference_stable_id": reference_stable_id,
                 "symbol": "",
                 "biotype": _string_value(row.get("biotype"), "unknown"),
@@ -4364,6 +5260,7 @@ def expected_tables_from_gff3(
             {
                 "expected_gene_id": expected_gene_id,
                 "expected_source": expected_source,
+                "expected_source_class": "reference_annotation",
                 "reference_stable_id": reference_id,
                 "symbol": _string_value(row.get("symbol")),
                 "biotype": _string_value(row.get("biotype"), "unknown"),
@@ -4592,6 +5489,7 @@ def populate_expected_inputs(
 EXPECTED_GENE_COLUMNS = [
     "expected_gene_id",
     "expected_source",
+    "expected_source_class",
     "reference_stable_id",
     "symbol",
     "biotype",
@@ -4710,6 +5608,8 @@ def validate_inputs(args: argparse.Namespace) -> int:
         errors.append(f"Could not find gffcompare tmap: {args.gffcompare_tmap}")
     if getattr(args, "expected_gff3", None) and not os.path.exists(args.expected_gff3):
         errors.append(f"Could not find expected GFF3: {args.expected_gff3}")
+    if getattr(args, "source_config", None) and not os.path.exists(args.source_config):
+        errors.append(f"Could not find source config: {args.source_config}")
     if bool(getattr(args, "genome_busco", None)) != bool(
         getattr(args, "protein_busco", None)
     ):
@@ -4779,6 +5679,13 @@ def build_parser() -> argparse.ArgumentParser:
     run.add_argument(
         "--reference_protein_hits",
         help="Optional BUSCO-like reference protein hit table",
+    )
+    run.add_argument(
+        "--source_config",
+        help=(
+            "Optional JSON source blocks with name/role/class and genes/transcripts/"
+            "translations/exons/cds table paths"
+        ),
     )
     run.add_argument(
         "--gffcompare_tmap",
@@ -4940,6 +5847,13 @@ def build_parser() -> argparse.ArgumentParser:
         help="Optional BUSCO-like reference protein hit table",
     )
     audit.add_argument(
+        "--source_config",
+        help=(
+            "Optional JSON source blocks with name/role/class and genes/transcripts/"
+            "translations/exons/cds table paths"
+        ),
+    )
+    audit.add_argument(
         "--gffcompare_tmap",
         help="Optional GffCompare .tmap for same-assembly structure comparison",
     )
@@ -5013,6 +5927,13 @@ def build_parser() -> argparse.ArgumentParser:
     validate.add_argument(
         "--reference_protein_hits",
         help="Optional BUSCO-like reference protein hit table",
+    )
+    validate.add_argument(
+        "--source_config",
+        help=(
+            "Optional JSON source blocks with name/role/class and genes/transcripts/"
+            "translations/exons/cds table paths"
+        ),
     )
     validate.add_argument(
         "--gffcompare_tmap",
