@@ -14,26 +14,28 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
 
+# pylint: disable=wrong-import-position
 from runners import assess_translation_validity
 
 RUNNERS = [
-	assess_translation_validity,
+    assess_translation_validity,
 ]
 
 
 def main():
-	parser = argparse.ArgumentParser(
-		prog="annotation-qc",
-		description="Run quality checks on genome annotations.",
-	)
-	subparsers = parser.add_subparsers(dest="command", required=True)
+    """Parse arguments and dispatch to the appropriate runner subcommand."""
+    parser = argparse.ArgumentParser(
+        prog="annotation-qc",
+        description="Run quality checks on genome annotations.",
+    )
+    subparsers = parser.add_subparsers(dest="command", required=True)
 
-	for runner in RUNNERS:
-		runner.register(subparsers)
+    for runner in RUNNERS:
+        runner.register(subparsers)
 
-	args = parser.parse_args()
-	args.func(args)
+    args = parser.parse_args()
+    args.func(args)
 
 
 if __name__ == "__main__":
-	main()
+    main()
