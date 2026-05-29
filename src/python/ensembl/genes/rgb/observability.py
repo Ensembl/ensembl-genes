@@ -5,6 +5,7 @@ import datetime
 import gzip
 import json
 import os
+import re
 import sys
 import time
 from dataclasses import dataclass
@@ -38,6 +39,7 @@ from .utils import ensure_dir, make_run_id
 
 PRIORITY_RANK = {"P0": 0, "P1": 1, "P2": 2, "P3": 3, "P4": 4}
 CONFIDENCE_RANK = {"high": 0, "medium": 1, "low": 2, "unknown": 3}
+LOW_CONFIDENCE_UNSUFFIXED_LOGIC_NAMES = {"cdna", "rnaseq_tissue"}
 
 
 def _verbose(
@@ -270,8 +272,17 @@ def _translation_ids(df: pd.DataFrame) -> set[int]:
     return ids
 
 
-def _gene_support_by_id(tx_df: pd.DataFrame, tr_df: pd.DataFrame) -> pd.DataFrame:
-    columns = ["gene_id", "transcript_count", "coding_transcript_count"]
+def _gene_support_by_id(
+    tx_df: pd.DataFrame, tr_df: pd.DataFrame, cds_df: Optional[pd.DataFrame] = None
+) -> pd.DataFrame:
+    columns = [
+        "gene_id",
+        "transcript_count",
+        "coding_transcript_count",
+        "max_translation_span",
+        "max_cds_span",
+        "max_cds_exon_count",
+    ]
     if tx_df.empty or "gene_id" not in tx_df.columns:
         return _empty(columns)
     tx = tx_df.copy()
@@ -279,15 +290,144 @@ def _gene_support_by_id(tx_df: pd.DataFrame, tr_df: pd.DataFrame) -> pd.DataFram
     tx["has_translation"] = tx["transcript_id"].map(
         lambda x: int(_int_value(x, -1) in tr_ids)
     )
+    if not tr_df.empty and {"transcript_id", "seq_start", "seq_end"}.issubset(
+        tr_df.columns
+    ):
+        tr = tr_df.copy()
+        tr["_translation_span"] = (
+            pd.to_numeric(tr["seq_end"], errors="coerce")
+            - pd.to_numeric(tr["seq_start"], errors="coerce")
+            + 1
+        ).clip(lower=0)
+        tx = tx.merge(
+            tr[["transcript_id", "_translation_span"]],
+            on="transcript_id",
+            how="left",
+        )
+    if "_translation_span" not in tx.columns:
+        tx["_translation_span"] = 0
+    if cds_df is not None and not cds_df.empty and "transcript_id" in cds_df.columns:
+        cds = cds_df.copy()
+        required = {"seq_region_start", "seq_region_end"}
+        if required.issubset(cds.columns):
+            cds["_cds_interval_span"] = (
+                pd.to_numeric(cds["seq_region_end"], errors="coerce")
+                - pd.to_numeric(cds["seq_region_start"], errors="coerce")
+                + 1
+            ).clip(lower=0)
+            cds_support = (
+                cds.groupby("transcript_id", dropna=False)
+                .agg(
+                    _cds_span=("_cds_interval_span", "sum"),
+                    _cds_exon_count=("transcript_id", "size"),
+                )
+                .reset_index()
+            )
+            tx = tx.merge(cds_support, on="transcript_id", how="left")
+    if "_cds_span" not in tx.columns:
+        tx["_cds_span"] = 0
+    if "_cds_exon_count" not in tx.columns:
+        tx["_cds_exon_count"] = 0
     grouped = (
         tx.groupby("gene_id", dropna=False)
         .agg(
             transcript_count=("transcript_id", "count"),
             coding_transcript_count=("has_translation", "sum"),
+            max_translation_span=("_translation_span", "max"),
+            max_cds_span=("_cds_span", "max"),
+            max_cds_exon_count=("_cds_exon_count", "max"),
         )
         .reset_index()
     )
+    for col in ("max_translation_span", "max_cds_span", "max_cds_exon_count"):
+        grouped[col] = (
+            pd.to_numeric(grouped[col], errors="coerce").fillna(0).astype(int)
+        )
     return grouped[columns]
+
+
+def _layer_logic_tier(logic_name: object) -> tuple[str, int, str]:
+    logic = _string_value(logic_name, "unknown").lower()
+    if re.search(r"(?:^|_)(projection|project)", logic):
+        family = "projection"
+    elif re.search(r"(?:^|_)(protein|homology|ortholog)", logic):
+        family = "homology"
+    elif re.search(r"(?:^|_)cdna", logic):
+        family = "cdna"
+    elif re.search(r"(?:^|_)(rnaseq|rna_seq|transcript)", logic):
+        family = "rnaseq"
+    elif re.search(r"(?:^|_)(genscan|augustus|snap|abinitio|ab_initio)", logic):
+        family = "ab_initio"
+    else:
+        family = "unknown"
+
+    tier_match = re.search(r"_(\d+)$", logic)
+    if tier_match:
+        tier_index = int(tier_match.group(1))
+        return f"tier_{tier_index}", tier_index, family
+    if re.search(r"(?:^|_)high(?:_|$)", logic):
+        return "high", 1, family
+    if re.search(r"(?:^|_)medium(?:_|$)", logic):
+        return "medium", 2, family
+    if re.search(r"(?:^|_)low(?:_|$)", logic):
+        return "low", 3, family
+    if logic in LOW_CONFIDENCE_UNSUFFIXED_LOGIC_NAMES:
+        return "unsuffixed_low", 99, family
+    return "unmapped", 50, family
+
+
+def _layer_coding_confidence(row: pd.Series) -> tuple[bool, str, str]:
+    coding_tx = _int_value(row.get("coding_transcript_count"))
+    if coding_tx <= 0:
+        return False, "none", "no_translation_row"
+
+    logic = _string_value(row.get("logic_name"), "unknown").lower()
+    biotype = _string_value(row.get("biotype"), "unknown")
+    tier_index = _int_value(row.get("tier_index"), 50)
+    family = _string_value(row.get("evidence_family"), "unknown")
+    translation_span = _int_value(row.get("max_translation_span"))
+    cds_span = _int_value(row.get("max_cds_span"))
+    cds_exon_count = _int_value(row.get("max_cds_exon_count"))
+    if logic in LOW_CONFIDENCE_UNSUFFIXED_LOGIC_NAMES:
+        return False, "low", "unsuffixed_transcript_evidence"
+    if biotype != "protein_coding":
+        return False, "low", "non_protein_coding_layer_biotype"
+    if 0 < cds_span < 90:
+        return False, "low", "short_cds_span"
+    if cds_span == 0 and 0 < translation_span < 90:
+        return False, "low", "short_translation_proxy_no_cds_intervals"
+    if tier_index == 1 or family in {"projection", "homology"}:
+        if cds_span > 0 and cds_exon_count > 1:
+            return True, "high", "high_tier_junction_spanning_cds"
+        if cds_span > 0:
+            return True, "high", "high_tier_cds_span"
+        return True, "high", "high_tier_translation_without_cds_intervals"
+    if tier_index <= 3:
+        return False, "medium", "medium_tier_translation_proxy"
+    return False, "low", "translation_without_high_confidence_tier"
+
+
+def _best_overlap_frames(
+    query_ranges: pd.DataFrame, target_ranges: pd.DataFrame
+) -> tuple[pd.DataFrame, pd.DataFrame]:
+    same = best_overlap_by_query(
+        query_ranges,
+        target_ranges,
+        query_id_col="query_id",
+        target_id_col="target_id",
+        same_strand=True,
+    )
+    flipped = target_ranges.copy()
+    if not flipped.empty:
+        flipped["Strand"] = flipped["Strand"].map({"+": "-", "-": "+", ".": "."})
+    opposite = best_overlap_by_query(
+        query_ranges,
+        flipped,
+        query_id_col="query_id",
+        target_id_col="target_id",
+        same_strand=True,
+    )
+    return same, opposite
 
 
 def _best_overlap(
@@ -351,11 +491,19 @@ def _coverage_class(coverage: float) -> str:
     return "no_span_match"
 
 
+def _high_confidence_layer_coding_mask(df: pd.DataFrame) -> pd.Series:
+    if "layer_coding_confidence" in df.columns:
+        return df["layer_coding_confidence"] == "high"
+    if "layer_coding_transcript_count" in df.columns:
+        return df["layer_coding_transcript_count"] > 0
+    return pd.Series(False, index=df.index)
+
+
 def _evidence_fate_class(
     layer_row: pd.Series,
     best_core: Optional[pd.Series],
     coverage: float,
-    layer_has_coding: bool,
+    layer_has_coding_support: bool,
     same_strand_core_count: int,
     opposite_strand_core_count: int,
     collapse_group_size: int,
@@ -365,20 +513,20 @@ def _evidence_fate_class(
             return (
                 "orphan_evidence",
                 "opposite_strand_core_only",
-                "P2" if layer_has_coding else "P3",
+                "P2" if layer_has_coding_support else "P3",
                 "inspect_browser",
             )
         return (
             "orphan_evidence",
             "no_core_gene_built",
-            "P1" if layer_has_coding else "P2",
+            "P1" if layer_has_coding_support else "P2",
             "try_candidate_rescue",
         )
 
     core_biotype = _string_value(best_core.get("biotype"), "unknown")
     layer_biotype = _string_value(layer_row.get("biotype"), "unknown")
 
-    if layer_has_coding and core_biotype != "protein_coding":
+    if layer_has_coding_support and core_biotype != "protein_coding":
         return (
             "represented_partial" if coverage < 0.95 else "represented_near",
             "coding_evidence_not_protein_coding",
@@ -423,14 +571,16 @@ def audit_evidence_fate(
     layer_tx: pd.DataFrame,
     core_tr: pd.DataFrame,
     layer_tr: pd.DataFrame,
+    core_cds: Optional[pd.DataFrame] = None,
+    layer_cds: Optional[pd.DataFrame] = None,
 ) -> pd.DataFrame:
     core = _normalise_gene_table(core_genes, "core")
     layer = _normalise_gene_table(layer_genes, "layer")
     core_tx_norm = _normalise_transcript_table(core_tx, "core")
     layer_tx_norm = _normalise_transcript_table(layer_tx, "layer")
 
-    layer_support = _gene_support_by_id(layer_tx_norm, layer_tr)
-    core_support = _gene_support_by_id(core_tx_norm, core_tr)
+    layer_support = _gene_support_by_id(layer_tx_norm, layer_tr, layer_cds)
+    core_support = _gene_support_by_id(core_tx_norm, core_tr, core_cds)
     if not layer.empty:
         layer = layer.merge(layer_support, on="gene_id", how="left")
     if not core.empty:
@@ -440,6 +590,12 @@ def audit_evidence_fate(
             df["transcript_count"] = 0
         if "coding_transcript_count" not in df.columns:
             df["coding_transcript_count"] = 0
+        if "max_translation_span" not in df.columns:
+            df["max_translation_span"] = 0
+        if "max_cds_span" not in df.columns:
+            df["max_cds_span"] = 0
+        if "max_cds_exon_count" not in df.columns:
+            df["max_cds_exon_count"] = 0
         df["transcript_count"] = (
             pd.to_numeric(df["transcript_count"], errors="coerce").fillna(0).astype(int)
         )
@@ -448,14 +604,63 @@ def audit_evidence_fate(
             .fillna(0)
             .astype(int)
         )
+        for col in ("max_translation_span", "max_cds_span", "max_cds_exon_count"):
+            df[col] = pd.to_numeric(df[col], errors="coerce").fillna(0).astype(int)
+
+    if not layer.empty:
+        tier_rows = layer["logic_name"].map(_layer_logic_tier)
+        layer["tier"] = tier_rows.map(lambda x: x[0])
+        layer["tier_index"] = tier_rows.map(lambda x: x[1])
+        layer["evidence_family"] = tier_rows.map(lambda x: x[2])
+        confidence_rows = layer.apply(_layer_coding_confidence, axis=1)
+        layer["_layer_has_coding_support"] = confidence_rows.map(lambda x: bool(x[0]))
+        layer["layer_coding_confidence"] = confidence_rows.map(lambda x: x[1])
+        layer["layer_coding_confidence_reason"] = confidence_rows.map(lambda x: x[2])
+
+    layer_for_ranges = layer.copy()
+    layer_for_ranges["_query_id"] = layer_for_ranges.index.astype(str)
+    layer_ranges = to_pyranges_frame(
+        layer_for_ranges,
+        feature_id_col="_query_id",
+        feature_prefix="query",
+        source_name="layer",
+        source_role="layer",
+        source_class="layer_gene",
+    )
+    core_ranges = to_pyranges_frame(
+        core,
+        feature_id_col="gene_id",
+        feature_prefix="target",
+        source_name="core",
+        source_role="final_core",
+        source_class="core_gene",
+    )
+    same_best, opposite_best = _best_overlap_frames(layer_ranges, core_ranges)
+    same_best = same_best.set_index("query_id") if not same_best.empty else same_best
+    opposite_best = (
+        opposite_best.set_index("query_id") if not opposite_best.empty else opposite_best
+    )
 
     preliminary: list[dict] = []
+    core_by_index = {idx: row for idx, row in core.iterrows()}
     for idx, row in layer.iterrows():
-        best_core, overlap = _best_overlap(row, core, same_strand=True)
+        query_id = str(idx)
+        same_match = (
+            same_best.loc[query_id]
+            if not same_best.empty and query_id in same_best.index
+            else pd.Series(dtype=object)
+        )
+        opposite_match = (
+            opposite_best.loc[query_id]
+            if not opposite_best.empty and query_id in opposite_best.index
+            else pd.Series(dtype=object)
+        )
+        best_core = core_by_index.get(same_match.get("target_row_index"))
+        overlap = _int_value(same_match.get("overlap_bp"))
         layer_span = _span_bp(row.get("seq_region_start"), row.get("seq_region_end"))
         coverage = overlap / layer_span if layer_span else 0.0
-        same_count = _overlap_count(row, core, same_strand=True)
-        opp_count = _overlap_count(row, core, same_strand=False)
+        same_count = _int_value(same_match.get("overlap_count"))
+        opp_count = _int_value(opposite_match.get("overlap_count"))
         preliminary.append(
             {
                 "_row_index": idx,
@@ -467,9 +672,27 @@ def audit_evidence_fate(
                 "seq_region_strand": _normalise_strand(row.get("seq_region_strand")),
                 "layer_biotype": _string_value(row.get("biotype"), "unknown"),
                 "layer_logic_name": _string_value(row.get("logic_name"), "unknown"),
+                "layer_tier": _string_value(row.get("tier"), "unmapped"),
+                "layer_tier_index": _int_value(row.get("tier_index"), 50),
+                "layer_evidence_family": _string_value(
+                    row.get("evidence_family"), "unknown"
+                ),
                 "layer_transcript_count": _int_value(row.get("transcript_count")),
                 "layer_coding_transcript_count": _int_value(
                     row.get("coding_transcript_count")
+                ),
+                "layer_max_translation_span": _int_value(
+                    row.get("max_translation_span")
+                ),
+                "layer_max_cds_span": _int_value(row.get("max_cds_span")),
+                "layer_max_cds_exon_count": _int_value(
+                    row.get("max_cds_exon_count")
+                ),
+                "layer_coding_confidence": _string_value(
+                    row.get("layer_coding_confidence"), "unknown"
+                ),
+                "layer_coding_confidence_reason": _string_value(
+                    row.get("layer_coding_confidence_reason"), "unknown"
                 ),
                 "best_core_gene_id": (
                     best_core.get("gene_id") if best_core is not None else pd.NA
@@ -494,14 +717,24 @@ def audit_evidence_fate(
                     if best_core is not None
                     else 0
                 ),
+                "best_core_max_cds_span": (
+                    _int_value(best_core.get("max_cds_span"))
+                    if best_core is not None
+                    else 0
+                ),
+                "best_core_max_cds_exon_count": (
+                    _int_value(best_core.get("max_cds_exon_count"))
+                    if best_core is not None
+                    else 0
+                ),
                 "same_strand_core_count": same_count,
                 "opposite_strand_core_count": opp_count,
                 "overlap_bp": overlap,
                 "layer_span_bp": layer_span,
                 "layer_span_coverage_by_core": coverage,
                 "representation_class": _coverage_class(coverage),
-                "_layer_has_coding": bool(
-                    _int_value(row.get("coding_transcript_count")) > 0
+                "_layer_has_coding_support": bool(
+                    row.get("_layer_has_coding_support")
                 ),
             }
         )
@@ -538,7 +771,7 @@ def audit_evidence_fate(
             layer_row,
             best_core,
             float(row["layer_span_coverage_by_core"]),
-            bool(row["_layer_has_coding"]),
+            bool(row["_layer_has_coding_support"]),
             int(row["same_strand_core_count"]),
             int(row["opposite_strand_core_count"]),
             collapse_size,
@@ -555,7 +788,7 @@ def audit_evidence_fate(
         f"logic_name={r['layer_logic_name']}",
         axis=1,
     )
-    return out.drop(columns=["_row_index", "_layer_has_coding"]).sort_values(
+    return out.drop(columns=["_row_index", "_layer_has_coding_support"]).sort_values(
         ["review_priority", "failure_class", "seq_region_name", "seq_region_start"],
         key=lambda s: (
             s.map(PRIORITY_RANK).fillna(9) if s.name == "review_priority" else s
@@ -1736,6 +1969,192 @@ def build_source_profile(evidence_fate: pd.DataFrame) -> pd.DataFrame:
     )
 
 
+def build_tier_failure_summary(evidence_fate: pd.DataFrame) -> pd.DataFrame:
+    columns = [
+        "layer_tier",
+        "layer_tier_index",
+        "layer_evidence_family",
+        "failure_class",
+        "review_priority",
+        "n_layer_models",
+        "n_high_confidence_coding",
+        "median_core_coverage",
+    ]
+    if evidence_fate.empty:
+        return _empty(columns)
+    rows = []
+    grouped = evidence_fate.groupby(
+        [
+            "layer_tier",
+            "layer_tier_index",
+            "layer_evidence_family",
+            "failure_class",
+            "review_priority",
+        ],
+        dropna=False,
+    )
+    for keys, group in grouped:
+        tier, tier_index, family, failure, priority = keys
+        rows.append(
+            {
+                "layer_tier": tier,
+                "layer_tier_index": _int_value(tier_index, 50),
+                "layer_evidence_family": family,
+                "failure_class": failure,
+                "review_priority": priority,
+                "n_layer_models": int(len(group)),
+                "n_high_confidence_coding": int(
+                    (group["layer_coding_confidence"] == "high").sum()
+                ),
+                "median_core_coverage": float(
+                    group["layer_span_coverage_by_core"].median()
+                ),
+            }
+        )
+    return pd.DataFrame(rows, columns=columns).sort_values(
+        ["review_priority", "n_layer_models", "layer_tier_index"],
+        key=lambda s: (
+            s.map(PRIORITY_RANK).fillna(9) if s.name == "review_priority" else s
+        ),
+        ascending=[True, False, True],
+    )
+
+
+def build_biotype_failure_summary(evidence_fate: pd.DataFrame) -> pd.DataFrame:
+    columns = [
+        "layer_biotype",
+        "best_core_biotype",
+        "failure_class",
+        "review_priority",
+        "n_layer_models",
+        "n_high_confidence_coding",
+        "median_core_coverage",
+    ]
+    if evidence_fate.empty:
+        return _empty(columns)
+    rows = []
+    grouped = evidence_fate.groupby(
+        ["layer_biotype", "best_core_biotype", "failure_class", "review_priority"],
+        dropna=False,
+    )
+    for keys, group in grouped:
+        layer_biotype, core_biotype, failure, priority = keys
+        rows.append(
+            {
+                "layer_biotype": layer_biotype,
+                "best_core_biotype": core_biotype,
+                "failure_class": failure,
+                "review_priority": priority,
+                "n_layer_models": int(len(group)),
+                "n_high_confidence_coding": int(
+                    (group["layer_coding_confidence"] == "high").sum()
+                ),
+                "median_core_coverage": float(
+                    group["layer_span_coverage_by_core"].median()
+                ),
+            }
+        )
+    return pd.DataFrame(rows, columns=columns).sort_values(
+        ["review_priority", "n_layer_models"],
+        key=lambda s: (
+            s.map(PRIORITY_RANK).fillna(9) if s.name == "review_priority" else s
+        ),
+        ascending=[True, False],
+    )
+
+
+def build_tier_recommendations(evidence_fate: pd.DataFrame) -> pd.DataFrame:
+    columns = [
+        "recommendation_id",
+        "review_priority",
+        "layer_tier",
+        "layer_evidence_family",
+        "failure_class",
+        "trigger_count",
+        "target_filter",
+        "next_action",
+    ]
+    if evidence_fate.empty:
+        return _empty(columns)
+    actionable = evidence_fate[
+        evidence_fate["review_priority"].isin(["P1", "P2"])
+    ].copy()
+    if actionable.empty:
+        return _empty(columns)
+    rows = []
+    grouped = actionable.groupby(
+        ["review_priority", "layer_tier", "layer_evidence_family", "failure_class"],
+        dropna=False,
+    )
+    for keys, group in grouped:
+        priority, tier, family, failure = keys
+        recommendation_id = (
+            f"{priority.lower()}_{_string_value(tier, 'tier')}_"
+            f"{_string_value(family, 'family')}_{_string_value(failure, 'failure')}"
+        )
+        rows.append(
+            {
+                "recommendation_id": recommendation_id,
+                "review_priority": priority,
+                "layer_tier": tier,
+                "layer_evidence_family": family,
+                "failure_class": failure,
+                "trigger_count": int(len(group)),
+                "target_filter": (
+                    f"review_priority={priority};layer_tier={tier};"
+                    f"layer_evidence_family={family};failure_class={failure}"
+                ),
+                "next_action": group["suggested_action"].mode().iloc[0],
+            }
+        )
+    return pd.DataFrame(rows, columns=columns).sort_values(
+        ["review_priority", "trigger_count"],
+        key=lambda s: (
+            s.map(PRIORITY_RANK).fillna(9) if s.name == "review_priority" else s
+        ),
+        ascending=[True, False],
+    )
+
+
+def build_high_tier_review_loci(evidence_fate: pd.DataFrame) -> pd.DataFrame:
+    columns = [
+        "layer_gene_id",
+        "layer_stable_id",
+        "seq_region_name",
+        "seq_region_start",
+        "seq_region_end",
+        "seq_region_strand",
+        "layer_logic_name",
+        "layer_tier",
+        "layer_evidence_family",
+        "layer_biotype",
+        "layer_coding_confidence",
+        "best_core_stable_id",
+        "best_core_biotype",
+        "failure_class",
+        "review_priority",
+        "suggested_action",
+        "review_reason",
+    ]
+    if evidence_fate.empty:
+        return _empty(columns)
+    high_tier = evidence_fate[
+        evidence_fate["review_priority"].isin(["P1", "P2"])
+        & (
+            (evidence_fate["layer_coding_confidence"] == "high")
+            | (pd.to_numeric(evidence_fate["layer_tier_index"], errors="coerce") <= 3)
+        )
+    ]
+    if high_tier.empty:
+        return _empty(columns)
+    return high_tier[columns].sort_values(
+        ["review_priority", "seq_region_name", "seq_region_start"],
+        key=lambda s: (
+            s.map(PRIORITY_RANK).fillna(9) if s.name == "review_priority" else s
+        ),
+    )
+
+
 def build_expected_source_profile(expected_presence: pd.DataFrame) -> pd.DataFrame:
     columns = [
         "expected_source",
@@ -2752,11 +3171,11 @@ def build_feature_profile(
             float(
                 (
                     (evidence_fate["fate_class"] == "orphan_evidence")
-                    & (evidence_fate["layer_coding_transcript_count"] > 0)
+                    & _high_confidence_layer_coding_mask(evidence_fate)
                 ).sum()
             ),
             n_layer,
-            "Coding layer models with no same-strand core representation",
+            "High-confidence coding layer models with no same-strand core representation",
         )
         add(
             "evidence_fate",
@@ -3195,7 +3614,7 @@ def build_recommendations(
     if not evidence_fate.empty:
         coding_orphans = evidence_fate[
             (evidence_fate["failure_class"] == "no_core_gene_built")
-            & (evidence_fate["layer_coding_transcript_count"] > 0)
+            & _high_confidence_layer_coding_mask(evidence_fate)
         ]
         add(
             "candidate_rescue_from_layer",
@@ -3203,10 +3622,10 @@ def build_recommendations(
             "locus",
             "candidate_rescue",
             len(coding_orphans),
-            "Coding layer models have no same-strand core representation.",
+            "High-confidence coding layer models have no same-strand core representation.",
             "Inspect P1 loci; test whether layer candidates should be rescued or source/layer ordering changed.",
             "evidence_fate.tsv",
-            "failure_class=no_core_gene_built;layer_coding_transcript_count>0",
+            "failure_class=no_core_gene_built;layer_coding_confidence=high",
             "high",
         )
         wrong_biotype = evidence_fate[
@@ -3525,7 +3944,7 @@ def build_rescue_patterns(
     if not evidence_fate.empty:
         coding_orphans = evidence_fate[
             (evidence_fate["failure_class"] == "no_core_gene_built")
-            & (evidence_fate["layer_coding_transcript_count"] > 0)
+            & _high_confidence_layer_coding_mask(evidence_fate)
         ]
         for (logic_name, biotype), group in coding_orphans.groupby(
             ["layer_logic_name", "layer_biotype"], dropna=False
@@ -3537,7 +3956,7 @@ def build_rescue_patterns(
                 "P1",
                 signature,
                 group,
-                "Coding layer models repeatedly have no same-strand core representation.",
+                "High-confidence coding layer models repeatedly have no same-strand core representation.",
                 action,
                 "evidence_fate.tsv",
                 signature,
@@ -4252,7 +4671,14 @@ def run_audit(args: argparse.Namespace) -> int:
 
     _verbose(args, "auditing fate of layer evidence against final core", start_time)
     evidence_fate = audit_evidence_fate(
-        core_genes, layer_genes, core_tx, layer_tx, core_tr, layer_tr
+        core_genes,
+        layer_genes,
+        core_tx,
+        layer_tx,
+        core_tr,
+        layer_tr,
+        core_cds,
+        layer_cds,
     )
     _verbose(args, f"evidence fate rows={len(evidence_fate)}", start_time)
 
@@ -4419,6 +4845,10 @@ def run_audit(args: argparse.Namespace) -> int:
     review_loci = build_review_loci(evidence_fate, expected_presence, args.top_n)
     audit_loci = build_audit_loci(loci, expected_presence, review_loci)
     source_profile = build_source_profile(evidence_fate)
+    tier_failure_summary = build_tier_failure_summary(evidence_fate)
+    biotype_failure_summary = build_biotype_failure_summary(evidence_fate)
+    tier_recommendations = build_tier_recommendations(evidence_fate)
+    high_tier_review_loci = build_high_tier_review_loci(evidence_fate)
     expected_source_profile = build_expected_source_profile(expected_presence)
     busco_crosswalk = build_busco_crosswalk(expected_presence)
     completeness_profile = build_completeness_profile(expected_presence)
@@ -4559,6 +4989,26 @@ def run_audit(args: argparse.Namespace) -> int:
     _write_table(
         source_profile,
         os.path.join(paths.observability_dir, f"source_profile.{suffix}"),
+        args.format,
+    )
+    _write_table(
+        tier_failure_summary,
+        os.path.join(paths.observability_dir, f"tier_failure_summary.{suffix}"),
+        args.format,
+    )
+    _write_table(
+        biotype_failure_summary,
+        os.path.join(paths.observability_dir, f"biotype_failure_summary.{suffix}"),
+        args.format,
+    )
+    _write_table(
+        tier_recommendations,
+        os.path.join(paths.observability_dir, f"tier_recommendations.{suffix}"),
+        args.format,
+    )
+    _write_table(
+        high_tier_review_loci,
+        os.path.join(paths.observability_dir, f"high_tier_review_loci.{suffix}"),
         args.format,
     )
     _write_table(
@@ -4776,6 +5226,10 @@ def run_audit(args: argparse.Namespace) -> int:
                 "intron_feature_audit": len(intron_feature_audit),
                 "cds_feature_audit": len(cds_feature_audit),
                 "source_profile": len(source_profile),
+                "tier_failure_summary": len(tier_failure_summary),
+                "biotype_failure_summary": len(biotype_failure_summary),
+                "tier_recommendations": len(tier_recommendations),
+                "high_tier_review_loci": len(high_tier_review_loci),
                 "expected_source_profile": len(expected_source_profile),
                 "busco_expected_crosswalk": len(busco_crosswalk),
                 "completeness_profile": len(completeness_profile),

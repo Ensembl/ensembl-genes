@@ -46,6 +46,10 @@ def _translations(transcript_ids):
     )
 
 
+def _translation_rows(rows):
+    return pd.DataFrame(rows)
+
+
 def test_evidence_fate_flags_coding_orphan_as_rescue_candidate():
     core_genes = _genes(
         [
@@ -144,6 +148,425 @@ def test_evidence_fate_flags_coding_orphan_as_rescue_candidate():
     assert orphan["review_priority"] == "P1"
     assert orphan["suggested_action"] == "try_candidate_rescue"
     assert represented["review_priority"] == "P4"
+
+
+def test_unsuffixed_transcript_evidence_translation_is_not_p1_by_default():
+    core_genes = _genes([])
+    layer_genes = _genes(
+        [
+            {
+                "gene_id": 11,
+                "stable_id": "CDNA_ORPHAN",
+                "seq_region_name": "chr1",
+                "seq_region_start": 500,
+                "seq_region_end": 700,
+                "seq_region_strand": 1,
+                "biotype": "protein_coding",
+                "canonical_transcript_id": 1101,
+                "logic_name": "cdna",
+            },
+            {
+                "gene_id": 12,
+                "stable_id": "RNASEQ_ORPHAN",
+                "seq_region_name": "chr1",
+                "seq_region_start": 900,
+                "seq_region_end": 1200,
+                "seq_region_strand": 1,
+                "biotype": "protein_coding",
+                "canonical_transcript_id": 1201,
+                "logic_name": "rnaseq_tissue",
+            },
+        ]
+    )
+    layer_tx = _transcripts(
+        [
+            {
+                "transcript_id": 1101,
+                "gene_id": 11,
+                "seq_region_name": "chr1",
+                "seq_region_start": 500,
+                "seq_region_end": 700,
+                "seq_region_strand": 1,
+                "biotype": "protein_coding",
+                "logic_name": "cdna",
+            },
+            {
+                "transcript_id": 1201,
+                "gene_id": 12,
+                "seq_region_name": "chr1",
+                "seq_region_start": 900,
+                "seq_region_end": 1200,
+                "seq_region_strand": 1,
+                "biotype": "protein_coding",
+                "logic_name": "rnaseq_tissue",
+            },
+        ]
+    )
+
+    fate = audit_evidence_fate(
+        core_genes=core_genes,
+        layer_genes=layer_genes,
+        core_tx=_transcripts([]),
+        layer_tx=layer_tx,
+        core_tr=_translations([]),
+        layer_tr=_translations([1101, 1201]),
+    )
+
+    by_id = fate.set_index("layer_stable_id")
+    assert by_id.loc["CDNA_ORPHAN", "review_priority"] == "P2"
+    assert by_id.loc["RNASEQ_ORPHAN", "review_priority"] == "P2"
+    assert set(by_id["layer_coding_confidence_reason"]) == {
+        "unsuffixed_transcript_evidence"
+    }
+    recommendations = build_recommendations(
+        fate,
+        pd.DataFrame(),
+        pd.DataFrame(),
+        pd.DataFrame(),
+        pd.DataFrame(),
+    )
+    assert "candidate_rescue_from_layer" not in set(
+        recommendations["recommendation_id"]
+    )
+
+
+def test_high_tier_layer_translation_can_be_p1_when_absent_or_downgraded():
+    core_genes = _genes(
+        [
+            {
+                "gene_id": 1,
+                "stable_id": "CORE_NONCODING",
+                "seq_region_name": "chr1",
+                "seq_region_start": 100,
+                "seq_region_end": 300,
+                "seq_region_strand": 1,
+                "biotype": "lncRNA",
+                "canonical_transcript_id": 101,
+                "logic_name": "core",
+            }
+        ]
+    )
+    layer_genes = _genes(
+        [
+            {
+                "gene_id": 11,
+                "stable_id": "PROJECTION_MISSING",
+                "seq_region_name": "chr1",
+                "seq_region_start": 500,
+                "seq_region_end": 700,
+                "seq_region_strand": 1,
+                "biotype": "protein_coding",
+                "canonical_transcript_id": 1101,
+                "logic_name": "projection_1",
+            },
+            {
+                "gene_id": 12,
+                "stable_id": "RNASEQ_DOWNGRADED",
+                "seq_region_name": "chr1",
+                "seq_region_start": 120,
+                "seq_region_end": 280,
+                "seq_region_strand": 1,
+                "biotype": "protein_coding",
+                "canonical_transcript_id": 1201,
+                "logic_name": "rnaseq_tissue_1",
+            },
+        ]
+    )
+    core_tx = _transcripts(
+        [
+            {
+                "transcript_id": 101,
+                "gene_id": 1,
+                "seq_region_name": "chr1",
+                "seq_region_start": 100,
+                "seq_region_end": 300,
+                "seq_region_strand": 1,
+                "biotype": "lncRNA",
+                "logic_name": "core",
+            }
+        ]
+    )
+    layer_tx = _transcripts(
+        [
+            {
+                "transcript_id": 1101,
+                "gene_id": 11,
+                "seq_region_name": "chr1",
+                "seq_region_start": 500,
+                "seq_region_end": 700,
+                "seq_region_strand": 1,
+                "biotype": "protein_coding",
+                "logic_name": "projection_1",
+            },
+            {
+                "transcript_id": 1201,
+                "gene_id": 12,
+                "seq_region_name": "chr1",
+                "seq_region_start": 120,
+                "seq_region_end": 280,
+                "seq_region_strand": 1,
+                "biotype": "protein_coding",
+                "logic_name": "rnaseq_tissue_1",
+            },
+        ]
+    )
+
+    fate = audit_evidence_fate(
+        core_genes=core_genes,
+        layer_genes=layer_genes,
+        core_tx=core_tx,
+        layer_tx=layer_tx,
+        core_tr=_translations([]),
+        layer_tr=_translations([1101, 1201]),
+    )
+
+    by_id = fate.set_index("layer_stable_id")
+    assert by_id.loc["PROJECTION_MISSING", "review_priority"] == "P1"
+    assert by_id.loc["PROJECTION_MISSING", "failure_class"] == "no_core_gene_built"
+    assert by_id.loc["RNASEQ_DOWNGRADED", "review_priority"] == "P1"
+    assert (
+        by_id.loc["RNASEQ_DOWNGRADED", "failure_class"]
+        == "coding_evidence_not_protein_coding"
+    )
+
+
+def test_translation_quality_uses_cds_span_and_junction_structure_when_available():
+    core_genes = _genes([])
+    layer_genes = _genes(
+        [
+            {
+                "gene_id": 11,
+                "stable_id": "SHORT_ORF",
+                "seq_region_name": "chr1",
+                "seq_region_start": 100,
+                "seq_region_end": 300,
+                "seq_region_strand": 1,
+                "biotype": "protein_coding",
+                "canonical_transcript_id": 1101,
+                "logic_name": "projection_1",
+            },
+            {
+                "gene_id": 12,
+                "stable_id": "JUNCTION_ORF",
+                "seq_region_name": "chr1",
+                "seq_region_start": 500,
+                "seq_region_end": 900,
+                "seq_region_strand": 1,
+                "biotype": "protein_coding",
+                "canonical_transcript_id": 1201,
+                "logic_name": "projection_1",
+            },
+        ]
+    )
+    layer_tx = _transcripts(
+        [
+            {
+                "transcript_id": 1101,
+                "gene_id": 11,
+                "seq_region_name": "chr1",
+                "seq_region_start": 100,
+                "seq_region_end": 300,
+                "seq_region_strand": 1,
+                "biotype": "protein_coding",
+                "logic_name": "projection_1",
+            },
+            {
+                "transcript_id": 1201,
+                "gene_id": 12,
+                "seq_region_name": "chr1",
+                "seq_region_start": 500,
+                "seq_region_end": 900,
+                "seq_region_strand": 1,
+                "biotype": "protein_coding",
+                "logic_name": "projection_1",
+            },
+        ]
+    )
+    layer_tr = _translation_rows(
+        [
+            {
+                "translation_id": 1,
+                "transcript_id": 1101,
+                "seq_start": 1,
+                "seq_end": 15,
+            },
+            {
+                "translation_id": 2,
+                "transcript_id": 1201,
+                "seq_start": 1,
+                "seq_end": 45,
+            },
+        ]
+    )
+    layer_cds = pd.DataFrame(
+        [
+            {
+                "transcript_id": 1101,
+                "seq_region_start": 100,
+                "seq_region_end": 114,
+            },
+            {
+                "transcript_id": 1201,
+                "seq_region_start": 500,
+                "seq_region_end": 560,
+            },
+            {
+                "transcript_id": 1201,
+                "seq_region_start": 700,
+                "seq_region_end": 780,
+            },
+        ]
+    )
+
+    fate = audit_evidence_fate(
+        core_genes=core_genes,
+        layer_genes=layer_genes,
+        core_tx=_transcripts([]),
+        layer_tx=layer_tx,
+        core_tr=_translation_rows([]),
+        layer_tr=layer_tr,
+        layer_cds=layer_cds,
+    )
+
+    by_id = fate.set_index("layer_stable_id")
+    assert by_id.loc["SHORT_ORF", "layer_max_cds_span"] == 15
+    assert by_id.loc["SHORT_ORF", "layer_coding_confidence"] == "low"
+    assert by_id.loc["SHORT_ORF", "review_priority"] == "P2"
+    assert by_id.loc["JUNCTION_ORF", "layer_max_cds_span"] == 142
+    assert by_id.loc["JUNCTION_ORF", "layer_max_cds_exon_count"] == 2
+    assert by_id.loc["JUNCTION_ORF", "layer_coding_confidence"] == "high"
+    assert (
+        by_id.loc["JUNCTION_ORF", "layer_coding_confidence_reason"]
+        == "high_tier_junction_spanning_cds"
+    )
+    assert by_id.loc["JUNCTION_ORF", "review_priority"] == "P1"
+
+
+def test_evidence_fate_vectorized_overlap_matches_expected_counts_and_best_hit():
+    core_genes = _genes(
+        [
+            {
+                "gene_id": 1,
+                "stable_id": "CORE_A",
+                "seq_region_name": "chr1",
+                "seq_region_start": 100,
+                "seq_region_end": 250,
+                "seq_region_strand": 1,
+                "biotype": "protein_coding",
+                "canonical_transcript_id": 101,
+                "logic_name": "core",
+            },
+            {
+                "gene_id": 2,
+                "stable_id": "CORE_B",
+                "seq_region_name": "chr1",
+                "seq_region_start": 180,
+                "seq_region_end": 420,
+                "seq_region_strand": 1,
+                "biotype": "protein_coding",
+                "canonical_transcript_id": 201,
+                "logic_name": "core",
+            },
+            {
+                "gene_id": 3,
+                "stable_id": "CORE_OPP",
+                "seq_region_name": "chr1",
+                "seq_region_start": 500,
+                "seq_region_end": 650,
+                "seq_region_strand": -1,
+                "biotype": "protein_coding",
+                "canonical_transcript_id": 301,
+                "logic_name": "core",
+            },
+        ]
+    )
+    layer_genes = _genes(
+        [
+            {
+                "gene_id": 11,
+                "stable_id": "LAYER_MULTI",
+                "seq_region_name": "chr1",
+                "seq_region_start": 170,
+                "seq_region_end": 300,
+                "seq_region_strand": 1,
+                "biotype": "protein_coding",
+                "canonical_transcript_id": 1101,
+                "logic_name": "projection_1",
+            },
+            {
+                "gene_id": 12,
+                "stable_id": "LAYER_OPP_ONLY",
+                "seq_region_name": "chr1",
+                "seq_region_start": 520,
+                "seq_region_end": 620,
+                "seq_region_strand": 1,
+                "biotype": "protein_coding",
+                "canonical_transcript_id": 1201,
+                "logic_name": "projection_1",
+            },
+        ]
+    )
+    core_tx = _transcripts(
+        [
+            {
+                "transcript_id": tid,
+                "gene_id": gid,
+                "seq_region_name": "chr1",
+                "seq_region_start": start,
+                "seq_region_end": end,
+                "seq_region_strand": strand,
+                "biotype": "protein_coding",
+                "logic_name": "core",
+            }
+            for tid, gid, start, end, strand in [
+                (101, 1, 100, 250, 1),
+                (201, 2, 180, 420, 1),
+                (301, 3, 500, 650, -1),
+            ]
+        ]
+    )
+    layer_tx = _transcripts(
+        [
+            {
+                "transcript_id": 1101,
+                "gene_id": 11,
+                "seq_region_name": "chr1",
+                "seq_region_start": 170,
+                "seq_region_end": 300,
+                "seq_region_strand": 1,
+                "biotype": "protein_coding",
+                "logic_name": "projection_1",
+            },
+            {
+                "transcript_id": 1201,
+                "gene_id": 12,
+                "seq_region_name": "chr1",
+                "seq_region_start": 520,
+                "seq_region_end": 620,
+                "seq_region_strand": 1,
+                "biotype": "protein_coding",
+                "logic_name": "projection_1",
+            },
+        ]
+    )
+
+    fate = audit_evidence_fate(
+        core_genes=core_genes,
+        layer_genes=layer_genes,
+        core_tx=core_tx,
+        layer_tx=layer_tx,
+        core_tr=_translations([101, 201, 301]),
+        layer_tr=_translations([1101, 1201]),
+    )
+
+    by_id = fate.set_index("layer_stable_id")
+    assert by_id.loc["LAYER_MULTI", "best_core_stable_id"] == "CORE_B"
+    assert by_id.loc["LAYER_MULTI", "same_strand_core_count"] == 2
+    assert by_id.loc["LAYER_MULTI", "opposite_strand_core_count"] == 0
+    assert by_id.loc["LAYER_MULTI", "overlap_bp"] == 121
+    assert by_id.loc["LAYER_OPP_ONLY", "same_strand_core_count"] == 0
+    assert by_id.loc["LAYER_OPP_ONLY", "opposite_strand_core_count"] == 1
+    assert by_id.loc["LAYER_OPP_ONLY", "failure_class"] == "opposite_strand_core_only"
 
 
 def test_rescue_patterns_group_recurrent_loss_signatures():
@@ -974,6 +1397,10 @@ def test_run_audit_writes_framework_outputs(tmp_path):
         "structure_review.bed",
         "assembly_limited.bed",
         "source_profile.tsv",
+        "tier_failure_summary.tsv",
+        "biotype_failure_summary.tsv",
+        "tier_recommendations.tsv",
+        "high_tier_review_loci.tsv",
         "expected_source_profile.tsv",
         "busco_expected_crosswalk.tsv",
         "completeness_profile.tsv",

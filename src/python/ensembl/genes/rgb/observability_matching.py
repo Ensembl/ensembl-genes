@@ -125,7 +125,7 @@ def best_overlap_by_query(
         .reset_index()
     )
     ranked = matches.sort_values(
-        [query_id_col, "Overlap", target_id_col], ascending=[True, False, True]
+        [query_id_col, "Overlap", target_row_col], ascending=[True, False, True]
     )
     best = ranked.drop_duplicates(query_id_col, keep="first")[
         [query_id_col, target_id_col, target_row_col, "Overlap"]
