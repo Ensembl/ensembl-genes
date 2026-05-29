@@ -1,4 +1,9 @@
-"""Parsers for GFF3 and GTF annotation files using PyRanges1."""
+"""
+Parse annotation files using PyRanges1.
+
+The main entry point is parse_annotation, which detects whether the input file
+is GFF3 or GTF and calls the appropriate parser.
+"""
 
 from pathlib import Path
 
