@@ -1,9 +1,11 @@
+
 """
 Parse annotation files using PyRanges1.
 
 The main entry point is parse_annotation, which detects whether the input file
 is GFF3 or GTF and calls the appropriate parser.
 """
+
 
 from pathlib import Path
 
@@ -45,15 +47,20 @@ def parse_annotation(file_path: str):
     """
 
     path = Path(file_path)
-    suffix = path.suffix.lower()
+    suffixes = [s.lower() for s in path.suffixes]
+    real_suffix = (
+        suffixes[-2]
+        if suffixes and suffixes[-1] == ".gz" and len(suffixes) >= 2
+        else suffixes[-1]
+    )
 
-    if suffix == ".gff3":
+    if real_suffix == ".gff3":
         print(f"Parsing GFF3... ({file_path})")
         data = parse_gff3(file_path)
-    elif suffix == ".gtf":
+    elif real_suffix == ".gtf":
         print(f"Parsing GTF... ({file_path})")
         data = parse_gtf(file_path)
     else:
-        raise ValueError("Unsupported file type. Use .gff3 or .gtf")
+        raise ValueError("Unsupported file type. Use .gff3, .gtf, .gff3.gz, or .gtf.gz")
 
     return data
