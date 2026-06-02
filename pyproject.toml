@@ -37,7 +37,7 @@ docs = [
 ]
 
 cicd = [
-    "black>=24,<25",
+    "black>=24,<27",
     "pylint>=3,<5",
     "pytest>=7,<10",
     "mypy",
