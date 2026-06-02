@@ -193,9 +193,12 @@ For pre-release discovery without UUIDs, you may still rely on the registry trac
     for c in candidates:
         if c.audit_decision == "excluded":
             continue
-        species_name = c.doc.get("species", c.doc.get("assembly", c.meta.species_name))
-        source = (c.meta.annotation_source or "ensembl").lower().strip()
-        key = (c.meta.accession, species_name, source)
+        if config.schema_type == "hprc":
+            key = c.meta.accession
+        else:
+            species_name = c.doc.get("species", c.doc.get("assembly", c.meta.species_name))
+            source = (c.meta.annotation_source or "ensembl").lower().strip()
+            key = (c.meta.accession, species_name, source)
         grouped_candidates[key].append(c)
         
     for key, group in grouped_candidates.items():
@@ -203,35 +206,54 @@ For pre-release discovery without UUIDs, you may still rely on the registry trac
             yaml_docs.append(group[0].doc)
             continue
             
-        subgroups = defaultdict(list)
-        for c in group:
-            subgroups[(c.audit_resolved_date, c.doc.get("annotation_gtf", ""))].append(c)
-            
-        for subkey, subgroup in subgroups.items():
-            if len(subgroup) == 1:
-                yaml_docs.append(subgroup[0].doc)
-                continue
-                
-            def score(c: Candidate):
+        if config.schema_type == "hprc":
+            def hprc_score(c: Candidate):
                 meta_date_normalized = c.meta.annotation_date.replace("-", "_") if c.meta.annotation_date else ""
                 matches_date = (meta_date_normalized == c.audit_resolved_date)
                 is_released = c.meta.is_released
-                return (-int(matches_date), -int(is_released), c.input_order)
+                return (c.audit_resolved_date, int(matches_date), int(is_released), -c.input_order)
                 
-            subgroup.sort(key=score)
-            kept = subgroup[0]
-            kept.audit_decision = "kept_duplicate"
-            kept.audit_reason = "Kept preferred duplicate"
+            group.sort(key=hprc_score, reverse=True)
+            kept = group[0]
             yaml_docs.append(kept.doc)
             
-            for excluded in subgroup[1:]:
-                excluded.audit_decision = "excluded_duplicate"
-                excluded.audit_reason = f"same accession/species/source/date as {kept.identifier}"
+            for excluded in group[1:]:
+                excluded.audit_decision = "excluded_older_geneset"
+                excluded.audit_reason = f"older geneset ({excluded.audit_resolved_date}) than {kept.audit_resolved_date}"
+        else:
+            subgroups = defaultdict(list)
+            for c in group:
+                subgroups[(c.audit_resolved_date, c.doc.get("annotation_gtf", ""))].append(c)
+                
+            for subkey, subgroup in subgroups.items():
+                if len(subgroup) == 1:
+                    yaml_docs.append(subgroup[0].doc)
+                    continue
+                    
+                def score(c: Candidate):
+                    meta_date_normalized = c.meta.annotation_date.replace("-", "_") if c.meta.annotation_date else ""
+                    matches_date = (meta_date_normalized == c.audit_resolved_date)
+                    is_released = c.meta.is_released
+                    return (-int(matches_date), -int(is_released), c.input_order)
+                    
+                subgroup.sort(key=score)
+                kept = subgroup[0]
+                kept.audit_decision = "kept_duplicate"
+                kept.audit_reason = "Kept preferred duplicate"
+                yaml_docs.append(kept.doc)
+                
+                for excluded in subgroup[1:]:
+                    excluded.audit_decision = "excluded_duplicate"
+                    excluded.audit_reason = f"same accession/species/source/date as {kept.identifier}"
                 
     if args.audit_file:
+        seen_audit_rows = set()
         with open(args.audit_file, "a") as af:
             for c in candidates:
-                af.write(f"{c.identifier}\t{c.meta.accession}\t{c.meta.species_name}\t{c.meta.annotation_date}\t{c.audit_resolved_date}\t{c.meta.annotation_source}\t{c.audit_decision}\t{c.audit_reason}\n")
+                row = f"{c.identifier}\t{c.meta.accession}\t{c.meta.species_name}\t{c.meta.annotation_date}\t{c.audit_resolved_date}\t{c.meta.annotation_source}\t{c.audit_decision}\t{c.audit_reason}\n"
+                if row not in seen_audit_rows:
+                    seen_audit_rows.add(row)
+                    af.write(row)
             
     # Write output
     yaml_docs.sort(key=lambda x: x.get('species', x.get('assembly', '')))
