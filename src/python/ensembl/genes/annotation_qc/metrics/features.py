@@ -151,7 +151,10 @@ def _canonical_info(
         else pd.Series(dtype=float)
     )
 
-    tx = tx_df[["transcript_id", "gene_id", "tag"]].copy()
+    tx = tx_df.copy()
+    if "tag" not in tx.columns:
+        tx["tag"] = ""
+    tx = tx[["transcript_id", "gene_id", "tag"]]
     tx["exon_len"] = tx["transcript_id"].map(exon_len_per_tx).fillna(0.0)
     tx["cds_len"] = tx["transcript_id"].map(cds_len_per_tx).fillna(0.0)
     tx["is_canonical"] = tx["tag"].str.contains("Ensembl_canonical", na=False)
