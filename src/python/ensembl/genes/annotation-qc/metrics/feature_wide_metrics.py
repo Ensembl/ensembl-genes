@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+"""Calculate feature-level QC metrics for GFF3/GTF genome annotations."""
+
+# pylint: disable=missing-function-docstring,missing-class-docstring
 
 import argparse
 import csv
@@ -91,7 +94,7 @@ class FeatureRecord:
     strand: str
     phase: str
     transcript_ids: tuple
-    utr_type: str = None
+    utr_type: str | None = None
 
 
 @dataclass(frozen=True)
@@ -132,11 +135,16 @@ class NumericSummary:
     maximum: float
 
 
-def open_maybe_gzip(path, mode):
+def open_maybe_gzip(path, mode, encoding="utf-8"):
     """Open plain or gzip-compressed files using the requested mode."""
     if str(path).endswith(".gz"):
-        return gzip.open(path, mode)
-    return open(path, mode)
+        if "b" in mode:
+            return gzip.open(path, mode)
+        return gzip.open(path, mode, encoding=encoding)
+
+    if "b" in mode:
+        return open(path, mode)
+    return open(path, mode, encoding=encoding)
 
 
 def positive_int(value):
@@ -317,10 +325,21 @@ def feature_passes_filters(transcript_ids, selected_transcripts):
 def filter_transcript_ids(transcript_ids, selected_transcripts):
     if selected_transcripts is None:
         return transcript_ids
-    return tuple(transcript_id for transcript_id in transcript_ids if transcript_id in selected_transcripts)
+    return tuple(
+        transcript_id
+        for transcript_id in transcript_ids
+        if transcript_id in selected_transcripts
+    )
 
 
-def select_transcripts(all_transcript_ids, transcript_biotypes, canonical_transcripts, include_biotypes, exclude_biotypes, canonical_only):
+def select_transcripts(
+    all_transcript_ids,
+    transcript_biotypes,
+    canonical_transcripts,
+    include_biotypes,
+    exclude_biotypes,
+    canonical_only,
+):
     filters_applied = bool(include_biotypes or exclude_biotypes or canonical_only)
     if not filters_applied:
         return None
@@ -328,7 +347,7 @@ def select_transcripts(all_transcript_ids, transcript_biotypes, canonical_transc
     selected = set()
     for transcript_id in all_transcript_ids:
         biotypes = transcript_biotypes.get(transcript_id, set())
-        if include_biotypes and not (biotypes & include_biotypes):
+        if include_biotypes and not biotypes & include_biotypes:
             continue
         if exclude_biotypes and (biotypes & exclude_biotypes):
             continue
@@ -339,7 +358,13 @@ def select_transcripts(all_transcript_ids, transcript_biotypes, canonical_transc
     return selected
 
 
-def parse_annotation(annotation_path, requested_format, include_biotypes=None, exclude_biotypes=None, canonical_only=False):
+def parse_annotation(
+    annotation_path,
+    requested_format,
+    include_biotypes=None,
+    exclude_biotypes=None,
+    canonical_only=False,
+):
     """Parse annotation features needed for feature-level metrics."""
     annotation_format = (
         detect_annotation_format(annotation_path)
@@ -372,17 +397,25 @@ def parse_annotation(annotation_path, requested_format, include_biotypes=None, e
             feature_type = cols[2]
             feature_type_lower = feature_type.lower()
             utr_type = utr_type_from_feature(feature_type)
-            is_metric_feature = feature_type_lower in {"exon", "cds"} or utr_type is not None
+            is_metric_feature = (
+                feature_type_lower in {"exon", "cds"} or utr_type is not None
+            )
             is_transcript_feature = feature_type_lower in TRANSCRIPT_FEATURE_TYPES
             if not is_metric_feature and not is_transcript_feature:
                 continue
 
-            attributes = parse_attributes(cols[8] if len(cols) > 8 else "", annotation_format)
+            attributes = parse_attributes(
+                cols[8] if len(cols) > 8 else "", annotation_format
+            )
             if is_transcript_feature:
-                transcript_id = transcript_id_from_transcript_feature(attributes, annotation_format)
+                transcript_id = transcript_id_from_transcript_feature(
+                    attributes, annotation_format
+                )
                 if transcript_id:
                     all_transcript_ids.add(transcript_id)
-                    transcript_biotypes[transcript_id].update(collect_biotypes(attributes))
+                    transcript_biotypes[transcript_id].update(
+                        collect_biotypes(attributes)
+                    )
                     if has_canonical_tag(attributes):
                         canonical_transcripts.add(transcript_id)
 
@@ -397,7 +430,9 @@ def parse_annotation(annotation_path, requested_format, include_biotypes=None, e
             if end <= start:
                 continue
 
-            transcript_ids = tuple(transcript_ids_from_attributes(attributes, annotation_format))
+            transcript_ids = tuple(
+                transcript_ids_from_attributes(attributes, annotation_format)
+            )
             all_transcript_ids.update(transcript_ids)
             child_biotypes = collect_biotypes(attributes)
             child_is_canonical = has_canonical_tag(attributes)
@@ -407,7 +442,9 @@ def parse_annotation(annotation_path, requested_format, include_biotypes=None, e
                     canonical_transcripts.add(transcript_id)
 
             phase = cols[7] if cols[7] in VALID_PHASES else None
-            record = FeatureRecord(cols[0], start, end, cols[6], phase, transcript_ids, utr_type)
+            record = FeatureRecord(
+                cols[0], start, end, cols[6], phase, transcript_ids, utr_type
+            )
 
             if feature_type_lower == "exon":
                 exon_records.append(record)
@@ -441,21 +478,34 @@ def parse_annotation(annotation_path, requested_format, include_biotypes=None, e
         if not feature_passes_filters(record.transcript_ids, selected_transcripts):
             continue
 
-        exon = Exon(record.chrom, record.start, record.end, record.strand, record.phase, len(exons))
+        exon = Exon(
+            record.chrom,
+            record.start,
+            record.end,
+            record.strand,
+            record.phase,
+            len(exons),
+        )
         exons.append(exon)
         if record.phase is None:
             exon_phase_missing += 1
         else:
             exon_phase_counts[record.phase] += 1
 
-        for transcript_id in filter_transcript_ids(record.transcript_ids, selected_transcripts):
-            exons_by_transcript[transcript_id].append((record.chrom, record.start, record.end, record.strand))
+        for transcript_id in filter_transcript_ids(
+            record.transcript_ids, selected_transcripts
+        ):
+            exons_by_transcript[transcript_id].append(
+                (record.chrom, record.start, record.end, record.strand)
+            )
 
     for record in cds_records:
         if not feature_passes_filters(record.transcript_ids, selected_transcripts):
             continue
 
-        filtered_transcript_ids = filter_transcript_ids(record.transcript_ids, selected_transcripts)
+        filtered_transcript_ids = filter_transcript_ids(
+            record.transcript_ids, selected_transcripts
+        )
         if record.phase is None:
             cds_phase_missing += 1
             cds_records_without_phase.append(
@@ -482,8 +532,12 @@ def parse_annotation(annotation_path, requested_format, include_biotypes=None, e
         if not feature_passes_filters(record.transcript_ids, selected_transcripts):
             continue
 
-        for transcript_id in filter_transcript_ids(record.transcript_ids, selected_transcripts):
-            utrs_by_transcript[record.utr_type][transcript_id].append((record.chrom, record.start, record.end, record.strand))
+        for transcript_id in filter_transcript_ids(
+            record.transcript_ids, selected_transcripts
+        ):
+            utrs_by_transcript[record.utr_type][transcript_id].append(
+                (record.chrom, record.start, record.end, record.strand)
+            )
 
     return AnnotationMetrics(
         annotation_format,
@@ -494,10 +548,15 @@ def parse_annotation(annotation_path, requested_format, include_biotypes=None, e
         cds_phase_missing,
         dict(exons_by_transcript),
         dict(cds_lengths_by_transcript),
-        {utr_type: dict(transcripts) for utr_type, transcripts in utrs_by_transcript.items()},
+        {
+            utr_type: dict(transcripts)
+            for utr_type, transcripts in utrs_by_transcript.items()
+        },
         cds_records_without_phase,
         filters_applied,
-        len(selected_transcripts) if selected_transcripts is not None else len(all_transcript_ids),
+        len(selected_transcripts)
+        if selected_transcripts is not None
+        else len(all_transcript_ids),
     )
 
 
@@ -696,7 +755,9 @@ def frame_consistency(cds_lengths_by_transcript):
 def collect_flagged_features(annotation_metrics, min_intron_length, min_exon_length):
     flagged = []
 
-    for transcript_id, cds_length in sorted(annotation_metrics.cds_lengths_by_transcript.items()):
+    for transcript_id, cds_length in sorted(
+        annotation_metrics.cds_lengths_by_transcript.items()
+    ):
         remainder = cds_length % 3
         if remainder:
             flagged.append(
@@ -713,7 +774,9 @@ def collect_flagged_features(annotation_metrics, min_intron_length, min_exon_len
                 )
             )
 
-    for transcript_id, transcript_exons in sorted(annotation_metrics.exons_by_transcript.items()):
+    for transcript_id, transcript_exons in sorted(
+        annotation_metrics.exons_by_transcript.items()
+    ):
         exons_by_locus = defaultdict(list)
         for chrom, start, end, strand in transcript_exons:
             length = end - start
@@ -773,7 +836,19 @@ def format_output_end(end):
 def write_flagged_features(flagged_features, output_path):
     with open_maybe_gzip(output_path, "wt") as handle:
         writer = csv.writer(handle, delimiter="\t", lineterminator="\n")
-        writer.writerow(("flag_type", "transcript_id", "feature_type", "seqid", "start", "end", "strand", "length", "details"))
+        writer.writerow(
+            (
+                "flag_type",
+                "transcript_id",
+                "feature_type",
+                "seqid",
+                "start",
+                "end",
+                "strand",
+                "length",
+                "details",
+            )
+        )
         for feature in flagged_features:
             writer.writerow(
                 (
@@ -805,10 +880,16 @@ def summarize_utr_type(utr_segments_by_transcript, coding_transcripts):
         exon_counts.append(len(utr_exons))
         lengths.append(sum(end - start for _chrom, start, end, _strand in utr_exons))
 
-    return transcripts_with_utr, summarize_numbers(lengths), summarize_numbers(exon_counts)
+    return (
+        transcripts_with_utr,
+        summarize_numbers(lengths),
+        summarize_numbers(exon_counts),
+    )
 
 
-def utr_presence_counts(five_prime_transcripts, three_prime_transcripts, coding_transcripts):
+def utr_presence_counts(
+    five_prime_transcripts, three_prime_transcripts, coding_transcripts
+):
     both = five_prime_transcripts & three_prime_transcripts
     neither = coding_transcripts - five_prime_transcripts - three_prime_transcripts
 
@@ -855,15 +936,25 @@ def format_filter_list(values):
 
 
 def print_utr_metrics(annotation_metrics, coding_transcripts):
-    five_prime_transcripts, five_prime_length_summary, five_prime_count_summary = summarize_utr_type(
+    (
+        five_prime_transcripts,
+        five_prime_length_summary,
+        five_prime_count_summary,
+    ) = summarize_utr_type(
         annotation_metrics.utrs_by_transcript.get("five_prime", {}),
         coding_transcripts,
     )
-    three_prime_transcripts, three_prime_length_summary, three_prime_count_summary = summarize_utr_type(
+    (
+        three_prime_transcripts,
+        three_prime_length_summary,
+        three_prime_count_summary,
+    ) = summarize_utr_type(
         annotation_metrics.utrs_by_transcript.get("three_prime", {}),
         coding_transcripts,
     )
-    presence_counts = utr_presence_counts(five_prime_transcripts, three_prime_transcripts, coding_transcripts)
+    presence_counts = utr_presence_counts(
+        five_prime_transcripts, three_prime_transcripts, coding_transcripts
+    )
     coding_transcript_count = len(coding_transcripts)
 
     for label, count in presence_counts.items():
@@ -871,16 +962,33 @@ def print_utr_metrics(annotation_metrics, coding_transcripts):
 
     for label, length_summary, count_summary in (
         (UTR_LABELS["five_prime"], five_prime_length_summary, five_prime_count_summary),
-        (UTR_LABELS["three_prime"], three_prime_length_summary, three_prime_count_summary),
+        (
+            UTR_LABELS["three_prime"],
+            three_prime_length_summary,
+            three_prime_count_summary,
+        ),
     ):
-        print_summary_metrics(f"{label} length per transcript", length_summary, " (bp)", include_count=False)
-        print_summary_metrics(f"{label} exon count per transcript", count_summary, include_count=False)
+        print_summary_metrics(
+            f"{label} length per transcript",
+            length_summary,
+            " (bp)",
+            include_count=False,
+        )
+        print_summary_metrics(
+            f"{label} exon count per transcript", count_summary, include_count=False
+        )
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Calculate feature-level QC metrics for genome annotations.")
-    parser.add_argument("gff", help="Path to the input GFF3/GTF file containing annotations")
-    parser.add_argument("--fasta", required=True, help="Path to the soft-masked genome FASTA file.")
+    parser = argparse.ArgumentParser(
+        description="Calculate feature-level QC metrics for genome annotations."
+    )
+    parser.add_argument(
+        "gff", help="Path to the input GFF3/GTF file containing annotations"
+    )
+    parser.add_argument(
+        "--fasta", required=True, help="Path to the soft-masked genome FASTA file."
+    )
     parser.add_argument(
         "--format",
         "--annotation-format",
@@ -941,14 +1049,18 @@ def main():
         print("[ERROR] No exon features found in GFF3/GTF.", file=sys.stderr)
         sys.exit(1)
 
-    gc_counts, base_counts, missing_chroms = scan_fasta_for_exon_gc(args.fasta, annotation_metrics.exons)
+    gc_counts, base_counts, missing_chroms = scan_fasta_for_exon_gc(
+        args.fasta, annotation_metrics.exons
+    )
     gc_percentages, gc_skipped = exon_gc_percentages(gc_counts, base_counts)
     exon_gc_summary = summarize_numbers(gc_percentages)
     exon_lengths = [exon.end - exon.start for exon in annotation_metrics.exons]
     exon_length_summary = summarize_numbers(exon_lengths)
     intron_lengths = derive_intron_lengths(annotation_metrics.exons_by_transcript)
     intron_summary = summarize_numbers(intron_lengths)
-    frame_consistent, frame_inconsistent = frame_consistency(annotation_metrics.cds_lengths_by_transcript)
+    frame_consistent, frame_inconsistent = frame_consistency(
+        annotation_metrics.cds_lengths_by_transcript
+    )
     flagged_features = []
 
     if args.flagged_features:
@@ -984,21 +1096,35 @@ def main():
     if annotation_metrics.filters_applied:
         print_metric("Included biotypes", format_filter_list(include_biotypes))
         print_metric("Excluded biotypes", format_filter_list(exclude_biotypes))
-        print_metric("Canonical-only filter", "enabled" if args.canonical_only else "disabled")
-        print_metric("Transcripts passing filters", annotation_metrics.selected_transcript_count)
+        print_metric(
+            "Canonical-only filter", "enabled" if args.canonical_only else "disabled"
+        )
+        print_metric(
+            "Transcripts passing filters", annotation_metrics.selected_transcript_count
+        )
 
     print("-" * 65)
     print_metric("Exon count", len(annotation_metrics.exons))
-    print_metric("Transcripts with exon records", len(annotation_metrics.exons_by_transcript))
+    print_metric(
+        "Transcripts with exon records", len(annotation_metrics.exons_by_transcript)
+    )
     print_metric("Coding transcripts with CDS records", coding_transcripts)
 
     print_metric("Phase source", phase_source if phase_total else "N/A")
     print_metric(f"{phase_record_label} with usable phase", phase_total)
     for phase, label in PHASE_LABELS.items():
-        print_metric(f"{phase_prefix} phase {label}", format_count_pct(phase_counts[phase], phase_total))
-    print_metric(f"{phase_record_label} without usable phase", phase_missing if phase_total else "N/A")
+        print_metric(
+            f"{phase_prefix} phase {label}",
+            format_count_pct(phase_counts[phase], phase_total),
+        )
+    print_metric(
+        f"{phase_record_label} without usable phase",
+        phase_missing if phase_total else "N/A",
+    )
 
-    print_summary_metrics("Exon length", exon_length_summary, " (bp)", include_count=False)
+    print_summary_metrics(
+        "Exon length", exon_length_summary, " (bp)", include_count=False
+    )
     for label, count in exon_length_histogram(exon_lengths):
         print_metric(f"Exon length {label}", format_count_pct(count, len(exon_lengths)))
 
@@ -1011,12 +1137,22 @@ def main():
 
     print_summary_metrics("Intron length", intron_summary, " (bp)")
     for label, count in intron_length_histogram(intron_lengths):
-        print_metric(f"Intron length {label}", format_count_pct(count, len(intron_lengths)))
+        print_metric(
+            f"Intron length {label}", format_count_pct(count, len(intron_lengths))
+        )
 
-    print_utr_metrics(annotation_metrics, set(annotation_metrics.cds_lengths_by_transcript))
+    print_utr_metrics(
+        annotation_metrics, set(annotation_metrics.cds_lengths_by_transcript)
+    )
 
-    print_metric("Frame-consistent coding transcripts", format_count_pct(frame_consistent, frame_total))
-    print_metric("Frame-inconsistent coding transcripts", format_count_pct(frame_inconsistent, frame_total))
+    print_metric(
+        "Frame-consistent coding transcripts",
+        format_count_pct(frame_consistent, frame_total),
+    )
+    print_metric(
+        "Frame-inconsistent coding transcripts",
+        format_count_pct(frame_inconsistent, frame_total),
+    )
 
     print("-" * 65)
     if args.flagged_features:
@@ -1025,6 +1161,6 @@ def main():
         print_metric("Short intron threshold (bp)", f"< {args.min_intron_length}")
         print_metric("Short exon threshold (bp)", f"< {args.min_exon_length}")
 
+
 if __name__ == "__main__":
     main()
-
