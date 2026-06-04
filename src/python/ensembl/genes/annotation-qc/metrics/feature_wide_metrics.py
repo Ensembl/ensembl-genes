@@ -1049,7 +1049,9 @@ def print_utr_metrics(annotation_metrics, coding_transcripts, metric_rows=None):
     coding_transcript_count = len(coding_transcripts)
 
     for label, count in presence_counts.items():
-        print_metric(label, format_count_pct(count, coding_transcript_count), metric_rows)
+        print_metric(
+            label, format_count_pct(count, coding_transcript_count), metric_rows
+        )
 
     for label, length_summary, count_summary in (
         (UTR_LABELS["five_prime"], five_prime_length_summary, five_prime_count_summary),
@@ -1301,12 +1303,8 @@ def main():
     if args.flagged_features:
         print_metric("Flagged features output", args.flagged_features)
         print_metric("Flagged records written", len(flagged_features))
-        print_metric(
-            "Short intron threshold (bp)", f"< {args.min_intron_length}"
-        )
-        print_metric(
-            "Short exon threshold (bp)", f"< {args.min_exon_length}"
-        )
+        print_metric("Short intron threshold (bp)", f"< {args.min_intron_length}")
+        print_metric("Short exon threshold (bp)", f"< {args.min_exon_length}")
 
     if args.csv_output:
         csv_output_path = default_csv_output_path(
@@ -1318,4 +1316,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
