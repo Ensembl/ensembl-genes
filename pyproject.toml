@@ -2,7 +2,7 @@
 name = "ensembl-genes"
 version = "0.1.0"
 description = "Tools for genome annotation"
-requires-python = ">=3.11"
+requires-python = ">=3.12"
 authors = [
     {name = "Ensembl", email = "dev@ensembl.org"},
 ]
@@ -20,7 +20,10 @@ dependencies = [
     "requests",
     "sqlalchemy >=1.4.16",
     "xmltodict",
-    "pandas"
+    "pandas",
+    "pyfaidx",
+    "pyranges1 >= 1.3",
+    "biopython"
 ]
 
 [project.optional-dependencies]
@@ -65,6 +68,8 @@ live_tracking = "ensembl.genes.tracking.live_tracking:main"
 check_for_transcriptomic = "ensembl.genes.transcriptomic_data.check_for_transcriptomic:main"
 get_transcriptomic_data = "ensembl.genes.transcriptomic_data.get_transcriptomic_data:main"
 select_transcriptomic_data = "ensembl.genes.transcriptomic_data.select_transcriptomic_data:main"
+annotation_qc = "ensembl.genes.annotation_qc.cli:main"
+parse_agat = "ensembl.genes.annotation_qc.parsers.parse_agat:main"
 rgb = "ensembl.genes.rgb.cli:main"
 
 
