@@ -5,7 +5,15 @@ from dataclasses import asdict
 import pandas as pd
 from typing import Tuple
 
-from ensembl.genes.annotation_qc.parsers.annotation import standardize_annotation
+from ensembl.genes.annotation_qc.parsers.annotation import (
+    CDS_FEATURE_TYPES,
+    EXON_FEATURE_TYPES,
+    FIVE_PRIME_UTR_FEATURE_TYPES,
+    GENE_FEATURE_TYPES,
+    THREE_PRIME_UTR_FEATURE_TYPES,
+    TRANSCRIPT_FEATURE_TYPES,
+    standardize_annotation,
+)
 from ensembl.genes.annotation_qc.metrics.events import (
     assess_splice_junction,
     compute_cds_metrics,
@@ -13,35 +21,6 @@ from ensembl.genes.annotation_qc.metrics.events import (
     STANDARD_CODE,
 )
 
-
-# ---------------------------------------------------------------------------
-# Constants
-# ---------------------------------------------------------------------------
-
-_GENE_FEATURE_TYPES = frozenset(
-    {"gene", "ncRNA_gene", "pseudogene", "transposable_element_gene"}
-)
-
-_TRANSCRIPT_FEATURE_TYPES = frozenset(
-    {
-        "mRNA",
-        "transcript",
-        "snoRNA",
-        "snRNA",
-        "miRNA",
-        "rRNA",
-        "tRNA",
-        "lnc_RNA",
-        "lncRNA",
-        "ncRNA",
-        "antisense_RNA",
-        "sRNA",
-        "scaRNA",
-        "pseudogenic_transcript",
-        "scRNA",
-        "Y_RNA",
-    }
-)
 
 # Mirrors leannes_stats.py biotype sets
 _SMALL_NC_BIOTYPES = frozenset(
@@ -83,12 +62,16 @@ def _feature_len(df: pd.DataFrame) -> pd.Series:
 def _split_annotation(annotation) -> tuple[pd.DataFrame, ...]:
     """Compatibility path for callers that still pass one annotation table."""
     df = standardize_annotation(annotation)
-    gene_df = df[df["Feature"].isin(_GENE_FEATURE_TYPES)].reset_index(drop=True)
-    tx_df = df[df["Feature"].isin(_TRANSCRIPT_FEATURE_TYPES)].reset_index(drop=True)
-    exon_df = df[df["Feature"] == "exon"].reset_index(drop=True)
-    cds_df = df[df["Feature"] == "CDS"].reset_index(drop=True)
-    utr5_df = df[df["Feature"] == "five_prime_UTR"].reset_index(drop=True)
-    utr3_df = df[df["Feature"] == "three_prime_UTR"].reset_index(drop=True)
+    gene_df = df[df["Feature"].isin(GENE_FEATURE_TYPES)].reset_index(drop=True)
+    tx_df = df[df["Feature"].isin(TRANSCRIPT_FEATURE_TYPES)].reset_index(drop=True)
+    exon_df = df[df["Feature"].isin(EXON_FEATURE_TYPES)].reset_index(drop=True)
+    cds_df = df[df["Feature"].isin(CDS_FEATURE_TYPES)].reset_index(drop=True)
+    utr5_df = df[df["Feature"].isin(FIVE_PRIME_UTR_FEATURE_TYPES)].reset_index(
+        drop=True
+    )
+    utr3_df = df[df["Feature"].isin(THREE_PRIME_UTR_FEATURE_TYPES)].reset_index(
+        drop=True
+    )
     return gene_df, tx_df, exon_df, cds_df, utr5_df, utr3_df
 
 

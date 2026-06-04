@@ -19,7 +19,15 @@ import os
 
 import pandas as pd
 
-from ensembl.genes.annotation_qc.parsers.annotation import parse_annotation
+from ensembl.genes.annotation_qc.parsers.annotation import (
+    CDS_FEATURE_TYPES,
+    EXON_FEATURE_TYPES,
+    FIVE_PRIME_UTR_FEATURE_TYPES,
+    GENE_FEATURE_TYPES,
+    THREE_PRIME_UTR_FEATURE_TYPES,
+    TRANSCRIPT_FEATURE_TYPES,
+    parse_annotation,
+)
 from ensembl.genes.annotation_qc.metrics.features import (
     compute_coding_stats,
     compute_noncoding_stats,
@@ -52,41 +60,24 @@ def _run(args):
 
     print(f"Parsing annotation: {args.annotation}")
     annotation = parse_annotation(args.annotation)
-    gene_df = annotation[
-        annotation["Feature"].isin(
-            {"gene", "ncRNA_gene", "pseudogene", "transposable_element_gene"}
-        )
-    ].reset_index(drop=True)
+    gene_df = annotation[annotation["Feature"].isin(GENE_FEATURE_TYPES)].reset_index(
+        drop=True
+    )
     tx_df = annotation[
-        annotation["Feature"].isin(
-            {
-                "mRNA",
-                "transcript",
-                "snoRNA",
-                "snRNA",
-                "miRNA",
-                "rRNA",
-                "tRNA",
-                "lnc_RNA",
-                "lncRNA",
-                "ncRNA",
-                "antisense_RNA",
-                "sRNA",
-                "scaRNA",
-                "pseudogenic_transcript",
-                "scRNA",
-                "Y_RNA",
-            }
-        )
+        annotation["Feature"].isin(TRANSCRIPT_FEATURE_TYPES)
     ].reset_index(drop=True)
-    exon_df = annotation[annotation["Feature"] == "exon"].reset_index(drop=True)
-    cds_df = annotation[annotation["Feature"] == "CDS"].reset_index(drop=True)
-    utr5_df = annotation[annotation["Feature"] == "five_prime_UTR"].reset_index(
+    exon_df = annotation[annotation["Feature"].isin(EXON_FEATURE_TYPES)].reset_index(
         drop=True
     )
-    utr3_df = annotation[annotation["Feature"] == "three_prime_UTR"].reset_index(
+    cds_df = annotation[annotation["Feature"].isin(CDS_FEATURE_TYPES)].reset_index(
         drop=True
     )
+    utr5_df = annotation[
+        annotation["Feature"].isin(FIVE_PRIME_UTR_FEATURE_TYPES)
+    ].reset_index(drop=True)
+    utr3_df = annotation[
+        annotation["Feature"].isin(THREE_PRIME_UTR_FEATURE_TYPES)
+    ].reset_index(drop=True)
 
     print("Computing coding gene stats...")
     coding_stats, total_coding_seq_len = compute_coding_stats(

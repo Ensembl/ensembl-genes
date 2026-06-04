@@ -4,11 +4,11 @@ from pathlib import Path
 import pandas as pd
 
 
-_GENE_FEATURE_TYPES = frozenset(
+GENE_FEATURE_TYPES = frozenset(
     {"gene", "ncRNA_gene", "pseudogene", "transposable_element_gene"}
 )
 
-_TRANSCRIPT_FEATURE_TYPES = frozenset(
+TRANSCRIPT_FEATURE_TYPES = frozenset(
     {
         "mRNA",
         "transcript",
@@ -28,6 +28,11 @@ _TRANSCRIPT_FEATURE_TYPES = frozenset(
         "Y_RNA",
     }
 )
+
+FIVE_PRIME_UTR_FEATURE_TYPES = frozenset({"five_prime_UTR"})
+THREE_PRIME_UTR_FEATURE_TYPES = frozenset({"three_prime_UTR"})
+CDS_FEATURE_TYPES = frozenset({"CDS"})
+EXON_FEATURE_TYPES = frozenset({"exon"})
 
 
 def _as_dataframe(annotation) -> pd.DataFrame:
@@ -60,12 +65,21 @@ def standardize_annotation(annotation) -> pd.DataFrame:
     """
     df = _as_dataframe(annotation)
 
-    for col in ("Feature", "ID", "Parent", "gene_id", "transcript_id", "biotype"):
+    for col in (
+        "Feature",
+        "ID",
+        "Parent",
+        "gene_id",
+        "transcript_id",
+        "biotype",
+        "tag",
+        "phase",
+    ):
         if col not in df.columns:
             df[col] = pd.NA
 
-    gene_mask = df["Feature"].isin(_GENE_FEATURE_TYPES)
-    tx_mask = df["Feature"].isin(_TRANSCRIPT_FEATURE_TYPES)
+    gene_mask = df["Feature"].isin(GENE_FEATURE_TYPES)
+    tx_mask = df["Feature"].isin(TRANSCRIPT_FEATURE_TYPES)
     child_mask = ~(gene_mask | tx_mask)
 
     missing_gene_id = gene_mask & df["gene_id"].isna() & df["ID"].notna()
@@ -103,6 +117,10 @@ def standardize_annotation(annotation) -> pd.DataFrame:
     if "gene_type" in df.columns:
         missing_biotype = df["biotype"].isna()
         df.loc[missing_biotype, "biotype"] = df.loc[missing_biotype, "gene_type"]
+
+    if "Frame" in df.columns:
+        missing_phase = df["phase"].isna()
+        df.loc[missing_phase, "phase"] = df.loc[missing_phase, "Frame"]
 
     if "Start" in df.columns and "End" in df.columns:
         df["feature_length"] = df["End"] - df["Start"]
