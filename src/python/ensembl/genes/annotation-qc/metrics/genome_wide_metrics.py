@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+"""Calculate genome-wide annotation metrics from GFF/GTF and optional FASTA input."""
+
+# pylint: disable=missing-function-docstring,missing-class-docstring
 
 import argparse
 from collections import Counter
@@ -14,7 +17,13 @@ GTF_GFF_COLUMN_COUNT = 9
 OPPOSITE_STRAND = {"+": "-", "-": "+"}
 CANONICAL_TAGS = {"ensembl_canonical", "canonical", "mane_select"}
 TRUE_VALUES = {"1", "true", "yes"}
-BIOTYPE_KEYS = ("biotype", "gene_biotype", "transcript_biotype", "gene_type", "transcript_type")
+BIOTYPE_KEYS = (
+    "biotype",
+    "gene_biotype",
+    "transcript_biotype",
+    "gene_type",
+    "transcript_type",
+)
 
 
 @dataclass(frozen=True)
@@ -35,11 +44,16 @@ class Feature:
     transcript_id: str = ""
 
 
-def open_maybe_gzip(path, mode):
+def open_maybe_gzip(path, mode, encoding="utf-8", newline=None):
     """Open plain or gzip-compressed files using the requested mode."""
     if str(path).endswith(".gz"):
-        return gzip.open(path, mode)
-    return open(path, mode)
+        if "b" in mode:
+            return gzip.open(path, mode) # pylint: disable=unspecified-encoding
+        return gzip.open(path, mode, encoding=encoding, newline=newline)
+
+    if "b" in mode:
+        return open(path, mode) # pylint: disable=unspecified-encoding
+    return open(path, mode, encoding=encoding, newline=newline)
 
 
 def warn(message):
@@ -68,7 +82,9 @@ def parse_attributes(attr_text):
             key, value = field.split("=", 1)
             key = key.strip()
             value = value.strip().strip('"')
-            values = [part.strip().strip('"') for part in value.split(",") if part.strip()]
+            values = [
+                part.strip().strip('"') for part in value.split(",") if part.strip()
+            ]
         else:
             parts = field.split(None, 1)
             key = parts[0]
@@ -224,7 +240,10 @@ def parse_gff(
             if canonical_only:
                 feature_is_canonical = is_canonical_attributes(attrs)
                 if transcript_id:
-                    keep_feature = feature_is_canonical or transcript_id in canonical_transcript_ids
+                    keep_feature = (
+                        feature_is_canonical
+                        or transcript_id in canonical_transcript_ids
+                    )
                 elif feature_type == "gene" and gene_id:
                     keep_feature = feature_is_canonical or gene_id in canonical_gene_ids
                 else:
@@ -237,8 +256,14 @@ def parse_gff(
             if end <= start:
                 continue
 
-            feature_id = feature_id_from_attrs(attrs, feature_type, f"{feature_type}_{len(features) + 1}")
-            features.append(Feature(cols[0], start, end, cols[6], feature_id, gene_id, transcript_id))
+            feature_id = feature_id_from_attrs(
+                attrs, feature_type, f"{feature_type}_{len(features) + 1}"
+            )
+            features.append(
+                Feature(
+                    cols[0], start, end, cols[6], feature_id, gene_id, transcript_id
+                )
+            )
 
     return features
 
@@ -259,7 +284,9 @@ def merge_feature_intervals(features_sorted):
     for feature in features_sorted:
         if feature.chrom != current_chrom:
             if current_chrom is not None:
-                merged_by_chrom.setdefault(current_chrom, []).append((current_start, current_end))
+                merged_by_chrom.setdefault(current_chrom, []).append(
+                    (current_start, current_end)
+                )
                 covered_bp += current_end - current_start
             current_chrom = feature.chrom
             current_start = feature.start
@@ -268,13 +295,17 @@ def merge_feature_intervals(features_sorted):
             if feature.end > current_end:
                 current_end = feature.end
         else:
-            merged_by_chrom.setdefault(current_chrom, []).append((current_start, current_end))
+            merged_by_chrom.setdefault(current_chrom, []).append(
+                (current_start, current_end)
+            )
             covered_bp += current_end - current_start
             current_start = feature.start
             current_end = feature.end
 
     if current_chrom is not None:
-        merged_by_chrom.setdefault(current_chrom, []).append((current_start, current_end))
+        merged_by_chrom.setdefault(current_chrom, []).append(
+            (current_start, current_end)
+        )
         covered_bp += current_end - current_start
 
     return merged_by_chrom, covered_bp
@@ -309,7 +340,12 @@ def overlap_length_from_cursor(intervals, cursor, start, end):
     return total, cursor
 
 
-def scan_fasta(fasta_path, merged_features_by_chrom=None, masked_overlap_output=None, report_features_by_chrom=None):
+def scan_fasta(
+    fasta_path,
+    merged_features_by_chrom=None,
+    masked_overlap_output=None,
+    report_features_by_chrom=None,
+):
     """Scan FASTA once for genome size and, when intervals are supplied, masking metrics.
 
     masked_annotated intentionally matches the original bedtools command:
@@ -342,7 +378,9 @@ def scan_fasta(fasta_path, merged_features_by_chrom=None, masked_overlap_output=
         if not intervals:
             return
 
-        overlap_bp, interval_cursor = overlap_length_from_cursor(intervals, interval_cursor, start, end)
+        overlap_bp, interval_cursor = overlap_length_from_cursor(
+            intervals, interval_cursor, start, end
+        )
         if overlap_bp:
             masked_annotated += mask_len
 
@@ -353,7 +391,10 @@ def scan_fasta(fasta_path, merged_features_by_chrom=None, masked_overlap_output=
             return
 
         features = report_features_by_chrom.get(mask_chrom, ())
-        while report_interval_cursor < len(features) and features[report_interval_cursor].end <= start:
+        while (
+            report_interval_cursor < len(features)
+            and features[report_interval_cursor].end <= start
+        ):
             report_interval_cursor += 1
 
         idx = report_interval_cursor
@@ -370,7 +411,10 @@ def scan_fasta(fasta_path, merged_features_by_chrom=None, masked_overlap_output=
                 )
             idx += 1
 
-        while report_interval_cursor < len(features) and features[report_interval_cursor].end <= end:
+        while (
+            report_interval_cursor < len(features)
+            and features[report_interval_cursor].end <= end
+        ):
             report_interval_cursor += 1
 
     if masked_overlap_output:
@@ -461,7 +505,9 @@ def pct_masked_annotated(masked_annotated, total_masked):
 def count_stranded_overlap_pairs(features_sorted, feature_overlap_output=None):
     """Count same-strand and antisense overlapping feature pairs in one sweep."""
     if feature_overlap_output:
-        return count_and_write_feature_overlap_pairs(features_sorted, feature_overlap_output)
+        return count_and_write_feature_overlap_pairs(
+            features_sorted, feature_overlap_output
+        )
 
     same_strand = 0
     antisense = 0
@@ -551,7 +597,11 @@ def count_and_write_feature_overlap_pairs(features_sorted, feature_overlap_outpu
             heapq.heappush(active_by_end, (feature.end, active_id))
 
             if len(active_records) > (len(active_ids) * 2) + 1000:
-                active_records = [(active_id, item) for active_id, item in active_records if active_id in active_ids]
+                active_records = [
+                    (active_id, item)
+                    for active_id, item in active_records
+                    if active_id in active_ids
+                ]
 
     return same_strand, antisense
 
@@ -564,8 +614,13 @@ def positive_int(value):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Calculate genome-wide metrics for Ensembl features.")
-    parser.add_argument("gff", help="Path to the input GFF/GTF file containing annotations")
+    """Parse command-line arguments, calculate metrics, and print the report."""
+    parser = argparse.ArgumentParser(
+        description="Calculate genome-wide metrics for Ensembl features."
+    )
+    parser.add_argument(
+        "gff", help="Path to the input GFF/GTF file containing annotations"
+    )
     parser.add_argument(
         "--genome-size",
         type=positive_int,
@@ -598,7 +653,9 @@ def main():
     args = parser.parse_args()
 
     if args.genome_size is None and args.fasta is None:
-        parser.error("You must provide either --genome-size or --fasta to determine the genome size.")
+        parser.error(
+            "You must provide either --genome-size or --fasta to determine the genome size."
+        )
     if args.masked_overlaps_output and args.fasta is None:
         parser.error("--masked-overlaps-output requires --fasta.")
 
@@ -610,7 +667,9 @@ def main():
     if args.canonical_only:
         canonical_transcript_ids, canonical_gene_ids = collect_canonical_ids(args.gff)
         if not canonical_transcript_ids and not canonical_gene_ids:
-            warn("--canonical-only was requested, but no canonical annotations were detected; using all features.")
+            warn(
+                "--canonical-only was requested, but no canonical annotations were detected; using all features."
+            )
             canonical_filter_applied = False
 
     features = parse_gff(
@@ -629,12 +688,21 @@ def main():
         canonical_filter_applied = False
         features = parse_gff(args.gff, args.feature_type, biotypes=biotypes)
     if not features:
-        print(f"[ERROR] No {args.feature_type} features found in GFF/GTF.", file=sys.stderr)
+        print(
+            f"[ERROR] No {args.feature_type} features found in GFF/GTF.",
+            file=sys.stderr,
+        )
         sys.exit(1)
 
     features_sorted = sorted(
         features,
-        key=lambda item: (item.chrom, item.start, item.end, item.strand, item.feature_id),
+        key=lambda item: (
+            item.chrom,
+            item.start,
+            item.end,
+            item.strand,
+            item.feature_id,
+        ),
     )
     merged_features_by_chrom, covered_bp = merge_feature_intervals(features_sorted)
     same_strand_pairs, antisense_pairs = count_stranded_overlap_pairs(
@@ -644,14 +712,22 @@ def main():
 
     fasta_metrics = None
     if args.fasta:
-        report_features_by_chrom = group_features_by_chrom(features_sorted) if args.masked_overlaps_output else None
+        report_features_by_chrom = (
+            group_features_by_chrom(features_sorted)
+            if args.masked_overlaps_output
+            else None
+        )
         fasta_metrics = scan_fasta(
             args.fasta,
             merged_features_by_chrom,
             masked_overlap_output=args.masked_overlaps_output,
             report_features_by_chrom=report_features_by_chrom,
         )
-        genome_size = args.genome_size if args.genome_size is not None else fasta_metrics.genome_size
+        genome_size = (
+            args.genome_size
+            if args.genome_size is not None
+            else fasta_metrics.genome_size
+        )
     else:
         genome_size = args.genome_size
 
@@ -660,28 +736,43 @@ def main():
     print(f"{'Genome size (bp)':<45} {genome_size}")
     print(f"{f'{args.feature_type} count':<45} {len(features)}")
     if args.canonical_only:
-        filter_status = "applied" if canonical_filter_applied else "not applied (using all features)"
+        filter_status = (
+            "applied"
+            if canonical_filter_applied
+            else "not applied (using all features)"
+        )
         print(f"{'Canonical-only filter':<45} {filter_status}")
     if biotypes:
         print(f"{'Biotype filter':<45} {', '.join(sorted(biotypes))}")
-    print(f"{f'{args.feature_type} density ({args.feature_type}s/Mb)':<45} {gene_density(len(features), genome_size):.4f}")
-    print(f"{'% genome covered by ' + args.feature_type:<45} {pct_genome_covered(covered_bp, genome_size):.4f}")
+    print(
+        f"{f'{args.feature_type} density ({args.feature_type}s/Mb)':<45} {gene_density(len(features), genome_size):.4f}"
+    )
+    print(
+        f"{'% genome covered by ' + args.feature_type:<45} {pct_genome_covered(covered_bp, genome_size):.4f}"
+    )
 
     if fasta_metrics:
         if fasta_metrics.total_masked == 0:
             print(f"{'% masked regions annotated':<45} N/A (no soft-masking detected)")
         else:
-            masked_pct = pct_masked_annotated(fasta_metrics.masked_annotated, fasta_metrics.total_masked)
+            masked_pct = pct_masked_annotated(
+                fasta_metrics.masked_annotated, fasta_metrics.total_masked
+            )
             masked_genome_pct = (fasta_metrics.total_masked / genome_size) * 100
-            print(f"{'Total soft-masked bases':<45} {fasta_metrics.total_masked} ({masked_genome_pct:.2f}%)")
+            print(
+                f"{'Total soft-masked bases':<45} {fasta_metrics.total_masked} ({masked_genome_pct:.2f}%)"
+            )
             print(f"{'% masked regions annotated':<45} {masked_pct:.4f}")
     else:
         print(f"{'% masked regions annotated':<45} skipped (no --fasta provided)")
 
-    print(f"{f'Overlapping {args.feature_type} pairs (same strand)':<45} {same_strand_pairs}")
-    print(f"{f'Antisense {args.feature_type} pairs (opposite strand)':<45} {antisense_pairs}")
+    print(
+        f"{f'Overlapping {args.feature_type} pairs (same strand)':<45} {same_strand_pairs}"
+    )
+    print(
+        f"{f'Antisense {args.feature_type} pairs (opposite strand)':<45} {antisense_pairs}"
+    )
 
 
 if __name__ == "__main__":
     main()
-
