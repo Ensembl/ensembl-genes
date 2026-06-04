@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Calculate feature-level QC metrics for GFF3/GTF genome annotations."""
 
+from __future__ import annotations
+
 # pylint: disable=missing-function-docstring,missing-class-docstring
 
 import argparse
@@ -8,6 +10,7 @@ import csv
 from collections import Counter, defaultdict
 from dataclasses import dataclass
 import gzip
+from pathlib import Path
 import re
 import sys
 from urllib.parse import unquote
@@ -74,6 +77,14 @@ EXON_LENGTH_BINS = (
     (500, 999),
     (1000, None),
 )
+ANNOTATION_SUFFIXES = (
+    ".gff3.gz",
+    ".gff.gz",
+    ".gtf.gz",
+    ".gff3",
+    ".gff",
+    ".gtf",
+)
 
 
 @dataclass(frozen=True)
@@ -135,16 +146,16 @@ class NumericSummary:
     maximum: float
 
 
-def open_maybe_gzip(path, mode, encoding="utf-8"):
+def open_maybe_gzip(path, mode, encoding="utf-8", newline=None):
     """Open plain or gzip-compressed files using the requested mode."""
     if str(path).endswith(".gz"):
         if "b" in mode:
             return gzip.open(path, mode)
-        return gzip.open(path, mode, encoding=encoding)
+        return gzip.open(path, mode, encoding=encoding, newline=newline)
 
     if "b" in mode:
         return open(path, mode)
-    return open(path, mode, encoding=encoding)
+    return open(path, mode, encoding=encoding, newline=newline)
 
 
 def positive_int(value):
@@ -582,7 +593,7 @@ def summarize_numbers(values):
 
 
 def merge_exon_intervals(exons):
-    """Merge overlaps before deriving gaps so duplicated/overlapping exons do not create negative introns."""
+    """Merge overlaps before deriving gaps to avoid creating negative introns."""
     exons_sorted = sorted(exons)
     merged = []
 
@@ -626,13 +637,36 @@ def build_exon_intervals_by_chrom(exons):
     return dict(intervals_by_chrom)
 
 
+def fasta_seqids_from_header(raw_header):
+    header = raw_header[1:].strip().decode()
+    tokens = header.split()
+    seqids = []
+
+    def add_seqid(seqid):
+        if seqid and seqid not in seqids:
+            seqids.append(seqid)
+
+    if not tokens:
+        return ()
+
+    add_seqid(tokens[0])
+
+    token_parts = tokens[0].split(":")
+    if len(token_parts) >= 6:
+        add_seqid(token_parts[2])
+
+    if len(tokens) >= 3:
+        add_seqid(tokens[2])
+
+    return tuple(seqids)
+
+
 def scan_fasta_for_exon_gc(fasta_path, exons):
     """Scan FASTA once and accumulate GC/base counts for every exon interval."""
     intervals_by_chrom = build_exon_intervals_by_chrom(exons)
     gc_counts = [0] * len(exons)
     base_counts = [0] * len(exons)
 
-    chrom = None
     pos = 0
     intervals = ()
     cursor = 0
@@ -641,11 +675,17 @@ def scan_fasta_for_exon_gc(fasta_path, exons):
     with open_maybe_gzip(fasta_path, "rb") as handle:
         for raw_line in handle:
             if raw_line.startswith(b">"):
-                chrom = raw_line[1:].split(None, 1)[0].decode()
+                seqids = fasta_seqids_from_header(raw_line)
                 pos = 0
-                intervals = intervals_by_chrom.get(chrom, ())
+                intervals = tuple(
+                    sorted(
+                        interval
+                        for seqid in seqids
+                        for interval in intervals_by_chrom.get(seqid, ())
+                    )
+                )
                 cursor = 0
-                seen_chroms.add(chrom)
+                seen_chroms.update(seqids)
                 continue
 
             seq = raw_line.strip()
@@ -907,26 +947,30 @@ def format_count_pct(count, total):
     return f"{count} ({(count / total) * 100:.2f}%)"
 
 
-def print_metric(name, value):
+def print_metric(name, value, metric_rows=None):
     print(f"{name:<45} {value}")
+    if metric_rows is not None:
+        metric_rows.append((name, value))
 
 
-def print_summary_metrics(prefix, summary, suffix="", include_count=True):
+def print_summary_metrics(
+    prefix, summary, suffix="", include_count=True, metric_rows=None
+):
     if summary is None:
         if include_count:
-            print_metric(f"{prefix} count", 0)
-        print_metric(f"{prefix} mean{suffix}", "N/A")
-        print_metric(f"{prefix} median{suffix}", "N/A")
-        print_metric(f"{prefix} min{suffix}", "N/A")
-        print_metric(f"{prefix} max{suffix}", "N/A")
+            print_metric(f"{prefix} count", 0, metric_rows)
+        print_metric(f"{prefix} mean{suffix}", "N/A", metric_rows)
+        print_metric(f"{prefix} median{suffix}", "N/A", metric_rows)
+        print_metric(f"{prefix} min{suffix}", "N/A", metric_rows)
+        print_metric(f"{prefix} max{suffix}", "N/A", metric_rows)
         return
 
     if include_count:
-        print_metric(f"{prefix} count", summary.count)
-    print_metric(f"{prefix} mean{suffix}", f"{summary.mean:.2f}")
-    print_metric(f"{prefix} median{suffix}", f"{summary.median:.2f}")
-    print_metric(f"{prefix} min{suffix}", f"{summary.minimum:.2f}")
-    print_metric(f"{prefix} max{suffix}", f"{summary.maximum:.2f}")
+        print_metric(f"{prefix} count", summary.count, metric_rows)
+    print_metric(f"{prefix} mean{suffix}", f"{summary.mean:.2f}", metric_rows)
+    print_metric(f"{prefix} median{suffix}", f"{summary.median:.2f}", metric_rows)
+    print_metric(f"{prefix} min{suffix}", f"{summary.minimum:.2f}", metric_rows)
+    print_metric(f"{prefix} max{suffix}", f"{summary.maximum:.2f}", metric_rows)
 
 
 def format_filter_list(values):
@@ -935,7 +979,54 @@ def format_filter_list(values):
     return ", ".join(sorted(values))
 
 
-def print_utr_metrics(annotation_metrics, coding_transcripts):
+def format_limited_list(values, limit=10):
+    shown = list(values[:limit])
+    if len(values) > limit:
+        shown.append(f"... +{len(values) - limit} more")
+    return ", ".join(shown)
+
+
+def annotation_output_base(annotation_path):
+    path = Path(annotation_path)
+    name_lower = path.name.lower()
+    for suffix in ANNOTATION_SUFFIXES:
+        if name_lower.endswith(suffix):
+            return path.with_name(path.name[: -len(suffix)])
+    return path.with_suffix("") if path.suffix else path
+
+
+def filename_tag(value):
+    return re.sub(r"[^A-Za-z0-9_.-]+", "_", value).strip("_") or "all"
+
+
+def biotype_filename_tag(biotypes):
+    if not biotypes:
+        return "all"
+    return filename_tag("-".join(sorted(biotypes)))
+
+
+def canonical_filename_tag(canonical_only):
+    if canonical_only:
+        return "canonical"
+    return "all"
+
+
+def default_csv_output_path(annotation_path, biotypes=None, canonical_only=False):
+    output_base = annotation_output_base(annotation_path)
+    biotype_tag = biotype_filename_tag(biotypes)
+    canonical_tag = canonical_filename_tag(canonical_only)
+    output_name = f"{output_base.name}.{biotype_tag}.{canonical_tag}.features.csv"
+    return output_base.with_name(output_name)
+
+
+def write_metrics_csv(metric_rows, output_path):
+    with open_maybe_gzip(output_path, "wt", newline="") as handle:
+        writer = csv.writer(handle, lineterminator="\n")
+        writer.writerow(("metrics_name", "metrics_value"))
+        writer.writerows(metric_rows)
+
+
+def print_utr_metrics(annotation_metrics, coding_transcripts, metric_rows=None):
     (
         five_prime_transcripts,
         five_prime_length_summary,
@@ -958,7 +1049,7 @@ def print_utr_metrics(annotation_metrics, coding_transcripts):
     coding_transcript_count = len(coding_transcripts)
 
     for label, count in presence_counts.items():
-        print_metric(label, format_count_pct(count, coding_transcript_count))
+        print_metric(label, format_count_pct(count, coding_transcript_count), metric_rows)
 
     for label, length_summary, count_summary in (
         (UTR_LABELS["five_prime"], five_prime_length_summary, five_prime_count_summary),
@@ -973,9 +1064,13 @@ def print_utr_metrics(annotation_metrics, coding_transcripts):
             length_summary,
             " (bp)",
             include_count=False,
+            metric_rows=metric_rows,
         )
         print_summary_metrics(
-            f"{label} exon count per transcript", count_summary, include_count=False
+            f"{label} exon count per transcript",
+            count_summary,
+            include_count=False,
+            metric_rows=metric_rows,
         )
 
 
@@ -1006,7 +1101,10 @@ def main():
     parser.add_argument(
         "--biotype",
         action="append",
-        help="Only include transcripts with one of these biotypes. Can be comma-separated or repeated.",
+        help=(
+            "Only include transcripts with one of these biotypes. "
+            "Can be comma-separated or repeated."
+        ),
     )
     parser.add_argument(
         "--exclude-biotype",
@@ -1021,6 +1119,14 @@ def main():
     parser.add_argument(
         "--flagged-features",
         help="Write a TSV of potentially complicated features/transcripts to this path.",
+    )
+    parser.add_argument(
+        "--csv-output",
+        action="store_true",
+        help=(
+            "Write metrics to "
+            "<annotation base>.<biotype>.<canonical status>.features.csv."
+        ),
     )
     parser.add_argument(
         "--min-intron-length",
@@ -1089,6 +1195,7 @@ def main():
 
     coding_transcripts = len(annotation_metrics.cds_lengths_by_transcript)
     frame_total = frame_consistent + frame_inconsistent
+    metric_rows = []
 
     print(f"{'Metric':<45} {'Value'}")
     print("-" * 65)
@@ -1097,70 +1204,118 @@ def main():
         print_metric("Included biotypes", format_filter_list(include_biotypes))
         print_metric("Excluded biotypes", format_filter_list(exclude_biotypes))
         print_metric(
-            "Canonical-only filter", "enabled" if args.canonical_only else "disabled"
+            "Canonical-only filter",
+            "enabled" if args.canonical_only else "disabled",
         )
         print_metric(
-            "Transcripts passing filters", annotation_metrics.selected_transcript_count
+            "Transcripts passing filters",
+            annotation_metrics.selected_transcript_count,
+            metric_rows,
         )
 
     print("-" * 65)
-    print_metric("Exon count", len(annotation_metrics.exons))
+    print_metric("Exon count", len(annotation_metrics.exons), metric_rows)
     print_metric(
-        "Transcripts with exon records", len(annotation_metrics.exons_by_transcript)
+        "Transcripts with exon records",
+        len(annotation_metrics.exons_by_transcript),
+        metric_rows,
     )
-    print_metric("Coding transcripts with CDS records", coding_transcripts)
+    print_metric("Coding transcripts with CDS records", coding_transcripts, metric_rows)
 
-    print_metric("Phase source", phase_source if phase_total else "N/A")
-    print_metric(f"{phase_record_label} with usable phase", phase_total)
+    print_metric("Phase source", phase_source if phase_total else "N/A", metric_rows)
+    print_metric(f"{phase_record_label} with usable phase", phase_total, metric_rows)
     for phase, label in PHASE_LABELS.items():
         print_metric(
             f"{phase_prefix} phase {label}",
             format_count_pct(phase_counts[phase], phase_total),
+            metric_rows,
         )
     print_metric(
         f"{phase_record_label} without usable phase",
         phase_missing if phase_total else "N/A",
+        metric_rows,
     )
 
     print_summary_metrics(
-        "Exon length", exon_length_summary, " (bp)", include_count=False
+        "Exon length",
+        exon_length_summary,
+        " (bp)",
+        include_count=False,
+        metric_rows=metric_rows,
     )
     for label, count in exon_length_histogram(exon_lengths):
-        print_metric(f"Exon length {label}", format_count_pct(count, len(exon_lengths)))
+        print_metric(
+            f"Exon length {label}",
+            format_count_pct(count, len(exon_lengths)),
+            metric_rows,
+        )
 
-    print_summary_metrics("Exon GC", exon_gc_summary, " (%)")
-    print_metric("Exons skipped for GC", gc_skipped)
+    print_summary_metrics("Exon GC", exon_gc_summary, " (%)", metric_rows=metric_rows)
+    print_metric("Exons skipped for GC", gc_skipped, metric_rows)
     if missing_chroms:
-        print_metric("FASTA contigs missing annotation exons", len(missing_chroms))
+        print_metric(
+            "Annotation seqids missing from FASTA",
+            len(missing_chroms),
+            metric_rows,
+        )
+        print_metric(
+            "Missing annotation seqids",
+            format_limited_list(missing_chroms),
+            metric_rows,
+        )
     for label, count in gc_histogram(gc_percentages, args.gc_bin_size):
-        print_metric(f"Exon GC {label}", format_count_pct(count, len(gc_percentages)))
+        print_metric(
+            f"Exon GC {label}",
+            format_count_pct(count, len(gc_percentages)),
+            metric_rows,
+        )
 
-    print_summary_metrics("Intron length", intron_summary, " (bp)")
+    print_summary_metrics(
+        "Intron length", intron_summary, " (bp)", metric_rows=metric_rows
+    )
     for label, count in intron_length_histogram(intron_lengths):
         print_metric(
-            f"Intron length {label}", format_count_pct(count, len(intron_lengths))
+            f"Intron length {label}",
+            format_count_pct(count, len(intron_lengths)),
+            metric_rows,
         )
 
     print_utr_metrics(
-        annotation_metrics, set(annotation_metrics.cds_lengths_by_transcript)
+        annotation_metrics,
+        set(annotation_metrics.cds_lengths_by_transcript),
+        metric_rows,
     )
 
     print_metric(
         "Frame-consistent coding transcripts",
         format_count_pct(frame_consistent, frame_total),
+        metric_rows,
     )
     print_metric(
         "Frame-inconsistent coding transcripts",
         format_count_pct(frame_inconsistent, frame_total),
+        metric_rows,
     )
 
     print("-" * 65)
     if args.flagged_features:
         print_metric("Flagged features output", args.flagged_features)
         print_metric("Flagged records written", len(flagged_features))
-        print_metric("Short intron threshold (bp)", f"< {args.min_intron_length}")
-        print_metric("Short exon threshold (bp)", f"< {args.min_exon_length}")
+        print_metric(
+            "Short intron threshold (bp)", f"< {args.min_intron_length}"
+        )
+        print_metric(
+            "Short exon threshold (bp)", f"< {args.min_exon_length}"
+        )
+
+    if args.csv_output:
+        csv_output_path = default_csv_output_path(
+            args.gff, include_biotypes, args.canonical_only
+        )
+        write_metrics_csv(metric_rows, csv_output_path)
+        print_metric("CSV results output", csv_output_path)
 
 
 if __name__ == "__main__":
     main()
+
