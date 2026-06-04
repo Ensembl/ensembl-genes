@@ -1,22 +1,24 @@
 #!/usr/bin/env python3
-"""Calculate genome-wide annotation metrics from GFF/GTF and optional FASTA input."""
-
-# pylint: disable=missing-function-docstring,missing-class-docstring
 
 import argparse
+import csv
 from collections import Counter
 from dataclasses import dataclass
 import gzip
 import heapq
+import os
 import re
 import sys
 
 
 LOWERCASE_RUN = re.compile(rb"[a-z]+")
+FILENAME_TAG_RE = re.compile(r"[^A-Za-z0-9_.-]+")
 GTF_GFF_COLUMN_COUNT = 9
 OPPOSITE_STRAND = {"+": "-", "-": "+"}
 CANONICAL_TAGS = {"ensembl_canonical", "canonical", "mane_select"}
 TRUE_VALUES = {"1", "true", "yes"}
+CSV_HEADERS = ("metrics_name", "metrics_value")
+ANNOTATION_SUFFIXES = (".gff3", ".gff", ".gtf")
 BIOTYPE_KEYS = (
     "biotype",
     "gene_biotype",
@@ -59,6 +61,72 @@ def open_maybe_gzip(path, mode, encoding="utf-8", newline=None):
 def warn(message):
     """Print a non-fatal warning to stderr."""
     print(f"[WARNING] {message}", file=sys.stderr)
+
+
+def sanitize_filename_tag(value, default="all"):
+    """Return a filesystem-safe filename tag."""
+    tag = FILENAME_TAG_RE.sub("_", str(value)).strip("._-")
+    return tag or default
+
+
+def annotation_base_name(annotation_path):
+    """Return annotation filename without GFF/GTF and optional gzip suffix."""
+    name = os.path.basename(str(annotation_path))
+    if name.lower().endswith(".gz"):
+        name = name[:-3]
+
+    lower_name = name.lower()
+    for suffix in ANNOTATION_SUFFIXES:
+        if lower_name.endswith(suffix):
+            name = name[: -len(suffix)]
+            break
+
+    return sanitize_filename_tag(name, default="annotation")
+
+
+def biotype_filename_tag(biotypes):
+    """Return the filename tag for the selected biotypes."""
+    if not biotypes:
+        return "all"
+
+    return "-".join(
+        sanitize_filename_tag(biotype, default="biotype")
+        for biotype in sorted(biotypes)
+    )
+
+
+def metrics_csv_filename(annotation_path, biotypes, canonical_only):
+    """Build the automatic CSV metrics output filename."""
+    canonical_tag = "canonical" if canonical_only else "all"
+    filename_parts = (
+        annotation_base_name(annotation_path),
+        biotype_filename_tag(biotypes),
+        canonical_tag,
+        "genome",
+        "csv",
+    )
+    return ".".join(filename_parts)
+
+
+def add_metric(metric_rows, name, value):
+    """Append a metric row using the terminal display value."""
+    metric_rows.append((name, str(value)))
+
+
+def print_metric_rows(metric_rows):
+    """Print collected metric rows to stdout."""
+    print(f"{'Metric':<45} {'Value'}")
+    print("-" * 65)
+    for metric_name, metric_value in metric_rows:
+        print(f"{metric_name:<45} {metric_value}")
+
+
+def write_metric_rows_csv(metric_rows, csv_path):
+    """Write collected metric rows to CSV."""
+    with open(csv_path, "w", encoding="utf-8", newline="") as handle:
+        writer = csv.writer(handle)
+        writer.writerow(CSV_HEADERS)
+        writer.writerows(metric_rows)
 
 
 def split_annotation_line(line):
@@ -614,7 +682,6 @@ def positive_int(value):
 
 
 def main():
-    """Parse command-line arguments, calculate metrics, and print the report."""
     parser = argparse.ArgumentParser(
         description="Calculate genome-wide metrics for Ensembl features."
     )
@@ -649,6 +716,11 @@ def main():
     parser.add_argument(
         "--feature-overlaps-output",
         help="Write a TSV of overlapping feature pairs and their overlap coordinates.",
+    )
+    parser.add_argument(
+        "--csv-output",
+        action="store_true",
+        help="Write metric rows to an automatically named CSV file.",
     )
     args = parser.parse_args()
 
@@ -731,47 +803,73 @@ def main():
     else:
         genome_size = args.genome_size
 
-    print(f"{'Metric':<45} {'Value'}")
-    print("-" * 65)
-    print(f"{'Genome size (bp)':<45} {genome_size}")
-    print(f"{f'{args.feature_type} count':<45} {len(features)}")
+    metric_rows = []
+    add_metric(metric_rows, "Genome size (bp)", genome_size)
+    add_metric(metric_rows, f"{args.feature_type} count", len(features))
     if args.canonical_only:
         filter_status = (
             "applied"
             if canonical_filter_applied
             else "not applied (using all features)"
         )
-        print(f"{'Canonical-only filter':<45} {filter_status}")
+        add_metric(metric_rows, "Canonical-only filter", filter_status)
     if biotypes:
-        print(f"{'Biotype filter':<45} {', '.join(sorted(biotypes))}")
-    print(
-        f"{f'{args.feature_type} density ({args.feature_type}s/Mb)':<45} {gene_density(len(features), genome_size):.4f}"
+        add_metric(metric_rows, "Biotype filter", ", ".join(sorted(biotypes)))
+
+    density_name = f"{args.feature_type} density ({args.feature_type}s/Mb)"
+    add_metric(
+        metric_rows,
+        density_name,
+        f"{gene_density(len(features), genome_size):.4f}",
     )
-    print(
-        f"{'% genome covered by ' + args.feature_type:<45} {pct_genome_covered(covered_bp, genome_size):.4f}"
+    add_metric(
+        metric_rows,
+        f"% genome covered by {args.feature_type}",
+        f"{pct_genome_covered(covered_bp, genome_size):.4f}",
     )
 
     if fasta_metrics:
         if fasta_metrics.total_masked == 0:
-            print(f"{'% masked regions annotated':<45} N/A (no soft-masking detected)")
+            add_metric(
+                metric_rows,
+                "% masked regions annotated",
+                "N/A (no soft-masking detected)",
+            )
         else:
             masked_pct = pct_masked_annotated(
                 fasta_metrics.masked_annotated, fasta_metrics.total_masked
             )
             masked_genome_pct = (fasta_metrics.total_masked / genome_size) * 100
-            print(
-                f"{'Total soft-masked bases':<45} {fasta_metrics.total_masked} ({masked_genome_pct:.2f}%)"
+            add_metric(
+                metric_rows,
+                "Total soft-masked bases",
+                f"{fasta_metrics.total_masked} ({masked_genome_pct:.2f}%)",
             )
-            print(f"{'% masked regions annotated':<45} {masked_pct:.4f}")
+            add_metric(metric_rows, "% masked regions annotated", f"{masked_pct:.4f}")
     else:
-        print(f"{'% masked regions annotated':<45} skipped (no --fasta provided)")
+        add_metric(
+            metric_rows,
+            "% masked regions annotated",
+            "skipped (no --fasta provided)",
+        )
 
-    print(
-        f"{f'Overlapping {args.feature_type} pairs (same strand)':<45} {same_strand_pairs}"
+    add_metric(
+        metric_rows,
+        f"Overlapping {args.feature_type} pairs (same strand)",
+        same_strand_pairs,
     )
-    print(
-        f"{f'Antisense {args.feature_type} pairs (opposite strand)':<45} {antisense_pairs}"
+    add_metric(
+        metric_rows,
+        f"Antisense {args.feature_type} pairs (opposite strand)",
+        antisense_pairs,
     )
+
+    print_metric_rows(metric_rows)
+    if args.csv_output:
+        write_metric_rows_csv(
+            metric_rows,
+            metrics_csv_filename(args.gff, biotypes, args.canonical_only),
+        )
 
 
 if __name__ == "__main__":
