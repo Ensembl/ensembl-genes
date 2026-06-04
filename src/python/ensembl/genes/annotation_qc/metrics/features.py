@@ -5,6 +5,7 @@ from dataclasses import asdict
 import pandas as pd
 from typing import Tuple
 
+from ensembl.genes.annotation_qc.parsers.annotation import standardize_annotation
 from ensembl.genes.annotation_qc.metrics.events import (
     assess_splice_junction,
     compute_cds_metrics,
@@ -71,6 +72,94 @@ def _biotype_group(biotype: str) -> str:
     if bt in _SMALL_NC_BIOTYPES:
         return "snoncoding"
     return "mnoncoding"
+
+
+def _feature_len(df: pd.DataFrame) -> pd.Series:
+    if "feature_length" in df.columns:
+        return df["feature_length"]
+    return df["End"] - df["Start"]
+
+
+def _split_annotation(annotation) -> tuple[pd.DataFrame, ...]:
+    """Compatibility path for callers that still pass one annotation table."""
+    df = standardize_annotation(annotation)
+    gene_df = df[df["Feature"].isin(_GENE_FEATURE_TYPES)].reset_index(drop=True)
+    tx_df = df[df["Feature"].isin(_TRANSCRIPT_FEATURE_TYPES)].reset_index(drop=True)
+    exon_df = df[df["Feature"] == "exon"].reset_index(drop=True)
+    cds_df = df[df["Feature"] == "CDS"].reset_index(drop=True)
+    utr5_df = df[df["Feature"] == "five_prime_UTR"].reset_index(drop=True)
+    utr3_df = df[df["Feature"] == "three_prime_UTR"].reset_index(drop=True)
+    return gene_df, tx_df, exon_df, cds_df, utr5_df, utr3_df
+
+
+def _prepare_metric_dataframes(
+    gene_df: pd.DataFrame,
+    tx_df: pd.DataFrame,
+    exon_df: pd.DataFrame,
+    cds_df: pd.DataFrame,
+) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+    """Add metric-local derived columns to already standardized feature tables."""
+    gene_df = gene_df.copy()
+    tx_df = tx_df.copy()
+    exon_df = exon_df.copy()
+    cds_df = cds_df.copy()
+
+    gene_df["gene_len"] = _feature_len(gene_df)
+    exon_df["exon_len"] = _feature_len(exon_df)
+    cds_df["cds_len"] = _feature_len(cds_df)
+    gene_df["group"] = gene_df["biotype"].fillna("").apply(_biotype_group)
+
+    genes_with_cds = set(cds_df["gene_id"].dropna())
+    coding_override = gene_df["gene_id"].isin(genes_with_cds) & (
+        gene_df["group"] != "pseudogene"
+    )
+    gene_df.loc[coding_override, "group"] = "coding"
+
+    return gene_df, tx_df, exon_df, cds_df
+
+
+def _coerce_metric_dataframes(
+    gene_df,
+    tx_df: pd.DataFrame | None = None,
+    exon_df: pd.DataFrame | None = None,
+    cds_df: pd.DataFrame | None = None,
+) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+    if tx_df is None and exon_df is None and cds_df is None:
+        gene_df, tx_df, exon_df, cds_df, _utr5_df, _utr3_df = _split_annotation(gene_df)
+    elif tx_df is None or exon_df is None or cds_df is None:
+        raise TypeError("gene_df, tx_df, exon_df, and cds_df must be provided together")
+    return _prepare_metric_dataframes(gene_df, tx_df, exon_df, cds_df)
+
+
+def _coerce_utr_dataframes(
+    tx_df,
+    gene_df: pd.DataFrame | None = None,
+    utr5_df: pd.DataFrame | None = None,
+    utr3_df: pd.DataFrame | None = None,
+) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+    if gene_df is None and utr5_df is None and utr3_df is None:
+        gene_df, tx_df, _exon_df, _cds_df, utr5_df, utr3_df = _split_annotation(tx_df)
+    elif gene_df is None or utr5_df is None or utr3_df is None:
+        raise TypeError("tx_df, gene_df, utr5_df, and utr3_df must be provided together")
+
+    utr5_df = utr5_df.copy()
+    utr3_df = utr3_df.copy()
+    utr5_df["utr_len"] = _feature_len(utr5_df)
+    utr3_df["utr_len"] = _feature_len(utr3_df)
+    return tx_df.copy(), gene_df.copy(), utr5_df, utr3_df
+
+
+def _coerce_cds_utr5_dataframes(
+    cds_df,
+    utr5_df: pd.DataFrame | None = None,
+) -> tuple[pd.DataFrame, pd.DataFrame]:
+    if utr5_df is None:
+        _gene_df, _tx_df, _exon_df, cds_df, utr5_df, _utr3_df = _split_annotation(cds_df)
+    cds_df = cds_df.copy()
+    utr5_df = utr5_df.copy()
+    cds_df["cds_len"] = _feature_len(cds_df)
+    utr5_df["utr_len"] = _feature_len(utr5_df)
+    return cds_df, utr5_df
 
 
 def _compute_introns(
@@ -171,80 +260,6 @@ def _canonical_info(
     return best
 
 
-def _prepare_dataframes(gff) -> tuple:
-    """
-    Split a pyranges GFF3 object into typed DataFrames with resolved IDs.
-
-    Parses the ``Parent`` attribute to derive ``gene_id`` for transcript
-    rows and ``transcript_id`` for exon/CDS rows, then propagates
-    ``gene_id`` down to exon and CDS rows via a transcript→gene mapping.
-
-    Genes with CDS features (regardless of biotype) are classified as
-    ``coding`` unless already classified as ``pseudogene``.
-
-    Returns
-    -------
-    tuple of (gene_df, tx_df, exon_df, cds_df)
-        pandas DataFrames with resolved ``gene_id`` / ``transcript_id``
-        columns and pre-computed length columns (``gene_len``,
-        ``exon_len``, ``cds_len``).  ``gene_df`` has a ``group`` column.
-    """
-    # --- Gene features ---
-    gene_df = (
-        gff[gff["Feature"].isin(_GENE_FEATURE_TYPES)].reset_index(drop=True).copy()
-    )
-    gene_df["gene_len"] = gene_df["End"] - gene_df["Start"]
-    # pyranges1 already parses gene_id; fall back to stripping the ID prefix
-    missing = gene_df["gene_id"].isna()
-    if missing.any():
-        gene_df.loc[missing, "gene_id"] = (
-            gene_df.loc[missing, "ID"].str.split(":", n=1).str[-1]
-        )
-    # Ensembl GFF3 uses "biotype"; GENCODE GFF3 uses "gene_type"
-    if "biotype" not in gene_df.columns or gene_df["biotype"].isna().all():
-        gene_df["biotype"] = (
-            gene_df["gene_type"] if "gene_type" in gene_df.columns else ""
-        )
-    gene_df["group"] = gene_df["biotype"].fillna("").apply(_biotype_group)
-
-    # --- Transcript features ---
-    tx_df = (
-        gff[gff["Feature"].isin(_TRANSCRIPT_FEATURE_TYPES)]
-        .reset_index(drop=True)
-        .copy()
-    )
-    # Derive gene_id from Parent (e.g. "gene:ENSGID" → "ENSGID")
-    tx_df["gene_id"] = tx_df["Parent"].str.split(",").str[0].str.removeprefix("gene:")
-
-    # --- Exon features ---
-    exon_df = gff[gff["Feature"] == "exon"].reset_index(drop=True).copy()
-    exon_df["transcript_id"] = (
-        exon_df["Parent"].str.split(",").str[0].str.removeprefix("transcript:")
-    )
-    exon_df["exon_len"] = exon_df["End"] - exon_df["Start"]
-
-    # --- CDS features ---
-    cds_df = gff[gff["Feature"] == "CDS"].reset_index(drop=True).copy()
-    cds_df["transcript_id"] = (
-        cds_df["Parent"].str.split(",").str[0].str.removeprefix("transcript:")
-    )
-    cds_df["cds_len"] = cds_df["End"] - cds_df["Start"]
-
-    # Propagate gene_id to exon/CDS via transcript→gene lookup
-    tx_to_gene = tx_df.set_index("transcript_id")["gene_id"].to_dict()
-    exon_df["gene_id"] = exon_df["transcript_id"].map(tx_to_gene)
-    cds_df["gene_id"] = cds_df["transcript_id"].map(tx_to_gene)
-
-    # Genes that have CDS (and aren't pseudogenes) are coding
-    genes_with_cds = set(cds_df["gene_id"].dropna())
-    coding_override = gene_df["gene_id"].isin(genes_with_cds) & (
-        gene_df["group"] != "pseudogene"
-    )
-    gene_df.loc[coding_override, "group"] = "coding"
-
-    return gene_df, tx_df, exon_df, cds_df
-
-
 def _stats_for_group(
     gene_df: pd.DataFrame,
     tx_df: pd.DataFrame,
@@ -341,7 +356,12 @@ def _stats_for_group(
 # ---------------------------------------------------------------------------
 
 
-def compute_coding_stats(gff) -> Tuple[dict, int]:
+def compute_coding_stats(
+    gene_df,
+    tx_df: pd.DataFrame | None = None,
+    exon_df: pd.DataFrame | None = None,
+    cds_df: pd.DataFrame | None = None,
+) -> Tuple[dict, int]:
     """
     Compute summary statistics for coding genes from a pyranges GFF3 object.
 
@@ -355,8 +375,10 @@ def compute_coding_stats(gff) -> Tuple[dict, int]:
 
     Parameters
     ----------
-    gff:
-        PyRanges object returned by ``parsers.annotation.parse_annotation``.
+    gene_df, tx_df, exon_df, cds_df:
+        Standardized DataFrames for gene, transcript, exon, and CDS features.
+        For compatibility, callers may still pass one full annotation table as
+        the first argument.
 
     Returns
     -------
@@ -376,7 +398,9 @@ def compute_coding_stats(gff) -> Tuple[dict, int]:
     Average coding exons per coding transcript, Total introns,
     Average intron length.
     """
-    gene_df, tx_df, exon_df, cds_df = _prepare_dataframes(gff)
+    gene_df, tx_df, exon_df, cds_df = _coerce_metric_dataframes(
+        gene_df, tx_df, exon_df, cds_df
+    )
     m, canon = _stats_for_group(
         gene_df, tx_df, exon_df, cds_df, "coding", include_cds=True
     )
@@ -435,7 +459,12 @@ def compute_coding_stats(gff) -> Tuple[dict, int]:
     return stats, total_coding_sequence_length
 
 
-def compute_noncoding_stats(gff) -> dict:
+def compute_noncoding_stats(
+    gene_df,
+    tx_df: pd.DataFrame | None = None,
+    exon_df: pd.DataFrame | None = None,
+    cds_df: pd.DataFrame | None = None,
+) -> dict:
     """
     Compute summary statistics for non-coding genes from a pyranges GFF3 object.
 
@@ -445,8 +474,10 @@ def compute_noncoding_stats(gff) -> dict:
 
     Parameters
     ----------
-    gff:
-        PyRanges object returned by ``parsers.annotation.parse_annotation``.
+    gene_df, tx_df, exon_df, cds_df:
+        Standardized DataFrames for gene, transcript, exon, and CDS features.
+        For compatibility, callers may still pass one full annotation table as
+        the first argument.
 
     Returns
     -------
@@ -458,7 +489,9 @@ def compute_noncoding_stats(gff) -> dict:
         Total exons, Average exon length, Average exons per transcript,
         Total introns, Average intron length.
     """
-    gene_df, tx_df, exon_df, cds_df = _prepare_dataframes(gff)
+    gene_df, tx_df, exon_df, cds_df = _coerce_metric_dataframes(
+        gene_df, tx_df, exon_df, cds_df
+    )
 
     nc_groups = {"lnoncoding", "snoncoding", "mnoncoding"}
     nc_genes = gene_df[gene_df["group"].isin(nc_groups)]
@@ -527,7 +560,12 @@ def compute_noncoding_stats(gff) -> dict:
     }
 
 
-def compute_transcript_utr_stats(gff) -> pd.DataFrame:
+def compute_transcript_utr_stats(
+    tx_df,
+    gene_df: pd.DataFrame | None = None,
+    utr5_df: pd.DataFrame | None = None,
+    utr3_df: pd.DataFrame | None = None,
+) -> pd.DataFrame:
     """
     Compute per-transcript 5' and 3' UTR metrics from a pyranges GFF3 object.
 
@@ -539,8 +577,10 @@ def compute_transcript_utr_stats(gff) -> pd.DataFrame:
 
     Parameters
     ----------
-    gff:
-        PyRanges object returned by ``parsers.annotation.parse_annotation``.
+    tx_df, gene_df, utr5_df, utr3_df:
+        Standardized DataFrames for transcript, gene, 5' UTR, and 3' UTR
+        features. For compatibility, callers may still pass one full
+        annotation table as the first argument.
 
     Returns
     -------
@@ -558,38 +598,19 @@ def compute_transcript_utr_stats(gff) -> pd.DataFrame:
         Transcripts with no UTR annotation receive 0 for the relevant
         columns.
     """
-    tx_df = (
-        gff[gff["Feature"].isin(_TRANSCRIPT_FEATURE_TYPES)]
-        .reset_index(drop=True)
-        .copy()
+    tx_df, gene_df, utr5_df, utr3_df = _coerce_utr_dataframes(
+        tx_df, gene_df, utr5_df, utr3_df
     )
-    tx_df["gene_id"] = tx_df["Parent"].str.split(",").str[0].str.removeprefix("gene:")
     base = tx_df[["transcript_id", "gene_id"]].copy()
 
-    gene_df = gff[gff["Feature"].isin(_GENE_FEATURE_TYPES)].copy()
-    missing = gene_df["gene_id"].isna()
-    if missing.any():
-        gene_df.loc[missing, "gene_id"] = (
-            gene_df.loc[missing, "ID"].str.split(":", n=1).str[-1]
-        )
-    if "biotype" not in gene_df.columns or gene_df["biotype"].isna().all():
-        gene_df["biotype"] = (
-            gene_df["gene_type"] if "gene_type" in gene_df.columns else ""
-        )
     gene_biotype = gene_df.set_index("gene_id")["biotype"].to_dict()
     base.insert(2, "biotype", base["gene_id"].map(gene_biotype).fillna(""))
 
-    def _utr_metrics(feature_name: str):
-        utr = gff[gff["Feature"] == feature_name].reset_index(drop=True).copy()
+    def _utr_metrics(utr: pd.DataFrame):
         if utr.empty:
             return pd.Series(dtype="int64"), pd.Series(dtype="int64")
 
-        utr["transcript_id"] = (
-            utr["Parent"].str.split(",").str[0].str.removeprefix("transcript:")
-        )
-        utr["seg_len"] = utr["End"] - utr["Start"]
-
-        lengths = utr.groupby("transcript_id")["seg_len"].sum()
+        lengths = utr.groupby("transcript_id")["utr_len"].sum()
         introns = _compute_introns(utr)
         junctions = (
             introns.groupby("transcript_id").size()
@@ -598,8 +619,8 @@ def compute_transcript_utr_stats(gff) -> pd.DataFrame:
         )
         return lengths, junctions
 
-    utr5_len, utr5_junc = _utr_metrics("five_prime_UTR")
-    utr3_len, utr3_junc = _utr_metrics("three_prime_UTR")
+    utr5_len, utr5_junc = _utr_metrics(utr5_df)
+    utr3_len, utr3_junc = _utr_metrics(utr3_df)
 
     base["five_prime_utr_length"] = (
         base["transcript_id"].map(utr5_len).fillna(0).astype(int)
@@ -616,7 +637,12 @@ def compute_transcript_utr_stats(gff) -> pd.DataFrame:
     return base.reset_index(drop=True)
 
 
-def compute_pseudogene_stats(gff) -> dict:
+def compute_pseudogene_stats(
+    gene_df,
+    tx_df: pd.DataFrame | None = None,
+    exon_df: pd.DataFrame | None = None,
+    cds_df: pd.DataFrame | None = None,
+) -> dict:
     """
     Compute summary statistics for pseudogenes from a pyranges GFF3 object.
 
@@ -626,8 +652,10 @@ def compute_pseudogene_stats(gff) -> dict:
 
     Parameters
     ----------
-    gff:
-        PyRanges object returned by ``parsers.annotation.parse_annotation``.
+    gene_df, tx_df, exon_df, cds_df:
+        Standardized DataFrames for gene, transcript, exon, and CDS features.
+        For compatibility, callers may still pass one full annotation table as
+        the first argument.
 
     Returns
     -------
@@ -638,7 +666,9 @@ def compute_pseudogene_stats(gff) -> dict:
         Average exon length, Average exons per transcript,
         Total introns, Average intron length.
     """
-    gene_df, tx_df, exon_df, cds_df = _prepare_dataframes(gff)
+    gene_df, tx_df, exon_df, cds_df = _coerce_metric_dataframes(
+        gene_df, tx_df, exon_df, cds_df
+    )
     m, _ = _stats_for_group(gene_df, tx_df, exon_df, cds_df, "pseudogene")
 
     gene_count = m["gene_count"]
@@ -675,7 +705,10 @@ def compute_pseudogene_stats(gff) -> dict:
     }
 
 
-def compute_cds_utr5_overlap(gff) -> pd.DataFrame:
+def compute_cds_utr5_overlap(
+    cds_df,
+    utr5_df: pd.DataFrame | None = None,
+) -> pd.DataFrame:
     """
     Identify coding transcripts whose CDS exons overlap five_prime_UTR exons
     from any transcript of the same gene.
@@ -691,8 +724,10 @@ def compute_cds_utr5_overlap(gff) -> pd.DataFrame:
 
     Parameters
     ----------
-    gff:
-        PyRanges object returned by ``parsers.annotation.parse_annotation``.
+    cds_df, utr5_df:
+        Standardized DataFrames for CDS and 5' UTR features. For
+        compatibility, callers may still pass one full annotation table as the
+        first argument.
 
     Returns
     -------
@@ -716,25 +751,9 @@ def compute_cds_utr5_overlap(gff) -> pd.DataFrame:
         "has_overlap",
     ]
 
-    cds_df = gff[gff["Feature"] == "CDS"].reset_index(drop=True).copy()
+    cds_df, utr5_df = _coerce_cds_utr5_dataframes(cds_df, utr5_df)
     if cds_df.empty:
         return pd.DataFrame(columns=_cols)
-
-    # Resolve transcript_id from Parent if not already present
-    if cds_df["transcript_id"].isna().all():
-        cds_df["transcript_id"] = (
-            cds_df["Parent"].str.split(",").str[0].str.removeprefix("transcript:")
-        )
-
-    # Propagate gene_id via transcript→gene lookup
-    tx_df = (
-        gff[gff["Feature"].isin(_TRANSCRIPT_FEATURE_TYPES)]
-        .reset_index(drop=True)
-        .copy()
-    )
-    tx_df["gene_id"] = tx_df["Parent"].str.split(",").str[0].str.removeprefix("gene:")
-    tx_to_gene = tx_df.set_index("transcript_id")["gene_id"].to_dict()
-    cds_df["gene_id"] = cds_df["transcript_id"].map(tx_to_gene)
 
     # Summary per transcript: gene_id + total CDS segment count
     per_tx = (
@@ -743,19 +762,10 @@ def compute_cds_utr5_overlap(gff) -> pd.DataFrame:
         .reset_index()
     )
 
-    utr5_df = gff[gff["Feature"] == "five_prime_UTR"].reset_index(drop=True).copy()
     if utr5_df.empty:
         per_tx["n_cds_overlapping_utr5"] = 0
         per_tx["has_overlap"] = False
         return per_tx[_cols]
-
-    if utr5_df["transcript_id"].isna().all():
-        utr5_df["transcript_id"] = (
-            utr5_df["Parent"].str.split(",").str[0].str.removeprefix("transcript:")
-        )
-
-    # Propagate gene_id to UTR5 features so we can join on gene_id
-    utr5_df["gene_id"] = utr5_df["transcript_id"].map(tx_to_gene)
 
     # Join CDS exons with UTR5 exons on gene_id (cross-transcript within gene).
     # Left join preserves all coding transcripts in the output.
@@ -937,7 +947,7 @@ def _reverse_complement(seq: str) -> str:
     return seq.translate(_RC_TABLE)[::-1]
 
 
-def _extract_cds_sequences(gff, fasta) -> dict:
+def _extract_cds_sequences(cds_df: pd.DataFrame, fasta) -> dict:
     """
     Extract and concatenate CDS nucleotide sequences per transcript.
 
@@ -947,8 +957,8 @@ def _extract_cds_sequences(gff, fasta) -> dict:
 
     Parameters
     ----------
-    gff:
-        PyRanges object from parse_annotation.
+    cds_df:
+        Prepared CDS feature rows.
     fasta:
         pyfaidx Fasta object from parse_fasta.
 
@@ -956,20 +966,14 @@ def _extract_cds_sequences(gff, fasta) -> dict:
     -------
     dict mapping transcript_id → concatenated CDS nucleotide sequence (str).
     """
-    cds_df = gff[gff["Feature"] == "CDS"].copy()
+    cds_df = cds_df.copy()
     if cds_df.empty:
         return {}
 
-    if "transcript_id" in cds_df.columns and cds_df["transcript_id"].notna().any():
-        group_col = "transcript_id"
-    elif "Parent" in cds_df.columns:
-        group_col = "Parent"
-        cds_df = cds_df.assign(
-            Parent=cds_df["Parent"].str.replace(r"^transcript:", "", regex=True)
-        )
-    else:
+    if "transcript_id" not in cds_df.columns or cds_df["transcript_id"].isna().all():
         return {}
 
+    group_col = "transcript_id"
     sequences = {}
     for tx_id, group in cds_df.groupby(group_col):
         strand = group["Strand"].iloc[0]
@@ -1049,7 +1053,7 @@ def _extract_intron_records(
 
 
 def compute_translation_metrics(
-    gff, fasta, genetic_code: GeneticCode = STANDARD_CODE
+    cds_df, fasta, genetic_code: GeneticCode = STANDARD_CODE
 ) -> pd.DataFrame:
     """
     Compute CDS translation validity metrics for all coding transcripts.
@@ -1061,8 +1065,9 @@ def compute_translation_metrics(
 
     Parameters
     ----------
-    gff:
-        PyRanges object from parse_annotation.
+    cds_df:
+        Standardized CDS feature DataFrame. For compatibility, callers may
+        still pass one full annotation table as the first argument.
     fasta:
         pyfaidx Fasta object from parse_fasta.
     genetic_code:
@@ -1086,7 +1091,11 @@ def compute_translation_metrics(
         "frame_error",
         "has_internal_stop",
     ]
-    sequences = _extract_cds_sequences(gff, fasta)
+    if "Feature" in cds_df.columns and (cds_df["Feature"] != "CDS").any():
+        _gene_df, _tx_df, _exon_df, cds_df, _utr5_df, _utr3_df = _split_annotation(
+            cds_df
+        )
+    sequences = _extract_cds_sequences(cds_df, fasta)
     if not sequences:
         return pd.DataFrame(columns=_cols)
     records = [
@@ -1096,7 +1105,7 @@ def compute_translation_metrics(
     return pd.DataFrame(records)
 
 
-def compute_splice_junction_metrics(gff, fasta) -> pd.DataFrame:
+def compute_splice_junction_metrics(exon_df, fasta) -> pd.DataFrame:
     """
     Compute splice junction metrics for every intron in the annotation.
 
@@ -1107,8 +1116,9 @@ def compute_splice_junction_metrics(gff, fasta) -> pd.DataFrame:
 
     Parameters
     ----------
-    gff:
-        PyRanges object from parse_annotation.
+    exon_df:
+        Standardized exon feature DataFrame. For compatibility, callers may
+        still pass one full annotation table as the first argument.
     fasta:
         pyfaidx Fasta object from parse_fasta.
 
@@ -1133,14 +1143,13 @@ def compute_splice_junction_metrics(gff, fasta) -> pd.DataFrame:
         "is_canonical",
     ]
 
-    exon_df = gff[gff["Feature"] == "exon"].reset_index(drop=True).copy()
+    if "Feature" in exon_df.columns and (exon_df["Feature"] != "exon").any():
+        _gene_df, _tx_df, exon_df, _cds_df, _utr5_df, _utr3_df = _split_annotation(
+            exon_df
+        )
+    exon_df = exon_df.copy()
     if exon_df.empty:
         return pd.DataFrame(columns=_cols)
-
-    if exon_df["transcript_id"].isna().all():
-        exon_df["transcript_id"] = (
-            exon_df["Parent"].str.split(",").str[0].str.removeprefix("transcript:")
-        )
 
     intron_df = _extract_intron_records(exon_df)
     if intron_df.empty:

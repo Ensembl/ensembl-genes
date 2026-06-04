@@ -51,17 +51,54 @@ def _run(args):
     os.makedirs(args.outdir, exist_ok=True)
 
     print(f"Parsing annotation: {args.annotation}")
-    gff = parse_annotation(args.annotation)
+    annotation = parse_annotation(args.annotation)
+    gene_df = annotation[
+        annotation["Feature"].isin(
+            {"gene", "ncRNA_gene", "pseudogene", "transposable_element_gene"}
+        )
+    ].reset_index(drop=True)
+    tx_df = annotation[
+        annotation["Feature"].isin(
+            {
+                "mRNA",
+                "transcript",
+                "snoRNA",
+                "snRNA",
+                "miRNA",
+                "rRNA",
+                "tRNA",
+                "lnc_RNA",
+                "lncRNA",
+                "ncRNA",
+                "antisense_RNA",
+                "sRNA",
+                "scaRNA",
+                "pseudogenic_transcript",
+                "scRNA",
+                "Y_RNA",
+            }
+        )
+    ].reset_index(drop=True)
+    exon_df = annotation[annotation["Feature"] == "exon"].reset_index(drop=True)
+    cds_df = annotation[annotation["Feature"] == "CDS"].reset_index(drop=True)
+    utr5_df = annotation[annotation["Feature"] == "five_prime_UTR"].reset_index(
+        drop=True
+    )
+    utr3_df = annotation[annotation["Feature"] == "three_prime_UTR"].reset_index(
+        drop=True
+    )
 
     print("Computing coding gene stats...")
-    coding_stats, total_coding_seq_len = compute_coding_stats(gff)
+    coding_stats, total_coding_seq_len = compute_coding_stats(
+        gene_df, tx_df, exon_df, cds_df
+    )
     coding_stats["Total coding sequence length"] = total_coding_seq_len
 
     print("Computing non-coding gene stats...")
-    noncoding_stats = compute_noncoding_stats(gff)
+    noncoding_stats = compute_noncoding_stats(gene_df, tx_df, exon_df, cds_df)
 
     print("Computing pseudogene stats...")
-    pseudogene_stats = compute_pseudogene_stats(gff)
+    pseudogene_stats = compute_pseudogene_stats(gene_df, tx_df, exon_df, cds_df)
 
     assembly_row = None
     if args.assembly_accession:
@@ -91,10 +128,10 @@ def _run(args):
             stats["Scientific name"] = scientific_name
 
     print("Computing per-transcript UTR stats...")
-    utr_df = compute_transcript_utr_stats(gff)
+    utr_df = compute_transcript_utr_stats(tx_df, gene_df, utr5_df, utr3_df)
 
     print("Computing CDS / 5' UTR exon overlaps...")
-    cds_utr5_df = compute_cds_utr5_overlap(gff)
+    cds_utr5_df = compute_cds_utr5_overlap(cds_df, utr5_df)
 
     summary_parts = [
         _to_long(coding_stats, "coding"),
@@ -130,7 +167,7 @@ def _run(args):
         print(f"Using genetic code: {genetic_code.table_id} ({genetic_code.name})")
 
         print("Computing translation metrics...")
-        translation_df = compute_translation_metrics(gff, fasta, genetic_code)
+        translation_df = compute_translation_metrics(cds_df, fasta, genetic_code)
         translation_path = os.path.join(args.outdir, "translation_metrics.tsv")
         translation_df.to_csv(translation_path, index=False, sep="\t")
         written.append(translation_path)
@@ -139,7 +176,7 @@ def _run(args):
         )
 
         print("Computing splice junction metrics...")
-        splice_df = compute_splice_junction_metrics(gff, fasta)
+        splice_df = compute_splice_junction_metrics(exon_df, fasta)
         splice_path = os.path.join(args.outdir, "splice_junction_metrics.tsv")
         splice_df.to_csv(splice_path, index=False, sep="\t")
         written.append(splice_path)
