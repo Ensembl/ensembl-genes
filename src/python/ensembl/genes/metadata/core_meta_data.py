@@ -27,6 +27,11 @@ import requests
 import pymysql
 import xmltodict
 
+try:
+    from ensembl.genes.metadata.bioproject_from_registry import get_bioproject_name
+except ImportError:
+    from bioproject_from_registry import get_bioproject_name
+
 # Module logger (configured in __main__ via logging.config)
 logger: logging.Logger = logging.getLogger(__name__)
 
@@ -374,7 +379,7 @@ if __name__ == "__main__":
         )
 
     # get all existing assembly, species and genebuild metadata from the core db
-    core_query = f"SELECT meta_key,meta_value FROM meta WHERE species_id = {species_id} AND (meta_key LIKE 'assembly%' OR meta_key LIKE 'species%' OR meta_key LIKE 'genebuild%' OR meta_key LIKE 'organism%' OR meta_key LIKE 'sample%' OR meta_key LIKE 'annotation%' OR meta_key LIKE 'gencode%');"
+    core_query = f"SELECT meta_key,meta_value FROM meta WHERE species_id = {species_id} AND (meta_key LIKE 'assembly%' OR meta_key LIKE 'species%' OR meta_key LIKE 'genebuild%' OR meta_key LIKE 'genome%' OR meta_key LIKE 'organism%' OR meta_key LIKE 'sample%' OR meta_key LIKE 'annotation%' OR meta_key LIKE 'gencode%');"
     print(core_query)
     core_meta = mysql_fetch_data(
         core_query,
@@ -388,6 +393,7 @@ if __name__ == "__main__":
 
     # get the assembly metadata from the sources of truth (sources of truth in parentheses)
     # expected assembly meta_keys: assembly.accession (from core), assembly.date (from ena), assembly.is_reference (static), assembly.name (ena), assembly.provider_name (core or default), assembly.provider_url (core or default), assembly.level (ena), assembly.tolid (biosample), assembly.ucsc_alias (ncbi), assembly.long_name, assembly.url_name (static)
+    # expected genome meta_keys: genome.genome_group (registry)
     # expected organism meta_keys: organism.taxonomy_id (ena), organism.species_taxonomy_id (taxonomy db), organism.common_name (taxonomy db), organism.strain (biosample), organism.scientific_name (taxonomy db), organism.scientific_parlance_name (static), organism.strain_type (biosample), organism.sample_accession (ena)
     # expected genebuild meta_keys: genebuild.initial_release_date, genebuild.last_geneset_update, genebuild.level, genebuild.method, genebuild.method_display, genebuild.start_date, genebuild.version (create and check and required), genebuild.sample_gene (core), genebuild.sample_location (core), genebuild.id, genebuild.projection_source_db, genebuild.havana_datafreeze_date, genebuild.provider_name (static or core or default), genebuild.provider_url (static or core or default), genebuild.annotation_source (core or default)
     truth_dict = {}
@@ -420,6 +426,12 @@ if __name__ == "__main__":
         truth_dict["organism.biosample_id"] = "SAMN26853311"
     elif db == "bos_taurus_core_110_1":
         truth_dict["organism.biosample_id"] = "SAMN03145444"
+
+    bioproject_name = get_bioproject_name(
+        gca_accession, user=server_info["meta"]["db_user"]
+    )
+    if bioproject_name:
+        truth_dict["genome.genome_group"] = bioproject_name
 
     # get metadata from ENA records
     try:
