@@ -22,9 +22,11 @@ class QualityCursor(Protocol):
 
     def execute(self, operation: str, params: Any | None = None) -> Any:
         """Execute one SQL statement."""
+        ...
 
     def fetchall(self) -> Sequence[tuple[Any, ...]]:
         """Fetch all result rows."""
+        ...
 
 
 @dataclass(frozen=True)
