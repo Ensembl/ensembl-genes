@@ -74,7 +74,6 @@ gff-loader --help
 
 You can also run the CLI without installing the console script:
 
-
 ```bash
 python src/python/ensembl/genes/refseq_loading/gff_cli.py --help
 ```

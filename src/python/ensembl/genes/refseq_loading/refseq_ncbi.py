@@ -13,7 +13,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 from typing import Iterable
 
-import requests
+import requests  # type: ignore[import]
 
 try:  # Support both package imports and direct same-directory imports.
     from .refseq_constants import (
@@ -23,12 +23,15 @@ try:  # Support both package imports and direct same-directory imports.
     )
     from .refseq_models import AssemblyPaths, AssemblySummaryRecord
 except ImportError:  # pragma: no cover - used when run beside this file.
-    from refseq_constants import (  # type: ignore
-        ANNOTATION_METADATA_FIELDS,
-        ASSEMBLY_SUMMARY_MIN_COLUMNS,
-        NCBI_GROUPS,
+    from refseq_constants import (
+        ANNOTATION_METADATA_FIELDS,  # type: ignore[import]
+        ASSEMBLY_SUMMARY_MIN_COLUMNS,  # type: ignore[import]
+        NCBI_GROUPS,  # type: ignore[import]
     )
-    from refseq_models import AssemblyPaths, AssemblySummaryRecord  # type: ignore
+    from refseq_models import (
+        AssemblyPaths,  # type: ignore[import]
+        AssemblySummaryRecord,  # type: ignore[import]
+    )
 
 
 LOGGER = logging.getLogger(__name__)
@@ -93,7 +96,9 @@ def parse_assembly_summary(
 
         columns = line.split("\t")
         if len(columns) < ASSEMBLY_SUMMARY_MIN_COLUMNS:
-            log.debug("Skipping short assembly summary row %s in %s", line_number, group)
+            log.debug(
+                "Skipping short assembly summary row %s in %s", line_number, group
+            )
             continue
 
         ftp_path = columns[19]
@@ -194,7 +199,9 @@ def summarize_annotations(
     summaries: dict[str, list[str]] = {}
     for record in records:
         status = "Downloaded" if record.downloaded else "Not downloaded"
-        summaries.setdefault(record.group, []).append(f"{record.species_name} [{status}]")
+        summaries.setdefault(record.group, []).append(
+            f"{record.species_name} [{status}]"
+        )
 
     return {
         group: sorted(species_summaries)
@@ -292,7 +299,9 @@ def find_annotation_targets(
             if record.version_status == "latest"
         ]
 
-    raise ValueError("Must provide at least one of: assembly_acc, species_name, or group")
+    raise ValueError(
+        "Must provide at least one of: assembly_acc, species_name, or group"
+    )
 
 
 def download_file(
@@ -368,13 +377,16 @@ def download_annotations(
     downloaded_paths: list[AssemblyPaths] = []
     with ThreadPoolExecutor(max_workers=worker_count) as executor:
         future_to_record = {
-            executor.submit(download_assembly, target, log): target for target in targets
+            executor.submit(download_assembly, target, log): target
+            for target in targets
         }
         for future in as_completed(future_to_record):
             record = future_to_record[future]
             try:
                 downloaded_paths.append(future.result())
-                log.info("Downloaded annotation files for %s", record.assembly_accession)
+                log.info(
+                    "Downloaded annotation files for %s", record.assembly_accession
+                )
             except Exception:
                 log.exception(
                     "Failed to download annotation files for %s",

@@ -13,10 +13,22 @@ try:  # Support both package imports and direct same-directory imports.
     from .refseq_conversion import convert_fna_headers, convert_gff_to_ensembl
     from .refseq_ncbi import download_annotations, list_available_annotations
 except ImportError:  # pragma: no cover - used when run beside this file.
-    from gff_core_loader import load_gff_features_to_core, load_to_ensembl_core  # type: ignore
-    from gff_source_config import available_source_configs, get_source_config  # type: ignore
-    from refseq_conversion import convert_fna_headers, convert_gff_to_ensembl  # type: ignore
-    from refseq_ncbi import download_annotations, list_available_annotations  # type: ignore
+    from gff_core_loader import (  # type: ignore
+        load_gff_features_to_core,
+        load_to_ensembl_core,
+    )
+    from gff_source_config import (  # type: ignore
+        available_source_configs,
+        get_source_config,
+    )
+    from refseq_conversion import (  # type: ignore
+        convert_fna_headers,
+        convert_gff_to_ensembl,
+    )
+    from refseq_ncbi import (  # type: ignore
+        download_annotations,
+        list_available_annotations,
+    )
 
 
 LOGGER = logging.getLogger(__name__)
@@ -314,7 +326,9 @@ def run_refseq_pipeline(args: argparse.Namespace) -> int:
     """Download plus RefSeq FASTA/GFF3 conversion, optionally followed by DB load."""
 
     if args.load_core and args.group:
-        LOGGER.error("--load-core with --group is not supported; load one assembly at a time")
+        LOGGER.error(
+            "--load-core with --group is not supported; load one assembly at a time"
+        )
         return 2
 
     paths_list = download_annotations(

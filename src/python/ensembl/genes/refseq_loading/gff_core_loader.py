@@ -10,7 +10,6 @@ from pathlib import Path
 from typing import Any, Iterator, Mapping, Protocol, Sequence, TextIO
 
 try:  # Support both package imports and direct same-directory imports.
-    from .gff_source_config import GENERIC_GFF_CONFIG, GffSourceConfig, REFSEQ_CONFIG
     from .gff_models import (
         CdsSegment,
         ExonRecord,
@@ -19,12 +18,8 @@ try:  # Support both package imports and direct same-directory imports.
         TranscriptRecord,
     )
     from .gff_quality_check import emit_quality_report, run_core_load_quality_check
+    from .gff_source_config import GENERIC_GFF_CONFIG, REFSEQ_CONFIG, GffSourceConfig
 except ImportError:  # pragma: no cover - used when run beside this file.
-    from gff_source_config import (  # type: ignore
-        GENERIC_GFF_CONFIG,
-        GffSourceConfig,
-        REFSEQ_CONFIG,
-    )
     from gff_models import (  # type: ignore
         CdsSegment,
         ExonRecord,
@@ -36,10 +31,17 @@ except ImportError:  # pragma: no cover - used when run beside this file.
         emit_quality_report,
         run_core_load_quality_check,
     )
+    from gff_source_config import (  # type: ignore
+        GENERIC_GFF_CONFIG,
+        REFSEQ_CONFIG,
+        GffSourceConfig,
+    )
 
 
 LOGGER = logging.getLogger(__name__)
-DEFAULT_CORE_SCHEMA_SQL_PATH = Path(__file__).resolve().parent / "config" / "core_schema.sql"
+DEFAULT_CORE_SCHEMA_SQL_PATH = (
+    Path(__file__).resolve().parent / "config" / "core_schema.sql"
+)
 
 
 @contextmanager
@@ -753,7 +755,9 @@ def load_existing_seq_region_ids(
 
     if missing_names:
         preview = ", ".join(missing_names[:10])
-        suffix = "" if len(missing_names) <= 10 else f", ... ({len(missing_names)} total)"
+        suffix = (
+            "" if len(missing_names) <= 10 else f", ... ({len(missing_names)} total)"
+        )
         raise ValueError(
             "GFF references seq_region names missing from the target core DB: "
             f"{preview}{suffix}"
@@ -820,8 +824,7 @@ def initialise_core_tables(
         ],
     )
     cursor.execute(
-        "INSERT INTO analysis (logic_name,created,program) "
-        "VALUES (%s,NOW(),%s)",
+        "INSERT INTO analysis (logic_name,created,program) VALUES (%s,NOW(),%s)",
         (source_config.analysis_logic_name, source_config.analysis_program),
     )
     analysis_id = int(cursor.lastrowid)
@@ -834,7 +837,8 @@ def allocate_numeric_ids(
     """Allocate deterministic numeric gene and transcript IDs."""
 
     gene_id_map = {
-        gene_id: index for index, gene_id in enumerate(sorted(annotation.genes), start=1)
+        gene_id: index
+        for index, gene_id in enumerate(sorted(annotation.genes), start=1)
     }
     transcript_id_map = {
         transcript_id: index

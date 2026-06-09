@@ -4,7 +4,6 @@ from __future__ import annotations
 
 from typing import Final
 
-
 NCBI_GROUPS: Final[tuple[str, ...]] = (
     "vertebrate_mammalian",
     "vertebrate_other",

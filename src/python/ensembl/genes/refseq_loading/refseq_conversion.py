@@ -8,7 +8,6 @@ from contextlib import contextmanager
 from pathlib import Path
 from typing import Collection, Iterator, TextIO
 
-
 LOGGER = logging.getLogger(__name__)
 
 
@@ -95,7 +94,10 @@ def convert_fna_headers(
     converted_headers = 0
     missing_headers = 0
 
-    with open_text_maybe_gzip(input_path) as input_handle, output_path.open("w") as output_handle:
+    with (
+        open_text_maybe_gzip(input_path) as input_handle,
+        output_path.open("w") as output_handle,
+    ):
         for line in input_handle:
             if line.startswith(">"):
                 accession = line[1:].split()[0]
@@ -134,14 +136,21 @@ def convert_gff_to_ensembl(
 
     log = logger or LOGGER
     input_path = Path(gff_path)
-    output = Path(output_path) if output_path is not None else default_gff_output_path(input_path)
+    output = (
+        Path(output_path)
+        if output_path is not None
+        else default_gff_output_path(input_path)
+    )
     allowed_sequences = set(chrom_filter) if chrom_filter else None
     refseq_to_name = load_refseq_name_map(assembly_report_path)
     converted_features = 0
     skipped_features = 0
     unmapped_features = 0
 
-    with open_text_maybe_gzip(input_path) as input_handle, output.open("w") as output_handle:
+    with (
+        open_text_maybe_gzip(input_path) as input_handle,
+        output.open("w") as output_handle,
+    ):
         for line in input_handle:
             if line.startswith("#"):
                 if line.lower().startswith("##sequence-region"):
@@ -174,7 +183,9 @@ def convert_gff_to_ensembl(
             output_handle.write("\t".join(columns) + "\n")
 
     if unmapped_features:
-        log.warning("%s GFF3 features had no assembly-report mapping", unmapped_features)
+        log.warning(
+            "%s GFF3 features had no assembly-report mapping", unmapped_features
+        )
     log.info(
         "Wrote converted GFF3 to %s (%s converted features, %s skipped)",
         output,

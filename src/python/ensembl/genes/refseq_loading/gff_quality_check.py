@@ -71,9 +71,7 @@ class CoreLoadQualityReport:
         missing = sum(metric.missing for metric in self.metrics)
         unexpected = sum(metric.unexpected for metric in self.metrics)
         mismatched = sum(metric.mismatched for metric in self.metrics)
-        return (
-            f"missing={missing} unexpected={unexpected} mismatched={mismatched}"
-        )
+        return f"missing={missing} unexpected={unexpected} mismatched={mismatched}"
 
     def render_lines(self) -> list[str]:
         """Return printable/loggable report lines."""
@@ -111,9 +109,7 @@ class CoreLoadQualityReport:
                 lines.append(f"missing {label} examples: {', '.join(examples[:10])}")
         for label, examples in sorted(self.unexpected_examples.items()):
             if examples:
-                lines.append(
-                    f"unexpected {label} examples: {', '.join(examples[:10])}"
-                )
+                lines.append(f"unexpected {label} examples: {', '.join(examples[:10])}")
         for label, examples in sorted(self.mismatch_examples.items()):
             if examples:
                 lines.append(f"mismatched {label} examples: {', '.join(examples[:10])}")
@@ -398,9 +394,7 @@ def _add_id_value_metric(
     if missing_ids:
         report.missing_examples[name] = [str(db_id) for db_id in missing_ids[:10]]
     if unexpected_ids:
-        report.unexpected_examples[name] = [
-            str(db_id) for db_id in unexpected_ids[:10]
-        ]
+        report.unexpected_examples[name] = [str(db_id) for db_id in unexpected_ids[:10]]
     if mismatched_ids:
         report.mismatch_examples[name] = [
             f"{db_id}: expected={expected[db_id]} observed={actual[db_id]}"
