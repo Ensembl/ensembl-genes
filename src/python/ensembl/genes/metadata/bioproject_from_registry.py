@@ -17,7 +17,7 @@
 
 import logging
 import os
-from typing import Optional
+from typing import List, Optional
 
 import pymysql
 
@@ -26,14 +26,14 @@ logger = logging.getLogger(__name__)
 DEFAULT_REGISTRY_DB = "gb_assembly_metadata"
 
 
-def get_bioproject_name(
+def get_bioproject_names(
     assembly_accession: str,
     user: str,
     host: Optional[str] = None,
     port: Optional[int] = None,
     database: str = DEFAULT_REGISTRY_DB,
-) -> str:
-    """Return the main BioProject name for an assembly accession.
+) -> List[str]:
+    """Return the main BioProject names for an assembly accession.
 
     Args:
         assembly_accession: GCA assembly accession including version.
@@ -43,20 +43,20 @@ def get_bioproject_name(
         database: Registry database name.
 
     Returns:
-        BioProject name, or an empty string if it is unavailable.
+        BioProject names, or an empty list if they are unavailable.
     """
     registry_host = host or os.environ.get("GBS1")
     registry_port = port or os.environ.get("GBP1")
 
     if not user:
         logger.warning(" | GENOME.GENOME_GROUP | Registry user not set")
-        return ""
+        return []
 
     if not registry_host or not registry_port:
         logger.warning(
             " | GENOME.GENOME_GROUP | Registry host/port not set; expected GBS1 and GBP1"
         )
-        return ""
+        return []
 
     try:
         registry_port = int(registry_port)
@@ -65,7 +65,7 @@ def get_bioproject_name(
             " | GENOME.GENOME_GROUP | Invalid registry port for BioProject lookup: %s",
             registry_port,
         )
-        return ""
+        return []
 
     query = """
         SELECT DISTINCT mb.bioproject_name
@@ -75,7 +75,6 @@ def get_bioproject_name(
         WHERE CONCAT(a.gca_chain, '.', a.gca_version) = %s
           AND mb.bioproject_name IS NOT NULL
         ORDER BY mb.bioproject_name
-        LIMIT 1
     """
 
     conn = None
@@ -89,13 +88,13 @@ def get_bioproject_name(
         )
         with conn.cursor() as cursor:
             cursor.execute(query, (assembly_accession,))
-            result = cursor.fetchone()
+            results = cursor.fetchall()
     except pymysql.Error:
         logger.exception(
             " | GENOME.GENOME_GROUP | Could not fetch BioProject name from registry for %s",
             assembly_accession,
         )
-        return ""
+        return []
     finally:
         if conn is not None:
             try:
@@ -103,11 +102,35 @@ def get_bioproject_name(
             except pymysql.Error:
                 logger.exception("Error closing registry connection")
 
-    if not result or not result.get("bioproject_name"):
+    bioproject_names = [
+        str(result["bioproject_name"])
+        for result in results
+        if result.get("bioproject_name")
+    ]
+
+    if not bioproject_names:
         logger.warning(
             " | GENOME.GENOME_GROUP | No BioProject name found in registry for %s",
             assembly_accession,
         )
-        return ""
+        return []
 
-    return str(result["bioproject_name"])
+    return bioproject_names
+
+
+def get_bioproject_name(
+    assembly_accession: str,
+    user: str,
+    host: Optional[str] = None,
+    port: Optional[int] = None,
+    database: str = DEFAULT_REGISTRY_DB,
+) -> str:
+    """Return the first main BioProject name for an assembly accession."""
+    bioproject_names = get_bioproject_names(
+        assembly_accession,
+        user=user,
+        host=host,
+        port=port,
+        database=database,
+    )
+    return bioproject_names[0] if bioproject_names else ""
