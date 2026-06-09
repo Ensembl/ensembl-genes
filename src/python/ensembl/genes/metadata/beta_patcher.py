@@ -35,13 +35,14 @@ try:
     from ensembl.production.metadata.api.adaptors.genome import GenomeAdaptor
 
     METADATA_API_AVAILABLE = True
-except ImportError:
+except ImportError as exc:
     METADATA_API_AVAILABLE = False
     logging.warning(
         "ensembl-metadata-api not available. Install with:\n"
         "  git clone https://github.com/Ensembl/ensembl-metadata-api.git\n"
         "  cd ensembl-metadata-api\n"
-        "  pip install -r requirements.txt && pip install -e ."
+        "  pip install -r requirements.txt && pip install -e .\n"
+        f"ImportError: {exc}"
     )
 
 
@@ -56,6 +57,7 @@ def setup_logging(output_dir: Path, genome_uuid: str) -> logging.Logger:
         level=logging.INFO,
         format="%(asctime)s - %(levelname)s - %(message)s",
         handlers=[logging.FileHandler(log_file), logging.StreamHandler(sys.stdout)],
+        force=True,
     )
     return logging.getLogger(__name__)
 
@@ -1270,6 +1272,7 @@ See patches_template.csv for a complete example.
         level=logging.INFO,
         format="%(asctime)s - %(levelname)s - %(message)s",
         handlers=[logging.FileHandler(log_file), logging.StreamHandler(sys.stdout)],
+        force=True,
     )
     logger = logging.getLogger(__name__)
 
