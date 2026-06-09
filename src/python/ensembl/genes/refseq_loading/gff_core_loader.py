@@ -316,9 +316,11 @@ def parse_converted_gff3(
                         strand=strand_value,
                         phase=None,
                         end_phase=None,
-                        stable_id=normalize_id(exon_stable_id, source_config)
-                        if exon_stable_id
-                        else None,
+                        stable_id=(
+                            normalize_id(exon_stable_id, source_config)
+                            if exon_stable_id
+                            else None
+                        ),
                     )
                 )
                 continue
