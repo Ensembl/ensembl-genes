@@ -9,7 +9,7 @@ from refseq2ensembl import convert_gff_to_ensembl
 def main():
     # Inputs
     base_dir = "refseq_data/GCF/000/001/635/GCF_000001635.27/"
-    gff_in = os.path.join(base_dir, "GCF_000001635.27_GRCm39_genomic.gff.gz")
+    gff_in = os.path.join(base_dir, "GCF_000001635.27_GRCm39_genomic.gff")
     report_in = os.path.join(base_dir, "GCF_000001635.27_GRCm39_assembly_report.txt")
     gff_out = os.path.join(base_dir, "GCF_000001635.27_GRCm39_ensembl_style_all.gff3")
 

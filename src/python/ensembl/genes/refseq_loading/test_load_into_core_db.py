@@ -10,22 +10,18 @@ from refseq2ensembl import load_to_ensembl_core
 
 def main():
     # Paths to required files
-#    base_dir = "refseq_data/GCF/000/001/635/GCF_000001635.27/"
-    base_dir = "/nfs/production/flicek/ensembl/genebuild/fergal/refseq_loading_test/"
-#    gff_path = os.path.join(base_dir, "GCF_000001635.27_GRCm39_genomic.gff")
-    gff_path = os.path.join(base_dir, "NC_small.gff3")
-#    assembly_report = os.path.join(base_dir, "GCF_000001635.27_GRCm39_assembly_report.txt")
-    assembly_report = "/nfs/production/flicek/ensembl/genebuild/fergal/refseq_loading_test/GCF_000001635.27_GRCm39_assembly_report.txt"
-#    converted_fna_path = os.path.join(base_dir, "GCF_000001635.27_GRCm39_genomic_simple.fna")
-    converted_fna_path = os.path.join(base_dir, "NC_small.fna")
+    base_dir = "refseq_data/GCF/000/001/635/GCF_000001635.27/"
+    gff_path = os.path.join(base_dir, "GCF_000001635.27_GRCm39_ensembl_style_all.gff3")
+    assembly_report = os.path.join(base_dir, "GCF_000001635.27_GRCm39_assembly_report.txt")
+    converted_fna_path = os.path.join(base_dir, "GCF_000001635.27_GRCm39_genomic_ensembl.fna")
     # Metadata
-    species_name = "Mus musculus"
+    species_name = "Lazar Mus musculus refseq"
     assembly_accession = "GCF_000001635.27"
 
     # Database connection (adjust to your environment)
-    db_host = "mysql-ens-genebuild-prod-1"
+    db_host = "mysql-ens-genebuild-prod-6"
     db_user = "ensadmin"
-    db_port = "4527"
+    db_port = "4532"
     db_password = "ensembl"
     schema_sql_path="/nfs/production/flicek/ensembl/genebuild/fergal/refseq_loading_test/ensembl/sql/table.sql"
 
