@@ -16,22 +16,11 @@ from typing import Iterable
 import requests  # type: ignore[import]
 
 try:  # Support both package imports and direct same-directory imports.
-    from .refseq_constants import (
-        ANNOTATION_METADATA_FIELDS,
-        ASSEMBLY_SUMMARY_MIN_COLUMNS,
-        NCBI_GROUPS,
-    )
-    from .refseq_models import AssemblyPaths, AssemblySummaryRecord
+    from . import refseq_constants as _refseq_constants
+    from . import refseq_models as _refseq_models
 except ImportError:  # pragma: no cover - used when run beside this file.
-    from refseq_constants import (
-        ANNOTATION_METADATA_FIELDS,  # type: ignore[import]
-        ASSEMBLY_SUMMARY_MIN_COLUMNS,  # type: ignore[import]
-        NCBI_GROUPS,  # type: ignore[import]
-    )
-    from refseq_models import (
-        AssemblyPaths,  # type: ignore[import]
-        AssemblySummaryRecord,  # type: ignore[import]
-    )
+    import refseq_constants as _refseq_constants  # type: ignore[import,no-redef]
+    import refseq_models as _refseq_models  # type: ignore[import,no-redef]
 
 
 LOGGER = logging.getLogger(__name__)
@@ -52,7 +41,7 @@ def accession_subdir(assembly_accession: str) -> str:
 
 def build_assembly_paths(
     base_dir: str | Path, assembly_accession: str, ftp_path: str
-) -> AssemblyPaths:
+) -> _refseq_models.AssemblyPaths:
     """Build all local and remote paths for one RefSeq assembly."""
 
     accession_prefix = assembly_accession.split("_", 1)[0]
@@ -66,7 +55,7 @@ def build_assembly_paths(
     gff_url = f"{ftp_path}/{ftp_base}_genomic.gff.gz"
     fasta_url = f"{ftp_path}/{ftp_base}_genomic.fna.gz"
     assembly_report_url = f"{ftp_path}/{ftp_base}_assembly_report.txt"
-    return AssemblyPaths(
+    return _refseq_models.AssemblyPaths(
         assembly_accession=assembly_accession,
         ftp_path=ftp_path,
         ftp_base=ftp_base,
@@ -85,17 +74,17 @@ def parse_assembly_summary(
     group: str,
     base_dir: str | Path = "refseq_data",
     logger: logging.Logger | None = None,
-) -> list[AssemblySummaryRecord]:
+) -> list[_refseq_models.AssemblySummaryRecord]:
     """Parse one NCBI assembly_summary.txt file."""
 
     log = logger or LOGGER
-    records: list[AssemblySummaryRecord] = []
+    records: list[_refseq_models.AssemblySummaryRecord] = []
     for line_number, line in enumerate(summary_text.splitlines(), start=1):
         if line.startswith("#") or not line.strip():
             continue
 
         columns = line.split("\t")
-        if len(columns) < ASSEMBLY_SUMMARY_MIN_COLUMNS:
+        if len(columns) < _refseq_constants.ASSEMBLY_SUMMARY_MIN_COLUMNS:
             log.debug(
                 "Skipping short assembly summary row %s in %s", line_number, group
             )
@@ -110,7 +99,7 @@ def parse_assembly_summary(
         species_name = " ".join(organism_name.split()[:2])
         paths = build_assembly_paths(base_dir, columns[0], ftp_path)
         records.append(
-            AssemblySummaryRecord(
+            _refseq_models.AssemblySummaryRecord(
                 group=group,
                 assembly_accession=columns[0],
                 assembly_name=columns[15],
@@ -131,7 +120,7 @@ def fetch_assembly_summary(
     session: requests.Session | None = None,
     timeout: int = 20,
     logger: logging.Logger | None = None,
-) -> list[AssemblySummaryRecord]:
+) -> list[_refseq_models.AssemblySummaryRecord]:
     """Fetch and parse the RefSeq assembly summary for one clade group."""
 
     log = logger or LOGGER
@@ -151,12 +140,12 @@ def fetch_groups(
     session: requests.Session | None = None,
     timeout: int = 20,
     logger: logging.Logger | None = None,
-) -> list[AssemblySummaryRecord]:
+) -> list[_refseq_models.AssemblySummaryRecord]:
     """Fetch assembly summaries for all configured groups or one group."""
 
     log = logger or LOGGER
-    groups = (group_filter,) if group_filter else NCBI_GROUPS
-    records: list[AssemblySummaryRecord] = []
+    groups = (group_filter,) if group_filter else _refseq_constants.NCBI_GROUPS
+    records: list[_refseq_models.AssemblySummaryRecord] = []
     for group in groups:
         try:
             records.extend(
@@ -174,7 +163,7 @@ def fetch_groups(
 
 
 def write_annotation_metadata_tsv(
-    records: Iterable[AssemblySummaryRecord], output_tsv: str | Path
+    records: Iterable[_refseq_models.AssemblySummaryRecord], output_tsv: str | Path
 ) -> Path:
     """Write assembly metadata rows to a tab-separated file."""
 
@@ -182,7 +171,9 @@ def write_annotation_metadata_tsv(
     sorted_records = sorted(records, key=lambda row: (row.group, row.species_name))
     with output_path.open("w", newline="") as handle:
         writer = csv.DictWriter(
-            handle, delimiter="\t", fieldnames=ANNOTATION_METADATA_FIELDS
+            handle,
+            delimiter="\t",
+            fieldnames=_refseq_constants.ANNOTATION_METADATA_FIELDS,
         )
         writer.writeheader()
         for record in sorted_records:
@@ -192,7 +183,7 @@ def write_annotation_metadata_tsv(
 
 
 def summarize_annotations(
-    records: Iterable[AssemblySummaryRecord],
+    records: Iterable[_refseq_models.AssemblySummaryRecord],
 ) -> dict[str, list[str]]:
     """Return clade to species summaries for listing and reporting."""
 
@@ -253,11 +244,11 @@ def find_annotation_targets(
     group: str | None = None,
     session: requests.Session | None = None,
     logger: logging.Logger | None = None,
-) -> list[AssemblySummaryRecord]:
+) -> list[_refseq_models.AssemblySummaryRecord]:
     """Locate assembly records by accession, species, or latest group batch."""
 
     log = logger or LOGGER
-    groups = (group,) if group else NCBI_GROUPS
+    groups = (group,) if group else _refseq_constants.NCBI_GROUPS
 
     if assembly_acc:
         for group_name in groups:
@@ -335,9 +326,9 @@ def download_file(
 
 
 def download_assembly(
-    record: AssemblySummaryRecord,
+    record: _refseq_models.AssemblySummaryRecord,
     logger: logging.Logger | None = None,
-) -> AssemblyPaths:
+) -> _refseq_models.AssemblyPaths:
     """Download GFF3, FASTA, and assembly report files for one assembly."""
 
     log = logger or LOGGER
@@ -357,7 +348,7 @@ def download_annotations(
     max_workers: int = 2,
     session: requests.Session | None = None,
     logger: logging.Logger | None = None,
-) -> list[AssemblyPaths]:
+) -> list[_refseq_models.AssemblyPaths]:
     """Download RefSeq annotation files selected by accession, species, or group."""
 
     log = logger or LOGGER
@@ -374,7 +365,7 @@ def download_annotations(
         return []
 
     worker_count = max(1, min(max_workers, len(targets)))
-    downloaded_paths: list[AssemblyPaths] = []
+    downloaded_paths: list[_refseq_models.AssemblyPaths] = []
     with ThreadPoolExecutor(max_workers=worker_count) as executor:
         future_to_record = {
             executor.submit(download_assembly, target, log): target

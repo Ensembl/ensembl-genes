@@ -64,12 +64,15 @@ class DbCursor(Protocol):
 
     def execute(self, operation: str, params: Any | None = None) -> Any:
         """Execute one SQL statement."""
+        ...
 
     def executemany(self, operation: str, seq_params: Sequence[Any]) -> Any:
         """Execute one SQL statement for many parameter sets."""
+        ...
 
     def fetchone(self) -> tuple[Any, ...] | None:
         """Fetch one result row."""
+        ...
 
 
 def normalize_id(
@@ -645,12 +648,12 @@ def connect_mysql(
         connection_args["database"] = db_name
 
     try:
-        import pymysql  # type: ignore[import-not-found]
+        import pymysql  # type: ignore[import]
 
         return pymysql.connect(**connection_args)
     except ImportError as pymysql_error:
         try:
-            import mysql.connector  # type: ignore[import-not-found]
+            import mysql.connector  # type: ignore[import]
         except ImportError as mysql_connector_error:  # pragma: no cover
             raise ImportError(
                 "A MySQL client is required for core loading. The package "
