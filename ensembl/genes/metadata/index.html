@@ -1582,6 +1582,34 @@
   
   
     <li class="md-nav__item">
+      <a href="bioproject_from_registry/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    bioproject_from_registry
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="core_meta_data/" class="md-nav__link">
         
   
@@ -2370,9 +2398,9 @@
 <h2 id="running-beta_patcherpy">Running beta_patcher.py<a class="headerlink" href="#running-beta_patcherpy" title="Permanent link">&para;</a></h2>
 <p>Generates SQL patches for beta metadata fixes in both production metadata DB and core DBs.</p>
 <p><strong>Setup:</strong></p>
-<pre><code class="language-bash">pip install -e .
+<pre><code class="language-bash">pip install -r requirements.txt
 git clone https://github.com/Ensembl/ensembl-metadata-api.git
-cd ensembl-metadata-api &amp;&amp; pip install -e .
+cd ensembl-metadata-api &amp;&amp; pip install -r requirements.txt &amp;&amp; pip install -e .
 </code></pre>
 <p>You also require two environemtal variables to enable interaction with the production metadata db. Substitute in the valid connection details for these database servers.</p>
 <pre><code class="language-bash">export METADATA_URI=&quot;mysql+pymysql://user:pass@host:port/ensembl_genome_metadata&quot;
