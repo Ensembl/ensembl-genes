@@ -26,6 +26,11 @@ logger = logging.getLogger(__name__)
 DEFAULT_REGISTRY_DB = "gb_assembly_metadata"
 
 
+def normalise_genome_group_name(genome_group_name: str) -> str:
+    """Return the meta-safe genome group name."""
+    return genome_group_name.strip().lower().replace("/", "-")
+
+
 def get_bioproject_names(
     assembly_accession: str,
     user: str,
@@ -131,7 +136,7 @@ def get_bioproject_names(
                 logger.exception("Error closing registry connection")
 
     genome_group_names = [
-        str(result["genome_group"]).lower()
+        normalise_genome_group_name(str(result["genome_group"]))
         for result in results
         if result.get("genome_group")
     ]
