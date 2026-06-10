@@ -5,13 +5,15 @@ from dataclasses import asdict
 import pandas as pd
 from typing import Tuple
 
-from ensembl.genes.annotation_qc.parsers.annotation import (
+from ensembl.genes.annotation_qc.constants.feature_types import (
     CDS_FEATURE_TYPES,
     EXON_FEATURE_TYPES,
     FIVE_PRIME_UTR_FEATURE_TYPES,
     GENE_FEATURE_TYPES,
     THREE_PRIME_UTR_FEATURE_TYPES,
     TRANSCRIPT_FEATURE_TYPES,
+)
+from ensembl.genes.annotation_qc.parsers.annotation import (
     standardize_annotation,
 )
 from ensembl.genes.annotation_qc.metrics.events import (

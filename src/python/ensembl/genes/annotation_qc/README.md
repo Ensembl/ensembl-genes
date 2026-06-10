@@ -93,6 +93,15 @@ with than requiring every metric to understand list-valued parent columns.
 Runners should make the feature slices they pass to metrics explicit.
 
 ```python
+from ensembl.genes.annotation_qc.constants.feature_types import (
+    CDS_FEATURE_TYPES,
+    EXON_FEATURE_TYPES,
+    FIVE_PRIME_UTR_FEATURE_TYPES,
+    GENE_FEATURE_TYPES,
+    THREE_PRIME_UTR_FEATURE_TYPES,
+    TRANSCRIPT_FEATURE_TYPES,
+)
+
 annotation = parse_annotation(annotation_path)
 
 gene_df = annotation[annotation["Feature"].isin(GENE_FEATURE_TYPES)]
