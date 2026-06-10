@@ -33,7 +33,7 @@ def get_bioproject_names(
     port: Optional[int] = None,
     database: str = DEFAULT_REGISTRY_DB,
 ) -> List[str]:
-    """Return the main BioProject names for an assembly accession.
+    """Return genome group names for an assembly accession.
 
     Args:
         assembly_accession: GCA assembly accession including version.
@@ -43,7 +43,7 @@ def get_bioproject_names(
         database: Registry database name.
 
     Returns:
-        BioProject names, or an empty list if they are unavailable.
+        Genome group names, or an empty list if they are unavailable.
     """
     registry_host = host or os.environ.get("GBS1")
     registry_port = port or os.environ.get("GBP1")
@@ -68,13 +68,39 @@ def get_bioproject_names(
         return []
 
     query = """
-        SELECT DISTINCT mb.bioproject_name
-        FROM assembly a
-        JOIN bioproject b ON a.assembly_id = b.assembly_id
-        JOIN main_bioproject mb ON b.bioproject_id = mb.bioproject_id
-        WHERE CONCAT(a.gca_chain, '.', a.gca_version) = %s
-          AND mb.bioproject_name IS NOT NULL
-        ORDER BY mb.bioproject_name
+        SELECT DISTINCT genome_group
+        FROM (
+            SELECT mb.bioproject_name AS genome_group
+            FROM assembly a
+            JOIN bioproject b ON a.assembly_id = b.assembly_id
+            JOIN main_bioproject mb ON b.bioproject_id = mb.bioproject_id
+            WHERE CONCAT(a.gca_chain, '.', a.gca_version) = %s
+              AND mb.bioproject_name IS NOT NULL
+
+            UNION
+
+            SELECT cg.group_name AS genome_group
+            FROM assembly a
+            JOIN custom_group cg
+              ON cg.group_type = 'assembly'
+             AND cg.item = a.gca_chain
+            WHERE CONCAT(a.gca_chain, '.', a.gca_version) = %s
+
+            UNION
+
+            SELECT cg.group_name AS genome_group
+            FROM assembly a
+            LEFT JOIN species s ON a.lowest_taxon_id = s.lowest_taxon_id
+            JOIN custom_group cg
+              ON cg.group_type = 'taxon'
+             AND cg.item IN (
+                CAST(a.lowest_taxon_id AS CHAR),
+                CAST(s.species_taxon_id AS CHAR)
+             )
+            WHERE CONCAT(a.gca_chain, '.', a.gca_version) = %s
+        ) genome_groups
+        WHERE genome_group IS NOT NULL
+        ORDER BY genome_group
     """
 
     conn = None
@@ -87,11 +113,13 @@ def get_bioproject_names(
             cursorclass=pymysql.cursors.DictCursor,
         )
         with conn.cursor() as cursor:
-            cursor.execute(query, (assembly_accession,))
+            cursor.execute(
+                query, (assembly_accession, assembly_accession, assembly_accession)
+            )
             results = cursor.fetchall()
     except pymysql.Error:
         logger.exception(
-            " | GENOME.GENOME_GROUP | Could not fetch BioProject name from registry for %s",
+            " | GENOME.GENOME_GROUP | Could not fetch genome group names from registry for %s",
             assembly_accession,
         )
         return []
@@ -102,20 +130,18 @@ def get_bioproject_names(
             except pymysql.Error:
                 logger.exception("Error closing registry connection")
 
-    bioproject_names = [
-        str(result["bioproject_name"])
-        for result in results
-        if result.get("bioproject_name")
+    genome_group_names = [
+        str(result["genome_group"]) for result in results if result.get("genome_group")
     ]
 
-    if not bioproject_names:
+    if not genome_group_names:
         logger.warning(
-            " | GENOME.GENOME_GROUP | No BioProject name found in registry for %s",
+            " | GENOME.GENOME_GROUP | No genome group name found in registry for %s",
             assembly_accession,
         )
         return []
 
-    return bioproject_names
+    return genome_group_names
 
 
 def get_bioproject_name(
@@ -125,7 +151,7 @@ def get_bioproject_name(
     port: Optional[int] = None,
     database: str = DEFAULT_REGISTRY_DB,
 ) -> str:
-    """Return the first main BioProject name for an assembly accession."""
+    """Return the first genome group name for an assembly accession."""
     bioproject_names = get_bioproject_names(
         assembly_accession,
         user=user,
