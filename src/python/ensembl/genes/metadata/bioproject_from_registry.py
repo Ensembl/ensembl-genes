@@ -131,7 +131,9 @@ def get_bioproject_names(
                 logger.exception("Error closing registry connection")
 
     genome_group_names = [
-        str(result["genome_group"]) for result in results if result.get("genome_group")
+        str(result["genome_group"]).lower()
+        for result in results
+        if result.get("genome_group")
     ]
 
     if not genome_group_names:
