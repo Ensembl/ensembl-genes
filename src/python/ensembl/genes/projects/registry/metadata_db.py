@@ -1,17 +1,21 @@
 """
 Data fetcher for the Ensembl Metadata database.
 """
-import pymysql
+
 import logging
-from typing import Optional, Dict, Any
+from typing import Optional
+
+import pymysql
+
 from ensembl.genes.projects.models import GenomeMetadata
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+
 class MetadataDbClient:
     """Queries the Ensembl Metadata Schema to build GenomeMetadata."""
-    
+
     def __init__(self, host: str, port: int, user: str, dbname: str):
         self.host = host
         self.port = port
@@ -58,7 +62,7 @@ class MetadataDbClient:
             GROUP BY genome.genome_uuid, dataset_source.name, assembly.accession, organism.scientific_name, organism.strain, organism.taxonomy_id, assembly.name
             LIMIT 1
         """
-        
+
         try:
             conn = pymysql.connect(
                 host=self.host, user=self.user, port=self.port, database=self.dbname
@@ -70,19 +74,19 @@ class MetadataDbClient:
             logger.error(f"MySQL error querying metadata DB: {e}")
             return None
         finally:
-            if 'conn' in locals() and conn.open:
+            if "conn" in locals() and conn.open:
                 conn.close()
 
         if not row:
             logger.warning(f"No metadata found for identifier: {identifier}")
             return None
-            
-        species_name = row['scientific_name'] if row['scientific_name'] else ""
-        
+
+        species_name = row["scientific_name"] if row["scientific_name"] else ""
+
         # Proper alternate pairing: look for assemblies of the exact same taxonomy & strain
         # but with a different accession. Returns the rapid-release URL.
         alternate_url = None
-        if row.get('strain'):
+        if row.get("strain"):
             alt_query = """
                 SELECT genome.url_name
                 FROM genome
@@ -94,31 +98,35 @@ class MetadataDbClient:
                 LIMIT 1
             """
             try:
-                conn = pymysql.connect(host=self.host, user=self.user, port=self.port, database=self.dbname)
+                conn = pymysql.connect(
+                    host=self.host, user=self.user, port=self.port, database=self.dbname
+                )
                 with conn.cursor(pymysql.cursors.DictCursor) as cursor:
-                    cursor.execute(alt_query, (row['taxonomy_id'], row['strain'], row['accession']))
+                    cursor.execute(
+                        alt_query, (row["taxonomy_id"], row["strain"], row["accession"])
+                    )
                     alt_row = cursor.fetchone()
-                    if alt_row and alt_row.get('url_name'):
+                    if alt_row and alt_row.get("url_name"):
                         alternate_url = f"https://rapid.ensembl.org/{alt_row['url_name']}/Info/Index"
             except Exception as e:
                 logger.error(f"Failed to lookup alternate haplotype: {e}")
             finally:
-                if 'conn' in locals() and conn.open:
+                if "conn" in locals() and conn.open:
                     conn.close()
 
         return GenomeMetadata(
-            genome_uuid=row['genome_uuid'],
-            dbname=row['dbname'],
-            accession=row['accession'],
+            genome_uuid=row["genome_uuid"],
+            dbname=row["dbname"],
+            accession=row["accession"],
             species_name=species_name,
-            assembly_name=row['assembly_name'],
-            strain=row['strain'],
-            taxon_id=row['taxonomy_id'],
+            assembly_name=row["assembly_name"],
+            strain=row["strain"],
+            taxon_id=row["taxonomy_id"],
             alternate_of=alternate_url,
-            annotation_source=row.get('annotation_source'),
-            annotation_method=row.get('annotation_method'),
-            annotation_date=row.get('geneset_date'),
-            busco_score=row.get('busco_score'),
-            busco_lineage=row.get('busco_lineage'),
-            is_released=True
+            annotation_source=row.get("annotation_source"),
+            annotation_method=row.get("annotation_method"),
+            annotation_date=row.get("geneset_date"),
+            busco_score=row.get("busco_score"),
+            busco_lineage=row.get("busco_lineage"),
+            is_released=True,
         )

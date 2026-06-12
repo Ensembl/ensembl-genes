@@ -18,16 +18,19 @@ import argparse
 import json
 import re
 import sys
-import time
-from ftplib import FTP, error_perm, error_temp
-from typing import Any, Dict, Optional, Tuple
-import socket
+import warnings
+from typing import Dict, Tuple
+
 import pymysql
 import requests
-import warnings
+
 from ensembl.genes.projects.ftp_client import EnsemblFTP, check_url_status
 
-warnings.warn("write_yaml.py is deprecated. Please use generate_project_yaml.py instead.", DeprecationWarning)
+warnings.warn(
+    "write_yaml.py is deprecated. Please use generate_project_yaml.py instead.",
+    DeprecationWarning,
+)
+
 
 def mysql_fetch_data(
     query: str, database: str, host: str, port: int, user: str, password: str
@@ -55,6 +58,7 @@ def mysql_fetch_data(
     cursor.close()
     conn.close()
     return info
+
 
 def write_yaml(
     info_dict: Dict[str, str],

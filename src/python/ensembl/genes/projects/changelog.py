@@ -4,6 +4,7 @@ Changelog comparison logic for project YAML files.
 Compares a newly generated YAML against a previous version and reports
 added, removed, and modified entries in a human-readable format.
 """
+
 import re
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -124,12 +125,8 @@ def compare_yamls(
     old_keys = set(old_docs.keys())
     new_keys = set(new_docs.keys())
 
-    added = sorted(
-        [(k, _display_name(new_docs[k])) for k in (new_keys - old_keys)]
-    )
-    removed = sorted(
-        [(k, _display_name(old_docs[k])) for k in (old_keys - new_keys)]
-    )
+    added = sorted([(k, _display_name(new_docs[k])) for k in (new_keys - old_keys)])
+    removed = sorted([(k, _display_name(old_docs[k])) for k in (old_keys - new_keys)])
 
     modified: List[Tuple[str, str, List[Tuple[str, Any, Any]]]] = []
     for key in sorted(old_keys & new_keys):

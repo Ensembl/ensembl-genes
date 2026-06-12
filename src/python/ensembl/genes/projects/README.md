@@ -98,11 +98,15 @@ Different projects map to different underlying YAML schemas (`standard`, `hprc`,
 
 Understanding the codebase organization:
 - **`generate_project_yaml.py`**: **The supported production CLI entrypoint.** Coordinates finding candidates and rendering them.
+- **`config.py`**: Project configuration definitions (`ProjectConfig` dataclass) and factory function mapping project names to their data-fetch and schema rules.
+- **`models.py`**: Shared data model (`GenomeMetadata` dataclass) used as the internal representation across all pipeline stages.
 - **`yaml_renderer.py`**: Handles rendering `GenomeMetadata` models into validated dicts and performs actual FTP publishability checks.
 - **`ftp_client.py`**: Core logic for querying the EBI/Ensembl FTP servers.
-- **`gb_tracker.py`**: Client for GB registry pre-release discovery.
-- **`metadata_db.py`**: Client for the metadata DB to look up released GUUIDs.
-- **`bioproject_tracking.py`**: An auxiliary tool for candidate discovery (to generate the input file), but *not* for final YAML eligibility.
+- **`changelog.py`**: Compares old and new YAML outputs and generates human-readable and TSV changelogs.
+- **`registry/gb_tracker.py`**: Client for GB registry pre-release discovery.
+- **`registry/metadata_db.py`**: Client for the metadata DB to look up released GUUIDs.
+- **`registry/ncbi_entrez.py`**: NCBI web scraping for assembly submitters, population data, and parent-of-origin.
+- **`bioproject_tracking.py`** (in `ensembl.genes.tracking`): An auxiliary tool for candidate discovery (to generate the input file), but *not* for final YAML eligibility.
 - **`write_yaml.py` / `hprc_write_yaml.py`**: Legacy/deprecated scripts kept for backwards compatibility. Do not use for new runs.
 
 ## Troubleshooting

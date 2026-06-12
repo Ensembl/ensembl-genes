@@ -28,18 +28,18 @@ Usage examples:
 """
 
 import argparse
-
-
 import json
 import logging
 import re
-from pathlib import Path
-from collections import Counter
-from typing import List, Sequence, Tuple, Any, Dict, Optional
-import subprocess
 import shutil
-import requests
+import subprocess
+import sys
+from collections import Counter
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Sequence, Tuple
+
 import pymysql
+import requests
 
 # -----------------------------------
 # Logging
@@ -296,9 +296,7 @@ def fetch_hprc_assemblies() -> Dict[str, Dict[str, int]]:
         logging.error("No HPRC release 2 GCA accessions found in catalog.")
         sys.exit(1)
 
-    logging.info(
-        "Discovered %d unique HPRC release 2 GCA accessions.", len(accessions)
-    )
+    logging.info("Discovered %d unique HPRC release 2 GCA accessions.", len(accessions))
     return accessions
 
 
@@ -530,19 +528,20 @@ def add_ftp(  # pylint:disable=too-many-locals, too-many-branches
 
                 scientific_name = result[0][0].replace(" ", "_").replace(".", "")
                 ftp_link = f"https://ftp.ebi.ac.uk/pub/databases/ensembl/pre-release/{scientific_name}/{accession}"
-                
+
                 try:
-                    import requests
                     res = requests.head(ftp_link + "/", allow_redirects=True, timeout=5)
                     if res.status_code == 200:
                         ftp_status = "OK"
                     elif res.status_code in [404, 403]:
                         ftp_status = "Not Found"
                     else:
-                        res_get = requests.get(ftp_link + "/", stream=True, allow_redirects=True, timeout=5)
+                        res_get = requests.get(
+                            ftp_link + "/", stream=True, allow_redirects=True, timeout=5
+                        )
                         ftp_status = "OK" if res_get.status_code == 200 else "Not Found"
                         res_get.close()
-                except:
+                except Exception:  # pylint: disable=broad-exception-caught
                     ftp_status = "Error"
 
                 # attach to matching entries
@@ -582,18 +581,25 @@ def add_ftp(  # pylint:disable=too-many-locals, too-many-branches
                 scientific_name = scientific_name.replace(" ", "_").replace(".", "")
                 source = source.lower()
                 ftp_link = f"https://ftp.ebi.ac.uk/pub/ensemblorganisms/{scientific_name}/{accession}/{source}/geneset/{date}/"
-                
+
                 try:
-                    res = requests.head(ftp_link + "genes.gtf.gz", allow_redirects=True, timeout=5)
+                    res = requests.head(
+                        ftp_link + "genes.gtf.gz", allow_redirects=True, timeout=5
+                    )
                     if res.status_code == 200:
                         ftp_status = "OK"
                     elif res.status_code in [404, 403]:
                         ftp_status = "Not Found"
                     else:
-                        res_get = requests.get(ftp_link + "genes.gtf.gz", stream=True, allow_redirects=True, timeout=5)
+                        res_get = requests.get(
+                            ftp_link + "genes.gtf.gz",
+                            stream=True,
+                            allow_redirects=True,
+                            timeout=5,
+                        )
                         ftp_status = "OK" if res_get.status_code == 200 else "Not Found"
                         res_get.close()
-                except:
+                except Exception:  # pylint: disable=broad-exception-caught
                     ftp_status = "Error"
 
                 if guuid in by_guuid:
@@ -725,7 +731,13 @@ def write_report(
                 if include_ftp:
                     row.append(str(m.get("date") or details.get("date") or ""))
                     row.append(str(m.get("ftp") or details.get("ftp") or "N/A"))
-                    row.append(str(m.get("ftp_status") or details.get("ftp_status") or "Unknown"))
+                    row.append(
+                        str(
+                            m.get("ftp_status")
+                            or details.get("ftp_status")
+                            or "Unknown"
+                        )
+                    )
 
                 file.write("\t".join(row) + "\n")
                 lines_written += 1

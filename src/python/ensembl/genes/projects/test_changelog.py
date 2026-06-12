@@ -127,18 +127,28 @@ def test_compare():
         # Check field-level diffs for GCA_000001
         gca1_mod = [m for m in modified if m[0] == "GCA_000001"][0]
         diff_fields = {d[0] for d in gca1_mod[2]}
-        assert "annotation_gtf" in diff_fields, f"annotation_gtf not in diffs: {diff_fields}"
+        assert (
+            "annotation_gtf" in diff_fields
+        ), f"annotation_gtf not in diffs: {diff_fields}"
         assert "beta_link" in diff_fields, f"beta_link not in diffs: {diff_fields}"
         # ftp_dumps has trailing slash normalisation so should NOT differ
-        assert "ftp_dumps" not in diff_fields, f"ftp_dumps should not differ: {diff_fields}"
-        print("  [PASS] Field-level diff (GCA_000001: gtf date change, beta_link transition)")
+        assert (
+            "ftp_dumps" not in diff_fields
+        ), f"ftp_dumps should not differ: {diff_fields}"
+        print(
+            "  [PASS] Field-level diff (GCA_000001: gtf date change, beta_link transition)"
+        )
 
         # GCA_000003: image change + busco_score change
         gca3_mod = [m for m in modified if m[0] == "GCA_000003"][0]
         diff_fields_3 = {d[0] for d in gca3_mod[2]}
         assert "image" in diff_fields_3, f"image not in diffs: {diff_fields_3}"
-        assert "busco_score" in diff_fields_3, f"busco_score not in diffs: {diff_fields_3}"
-        print("  [PASS] Field-level diff (GCA_000003: image change, busco_score change)")
+        assert (
+            "busco_score" in diff_fields_3
+        ), f"busco_score not in diffs: {diff_fields_3}"
+        print(
+            "  [PASS] Field-level diff (GCA_000003: image change, busco_score change)"
+        )
 
         # Format the report and check it's non-empty
         report = format_changelog(added, removed, modified)

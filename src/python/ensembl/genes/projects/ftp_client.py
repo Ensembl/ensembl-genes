@@ -5,6 +5,7 @@ from typing import Any, Optional
 import socket
 import requests
 
+
 class EnsemblFTP:
     """
     Robust FTP client for Ensembl/EBI with reconnect + tolerant shutdown.
@@ -230,7 +231,8 @@ class EnsemblFTP:
                 except Exception:
                     pass
 
-def check_url_status(url):
+
+def check_url_status(url: str) -> bool:
     """
     Checks if a given URL is reachable.
 
