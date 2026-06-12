@@ -238,11 +238,11 @@ class YamlRenderer:
         doc["species"] = meta.species_name
 
         # Icon resolution via taxonomy lineage (see icon_resolver.py).
-        # The resolver walks the NCBI lineage leaf→root and picks the first
-        # matching rule.  Results are cached per taxon_id for the run.
-        doc["image"] = self.icon_resolver.resolve_icon(
-            meta.taxon_id, accession=meta.accession
-        )
+        # The resolver tries: metadata DB lineage → NCBI Entrez → BUSCO hint.
+        # Results are cached per taxon_id for the run.
+        icon, icon_matched_term, icon_source = self.icon_resolver.resolve_icon(meta)
+        doc["image"] = icon
+        doc["__audit_image_source__"] = f"{icon_source}:{icon_matched_term}"
 
         if self.config.scrape_ncbi_submitter and meta.assembly_submitter:
             doc["submitted_by"] = meta.assembly_submitter

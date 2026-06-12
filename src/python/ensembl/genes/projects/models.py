@@ -28,6 +28,7 @@ class GenomeMetadata:
     common_name: Optional[str] = None
     strain: Optional[str] = None
     taxon_id: Optional[int] = None
+    taxonomy_lineage: Optional[List[str]] = None  # leaf→root classification names
 
     # Optional relationships
     assembly_submitter: Optional[str] = None

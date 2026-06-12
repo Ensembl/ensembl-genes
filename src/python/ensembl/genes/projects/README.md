@@ -77,13 +77,14 @@ A genome is only included in the final YAML if it has valid FTP assets. A GUUID 
 
 ## Images and Icons
 
-Icons are resolved from the NCBI taxonomy lineage via `icon_resolver.py`.
+Icons are resolved from taxonomy lineage data via `icon_resolver.py`, using multiple data sources for robustness.
 
-**How it works:**
-1. The resolver fetches the full taxonomy lineage for the genome's `taxon_id` from NCBI Entrez.
-2. It walks the lineage from most specific to broadest classification.
-3. The first taxonomy name that matches a configured rule determines the icon.
-4. Lineage lookups are cached per `taxon_id` during a run to avoid repeated NCBI requests.
+**Lineage data sources (tried in priority order):**
+1. **Metadata DB lineage** — taxonomy classification pre-fetched from the Ensembl metadata database during data gathering (`GenomeMetadata.taxonomy_lineage`). This is the fastest and most reliable source.
+2. **NCBI Entrez lineage** — live lookup by `taxon_id` via the NCBI Entrez API. Results are cached per `taxon_id` during a run.
+3. **BUSCO lineage hint** — weak but reliable fallback parsing the `busco_lineage` string (e.g. `"insecta_odb10"` → Arthropods.png, `"mammalia_odb10"` → Mammals.png). Used when both metadata and NCBI sources fail.
+
+The first source that produces a usable lineage is walked from most specific to broadest classification. The first taxonomy name that matches a configured rule determines the icon.
 
 **Rule sources (in priority order):**
 - `icons.txt` provides project-specific overrides or additions. Entries here win over built-in defaults for the same taxonomy name.
@@ -100,7 +101,11 @@ Icons are resolved from the NCBI taxonomy lineage via `icon_resolver.py`.
 **Fallback behaviour:**
 - If no specific rule matches but the lineage contains Chordata → `Chordates.png`
 - If nothing matches at all → `Metazoa.png`
-- If `taxon_id` is missing or the NCBI lookup fails, a warning is logged and `Metazoa.png` is used.
+- If all lineage sources fail, a warning is logged and `Metazoa.png` is used.
+
+**Audit/debugging:**
+- The audit TSV includes an `image_source` column showing which lineage source was used and which taxonomy term matched (e.g. `metadata_lineage:Lepidoptera`, `busco_lineage:Insecta`).
+- Debug-level logging shows the resolution path for each genome.
 
 **Important constraints:**
 - Icon selection must **never** use species-name parsing, sample descriptions, or any free-text metadata field.

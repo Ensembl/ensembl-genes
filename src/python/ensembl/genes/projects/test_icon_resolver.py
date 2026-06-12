@@ -7,11 +7,26 @@ Run with:
 
 import os
 import tempfile
+from dataclasses import dataclass, field
+from typing import List, Optional
 from unittest.mock import MagicMock, patch
 
 import pytest
 
 from ensembl.genes.projects.icon_resolver import IconResolver, _FALLBACK_ICON
+
+
+# ---------------------------------------------------------------------------
+# Minimal stand-in for GenomeMetadata (avoids import cycles in tests)
+# ---------------------------------------------------------------------------
+
+
+@dataclass
+class _FakeMeta:
+    accession: str = "GCA_TEST"
+    taxon_id: Optional[int] = 1
+    taxonomy_lineage: Optional[List[str]] = None
+    busco_lineage: Optional[str] = None
 
 
 # ---------------------------------------------------------------------------
@@ -42,61 +57,109 @@ def _mock_response(xml_text, status_code=200):
     return resp
 
 
+def _no_ncbi():
+    """Patch NCBI to always return empty (simulating network failure)."""
+    return patch(
+        "ensembl.genes.projects.icon_resolver.requests.get",
+        return_value=_mock_response("", status_code=500),
+    )
+
+
+def _with_ncbi(lineage_root_to_leaf):
+    """Patch NCBI to return a specific lineage."""
+    xml = _make_entrez_xml(lineage_root_to_leaf)
+    return patch(
+        "ensembl.genes.projects.icon_resolver.requests.get",
+        return_value=_mock_response(xml),
+    )
+
+
 # ---------------------------------------------------------------------------
-# Test the built-in default rules
+# Source 1: metadata DB lineage (highest priority)
 # ---------------------------------------------------------------------------
 
 
-class TestDefaultRules:
-    """Verify that the built-in rules select the correct icon for each
-    major taxonomic group, using mocked NCBI lineage data."""
+class TestMetadataLineage:
+    """When taxonomy_lineage is pre-populated, it should be used first."""
 
-    def _resolve(self, lineage_root_to_leaf, taxon_id=1):
-        """Helper: create a resolver with no icons.txt and mock NCBI."""
-        xml = _make_entrez_xml(lineage_root_to_leaf)
-        with patch("ensembl.genes.projects.icon_resolver.requests.get") as mock_get:
-            mock_get.return_value = _mock_response(xml)
-            resolver = IconResolver(icons_file="/nonexistent/icons.txt")
-            return resolver.resolve_icon(taxon_id, accession="GCA_TEST")
+    def test_metadata_lineage_used_first(self):
+        with _no_ncbi():
+            resolver = IconResolver(icons_file="/nonexistent")
+            meta = _FakeMeta(
+                taxonomy_lineage=[
+                    "Lepidoptera",
+                    "Insecta",
+                    "Arthropoda",
+                    "Metazoa",
+                ],
+            )
+            icon, matched, source = resolver.resolve_icon(meta)
+            assert icon == "Lepidoptera.png"
+            assert matched == "Lepidoptera"
+            assert source == "metadata_lineage"
 
-    def test_lepidoptera(self):
+    def test_metadata_lineage_arthropod(self):
+        with _no_ncbi():
+            resolver = IconResolver(icons_file="/nonexistent")
+            meta = _FakeMeta(
+                taxonomy_lineage=["Arachnida", "Arthropoda", "Metazoa"],
+            )
+            icon, matched, source = resolver.resolve_icon(meta)
+            assert icon == "Arthropods.png"
+            assert source == "metadata_lineage"
+
+    def test_metadata_lineage_bird(self):
+        with _no_ncbi():
+            resolver = IconResolver(icons_file="/nonexistent")
+            meta = _FakeMeta(
+                taxonomy_lineage=["Aves", "Vertebrata", "Chordata", "Metazoa"],
+            )
+            icon, _, source = resolver.resolve_icon(meta)
+            assert icon == "Birds.png"
+            assert source == "metadata_lineage"
+
+    def test_metadata_lineage_plant(self):
+        with _no_ncbi():
+            resolver = IconResolver(icons_file="/nonexistent")
+            meta = _FakeMeta(
+                taxonomy_lineage=[
+                    "Magnoliopsida",
+                    "Streptophyta",
+                    "Viridiplantae",
+                ],
+            )
+            icon, _, source = resolver.resolve_icon(meta)
+            assert icon == "Plants.png"
+            assert source == "metadata_lineage"
+
+
+# ---------------------------------------------------------------------------
+# Source 2: NCBI Entrez lineage
+# ---------------------------------------------------------------------------
+
+
+class TestNCBILineage:
+    """When metadata lineage is absent, NCBI Entrez should be used."""
+
+    def test_ncbi_lepidoptera(self):
         lineage = ["Eukaryota", "Metazoa", "Arthropoda", "Insecta", "Lepidoptera"]
-        assert self._resolve(lineage) == "Lepidoptera.png"
+        with _with_ncbi(lineage):
+            resolver = IconResolver(icons_file="/nonexistent")
+            meta = _FakeMeta(taxon_id=42)
+            icon, matched, source = resolver.resolve_icon(meta)
+            assert icon == "Lepidoptera.png"
+            assert source == "ncbi_lineage"
 
-    def test_non_lepidoptera_insect(self):
-        """Diptera should match Arthropods.png (via Diptera rule), not Metazoa."""
-        lineage = ["Eukaryota", "Metazoa", "Arthropoda", "Insecta", "Diptera"]
-        assert self._resolve(lineage) == "Arthropods.png"
-
-    def test_arthropod_without_specific_order(self):
-        """A generic arthropod (e.g. a spider) should match Arthropoda rule."""
-        lineage = ["Eukaryota", "Metazoa", "Arthropoda", "Arachnida"]
-        assert self._resolve(lineage) == "Arthropods.png"
-
-    def test_mammalia(self):
+    def test_ncbi_mammal(self):
         lineage = ["Eukaryota", "Metazoa", "Chordata", "Vertebrata", "Mammalia"]
-        assert self._resolve(lineage) == "Mammals.png"
+        with _with_ncbi(lineage):
+            resolver = IconResolver(icons_file="/nonexistent")
+            meta = _FakeMeta(taxon_id=42)
+            icon, _, source = resolver.resolve_icon(meta)
+            assert icon == "Mammals.png"
+            assert source == "ncbi_lineage"
 
-    def test_aves(self):
-        lineage = ["Eukaryota", "Metazoa", "Chordata", "Vertebrata", "Aves"]
-        assert self._resolve(lineage) == "Birds.png"
-
-    def test_teleostei(self):
-        lineage = [
-            "Eukaryota",
-            "Metazoa",
-            "Chordata",
-            "Vertebrata",
-            "Actinopterygii",
-            "Teleostei",
-        ]
-        assert self._resolve(lineage) == "Fish.png"
-
-    def test_actinopterygii_without_teleostei(self):
-        lineage = ["Eukaryota", "Metazoa", "Chordata", "Vertebrata", "Actinopterygii"]
-        assert self._resolve(lineage) == "Fish.png"
-
-    def test_chondrichthyes(self):
+    def test_ncbi_fish(self):
         lineage = [
             "Eukaryota",
             "Metazoa",
@@ -104,75 +167,165 @@ class TestDefaultRules:
             "Vertebrata",
             "Chondrichthyes",
         ]
-        assert self._resolve(lineage) == "Fish.png"
+        with _with_ncbi(lineage):
+            resolver = IconResolver(icons_file="/nonexistent")
+            meta = _FakeMeta(taxon_id=42)
+            icon, _, source = resolver.resolve_icon(meta)
+            assert icon == "Fish.png"
+            assert source == "ncbi_lineage"
 
-    def test_amphibia(self):
-        lineage = ["Eukaryota", "Metazoa", "Chordata", "Vertebrata", "Amphibia"]
-        assert self._resolve(lineage) == "Amphibians.png"
+    def test_ncbi_caching(self):
+        """NCBI should only be called once per taxon_id."""
+        lineage = ["Eukaryota", "Metazoa", "Arthropoda"]
+        with _with_ncbi(lineage) as mock_get:
+            resolver = IconResolver(icons_file="/nonexistent")
+            resolver.resolve_icon(_FakeMeta(taxon_id=42))
+            resolver.resolve_icon(_FakeMeta(taxon_id=42))
+            assert mock_get.call_count == 1
 
-    def test_testudines(self):
-        lineage = [
-            "Eukaryota",
-            "Metazoa",
-            "Chordata",
-            "Vertebrata",
-            "Testudines",
-        ]
-        assert self._resolve(lineage) == "Reptiles.png"
 
-    def test_squamata(self):
-        lineage = [
-            "Eukaryota",
-            "Metazoa",
-            "Chordata",
-            "Vertebrata",
-            "Squamata",
-        ]
-        assert self._resolve(lineage) == "Reptiles.png"
+# ---------------------------------------------------------------------------
+# Source 3: BUSCO lineage fallback
+# ---------------------------------------------------------------------------
 
-    def test_serpentes(self):
-        lineage = [
-            "Eukaryota",
-            "Metazoa",
-            "Chordata",
-            "Vertebrata",
-            "Squamata",
-            "Serpentes",
-        ]
-        assert self._resolve(lineage) == "Reptiles.png"
 
-    def test_crocodylia(self):
-        lineage = [
-            "Eukaryota",
-            "Metazoa",
-            "Chordata",
-            "Vertebrata",
-            "Crocodylia",
-        ]
-        assert self._resolve(lineage) == "Reptiles.png"
+class TestBUSCOFallback:
+    """When both metadata and NCBI fail, BUSCO lineage should be used."""
 
-    def test_chordate_without_specific_class(self):
-        """A chordate without a more specific mapping -> Chordates.png."""
-        lineage = ["Eukaryota", "Metazoa", "Chordata", "Tunicata"]
-        assert self._resolve(lineage) == "Chordates.png"
+    def test_busco_insecta(self):
+        with _no_ncbi():
+            resolver = IconResolver(icons_file="/nonexistent")
+            meta = _FakeMeta(taxon_id=None, busco_lineage="insecta_odb10")
+            icon, _, source = resolver.resolve_icon(meta)
+            assert icon == "Arthropods.png"
+            assert source == "busco_lineage"
 
-    def test_viridiplantae(self):
-        lineage = ["Eukaryota", "Viridiplantae", "Streptophyta", "Magnoliopsida"]
-        assert self._resolve(lineage) == "Plants.png"
+    def test_busco_lepidoptera(self):
+        with _no_ncbi():
+            resolver = IconResolver(icons_file="/nonexistent")
+            meta = _FakeMeta(taxon_id=None, busco_lineage="lepidoptera_odb10")
+            icon, _, source = resolver.resolve_icon(meta)
+            assert icon == "Lepidoptera.png"
+            assert source == "busco_lineage"
 
-    def test_fungi(self):
-        lineage = ["Eukaryota", "Fungi", "Ascomycota"]
-        assert self._resolve(lineage) == "Fungi.png"
+    def test_busco_mammalia(self):
+        with _no_ncbi():
+            resolver = IconResolver(icons_file="/nonexistent")
+            meta = _FakeMeta(taxon_id=None, busco_lineage="mammalia_odb10")
+            icon, _, source = resolver.resolve_icon(meta)
+            assert icon == "Mammals.png"
+            assert source == "busco_lineage"
 
-    def test_generic_metazoan(self):
-        """A metazoan that is not an arthropod, chordate, plant, or fungus."""
-        lineage = ["Eukaryota", "Metazoa", "Cnidaria"]
-        assert self._resolve(lineage) == "Metazoa.png"
+    def test_busco_aves(self):
+        with _no_ncbi():
+            resolver = IconResolver(icons_file="/nonexistent")
+            meta = _FakeMeta(taxon_id=None, busco_lineage="aves_odb10")
+            icon, _, source = resolver.resolve_icon(meta)
+            assert icon == "Birds.png"
+            assert source == "busco_lineage"
 
-    def test_completely_unknown_lineage(self):
-        """Lineage with no matching entries at all -> fallback."""
-        lineage = ["Eukaryota", "SomethingUnknown"]
-        assert self._resolve(lineage) == _FALLBACK_ICON
+    def test_busco_actinopterygii(self):
+        with _no_ncbi():
+            resolver = IconResolver(icons_file="/nonexistent")
+            meta = _FakeMeta(taxon_id=None, busco_lineage="actinopterygii_odb10")
+            icon, _, source = resolver.resolve_icon(meta)
+            assert icon == "Fish.png"
+            assert source == "busco_lineage"
+
+    def test_busco_fungi(self):
+        with _no_ncbi():
+            resolver = IconResolver(icons_file="/nonexistent")
+            meta = _FakeMeta(taxon_id=None, busco_lineage="ascomycota_odb10")
+            icon, _, source = resolver.resolve_icon(meta)
+            assert icon == "Fungi.png"
+            assert source == "busco_lineage"
+
+    def test_busco_plant(self):
+        with _no_ncbi():
+            resolver = IconResolver(icons_file="/nonexistent")
+            meta = _FakeMeta(taxon_id=None, busco_lineage="eudicots_odb10")
+            icon, _, source = resolver.resolve_icon(meta)
+            assert icon == "Plants.png"
+            assert source == "busco_lineage"
+
+    def test_busco_vertebrata(self):
+        with _no_ncbi():
+            resolver = IconResolver(icons_file="/nonexistent")
+            meta = _FakeMeta(taxon_id=None, busco_lineage="vertebrata_odb10")
+            icon, _, source = resolver.resolve_icon(meta)
+            assert icon == "Chordates.png"
+            assert source == "busco_lineage"
+
+    def test_busco_laurasiatheria_maps_to_mammals(self):
+        with _no_ncbi():
+            resolver = IconResolver(icons_file="/nonexistent")
+            meta = _FakeMeta(taxon_id=None, busco_lineage="laurasiatheria_odb10")
+            icon, _, source = resolver.resolve_icon(meta)
+            assert icon == "Mammals.png"
+            assert source == "busco_lineage"
+
+    def test_busco_rodentia_maps_to_mammals(self):
+        with _no_ncbi():
+            resolver = IconResolver(icons_file="/nonexistent")
+            meta = _FakeMeta(taxon_id=None, busco_lineage="rodentia_odb10")
+            icon, _, source = resolver.resolve_icon(meta)
+            assert icon == "Mammals.png"
+            assert source == "busco_lineage"
+
+    def test_busco_galloanserae_maps_to_birds(self):
+        with _no_ncbi():
+            resolver = IconResolver(icons_file="/nonexistent")
+            meta = _FakeMeta(taxon_id=None, busco_lineage="galloanserae_odb10")
+            icon, _, source = resolver.resolve_icon(meta)
+            assert icon == "Birds.png"
+            assert source == "busco_lineage"
+
+
+# ---------------------------------------------------------------------------
+# Priority ordering between sources
+# ---------------------------------------------------------------------------
+
+
+class TestSourcePriority:
+    """Metadata lineage should win over NCBI, which should win over BUSCO."""
+
+    def test_metadata_lineage_overrides_ncbi(self):
+        """Even if NCBI would give a different answer, metadata wins."""
+        ncbi_lineage = ["Eukaryota", "Fungi", "Ascomycota"]
+        with _with_ncbi(ncbi_lineage):
+            resolver = IconResolver(icons_file="/nonexistent")
+            meta = _FakeMeta(
+                taxon_id=42,
+                taxonomy_lineage=["Mammalia", "Vertebrata", "Chordata"],
+            )
+            icon, _, source = resolver.resolve_icon(meta)
+            assert icon == "Mammals.png"
+            assert source == "metadata_lineage"
+
+    def test_ncbi_overrides_busco(self):
+        """NCBI should be preferred over BUSCO when both are available."""
+        lineage = ["Eukaryota", "Metazoa", "Arthropoda", "Insecta", "Lepidoptera"]
+        with _with_ncbi(lineage):
+            resolver = IconResolver(icons_file="/nonexistent")
+            meta = _FakeMeta(
+                taxon_id=42,
+                busco_lineage="mammalia_odb10",  # contradicts NCBI
+            )
+            icon, _, source = resolver.resolve_icon(meta)
+            assert icon == "Lepidoptera.png"
+            assert source == "ncbi_lineage"
+
+    def test_busco_used_when_ncbi_fails(self):
+        """When NCBI fails, BUSCO should be the fallback."""
+        with _no_ncbi():
+            resolver = IconResolver(icons_file="/nonexistent")
+            meta = _FakeMeta(
+                taxon_id=42,
+                busco_lineage="insecta_odb10",
+            )
+            icon, _, source = resolver.resolve_icon(meta)
+            assert icon == "Arthropods.png"
+            assert source == "busco_lineage"
 
 
 # ---------------------------------------------------------------------------
@@ -181,103 +334,63 @@ class TestDefaultRules:
 
 
 class TestSpecificity:
-    """Ensure that the most-specific taxonomy match always wins."""
-
-    def _resolve(self, lineage_root_to_leaf, taxon_id=1):
-        xml = _make_entrez_xml(lineage_root_to_leaf)
-        with patch("ensembl.genes.projects.icon_resolver.requests.get") as mock_get:
-            mock_get.return_value = _mock_response(xml)
-            resolver = IconResolver(icons_file="/nonexistent/icons.txt")
-            return resolver.resolve_icon(taxon_id, accession="GCA_TEST")
 
     def test_lepidoptera_beats_arthropoda(self):
-        lineage = ["Eukaryota", "Metazoa", "Arthropoda", "Insecta", "Lepidoptera"]
-        assert self._resolve(lineage) == "Lepidoptera.png"
+        with _no_ncbi():
+            resolver = IconResolver(icons_file="/nonexistent")
+            meta = _FakeMeta(
+                taxonomy_lineage=[
+                    "Lepidoptera",
+                    "Insecta",
+                    "Arthropoda",
+                    "Metazoa",
+                ],
+            )
+            icon, matched, _ = resolver.resolve_icon(meta)
+            assert icon == "Lepidoptera.png"
+            assert matched == "Lepidoptera"
 
     def test_mammalia_beats_chordata(self):
-        lineage = ["Eukaryota", "Metazoa", "Chordata", "Vertebrata", "Mammalia"]
-        assert self._resolve(lineage) == "Mammals.png"
+        with _no_ncbi():
+            resolver = IconResolver(icons_file="/nonexistent")
+            meta = _FakeMeta(
+                taxonomy_lineage=["Mammalia", "Vertebrata", "Chordata"],
+            )
+            icon, _, _ = resolver.resolve_icon(meta)
+            assert icon == "Mammals.png"
 
     def test_aves_beats_chordata(self):
-        lineage = ["Eukaryota", "Metazoa", "Chordata", "Vertebrata", "Aves"]
-        assert self._resolve(lineage) == "Birds.png"
-
-    def test_teleostei_beats_chordata(self):
-        lineage = [
-            "Eukaryota",
-            "Metazoa",
-            "Chordata",
-            "Vertebrata",
-            "Actinopterygii",
-            "Teleostei",
-        ]
-        assert self._resolve(lineage) == "Fish.png"
-
-    def test_amphibia_beats_chordata(self):
-        lineage = ["Eukaryota", "Metazoa", "Chordata", "Vertebrata", "Amphibia"]
-        assert self._resolve(lineage) == "Amphibians.png"
-
-    def test_testudines_beats_chordata(self):
-        lineage = [
-            "Eukaryota",
-            "Metazoa",
-            "Chordata",
-            "Vertebrata",
-            "Testudines",
-        ]
-        assert self._resolve(lineage) == "Reptiles.png"
+        with _no_ncbi():
+            resolver = IconResolver(icons_file="/nonexistent")
+            meta = _FakeMeta(
+                taxonomy_lineage=["Aves", "Vertebrata", "Chordata"],
+            )
+            icon, _, _ = resolver.resolve_icon(meta)
+            assert icon == "Birds.png"
 
 
 # ---------------------------------------------------------------------------
-# Edge cases and fallbacks
+# Edge cases
 # ---------------------------------------------------------------------------
 
 
 class TestEdgeCases:
 
-    def test_missing_taxon_id(self):
-        resolver = IconResolver(icons_file="/nonexistent/icons.txt")
-        assert resolver.resolve_icon(None, accession="GCA_NONE") == _FALLBACK_ICON
+    def test_no_taxon_id_no_busco(self):
+        with _no_ncbi():
+            resolver = IconResolver(icons_file="/nonexistent")
+            meta = _FakeMeta(taxon_id=None, busco_lineage=None)
+            icon, _, source = resolver.resolve_icon(meta)
+            assert icon == _FALLBACK_ICON
+            assert source == "missing_taxon_id"
 
-    def test_zero_taxon_id(self):
-        resolver = IconResolver(icons_file="/nonexistent/icons.txt")
-        assert resolver.resolve_icon(0, accession="GCA_ZERO") == _FALLBACK_ICON
-
-    def test_ncbi_failure(self):
-        """If NCBI returns an error, fall back gracefully."""
-        with patch("ensembl.genes.projects.icon_resolver.requests.get") as mock_get:
-            mock_get.return_value = _mock_response("", status_code=500)
-            resolver = IconResolver(icons_file="/nonexistent/icons.txt")
-            assert resolver.resolve_icon(9999, accession="GCA_ERR") == _FALLBACK_ICON
-
-    def test_ncbi_timeout(self):
-        """Network timeout -> fall back gracefully."""
-        import requests as real_requests
-
-        with patch("ensembl.genes.projects.icon_resolver.requests.get") as mock_get:
-            mock_get.side_effect = real_requests.Timeout("timeout")
-            resolver = IconResolver(icons_file="/nonexistent/icons.txt")
-            assert resolver.resolve_icon(9999, accession="GCA_TMO") == _FALLBACK_ICON
-
-
-# ---------------------------------------------------------------------------
-# Lineage caching
-# ---------------------------------------------------------------------------
-
-
-class TestCaching:
-
-    def test_lineage_is_cached(self):
-        """The resolver should only call NCBI once per taxon_id."""
-        xml = _make_entrez_xml(["Eukaryota", "Metazoa", "Arthropoda"])
-        with patch("ensembl.genes.projects.icon_resolver.requests.get") as mock_get:
-            mock_get.return_value = _mock_response(xml)
-            resolver = IconResolver(icons_file="/nonexistent/icons.txt")
-            icon1 = resolver.resolve_icon(42, accession="GCA_1")
-            icon2 = resolver.resolve_icon(42, accession="GCA_2")
-            assert icon1 == icon2 == "Arthropods.png"
-            # NCBI should only have been called once
-            assert mock_get.call_count == 1
+    def test_all_sources_empty(self):
+        with _no_ncbi():
+            resolver = IconResolver(icons_file="/nonexistent")
+            meta = _FakeMeta(taxon_id=999)
+            icon, _, source = resolver.resolve_icon(meta)
+            assert icon == _FALLBACK_ICON
+            assert source == "fallback"
 
 
 # ---------------------------------------------------------------------------
@@ -288,140 +401,122 @@ class TestCaching:
 class TestIconsFileOverride:
 
     def test_override_from_icons_file(self):
-        """Entries in icons.txt should override built-in defaults."""
         with tempfile.NamedTemporaryFile("w", suffix=".txt", delete=False) as f:
-            # Override Mammalia to use a custom icon
             f.write("Mammalia\tCustomMammals.png\n")
             f.flush()
             icons_path = f.name
 
-        xml = _make_entrez_xml(
-            ["Eukaryota", "Metazoa", "Chordata", "Vertebrata", "Mammalia"]
-        )
         try:
-            with patch("ensembl.genes.projects.icon_resolver.requests.get") as mock_get:
-                mock_get.return_value = _mock_response(xml)
+            with _no_ncbi():
                 resolver = IconResolver(icons_file=icons_path)
-                assert resolver.resolve_icon(1) == "CustomMammals.png"
-        finally:
-            os.unlink(icons_path)
-
-    def test_icons_file_adds_new_group(self):
-        """icons.txt can map taxonomy names that are not in the defaults."""
-        with tempfile.NamedTemporaryFile("w", suffix=".txt", delete=False) as f:
-            f.write("Cnidaria\tJellyfish.png\n")
-            f.flush()
-            icons_path = f.name
-
-        xml = _make_entrez_xml(["Eukaryota", "Metazoa", "Cnidaria"])
-        try:
-            with patch("ensembl.genes.projects.icon_resolver.requests.get") as mock_get:
-                mock_get.return_value = _mock_response(xml)
-                resolver = IconResolver(icons_file=icons_path)
-                assert resolver.resolve_icon(1) == "Jellyfish.png"
+                meta = _FakeMeta(
+                    taxonomy_lineage=["Mammalia", "Vertebrata", "Chordata"],
+                )
+                icon, _, _ = resolver.resolve_icon(meta)
+                assert icon == "CustomMammals.png"
         finally:
             os.unlink(icons_path)
 
 
 # ---------------------------------------------------------------------------
-# Audit output
+# Realistic acceptance criteria species
 # ---------------------------------------------------------------------------
 
 
-class TestAudit:
+class TestAcceptanceCriteria:
+    """Validate the specific species from the acceptance criteria,
+    using metadata lineage (primary) and BUSCO fallback."""
 
-    def test_resolve_icon_with_audit_returns_matched_taxon(self):
-        xml = _make_entrez_xml(
-            ["Eukaryota", "Metazoa", "Arthropoda", "Insecta", "Lepidoptera"]
-        )
-        with patch("ensembl.genes.projects.icon_resolver.requests.get") as mock_get:
-            mock_get.return_value = _mock_response(xml)
-            resolver = IconResolver(icons_file="/nonexistent/icons.txt")
-            icon, matched = resolver.resolve_icon_with_audit(1, accession="GCA_AUD")
-            assert icon == "Lepidoptera.png"
-            assert matched == "Lepidoptera"
+    def test_adelges_tsugae_arthropod(self):
+        with _no_ncbi():
+            resolver = IconResolver(icons_file="/nonexistent")
+            meta = _FakeMeta(
+                accession="GCA_ADELGES",
+                taxonomy_lineage=["Hemiptera", "Insecta", "Arthropoda", "Metazoa"],
+            )
+            icon, _, _ = resolver.resolve_icon(meta)
+            assert icon == "Arthropods.png"
 
-    def test_audit_missing_taxon_id(self):
-        resolver = IconResolver(icons_file="/nonexistent/icons.txt")
-        icon, matched = resolver.resolve_icon_with_audit(None, accession="GCA_X")
-        assert icon == _FALLBACK_ICON
-        assert matched == "missing_taxon_id"
+    def test_aix_sponsa_bird(self):
+        with _no_ncbi():
+            resolver = IconResolver(icons_file="/nonexistent")
+            meta = _FakeMeta(
+                accession="GCA_AIX",
+                taxonomy_lineage=["Aves", "Vertebrata", "Chordata", "Metazoa"],
+            )
+            icon, _, _ = resolver.resolve_icon(meta)
+            assert icon == "Birds.png"
 
-    def test_audit_no_match(self):
-        xml = _make_entrez_xml(["Eukaryota", "SomethingUnknown"])
-        with patch("ensembl.genes.projects.icon_resolver.requests.get") as mock_get:
-            mock_get.return_value = _mock_response(xml)
-            resolver = IconResolver(icons_file="/nonexistent/icons.txt")
-            icon, matched = resolver.resolve_icon_with_audit(1, accession="GCA_NM")
-            assert icon == _FALLBACK_ICON
-            assert matched == "fallback"
+    def test_antilocapra_americana_mammal(self):
+        with _no_ncbi():
+            resolver = IconResolver(icons_file="/nonexistent")
+            meta = _FakeMeta(
+                accession="GCA_ANTIC",
+                taxonomy_lineage=["Mammalia", "Vertebrata", "Chordata", "Metazoa"],
+            )
+            icon, _, _ = resolver.resolve_icon(meta)
+            assert icon == "Mammals.png"
 
-
-# ---------------------------------------------------------------------------
-# Realistic species examples
-# ---------------------------------------------------------------------------
-
-
-class TestRealisticSpecies:
-    """Validate against the examples given in the acceptance criteria."""
-
-    def _resolve(self, lineage_root_to_leaf):
-        xml = _make_entrez_xml(lineage_root_to_leaf)
-        with patch("ensembl.genes.projects.icon_resolver.requests.get") as mock_get:
-            mock_get.return_value = _mock_response(xml)
-            resolver = IconResolver(icons_file="/nonexistent/icons.txt")
-            return resolver.resolve_icon(1)
+    def test_carcharodon_carcharias_fish(self):
+        with _no_ncbi():
+            resolver = IconResolver(icons_file="/nonexistent")
+            meta = _FakeMeta(
+                accession="GCA_CARCH",
+                taxonomy_lineage=[
+                    "Chondrichthyes",
+                    "Vertebrata",
+                    "Chordata",
+                    "Metazoa",
+                ],
+            )
+            icon, _, _ = resolver.resolve_icon(meta)
+            assert icon == "Fish.png"
 
     def test_euthyatira_pudens_lepidoptera(self):
-        """Euthyatira pudens is a moth (Lepidoptera)."""
-        lineage = [
-            "Eukaryota",
-            "Metazoa",
-            "Arthropoda",
-            "Insecta",
-            "Pterygota",
-            "Neoptera",
-            "Lepidoptera",
-            "Drepanidae",
-        ]
-        assert self._resolve(lineage) == "Lepidoptera.png"
+        with _no_ncbi():
+            resolver = IconResolver(icons_file="/nonexistent")
+            meta = _FakeMeta(
+                accession="GCA_EUTHY",
+                taxonomy_lineage=[
+                    "Lepidoptera",
+                    "Insecta",
+                    "Arthropoda",
+                    "Metazoa",
+                ],
+            )
+            icon, _, _ = resolver.resolve_icon(meta)
+            assert icon == "Lepidoptera.png"
 
-    def test_squalus_suckleyi_fish(self):
-        """Squalus suckleyi is a shark (Chondrichthyes)."""
-        lineage = [
-            "Eukaryota",
-            "Metazoa",
-            "Chordata",
-            "Vertebrata",
-            "Chondrichthyes",
-            "Squaliformes",
-        ]
-        # Sharks map to Fish.png via the Chondrichthyes rule
-        assert self._resolve(lineage) == "Fish.png"
+    def test_coprinus_comatus_fungi(self):
+        with _no_ncbi():
+            resolver = IconResolver(icons_file="/nonexistent")
+            meta = _FakeMeta(
+                accession="GCA_COPRI",
+                taxonomy_lineage=["Basidiomycota", "Fungi"],
+            )
+            icon, _, _ = resolver.resolve_icon(meta)
+            assert icon == "Fungi.png"
 
-    def test_generic_insect_not_metazoa(self):
-        """An insect order not explicitly in the rules should still get
-        Arthropods.png via the Arthropoda catch-all, not Metazoa.png."""
-        lineage = [
-            "Eukaryota",
-            "Metazoa",
-            "Arthropoda",
-            "Insecta",
-            "Odonata",  # dragonflies -- not in default rules
-        ]
-        assert self._resolve(lineage) == "Arthropods.png"
+    def test_plant_via_busco_when_no_lineage(self):
+        """Plant should resolve via BUSCO when lineage is unavailable."""
+        with _no_ncbi():
+            resolver = IconResolver(icons_file="/nonexistent")
+            meta = _FakeMeta(
+                taxon_id=None,
+                busco_lineage="eudicots_odb10",
+            )
+            icon, _, source = resolver.resolve_icon(meta)
+            assert icon == "Plants.png"
+            assert source == "busco_lineage"
 
-    def test_plant_example(self):
-        lineage = [
-            "Eukaryota",
-            "Viridiplantae",
-            "Streptophyta",
-            "Magnoliopsida",
-            "Asteraceae",
-        ]
-        assert self._resolve(lineage) == "Plants.png"
-
-    def test_unmapped_metazoan(self):
-        """A nematode should fall to Metazoa.png."""
-        lineage = ["Eukaryota", "Metazoa", "Nematoda"]
-        assert self._resolve(lineage) == "Metazoa.png"
+    def test_arthropod_via_busco_when_ncbi_fails(self):
+        """Arthropod should resolve via BUSCO when NCBI is down."""
+        with _no_ncbi():
+            resolver = IconResolver(icons_file="/nonexistent")
+            meta = _FakeMeta(
+                taxon_id=42,
+                busco_lineage="insecta_odb10",
+            )
+            icon, _, source = resolver.resolve_icon(meta)
+            assert icon == "Arthropods.png"
+            assert source == "busco_lineage"

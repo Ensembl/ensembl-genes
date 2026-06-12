@@ -3,7 +3,7 @@ Data fetcher for the Ensembl Metadata database.
 """
 
 import logging
-from typing import Optional
+from typing import List, Optional
 
 import pymysql
 
@@ -21,6 +21,91 @@ class MetadataDbClient:
         self.port = port
         self.user = user
         self.dbname = dbname
+
+    def _fetch_taxonomy_lineage(self, taxonomy_id: int) -> List[str]:
+        """Fetch taxonomy classification names for a given taxonomy_id.
+
+        Queries the ``organism_classification`` table in the metadata DB,
+        which stores the NCBI lineage as (organism_id, cls_group_id, rank)
+        rows linked back to the organism table.
+
+        Falls back to an empty list if the table does not exist or the
+        query fails — this is expected on some DB versions.
+
+        Returns names ordered leaf → root (most specific first).
+        """
+        if not taxonomy_id:
+            return []
+
+        # Strategy: try several known schema shapes in order of likelihood.
+        # The metadata DB schema varies across Ensembl releases; we try
+        # the most common query patterns and silently fall back on failure.
+        queries = [
+            # New metadata schema: taxonomy_node parent traversal
+            # Walk from the organism's taxonomy_id up through parent nodes.
+            """
+            WITH RECURSIVE lineage AS (
+                SELECT taxonomy_id, name, parent_id
+                FROM taxonomy_node
+                WHERE taxonomy_id = %s
+                UNION ALL
+                SELECT tn.taxonomy_id, tn.name, tn.parent_id
+                FROM taxonomy_node tn
+                JOIN lineage l ON tn.taxonomy_id = l.parent_id
+                WHERE tn.taxonomy_id != tn.parent_id
+            )
+            SELECT name FROM lineage
+            WHERE taxonomy_id != %s
+            """,
+            # Alternate: flat organism_classification table
+            """
+            SELECT oc.name
+            FROM organism o
+            JOIN organism_classification oc ON o.organism_id = oc.organism_id
+            WHERE o.taxonomy_id = %s
+            ORDER BY oc.classification_order ASC
+            """,
+        ]
+
+        for query in queries:
+            try:
+                conn = pymysql.connect(
+                    host=self.host,
+                    user=self.user,
+                    port=self.port,
+                    database=self.dbname,
+                )
+                with conn.cursor() as cursor:
+                    if query.count("%s") == 2:
+                        cursor.execute(query, (taxonomy_id, taxonomy_id))
+                    else:
+                        cursor.execute(query, (taxonomy_id,))
+                    rows = cursor.fetchall()
+                conn.close()
+
+                if rows:
+                    names = [r[0] for r in rows if r[0]]
+                    logger.debug(
+                        "Fetched %d lineage entries for taxon_id=%d from metadata DB",
+                        len(names),
+                        taxonomy_id,
+                    )
+                    return names
+            except pymysql.Error as e:
+                # Table doesn't exist or query is incompatible — try next
+                logger.debug(
+                    "Taxonomy lineage query failed for taxon_id=%d: %s",
+                    taxonomy_id,
+                    e,
+                )
+                try:
+                    if "conn" in locals() and conn.open:
+                        conn.close()
+                except Exception:  # pylint: disable=broad-exception-caught
+                    pass
+                continue
+
+        return []
 
     def fetch_by_identifier(self, identifier: str) -> Optional[GenomeMetadata]:
         """
@@ -114,6 +199,9 @@ class MetadataDbClient:
                 if "conn" in locals() and conn.open:
                     conn.close()
 
+        # Attempt to fetch taxonomy lineage from the metadata DB
+        taxonomy_lineage = self._fetch_taxonomy_lineage(row["taxonomy_id"])
+
         return GenomeMetadata(
             genome_uuid=row["genome_uuid"],
             dbname=row["dbname"],
@@ -122,6 +210,7 @@ class MetadataDbClient:
             assembly_name=row["assembly_name"],
             strain=row["strain"],
             taxon_id=row["taxonomy_id"],
+            taxonomy_lineage=taxonomy_lineage or None,
             alternate_of=alternate_url,
             annotation_source=row.get("annotation_source"),
             annotation_method=row.get("annotation_method"),
