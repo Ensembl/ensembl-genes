@@ -77,11 +77,34 @@ A genome is only included in the final YAML if it has valid FTP assets. A GUUID 
 
 ## Images and Icons
 
-The `icons.txt` file controls the image mappings for standard project pages.
-- The script fetches the taxonomy lineage from NCBI.
-- The most specific matching taxonomy classification in `icons.txt` wins.
-- The default icon is `Metazoa.png` (or `Chordates.png` for chordates lacking a more specific mapping).
-- **Important**: The species display name must always be the scientific name. It must not be polluted by strain, sample descriptions, or habitat text.
+Icons are resolved from the NCBI taxonomy lineage via `icon_resolver.py`.
+
+**How it works:**
+1. The resolver fetches the full taxonomy lineage for the genome's `taxon_id` from NCBI Entrez.
+2. It walks the lineage from most specific to broadest classification.
+3. The first taxonomy name that matches a configured rule determines the icon.
+4. Lineage lookups are cached per `taxon_id` during a run to avoid repeated NCBI requests.
+
+**Rule sources (in priority order):**
+- `icons.txt` provides project-specific overrides or additions. Entries here win over built-in defaults for the same taxonomy name.
+- Built-in default rules in `icon_resolver.py` cover all available icon files with broad taxonomy anchors (e.g. `Arthropoda -> Arthropods.png`, `Mammalia -> Mammals.png`, `Fungi -> Fungi.png`).
+
+**Most-specific match wins:**
+- Lepidoptera beats Arthropoda (→ `Lepidoptera.png`, not `Arthropods.png`)
+- Mammalia beats Chordata (→ `Mammals.png`, not `Chordates.png`)
+- Aves beats Chordata (→ `Birds.png`)
+- Actinopterygii / Chondrichthyes beat Chordata (→ `Fish.png`)
+- Amphibia beats Chordata (→ `Amphibians.png`)
+- Testudines / Squamata / Serpentes / Crocodylia beat Chordata (→ `Reptiles.png`)
+
+**Fallback behaviour:**
+- If no specific rule matches but the lineage contains Chordata → `Chordates.png`
+- If nothing matches at all → `Metazoa.png`
+- If `taxon_id` is missing or the NCBI lookup fails, a warning is logged and `Metazoa.png` is used.
+
+**Important constraints:**
+- Icon selection must **never** use species-name parsing, sample descriptions, or any free-text metadata field.
+- The species display name must always be the scientific name. It must not be polluted by strain, sample descriptions, or habitat text.
 
 ## HPRC and Mouse Differences
 
@@ -101,6 +124,7 @@ Understanding the codebase organization:
 - **`config.py`**: Project configuration definitions (`ProjectConfig` dataclass) and factory function mapping project names to their data-fetch and schema rules.
 - **`models.py`**: Shared data model (`GenomeMetadata` dataclass) used as the internal representation across all pipeline stages.
 - **`yaml_renderer.py`**: Handles rendering `GenomeMetadata` models into validated dicts and performs actual FTP publishability checks.
+- **`icon_resolver.py`**: Taxonomy-lineage-based icon resolver. Maps taxon IDs to icon filenames using NCBI lineage data, with per-run caching and `icons.txt` override support.
 - **`ftp_client.py`**: Core logic for querying the EBI/Ensembl FTP servers.
 - **`changelog.py`**: Compares old and new YAML outputs and generates human-readable and TSV changelogs.
 - **`registry/gb_tracker.py`**: Client for GB registry pre-release discovery.

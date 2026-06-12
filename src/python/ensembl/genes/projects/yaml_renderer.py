@@ -3,13 +3,14 @@ Converts internal GenomeMetadata objects into specific project YAML schemas.
 """
 
 import logging
+import re
 from typing import Any, Dict, List
 
 import requests
-import xmltodict
 
 from ensembl.genes.projects.config import ProjectConfig
 from ensembl.genes.projects.ftp_client import check_url_status
+from ensembl.genes.projects.icon_resolver import IconResolver
 from ensembl.genes.projects.models import GenomeMetadata
 
 logger = logging.getLogger(__name__)
@@ -21,20 +22,7 @@ class YamlRenderer:
     def __init__(self, config: ProjectConfig, ftp_client=None):
         self.config = config
         self.ftp_client = ftp_client
-        self.icons = self._load_icons()
-
-    def _load_icons(self) -> Dict[str, str]:
-        import os
-
-        icon_dict = {}
-        icon_path = os.path.join(os.path.dirname(__file__), "icons.txt")
-        if os.path.exists(icon_path):
-            with open(icon_path) as f:
-                for line in f:
-                    parts = line.split()
-                    if len(parts) >= 2:
-                        icon_dict[parts[0]] = parts[1]
-        return icon_dict
+        self.icon_resolver = IconResolver()
 
     def render(self, meta: GenomeMetadata) -> Dict[str, Any]:
         """Dispatches to the correct schema renderer based on project config."""
@@ -45,37 +33,7 @@ class YamlRenderer:
         else:
             return self._render_standard(meta)
 
-    def _fetch_taxonomy_classes(self, taxon_id: int) -> list:
-        """Fetches lineage from NCBI to replicate core DB species.classification."""
-        if not taxon_id:
-            return []
-        try:
-            res = requests.get(
-                f"https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=taxonomy&id={taxon_id}&retmode=xml",
-                timeout=5,
-            )
-            if res.status_code == 200:
-                data = xmltodict.parse(res.text)
-                taxa_set = data.get("TaxaSet", {}).get("Taxon", {})
-                if isinstance(taxa_set, list):
-                    taxa_set = taxa_set[0]
-                lineage = taxa_set.get("LineageEx", {}).get("Taxon", [])
-                if isinstance(lineage, dict):
-                    lineage = [lineage]
-                # NCBI LineageEx is ordered root→leaf; reverse to leaf→root so that
-                # the first icon match is always the most-specific classification,
-                # exactly replicating the legacy core-DB species.classification ordering.
-                lineage = list(reversed(lineage))
-                return [
-                    t.get("ScientificName") for t in lineage if "ScientificName" in t
-                ]
-        except Exception as e:
-            logger.warning(f"Failed to fetch taxonomy for {taxon_id}: {e}")
-        return []
-
     def _normalise_species_for_ftp(self, species_name: str) -> List[str]:
-        import re
-
         variants: List[str] = []
 
         # Ensure first letter is capitalized without lowercasing the rest
@@ -131,8 +89,6 @@ class YamlRenderer:
         return variants
 
     def _resolve_ftp_assets(self, meta: GenomeMetadata) -> Dict[str, Any]:
-        import re
-
         if not hasattr(self, "_ftp_species_cache"):
             self._ftp_species_cache = {}
 
@@ -276,39 +232,17 @@ class YamlRenderer:
         """Renders Schema A: Standard Projects (VGP, DToL, ERGA)"""
         doc: Dict[str, Any] = {}
 
-        # species display name must only come from the scientific name — never from strain,
+        # species display name must only come from the scientific name -- never from strain,
         # sample description, habitat text, or any other free-text metadata field.
         # (strain is displayed separately in _render_mouse; it must never appear here.)
         doc["species"] = meta.species_name
 
-        # Icon mapping — mirrors legacy write_yaml.py priority logic exactly:
-        # class_list is already leaf→root (reversed in _fetch_taxonomy_classes), so
-        # first-match-wins picks the most-specific mapped classification.
-        # Chordata fallback: if nothing more specific matched, chordates get Chordates.png
-        # rather than the generic Metazoa.png.
-        icon = "Metazoa.png"
-        if not meta.taxon_id:
-            logger.warning(
-                f"taxon_id is missing for {meta.accession}. Falling back to default image."
-            )
-        else:
-            class_list = self._fetch_taxonomy_classes(meta.taxon_id)
-            for classification in class_list:
-                if classification in self.icons:
-                    icon = self.icons[classification]
-                    logger.debug(
-                        f"Assigned image {icon} for {meta.accession} based on classification {classification}"
-                    )
-                    break  # first match wins (list is leaf→root, so most-specific class wins)
-            if icon == "Metazoa.png" and "Chordata" in class_list:
-                icon = "Chordates.png"
-                logger.debug(
-                    f"Assigned fallback Chordata image {icon} for {meta.accession}"
-                )
-            elif icon == "Metazoa.png":
-                logger.debug(f"Assigned default Metazoa image for {meta.accession}")
-
-        doc["image"] = icon
+        # Icon resolution via taxonomy lineage (see icon_resolver.py).
+        # The resolver walks the NCBI lineage leaf→root and picks the first
+        # matching rule.  Results are cached per taxon_id for the run.
+        doc["image"] = self.icon_resolver.resolve_icon(
+            meta.taxon_id, accession=meta.accession
+        )
 
         if self.config.scrape_ncbi_submitter and meta.assembly_submitter:
             doc["submitted_by"] = meta.assembly_submitter
