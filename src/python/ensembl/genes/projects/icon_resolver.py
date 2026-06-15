@@ -130,14 +130,23 @@ _BUSCO_TO_TAXON: Dict[str, str] = {
     "squamata": "Squamata",
     "crocodylia": "Crocodylia",
     "sauropsida": "Reptiles.png",  # direct icon, rare
-    # Plants
+    # Plants — explicit BUSCO dataset names (odb10, odb12, etc.)
     "viridiplantae": "Viridiplantae",
+    "streptophyta": "Viridiplantae",
     "embryophyta": "Embryophyta",
     "eudicots": "Viridiplantae",
+    "eudicotyledons": "Viridiplantae",
     "poales": "Viridiplantae",
     "brassicales": "Viridiplantae",
     "fabales": "Viridiplantae",
     "solanales": "Viridiplantae",
+    "asterales": "Viridiplantae",
+    "campanulids": "Viridiplantae",
+    "asterids": "Viridiplantae",
+    "rosids": "Viridiplantae",
+    "fabids": "Viridiplantae",
+    "malvids": "Viridiplantae",
+    "monocots": "Viridiplantae",
     "liliopsida": "Viridiplantae",
     "magnoliopsida": "Viridiplantae",
     # Fungi
@@ -154,6 +163,23 @@ _BUSCO_TO_TAXON: Dict[str, str] = {
     "mollusca": "Metazoa",
     "eukaryota": "Metazoa",
 }
+
+# ---------------------------------------------------------------------------
+# Substring-based BUSCO fallback patterns
+# ---------------------------------------------------------------------------
+# If an exact BUSCO token match fails, these substring patterns are tried
+# against the lowercased token.  This catches variant BUSCO dataset names
+# like "eudicotyledons_odb12" that aren't in the explicit dict above.
+# Checked in order; first match wins.
+
+_BUSCO_SUBSTRING_PATTERNS: List[Tuple[str, str]] = [
+    ("eudicot", "Plants.png"),
+    ("dicot", "Plants.png"),
+    ("monocot", "Plants.png"),
+    ("embryophy", "Plants.png"),
+    ("streptophy", "Plants.png"),
+    ("viridiplant", "Plants.png"),
+]
 
 # Fallback when nothing matches at all
 _FALLBACK_ICON = "Metazoa.png"
@@ -215,7 +241,7 @@ class IconResolver:
         taxon_id = getattr(meta, "taxon_id", None)
 
         # Source 1: metadata DB lineage (already on the object)
-        db_lineage = getattr(meta, "taxonomy_lineage", None) or []
+        db_lineage = self._normalise_lineage(getattr(meta, "taxonomy_lineage", None))
         if db_lineage:
             icon = self._match_lineage(db_lineage)
             if icon != _FALLBACK_ICON:
@@ -285,8 +311,32 @@ class IconResolver:
         return _FALLBACK_ICON, source, source
 
     # ------------------------------------------------------------------
-    # Lineage matching
+    # Lineage normalisation and matching
     # ------------------------------------------------------------------
+
+    @staticmethod
+    def _normalise_lineage(raw: object) -> List[str]:
+        """Coerce raw lineage data into a clean list of taxonomy names.
+
+        Handles:
+        - ``None`` → ``[]``
+        - A ``list`` of strings → stripped, empty strings removed
+        - A semicolon- or comma-separated string → split and stripped
+        """
+        if not raw:
+            return []
+        if isinstance(raw, str):
+            # Try semicolon first (common in DB dumps), then comma
+            if ";" in raw:
+                terms = raw.split(";")
+            elif "," in raw:
+                terms = raw.split(",")
+            else:
+                terms = [raw]
+            return [t.strip() for t in terms if t.strip()]
+        if isinstance(raw, (list, tuple)):
+            return [str(t).strip() for t in raw if t and str(t).strip()]
+        return []
 
     def _match_lineage(self, lineage: List[str]) -> str:
         """Walk lineage leaf → root; return first matching icon."""
@@ -324,24 +374,47 @@ class IconResolver:
         return token.strip("_")
 
     def _resolve_from_busco(self, busco_lineage: Optional[str]) -> Optional[str]:
-        """Try to resolve an icon from the busco_lineage string."""
+        """Try to resolve an icon from the busco_lineage string.
+
+        First tries an exact match in ``_BUSCO_TO_TAXON``, then falls
+        back to substring pattern matching (``_BUSCO_SUBSTRING_PATTERNS``)
+        to catch variant dataset names like ``eudicotyledons_odb12``.
+        """
         token = self._normalise_busco_token(busco_lineage)
         if not token:
             return None
+
+        # 1. Exact match
         taxon_name = _BUSCO_TO_TAXON.get(token)
-        if taxon_name is None:
-            return None
-        # taxon_name might be a direct icon filename (e.g. "Reptiles.png")
-        if taxon_name.endswith(".png"):
-            return taxon_name
-        return self._lookup.get(taxon_name)
+        if taxon_name is not None:
+            if taxon_name.endswith(".png"):
+                return taxon_name
+            return self._lookup.get(taxon_name)
+
+        # 2. Substring pattern fallback
+        for pattern, icon in _BUSCO_SUBSTRING_PATTERNS:
+            if pattern in token:
+                return icon
+
+        return None
 
     def _busco_matched_term(self, busco_lineage: Optional[str]) -> str:
         """Return the taxon name derived from busco_lineage."""
         token = self._normalise_busco_token(busco_lineage)
         if not token:
             return "busco_empty"
-        return _BUSCO_TO_TAXON.get(token, token)
+
+        # Exact match
+        exact = _BUSCO_TO_TAXON.get(token)
+        if exact is not None:
+            return exact
+
+        # Substring pattern
+        for pattern, icon in _BUSCO_SUBSTRING_PATTERNS:
+            if pattern in token:
+                return f"substring:{pattern}"
+
+        return token
 
     # ------------------------------------------------------------------
     # NCBI Entrez lineage retrieval (cached)

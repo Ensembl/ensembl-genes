@@ -520,3 +520,159 @@ class TestAcceptanceCriteria:
             icon, _, source = resolver.resolve_icon(meta)
             assert icon == "Arthropods.png"
             assert source == "busco_lineage"
+
+
+# ---------------------------------------------------------------------------
+# BUSCO plant token coverage (eudicotyledons regression)
+# ---------------------------------------------------------------------------
+
+
+class TestBUSCOPlantTokens:
+    """Ensure plant BUSCO dataset names resolve to Plants.png."""
+
+    def test_eudicotyledons_odb12(self):
+        """The exact token that caused the Arnica montana regression."""
+        with _no_ncbi():
+            resolver = IconResolver(icons_file="/nonexistent")
+            meta = _FakeMeta(
+                taxon_id=None,
+                busco_lineage="eudicotyledons_odb12",
+            )
+            icon, _, source = resolver.resolve_icon(meta)
+            assert icon == "Plants.png"
+            assert source == "busco_lineage"
+
+    def test_eudicots_odb10(self):
+        with _no_ncbi():
+            resolver = IconResolver(icons_file="/nonexistent")
+            meta = _FakeMeta(taxon_id=None, busco_lineage="eudicots_odb10")
+            icon, _, _ = resolver.resolve_icon(meta)
+            assert icon == "Plants.png"
+
+    def test_poales_odb12(self):
+        with _no_ncbi():
+            resolver = IconResolver(icons_file="/nonexistent")
+            meta = _FakeMeta(taxon_id=None, busco_lineage="poales_odb12")
+            icon, _, _ = resolver.resolve_icon(meta)
+            assert icon == "Plants.png"
+
+    def test_brassicales_odb12(self):
+        with _no_ncbi():
+            resolver = IconResolver(icons_file="/nonexistent")
+            meta = _FakeMeta(taxon_id=None, busco_lineage="brassicales_odb12")
+            icon, _, _ = resolver.resolve_icon(meta)
+            assert icon == "Plants.png"
+
+    def test_embryophyta_odb12(self):
+        with _no_ncbi():
+            resolver = IconResolver(icons_file="/nonexistent")
+            meta = _FakeMeta(taxon_id=None, busco_lineage="embryophyta_odb12")
+            icon, _, _ = resolver.resolve_icon(meta)
+            assert icon == "Plants.png"
+
+    def test_asterales_odb12(self):
+        with _no_ncbi():
+            resolver = IconResolver(icons_file="/nonexistent")
+            meta = _FakeMeta(taxon_id=None, busco_lineage="asterales_odb12")
+            icon, _, _ = resolver.resolve_icon(meta)
+            assert icon == "Plants.png"
+
+    def test_unknown_metazoan_still_fallback(self):
+        with _no_ncbi():
+            resolver = IconResolver(icons_file="/nonexistent")
+            meta = _FakeMeta(taxon_id=None, busco_lineage=None)
+            icon, _, source = resolver.resolve_icon(meta)
+            assert icon == "Metazoa.png"
+            assert source == "missing_taxon_id"
+
+
+# ---------------------------------------------------------------------------
+# Lineage normalisation (string input, whitespace)
+# ---------------------------------------------------------------------------
+
+
+class TestLineageNormalisation:
+    """Ensure lineage data in various formats is handled correctly."""
+
+    def test_semicolon_separated_string(self):
+        """Lineage as semicolon-delimited string (some DB exports)."""
+        with _no_ncbi():
+            resolver = IconResolver(icons_file="/nonexistent")
+            meta = _FakeMeta(
+                taxonomy_lineage="Lepidoptera; Insecta; Arthropoda; Metazoa",
+            )
+            icon, matched, source = resolver.resolve_icon(meta)
+            assert icon == "Lepidoptera.png"
+            assert source == "metadata_lineage"
+
+    def test_comma_separated_string(self):
+        with _no_ncbi():
+            resolver = IconResolver(icons_file="/nonexistent")
+            meta = _FakeMeta(
+                taxonomy_lineage="Aves,Vertebrata,Chordata",
+            )
+            icon, _, source = resolver.resolve_icon(meta)
+            assert icon == "Birds.png"
+            assert source == "metadata_lineage"
+
+    def test_whitespace_in_list(self):
+        with _no_ncbi():
+            resolver = IconResolver(icons_file="/nonexistent")
+            meta = _FakeMeta(
+                taxonomy_lineage=["  Mammalia  ", "Vertebrata", "Chordata"],
+            )
+            icon, _, source = resolver.resolve_icon(meta)
+            assert icon == "Mammals.png"
+            assert source == "metadata_lineage"
+
+    def test_empty_string_lineage(self):
+        with _no_ncbi():
+            resolver = IconResolver(icons_file="/nonexistent")
+            meta = _FakeMeta(taxon_id=None, taxonomy_lineage="")
+            icon, _, source = resolver.resolve_icon(meta)
+            assert icon == "Metazoa.png"
+
+    def test_none_lineage(self):
+        with _no_ncbi():
+            resolver = IconResolver(icons_file="/nonexistent")
+            meta = _FakeMeta(taxon_id=None, taxonomy_lineage=None)
+            icon, _, _ = resolver.resolve_icon(meta)
+            assert icon == "Metazoa.png"
+
+
+# ---------------------------------------------------------------------------
+# Arnica montana specific regression test
+# ---------------------------------------------------------------------------
+
+
+class TestArnicaMontanaRegression:
+    """The specific regression: Arnica montana with busco_lineage=eudicotyledons_odb12."""
+
+    def test_arnica_montana_via_busco(self):
+        with _no_ncbi():
+            resolver = IconResolver(icons_file="/nonexistent")
+            meta = _FakeMeta(
+                accession="GCA_965212395.1",
+                taxon_id=None,
+                busco_lineage="eudicotyledons_odb12",
+            )
+            icon, _, source = resolver.resolve_icon(meta)
+            assert icon == "Plants.png"
+            assert source == "busco_lineage"
+
+    def test_arnica_montana_via_metadata_lineage(self):
+        with _no_ncbi():
+            resolver = IconResolver(icons_file="/nonexistent")
+            meta = _FakeMeta(
+                accession="GCA_965212395.1",
+                taxonomy_lineage=[
+                    "Asteraceae",
+                    "Asterales",
+                    "Magnoliopsida",
+                    "Streptophyta",
+                    "Viridiplantae",
+                ],
+            )
+            icon, _, source = resolver.resolve_icon(meta)
+            assert icon == "Plants.png"
+            assert source == "metadata_lineage"
