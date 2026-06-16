@@ -73,38 +73,12 @@ def get_bioproject_names(
         return []
 
     query = """
-        SELECT DISTINCT genome_group
-        FROM (
-            SELECT mb.bioproject_name AS genome_group
-            FROM assembly a
-            JOIN bioproject b ON a.assembly_id = b.assembly_id
-            JOIN main_bioproject mb ON b.bioproject_id = mb.bioproject_id
-            WHERE CONCAT(a.gca_chain, '.', a.gca_version) = %s
-              AND mb.bioproject_name IS NOT NULL
-
-            UNION
-
-            SELECT cg.group_name AS genome_group
-            FROM assembly a
-            JOIN custom_group cg
-              ON cg.group_type = 'assembly'
-             AND cg.item = a.gca_chain
-            WHERE CONCAT(a.gca_chain, '.', a.gca_version) = %s
-
-            UNION
-
-            SELECT cg.group_name AS genome_group
-            FROM assembly a
-            LEFT JOIN species s ON a.lowest_taxon_id = s.lowest_taxon_id
-            JOIN custom_group cg
-              ON cg.group_type = 'taxon'
-             AND cg.item IN (
-                CAST(a.lowest_taxon_id AS CHAR),
-                CAST(s.species_taxon_id AS CHAR)
-             )
-            WHERE CONCAT(a.gca_chain, '.', a.gca_version) = %s
-        ) genome_groups
-        WHERE genome_group IS NOT NULL
+        SELECT DISTINCT mb.bioproject_name AS genome_group
+        FROM assembly a
+        JOIN bioproject b ON a.assembly_id = b.assembly_id
+        JOIN main_bioproject mb ON b.bioproject_id = mb.bioproject_id
+        WHERE CONCAT(a.gca_chain, '.', a.gca_version) = %s
+          AND mb.bioproject_name IS NOT NULL
         ORDER BY genome_group
     """
 
@@ -118,9 +92,7 @@ def get_bioproject_names(
             cursorclass=pymysql.cursors.DictCursor,
         )
         with conn.cursor() as cursor:
-            cursor.execute(
-                query, (assembly_accession, assembly_accession, assembly_accession)
-            )
+            cursor.execute(query, (assembly_accession,))
             results = cursor.fetchall()
     except pymysql.Error:
         logger.exception(
@@ -135,18 +107,24 @@ def get_bioproject_names(
             except pymysql.Error:
                 logger.exception("Error closing registry connection")
 
-    genome_group_names = [
+    registry_genome_group_names = [
         normalise_genome_group_name(str(result["genome_group"]))
         for result in results
         if result.get("genome_group")
     ]
 
-    if not genome_group_names:
+    if not registry_genome_group_names:
         logger.warning(
             " | GENOME.GENOME_GROUP | No genome group name found in registry for %s",
             assembly_accession,
         )
         return []
+
+    genome_group_names = [
+        genome_group_name
+        for genome_group_name in registry_genome_group_names
+        if genome_group_name != "hprc"
+    ]
 
     return genome_group_names
 
@@ -158,7 +136,7 @@ def get_bioproject_name(
     port: Optional[int] = None,
     database: str = DEFAULT_REGISTRY_DB,
 ) -> str:
-    """Return the first genome group name for an assembly accession."""
+    """Return the first main BioProject genome group name for an assembly accession."""
     bioproject_names = get_bioproject_names(
         assembly_accession,
         user=user,
