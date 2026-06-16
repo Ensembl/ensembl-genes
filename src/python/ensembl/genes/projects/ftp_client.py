@@ -257,3 +257,45 @@ def check_url_status(url: str) -> bool:
     except requests.RequestException as e:
         print(f"Error checking URL {url}: {e}")
         return False
+
+
+# Markers in the beta.ensembl.org page body that indicate the species page
+# is not actually available (the error page still returns HTTP 200).
+_BETA_UNAVAILABLE_MARKERS = (
+    "We do not recognise the species identified",
+    "Find available species in the Species selector",
+)
+
+
+def check_beta_species_status(genome_uuid: str) -> str:
+    """
+    Check whether a beta.ensembl.org species page is actually usable.
+
+    The beta site returns HTTP 200 even for unrecognised species (showing an
+    error page), so a status-code check alone is insufficient — the response
+    body must be inspected for known "not available" markers.
+
+    Args:
+        genome_uuid (str): The genome UUID to check.
+
+    Returns:
+        str: One of:
+            - "available"   : a normal, usable beta species page
+            - "unavailable" : page loads (or non-200) but species not recognised
+            - "error"       : network/HTTP error, or missing/unknown UUID
+    """
+    if not genome_uuid or genome_uuid == "unknown":
+        return "error"
+    url = f"https://beta.ensembl.org/species/{genome_uuid}"
+    try:
+        response = requests.get(url, allow_redirects=True, timeout=10)
+        # Non-200 responses are treated as unavailable (page not served).
+        if response.status_code != 200:
+            return "unavailable"
+        body = response.text or ""
+        if any(marker in body for marker in _BETA_UNAVAILABLE_MARKERS):
+            return "unavailable"
+        return "available"
+    except requests.RequestException as e:
+        print(f"Error checking beta species {genome_uuid}: {e}", file=sys.stderr)
+        return "error"

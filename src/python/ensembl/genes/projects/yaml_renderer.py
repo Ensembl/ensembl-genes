@@ -9,7 +9,10 @@ from typing import Any, Dict, List
 import requests
 
 from ensembl.genes.projects.config import ProjectConfig
-from ensembl.genes.projects.ftp_client import check_url_status
+from ensembl.genes.projects.ftp_client import (
+    check_beta_species_status,
+    check_url_status,
+)
 from ensembl.genes.projects.icon_resolver import IconResolver
 from ensembl.genes.projects.models import GenomeMetadata
 
@@ -23,6 +26,41 @@ class YamlRenderer:
         self.config = config
         self.ftp_client = ftp_client
         self.icon_resolver = IconResolver()
+        # Per-run cache of beta species availability, keyed by genome UUID.
+        self._beta_status_cache: Dict[str, str] = {}
+
+    def _check_beta_status(self, genome_uuid: str) -> str:
+        """Cached wrapper around ``check_beta_species_status``."""
+        if genome_uuid in self._beta_status_cache:
+            return self._beta_status_cache[genome_uuid]
+        status = check_beta_species_status(genome_uuid)
+        self._beta_status_cache[genome_uuid] = status
+        return status
+
+    def _resolve_beta_link(self, meta: GenomeMetadata, target_released: bool):
+        """Decide the ``beta_link`` value and its audit status.
+
+        Only released genomes with a confirmed-usable beta species page get a
+        real beta URL; everything else gets "Coming soon!". This avoids
+        emitting links that resolve to the beta "species not recognised" page.
+
+        Returns:
+            Tuple[str, str]: (beta_link_value, beta_link_status) where status
+            is one of: available, unavailable, error, skipped_prerelease,
+            skipped_no_uuid.
+        """
+        if not target_released:
+            return "Coming soon!", "skipped_prerelease"
+        if not meta.genome_uuid or meta.genome_uuid == "unknown":
+            return "Coming soon!", "skipped_no_uuid"
+        status = self._check_beta_status(meta.genome_uuid)
+        if status == "available":
+            return (
+                f"https://beta.ensembl.org/species/{meta.genome_uuid}",
+                "available",
+            )
+        # "unavailable" or "error" — do not emit a possibly-broken link.
+        return "Coming soon!", status
 
     def render(self, meta: GenomeMetadata) -> Dict[str, Any]:
         """Dispatches to the correct schema renderer based on project config."""
@@ -308,13 +346,11 @@ class YamlRenderer:
         # Linkages
         if meta.is_on_rapid:
             doc["ensembl_link"] = f"https://rapid.ensembl.org/{meta.species_name}"
+            doc["__audit_beta_status__"] = "skipped_rapid"
         elif self.config.allow_beta_urls:
-            if target_Released:
-                doc["beta_link"] = (
-                    f"https://beta.ensembl.org/species/{meta.genome_uuid}"
-                )
-            else:
-                doc["beta_link"] = "Coming soon!"
+            beta_link, beta_status = self._resolve_beta_link(meta, target_Released)
+            doc["beta_link"] = beta_link
+            doc["__audit_beta_status__"] = beta_status
 
         # Quality
         if meta.busco_score:
@@ -381,7 +417,9 @@ class YamlRenderer:
         doc["ftp_dumps"] = (
             f"https://ftp.ebi.ac.uk/pub/ensemblorganisms/{ftp_species_name}/{meta.accession}/"
         )
-        doc["beta_link"] = f"https://beta.ensembl.org/species/{meta.genome_uuid}"
+        beta_link, beta_status = self._resolve_beta_link(meta, target_Released)
+        doc["beta_link"] = beta_link
+        doc["__audit_beta_status__"] = beta_status
 
         return {k: v for k, v in doc.items() if v is not None}
 
@@ -438,7 +476,9 @@ class YamlRenderer:
             )
 
         if self.config.allow_beta_urls:
-            doc["beta_link"] = f"https://beta.ensembl.org/species/{meta.genome_uuid}"
+            beta_link, beta_status = self._resolve_beta_link(meta, target_Released)
+            doc["beta_link"] = beta_link
+            doc["__audit_beta_status__"] = beta_status
 
         if meta.alternate_of:
             doc["alternate"] = meta.alternate_of

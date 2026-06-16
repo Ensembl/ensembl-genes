@@ -35,6 +35,7 @@ class Candidate:
     audit_resolved_date: str
     input_order: int
     audit_image_source: str = ""
+    audit_beta_status: str = ""
 
 
 def _load_server_config() -> dict:
@@ -166,6 +167,7 @@ For pre-release discovery without UUIDs, you may still rely on the registry trac
         audit_reason = doc.pop("__audit_reason__", "No document returned")
         audit_resolved_date = doc.pop("__audit_resolved_date__", "")
         audit_image_source = doc.pop("__audit_image_source__", "")
+        audit_beta_status = doc.pop("__audit_beta_status__", "")
 
         candidates.append(
             Candidate(
@@ -177,6 +179,7 @@ For pre-release discovery without UUIDs, you may still rely on the registry trac
                 audit_resolved_date=audit_resolved_date,
                 input_order=idx,
                 audit_image_source=audit_image_source,
+                audit_beta_status=audit_beta_status,
             )
         )
 
@@ -203,6 +206,7 @@ For pre-release discovery without UUIDs, you may still rely on the registry trac
         audit_reason = doc.pop("__audit_reason__", "No document returned")
         audit_resolved_date = doc.pop("__audit_resolved_date__", "")
         audit_image_source = doc.pop("__audit_image_source__", "")
+        audit_beta_status = doc.pop("__audit_beta_status__", "")
 
         identifier = f"discovered_gb_{meta.accession}"
         candidates.append(
@@ -215,6 +219,7 @@ For pre-release discovery without UUIDs, you may still rely on the registry trac
                 audit_resolved_date=audit_resolved_date,
                 input_order=idx,
                 audit_image_source=audit_image_source,
+                audit_beta_status=audit_beta_status,
             )
         )
 
@@ -368,11 +373,13 @@ For pre-release discovery without UUIDs, you may still rely on the registry trac
         seen_audit_rows = set()
         with open(args.audit_file, "a") as af:
             for c in candidates:
+                beta_link_value = c.doc.get("beta_link", "")
                 row = (
                     f"{c.identifier}\t{c.meta.accession}\t{c.meta.species_name}\t"
                     f"{c.meta.annotation_date}\t{c.audit_resolved_date}\t"
                     f"{c.meta.annotation_source}\t{c.audit_decision}\t"
-                    f"{c.audit_reason}\t{c.audit_image_source}\n"
+                    f"{c.audit_reason}\t{c.audit_image_source}\t"
+                    f"{c.audit_beta_status}\t{beta_link_value}\n"
                 )
                 if row not in seen_audit_rows:
                     seen_audit_rows.add(row)
