@@ -355,11 +355,11 @@ For pre-release discovery without UUIDs, you may still rely on the registry trac
                         alt_uuid,
                     )
                 else:
-                    # No UUID available — keep raw accession as fallback
-                    doc["alternate"] = alt_acc
-                    logger.warning(
+                    # No UUID available — omit the alternate field entirely
+                    # rather than emitting a raw accession that isn't a link.
+                    logger.info(
                         "No genome UUID found for alternate %s of %s; "
-                        "using raw accession.",
+                        "omitting alternate field.",
                         alt_acc,
                         acc,
                     )
