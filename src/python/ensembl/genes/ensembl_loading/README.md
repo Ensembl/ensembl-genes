@@ -267,10 +267,18 @@ src/python/ensembl/genes/ensembl_loading/config/core_schema.sql
 Use `--schema-sql-path /path/to/schema.sql` to override it. Use
 `--schema-sql-path ""` to skip schema loading explicitly.
 
-The database name is derived from species and assembly accession:
+The database name is derived from species and assembly accession. Generic
+sources keep the compact historical format:
 
 ```text
 Mus musculus + GCF_000001635.27 -> mus_musculus_core_000001635_27
+```
+
+When `--source refseq` is used, the derived name follows the RefSeq production
+style:
+
+```text
+Scientific name + GCF_037462849.1 -> scientific_name_gcf037462849v1_core_114_1
 ```
 
 `create-core` performs these operations in one transaction:
@@ -1476,9 +1484,16 @@ gff-loader refseq run \
 
 `--assembly-acc` selects the RefSeq assembly to download. When `--load-core` is
 used, that same downloaded assembly accession is also used for core metadata and
-the derived core DB name. `--assembly-accession` remains available only as an
-override for unusual cases where the loaded core metadata should use a different
-assembly identifier.
+the derived core DB name. RefSeq core names use this shape:
+
+```text
+<scientific_name>_<lowercase_accession_without_underscore_and_dot_as_v>_core_<schema_version>_<assembly_version>
+```
+
+For example, `Scientific name` with `GCF_037462849.1` becomes
+`scientific_name_gcf037462849v1_core_114_1`. `--assembly-accession` remains
+available only as an override for unusual cases where the loaded core metadata
+should use a different assembly identifier.
 
 `--load-core` with `--group` is not supported, because group downloads can
 produce many assemblies and the current loader creates one core database per
@@ -1507,7 +1522,7 @@ You can also load a converted RefSeq GFF into an existing core:
 
 ```bash
 gff-loader load-features GCF_000001635.27_GRCm39_ensembl.gff3 \
-  --db-name mus_musculus_core_000001635_27 \
+  --db-name mus_musculus_gcf000001635v27_core_114_27 \
   --db-host mysql-ens-genebuild-prod-6 \
   --db-port 3306 \
   --db-user ensadmin \

@@ -389,6 +389,15 @@ def test_refseq_discovery_and_conversion_helpers(tmp_path: Path) -> None:
     assert default_gff_output_path("GCF_000001635.27_genomic.gff.gz").name == (
         "GCF_000001635.27_genomic_ensembl.gff3"
     )
+    assert gff_core_loader.derive_core_db_name(
+        "Mus musculus",
+        "GCF_000001635.27",
+    ) == "mus_musculus_core_000001635_27"
+    assert gff_core_loader.derive_core_db_name(
+        "Scientific name",
+        "GCF_037462849.1",
+        source_config=get_source_config("refseq"),
+    ) == "scientific_name_gcf037462849v1_core_114_1"
 
     report = write_lines(
         tmp_path / "assembly_report.txt",

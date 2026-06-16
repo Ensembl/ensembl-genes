@@ -42,6 +42,7 @@ LOGGER = logging.getLogger(__name__)
 DEFAULT_CORE_SCHEMA_SQL_PATH = (
     Path(__file__).resolve().parent / "config" / "core_schema.sql"
 )
+DEFAULT_ENSEMBL_RELEASE = "114"
 
 
 @contextmanager
@@ -886,15 +887,84 @@ def load_seq_regions_from_fna(
     return seq_region_ids
 
 
-def derive_core_db_name(species_name: str, assembly_accession: str) -> str:
-    """Return the core DB name used by the original loader."""
+def species_db_name_token(species_name: str) -> str:
+    """Return the species token used in derived Ensembl core DB names."""
 
     species_parts = species_name.split()
     if len(species_parts) < 2:
         raise ValueError("species_name must contain at least genus and species")
     genus, species = species_parts[:2]
+    return "_".join(
+        re.sub(r"[^a-z0-9]+", "_", token.lower()).strip("_")
+        for token in (genus, species)
+    )
+
+
+def core_schema_version(schema_sql_path: str | Path | None = None) -> str:
+    """Return the bundled core schema version used in derived DB names."""
+
+    schema_path = Path(schema_sql_path or DEFAULT_CORE_SCHEMA_SQL_PATH)
+    try:
+        schema_sql = schema_path.read_text()
+    except OSError:
+        return DEFAULT_ENSEMBL_RELEASE
+
+    match = re.search(
+        r"['\"]schema_version['\"]\s*,\s*['\"]([^'\"]+)['\"]",
+        schema_sql,
+    )
+    if match:
+        return match.group(1)
+    return DEFAULT_ENSEMBL_RELEASE
+
+
+def refseq_accession_db_token(assembly_accession: str) -> str:
+    """Return a compact DB-safe token for a RefSeq assembly accession."""
+
+    token = assembly_accession.lower().replace("_", "")
+    token = token.replace(".", "v", 1)
+    return re.sub(r"[^a-z0-9]+", "_", token).strip("_")
+
+
+def assembly_version_db_token(assembly_accession: str) -> str:
+    """Return the assembly version suffix used after the release number."""
+
+    if "." not in assembly_accession:
+        return "1"
+    return re.sub(
+        r"[^a-z0-9]+",
+        "_",
+        assembly_accession.rsplit(".", 1)[1].lower(),
+    )
+
+
+def derive_refseq_core_db_name(
+    species_name: str,
+    assembly_accession: str,
+    ensembl_release: str | None = None,
+) -> str:
+    """Return the core DB name used for RefSeq core creation."""
+
+    species_token = species_db_name_token(species_name)
+    accession_token = refseq_accession_db_token(assembly_accession)
+    release = ensembl_release or core_schema_version()
+    assembly_version = assembly_version_db_token(assembly_accession)
+    return f"{species_token}_{accession_token}_core_{release}_{assembly_version}"
+
+
+def derive_core_db_name(
+    species_name: str,
+    assembly_accession: str,
+    source_config: GffSourceConfig = GENERIC_GFF_CONFIG,
+) -> str:
+    """Return the core DB name for the selected loading source."""
+
+    if source_config.name == REFSEQ_CONFIG.name:
+        return derive_refseq_core_db_name(species_name, assembly_accession)
+
+    species_token = species_db_name_token(species_name)
     assembly_token = assembly_accession.split("_", 1)[1].replace(".", "_")
-    return f"{genus.lower()}_{species.lower()}_core_{assembly_token}"
+    return f"{species_token}_core_{assembly_token}"
 
 
 def load_schema_sql(cursor: DbCursor, schema_sql_path: str | Path) -> None:
@@ -1367,7 +1437,11 @@ def load_to_ensembl_core(
 
     del assembly_report_path
     log = logger or LOGGER
-    db_name = derive_core_db_name(species_name, assembly_accession)
+    db_name = derive_core_db_name(
+        species_name,
+        assembly_accession,
+        source_config=source_config,
+    )
 
     log.info("Connecting to MySQL server %s:%s", db_host, db_port)
     connection = connect_mysql(
