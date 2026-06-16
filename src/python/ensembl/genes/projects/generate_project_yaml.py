@@ -17,6 +17,7 @@ from typing import List
 import yaml
 
 from ensembl.genes.projects.config import get_project_config
+from ensembl.genes.projects.haplotype_resolver import HaplotypeResolver
 from ensembl.genes.projects.models import GenomeMetadata
 from ensembl.genes.projects.yaml_renderer import YamlRenderer
 from ensembl.genes.projects.registry.metadata_db import MetadataDbClient
@@ -304,6 +305,28 @@ For pre-release discovery without UUIDs, you may still rely on the registry trac
                     excluded.audit_reason = (
                         f"same accession/species/source/date as {kept.identifier}"
                     )
+
+    # --- Alternate haplotype pairing ---
+    # Collect the GenomeMetadata for all kept (non-excluded) candidates so
+    # the resolver can look up BioSample / sample metadata from NCBI.
+    kept_meta = [c.meta for c in candidates if c.audit_decision not in ("excluded",)]
+    haplotype_map = HaplotypeResolver().find_alternate_haplotypes(kept_meta)
+
+    # Build accession → doc index for the final yaml_docs
+    doc_by_accession: dict = {}
+    for doc in yaml_docs:
+        acc = doc.get("accession") or doc.get("assembly_accession")
+        if acc:
+            doc_by_accession[acc] = doc
+
+    # Inject alternate_haplotype into docs where a pair was found
+    for acc, alt_acc in haplotype_map.items():
+        if acc in doc_by_accession and alt_acc in doc_by_accession:
+            doc = doc_by_accession[acc]
+            # Only set if not already populated (metadata DB may have set it)
+            if "alternate" not in doc:
+                doc["alternate"] = alt_acc
+                logger.debug("Set alternate haplotype: %s -> %s", acc, alt_acc)
 
     if args.audit_file:
         seen_audit_rows = set()

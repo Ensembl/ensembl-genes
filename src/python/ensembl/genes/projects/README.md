@@ -122,6 +122,18 @@ Different projects map to different underlying YAML schemas (`standard`, `hprc`,
   - Automatically incorporates the `strain` metadata explicitly as a separate display field.
   - Includes `alternate` linkage if it is an alternate haplotype.
 
+## Alternate Haplotype Detection
+
+The pipeline automatically identifies alternate haplotype pairs among assemblies in the same project dataset. After deduplication, the `HaplotypeResolver` inspects all kept genomes and links pairs using:
+
+1. **BioSample accession** (primary) — assemblies sharing the same NCBI BioSample are from the same individual and are haplotype pairs.
+2. **Sample name / isolate** (secondary) — if BioSample is unavailable, assemblies with the same sample_name or isolate attribute (within the same taxon) are paired.
+3. **Assembly name heuristics** (weak fallback) — naming patterns like `hap1`/`hap2`, `maternal`/`paternal`, `primary`/`alternate` within the same species.
+
+Only assemblies that are *both present* in the generated dataset are linked. No external URLs are invented. If an assembly already has an `alternate` field from the metadata DB, it is preserved.
+
+The output field is `alternate: GCA_xxxxxxx.x` in the final YAML.
+
 ## File Roles
 
 Understanding the codebase organization:
@@ -130,6 +142,7 @@ Understanding the codebase organization:
 - **`models.py`**: Shared data model (`GenomeMetadata` dataclass) used as the internal representation across all pipeline stages.
 - **`yaml_renderer.py`**: Handles rendering `GenomeMetadata` models into validated dicts and performs actual FTP publishability checks.
 - **`icon_resolver.py`**: Taxonomy-lineage-based icon resolver. Maps taxon IDs to icon filenames using NCBI lineage data, with per-run caching and `icons.txt` override support.
+- **`haplotype_resolver.py`**: Identifies alternate haplotype pairs among assemblies in the project dataset using NCBI BioSample metadata, sample names, and assembly naming conventions.
 - **`ftp_client.py`**: Core logic for querying the EBI/Ensembl FTP servers.
 - **`changelog.py`**: Compares old and new YAML outputs and generates human-readable and TSV changelogs.
 - **`registry/gb_tracker.py`**: Client for GB registry pre-release discovery.
