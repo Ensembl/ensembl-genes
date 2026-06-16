@@ -2649,34 +2649,34 @@
 
     <div class="doc doc-contents ">
 
-        <p>Return the first genome group name for an assembly accession.</p>
+        <p>Return the first main BioProject genome group name for an assembly accession.</p>
 
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/python/ensembl/genes/metadata/bioproject_from_registry.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">154</span>
-<span class="normal">155</span>
-<span class="normal">156</span>
-<span class="normal">157</span>
-<span class="normal">158</span>
-<span class="normal">159</span>
-<span class="normal">160</span>
-<span class="normal">161</span>
-<span class="normal">162</span>
-<span class="normal">163</span>
-<span class="normal">164</span>
-<span class="normal">165</span>
-<span class="normal">166</span>
-<span class="normal">167</span>
-<span class="normal">168</span>
-<span class="normal">169</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_bioproject_name</span><span class="p">(</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">132</span>
+<span class="normal">133</span>
+<span class="normal">134</span>
+<span class="normal">135</span>
+<span class="normal">136</span>
+<span class="normal">137</span>
+<span class="normal">138</span>
+<span class="normal">139</span>
+<span class="normal">140</span>
+<span class="normal">141</span>
+<span class="normal">142</span>
+<span class="normal">143</span>
+<span class="normal">144</span>
+<span class="normal">145</span>
+<span class="normal">146</span>
+<span class="normal">147</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_bioproject_name</span><span class="p">(</span>
     <span class="n">assembly_accession</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">user</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">host</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">port</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">database</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">DEFAULT_REGISTRY_DB</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the first genome group name for an assembly accession.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the first main BioProject genome group name for an assembly accession.&quot;&quot;&quot;</span>
     <span class="n">bioproject_names</span> <span class="o">=</span> <span class="n">get_bioproject_names</span><span class="p">(</span>
         <span class="n">assembly_accession</span><span class="p">,</span>
         <span class="n">user</span><span class="o">=</span><span class="n">user</span><span class="p">,</span>
@@ -2924,29 +2924,7 @@
 <span class="normal">126</span>
 <span class="normal">127</span>
 <span class="normal">128</span>
-<span class="normal">129</span>
-<span class="normal">130</span>
-<span class="normal">131</span>
-<span class="normal">132</span>
-<span class="normal">133</span>
-<span class="normal">134</span>
-<span class="normal">135</span>
-<span class="normal">136</span>
-<span class="normal">137</span>
-<span class="normal">138</span>
-<span class="normal">139</span>
-<span class="normal">140</span>
-<span class="normal">141</span>
-<span class="normal">142</span>
-<span class="normal">143</span>
-<span class="normal">144</span>
-<span class="normal">145</span>
-<span class="normal">146</span>
-<span class="normal">147</span>
-<span class="normal">148</span>
-<span class="normal">149</span>
-<span class="normal">150</span>
-<span class="normal">151</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_bioproject_names</span><span class="p">(</span>
+<span class="normal">129</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_bioproject_names</span><span class="p">(</span>
     <span class="n">assembly_accession</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">user</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">host</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -2988,38 +2966,12 @@
         <span class="k">return</span> <span class="p">[]</span>
 
     <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
-<span class="s2">        SELECT DISTINCT genome_group</span>
-<span class="s2">        FROM (</span>
-<span class="s2">            SELECT mb.bioproject_name AS genome_group</span>
-<span class="s2">            FROM assembly a</span>
-<span class="s2">            JOIN bioproject b ON a.assembly_id = b.assembly_id</span>
-<span class="s2">            JOIN main_bioproject mb ON b.bioproject_id = mb.bioproject_id</span>
-<span class="s2">            WHERE CONCAT(a.gca_chain, &#39;.&#39;, a.gca_version) = </span><span class="si">%s</span>
-<span class="s2">              AND mb.bioproject_name IS NOT NULL</span>
-
-<span class="s2">            UNION</span>
-
-<span class="s2">            SELECT cg.group_name AS genome_group</span>
-<span class="s2">            FROM assembly a</span>
-<span class="s2">            JOIN custom_group cg</span>
-<span class="s2">              ON cg.group_type = &#39;assembly&#39;</span>
-<span class="s2">             AND cg.item = a.gca_chain</span>
-<span class="s2">            WHERE CONCAT(a.gca_chain, &#39;.&#39;, a.gca_version) = </span><span class="si">%s</span>
-
-<span class="s2">            UNION</span>
-
-<span class="s2">            SELECT cg.group_name AS genome_group</span>
-<span class="s2">            FROM assembly a</span>
-<span class="s2">            LEFT JOIN species s ON a.lowest_taxon_id = s.lowest_taxon_id</span>
-<span class="s2">            JOIN custom_group cg</span>
-<span class="s2">              ON cg.group_type = &#39;taxon&#39;</span>
-<span class="s2">             AND cg.item IN (</span>
-<span class="s2">                CAST(a.lowest_taxon_id AS CHAR),</span>
-<span class="s2">                CAST(s.species_taxon_id AS CHAR)</span>
-<span class="s2">             )</span>
-<span class="s2">            WHERE CONCAT(a.gca_chain, &#39;.&#39;, a.gca_version) = </span><span class="si">%s</span>
-<span class="s2">        ) genome_groups</span>
-<span class="s2">        WHERE genome_group IS NOT NULL</span>
+<span class="s2">        SELECT DISTINCT mb.bioproject_name AS genome_group</span>
+<span class="s2">        FROM assembly a</span>
+<span class="s2">        JOIN bioproject b ON a.assembly_id = b.assembly_id</span>
+<span class="s2">        JOIN main_bioproject mb ON b.bioproject_id = mb.bioproject_id</span>
+<span class="s2">        WHERE CONCAT(a.gca_chain, &#39;.&#39;, a.gca_version) = </span><span class="si">%s</span>
+<span class="s2">          AND mb.bioproject_name IS NOT NULL</span>
 <span class="s2">        ORDER BY genome_group</span>
 <span class="s2">    &quot;&quot;&quot;</span>
 
@@ -3033,9 +2985,7 @@
             <span class="n">cursorclass</span><span class="o">=</span><span class="n">pymysql</span><span class="o">.</span><span class="n">cursors</span><span class="o">.</span><span class="n">DictCursor</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="k">with</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span> <span class="k">as</span> <span class="n">cursor</span><span class="p">:</span>
-            <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
-                <span class="n">query</span><span class="p">,</span> <span class="p">(</span><span class="n">assembly_accession</span><span class="p">,</span> <span class="n">assembly_accession</span><span class="p">,</span> <span class="n">assembly_accession</span><span class="p">)</span>
-            <span class="p">)</span>
+            <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="p">(</span><span class="n">assembly_accession</span><span class="p">,))</span>
             <span class="n">results</span> <span class="o">=</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
     <span class="k">except</span> <span class="n">pymysql</span><span class="o">.</span><span class="n">Error</span><span class="p">:</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span>
@@ -3050,18 +3000,24 @@
             <span class="k">except</span> <span class="n">pymysql</span><span class="o">.</span><span class="n">Error</span><span class="p">:</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="s2">&quot;Error closing registry connection&quot;</span><span class="p">)</span>
 
-    <span class="n">genome_group_names</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">registry_genome_group_names</span> <span class="o">=</span> <span class="p">[</span>
         <span class="n">normalise_genome_group_name</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;genome_group&quot;</span><span class="p">]))</span>
         <span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">results</span>
         <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;genome_group&quot;</span><span class="p">)</span>
     <span class="p">]</span>
 
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">genome_group_names</span><span class="p">:</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">registry_genome_group_names</span><span class="p">:</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
             <span class="s2">&quot; | GENOME.GENOME_GROUP | No genome group name found in registry for </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
             <span class="n">assembly_accession</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="p">[]</span>
+
+    <span class="n">genome_group_names</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">genome_group_name</span>
+        <span class="k">for</span> <span class="n">genome_group_name</span> <span class="ow">in</span> <span class="n">registry_genome_group_names</span>
+        <span class="k">if</span> <span class="n">genome_group_name</span> <span class="o">!=</span> <span class="s2">&quot;hprc&quot;</span>
+    <span class="p">]</span>
 
     <span class="k">return</span> <span class="n">genome_group_names</span>
 </code></pre></div></td></tr></table></div>
