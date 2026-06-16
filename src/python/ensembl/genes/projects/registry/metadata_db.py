@@ -3,7 +3,7 @@ Data fetcher for the Ensembl Metadata database.
 """
 
 import logging
-from typing import List, Optional
+from typing import Dict, List, Optional
 
 import pymysql
 
@@ -106,6 +106,67 @@ class MetadataDbClient:
                 continue
 
         return []
+
+    def get_genome_uuids_by_accessions(self, accessions: List[str]) -> Dict[str, str]:
+        """Look up genome UUIDs for a list of assembly accessions.
+
+        Parameters
+        ----------
+        accessions:
+            GCA/GCF accession strings to look up.
+
+        Returns
+        -------
+        Dict mapping accession → genome_uuid for accessions found in the
+        metadata DB.  Missing accessions are silently omitted.
+        """
+        if not accessions:
+            return {}
+
+        # Deduplicate and filter empties
+        unique = sorted(set(a for a in accessions if a))
+        if not unique:
+            return {}
+
+        placeholders = ", ".join(["%s"] * len(unique))
+        query = f"""
+            SELECT DISTINCT
+                assembly.accession,
+                genome.genome_uuid
+            FROM genome
+            JOIN assembly ON genome.assembly_id = assembly.assembly_id
+            JOIN genome_dataset ON genome.genome_id = genome_dataset.genome_id
+            JOIN dataset ON genome_dataset.dataset_id = dataset.dataset_id
+            WHERE dataset.name = 'genebuild'
+              AND assembly.accession IN ({placeholders})
+        """
+
+        result: Dict[str, str] = {}
+        try:
+            conn = pymysql.connect(
+                host=self.host,
+                user=self.user,
+                port=self.port,
+                database=self.dbname,
+            )
+            with conn.cursor() as cursor:
+                cursor.execute(query, tuple(unique))
+                for row in cursor.fetchall():
+                    acc, guuid = row[0], row[1]
+                    if acc and guuid:
+                        result[acc] = guuid
+        except pymysql.Error as e:
+            logger.error("MySQL error looking up genome UUIDs: %s", e)
+        finally:
+            if "conn" in locals() and conn.open:
+                conn.close()
+
+        logger.debug(
+            "Resolved %d / %d accessions to genome UUIDs from metadata DB.",
+            len(result),
+            len(unique),
+        )
+        return result
 
     def fetch_by_identifier(self, identifier: str) -> Optional[GenomeMetadata]:
         """

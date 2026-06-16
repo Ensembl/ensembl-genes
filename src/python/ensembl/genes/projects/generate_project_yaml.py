@@ -319,14 +319,50 @@ For pre-release discovery without UUIDs, you may still rely on the registry trac
         if acc:
             doc_by_accession[acc] = doc
 
-    # Inject alternate_haplotype into docs where a pair was found
+    # Resolve alternate accessions to beta URLs using genome UUIDs.
+    # First build a local cache from the in-memory candidates (free).
+    acc_to_uuid: dict = {
+        c.meta.accession: c.meta.genome_uuid
+        for c in candidates
+        if c.meta.genome_uuid and c.meta.genome_uuid != "unknown"
+    }
+
+    # For any alternate accessions not already in the local cache,
+    # batch-query the metadata DB.
+    alt_accessions_needing_uuid = [
+        alt_acc for alt_acc in set(haplotype_map.values()) if alt_acc not in acc_to_uuid
+    ]
+    if alt_accessions_needing_uuid:
+        db_uuids = metadata_client.get_genome_uuids_by_accessions(
+            alt_accessions_needing_uuid
+        )
+        acc_to_uuid.update(db_uuids)
+
+    # Inject alternate into docs where a pair was found
     for acc, alt_acc in haplotype_map.items():
         if acc in doc_by_accession and alt_acc in doc_by_accession:
             doc = doc_by_accession[acc]
             # Only set if not already populated (metadata DB may have set it)
             if "alternate" not in doc:
-                doc["alternate"] = alt_acc
-                logger.debug("Set alternate haplotype: %s -> %s", acc, alt_acc)
+                alt_uuid = acc_to_uuid.get(alt_acc)
+                if alt_uuid and alt_uuid != "unknown":
+                    alt_url = f"https://beta.ensembl.org/species/{alt_uuid}"
+                    doc["alternate"] = alt_url
+                    logger.debug(
+                        "Set alternate haplotype: %s -> %s (uuid=%s)",
+                        acc,
+                        alt_url,
+                        alt_uuid,
+                    )
+                else:
+                    # No UUID available — keep raw accession as fallback
+                    doc["alternate"] = alt_acc
+                    logger.warning(
+                        "No genome UUID found for alternate %s of %s; "
+                        "using raw accession.",
+                        alt_acc,
+                        acc,
+                    )
 
     if args.audit_file:
         seen_audit_rows = set()
