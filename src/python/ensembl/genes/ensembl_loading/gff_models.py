@@ -50,6 +50,7 @@ class TranscriptRecord:
     stable_id: str
     exons: list[ExonRecord] = field(default_factory=list)
     protein_id: str | None = None
+    translation_coords: str | None = None
 
 
 @dataclass(frozen=True)

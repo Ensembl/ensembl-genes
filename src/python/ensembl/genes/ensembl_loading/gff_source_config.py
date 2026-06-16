@@ -1,4 +1,4 @@
-"""Source-specific configuration for loading GFF3 into Ensembl core databases."""
+"""Source-specific configuration for loading GFF/GTF into Ensembl core databases."""
 
 from __future__ import annotations
 
@@ -8,7 +8,7 @@ from typing import Mapping
 
 @dataclass(frozen=True)
 class GffSourceConfig:
-    """Configuration describing how one GFF3 source should be interpreted."""
+    """Configuration describing how one GFF/GTF source should be interpreted."""
 
     name: str
     source_label: str
@@ -26,16 +26,24 @@ class GffSourceConfig:
     pseudo_attribute: str = "pseudo"
     transcript_biotype_attribute: str = "transcript_biotype"
     gene_biotype_attribute: str = "gene_biotype"
+    attribute_format: str = "gff3"
+    gene_id_attribute: str = "ID"
+    transcript_id_attribute: str = "ID"
+    parent_gene_attribute: str = "Parent"
+    exon_parent_attribute: str = "Parent"
+    cds_parent_attribute: str = "Parent"
     gene_name_attributes: tuple[str, ...] = ("Name", "gene")
     transcript_stable_id_attributes: tuple[str, ...] = ("Name",)
     exon_stable_id_attributes: tuple[str, ...] = ()
     translation_stable_id_attributes: tuple[str, ...] = ()
+    translation_coords_attribute: str | None = None
     gene_xref_prefix: str = "GeneID:"
     transcribed_pseudogene_gbkey_token: str = "Transcribed_Pseudogene"
     segment_gbkey_suffix: str = "_segment"
     segment_biotype_prefix: str = "IG"
     default_biotype: str = "protein_coding"
     toplevel_attrib_type_id: int = 6
+    transcript_rows_define_genes: bool = False
 
 
 REFSEQ_CONFIG = GffSourceConfig(
@@ -287,9 +295,62 @@ ENSEMBL_GFF_CONFIG = GffSourceConfig(
     translation_stable_id_attributes=("protein_id", "Name", "ID"),
 )
 
+ANNO_GTF_CONFIG = GffSourceConfig(
+    name="anno_gtf",
+    source_label="ensembl",
+    analysis_logic_name="ensembl",
+    analysis_program="Anno_GTF",
+    parsed_gene_feature_types=frozenset({"gene"}),
+    parsed_transcript_feature_types=frozenset({"transcript"}),
+    biotype_transcript_feature_types=frozenset(),
+    transcript_feature_biotype_map={},
+    id_prefixes_to_strip=(),
+    transcript_biotype_attribute="biotype",
+    gene_biotype_attribute="biotype",
+    attribute_format="gtf",
+    gene_id_attribute="gene_id",
+    transcript_id_attribute="transcript_id",
+    parent_gene_attribute="gene_id",
+    exon_parent_attribute="transcript_id",
+    cds_parent_attribute="transcript_id",
+    gene_name_attributes=("gene_name", "gene_id"),
+    transcript_stable_id_attributes=("transcript_id",),
+    translation_stable_id_attributes=("protein_id",),
+    translation_coords_attribute="translation_coords",
+    default_biotype="not_set",
+    transcript_rows_define_genes=True,
+)
+
+NCRNA_GTF_CONFIG = GffSourceConfig(
+    name="ncrna_gtf",
+    source_label="ensembl",
+    analysis_logic_name="ncrna",
+    analysis_program="Anno_ncRNA_GTF",
+    parsed_gene_feature_types=frozenset({"gene"}),
+    parsed_transcript_feature_types=frozenset({"transcript"}),
+    biotype_transcript_feature_types=frozenset(),
+    transcript_feature_biotype_map={},
+    id_prefixes_to_strip=(),
+    transcript_biotype_attribute="biotype",
+    gene_biotype_attribute="biotype",
+    attribute_format="gtf",
+    gene_id_attribute="gene_id",
+    transcript_id_attribute="transcript_id",
+    parent_gene_attribute="gene_id",
+    exon_parent_attribute="transcript_id",
+    cds_parent_attribute="transcript_id",
+    gene_name_attributes=("gene_name", "gene_id"),
+    transcript_stable_id_attributes=("transcript_id",),
+    translation_stable_id_attributes=("protein_id",),
+    default_biotype="misc_RNA",
+    transcript_rows_define_genes=True,
+)
+
 SOURCE_CONFIGS: dict[str, GffSourceConfig] = {
+    ANNO_GTF_CONFIG.name: ANNO_GTF_CONFIG,
     ENSEMBL_GFF_CONFIG.name: ENSEMBL_GFF_CONFIG,
     GENERIC_GFF_CONFIG.name: GENERIC_GFF_CONFIG,
+    NCRNA_GTF_CONFIG.name: NCRNA_GTF_CONFIG,
     REFSEQ_CONFIG.name: REFSEQ_CONFIG,
 }
 

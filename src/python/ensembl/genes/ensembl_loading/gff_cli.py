@@ -1,4 +1,4 @@
-"""Unified command-line wrapper for generic GFF3 and RefSeq loading."""
+"""Unified command-line wrapper for generic GFF/GTF and RefSeq loading."""
 
 from __future__ import annotations
 
@@ -224,7 +224,7 @@ def add_refseq_target_options(parser: argparse.ArgumentParser) -> None:
 
 
 def run_load_features(args: argparse.Namespace) -> int:
-    """Load a user-supplied GFF3 into an existing core DB."""
+    """Load user-supplied GFF/GTF features into an existing core DB."""
 
     source_config = get_source_config(args.source)
     summary = load_gff_features_to_core(
@@ -240,7 +240,7 @@ def run_load_features(args: argparse.Namespace) -> int:
         source_config=source_config,
     )
     LOGGER.info(
-        "Loaded GFF feature summary: %s genes, %s transcripts, %s CDS transcript groups",
+        "Loaded feature summary: %s genes, %s transcripts, %s CDS transcript groups",
         summary["genes"],
         summary["transcripts"],
         summary["cds_transcript_groups"],
@@ -249,7 +249,7 @@ def run_load_features(args: argparse.Namespace) -> int:
 
 
 def run_create_core(args: argparse.Namespace) -> int:
-    """Create/populate a core DB from converted FASTA and converted GFF3."""
+    """Create/populate a core DB from converted FASTA and GFF3/GTF features."""
 
     source_config = get_source_config(args.source)
     db_name = load_to_ensembl_core(
@@ -392,26 +392,26 @@ def run_refseq_pipeline(args: argparse.Namespace) -> int:
 
 
 def add_load_features_parser(subparsers: argparse._SubParsersAction) -> None:
-    """Add the generic existing-core GFF feature loader subcommand."""
+    """Add the generic existing-core feature loader subcommand."""
 
     parser = subparsers.add_parser(
         "load-features",
-        help="Load a GFF3 into an existing Ensembl core DB",
+        help="Load GFF3/GTF features into an existing Ensembl core DB",
     )
-    parser.add_argument("gff", help="Input GFF3 path, plain text or .gz")
+    parser.add_argument("gff", help="Input GFF3/GTF path, plain text or .gz")
     add_existing_core_db_options(parser)
     add_source_option(parser, default="generic")
     parser.set_defaults(func=run_load_features)
 
 
 def add_create_core_parser(subparsers: argparse._SubParsersAction) -> None:
-    """Add the FASTA plus GFF3 core creation subcommand."""
+    """Add the FASTA plus GFF3/GTF core creation subcommand."""
 
     parser = subparsers.add_parser(
         "create-core",
-        help="Create/populate a core DB from converted FASTA and GFF3",
+        help="Create/populate a core DB from converted FASTA and GFF3/GTF",
     )
-    parser.add_argument("gff", help="Converted GFF3")
+    parser.add_argument("gff", help="Converted GFF3/GTF")
     parser.add_argument("fna", help="Converted FASTA")
     parser.add_argument(
         "assembly_report",
@@ -514,7 +514,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="gff-loader",
         description=(
-            "Load GFF3 features into Ensembl core databases, with optional "
+            "Load GFF3/GTF features into Ensembl core databases, with optional "
             "RefSeq/NCBI download and conversion workflows."
         ),
     )

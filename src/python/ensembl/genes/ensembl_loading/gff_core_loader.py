@@ -100,7 +100,7 @@ def first_existing_attribute(
     attributes: Mapping[str, str],
     attribute_names: Sequence[str],
 ) -> str | None:
-    """Return the first non-empty configured GFF3 attribute value."""
+    """Return the first non-empty configured feature attribute value."""
 
     for attribute_name in attribute_names:
         value = attributes.get(attribute_name)
@@ -118,6 +118,60 @@ def parse_gff3_attributes(raw_attributes: str) -> dict[str, str]:
             item.split("=", 1) for item in raw_attributes.split(";") if "=" in item
         )
     }
+
+
+def parse_gtf_attributes(raw_attributes: str) -> dict[str, str]:
+    """Parse a GTF attribute column into a key-value dictionary."""
+
+    attributes: dict[str, str] = {}
+    for item in raw_attributes.rstrip().rstrip(";").split(";"):
+        item = item.strip()
+        if not item:
+            continue
+        if " " not in item:
+            attributes[item] = "1"
+            continue
+
+        key, raw_value = item.split(None, 1)
+        value = raw_value.strip()
+        if len(value) >= 2 and value.startswith('"') and value.endswith('"'):
+            value = value[1:-1]
+        attributes[key] = value
+    return attributes
+
+
+def parse_feature_attributes(
+    raw_attributes: str,
+    source_config: GffSourceConfig = REFSEQ_CONFIG,
+) -> dict[str, str]:
+    """Parse a feature attribute column using the selected source syntax."""
+
+    if source_config.attribute_format == "gff3":
+        return parse_gff3_attributes(raw_attributes)
+    if source_config.attribute_format == "gtf":
+        return parse_gtf_attributes(raw_attributes)
+    raise ValueError(
+        f"Unsupported attribute format '{source_config.attribute_format}' "
+        f"for source config '{source_config.name}'"
+    )
+
+
+def required_attribute(
+    attributes: Mapping[str, str],
+    attribute_name: str,
+    feature_type: str,
+    line_number: int,
+    path: Path,
+) -> str:
+    """Return a required attribute or raise a parse error with context."""
+
+    value = attributes.get(attribute_name)
+    if not value:
+        raise ValueError(
+            f"{path}:{line_number}: {feature_type} row is missing required "
+            f"attribute '{attribute_name}'"
+        )
+    return value
 
 
 def resolve_biotype(
@@ -148,6 +202,11 @@ def resolve_biotype(
     if transcript_biotype:
         return transcript_biotype
 
+    if source_config.translation_coords_attribute and attributes.get(
+        source_config.translation_coords_attribute
+    ):
+        return "protein_coding"
+
     if feature_type in source_config.biotype_transcript_feature_types:
         return source_config.transcript_feature_biotype_map.get(
             feature_type,
@@ -163,7 +222,8 @@ def resolve_biotype(
         return gene_biotype
 
     log.debug(
-        "Defaulting biotype to protein_coding for %s %s %s",
+        "Defaulting biotype to %s for %s %s %s",
+        source_config.default_biotype,
         feature_id,
         feature_type,
         gbkey,
@@ -171,20 +231,188 @@ def resolve_biotype(
     return source_config.default_biotype
 
 
+def update_gene_from_transcript(
+    annotation: ParsedAnnotation,
+    gene_id: str,
+    seq_name: str,
+    start: int,
+    end: int,
+    strand: int,
+    biotype: str,
+    logger: logging.Logger,
+) -> None:
+    """Create or expand a gene record from transcript-level GTF data."""
+
+    existing_gene = annotation.genes.get(gene_id)
+    if existing_gene is None:
+        annotation.genes[gene_id] = GeneRecord(
+            seq_name=seq_name,
+            start=start,
+            end=end,
+            strand=strand,
+            biotype=biotype,
+            stable_id=gene_id,
+            name=gene_id,
+        )
+        return
+
+    if existing_gene.seq_name != seq_name or existing_gene.strand != strand:
+        logger.warning(
+            "Gene %s has transcript rows on inconsistent seq_region/strand: "
+            "%s:%s and %s:%s",
+            gene_id,
+            existing_gene.seq_name,
+            existing_gene.strand,
+            seq_name,
+            strand,
+        )
+        return
+
+    existing_gene.start = min(existing_gene.start, start)
+    existing_gene.end = max(existing_gene.end, end)
+    if existing_gene.biotype == "not_set" or biotype == "protein_coding":
+        existing_gene.biotype = biotype
+
+
+def parse_translation_coords(raw_translation_coords: str) -> tuple[int, ...]:
+    """Parse anno GTF translation_coords into integer components."""
+
+    match = re.fullmatch(
+        r"(\d+):(\d+):(\d+):(\d+):(\d+):(\d+)",
+        raw_translation_coords,
+    )
+    if not match:
+        raise ValueError(
+            f"Could not parse translation_coords value: {raw_translation_coords!r}"
+        )
+    return tuple(int(value) for value in match.groups())
+
+
+def cds_segments_from_translation_coords(
+    transcript_id: str,
+    transcript: TranscriptRecord,
+) -> list[CdsSegment]:
+    """Build CDS segments from anno GTF transcript translation coordinates."""
+
+    if not transcript.translation_coords:
+        return []
+
+    (
+        start_exon_start,
+        start_exon_end,
+        start_exon_offset,
+        end_exon_start,
+        end_exon_end,
+        end_exon_offset,
+    ) = parse_translation_coords(transcript.translation_coords)
+
+    exons_in_transcript_order = sorted(
+        transcript.exons,
+        key=lambda exon: exon.start,
+        reverse=(transcript.strand == -1),
+    )
+    start_index = next(
+        (
+            index
+            for index, exon in enumerate(exons_in_transcript_order)
+            if exon.start == start_exon_start and exon.end == start_exon_end
+        ),
+        None,
+    )
+    end_index = next(
+        (
+            index
+            for index, exon in enumerate(exons_in_transcript_order)
+            if exon.start == end_exon_start and exon.end == end_exon_end
+        ),
+        None,
+    )
+    if start_index is None or end_index is None:
+        raise ValueError(
+            f"Could not match translation_coords to exons for transcript "
+            f"{transcript_id}: {transcript.translation_coords}"
+        )
+    if start_index > end_index:
+        raise ValueError(
+            f"translation_coords start exon occurs after end exon for "
+            f"transcript {transcript_id}: {transcript.translation_coords}"
+        )
+
+    cds_segments: list[CdsSegment] = []
+    for index, exon in enumerate(
+        exons_in_transcript_order[start_index : end_index + 1],
+        start=start_index,
+    ):
+        cds_start = exon.start
+        cds_end = exon.end
+        if index == start_index:
+            if transcript.strand == 1:
+                cds_start = exon.start + start_exon_offset - 1
+            else:
+                cds_end = exon.end - start_exon_offset + 1
+        if index == end_index:
+            if transcript.strand == 1:
+                cds_end = exon.start + end_exon_offset - 1
+            else:
+                cds_start = exon.end - end_exon_offset + 1
+
+        if not (exon.start <= cds_start <= cds_end <= exon.end):
+            raise ValueError(
+                f"translation_coords produced CDS outside exon bounds for "
+                f"transcript {transcript_id}: {transcript.translation_coords}"
+            )
+        cds_segments.append(
+            CdsSegment(
+                start=cds_start,
+                end=cds_end,
+                strand=transcript.strand,
+                phase="0" if not cds_segments else ".",
+            )
+        )
+    return cds_segments
+
+
+def synthesize_cds_from_translation_coords(
+    annotation: ParsedAnnotation,
+    logger: logging.Logger,
+) -> None:
+    """Populate CDS records for GTF transcripts carrying translation_coords."""
+
+    synthesized = 0
+    for transcript_id, transcript in annotation.transcripts.items():
+        if (
+            not transcript.translation_coords
+            or transcript_id in annotation.cds_segments
+        ):
+            continue
+        cds_segments = cds_segments_from_translation_coords(transcript_id, transcript)
+        if cds_segments:
+            annotation.cds_segments[transcript_id] = cds_segments
+            synthesized += 1
+
+    if synthesized:
+        logger.info("Synthesized CDS segments for %s transcripts", synthesized)
+
+
 def parse_converted_gff3(
     converted_gff_path: str | Path,
     logger: logging.Logger | None = None,
     source_config: GffSourceConfig = REFSEQ_CONFIG,
 ) -> ParsedAnnotation:
-    """Parse converted GFF3 into reusable in-memory annotation records."""
+    """Parse GFF3/GTF into reusable in-memory annotation records."""
 
     log = logger or LOGGER
     annotation = ParsedAnnotation()
     gff_path = Path(converted_gff_path)
 
     with open_text_maybe_gzip(gff_path) as gff_handle:
-        for line in gff_handle:
-            if line.startswith("#"):
+        for line_number, line in enumerate(gff_handle, start=1):
+            if line.startswith("#") or not line.strip():
+                continue
+
+            columns = line.rstrip("\n").split("\t")
+            if len(columns) != 9:
+                log.debug("Skipping non-feature row %s in %s", line_number, gff_path)
                 continue
 
             (
@@ -197,15 +425,24 @@ def parse_converted_gff3(
                 strand,
                 phase,
                 attrs,
-            ) = line.rstrip().split("\t")
+            ) = columns
             start = int(start_raw)
             end = int(end_raw)
 
             strand_value = 1 if strand == "+" else -1
-            attributes = parse_gff3_attributes(attrs)
+            attributes = parse_feature_attributes(attrs, source_config)
 
             if feature_type in source_config.parsed_gene_feature_types:
-                gene_id = normalize_id(attributes.get("ID", ""), source_config)
+                gene_id = normalize_id(
+                    required_attribute(
+                        attributes,
+                        source_config.gene_id_attribute,
+                        feature_type,
+                        line_number,
+                        gff_path,
+                    ),
+                    source_config,
+                )
                 dbxref_geneid = next(
                     (
                         value.split(":", 1)[1]
@@ -240,8 +477,26 @@ def parse_converted_gff3(
                 continue
 
             if feature_type in source_config.parsed_transcript_feature_types:
-                transcript_id = normalize_id(attributes.get("ID", ""), source_config)
-                gene_id = parent_id(attributes.get("Parent", ""), source_config)
+                transcript_id = normalize_id(
+                    required_attribute(
+                        attributes,
+                        source_config.transcript_id_attribute,
+                        feature_type,
+                        line_number,
+                        gff_path,
+                    ),
+                    source_config,
+                )
+                gene_id = parent_id(
+                    required_attribute(
+                        attributes,
+                        source_config.parent_gene_attribute,
+                        feature_type,
+                        line_number,
+                        gff_path,
+                    ),
+                    source_config,
+                )
                 stable_id = (
                     first_existing_attribute(
                         attributes,
@@ -263,11 +518,36 @@ def parse_converted_gff3(
                         source_config=source_config,
                     ),
                     stable_id=stable_id,
+                    translation_coords=(
+                        attributes.get(source_config.translation_coords_attribute)
+                        if source_config.translation_coords_attribute
+                        else None
+                    ),
                 )
+                if source_config.transcript_rows_define_genes:
+                    update_gene_from_transcript(
+                        annotation,
+                        gene_id,
+                        seq_name,
+                        start,
+                        end,
+                        strand_value,
+                        annotation.transcripts[transcript_id].biotype,
+                        log,
+                    )
                 continue
 
             if feature_type == "exon":
-                transcript_id = parent_id(attributes.get("Parent", ""), source_config)
+                transcript_id = parent_id(
+                    required_attribute(
+                        attributes,
+                        source_config.exon_parent_attribute,
+                        feature_type,
+                        line_number,
+                        gff_path,
+                    ),
+                    source_config,
+                )
                 if transcript_id not in annotation.transcripts:
                     biotype = (
                         annotation.genes[transcript_id].biotype
@@ -326,7 +606,16 @@ def parse_converted_gff3(
                 continue
 
             if feature_type == "CDS":
-                transcript_id = parent_id(attributes.get("Parent", ""), source_config)
+                transcript_id = parent_id(
+                    required_attribute(
+                        attributes,
+                        source_config.cds_parent_attribute,
+                        feature_type,
+                        line_number,
+                        gff_path,
+                    ),
+                    source_config,
+                )
                 protein_stable_id = first_existing_attribute(
                     attributes,
                     source_config.translation_stable_id_attributes,
@@ -349,6 +638,7 @@ def parse_converted_gff3(
                     )
                 )
 
+    synthesize_cds_from_translation_coords(annotation, log)
     log.info(
         "Parsed %s genes, %s transcripts, and %s CDS transcript groups from %s",
         len(annotation.genes),
@@ -1063,7 +1353,7 @@ def load_to_ensembl_core(
     logger: logging.Logger | None = None,
     source_config: GffSourceConfig = REFSEQ_CONFIG,
 ) -> str:
-    """Load converted GFF3 and FASTA files into an Ensembl-style core database.
+    """Load converted GFF3/GTF and FASTA files into an Ensembl-style core database.
 
     The ``assembly_report_path`` argument is retained for API symmetry with the
     original script and for callers that pass the three canonical source files
@@ -1178,7 +1468,7 @@ def load_gff_features_to_core(
     source_config: GffSourceConfig = GENERIC_GFF_CONFIG,
     logger: logging.Logger | None = None,
 ) -> dict[str, int]:
-    """Load GFF3 features into an existing Ensembl core database.
+    """Load GFF3/GTF features into an existing Ensembl core database.
 
     This path is for generic GFF loading. It does not create the database, load
     schema SQL, insert assembly metadata, or load DNA. The target core database

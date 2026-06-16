@@ -1,14 +1,14 @@
-# Generic GFF Loader And RefSeq Import
+# Generic GFF/GTF Loader And RefSeq Import
 
-This directory contains the a modular GFF loader.The
-entry point is a single CLI, `gff-loader`, which can load generic GFF3 features
-into Ensembl core databases and can also run RefSeq-specific discovery,
-download, conversion, and loading workflows.
+This directory contains a modular GFF/GTF loader. The entry point is a single
+CLI, `gff-loader`, which can load generic GFF3 features and supported GTF
+annotations into Ensembl core databases and can also run RefSeq-specific
+discovery, download, conversion, and loading workflows.
 
 The important design point is that the database loader is generic. It does not
-need to know whether the GFF came from RefSeq, GENCODE, MAKER, or another
-producer once the source-specific rules have been captured in a
-`GffSourceConfig`.
+need to know whether the annotation came from RefSeq, GENCODE, MAKER, an anno
+GTF pipeline, or another producer once the source-specific rules have been
+captured in a `GffSourceConfig`.
 
 ## Module Layout
 
@@ -27,8 +27,8 @@ commands under the `refseq` subcommand group.
 
 `gff_core_loader.py`
 : The parser and Ensembl core database loader. It contains the generic feature
-flow: parse GFF3, reconcile missing relationships, compute exon phases, apply
-biotype overrides, resolve seq_regions, allocate IDs, and insert rows.
+flow: parse GFF3/GTF, reconcile missing relationships, compute exon phases,
+apply biotype overrides, resolve seq_regions, allocate IDs, and insert rows.
 
 `gff_models.py`
 : Typed in-memory records used by the generic loader: `GeneRecord`,
@@ -37,7 +37,8 @@ biotype overrides, resolve seq_regions, allocate IDs, and insert rows.
 `gff_source_config.py`
 : Source configuration. This is where feature-type sets, ID normalization,
 biotype rules, source labels, and analysis metadata are defined. The current
-registered configs are `generic`, `ensembl`, and `refseq`.
+registered configs are `anno_gtf`, `ncrna_gtf`, `generic`, `ensembl`, and
+`refseq`.
 
 RefSeq-specific modules:
 
@@ -75,7 +76,7 @@ gff-loader --help
 You can also run the CLI without installing the console script:
 
 ```bash
-python src/python/ensembl/genes/refseq_loading/gff_cli.py --help
+python src/python/ensembl/genes/ensembl_loading/gff_cli.py --help
 ```
 
 Set logging verbosity with `--log-level`:
@@ -95,14 +96,15 @@ gff-loader --log-file gff-loader.log load-features annotations.gff3 ...
 There are two general loading modes.
 
 `load-features`
-: Load a GFF3 into an existing Ensembl core database. The database, schema,
-coord_system rows, seq_region rows, and DNA must already exist. This mode only
-inserts annotation feature rows.
+: Load a GFF3 or supported GTF into an existing Ensembl core database. The
+database, schema, coord_system rows, seq_region rows, and DNA must already
+exist. This mode only inserts annotation feature rows.
 
 `create-core`
 : Create or reuse a core database, load schema SQL, bootstrap core metadata,
-load FASTA sequence into `seq_region` and `dna`, then load GFF3 features. This
-mode is useful when the FASTA and GFF3 already use matching seq_region names.
+load FASTA sequence into `seq_region` and `dna`, then load GFF3/GTF features.
+This mode is useful when the FASTA and annotation file already use matching
+seq_region names.
 
 ### Loading Features Into An Existing Core
 
@@ -175,9 +177,58 @@ gff-loader load-features annotations.gff3 \
   --coord-system-version GCA_000000000.1
 ```
 
+For anno pipeline GTF files, use the dedicated `anno_gtf` and `ncrna_gtf`
+source configs.
+
+Important: `annotation_output/annotation.gtf` is only the main gene set. It
+does not contain the Rfam and tRNAscan ncRNA genes. To reproduce the original
+anno pipeline core load, load the main annotation GTF first with
+`--source anno_gtf`, then load the separate ncRNA GTF outputs with
+`--source ncrna_gtf`.
+
+The usual anno pipeline load sequence is:
+
+```bash
+gff-loader load-features /path/to/annotation_output/annotation.gtf \
+  --db-name lepidoptera_example_core \
+  --db-host mysql-ens-genebuild-prod-6 \
+  --db-port 3306 \
+  --db-user ensadmin \
+  --db-password <password> \
+  --coord-system-name primary_assembly \
+  --source anno_gtf
+
+gff-loader load-features /path/to/rfam_output/annotation.gtf \
+  --db-name lepidoptera_example_core \
+  --db-host mysql-ens-genebuild-prod-6 \
+  --db-port 3306 \
+  --db-user ensadmin \
+  --db-password <password> \
+  --coord-system-name primary_assembly \
+  --source ncrna_gtf
+
+gff-loader load-features /path/to/trnascan_output/annotation.gtf \
+  --db-name lepidoptera_example_core \
+  --db-host mysql-ens-genebuild-prod-6 \
+  --db-port 3306 \
+  --db-user ensadmin \
+  --db-password <password> \
+  --coord-system-name primary_assembly \
+  --source ncrna_gtf
+```
+
+The Rfam/tRNAscan loads insert genes with source `ensembl` and analysis logic
+name `ncrna`, matching the original Perl loader. If either ncRNA output file is
+empty or absent, skip that file.
+
+Set `--coord-system-name` to the coordinate system containing the GTF seqids.
+For example, if the GTF first column contains names such as `17`, the target
+core must already have matching `seq_region.name` values under the chosen
+coordinate system.
+
 `load-features` does not create a database, does not load schema SQL, does not
 insert species or assembly metadata, and does not load FASTA sequence. It
-parses the GFF3 and inserts into these core feature tables:
+parses the GFF3/GTF and inserts into these core feature tables:
 
 ```text
 analysis
@@ -191,10 +242,10 @@ translation
 The `analysis` row is reused if `analysis.logic_name` already exists for the
 selected source config. Otherwise it is created from the config.
 
-### Creating A Core From FASTA And GFF3
+### Creating A Core From FASTA And GFF3/GTF
 
-Use `create-core` when you have a FASTA and GFF3 whose sequence names already
-match each other.
+Use `create-core` when you have a FASTA and GFF3/GTF whose sequence names
+already match each other.
 
 ```bash
 gff-loader create-core annotations.gff3 genome.fna \
@@ -210,7 +261,7 @@ gff-loader create-core annotations.gff3 genome.fna \
 By default, `create-core` loads the bundled schema:
 
 ```text
-src/python/ensembl/genes/refseq_loading/config/core_schema.sql
+src/python/ensembl/genes/ensembl_loading/config/core_schema.sql
 ```
 
 Use `--schema-sql-path /path/to/schema.sql` to override it. Use
@@ -349,6 +400,16 @@ synthetic features.
 `id_prefixes_to_strip`
 : Prefixes removed from GFF IDs and Parent values before internal IDs are used.
 
+`attribute_format`
+: Attribute syntax parser. `gff3` reads `key=value` pairs; `gtf` reads
+`key "value";` pairs.
+
+`gene_id_attribute`, `transcript_id_attribute`, `parent_gene_attribute`,
+`exon_parent_attribute`, `cds_parent_attribute`
+: Attribute names used to identify feature IDs and parent-child relationships.
+GFF3 configs usually use `ID` and `Parent`; GTF configs usually use `gene_id`
+and `transcript_id`.
+
 `gene_name_attributes`
 : Attribute priority used to choose `GeneRecord.name`.
 
@@ -363,6 +424,15 @@ attribute is found, exon stable IDs are inserted as `NULL`.
 : Attribute priority used to choose `translation.stable_id` from CDS rows. If
 no configured attribute is found, the fallback stable ID is
 `<transcript_id>_prot`.
+
+`translation_coords_attribute`
+: Optional transcript attribute used to synthesize CDS segments when the input
+has transcript/exon rows but no CDS rows. The anno GTF config uses
+`translation_coords`.
+
+`transcript_rows_define_genes`
+: Whether transcript rows should create and expand parent gene records. This is
+used for anno GTF files that do not contain explicit gene rows.
 
 `gene_xref_prefix`
 : Prefix used to detect a GeneID inside `Dbxref`. The value is captured in the
@@ -505,6 +575,69 @@ transcript biotype:   protein_coding
 Rows such as `chromosome`, `biological_region`, UTRs, and other non-core
 annotation features are ignored by the current feature loader.
 
+### Anno GTF Source Config
+
+Use `--source anno_gtf` for GTF files produced by the anno annotation pipeline.
+These files contain `transcript` and `exon` rows, with relationships expressed
+through GTF attributes:
+
+```text
+17 ensembl transcript 169704 183277 . + . gene_id "annotation_1"; transcript_id "annotation_1"; biotype "protein_coding"; translation_coords "169704:169787:11:183093:183277:109";
+17 ensembl exon       169704 169787 . + . gene_id "annotation_1"; transcript_id "annotation_1"; exon_number "1";
+```
+
+Core metadata:
+
+```text
+name: anno_gtf
+source_label: ensembl
+analysis_logic_name: ensembl
+analysis_program: Anno_GTF
+attribute_format: gtf
+default_biotype: not_set
+```
+
+The loader handles anno GTF files as follows:
+
+1. `gene_id` becomes the gene stable ID.
+2. `transcript_id` becomes the transcript stable ID.
+3. Parent gene records are synthesized from transcript rows and expanded to the
+   min/max span of all transcripts with the same `gene_id`.
+4. Transcript `biotype` is used directly when present.
+5. If `biotype` is absent, transcripts with `translation_coords` become
+   `protein_coding`; transcripts without `translation_coords` become `not_set`.
+6. Transcript `translation_coords` is converted into CDS segments, exon phases,
+   and translation rows. If no `translation_coords` value is present, no
+   translation is created.
+
+This config only covers the main `annotation_output/annotation.gtf` file.
+Rfam and tRNAscan ncRNA genes are produced as separate pipeline outputs and
+must be loaded separately with `--source ncrna_gtf`.
+
+### ncRNA GTF Source Config
+
+Use `--source ncrna_gtf` for the anno pipeline's Rfam and tRNAscan GTF files,
+for example `rfam_output/annotation.gtf` and
+`trnascan_output/annotation.gtf`.
+
+Core metadata:
+
+```text
+name: ncrna_gtf
+source_label: ensembl
+analysis_logic_name: ncrna
+analysis_program: Anno_ncRNA_GTF
+attribute_format: gtf
+default_biotype: misc_RNA
+```
+
+This config uses the same GTF relationship rules as `anno_gtf`: `gene_id`
+defines the parent gene, `transcript_id` defines the transcript, and gene rows
+are synthesized from transcript rows when needed. The transcript `biotype`
+attribute is used directly, so Rfam values such as `misc_RNA`, `rRNA`,
+`ribozyme`, `snRNA`, and `snoRNA` are preserved. If a transcript has no
+`biotype`, it defaults to `misc_RNA`.
+
 ### Adding Another GFF Source
 
 To add another source, create a new `GffSourceConfig` in
@@ -541,8 +674,8 @@ gff-loader load-features custom.gff3 \
 ```
 
 You should only need parser changes if the source does not express features as
-gene, transcript-like feature, exon, and CDS rows with standard `ID` and
-`Parent` relationships.
+gene, transcript-like feature, exon, and CDS rows with configured relationship
+attributes, or as anno-style GTF transcript/exon rows with `translation_coords`.
 
 ## Generic Feature Flow
 
@@ -550,7 +683,7 @@ The loader converts GFF rows into a normalized in-memory annotation before any
 database inserts happen.
 
 ```text
-GFF3
+GFF3/GTF
   -> parse_converted_gff3()
   -> ParsedAnnotation
   -> reconcile_annotation()
@@ -1394,12 +1527,12 @@ including `db_port`.
 Generic loading functions:
 
 ```python
-from ensembl.genes.refseq_loading.gff_core_loader import (
+from ensembl.genes.ensembl_loading.gff_core_loader import (
     load_gff_features_to_core,
     load_to_ensembl_core,
     prepare_annotation_for_load,
 )
-from ensembl.genes.refseq_loading.gff_source_config import get_source_config
+from ensembl.genes.ensembl_loading.gff_source_config import get_source_config
 
 source_config = get_source_config("generic")
 
@@ -1417,11 +1550,11 @@ summary = load_gff_features_to_core(
 RefSeq functions:
 
 ```python
-from ensembl.genes.refseq_loading.refseq_ncbi import (
+from ensembl.genes.ensembl_loading.refseq_ncbi import (
     list_available_annotations,
     download_annotations,
 )
-from ensembl.genes.refseq_loading.refseq_conversion import (
+from ensembl.genes.ensembl_loading.refseq_conversion import (
     convert_fna_headers,
     convert_gff_to_ensembl,
 )
