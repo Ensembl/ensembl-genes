@@ -10,13 +10,13 @@
       
       
       
-        <link rel="canonical" href="https://ensembl.github.io/ensembl-genes/ensembl/genes/metrics/busco_lineage_selector/">
+        <link rel="canonical" href="https://ensembl.github.io/ensembl-genes/ensembl/genes/metadata/bioproject_from_registry/">
       
       
-        <link rel="prev" href="../../metadata/">
+        <link rel="prev" href="../beta_patcher/">
       
       
-        <link rel="next" href="../busco_metakeys_patch/">
+        <link rel="next" href="../core_meta_data/">
       
       
         
@@ -27,7 +27,7 @@
     
     
       
-        <title>busco_lineage_selector - Ensembl Genes</title>
+        <title>bioproject_from_registry - Ensembl Genes</title>
       
     
     
@@ -80,7 +80,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#ensemblgenesmetricsbusco_lineage_selector" class="md-skip">
+        <a href="#ensemblgenesmetadatabioproject_from_registry" class="md-skip">
           Skip to content
         </a>
       
@@ -115,7 +115,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              busco_lineage_selector
+              bioproject_from_registry
             
           </span>
         </div>
@@ -1499,8 +1499,10 @@
                 
   
   
+    
   
   
+  
     
     
     
@@ -1509,13 +1511,11 @@
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_1_1_4" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_1_1_4" checked>
         
           
           <label class="md-nav__link" for="__nav_3_1_1_4" id="__nav_3_1_1_4_label" tabindex="0">
@@ -1536,7 +1536,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_3_1_1_4_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_3_1_1_4_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_3_1_1_4">
             <span class="md-nav__icon md-icon"></span>
             
@@ -1554,7 +1554,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../metadata/beta_patcher/" class="md-nav__link">
+      <a href="../beta_patcher/" class="md-nav__link">
         
   
   
@@ -1579,10 +1579,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../../metadata/bioproject_from_registry/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    bioproject_from_registry
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -1598,6 +1625,98 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#ensembl.genes.metadata.bioproject_from_registry" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-module"></code>&nbsp;bioproject_from_registry
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label=" bioproject_from_registry">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ensembl.genes.metadata.bioproject_from_registry.DEFAULT_REGISTRY_DB" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;DEFAULT_REGISTRY_DB
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ensembl.genes.metadata.bioproject_from_registry.logger" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;logger
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ensembl.genes.metadata.bioproject_from_registry.get_bioproject_name" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;get_bioproject_name
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ensembl.genes.metadata.bioproject_from_registry.get_bioproject_names" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;get_bioproject_names
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ensembl.genes.metadata.bioproject_from_registry.normalise_genome_group_name" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;normalise_genome_group_name
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1610,7 +1729,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../metadata/core_meta_data/" class="md-nav__link">
+      <a href="../core_meta_data/" class="md-nav__link">
         
   
   
@@ -1638,7 +1757,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../metadata/" class="md-nav__link">
+      <a href="../" class="md-nav__link">
         
   
   
@@ -1671,8 +1790,6 @@
                 
   
   
-    
-  
   
   
     
@@ -1683,11 +1800,13 @@
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_1_1_5" checked>
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_1_1_5" >
         
           
           <label class="md-nav__link" for="__nav_3_1_1_5" id="__nav_3_1_1_5_label" tabindex="0">
@@ -1708,7 +1827,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_3_1_1_5_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_3_1_1_5_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_3_1_1_5">
             <span class="md-nav__icon md-icon"></span>
             
@@ -1723,37 +1842,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    busco_lineage_selector
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../metrics/busco_lineage_selector/" class="md-nav__link">
         
   
   
@@ -1769,76 +1861,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#ensembl.genes.metrics.busco_lineage_selector" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        <code class="doc-symbol doc-symbol-toc doc-symbol-module"></code>&nbsp;busco_lineage_selector
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label=" busco_lineage_selector">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#ensembl.genes.metrics.busco_lineage_selector.get_dataset_match" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;get_dataset_match
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#ensembl.genes.metrics.busco_lineage_selector.main" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;main
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#ensembl.genes.metrics.busco_lineage_selector.parse_args" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;parse_args
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -1851,7 +1873,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../busco_metakeys_patch/" class="md-nav__link">
+      <a href="../../metrics/busco_metakeys_patch/" class="md-nav__link">
         
   
   
@@ -1879,7 +1901,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../check_busco_score/" class="md-nav__link">
+      <a href="../../metrics/check_busco_score/" class="md-nav__link">
         
   
   
@@ -2450,22 +2472,22 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#ensembl.genes.metrics.busco_lineage_selector" class="md-nav__link">
+  <a href="#ensembl.genes.metadata.bioproject_from_registry" class="md-nav__link">
     <span class="md-ellipsis">
       
-        <code class="doc-symbol doc-symbol-toc doc-symbol-module"></code>&nbsp;busco_lineage_selector
+        <code class="doc-symbol doc-symbol-toc doc-symbol-module"></code>&nbsp;bioproject_from_registry
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label=" busco_lineage_selector">
+    <nav class="md-nav" aria-label=" bioproject_from_registry">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#ensembl.genes.metrics.busco_lineage_selector.get_dataset_match" class="md-nav__link">
+  <a href="#ensembl.genes.metadata.bioproject_from_registry.DEFAULT_REGISTRY_DB" class="md-nav__link">
     <span class="md-ellipsis">
       
-        <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;get_dataset_match
+        <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;DEFAULT_REGISTRY_DB
       
     </span>
   </a>
@@ -2473,10 +2495,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#ensembl.genes.metrics.busco_lineage_selector.main" class="md-nav__link">
+  <a href="#ensembl.genes.metadata.bioproject_from_registry.logger" class="md-nav__link">
     <span class="md-ellipsis">
       
-        <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;main
+        <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;logger
       
     </span>
   </a>
@@ -2484,10 +2506,32 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#ensembl.genes.metrics.busco_lineage_selector.parse_args" class="md-nav__link">
+  <a href="#ensembl.genes.metadata.bioproject_from_registry.get_bioproject_name" class="md-nav__link">
     <span class="md-ellipsis">
       
-        <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;parse_args
+        <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;get_bioproject_name
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ensembl.genes.metadata.bioproject_from_registry.get_bioproject_names" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;get_bioproject_names
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ensembl.genes.metadata.bioproject_from_registry.normalise_genome_group_name" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;normalise_genome_group_name
       
     </span>
   </a>
@@ -2519,18 +2563,18 @@
   
 
 
-<h1 id="ensemblgenesmetricsbusco_lineage_selector"><code>ensembl.genes.metrics.busco_lineage_selector</code><a class="headerlink" href="#ensemblgenesmetricsbusco_lineage_selector" title="Permanent link">&para;</a></h1>
+<h1 id="ensemblgenesmetadatabioproject_from_registry"><code>ensembl.genes.metadata.bioproject_from_registry</code><a class="headerlink" href="#ensemblgenesmetadatabioproject_from_registry" title="Permanent link">&para;</a></h1>
 
 
 <div class="doc doc-object doc-module">
 
 
 
-<h2 id="ensembl.genes.metrics.busco_lineage_selector" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-module"></code>            <code>ensembl.genes.metrics.busco_lineage_selector</code>
+<h2 id="ensembl.genes.metadata.bioproject_from_registry" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-module"></code>            <code>ensembl.genes.metadata.bioproject_from_registry</code>
 
 
-<a href="#ensembl.genes.metrics.busco_lineage_selector" class="headerlink" title="Permanent link">&para;</a></h2>
+<a href="#ensembl.genes.metadata.bioproject_from_registry" class="headerlink" title="Permanent link">&para;</a></h2>
 
     <div class="doc doc-contents first">
 
@@ -2551,21 +2595,114 @@
 
 
 
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="ensembl.genes.metadata.bioproject_from_registry.DEFAULT_REGISTRY_DB" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">DEFAULT_REGISTRY_DB</span> <span class="o">=</span> <span class="s1">&#39;gb_assembly_metadata&#39;</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
+  </span>
+
+<a href="#ensembl.genes.metadata.bioproject_from_registry.DEFAULT_REGISTRY_DB" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="ensembl.genes.metadata.bioproject_from_registry.logger" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
+  </span>
+
+<a href="#ensembl.genes.metadata.bioproject_from_registry.logger" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+    </div>
+
+</div>
+
 
 
 
 <div class="doc doc-object doc-function">
 
 
-<h3 id="ensembl.genes.metrics.busco_lineage_selector.get_dataset_match" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">get_dataset_match</span><span class="p">(</span><span class="n">ncbi_url</span><span class="p">,</span> <span class="n">dataset</span><span class="p">)</span></code>
+<h3 id="ensembl.genes.metadata.bioproject_from_registry.get_bioproject_name" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">get_bioproject_name</span><span class="p">(</span><span class="n">assembly_accession</span><span class="p">,</span> <span class="n">user</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">database</span><span class="o">=</span><span class="n">DEFAULT_REGISTRY_DB</span><span class="p">)</span></code>
 
-<a href="#ensembl.genes.metrics.busco_lineage_selector.get_dataset_match" class="headerlink" title="Permanent link">&para;</a></h3>
+<a href="#ensembl.genes.metadata.bioproject_from_registry.get_bioproject_name" class="headerlink" title="Permanent link">&para;</a></h3>
 
 
     <div class="doc doc-contents ">
 
-        <p>Get taxonomy tree from ncbi taxonomy datasets and find the closest match with the input list</p>
+        <p>Return the first genome group name for an assembly accession.</p>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/python/ensembl/genes/metadata/bioproject_from_registry.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">154</span>
+<span class="normal">155</span>
+<span class="normal">156</span>
+<span class="normal">157</span>
+<span class="normal">158</span>
+<span class="normal">159</span>
+<span class="normal">160</span>
+<span class="normal">161</span>
+<span class="normal">162</span>
+<span class="normal">163</span>
+<span class="normal">164</span>
+<span class="normal">165</span>
+<span class="normal">166</span>
+<span class="normal">167</span>
+<span class="normal">168</span>
+<span class="normal">169</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_bioproject_name</span><span class="p">(</span>
+    <span class="n">assembly_accession</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">user</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">host</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">port</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">database</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">DEFAULT_REGISTRY_DB</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the first genome group name for an assembly accession.&quot;&quot;&quot;</span>
+    <span class="n">bioproject_names</span> <span class="o">=</span> <span class="n">get_bioproject_names</span><span class="p">(</span>
+        <span class="n">assembly_accession</span><span class="p">,</span>
+        <span class="n">user</span><span class="o">=</span><span class="n">user</span><span class="p">,</span>
+        <span class="n">host</span><span class="o">=</span><span class="n">host</span><span class="p">,</span>
+        <span class="n">port</span><span class="o">=</span><span class="n">port</span><span class="p">,</span>
+        <span class="n">database</span><span class="o">=</span><span class="n">database</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">bioproject_names</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">bioproject_names</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="ensembl.genes.metadata.bioproject_from_registry.get_bioproject_names" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">get_bioproject_names</span><span class="p">(</span><span class="n">assembly_accession</span><span class="p">,</span> <span class="n">user</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">database</span><span class="o">=</span><span class="n">DEFAULT_REGISTRY_DB</span><span class="p">)</span></code>
+
+<a href="#ensembl.genes.metadata.bioproject_from_registry.get_bioproject_names" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Return main BioProject genome group names for an assembly accession.</p>
 
 
 <p><span class="doc-section-title">Parameters:</span></p>
@@ -2581,14 +2718,14 @@
       <tbody>
           <tr class="doc-section-item">
             <td>
-                <code>ncbi_url</code>
+                <code>assembly_accession</code>
             </td>
             <td>
                   <code><span title="str">str</span></code>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>Ncbi dataset url</p>
+                <p>GCA assembly accession including version.</p>
               </div>
             </td>
             <td>
@@ -2597,18 +2734,70 @@
           </tr>
           <tr class="doc-section-item">
             <td>
-                <code>dataset</code>
+                <code>user</code>
             </td>
             <td>
-                  <code><span title="dict">dict</span></code>
+                  <code><span title="str">str</span></code>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>list of data to match</p>
+                <p>Registry database user.</p>
               </div>
             </td>
             <td>
                 <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>host</code>
+            </td>
+            <td>
+                  <code><span title="typing.Optional">Optional</span>[<span title="str">str</span>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Registry host. Defaults to the GBS1 environment variable.</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>port</code>
+            </td>
+            <td>
+                  <code><span title="typing.Optional">Optional</span>[<span title="int">int</span>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Registry port. Defaults to the GBP1 environment variable.</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>database</code>
+            </td>
+            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Registry database name.</p>
+              </div>
+            </td>
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="&lt;code class=&quot;doc-symbol doc-symbol-heading doc-symbol-attribute&quot;&gt;&lt;/code&gt;            &lt;code class=&quot;highlight language-python&quot;&gt;&lt;span class=&quot;n&quot;&gt;DEFAULT_REGISTRY_DB&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;&amp;#39;gb_assembly_metadata&amp;#39;&lt;/span&gt;&lt;/code&gt;
+
+  &lt;span class=&quot;doc doc-labels&quot;&gt;
+      &lt;small class=&quot;doc doc-label doc-label-module-attribute&quot;&gt;&lt;code&gt;module-attribute&lt;/code&gt;&lt;/small&gt;
+  &lt;/span&gt; (&lt;code&gt;ensembl.genes.metadata.bioproject_from_registry.DEFAULT_REGISTRY_DB&lt;/code&gt;)" href="#ensembl.genes.metadata.bioproject_from_registry.DEFAULT_REGISTRY_DB">DEFAULT_REGISTRY_DB</a></code>
             </td>
           </tr>
       </tbody>
@@ -2619,29 +2808,6 @@
     <table>
       <thead>
         <tr>
-<th>Name</th>          <th>Type</th>
-          <th>Description</th>
-        </tr>
-      </thead>
-      <tbody>
-          <tr class="doc-section-item">
-<td><code>str</code></td>            <td>
-                  <code><span title="typing.Optional">Optional</span>[<span title="typing.Any">Any</span>]</code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>closest match in the dataset list</p>
-              </div>
-            </td>
-          </tr>
-      </tbody>
-    </table>
-
-
-<p><span class="doc-section-title">Raises:</span></p>
-    <table>
-      <thead>
-        <tr>
           <th>Type</th>
           <th>Description</th>
         </tr>
@@ -2649,21 +2815,11 @@
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code><span title="requests.HTTPError">HTTPError</span></code>
+                  <code><span title="typing.List">List</span>[<span title="str">str</span>]</code>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>If an HTTP error occurs during the API request.</p>
-              </div>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td>
-                  <code><span title="Exception">Exception</span></code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>If any other error occurs during the function's operation.</p>
+                <p>Main BioProject genome group names, or an empty list if they are unavailable.</p>
               </div>
             </td>
           </tr>
@@ -2672,115 +2828,67 @@
 
 
             <details class="mkdocstrings-source">
-              <summary>Source code in <code>src/python/ensembl/genes/metrics/busco_lineage_selector.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">27</span>
-<span class="normal">28</span>
-<span class="normal">29</span>
-<span class="normal">30</span>
-<span class="normal">31</span>
-<span class="normal">32</span>
-<span class="normal">33</span>
-<span class="normal">34</span>
-<span class="normal">35</span>
-<span class="normal">36</span>
-<span class="normal">37</span>
-<span class="normal">38</span>
-<span class="normal">39</span>
-<span class="normal">40</span>
-<span class="normal">41</span>
-<span class="normal">42</span>
-<span class="normal">43</span>
-<span class="normal">44</span>
-<span class="normal">45</span>
-<span class="normal">46</span>
-<span class="normal">47</span>
-<span class="normal">48</span>
-<span class="normal">49</span>
-<span class="normal">50</span>
-<span class="normal">51</span>
-<span class="normal">52</span>
-<span class="normal">53</span>
-<span class="normal">54</span>
-<span class="normal">55</span>
-<span class="normal">56</span>
-<span class="normal">57</span>
-<span class="normal">58</span>
-<span class="normal">59</span>
-<span class="normal">60</span>
-<span class="normal">61</span>
-<span class="normal">62</span>
-<span class="normal">63</span>
-<span class="normal">64</span>
-<span class="normal">65</span>
-<span class="normal">66</span>
-<span class="normal">67</span>
-<span class="normal">68</span>
-<span class="normal">69</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_dataset_match</span><span class="p">(</span><span class="n">ncbi_url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">dataset</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Any</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Get taxonomy tree from ncbi taxonomy datasets and find the closest match with the input list</span>
-
-
-<span class="sd">    Args:</span>
-<span class="sd">        ncbi_url (str): Ncbi dataset url</span>
-<span class="sd">        dataset (dict): list of data to match</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">        str: closest match in the dataset list</span>
-
-<span class="sd">    Raises:</span>
-<span class="sd">        requests.HTTPError: If an HTTP error occurs during the API request.</span>
-<span class="sd">        Exception: If any other error occurs during the function&#39;s operation.</span>
-
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="k">try</span><span class="p">:</span>
-        <span class="c1"># Fetch data from the URL</span>
-        <span class="k">with</span> <span class="n">urllib</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">urlopen</span><span class="p">(</span><span class="n">ncbi_url</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span> <span class="k">as</span> <span class="n">response</span><span class="p">:</span>
-            <span class="c1"># Read the response and decode it</span>
-            <span class="n">data</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
-            <span class="c1"># Parse the JSON data</span>
-            <span class="n">json_data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-
-            <span class="c1"># Extract classification names</span>
-            <span class="n">parents</span> <span class="o">=</span> <span class="n">json_data</span><span class="p">[</span><span class="s2">&quot;reports&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;taxonomy&quot;</span><span class="p">][</span><span class="s2">&quot;parents&quot;</span><span class="p">]</span>
-            <span class="c1"># Variable to store the matched result</span>
-            <span class="n">matched_value</span> <span class="o">=</span> <span class="kc">None</span>
-
-            <span class="c1"># Match parents against the dictionary</span>
-            <span class="k">for</span> <span class="n">parent_id</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="n">parents</span><span class="p">):</span>
-                <span class="n">parent_id_str</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">parent_id</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">parent_id_str</span> <span class="ow">in</span> <span class="n">dataset</span><span class="p">:</span>
-                    <span class="n">matched_value</span> <span class="o">=</span> <span class="n">dataset</span><span class="p">[</span><span class="n">parent_id_str</span><span class="p">]</span>
-                    <span class="k">break</span>
-    <span class="k">except</span> <span class="n">urllib</span><span class="o">.</span><span class="n">error</span><span class="o">.</span><span class="n">URLError</span> <span class="k">as</span> <span class="n">url_err</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;URL error occurred: </span><span class="si">{</span><span class="n">url_err</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="k">except</span> <span class="n">json</span><span class="o">.</span><span class="n">JSONDecodeError</span> <span class="k">as</span> <span class="n">json_err</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error decoding JSON: </span><span class="si">{</span><span class="n">json_err</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="c1"># print (matched_value)</span>
-    <span class="k">return</span> <span class="n">matched_value</span>
-</code></pre></div></td></tr></table></div>
-            </details>
-    </div>
-
-</div>
-
-<div class="doc doc-object doc-function">
-
-
-<h3 id="ensembl.genes.metrics.busco_lineage_selector.main" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">main</span><span class="p">()</span></code>
-
-<a href="#ensembl.genes.metrics.busco_lineage_selector.main" class="headerlink" title="Permanent link">&para;</a></h3>
-
-
-    <div class="doc doc-contents ">
-
-        <p>Entry-point.</p>
-
-
-            <details class="mkdocstrings-source">
-              <summary>Source code in <code>src/python/ensembl/genes/metrics/busco_lineage_selector.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 93</span>
+              <summary>Source code in <code>src/python/ensembl/genes/metadata/bioproject_from_registry.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 34</span>
+<span class="normal"> 35</span>
+<span class="normal"> 36</span>
+<span class="normal"> 37</span>
+<span class="normal"> 38</span>
+<span class="normal"> 39</span>
+<span class="normal"> 40</span>
+<span class="normal"> 41</span>
+<span class="normal"> 42</span>
+<span class="normal"> 43</span>
+<span class="normal"> 44</span>
+<span class="normal"> 45</span>
+<span class="normal"> 46</span>
+<span class="normal"> 47</span>
+<span class="normal"> 48</span>
+<span class="normal"> 49</span>
+<span class="normal"> 50</span>
+<span class="normal"> 51</span>
+<span class="normal"> 52</span>
+<span class="normal"> 53</span>
+<span class="normal"> 54</span>
+<span class="normal"> 55</span>
+<span class="normal"> 56</span>
+<span class="normal"> 57</span>
+<span class="normal"> 58</span>
+<span class="normal"> 59</span>
+<span class="normal"> 60</span>
+<span class="normal"> 61</span>
+<span class="normal"> 62</span>
+<span class="normal"> 63</span>
+<span class="normal"> 64</span>
+<span class="normal"> 65</span>
+<span class="normal"> 66</span>
+<span class="normal"> 67</span>
+<span class="normal"> 68</span>
+<span class="normal"> 69</span>
+<span class="normal"> 70</span>
+<span class="normal"> 71</span>
+<span class="normal"> 72</span>
+<span class="normal"> 73</span>
+<span class="normal"> 74</span>
+<span class="normal"> 75</span>
+<span class="normal"> 76</span>
+<span class="normal"> 77</span>
+<span class="normal"> 78</span>
+<span class="normal"> 79</span>
+<span class="normal"> 80</span>
+<span class="normal"> 81</span>
+<span class="normal"> 82</span>
+<span class="normal"> 83</span>
+<span class="normal"> 84</span>
+<span class="normal"> 85</span>
+<span class="normal"> 86</span>
+<span class="normal"> 87</span>
+<span class="normal"> 88</span>
+<span class="normal"> 89</span>
+<span class="normal"> 90</span>
+<span class="normal"> 91</span>
+<span class="normal"> 92</span>
+<span class="normal"> 93</span>
 <span class="normal"> 94</span>
 <span class="normal"> 95</span>
 <span class="normal"> 96</span>
@@ -2802,29 +2910,160 @@
 <span class="normal">112</span>
 <span class="normal">113</span>
 <span class="normal">114</span>
-<span class="normal">115</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Entry-point.&quot;&quot;&quot;</span>
-    <span class="n">args</span> <span class="o">=</span> <span class="n">parse_args</span><span class="p">()</span>
+<span class="normal">115</span>
+<span class="normal">116</span>
+<span class="normal">117</span>
+<span class="normal">118</span>
+<span class="normal">119</span>
+<span class="normal">120</span>
+<span class="normal">121</span>
+<span class="normal">122</span>
+<span class="normal">123</span>
+<span class="normal">124</span>
+<span class="normal">125</span>
+<span class="normal">126</span>
+<span class="normal">127</span>
+<span class="normal">128</span>
+<span class="normal">129</span>
+<span class="normal">130</span>
+<span class="normal">131</span>
+<span class="normal">132</span>
+<span class="normal">133</span>
+<span class="normal">134</span>
+<span class="normal">135</span>
+<span class="normal">136</span>
+<span class="normal">137</span>
+<span class="normal">138</span>
+<span class="normal">139</span>
+<span class="normal">140</span>
+<span class="normal">141</span>
+<span class="normal">142</span>
+<span class="normal">143</span>
+<span class="normal">144</span>
+<span class="normal">145</span>
+<span class="normal">146</span>
+<span class="normal">147</span>
+<span class="normal">148</span>
+<span class="normal">149</span>
+<span class="normal">150</span>
+<span class="normal">151</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_bioproject_names</span><span class="p">(</span>
+    <span class="n">assembly_accession</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">user</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">host</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">port</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">database</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">DEFAULT_REGISTRY_DB</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return main BioProject genome group names for an assembly accession.</span>
 
-    <span class="n">ncbi_url</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">ncbi_url</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">taxon_id</span><span class="si">}</span><span class="s2">/dataset_report&quot;</span>
+<span class="sd">    Args:</span>
+<span class="sd">        assembly_accession: GCA assembly accession including version.</span>
+<span class="sd">        user: Registry database user.</span>
+<span class="sd">        host: Registry host. Defaults to the GBS1 environment variable.</span>
+<span class="sd">        port: Registry port. Defaults to the GBP1 environment variable.</span>
+<span class="sd">        database: Registry database name.</span>
 
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">datasets</span><span class="p">),</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>  <span class="c1"># pylint:disable=unspecified-encoding</span>
-        <span class="c1"># datasets = [line[: max(line.find(&quot; &quot;), 0) or None] for line in file]</span>
-        <span class="n">datasets</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
-    <span class="n">clade_match</span> <span class="o">=</span> <span class="n">get_dataset_match</span><span class="p">(</span><span class="n">ncbi_url</span><span class="p">,</span> <span class="n">datasets</span><span class="p">)</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        Main BioProject genome group names, or an empty list if they are unavailable.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">registry_host</span> <span class="o">=</span> <span class="n">host</span> <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;GBS1&quot;</span><span class="p">)</span>
+    <span class="n">registry_port</span> <span class="o">=</span> <span class="n">port</span> <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;GBP1&quot;</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">clade_match</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No match found&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">user</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot; | GENOME.GENOME_GROUP | Registry user not set&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">[]</span>
 
-    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">output</span> <span class="o">==</span> <span class="s2">&quot;stdout&quot;</span><span class="p">:</span>  <span class="c1"># pylint:disable=no-else-return</span>
-        <span class="c1"># print(clade_match[0].strip(&quot;\n&quot;))</span>
-        <span class="nb">print</span><span class="p">(</span><span class="n">clade_match</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">output</span><span class="p">,</span> <span class="s2">&quot;w+&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">output</span><span class="p">:</span>  <span class="c1"># pylint:disable=unspecified-encoding</span>
-            <span class="k">if</span> <span class="n">clade_match</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">args</span><span class="o">.</span><span class="n">species</span><span class="p">:</span>
-                <span class="n">output</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">clade_match</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">output</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">clade_match</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">registry_host</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">registry_port</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+            <span class="s2">&quot; | GENOME.GENOME_GROUP | Registry host/port not set; expected GBS1 and GBP1&quot;</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="p">[]</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">registry_port</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">registry_port</span><span class="p">)</span>
+    <span class="k">except</span> <span class="p">(</span><span class="ne">TypeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+            <span class="s2">&quot; | GENOME.GENOME_GROUP | Invalid registry port for BioProject lookup: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">registry_port</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="p">[]</span>
+
+    <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        SELECT DISTINCT genome_group</span>
+<span class="s2">        FROM (</span>
+<span class="s2">            SELECT mb.bioproject_name AS genome_group</span>
+<span class="s2">            FROM assembly a</span>
+<span class="s2">            JOIN bioproject b ON a.assembly_id = b.assembly_id</span>
+<span class="s2">            JOIN main_bioproject mb ON b.bioproject_id = mb.bioproject_id</span>
+<span class="s2">            WHERE CONCAT(a.gca_chain, &#39;.&#39;, a.gca_version) = </span><span class="si">%s</span>
+<span class="s2">              AND mb.bioproject_name IS NOT NULL</span>
+
+<span class="s2">            UNION</span>
+
+<span class="s2">            SELECT cg.group_name AS genome_group</span>
+<span class="s2">            FROM assembly a</span>
+<span class="s2">            JOIN custom_group cg</span>
+<span class="s2">              ON cg.group_type = &#39;assembly&#39;</span>
+<span class="s2">             AND cg.item = a.gca_chain</span>
+<span class="s2">            WHERE CONCAT(a.gca_chain, &#39;.&#39;, a.gca_version) = </span><span class="si">%s</span>
+
+<span class="s2">            UNION</span>
+
+<span class="s2">            SELECT cg.group_name AS genome_group</span>
+<span class="s2">            FROM assembly a</span>
+<span class="s2">            LEFT JOIN species s ON a.lowest_taxon_id = s.lowest_taxon_id</span>
+<span class="s2">            JOIN custom_group cg</span>
+<span class="s2">              ON cg.group_type = &#39;taxon&#39;</span>
+<span class="s2">             AND cg.item IN (</span>
+<span class="s2">                CAST(a.lowest_taxon_id AS CHAR),</span>
+<span class="s2">                CAST(s.species_taxon_id AS CHAR)</span>
+<span class="s2">             )</span>
+<span class="s2">            WHERE CONCAT(a.gca_chain, &#39;.&#39;, a.gca_version) = </span><span class="si">%s</span>
+<span class="s2">        ) genome_groups</span>
+<span class="s2">        WHERE genome_group IS NOT NULL</span>
+<span class="s2">        ORDER BY genome_group</span>
+<span class="s2">    &quot;&quot;&quot;</span>
+
+    <span class="n">conn</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">conn</span> <span class="o">=</span> <span class="n">pymysql</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span>
+            <span class="n">host</span><span class="o">=</span><span class="n">registry_host</span><span class="p">,</span>
+            <span class="n">user</span><span class="o">=</span><span class="n">user</span><span class="p">,</span>
+            <span class="n">port</span><span class="o">=</span><span class="n">registry_port</span><span class="p">,</span>
+            <span class="n">database</span><span class="o">=</span><span class="n">database</span><span class="p">,</span>
+            <span class="n">cursorclass</span><span class="o">=</span><span class="n">pymysql</span><span class="o">.</span><span class="n">cursors</span><span class="o">.</span><span class="n">DictCursor</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">with</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span> <span class="k">as</span> <span class="n">cursor</span><span class="p">:</span>
+            <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+                <span class="n">query</span><span class="p">,</span> <span class="p">(</span><span class="n">assembly_accession</span><span class="p">,</span> <span class="n">assembly_accession</span><span class="p">,</span> <span class="n">assembly_accession</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">results</span> <span class="o">=</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
+    <span class="k">except</span> <span class="n">pymysql</span><span class="o">.</span><span class="n">Error</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span>
+            <span class="s2">&quot; | GENOME.GENOME_GROUP | Could not fetch genome group names from registry for </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">assembly_accession</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="p">[]</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">conn</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">conn</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+            <span class="k">except</span> <span class="n">pymysql</span><span class="o">.</span><span class="n">Error</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="s2">&quot;Error closing registry connection&quot;</span><span class="p">)</span>
+
+    <span class="n">genome_group_names</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">normalise_genome_group_name</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;genome_group&quot;</span><span class="p">]))</span>
+        <span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">results</span>
+        <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;genome_group&quot;</span><span class="p">)</span>
+    <span class="p">]</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">genome_group_names</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+            <span class="s2">&quot; | GENOME.GENOME_GROUP | No genome group name found in registry for </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">assembly_accession</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="p">[]</span>
+
+    <span class="k">return</span> <span class="n">genome_group_names</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -2834,56 +3073,24 @@
 <div class="doc doc-object doc-function">
 
 
-<h3 id="ensembl.genes.metrics.busco_lineage_selector.parse_args" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">parse_args</span><span class="p">()</span></code>
+<h3 id="ensembl.genes.metadata.bioproject_from_registry.normalise_genome_group_name" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">normalise_genome_group_name</span><span class="p">(</span><span class="n">genome_group_name</span><span class="p">)</span></code>
 
-<a href="#ensembl.genes.metrics.busco_lineage_selector.parse_args" class="headerlink" title="Permanent link">&para;</a></h3>
+<a href="#ensembl.genes.metadata.bioproject_from_registry.normalise_genome_group_name" class="headerlink" title="Permanent link">&para;</a></h3>
 
 
     <div class="doc doc-contents ">
 
-        <p>Parse command line arguments.</p>
+        <p>Return the meta-safe genome group name.</p>
 
 
             <details class="mkdocstrings-source">
-              <summary>Source code in <code>src/python/ensembl/genes/metrics/busco_lineage_selector.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">72</span>
-<span class="normal">73</span>
-<span class="normal">74</span>
-<span class="normal">75</span>
-<span class="normal">76</span>
-<span class="normal">77</span>
-<span class="normal">78</span>
-<span class="normal">79</span>
-<span class="normal">80</span>
-<span class="normal">81</span>
-<span class="normal">82</span>
-<span class="normal">83</span>
-<span class="normal">84</span>
-<span class="normal">85</span>
-<span class="normal">86</span>
-<span class="normal">87</span>
-<span class="normal">88</span>
-<span class="normal">89</span>
-<span class="normal">90</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">parse_args</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Parse command line arguments.&quot;&quot;&quot;</span>
-    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;Clade selector arguments&quot;</span><span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;-d&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;--datasets&quot;</span><span class="p">,</span>
-        <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Path to file containing list of datasets (one per line)&quot;</span><span class="p">,</span>
-        <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-    <span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-t&quot;</span><span class="p">,</span> <span class="s2">&quot;--taxon_id&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Taxon id &quot;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--output&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Output file&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;stdout&quot;</span><span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--ncbi_url&quot;</span><span class="p">,</span>
-        <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;NCBI dataset url&quot;</span><span class="p">,</span>
-        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;https://api.ncbi.nlm.nih.gov/datasets/v2alpha/taxonomy/taxon/&quot;</span><span class="p">,</span>
-    <span class="p">)</span>
-    <span class="k">return</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+              <summary>Source code in <code>src/python/ensembl/genes/metadata/bioproject_from_registry.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">29</span>
+<span class="normal">30</span>
+<span class="normal">31</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">normalise_genome_group_name</span><span class="p">(</span><span class="n">genome_group_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the meta-safe genome group name.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">genome_group_name</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">,</span> <span class="s2">&quot;-&quot;</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
