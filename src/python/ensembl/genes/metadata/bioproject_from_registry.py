@@ -38,7 +38,7 @@ def get_bioproject_names(
     port: Optional[int] = None,
     database: str = DEFAULT_REGISTRY_DB,
 ) -> List[str]:
-    """Return genome group names for an assembly accession.
+    """Return main BioProject genome group names for an assembly accession.
 
     Args:
         assembly_accession: GCA assembly accession including version.
@@ -48,7 +48,7 @@ def get_bioproject_names(
         database: Registry database name.
 
     Returns:
-        Genome group names, or an empty list if they are unavailable.
+        Main BioProject genome group names, or an empty list if they are unavailable.
     """
     registry_host = host or os.environ.get("GBS1")
     registry_port = port or os.environ.get("GBP1")
