@@ -676,3 +676,42 @@ class TestArnicaMontanaRegression:
             icon, _, source = resolver.resolve_icon(meta)
             assert icon == "Plants.png"
             assert source == "metadata_lineage"
+
+
+# ---------------------------------------------------------------------------
+# Regression: pre-release plant must not collapse to Metazoa when NCBI is down
+# ---------------------------------------------------------------------------
+
+
+class TestPreReleasePlantBuscoFallback:
+    """Geum rivale regression: a pre-release genome with only taxon_id and a
+    busco_lineage hint (no metadata lineage) must still resolve to Plants.png
+    via BUSCO when the live NCBI lookup is unavailable."""
+
+    def test_geum_rivale_busco_fallback_when_ncbi_down(self):
+        with _no_ncbi():
+            resolver = IconResolver(icons_file="/nonexistent")
+            meta = _FakeMeta(
+                accession="GCA_964205265.1",
+                taxon_id=334465,
+                taxonomy_lineage=None,
+                busco_lineage="eudicotyledons_odb12",
+            )
+            icon, matched, source = resolver.resolve_icon(meta)
+            assert icon == "Plants.png"
+            assert source == "busco_lineage"
+
+    def test_no_busco_no_lineage_ncbi_down_is_metazoa(self):
+        """Without any usable source the fallback is still Metazoa (documents
+        exactly the pre-fix failure mode)."""
+        with _no_ncbi():
+            resolver = IconResolver(icons_file="/nonexistent")
+            meta = _FakeMeta(
+                accession="GCA_964205265.1",
+                taxon_id=334465,
+                taxonomy_lineage=None,
+                busco_lineage=None,
+            )
+            icon, _, source = resolver.resolve_icon(meta)
+            assert icon == _FALLBACK_ICON
+            assert source == "fallback"

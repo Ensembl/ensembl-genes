@@ -374,12 +374,22 @@ For pre-release discovery without UUIDs, you may still rely on the registry trac
         with open(args.audit_file, "a") as af:
             for c in candidates:
                 beta_link_value = c.doc.get("beta_link", "")
+                image_value = c.doc.get("image", "")
+                # taxonomy_lineage may be a list; flatten for the audit column
+                tax_lineage = c.meta.taxonomy_lineage
+                tax_lineage_str = (
+                    ";".join(tax_lineage)
+                    if isinstance(tax_lineage, (list, tuple))
+                    else (tax_lineage or "")
+                )
                 row = (
                     f"{c.identifier}\t{c.meta.accession}\t{c.meta.species_name}\t"
                     f"{c.meta.annotation_date}\t{c.audit_resolved_date}\t"
                     f"{c.meta.annotation_source}\t{c.audit_decision}\t"
                     f"{c.audit_reason}\t{c.audit_image_source}\t"
-                    f"{c.audit_beta_status}\t{beta_link_value}\n"
+                    f"{c.audit_beta_status}\t{beta_link_value}\t"
+                    f"{c.meta.taxon_id or ''}\t{c.meta.busco_lineage or ''}\t"
+                    f"{tax_lineage_str}\t{image_value}\n"
                 )
                 if row not in seen_audit_rows:
                     seen_audit_rows.add(row)

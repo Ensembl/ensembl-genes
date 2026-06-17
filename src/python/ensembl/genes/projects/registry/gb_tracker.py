@@ -39,19 +39,23 @@ class GbTrackerClient:
             query_param = identifier
 
         query = f"""
-            SELECT 
+            SELECT
                 NULL AS genome_uuid,
                 NULL AS core_dbname,
                 gs.gca_accession AS assembly_accession,
                 s.scientific_name AS species_name,
                 s.species_taxon_id AS taxon_id,
                 a.asm_name AS assembly_name,
-                gs.annotation_method
+                gs.annotation_method,
+                MAX(CASE WHEN am.metrics_name = 'genebuild.busco' THEN am.metrics_value END) AS busco_score,
+                MAX(CASE WHEN am.metrics_name = 'genebuild.busco_dataset' THEN am.metrics_value END) AS busco_lineage
             FROM genebuild_status gs
             JOIN assembly a ON gs.assembly_id = a.assembly_id
             JOIN species s ON a.lowest_taxon_id = s.lowest_taxon_id
+            LEFT JOIN annotation_metrics am ON gs.assembly_id = am.assembly_id AND gs.genebuild_status_id = am.genebuild_status_id
             WHERE gs.gb_status IN ('in_progress', 'pre_released')
               AND {where_clause}
+            GROUP BY gs.gca_accession, s.scientific_name, s.species_taxon_id, a.asm_name, gs.annotation_method
             LIMIT 1
         """
 
@@ -89,6 +93,8 @@ class GbTrackerClient:
             assembly_name=row["assembly_name"],
             taxon_id=row.get("taxon_id"),
             annotation_method=anno_method,
+            busco_score=row.get("busco_score"),
+            busco_lineage=row.get("busco_lineage"),
             is_on_rapid=False,
             is_on_beta=False,
             is_released=False,
