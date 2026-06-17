@@ -1,25 +1,26 @@
 from __future__ import annotations
 
 import importlib
+from collections.abc import Sequence
 from pathlib import Path
 from typing import Any
 
 import pytest
 
-from ensembl.genes.ensembl_loading import gff_cli, gff_core_loader
-from ensembl.genes.ensembl_loading.gff_quality_check import (
+from src.python.ensembl.genes.ensembl_loading import gff_cli, gff_core_loader
+from src.python.ensembl.genes.ensembl_loading.gff_quality_check import (
     expected_translation_stable_ids,
 )
-from ensembl.genes.ensembl_loading.gff_source_config import (
+from src.python.ensembl.genes.ensembl_loading.gff_source_config import (
     available_source_configs,
     get_source_config,
 )
-from ensembl.genes.ensembl_loading.refseq_conversion import (
+from src.python.ensembl.genes.ensembl_loading.refseq_conversion import (
     convert_gff_to_ensembl,
     default_gff_output_path,
     load_refseq_name_map,
 )
-from ensembl.genes.ensembl_loading.refseq_ncbi import (
+from src.python.ensembl.genes.ensembl_loading.refseq_ncbi import (
     accession_subdir,
     parse_assembly_summary,
 )
@@ -69,9 +70,7 @@ def test_public_modules_import_and_cli_exposes_new_package() -> None:
     )
 
     for module in modules:
-        imported = importlib.import_module(
-            f"ensembl.genes.ensembl_loading.{module}"
-        )
+        imported = importlib.import_module(f"ensembl.genes.ensembl_loading.{module}")
         assert imported.__name__.endswith(module)
 
     args = gff_cli.build_parser().parse_args(
@@ -204,8 +203,7 @@ def test_source_specific_annotation_parsers(tmp_path: Path) -> None:
                 1000,
                 1100,
                 "-",
-                'gene_id "rfam_gene2"; transcript_id "rfam_gene2.t1"; '
-                'biotype "rRNA";',
+                'gene_id "rfam_gene2"; transcript_id "rfam_gene2.t1"; biotype "rRNA";',
                 source="Rfam",
             ),
             feature_row(
@@ -346,9 +344,7 @@ def test_source_specific_annotation_parsers(tmp_path: Path) -> None:
     assert anno.genes["gene1"].end == 500
     assert anno.transcripts["tx1"].biotype == "protein_coding"
     assert anno.transcripts["tx2"].biotype == "not_set"
-    assert [
-        (cds.start, cds.end, cds.phase) for cds in anno.cds_segments["tx1"]
-    ] == [
+    assert [(cds.start, cds.end, cds.phase) for cds in anno.cds_segments["tx1"]] == [
         (110, 150, "0"),
         (200, 300, "."),
         (400, 450, "."),
@@ -374,9 +370,7 @@ def test_source_specific_annotation_parsers(tmp_path: Path) -> None:
     assert set(ensembl.genes) == {"ENSG000001"}
     assert set(ensembl.transcripts) == {"ENST000001"}
     assert ensembl.transcripts["ENST000001"].protein_id == "ENSP000001"
-    assert expected_translation_stable_ids(ensembl) == {
-        "ENST000001": "ENSP000001"
-    }
+    assert expected_translation_stable_ids(ensembl) == {"ENST000001": "ENSP000001"}
 
     assert set(refseq.genes) == {"GeneA"}
     assert set(refseq.transcripts) == {"TxA"}
@@ -389,15 +383,21 @@ def test_refseq_discovery_and_conversion_helpers(tmp_path: Path) -> None:
     assert default_gff_output_path("GCF_000001635.27_genomic.gff.gz").name == (
         "GCF_000001635.27_genomic_ensembl.gff3"
     )
-    assert gff_core_loader.derive_core_db_name(
-        "Mus musculus",
-        "GCF_000001635.27",
-    ) == "mus_musculus_core_000001635_27"
-    assert gff_core_loader.derive_core_db_name(
-        "Scientific name",
-        "GCF_037462849.1",
-        source_config=get_source_config("refseq"),
-    ) == "scientific_name_gcf037462849v1_core_114_1"
+    assert (
+        gff_core_loader.derive_core_db_name(
+            "Mus musculus",
+            "GCF_000001635.27",
+        )
+        == "mus_musculus_core_000001635_27"
+    )
+    assert (
+        gff_core_loader.derive_core_db_name(
+            "Scientific name",
+            "GCF_037462849.1",
+            source_config=get_source_config("refseq"),
+        )
+        == "scientific_name_gcf037462849v1_core_114_1"
+    )
 
     report = write_lines(
         tmp_path / "assembly_report.txt",
@@ -461,16 +461,18 @@ class FakeCoreCursor:
         self.translations: dict[int, str | None] = {}
         self.analysis_inserted: tuple[Any, ...] | None = None
 
-    def execute(self, operation: str, params: Any | None = None) -> None:
+    def execute(self, operation: str, params: Sequence[Any] | None = None) -> None:
         sql = " ".join(operation.lower().split())
         if sql.startswith("select coord_system_id from coord_system"):
             self.fetchone_result = (1,)
         elif sql.startswith("select analysis_id from analysis"):
             self.fetchone_result = None
         elif sql.startswith("insert into analysis"):
+            assert params is not None
             self.analysis_inserted = tuple(params)
             self.lastrowid = 7
         elif sql.startswith("select seq_region_id from seq_region"):
+            assert params is not None
             seq_name = params[0]
             seq_region_id = self.seq_regions.get(seq_name)
             self.fetchone_result = (seq_region_id,) if seq_region_id else None
@@ -481,14 +483,22 @@ class FakeCoreCursor:
         elif sql.startswith("select coalesce(max(exon_id)"):
             self.fetchone_result = (1,)
         elif sql.startswith("insert into gene"):
+            assert params is not None
             self.genes[int(params[0])] = (params[7], params[5])
         elif sql.startswith("insert into transcript"):
-            self.transcripts[int(params[0])] = (params[8], params[6])
+            assert params is not None
+            self.transcripts[int(params[0])] = (
+                params[8],
+                params[6],
+            )
         elif sql.startswith("insert into exon "):
+            assert params is not None
             self.exons[int(params[0])] = (params[7],)
         elif sql.startswith("insert into exon_transcript"):
+            assert params is not None
             self.exon_transcripts.add((int(params[0]), int(params[1])))
         elif sql.startswith("insert into translation"):
+            assert params is not None
             self.lastrowid = len(self.translations) + 1
             self.translations[int(params[0])] = params[5]
         elif sql.startswith("update transcript set canonical_translation_id"):
@@ -497,12 +507,9 @@ class FakeCoreCursor:
             self.fetchall_result = [
                 (db_id, *values) for db_id, values in sorted(self.genes.items())
             ]
-        elif sql.startswith(
-            "select transcript_id, stable_id, biotype from transcript"
-        ):
+        elif sql.startswith("select transcript_id, stable_id, biotype from transcript"):
             self.fetchall_result = [
-                (db_id, *values)
-                for db_id, values in sorted(self.transcripts.items())
+                (db_id, *values) for db_id, values in sorted(self.transcripts.items())
             ]
         elif sql.startswith("select exon_id, stable_id from exon"):
             self.fetchall_result = [
