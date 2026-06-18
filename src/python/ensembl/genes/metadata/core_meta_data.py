@@ -27,6 +27,11 @@ import requests
 import pymysql
 import xmltodict
 
+try:
+    from ensembl.genes.metadata.bioproject_from_registry import get_bioproject_names
+except ImportError:
+    from bioproject_from_registry import get_bioproject_names
+
 # Module logger (configured in __main__ via logging.config)
 logger: logging.Logger = logging.getLogger(__name__)
 
@@ -374,7 +379,7 @@ if __name__ == "__main__":
         )
 
     # get all existing assembly, species and genebuild metadata from the core db
-    core_query = f"SELECT meta_key,meta_value FROM meta WHERE species_id = {species_id} AND (meta_key LIKE 'assembly%' OR meta_key LIKE 'species%' OR meta_key LIKE 'genebuild%' OR meta_key LIKE 'organism%' OR meta_key LIKE 'sample%' OR meta_key LIKE 'annotation%' OR meta_key LIKE 'gencode%');"
+    core_query = f"SELECT meta_key,meta_value FROM meta WHERE species_id = {species_id} AND (meta_key LIKE 'assembly%' OR meta_key LIKE 'species%' OR meta_key LIKE 'genebuild%' OR meta_key LIKE 'genome%' OR meta_key LIKE 'organism%' OR meta_key LIKE 'sample%' OR meta_key LIKE 'annotation%' OR meta_key LIKE 'gencode%');"
     print(core_query)
     core_meta = mysql_fetch_data(
         core_query,
@@ -383,11 +388,15 @@ if __name__ == "__main__":
         port=server_info["staging"]["db_port"],
         database=db,
     )
+    core_genome_groups = []
     for meta_pair in core_meta:
         core_dict[meta_pair[0]] = meta_pair[1]
+        if meta_pair[0] == "genome.genome_group":
+            core_genome_groups.append(meta_pair[1])
 
     # get the assembly metadata from the sources of truth (sources of truth in parentheses)
     # expected assembly meta_keys: assembly.accession (from core), assembly.date (from ena), assembly.is_reference (static), assembly.name (ena), assembly.provider_name (core or default), assembly.provider_url (core or default), assembly.level (ena), assembly.tolid (biosample), assembly.ucsc_alias (ncbi), assembly.long_name, assembly.url_name (static)
+    # expected genome meta_keys: genome.genome_group (registry)
     # expected organism meta_keys: organism.taxonomy_id (ena), organism.species_taxonomy_id (taxonomy db), organism.common_name (taxonomy db), organism.strain (biosample), organism.scientific_name (taxonomy db), organism.scientific_parlance_name (static), organism.strain_type (biosample), organism.sample_accession (ena)
     # expected genebuild meta_keys: genebuild.initial_release_date, genebuild.last_geneset_update, genebuild.level, genebuild.method, genebuild.method_display, genebuild.start_date, genebuild.version (create and check and required), genebuild.sample_gene (core), genebuild.sample_location (core), genebuild.id, genebuild.projection_source_db, genebuild.havana_datafreeze_date, genebuild.provider_name (static or core or default), genebuild.provider_url (static or core or default), genebuild.annotation_source (core or default)
     truth_dict = {}
@@ -420,6 +429,10 @@ if __name__ == "__main__":
         truth_dict["organism.biosample_id"] = "SAMN26853311"
     elif db == "bos_taurus_core_110_1":
         truth_dict["organism.biosample_id"] = "SAMN03145444"
+
+    bioproject_names = get_bioproject_names(
+        gca_accession, user=server_info["meta"]["db_user"]
+    )
 
     # get metadata from ENA records
     try:
@@ -712,6 +725,17 @@ if __name__ == "__main__":
 
     # Set the team responsible for this genome
     truth_dict["genebuild.team_responsible"] = args.team
+
+    # genome.genome_group can have multiple values, so handle it outside the
+    # single-value truth_dict update path.
+    for bioproject_name in bioproject_names:
+        if bioproject_name not in core_genome_groups:
+            meta_value = bioproject_name.replace("'", "''")
+            print(
+                f"INSERT IGNORE INTO meta (species_id, meta_key, meta_value) "
+                f"VALUES({species_id}, 'genome.genome_group', '{meta_value}');",
+                file=sql_out,
+            )
 
     # if the expected meta_key does not exist in the core metadata but there is a truth value, INSERT
     # if the expected meta_key exists in the core metadata but the meta_value does not match the truth value and truth value is not NULL, UPDATE
