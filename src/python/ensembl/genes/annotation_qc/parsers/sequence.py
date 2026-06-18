@@ -1,3 +1,10 @@
+"""
+Parse FASTA files using pyfaidx.
+
+The main entry point is parse_fasta, which returns a Fasta object that supports
+indexed access by sequence name and slicing.
+"""
+
 from pyfaidx import Fasta
 
 

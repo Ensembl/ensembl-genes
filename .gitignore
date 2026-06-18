@@ -139,3 +139,7 @@ cython_debug/
 
 # IDEA
 .idea/
+.codex
+
+# Nextflow
+.nextflow
