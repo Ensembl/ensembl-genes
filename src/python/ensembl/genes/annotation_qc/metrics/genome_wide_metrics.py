@@ -745,7 +745,7 @@ def main():
         canonical_transcript_ids, canonical_gene_ids = collect_canonical_ids(args.gff)
         if not canonical_transcript_ids and not canonical_gene_ids:
             warn(
-                    "--canonical-only was requested, but no canonical annotations were detected; using all features." # pylint: disable=line-too-long
+                "--canonical-only was requested, but no canonical annotations were detected; using all features."  # pylint: disable=line-too-long
             )
             canonical_filter_applied = False
 
