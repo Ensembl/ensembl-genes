@@ -4,6 +4,8 @@
 from __future__ import annotations
 
 # pylint: disable=missing-function-docstring,missing-class-docstring
+# pylint: disable=too-many-instance-attributes,too-many-locals,too-many-arguments
+# pylint: disable=too-many-lines,too-many-branches,too-many-statements
 
 import argparse
 import csv
@@ -150,11 +152,11 @@ def open_maybe_gzip(path, mode, encoding="utf-8", newline=None):
     """Open plain or gzip-compressed files using the requested mode."""
     if str(path).endswith(".gz"):
         if "b" in mode:
-            return gzip.open(path, mode)
+            return gzip.open(path, mode) # pylint: disable=unspecified-encoding
         return gzip.open(path, mode, encoding=encoding, newline=newline)
 
     if "b" in mode:
-        return open(path, mode)
+        return open(path, mode) # pylint: disable=unspecified-encoding
     return open(path, mode, encoding=encoding, newline=newline)
 
 
