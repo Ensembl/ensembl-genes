@@ -11,11 +11,3 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-"""Top-level ensembl package for ensembl-genes documentation imports.
-
-This file intentionally kept minimal to allow `mkdocstrings` to import
-subpackages under `src/python/ensembl` without executing package-level code.
-"""
-
-__all__ = []
