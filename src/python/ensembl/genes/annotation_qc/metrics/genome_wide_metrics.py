@@ -1,4 +1,9 @@
 #!/usr/bin/env python3
+"""Calculate genome-wide annotation QC metrics from GFF/GTF and FASTA files."""
+
+# pulint: disable=line-too-long,missing-module-docstring,missing-class-docstring
+# pylint: disable=too-many-arguments,too-many-branches,too-many-statements
+# pylint: disable=too-many-locals,missing-class-docstring,missing-function-docstring
 
 import argparse
 import csv
@@ -360,8 +365,7 @@ def merge_feature_intervals(features_sorted):
             current_start = feature.start
             current_end = feature.end
         elif feature.start <= current_end:
-            if feature.end > current_end:
-                current_end = feature.end
+            current_end = max(current_end, feature.end)
         else:
             merged_by_chrom.setdefault(current_chrom, []).append(
                 (current_start, current_end)
@@ -682,6 +686,7 @@ def positive_int(value):
 
 
 def main():
+    """Parse command-line arguments and print genome-wide QC metrics."""
     parser = argparse.ArgumentParser(
         description="Calculate genome-wide metrics for Ensembl features."
     )
