@@ -152,11 +152,11 @@ def open_maybe_gzip(path, mode, encoding="utf-8", newline=None):
     """Open plain or gzip-compressed files using the requested mode."""
     if str(path).endswith(".gz"):
         if "b" in mode:
-            return gzip.open(path, mode) # pylint: disable=unspecified-encoding
+            return gzip.open(path, mode)  # pylint: disable=unspecified-encoding
         return gzip.open(path, mode, encoding=encoding, newline=newline)
 
     if "b" in mode:
-        return open(path, mode) # pylint: disable=unspecified-encoding
+        return open(path, mode)  # pylint: disable=unspecified-encoding
     return open(path, mode, encoding=encoding, newline=newline)
 
 
@@ -567,9 +567,11 @@ def parse_annotation(
         },
         cds_records_without_phase,
         filters_applied,
-        len(selected_transcripts)
-        if selected_transcripts is not None
-        else len(all_transcript_ids),
+        (
+            len(selected_transcripts)
+            if selected_transcripts is not None
+            else len(all_transcript_ids)
+        ),
     )
 
 
