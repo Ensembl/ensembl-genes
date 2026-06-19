@@ -129,47 +129,7 @@
          <lastmod>2026-06-19</lastmod>
     </url>
     <url>
-         <loc>https://ensembl.github.io/ensembl-genes/ensembl/genes/projects/changelog/</loc>
-         <lastmod>2026-06-19</lastmod>
-    </url>
-    <url>
-         <loc>https://ensembl.github.io/ensembl-genes/ensembl/genes/projects/config/</loc>
-         <lastmod>2026-06-19</lastmod>
-    </url>
-    <url>
-         <loc>https://ensembl.github.io/ensembl-genes/ensembl/genes/projects/ftp_client/</loc>
-         <lastmod>2026-06-19</lastmod>
-    </url>
-    <url>
-         <loc>https://ensembl.github.io/ensembl-genes/ensembl/genes/projects/generate_project_yaml/</loc>
-         <lastmod>2026-06-19</lastmod>
-    </url>
-    <url>
-         <loc>https://ensembl.github.io/ensembl-genes/ensembl/genes/projects/haplotype_resolver/</loc>
-         <lastmod>2026-06-19</lastmod>
-    </url>
-    <url>
-         <loc>https://ensembl.github.io/ensembl-genes/ensembl/genes/projects/icon_resolver/</loc>
-         <lastmod>2026-06-19</lastmod>
-    </url>
-    <url>
-         <loc>https://ensembl.github.io/ensembl-genes/ensembl/genes/projects/models/</loc>
-         <lastmod>2026-06-19</lastmod>
-    </url>
-    <url>
-         <loc>https://ensembl.github.io/ensembl-genes/ensembl/genes/projects/yaml_renderer/</loc>
-         <lastmod>2026-06-19</lastmod>
-    </url>
-    <url>
-         <loc>https://ensembl.github.io/ensembl-genes/ensembl/genes/projects/registry/gb_tracker/</loc>
-         <lastmod>2026-06-19</lastmod>
-    </url>
-    <url>
-         <loc>https://ensembl.github.io/ensembl-genes/ensembl/genes/projects/registry/metadata_db/</loc>
-         <lastmod>2026-06-19</lastmod>
-    </url>
-    <url>
-         <loc>https://ensembl.github.io/ensembl-genes/ensembl/genes/projects/registry/ncbi_entrez/</loc>
+         <loc>https://ensembl.github.io/ensembl-genes/ensembl/genes/projects/write_yaml/</loc>
          <lastmod>2026-06-19</lastmod>
     </url>
     <url>
