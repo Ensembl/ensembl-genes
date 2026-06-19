@@ -12,7 +12,7 @@ inspection.
 ## Requirements
 
 - Python 3.9 or newer
-- No third-party Python packages
+- heapq
 - A GFF3 or GTF annotation file, optionally gzip-compressed
 - Either a genome size in base pairs or a genome FASTA file
 - A soft-masked genome FASTA file, optionally gzip-compressed, for masking
