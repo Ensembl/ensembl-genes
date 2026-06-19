@@ -136,7 +136,8 @@ def find_annotation_files(output_path: str) -> Dict[str, Optional[str]]:
         matches = glob.glob(pattern, recursive=True)
 
         candidates = [
-            f for f in matches
+            f
+            for f in matches
             if "abinitio" not in os.path.basename(f).lower()
             and "primary_assembly" not in os.path.basename(f)
             and f".chr.{file_type}" not in os.path.basename(f)
@@ -147,9 +148,13 @@ def find_annotation_files(output_path: str) -> Dict[str, Optional[str]]:
         candidates = sorted_candidates if sorted_candidates else candidates
 
         if not candidates:
-            raise FileNotFoundError(f"No main {file_type} annotation file found in {output_path}")
+            raise FileNotFoundError(
+                f"No main {file_type} annotation file found in {output_path}"
+            )
         if len(candidates) > 1:
-            raise ValueError(f"Multiple main {file_type} candidates found: {candidates}")
+            raise ValueError(
+                f"Multiple main {file_type} candidates found: {candidates}"
+            )
 
         annotation_files[file_type] = candidates[0]
 
