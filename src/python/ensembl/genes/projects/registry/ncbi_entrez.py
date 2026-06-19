@@ -60,7 +60,7 @@ def patch_ncbi_data(meta: GenomeMetadata, config: ProjectConfig) -> None:
     for line in assembly_html:
         # Find Submitter for standard projects
         if config.scrape_ncbi_submitter and not meta.assembly_submitter:
-            # Replicating write_yaml.py regex logic
+            # Parse the submitter from the NCBI assembly page HTML
             sub_regex = re.search(r"Submitter<\/dt><dd>([^<]+)<\/dd>", line)
             if sub_regex:
                 meta.assembly_submitter = sub_regex.group(1).title()
@@ -91,7 +91,7 @@ def patch_ncbi_data(meta: GenomeMetadata, config: ProjectConfig) -> None:
                 f"Fallback heuristic used for {meta.accession}: inferred paternal parent_of_origin from assembly name."
             )
 
-    # Hardcoded override for HPRC project (as done in hprc_write_yaml.py)
+    # Hardcoded override for HPRC project
     if config.schema_type == "hprc":
         if meta.accession == "GCA_009914755.4":
             meta.assembly_submitter = "T2T Consortium"

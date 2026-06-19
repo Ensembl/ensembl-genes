@@ -164,7 +164,7 @@ Understanding the codebase organization:
 - **`registry/metadata_db.py`**: Client for the metadata DB to look up released GUUIDs.
 - **`registry/ncbi_entrez.py`**: NCBI web scraping for assembly submitters, population data, and parent-of-origin.
 - **`bioproject_tracking.py`** (in `ensembl.genes.tracking`): An auxiliary tool for candidate discovery (to generate the input file), but *not* for final YAML eligibility.
-- **`write_yaml.py` / `hprc_write_yaml.py`**: Legacy/deprecated scripts kept for backwards compatibility. Both emit a `DeprecationWarning` on import. **Do not use for new runs** — use `generate_project_yaml.py` instead.
+- **Legacy scripts removed**: the old `write_yaml.py` and `hprc_write_yaml.py` scripts have been removed. `generate_project_yaml.py` is now the sole supported YAML-generation entrypoint (use `--project hprc` for the HPRC schema).
 
 ## Tests
 
