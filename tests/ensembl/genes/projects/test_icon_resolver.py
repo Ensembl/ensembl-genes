@@ -2,16 +2,17 @@
 
 These tests mock NCBI responses to avoid network calls during CI.
 Run with:
-    pytest src/python/ensembl/genes/projects/test_icon_resolver.py -v
+    pytest tests/ensembl/genes/projects/test_icon_resolver.py -v
 """
+
+# pylint: disable=missing-class-docstring,missing-function-docstring
+# pylint: disable=protected-access,too-few-public-methods,unused-variable
 
 import os
 import tempfile
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import List, Optional
 from unittest.mock import MagicMock, patch
-
-import pytest
 
 from ensembl.genes.projects.icon_resolver import IconResolver, _FALLBACK_ICON
 

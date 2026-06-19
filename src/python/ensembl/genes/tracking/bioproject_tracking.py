@@ -51,10 +51,21 @@ logging.basicConfig(
 # -----------------------------------
 # Config
 # -----------------------------------
-with open(  # pylint:disable=unspecified-encoding
-    "./bioproject_tracking_config.json", "r"
-) as f:
-    config = json.load(f)
+# Loaded lazily so that importing the module (or running ``--help``) never
+# requires the config file to be present in the current working directory.
+# The path is resolved relative to this module, mirroring how
+# generate_project_yaml.py locates server_config.json.
+_CONFIG_CACHE: Optional[Dict[str, Any]] = None
+
+
+def _get_config() -> Dict[str, Any]:
+    """Load and cache the tracking config JSON (resolved next to this module)."""
+    global _CONFIG_CACHE  # pylint:disable=global-statement
+    if _CONFIG_CACHE is None:
+        config_path = Path(__file__).parent / "bioproject_tracking_config.json"
+        with open(config_path, "r", encoding="utf-8") as f:
+            _CONFIG_CACHE = json.load(f)
+    return _CONFIG_CACHE
 
 
 # -----------------------------------
@@ -85,7 +96,7 @@ def mysql_fetch_data(
         pymysql.Error: If there is an error connecting to the database or executing the query.
     """
     try:
-        server_config = config["server_details"][server_group][server_name]
+        server_config = _get_config()["server_details"][server_group][server_name]
         connection = pymysql.connect(
             host=server_config["db_host"],
             user=server_config["db_user"],
@@ -198,7 +209,7 @@ def get_assembly_accessions(  # pylint:disable=too-many-branches, too-many-state
 
     # --- 2) Fallback: API (latest only) ---
     try:
-        base_url = config["urls"]["datasets"].get(query_type)
+        base_url = _get_config()["urls"]["datasets"].get(query_type)
     except Exception:  # pylint:disable=broad-exception-caught
         base_url = None
 

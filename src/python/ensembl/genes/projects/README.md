@@ -164,7 +164,29 @@ Understanding the codebase organization:
 - **`registry/metadata_db.py`**: Client for the metadata DB to look up released GUUIDs.
 - **`registry/ncbi_entrez.py`**: NCBI web scraping for assembly submitters, population data, and parent-of-origin.
 - **`bioproject_tracking.py`** (in `ensembl.genes.tracking`): An auxiliary tool for candidate discovery (to generate the input file), but *not* for final YAML eligibility.
-- **`write_yaml.py` / `hprc_write_yaml.py`**: Legacy/deprecated scripts kept for backwards compatibility. Do not use for new runs.
+- **`write_yaml.py` / `hprc_write_yaml.py`**: Legacy/deprecated scripts kept for backwards compatibility. Both emit a `DeprecationWarning` on import. **Do not use for new runs** — use `generate_project_yaml.py` instead.
+
+## Tests
+
+Project-page tests live under the repository test tree (mirroring the package layout):
+
+```
+tests/ensembl/genes/projects/
+  test_changelog.py          # changelog diff/compare logic
+  test_icon_resolver.py      # taxonomy → icon resolution (incl. BUSCO fallback)
+  test_haplotype_resolver.py # alternate haplotype pairing
+  test_beta_link.py          # beta.ensembl.org availability checking
+```
+
+All tests mock network/DB access, so they run offline:
+
+```bash
+export PYTHONPATH=$PWD/src/python   # only needed if the package is not pip-installed
+pytest tests/ensembl/genes/projects -v
+```
+
+## Further Reading
+- `docs/metadata_source_map.md` (repo root): maps each output YAML field to its exact metadata-DB / GB-schema source.
 
 ## Troubleshooting
 

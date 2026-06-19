@@ -2,11 +2,15 @@
 
 All NCBI API calls are mocked to avoid network dependencies.
 Run with:
-    pytest src/python/ensembl/genes/projects/test_haplotype_resolver.py -v
+    pytest tests/ensembl/genes/projects/test_haplotype_resolver.py -v
 """
 
+# pylint: disable=missing-class-docstring,missing-function-docstring
+# pylint: disable=protected-access,too-few-public-methods,unused-variable
+# pylint: disable=use-implicit-booleaness-not-comparison
+
 from dataclasses import dataclass
-from typing import List, Optional
+from typing import Optional
 from unittest.mock import MagicMock, patch
 
 from ensembl.genes.projects.haplotype_resolver import (

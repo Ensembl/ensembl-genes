@@ -1,10 +1,15 @@
 """Tests for beta.ensembl.org species-page availability checking.
 
 All network calls are mocked. Run with:
-    pytest src/python/ensembl/genes/projects/test_beta_link.py -v
+    pytest tests/ensembl/genes/projects/test_beta_link.py -v
 """
 
+# pylint: disable=missing-class-docstring,missing-function-docstring
+# pylint: disable=protected-access,too-few-public-methods
+
 from unittest.mock import MagicMock, patch
+
+import requests
 
 from ensembl.genes.projects.config import ProjectConfig
 from ensembl.genes.projects.ftp_client import check_beta_species_status
@@ -67,11 +72,9 @@ class TestCheckBetaSpeciesStatus:
             assert check_beta_species_status("uuid-z") == "unavailable"
 
     def test_error_on_exception(self):
-        import requests as real_requests
-
         with patch(
             "ensembl.genes.projects.ftp_client.requests.get",
-            side_effect=real_requests.Timeout("timeout"),
+            side_effect=requests.Timeout("timeout"),
         ):
             assert check_beta_species_status("uuid-timeout") == "error"
 

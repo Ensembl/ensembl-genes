@@ -5,25 +5,24 @@ Creates two synthetic YAML files (old and new) with known differences,
 runs the comparison, and checks the output.
 
 Usage:
-    python test_changelog.py
+    pytest tests/ensembl/genes/projects/test_changelog.py
 """
+
+# pylint: disable=missing-class-docstring,missing-function-docstring
+# pylint: disable=protected-access,too-few-public-methods
+# pylint: disable=too-many-locals,too-many-statements,unspecified-encoding
+
 import os
-import sys
 import tempfile
-import importlib.util
 
-# Load changelog.py directly by path to avoid namespace package issues
-_CHANGELOG_PATH = os.path.join(os.path.dirname(__file__), "changelog.py")
-_spec = importlib.util.spec_from_file_location("changelog", _CHANGELOG_PATH)
-_mod = importlib.util.module_from_spec(_spec)
-_spec.loader.exec_module(_mod)
-
-load_yaml_as_keyed_dict = _mod.load_yaml_as_keyed_dict
-compare_yamls = _mod.compare_yamls
-format_changelog = _mod.format_changelog
-write_changelog_tsv = _mod.write_changelog_tsv
-_normalise_value = _mod._normalise_value
-_extract_key = _mod._extract_key
+from ensembl.genes.projects.changelog import (
+    compare_yamls,
+    format_changelog,
+    load_yaml_as_keyed_dict,
+    write_changelog_tsv,
+    _extract_key,
+    _normalise_value,
+)
 
 OLD_YAML = """\
 - species: Drosophila melanogaster
