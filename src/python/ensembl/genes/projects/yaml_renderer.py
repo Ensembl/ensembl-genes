@@ -19,7 +19,7 @@ from ensembl.genes.projects.models import GenomeMetadata
 logger = logging.getLogger(__name__)
 
 
-class YamlRenderer:
+class YamlRenderer:  # pylint: disable=too-few-public-methods
     """Renders GenomeMetadata into validated dictionary structures for YAML output."""
 
     def __init__(self, config: ProjectConfig, ftp_client=None):
@@ -28,6 +28,8 @@ class YamlRenderer:
         self.icon_resolver = IconResolver()
         # Per-run cache of beta species availability, keyed by genome UUID.
         self._beta_status_cache: Dict[str, str] = {}
+        # Per-run cache for FTP species name resolution.
+        self._ftp_species_cache: Dict[str, str] = {}
 
     def _check_beta_status(self, genome_uuid: str) -> str:
         """Cached wrapper around ``check_beta_species_status``."""
@@ -66,10 +68,9 @@ class YamlRenderer:
         """Dispatches to the correct schema renderer based on project config."""
         if self.config.schema_type == "hprc":
             return self._render_hprc(meta)
-        elif self.config.schema_type == "mouse":
+        if self.config.schema_type == "mouse":
             return self._render_mouse(meta)
-        else:
-            return self._render_standard(meta)
+        return self._render_standard(meta)
 
     def _normalise_species_for_ftp(self, species_name: str) -> List[str]:
         variants: List[str] = []
@@ -126,10 +127,36 @@ class YamlRenderer:
 
         return variants
 
-    def _resolve_ftp_assets(self, meta: GenomeMetadata) -> Dict[str, Any]:
-        if not hasattr(self, "_ftp_species_cache"):
-            self._ftp_species_cache = {}
+    @staticmethod
+    def _scan_ftp_directory_for_date(base_url: str, metadata_date: str) -> str:
+        """List an FTP geneset directory and return the newest date with valid GTF/GFF3.
 
+        Returns the date string (``YYYY_MM``) if found, or an empty string.
+        """
+        try:
+            response = requests.get(base_url, timeout=10)
+            if response.status_code != 200:
+                return ""
+            matches = re.findall(r'href="(\d{4}_\d{2})/?', response.text)
+            dates = sorted(set(matches), reverse=True)
+            for d in dates:
+                gtf_d = f"{base_url}{d}/genes.gtf.gz"
+                gff3_d = f"{base_url}{d}/genes.gff3.gz"
+                if check_url_status(gtf_d) and check_url_status(gff3_d):
+                    if d != metadata_date:
+                        logger.info(
+                            "Resolved FTP date %s differs from metadata %s",
+                            d,
+                            metadata_date,
+                        )
+                    return d
+        except Exception as e:  # pylint: disable=broad-exception-caught
+            logger.debug("Error fetching directory %s: %s", base_url, e)
+        return ""
+
+    def _resolve_ftp_assets(  # pylint: disable=too-many-locals,too-many-branches,too-many-statements
+        self, meta: GenomeMetadata
+    ) -> Dict[str, Any]:
         # Original old base logic for checking if we used a fallback
         ftp_species_name_base = meta.species_name.capitalize().replace(" ", "_")
         variants = self._normalise_species_for_ftp(meta.species_name)
@@ -141,16 +168,19 @@ class YamlRenderer:
         )
         source = (meta.annotation_source or "ensembl").lower().strip()
 
-        target_Released = meta.is_released
+        target_released = meta.is_released
         resolved_rel_variant = None
         resolved_date = metadata_date
         audit_decision = "excluded"
         audit_reason = "No released or pre-release FTP assets found."
 
         # 1. Try Released logic
-        if target_Released:
+        if target_released:
             for variant in variants:
-                base_url = f"https://ftp.ebi.ac.uk/pub/ensemblorganisms/{variant}/{meta.accession}/{source}/geneset/"
+                base_url = (
+                    "https://ftp.ebi.ac.uk/pub/ensemblorganisms/"
+                    f"{variant}/{meta.accession}/{source}/geneset/"
+                )
 
                 # 1a. Try metadata date first
                 gtf_test = f"{base_url}{metadata_date}/genes.gtf.gz"
@@ -160,24 +190,12 @@ class YamlRenderer:
                     resolved_date = metadata_date
                     break
 
-                # 1b. If metadata date fails, list directories
-                try:
-                    response = requests.get(base_url, timeout=10)
-                    if response.status_code == 200:
-                        matches = re.findall(r'href="(\d{4}_\d{2})/?', response.text)
-                        dates = sorted(list(set(matches)), reverse=True)
-                        for d in dates:
-                            gtf_d = f"{base_url}{d}/genes.gtf.gz"
-                            gff3_d = f"{base_url}{d}/genes.gff3.gz"
-                            if check_url_status(gtf_d) and check_url_status(gff3_d):
-                                resolved_rel_variant = variant
-                                resolved_date = d
-                                logger.info(
-                                    f"Resolved FTP date {d} differs from metadata {metadata_date}"
-                                )
-                                break
-                except Exception as e:
-                    logger.debug(f"Error fetching directory {base_url}: {e}")
+                # 1b. If metadata date fails, scan directory listing
+                found_date = self._scan_ftp_directory_for_date(base_url, metadata_date)
+                if found_date:
+                    resolved_rel_variant = variant
+                    resolved_date = found_date
+                    break
 
                 if resolved_rel_variant:
                     break
@@ -186,7 +204,9 @@ class YamlRenderer:
                 self._ftp_species_cache[meta.species_name] = resolved_rel_variant
                 if resolved_rel_variant != ftp_species_name_base:
                     logger.info(
-                        f'Resolved FTP species name:\n      input="{meta.species_name}"\n      used="{resolved_rel_variant}"'
+                        "Resolved FTP species name: input=%r used=%r",
+                        meta.species_name,
+                        resolved_rel_variant,
                     )
 
                 audit_decision = "included_released"
@@ -244,7 +264,9 @@ class YamlRenderer:
             self._ftp_species_cache[meta.species_name] = resolved_pre_variant
             if resolved_pre_variant != ftp_species_name_base:
                 logger.info(
-                    f'Resolved FTP species name:\n      input="{meta.species_name}"\n      used="{resolved_pre_variant}"'
+                    "Resolved FTP species name: input=%r used=%r",
+                    meta.species_name,
+                    resolved_pre_variant,
                 )
 
             audit_decision = "included_prerelease"
@@ -266,7 +288,9 @@ class YamlRenderer:
             "audit_reason": audit_reason,
         }
 
-    def _render_standard(self, meta: GenomeMetadata) -> Dict[str, Any]:
+    def _render_standard(  # pylint: disable=too-many-locals,too-many-branches,too-many-statements
+        self, meta: GenomeMetadata
+    ) -> Dict[str, Any]:
         """Renders Schema A: Standard Projects (VGP, DToL, ERGA)"""
         doc: Dict[str, Any] = {}
 
@@ -289,7 +313,7 @@ class YamlRenderer:
         doc["annotation_method"] = meta.annotation_method or "BRAKER2"
 
         ftp_resolution = self._resolve_ftp_assets(meta)
-        target_Released = ftp_resolution["is_released"]
+        target_released = ftp_resolution["is_released"]
         ftp_species_name = ftp_resolution["ftp_species_name"]
 
         doc["__audit_decision__"] = ftp_resolution["audit_decision"]
@@ -299,7 +323,7 @@ class YamlRenderer:
         if ftp_resolution["audit_decision"] == "excluded":
             return doc  # Returns only audit keys
 
-        if target_Released:
+        if target_released:
             meta.annotation_date = ftp_resolution["resolved_date"].replace("_", "-")
             doc["annotation_gtf"] = self._build_ftp_url(
                 meta, "geneset", "genes.gtf.gz", ftp_species_name
@@ -314,12 +338,17 @@ class YamlRenderer:
                 meta, "geneset", "cdna.fa.gz", ftp_species_name
             )
             doc["softmasked_genome"] = (
-                f"https://ftp.ebi.ac.uk/pub/ensemblorganisms/{ftp_species_name}/{meta.accession}/genome/softmasked.fa.gz"
+                "https://ftp.ebi.ac.uk/pub/ensemblorganisms/"
+                f"{ftp_species_name}/{meta.accession}/genome/softmasked.fa.gz"
             )
 
             # repeat_library — checked before emitting; omitted if file does not exist
             repeat_species = ftp_species_name.lower()
-            repeat_url = f"https://ftp.ebi.ac.uk/pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/{repeat_species}/{meta.accession}.repeatmodeler.fa"
+            repeat_url = (
+                "https://ftp.ebi.ac.uk/pub/databases/ensembl/"
+                f"repeats/unfiltered_repeatmodeler/species/"
+                f"{repeat_species}/{meta.accession}.repeatmodeler.fa"
+            )
             if check_url_status(repeat_url):
                 doc["repeat_library"] = repeat_url
 
@@ -334,13 +363,15 @@ class YamlRenderer:
             for k, v in pre_urls.items():
                 doc[k] = v
 
-        if target_Released:
+        if target_released:
             doc["ftp_dumps"] = (
-                f"https://ftp.ebi.ac.uk/pub/ensemblorganisms/{ftp_species_name}/{meta.accession}/"
+                "https://ftp.ebi.ac.uk/pub/ensemblorganisms/"
+                f"{ftp_species_name}/{meta.accession}/"
             )
         else:
             doc["ftp_dumps"] = (
-                f"https://ftp.ebi.ac.uk/pub/databases/ensembl/pre-release/{ftp_species_name}/{meta.accession}/"
+                "https://ftp.ebi.ac.uk/pub/databases/ensembl/pre-release/"
+                f"{ftp_species_name}/{meta.accession}/"
             )
 
         # Linkages
@@ -348,7 +379,7 @@ class YamlRenderer:
             doc["ensembl_link"] = f"https://rapid.ensembl.org/{meta.species_name}"
             doc["__audit_beta_status__"] = "skipped_rapid"
         elif self.config.allow_beta_urls:
-            beta_link, beta_status = self._resolve_beta_link(meta, target_Released)
+            beta_link, beta_status = self._resolve_beta_link(meta, target_released)
             doc["beta_link"] = beta_link
             doc["__audit_beta_status__"] = beta_status
 
@@ -381,7 +412,7 @@ class YamlRenderer:
             doc["assembly_submitter"] = meta.assembly_submitter
 
         ftp_resolution = self._resolve_ftp_assets(meta)
-        target_Released = ftp_resolution["is_released"]
+        target_released = ftp_resolution["is_released"]
         ftp_species_name = ftp_resolution["ftp_species_name"]
 
         doc["__audit_decision__"] = ftp_resolution["audit_decision"]
@@ -391,7 +422,7 @@ class YamlRenderer:
         if ftp_resolution["audit_decision"] == "excluded":
             return doc  # Returns only audit keys
 
-        if target_Released:
+        if target_released:
             meta.annotation_date = ftp_resolution["resolved_date"].replace("_", "-")
             doc["annotation_gtf"] = self._build_ftp_url(
                 meta, "geneset", "genes.gtf.gz", ftp_species_name
@@ -410,14 +441,18 @@ class YamlRenderer:
             for k, v in pre_urls.items():
                 doc[k] = v
 
-        vep_url = f"https://ftp.ebi.ac.uk/pub/ensemblorganisms/{ftp_species_name}/{meta.accession}/vep/ensembl/geneset/"
+        vep_url = (
+            "https://ftp.ebi.ac.uk/pub/ensemblorganisms/"
+            f"{ftp_species_name}/{meta.accession}/vep/ensembl/geneset/"
+        )
         if check_url_status(vep_url):
             doc["variants_vep"] = vep_url
 
         doc["ftp_dumps"] = (
-            f"https://ftp.ebi.ac.uk/pub/ensemblorganisms/{ftp_species_name}/{meta.accession}/"
+            "https://ftp.ebi.ac.uk/pub/ensemblorganisms/"
+            f"{ftp_species_name}/{meta.accession}/"
         )
-        beta_link, beta_status = self._resolve_beta_link(meta, target_Released)
+        beta_link, beta_status = self._resolve_beta_link(meta, target_released)
         doc["beta_link"] = beta_link
         doc["__audit_beta_status__"] = beta_status
 
@@ -434,7 +469,7 @@ class YamlRenderer:
         doc["accession"] = meta.accession
 
         ftp_resolution = self._resolve_ftp_assets(meta)
-        target_Released = ftp_resolution["is_released"]
+        target_released = ftp_resolution["is_released"]
         ftp_species_name = ftp_resolution["ftp_species_name"]
 
         doc["__audit_decision__"] = ftp_resolution["audit_decision"]
@@ -444,7 +479,7 @@ class YamlRenderer:
         if ftp_resolution["audit_decision"] == "excluded":
             return doc  # Returns only audit keys
 
-        if target_Released:
+        if target_released:
             meta.annotation_date = ftp_resolution["resolved_date"].replace("_", "-")
             doc["annotation_gtf"] = self._build_ftp_url(
                 meta, "geneset", "genes.gtf.gz", ftp_species_name
@@ -466,17 +501,19 @@ class YamlRenderer:
             for k, v in pre_urls.items():
                 doc[k] = v
 
-        if target_Released:
+        if target_released:
             doc["ftp_dumps"] = (
-                f"https://ftp.ebi.ac.uk/pub/ensemblorganisms/{ftp_species_name}/{meta.accession}/"
+                "https://ftp.ebi.ac.uk/pub/ensemblorganisms/"
+                f"{ftp_species_name}/{meta.accession}/"
             )
         else:
             doc["ftp_dumps"] = (
-                f"https://ftp.ebi.ac.uk/pub/databases/ensembl/pre-release/{ftp_species_name}/{meta.accession}/"
+                "https://ftp.ebi.ac.uk/pub/databases/ensembl/pre-release/"
+                f"{ftp_species_name}/{meta.accession}/"
             )
 
         if self.config.allow_beta_urls:
-            beta_link, beta_status = self._resolve_beta_link(meta, target_Released)
+            beta_link, beta_status = self._resolve_beta_link(meta, target_released)
             doc["beta_link"] = beta_link
             doc["__audit_beta_status__"] = beta_status
 
@@ -499,7 +536,10 @@ class YamlRenderer:
         if not date:
             date = "unknown_date"
         source = (meta.annotation_source or "ensembl").lower().strip()
-        return f"https://ftp.ebi.ac.uk/pub/ensemblorganisms/{ftp_species_name}/{meta.accession}/{source}/{category}/{date}/{file_suffix}"
+        return (
+            "https://ftp.ebi.ac.uk/pub/ensemblorganisms/"
+            f"{ftp_species_name}/{meta.accession}/{source}/{category}/{date}/{file_suffix}"
+        )
 
     def _build_rapid_ftp_url(self, meta: GenomeMetadata, resource_type: str) -> str:
         """Helper to build Rapid Release FTP URLs"""

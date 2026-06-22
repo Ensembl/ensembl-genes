@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 
 def _fetch_assembly_report_type(accession: str, assembly_name: str) -> Optional[str]:
-    """Downloads the authoritative assembly report from NCBI genomes FTP to parse maternal/paternal."""
+    """Download the assembly report from NCBI genomes FTP; parse maternal/paternal."""
     if not accession or not assembly_name:
         return None
     parts = accession.split("_")
@@ -26,7 +26,13 @@ def _fetch_assembly_report_type(accession: str, assembly_name: str) -> Optional[
     if len(num) < 9:
         return None
 
-    url = f"https://ftp.ncbi.nlm.nih.gov/genomes/all/{parts[0]}/{num[0:3]}/{num[3:6]}/{num[6:9]}/{accession}_{assembly_name.replace(' ', '_')}/{accession}_{assembly_name.replace(' ', '_')}_assembly_report.txt"
+    asm_name_clean = assembly_name.replace(" ", "_")
+    url = (
+        f"https://ftp.ncbi.nlm.nih.gov/genomes/all/{parts[0]}"
+        f"/{num[0:3]}/{num[3:6]}/{num[6:9]}"
+        f"/{accession}_{asm_name_clean}"
+        f"/{accession}_{asm_name_clean}_assembly_report.txt"
+    )
     try:
         res = requests.get(url, timeout=10)
         if res.status_code == 200:
@@ -37,12 +43,14 @@ def _fetch_assembly_report_type(accession: str, assembly_name: str) -> Optional[
                         return "maternal"
                     if "paternal" in lower:
                         return "paternal"
-    except Exception as e:
-        logger.warning(f"Failed to fetch assembly report for {accession}: {e}")
+    except Exception as e:  # pylint: disable=broad-exception-caught
+        logger.warning("Failed to fetch assembly report for %s: %s", accession, e)
     return None
 
 
-def patch_ncbi_data(meta: GenomeMetadata, config: ProjectConfig) -> None:
+def patch_ncbi_data(  # pylint: disable=too-many-branches
+    meta: GenomeMetadata, config: ProjectConfig
+) -> None:
     """Modifies the GenomeMetadata inline with NCBI scraped data."""
     if not (config.scrape_ncbi_submitter or config.scrape_ncbi_population):
         return
@@ -52,7 +60,7 @@ def patch_ncbi_data(meta: GenomeMetadata, config: ProjectConfig) -> None:
     try:
         assembly_html = requests.get(assembly_url, timeout=10).text.splitlines()
     except requests.RequestException as e:
-        logger.warning(f"Failed to fetch assembly page for {meta.accession}: {e}")
+        logger.warning("Failed to fetch assembly page for %s: %s", meta.accession, e)
         return
 
     biosample_id = None
@@ -83,12 +91,14 @@ def patch_ncbi_data(meta: GenomeMetadata, config: ProjectConfig) -> None:
         if "_mat" in asm_lower or "maternal" in asm_lower:
             meta.parent_of_origin = "maternal"
             logger.info(
-                f"Fallback heuristic used for {meta.accession}: inferred maternal parent_of_origin from assembly name."
+                "Fallback heuristic used for %s: inferred maternal parent_of_origin.",
+                meta.accession,
             )
         elif "_pat" in asm_lower or "paternal" in asm_lower:
             meta.parent_of_origin = "paternal"
             logger.info(
-                f"Fallback heuristic used for {meta.accession}: inferred paternal parent_of_origin from assembly name."
+                "Fallback heuristic used for %s: inferred paternal parent_of_origin.",
+                meta.accession,
             )
 
     # Hardcoded override for HPRC project
@@ -109,7 +119,7 @@ def _scrape_biosample_population(meta: GenomeMetadata, biosample_id: str) -> Non
     try:
         biosample_html = requests.get(biosample_url, timeout=10).text.splitlines()
     except requests.RequestException as e:
-        logger.warning(f"Failed to fetch biosample page {biosample_id}: {e}")
+        logger.warning("Failed to fetch biosample page %s: %s", biosample_id, e)
         return
 
     pop_string = ""

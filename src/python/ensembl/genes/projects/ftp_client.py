@@ -1,8 +1,11 @@
+"""FTP/HTTP helpers for checking Ensembl/EBI file and beta-page availability."""
+
+import socket
 import sys
 import time
 from ftplib import FTP, error_perm, error_temp
 from typing import Any, Optional
-import socket
+
 import requests
 
 
@@ -19,8 +22,10 @@ class EnsemblFTP:
 
         Args:
             timeout (int, optional): Timeout for FTP connections. Defaults to 30.
-            max_retries (int, optional): Maximum number of retries for failed operations. Defaults to 2.
-            retry_sleep (float, optional): Sleep duration between retries. Defaults to 3.0.
+            max_retries (int, optional): Maximum number of retries for failed
+                operations. Defaults to 2.
+            retry_sleep (float, optional): Sleep duration between retries.
+                Defaults to 3.0.
         """
         self.timeout = timeout
         self.max_retries = max_retries
@@ -77,7 +82,7 @@ class EnsemblFTP:
                         self._connect_ensembl()
                     else:
                         self._connect_ebi()
-                except Exception:
+                except Exception:  # pylint: disable=broad-exception-caught
                     pass
                 time.sleep(self.retry_sleep)
         assert last_exc is not None
@@ -99,7 +104,7 @@ class EnsemblFTP:
         self._retry(ftp_connection.cwd, which, "/")
 
     # ---- lookups ----
-    def check_for_file(  # pylint: disable=too-many-locals, too-many-arguments
+    def check_for_file(  # pylint: disable=too-many-locals, too-many-arguments, too-many-return-statements
         self,
         species_name: str,
         prod_name: str,
@@ -121,9 +126,9 @@ class EnsemblFTP:
             str: URL to the file if found, else empty string
         """
         # Initialize all file names upfront to avoid possibly-used-before-assignment
-        file_name_protein: str | None = None
-        file_name_alternative: str | None = None
-        file_name: str | None = None
+        file_name_protein: Optional[str] = None
+        file_name_alternative: Optional[str] = None
+        file_name: Optional[str] = None
 
         if file_type == "repeatmodeler":
             ftp_connection = self.ebi_ftp
@@ -165,12 +170,11 @@ class EnsemblFTP:
                 if file_name_alternative and file_name_alternative in files_list:
                     return ftp_path + path + file_name_alternative
                 return ""
-            else:
-                return (
-                    ftp_path + path + file_name
-                    if file_name and file_name in files_list
-                    else ""
-                )
+            return (
+                ftp_path + path + file_name
+                if file_name and file_name in files_list
+                else ""
+            )
         except error_perm as e:
             if "550" in str(e):
                 return ""
@@ -179,7 +183,7 @@ class EnsemblFTP:
         except error_temp as e:
             print(f"FTP temporary error: {e}", file=sys.stderr)
             return ""
-        except Exception as e:
+        except Exception as e:  # pylint: disable=broad-exception-caught
             print(f"Error while checking FTP file: {e}", file=sys.stderr)
             return ""
 
@@ -211,7 +215,7 @@ class EnsemblFTP:
                     return base + path + fname
         except error_perm:
             return ""
-        except Exception as e:
+        except Exception as e:  # pylint: disable=broad-exception-caught
             print(f"Error while checking pre-release file: {e}", file=sys.stderr)
         return ""
 
@@ -225,10 +229,10 @@ class EnsemblFTP:
                 continue
             try:
                 conn.quit()
-            except Exception:
+            except Exception:  # pylint: disable=broad-exception-caught
                 try:
                     conn.close()
-                except Exception:
+                except Exception:  # pylint: disable=broad-exception-caught
                     pass
 
 
@@ -248,7 +252,7 @@ def check_url_status(url: str) -> bool:
         )  # Use HEAD for efficiency
         if response.status_code == 200:
             return True
-        elif response.status_code in [404, 403]:
+        if response.status_code in [404, 403]:
             return False
         # Fallback to GET for other HTTP errors (e.g. 405 Method Not Allowed)
         response = requests.get(url, allow_redirects=True, stream=True, timeout=5)

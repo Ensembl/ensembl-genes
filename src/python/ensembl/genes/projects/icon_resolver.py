@@ -185,7 +185,7 @@ _BUSCO_SUBSTRING_PATTERNS: List[Tuple[str, str]] = [
 _FALLBACK_ICON = "Metazoa.png"
 
 
-class IconResolver:
+class IconResolver:  # pylint: disable=too-few-public-methods
     """Resolves an icon filename using taxonomy lineage from multiple sources.
 
     Parameters
@@ -410,7 +410,7 @@ class IconResolver:
             return exact
 
         # Substring pattern
-        for pattern, icon in _BUSCO_SUBSTRING_PATTERNS:
+        for pattern, _icon in _BUSCO_SUBSTRING_PATTERNS:
             if pattern in token:
                 return f"substring:{pattern}"
 

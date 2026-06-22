@@ -3,7 +3,8 @@
 Main entry point for generating project-specific genome metadata YAML files.
 
 Usage:
-  python -m ensembl.genes.projects.generate_project_yaml input_guuids.txt --project vgp --output species.yaml --audit-file audit.tsv
+  python -m ensembl.genes.projects.generate_project_yaml input_guuids.txt \
+    --project vgp --output species.yaml --audit-file audit.tsv
 """
 import argparse
 import json
@@ -16,7 +17,14 @@ from typing import List
 
 import yaml
 
+from ensembl.genes.projects.changelog import (
+    compare_yamls,
+    format_changelog,
+    load_yaml_as_keyed_dict,
+    write_changelog_tsv,
+)
 from ensembl.genes.projects.config import get_project_config
+from ensembl.genes.projects.ftp_client import EnsemblFTP
 from ensembl.genes.projects.haplotype_resolver import HaplotypeResolver
 from ensembl.genes.projects.models import GenomeMetadata
 from ensembl.genes.projects.yaml_renderer import YamlRenderer
@@ -26,7 +34,9 @@ from ensembl.genes.projects.registry.ncbi_entrez import patch_ncbi_data
 
 
 @dataclass
-class Candidate:
+class Candidate:  # pylint: disable=too-many-instance-attributes
+    """Holds a genome candidate and its audit metadata during YAML generation."""
+
     identifier: str
     meta: GenomeMetadata
     doc: dict
@@ -40,11 +50,12 @@ class Candidate:
 
 def _load_server_config() -> dict:
     config_path = Path(__file__).parent / "server_config.json"
-    with open(config_path, "r") as f:
+    with open(config_path, "r", encoding="utf-8") as f:
         return json.load(f)
 
 
-def main():
+def main():  # pylint: disable=too-many-locals,too-many-branches,too-many-statements
+    """Generate Ensembl project species.yaml from genome UUIDs and registry."""
     parser = argparse.ArgumentParser(
         description="Generate Ensembl project species.yaml",
         formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -96,10 +107,6 @@ For pre-release discovery without UUIDs, you may still rely on the registry trac
     args = parser.parse_args()
 
     config = get_project_config(args.project)
-    from ensembl.genes.projects.ftp_client import (
-        EnsemblFTP,
-    )  # pylint: disable=import-outside-toplevel
-
     ftp_client = EnsemblFTP(timeout=30)
     renderer = YamlRenderer(config, ftp_client)
 
@@ -122,9 +129,9 @@ For pre-release discovery without UUIDs, you may still rely on the registry trac
 
     # Read inputs
     try:
-        with open(args.input_file, "r") as f:
+        with open(args.input_file, "r", encoding="utf-8") as f:
             identifiers = [line.strip().split("\t")[0] for line in f if line.strip()]
-    except Exception as e:
+    except Exception as e:  # pylint: disable=broad-exception-caught
         print(f"Error reading input file: {e}", file=sys.stderr)
         sys.exit(1)
 
@@ -140,8 +147,9 @@ For pre-release discovery without UUIDs, you may still rely on the registry trac
             meta = metadata_client.fetch_by_identifier(identifier)
             if not meta:
                 logger.warning(
-                    f"Validation failed for '{identifier}'. Could not find UUID in metadata DB. "
-                    f"Ensure this UUID is indexed in ensembl_metadata_qrp."
+                    "Validation failed for '%s'. Could not find UUID in metadata DB."
+                    " Ensure this UUID is indexed in ensembl_metadata_qrp.",
+                    identifier,
                 )
                 failed.append(identifier)
                 continue
@@ -150,12 +158,14 @@ For pre-release discovery without UUIDs, you may still rely on the registry trac
             meta = gb_client.fetch_by_identifier(identifier)
             if meta:
                 logger.info(
-                    f"Routed '{identifier}' through gb_schema tracking as pre-release data."
+                    "Routed '%s' through gb_schema tracking as pre-release data.",
+                    identifier,
                 )
             else:
                 logger.warning(
-                    f"Validation failed for '{identifier}'. Could not find DB in gb_schema. "
-                    f"Core DB fallback is deprecated."
+                    "Validation failed for '%s'. Could not find DB in gb_schema."
+                    " Core DB fallback is deprecated.",
+                    identifier,
                 )
                 failed.append(identifier)
                 continue
@@ -187,7 +197,7 @@ For pre-release discovery without UUIDs, you may still rely on the registry trac
             emitted_accessions.add(meta.accession)
         else:
             # Exclude and warn
-            logger.warning(f"Excluding {identifier}: {audit_reason}")
+            logger.warning("Excluding %s: %s", identifier, audit_reason)
             failed.append(identifier)
 
     # GB Registry Discovery Pass
@@ -227,11 +237,13 @@ For pre-release discovery without UUIDs, you may still rely on the registry trac
             emitted_accessions.add(meta.accession)
             discovered_count += 1
             logger.info(
-                f"Discovered and appended GB-only pre-release: {meta.accession}"
+                "Discovered and appended GB-only pre-release: %s", meta.accession
             )
         else:
             logger.debug(
-                f"Discovered GB-only pre-release {meta.accession} skipped: {audit_reason}"
+                "Discovered GB-only pre-release %s skipped: %s",
+                meta.accession,
+                audit_reason,
             )
 
     grouped_candidates = defaultdict(list)
@@ -276,7 +288,10 @@ For pre-release discovery without UUIDs, you may still rely on the registry trac
 
             for excluded in group[1:]:
                 excluded.audit_decision = "excluded_older_geneset"
-                excluded.audit_reason = f"older geneset ({excluded.audit_resolved_date}) than {kept.audit_resolved_date}"
+                excluded.audit_reason = (
+                    f"older geneset ({excluded.audit_resolved_date})"
+                    f" than {kept.audit_resolved_date}"
+                )
         else:
             subgroups = defaultdict(list)
             for c in group:
@@ -284,7 +299,7 @@ For pre-release discovery without UUIDs, you may still rely on the registry trac
                     (c.audit_resolved_date, c.doc.get("annotation_gtf", ""))
                 ].append(c)
 
-            for subkey, subgroup in subgroups.items():
+            for _subkey, subgroup in subgroups.items():
                 if len(subgroup) == 1:
                     yaml_docs.append(subgroup[0].doc)
                     continue
@@ -371,7 +386,7 @@ For pre-release discovery without UUIDs, you may still rely on the registry trac
 
     if args.audit_file:
         seen_audit_rows = set()
-        with open(args.audit_file, "a") as af:
+        with open(args.audit_file, "a", encoding="utf-8") as af:
             for c in candidates:
                 beta_link_value = c.doc.get("beta_link", "")
                 image_value = c.doc.get("image", "")
@@ -398,14 +413,15 @@ For pre-release discovery without UUIDs, you may still rely on the registry trac
     # Write output
     yaml_docs.sort(key=lambda x: x.get("species", x.get("assembly", "")))
 
-    with open(args.output, "w") as f:
+    with open(args.output, "w", encoding="utf-8") as f:
         for i, doc in enumerate(yaml_docs):
             if i > 0:
                 f.write("\n")
             yaml.dump([doc], f, default_flow_style=False, sort_keys=False)
 
     print(
-        f"Successfully generated {args.output} for {len(yaml_docs)} genomes using {config.schema_type} schema format."
+        f"Successfully generated {args.output} for {len(yaml_docs)} genomes"
+        f" using {config.schema_type} schema format."
     )
     if failed:
         print(
@@ -415,16 +431,9 @@ For pre-release discovery without UUIDs, you may still rely on the registry trac
 
     # --- Changelog comparison (purely informational) ---
     if args.changelog:
-        from ensembl.genes.projects.changelog import (
-            load_yaml_as_keyed_dict,
-            compare_yamls,
-            format_changelog,
-            write_changelog_tsv,
-        )
-
         try:
             old_docs = load_yaml_as_keyed_dict(args.changelog)
-        except Exception as e:
+        except Exception as e:  # pylint: disable=broad-exception-caught
             print(
                 f"Warning: Could not load previous YAML for changelog: {e}",
                 file=sys.stderr,

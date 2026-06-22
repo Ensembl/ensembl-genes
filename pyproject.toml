@@ -20,7 +20,8 @@ dependencies = [
     "requests",
     "sqlalchemy >=1.4.16",
     "xmltodict",
-    "pandas"
+    "pandas",
+    "PyYAML"
 ]
 
 [project.optional-dependencies]
@@ -43,6 +44,7 @@ cicd = [
     "mypy",
     "types-PyMySQL",
     "types-requests",
+    "types-PyYAML",
     "coverage>=7,<8",
 ]
 

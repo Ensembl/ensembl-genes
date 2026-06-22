@@ -7,7 +7,7 @@ from typing import Optional, List, Dict, Any
 
 
 @dataclass
-class GenomeMetadata:
+class GenomeMetadata:  # pylint: disable=too-many-instance-attributes
     """
     Superset of all possible metadata attributes needed to generate project YAMLs.
 

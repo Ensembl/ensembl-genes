@@ -67,7 +67,7 @@ class GbTrackerClient:
                 cursor.execute(query, (query_param,))
                 row = cursor.fetchone()
         except pymysql.Error as e:
-            logger.error(f"MySQL error querying gb_schema: {e}")
+            logger.error("MySQL error querying gb_schema: %s", e)
             return None
         finally:
             if "conn" in locals() and conn.open:
@@ -100,14 +100,18 @@ class GbTrackerClient:
             is_released=False,
         )
 
-    def fetch_project_pre_releases(self, config: ProjectConfig) -> List[GenomeMetadata]:
+    def fetch_project_pre_releases(  # pylint: disable=too-many-locals
+        self, config: ProjectConfig
+    ) -> List[GenomeMetadata]:
         """
         Discovers pre-release genomes from the GB registry scoping exclusively by the explicit
         ProjectConfig rules (e.g. bioproject_scoping or custom_group_scoping).
         """
         if not config.bioproject_scoping and not config.custom_group_scoping:
             logger.info(
-                f"Project '{config.project_name}' has no defined pre-release scoping bounds in GB registry."
+                "Project '%s' has no defined pre-release scoping bounds in "
+                "GB registry.",
+                config.project_name,
             )
             return []
 
@@ -124,7 +128,10 @@ class GbTrackerClient:
             params.extend(config.bioproject_scoping)
 
         elif config.custom_group_scoping:
-            joins += " JOIN custom_group cg ON gs.assembly_id = cg.item AND cg.group_type = 'assembly'"
+            joins += (
+                " JOIN custom_group cg ON gs.assembly_id = cg.item"
+                " AND cg.group_type = 'assembly'"
+            )
 
             in_clause = ", ".join(["%s"] * len(config.custom_group_scoping))
             where_clauses.append(f"cg.group_name IN ({in_clause})")
@@ -164,7 +171,7 @@ class GbTrackerClient:
                 rows = cursor.fetchall()
         except pymysql.Error as e:
             logger.error(
-                f"MySQL error querying gb_schema for project pre-releases: {e}"
+                "MySQL error querying gb_schema for project pre-releases: %s", e
             )
             return []
         finally:

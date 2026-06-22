@@ -39,7 +39,7 @@ logger = logging.getLogger(__name__)
 _DATASETS_API_BASE = "https://api.ncbi.nlm.nih.gov/datasets/v2/genome/accession"
 
 
-def _fetch_assembly_metadata_batch(
+def _fetch_assembly_metadata_batch(  # pylint: disable=too-many-locals,too-many-nested-blocks
     accessions: List[str],
 ) -> Dict[str, Dict[str, str]]:
     """Fetch BioSample and sample metadata for a batch of accessions.
@@ -173,14 +173,14 @@ def _extract_hap_group_key(assembly_name: str) -> Optional[Tuple[str, str]]:
 # ---------------------------------------------------------------------------
 
 
-class HaplotypeResolver:
+class HaplotypeResolver:  # pylint: disable=too-few-public-methods
     """Identifies alternate haplotype pairs within a project dataset.
 
     Only pairs assemblies that are both present in the provided genome
     list.  Never invents external links.
     """
 
-    def find_alternate_haplotypes(
+    def find_alternate_haplotypes(  # pylint: disable=too-many-locals,too-many-branches,too-many-statements
         self,
         genomes: List["GenomeMetadata"],
     ) -> Dict[str, str]:
@@ -203,9 +203,6 @@ class HaplotypeResolver:
 
         accessions = [g.accession for g in genomes]
         acc_set = set(accessions)
-
-        # Build indexes
-        by_accession: Dict[str, "GenomeMetadata"] = {g.accession: g for g in genomes}
 
         pairs: Dict[str, str] = {}
 
@@ -279,9 +276,12 @@ class HaplotypeResolver:
                     hap_groups.setdefault(group_key, []).append(g)
 
             for gk, hap_genomes in hap_groups.items():
-                unpaired = [g for g in hap_genomes if g.accession not in pairs]
-                if len(unpaired) == 2:
-                    a, b = unpaired[0].accession, unpaired[1].accession
+                unpaired_genomes = [g for g in hap_genomes if g.accession not in pairs]
+                if len(unpaired_genomes) == 2:
+                    a, b = (
+                        unpaired_genomes[0].accession,
+                        unpaired_genomes[1].accession,
+                    )
                     pairs[a] = b
                     pairs[b] = a
                     logger.info(

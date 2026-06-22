@@ -326,11 +326,10 @@ def fetch_project_assemblies(project_name: str) -> Dict[str, Dict[str, int]]:
     name = project_name.lower().strip()
     if name == "hprc":
         return fetch_hprc_assemblies()
-    else:
-        logging.error(
-            "Unsupported --project_name '%s'. Currently supported: hprc", project_name
-        )
-        sys.exit(1)
+    logging.error(
+        "Unsupported --project_name '%s'. Currently supported: hprc", project_name
+    )
+    sys.exit(1)
 
 
 # -----------------------------------
@@ -495,7 +494,7 @@ def get_taxonomy_info(
 # -----------------------------------
 # Add FTP (per match + best)
 # -----------------------------------
-def add_ftp(  # pylint:disable=too-many-locals, too-many-branches
+def add_ftp(  # pylint:disable=too-many-locals, too-many-branches, too-many-statements
     annotations: Dict[str, Dict[str, Any]], release_type: str = "live"
 ) -> Dict[str, Dict[str, Any]]:
     """
@@ -758,7 +757,7 @@ def write_report(
     )
 
 
-def main():
+def main():  # pylint: disable=too-many-branches, too-many-statements
     """
     Main entry point of the script.
     Parses command-line arguments to determine if a BioProject ID, Taxon ID,

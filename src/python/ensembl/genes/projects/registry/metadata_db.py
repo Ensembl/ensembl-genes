@@ -217,14 +217,14 @@ class MetadataDbClient:
                 cursor.execute(query, (identifier,))
                 row = cursor.fetchone()
         except pymysql.Error as e:
-            logger.error(f"MySQL error querying metadata DB: {e}")
+            logger.error("MySQL error querying metadata DB: %s", e)
             return None
         finally:
             if "conn" in locals() and conn.open:
                 conn.close()
 
         if not row:
-            logger.warning(f"No metadata found for identifier: {identifier}")
+            logger.warning("No metadata found for identifier: %s", identifier)
             return None
 
         species_name = row["scientific_name"] if row["scientific_name"] else ""
@@ -253,9 +253,12 @@ class MetadataDbClient:
                     )
                     alt_row = cursor.fetchone()
                     if alt_row and alt_row.get("url_name"):
-                        alternate_url = f"https://rapid.ensembl.org/{alt_row['url_name']}/Info/Index"
-            except Exception as e:
-                logger.error(f"Failed to lookup alternate haplotype: {e}")
+                        alternate_url = (
+                            "https://rapid.ensembl.org/"
+                            f"{alt_row['url_name']}/Info/Index"
+                        )
+            except Exception as e:  # pylint: disable=broad-exception-caught
+                logger.error("Failed to lookup alternate haplotype: %s", e)
             finally:
                 if "conn" in locals() and conn.open:
                     conn.close()

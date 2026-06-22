@@ -8,6 +8,8 @@ added, removed, and modified entries in a human-readable format.
 import re
 from typing import Any, Dict, List, Optional, Tuple
 
+import yaml
+
 # Fields that are internal / audit-only and should never appear in diffs
 _IGNORE_PREFIXES = ("__audit_",)
 
@@ -80,10 +82,8 @@ def load_yaml_as_keyed_dict(yaml_path: str) -> Dict[str, Dict[str, Any]]:
         Dict mapping accession (or fallback key) → document dict.
         Entries without a usable key are silently skipped.
     """
-    import yaml  # local import to avoid hard dep at module level
-
     keyed: Dict[str, Dict[str, Any]] = {}
-    with open(yaml_path, "r") as f:
+    with open(yaml_path, "r", encoding="utf-8") as f:
         content = f.read()
 
     # The project YAMLs are written as a sequence of single-element lists,
