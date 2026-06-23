@@ -1,26 +1,42 @@
+"""Tests for the Ensembl GFF/GTF loading package."""
+
+# pylint: disable=missing-function-docstring,missing-class-docstring
+# pylint: disable=too-many-arguments,too-many-instance-attributes
+# pylint: disable=too-many-branches,too-many-statements
+# pylint: disable=wrong-import-position
+
 from __future__ import annotations
 
 import importlib
+import sys
 from collections.abc import Sequence
 from pathlib import Path
 from typing import Any
 
 import pytest
 
-from src.python.ensembl.genes.ensembl_loading import gff_cli, gff_core_loader
-from src.python.ensembl.genes.ensembl_loading.gff_quality_check import (
+SRC_PATH = Path(__file__).resolve().parents[1] / "src" / "python"
+if str(SRC_PATH) not in sys.path:
+    sys.path.insert(0, str(SRC_PATH))
+
+from ensembl.genes.ensembl_loading import (
+    gff_cli,
+    gff_core_loader,
+    gff_repeat_loader,
+)
+from ensembl.genes.ensembl_loading.gff_quality_check import (
     expected_translation_stable_ids,
 )
-from src.python.ensembl.genes.ensembl_loading.gff_source_config import (
+from ensembl.genes.ensembl_loading.gff_source_config import (
     available_source_configs,
     get_source_config,
 )
-from src.python.ensembl.genes.ensembl_loading.refseq_conversion import (
+from ensembl.genes.ensembl_loading.refseq_conversion import (
     convert_gff_to_ensembl,
     default_gff_output_path,
     load_refseq_name_map,
 )
-from src.python.ensembl.genes.ensembl_loading.refseq_ncbi import (
+from ensembl.genes.ensembl_loading.refseq_ncbi import (
     accession_subdir,
     parse_assembly_summary,
 )
@@ -62,6 +78,7 @@ def test_public_modules_import_and_cli_exposes_new_package() -> None:
         "gff_core_loader",
         "gff_models",
         "gff_quality_check",
+        "gff_repeat_loader",
         "gff_source_config",
         "refseq_constants",
         "refseq_conversion",
@@ -118,6 +135,48 @@ def test_public_modules_import_and_cli_exposes_new_package() -> None:
 
     assert ncrna_args.func is gff_cli.run_load_features
     assert ncrna_args.source == "ncrna_gtf"
+
+    repeat_args = gff_cli.build_parser().parse_args(
+        [
+            "load-single-line-features",
+            "dust_output/annotation.gtf",
+            "--analysis-name",
+            "dust",
+            "--db-name",
+            "example_core",
+            "--db-host",
+            "mysql-host",
+            "--db-user",
+            "ensro",
+            "--db-password",
+            "secret",
+            "--db-port",
+            "3306",
+        ]
+    )
+
+    assert repeat_args.func is gff_cli.run_load_single_line_features
+    assert repeat_args.analysis_name == "dust"
+
+    anno_output_args = gff_cli.build_parser().parse_args(
+        [
+            "load-anno-output",
+            "GCA_000000000.1",
+            "--db-name",
+            "example_core",
+            "--db-host",
+            "mysql-host",
+            "--db-user",
+            "ensro",
+            "--db-password",
+            "secret",
+            "--db-port",
+            "3306",
+        ]
+    )
+
+    assert anno_output_args.func is gff_cli.run_load_anno_output
+    assert anno_output_args.output_dir == Path("GCA_000000000.1")
 
 
 def test_source_specific_annotation_parsers(tmp_path: Path) -> None:
@@ -429,8 +488,9 @@ def test_refseq_discovery_and_conversion_helpers(tmp_path: Path) -> None:
         ],
     )
     converted = convert_gff_to_ensembl(gff, report, tmp_path / "converted.gff3")
-    assert "##sequence-region 1 1 1000" in converted.read_text()
-    assert "\n1\tRefSeq\tgene\t10\t50" in converted.read_text()
+    converted_text = converted.read_text(encoding="utf-8")
+    assert "##sequence-region 1 1 1000" in converted_text
+    assert "\n1\tRefSeq\tgene\t10\t50" in converted_text
 
     columns = ["x"] * 20
     columns[0] = "GCF_000001635.27"
@@ -518,10 +578,7 @@ class FakeCoreCursor:
         elif sql.startswith("select exon_id, transcript_id from exon_transcript"):
             self.fetchall_result = sorted(self.exon_transcripts)
         elif sql.startswith("select transcript_id, stable_id from translation"):
-            self.fetchall_result = [
-                (db_id, stable_id)
-                for db_id, stable_id in sorted(self.translations.items())
-            ]
+            self.fetchall_result = list(sorted(self.translations.items()))
         else:  # pragma: no cover - makes unsupported SQL obvious in failures.
             raise AssertionError(f"Unexpected SQL: {operation}")
 
@@ -554,6 +611,303 @@ class FakeCoreConnection:
 
     def close(self) -> None:
         self.closed = True
+
+
+class FakeSingleLineFeatureCursor:
+    def __init__(self) -> None:
+        self.lastrowid = 0
+        self.fetchone_result: tuple[Any, ...] | None = None
+        self.seq_regions = {"17": 101}
+        self.analysis_inserted: tuple[Any, ...] | None = None
+        self.repeat_consensus: dict[int, tuple[Any, ...]] = {}
+        self.repeat_features: list[tuple[Any, ...]] = []
+        self.simple_features: list[tuple[Any, ...]] = []
+
+    def execute(self, operation: str, params: Sequence[Any] | None = None) -> None:
+        sql = " ".join(operation.lower().split())
+        if sql.startswith("select coord_system_id from coord_system"):
+            self.fetchone_result = (1,)
+        elif sql.startswith("select analysis_id from analysis"):
+            self.fetchone_result = None
+        elif sql.startswith("insert into analysis"):
+            assert params is not None
+            self.analysis_inserted = tuple(params)
+            self.lastrowid = 7
+        elif sql.startswith("select seq_region_id from seq_region"):
+            assert params is not None
+            seq_region_id = self.seq_regions.get(params[0])
+            self.fetchone_result = (seq_region_id,) if seq_region_id else None
+        elif sql.startswith("select repeat_consensus_id from repeat_consensus"):
+            self.fetchone_result = None
+        elif sql.startswith("insert into repeat_consensus"):
+            assert params is not None
+            self.lastrowid = len(self.repeat_consensus) + 1
+            self.repeat_consensus[self.lastrowid] = tuple(params)
+        elif sql.startswith("insert into repeat_feature"):
+            assert params is not None
+            self.repeat_features.append(tuple(params))
+        elif sql.startswith("insert into simple_feature"):
+            assert params is not None
+            self.simple_features.append(tuple(params))
+        else:  # pragma: no cover - makes unsupported SQL obvious in failures.
+            raise AssertionError(f"Unexpected SQL: {operation}")
+
+    def fetchone(self) -> tuple[Any, ...] | None:
+        return self.fetchone_result
+
+
+class FakeSingleLineFeatureConnection:
+    def __init__(self) -> None:
+        self.cursor_instance = FakeSingleLineFeatureCursor()
+        self.committed = False
+        self.rolled_back = False
+        self.closed = False
+
+    def cursor(self) -> FakeSingleLineFeatureCursor:
+        return self.cursor_instance
+
+    def commit(self) -> None:
+        self.committed = True
+
+    def rollback(self) -> None:
+        self.rolled_back = True
+
+    def close(self) -> None:
+        self.closed = True
+
+
+def test_single_line_feature_loader_loads_repeats_and_simple_features(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    repeat_gtf = write_lines(
+        tmp_path / "dust.gtf",
+        [
+            feature_row(
+                "17",
+                "low_complexity",
+                10,
+                20,
+                "+",
+                'repeat_name "Low_complexity"; repeat_class "dust"; '
+                'repeat_type "Dust"; repeat_consensus "NNN"; score "42";',
+                source="dust",
+            ),
+        ],
+    )
+    repeat_connection = FakeSingleLineFeatureConnection()
+    monkeypatch.setattr(
+        gff_repeat_loader,
+        "connect_mysql",
+        lambda **_: repeat_connection,
+    )
+
+    repeat_summary = gff_repeat_loader.load_single_line_features_to_core(
+        gtf_path=repeat_gtf,
+        analysis_name="dust",
+        db_name="existing_core",
+        db_host="mysql-host",
+        db_user="ensro",
+        db_password="secret",
+        db_port=3306,
+    )
+
+    assert repeat_summary == {
+        "repeat_features": 1,
+        "repeat_consensus": 1,
+        "simple_features": 0,
+    }
+    assert repeat_connection.committed is True
+    assert repeat_connection.rolled_back is False
+    assert repeat_connection.closed is True
+    assert repeat_connection.cursor_instance.analysis_inserted == ("dust", "Anno")
+    assert repeat_connection.cursor_instance.repeat_consensus == {
+        1: ("Low_complexity", "dust", "Dust", "NNN")
+    }
+    assert repeat_connection.cursor_instance.repeat_features == [
+        (101, 10, 20, 1, 1, 11, 1, 7, 42.0)
+    ]
+
+    simple_gtf = write_lines(
+        tmp_path / "cpg.gtf",
+        [
+            feature_row(
+                "17",
+                "CpG",
+                30,
+                40,
+                "-",
+                'feature_id "cpg1";',
+                source="cpg",
+            ),
+        ],
+    )
+    simple_connection = FakeSingleLineFeatureConnection()
+    monkeypatch.setattr(
+        gff_repeat_loader,
+        "connect_mysql",
+        lambda **_: simple_connection,
+    )
+
+    simple_summary = gff_repeat_loader.load_single_line_features_to_core(
+        gtf_path=simple_gtf,
+        analysis_name="cpg",
+        db_name="existing_core",
+        db_host="mysql-host",
+        db_user="ensro",
+        db_password="secret",
+        db_port=3306,
+    )
+
+    assert simple_summary == {
+        "repeat_features": 0,
+        "repeat_consensus": 0,
+        "simple_features": 1,
+    }
+    assert simple_connection.committed is True
+    assert simple_connection.cursor_instance.analysis_inserted == ("cpg", "Anno")
+    assert simple_connection.cursor_instance.simple_features == [
+        (101, 30, 40, -1, "", 7, 0.0)
+    ]
+
+
+def test_load_anno_output_runs_available_loaders(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    output_dir = tmp_path / "GCA_000000000.1"
+    for relative_dir in (
+        "annotation_output",
+        "rfam_output",
+        "trnascan_output",
+        "dust_output",
+        "cpg_output",
+    ):
+        (output_dir / relative_dir).mkdir(parents=True)
+
+    write_lines(
+        output_dir / "annotation_output" / "annotation.gtf",
+        [
+            feature_row(
+                "17",
+                "transcript",
+                10,
+                20,
+                "+",
+                'gene_id "gene1"; transcript_id "tx1";',
+            )
+        ],
+    )
+    write_lines(
+        output_dir / "rfam_output" / "annotation.gtf",
+        [
+            feature_row(
+                "17",
+                "transcript",
+                30,
+                40,
+                "+",
+                'gene_id "rfam1"; transcript_id "rfam1.t1"; biotype "snRNA";',
+                source="Rfam",
+            )
+        ],
+    )
+    (output_dir / "trnascan_output" / "annotation.gtf").write_text(
+        "",
+        encoding="utf-8",
+    )
+    write_lines(
+        output_dir / "dust_output" / "annotation.gtf",
+        [
+            feature_row(
+                "17",
+                "low_complexity",
+                50,
+                60,
+                "+",
+                'repeat_name "dust";',
+                source="dust",
+            )
+        ],
+    )
+    write_lines(
+        output_dir / "cpg_output" / "annotation.gtf",
+        [
+            feature_row(
+                "17",
+                "CpG",
+                70,
+                80,
+                "+",
+                'feature_id "cpg1";',
+                source="cpg",
+            )
+        ],
+    )
+
+    calls: list[tuple[str, str, str]] = []
+
+    def fake_load_gff_features_to_core(**kwargs: Any) -> dict[str, int]:
+        gff_path = Path(kwargs["gff_path"])
+        calls.append(
+            (
+                "feature",
+                str(gff_path.relative_to(output_dir)),
+                kwargs["source_config"].name,
+            )
+        )
+        return {"genes": 2, "transcripts": 3, "cds_transcript_groups": 1}
+
+    def fake_load_single_line_features_to_core(**kwargs: Any) -> dict[str, int]:
+        gtf_path = Path(kwargs["gtf_path"])
+        calls.append(
+            (
+                "single_line",
+                str(gtf_path.relative_to(output_dir)),
+                kwargs["analysis_name"],
+            )
+        )
+        return {
+            "repeat_features": 1 if kwargs["analysis_name"] == "dust" else 0,
+            "repeat_consensus": 1 if kwargs["analysis_name"] == "dust" else 0,
+            "simple_features": 1 if kwargs["analysis_name"] == "cpg" else 0,
+        }
+
+    monkeypatch.setattr(
+        gff_cli,
+        "load_gff_features_to_core",
+        fake_load_gff_features_to_core,
+    )
+    monkeypatch.setattr(
+        gff_cli,
+        "load_single_line_features_to_core",
+        fake_load_single_line_features_to_core,
+    )
+
+    args = gff_cli.build_parser().parse_args(
+        [
+            "load-anno-output",
+            str(output_dir),
+            "--db-name",
+            "existing_core",
+            "--db-host",
+            "mysql-host",
+            "--db-user",
+            "ensro",
+            "--db-password",
+            "secret",
+            "--db-port",
+            "3306",
+        ]
+    )
+
+    assert args.func(args) == 0
+    assert calls == [
+        ("feature", "annotation_output/annotation.gtf", "anno_gtf"),
+        ("feature", "rfam_output/annotation.gtf", "ncrna_gtf"),
+        ("single_line", "dust_output/annotation.gtf", "dust"),
+        ("single_line", "cpg_output/annotation.gtf", "cpg"),
+    ]
 
 
 def test_anno_gtf_loads_into_existing_core_with_quality_check(

@@ -5,10 +5,14 @@ from __future__ import annotations
 import argparse
 import logging
 from pathlib import Path
-from typing import Sequence
+from typing import Any, Sequence
 
 try:  # Support both package imports and direct same-directory imports.
     from .gff_core_loader import load_gff_features_to_core, load_to_ensembl_core
+    from .gff_repeat_loader import (
+        available_single_line_feature_analyses,
+        load_single_line_features_to_core,
+    )
     from .gff_source_config import available_source_configs, get_source_config
     from .refseq_conversion import convert_fna_headers, convert_gff_to_ensembl
     from .refseq_ncbi import download_annotations, list_available_annotations
@@ -16,6 +20,10 @@ except ImportError:  # pragma: no cover - used when run beside this file.
     from gff_core_loader import (  # type: ignore
         load_gff_features_to_core,
         load_to_ensembl_core,
+    )
+    from gff_repeat_loader import (  # type: ignore
+        available_single_line_feature_analyses,
+        load_single_line_features_to_core,
     )
     from gff_source_config import (  # type: ignore
         available_source_configs,
@@ -32,6 +40,19 @@ except ImportError:  # pragma: no cover - used when run beside this file.
 
 
 LOGGER = logging.getLogger(__name__)
+ANNO_REQUIRED_GENE_GTF = Path("annotation_output") / "annotation.gtf"
+ANNO_NCRNA_GTF_OUTPUTS = (
+    Path("rfam_output") / "annotation.gtf",
+    Path("trnascan_output") / "annotation.gtf",
+)
+ANNO_SINGLE_LINE_OUTPUTS = (
+    (Path("dust_output") / "annotation.gtf", "dust"),
+    (Path("red_output") / "annotation.gtf", "repeatdetector"),
+    (Path("trf_output") / "annotation.gtf", "trf"),
+    (Path("repeatmasker_output") / "annotation.gtf", "repeatmask_repbase_human"),
+    (Path("cpg_output") / "annotation.gtf", "cpg"),
+    (Path("eponine_output") / "annotation.gtf", "eponine"),
+)
 
 
 def configure_logging(log_level: str, log_file: str | None = None) -> None:
@@ -79,6 +100,12 @@ def default_converted_gff_path(assembly_dir: Path, ftp_base: str) -> Path:
     """Return the default converted GFF3 path for one RefSeq assembly."""
 
     return assembly_dir / f"{ftp_base}_ensembl.gff3"
+
+
+def has_loadable_content(path: Path) -> bool:
+    """Return True when a path is a non-empty file."""
+
+    return path.is_file() and path.stat().st_size > 0
 
 
 def add_source_option(
@@ -248,6 +275,134 @@ def run_load_features(args: argparse.Namespace) -> int:
     return 0
 
 
+def run_load_single_line_features(args: argparse.Namespace) -> int:
+    """Load anno repeat/simple single-line GTF features into an existing core DB."""
+
+    summary = load_single_line_features_to_core(
+        gtf_path=args.gtf,
+        analysis_name=args.analysis_name,
+        db_name=args.db_name,
+        db_host=args.db_host,
+        db_user=args.db_user,
+        db_password=args.db_password,
+        db_port=args.db_port,
+        coord_system_id=args.coord_system_id,
+        coord_system_name=args.coord_system_name,
+        coord_system_version=args.coord_system_version,
+    )
+    LOGGER.info(
+        "Loaded single-line feature summary: %s repeat features, "
+        "%s repeat consensus rows, %s simple features",
+        summary["repeat_features"],
+        summary["repeat_consensus"],
+        summary["simple_features"],
+    )
+    return 0
+
+
+def run_load_anno_output(  # pylint: disable=too-many-locals,too-many-statements,too-many-branches
+    args: argparse.Namespace,
+) -> int:
+    """Load all supported feature outputs from one anno pipeline output directory."""
+
+    output_dir = Path(args.output_dir)
+    main_gtf = output_dir / ANNO_REQUIRED_GENE_GTF
+    if not has_loadable_content(main_gtf):
+        raise FileNotFoundError(
+            "Could not find a non-empty main anno GTF at "
+            f"{main_gtf}. Expected annotation_output/annotation.gtf"
+        )
+
+    anno_config = get_source_config("anno_gtf")
+    ncrna_config = get_source_config("ncrna_gtf")
+    db_kwargs: dict[str, Any] = {
+        "db_name": args.db_name,
+        "db_host": args.db_host,
+        "db_user": args.db_user,
+        "db_password": args.db_password,
+        "db_port": args.db_port,
+        "coord_system_id": args.coord_system_id,
+        "coord_system_name": args.coord_system_name,
+        "coord_system_version": args.coord_system_version,
+    }
+    summary = {
+        "feature_gtfs": 0,
+        "genes": 0,
+        "transcripts": 0,
+        "cds_transcript_groups": 0,
+        "repeat_features": 0,
+        "repeat_consensus": 0,
+        "simple_features": 0,
+        "skipped_files": 0,
+    }
+
+    LOGGER.info("Loading main anno gene set from %s", main_gtf)
+    feature_summary = load_gff_features_to_core(
+        gff_path=main_gtf,
+        source_config=anno_config,
+        **db_kwargs,
+    )
+    summary["feature_gtfs"] += 1
+    summary["genes"] += feature_summary["genes"]
+    summary["transcripts"] += feature_summary["transcripts"]
+    summary["cds_transcript_groups"] += feature_summary["cds_transcript_groups"]
+
+    for relative_gtf in ANNO_NCRNA_GTF_OUTPUTS:
+        gtf_path = output_dir / relative_gtf
+        if not has_loadable_content(gtf_path):
+            LOGGER.info("Skipping missing or empty ncRNA GTF: %s", gtf_path)
+            summary["skipped_files"] += 1
+            continue
+        LOGGER.info("Loading ncRNA anno GTF from %s", gtf_path)
+        feature_summary = load_gff_features_to_core(
+            gff_path=gtf_path,
+            source_config=ncrna_config,
+            **db_kwargs,
+        )
+        summary["feature_gtfs"] += 1
+        summary["genes"] += feature_summary["genes"]
+        summary["transcripts"] += feature_summary["transcripts"]
+        summary["cds_transcript_groups"] += feature_summary["cds_transcript_groups"]
+
+    for relative_gtf, default_analysis_name in ANNO_SINGLE_LINE_OUTPUTS:
+        gtf_path = output_dir / relative_gtf
+        if not has_loadable_content(gtf_path):
+            LOGGER.info("Skipping missing or empty single-line GTF: %s", gtf_path)
+            summary["skipped_files"] += 1
+            continue
+        analysis_name = (
+            args.repeatmasker_analysis
+            if relative_gtf.parts[0] == "repeatmasker_output"
+            else default_analysis_name
+        )
+        LOGGER.info(
+            "Loading single-line anno GTF from %s with analysis %s",
+            gtf_path,
+            analysis_name,
+        )
+        single_line_summary = load_single_line_features_to_core(
+            gtf_path=gtf_path,
+            analysis_name=analysis_name,
+            **db_kwargs,
+        )
+        summary["repeat_features"] += single_line_summary["repeat_features"]
+        summary["repeat_consensus"] += single_line_summary["repeat_consensus"]
+        summary["simple_features"] += single_line_summary["simple_features"]
+
+    LOGGER.info(
+        "Loaded anno output summary: %s feature GTFs, %s genes, "
+        "%s transcripts, %s repeat features, %s simple features, "
+        "%s skipped files",
+        summary["feature_gtfs"],
+        summary["genes"],
+        summary["transcripts"],
+        summary["repeat_features"],
+        summary["simple_features"],
+        summary["skipped_files"],
+    )
+    return 0
+
+
 def run_create_core(args: argparse.Namespace) -> int:
     """Create/populate a core DB from converted FASTA and GFF3/GTF features."""
 
@@ -404,6 +559,47 @@ def add_load_features_parser(subparsers: argparse._SubParsersAction) -> None:
     parser.set_defaults(func=run_load_features)
 
 
+def add_load_single_line_features_parser(
+    subparsers: argparse._SubParsersAction,
+) -> None:
+    """Add the anno single-line repeat/simple feature loader subcommand."""
+
+    parser = subparsers.add_parser(
+        "load-single-line-features",
+        help="Load anno repeat/simple GTF features into an existing core DB",
+    )
+    parser.add_argument("gtf", help="Input single-line feature GTF path")
+    parser.add_argument(
+        "--analysis-name",
+        required=True,
+        choices=available_single_line_feature_analyses(),
+        help="Anno analysis name matching the old Perl single_line_feature mode",
+    )
+    add_existing_core_db_options(parser)
+    parser.set_defaults(func=run_load_single_line_features)
+
+
+def add_load_anno_output_parser(subparsers: argparse._SubParsersAction) -> None:
+    """Add the combined anno pipeline output loader subcommand."""
+
+    parser = subparsers.add_parser(
+        "load-anno-output",
+        help="Load anno genes, ncRNAs, repeats, and simple features into a core DB",
+    )
+    parser.add_argument(
+        "output_dir",
+        type=Path,
+        help="Anno run output directory containing annotation_output, rfam_output, etc.",
+    )
+    parser.add_argument(
+        "--repeatmasker-analysis",
+        default="repeatmask_repbase_human",
+        help="Analysis logic_name for repeatmasker_output/annotation.gtf",
+    )
+    add_existing_core_db_options(parser)
+    parser.set_defaults(func=run_load_anno_output)
+
+
 def add_create_core_parser(subparsers: argparse._SubParsersAction) -> None:
     """Add the FASTA plus GFF3/GTF core creation subcommand."""
 
@@ -530,6 +726,8 @@ def build_parser() -> argparse.ArgumentParser:
     )
     subparsers = parser.add_subparsers(dest="command", required=True)
     add_load_features_parser(subparsers)
+    add_load_single_line_features_parser(subparsers)
+    add_load_anno_output_parser(subparsers)
     add_create_core_parser(subparsers)
     add_refseq_parser(subparsers)
     return parser

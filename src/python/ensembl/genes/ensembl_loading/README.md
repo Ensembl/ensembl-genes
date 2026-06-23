@@ -18,6 +18,7 @@ Generic modules:
 gff_cli.py
 gff_core_loader.py
 gff_models.py
+gff_repeat_loader.py
 gff_source_config.py
 ```
 
@@ -33,6 +34,12 @@ apply biotype overrides, resolve seq_regions, allocate IDs, and insert rows.
 `gff_models.py`
 : Typed in-memory records used by the generic loader: `GeneRecord`,
 `TranscriptRecord`, `ExonRecord`, `CdsSegment`, and `ParsedAnnotation`.
+
+`gff_repeat_loader.py`
+: Loader for anno pipeline `single_line_feature` GTF outputs. It mirrors the
+old Perl repeat/simple-feature path by loading repeat analyses into
+`repeat_consensus` and `repeat_feature`, and `cpg`/`eponine` into
+`simple_feature`.
 
 `gff_source_config.py`
 : Source configuration. This is where feature-type sets, ID normalization,
@@ -116,7 +123,7 @@ gff-loader load-features annotations.gff3 \
   --db-name mus_musculus_core_000001635_27 \
   --db-host mysql-ens-genebuild-prod-6 \
   --db-port 3306 \
-  --db-user ensadmin \
+  --db-user <write-user> \
   --db-password <password>
 ```
 
@@ -139,7 +146,7 @@ gff-loader load-features annotations.gff3 \
   --db-name mus_musculus_core_000001635_27 \
   --db-host mysql-ens-genebuild-prod-6 \
   --db-port 3306 \
-  --db-user ensadmin \
+  --db-user <write-user> \
   --db-password <password> \
   --coord-system-id 1 \
   --source generic
@@ -152,7 +159,7 @@ gff-loader load-features Homo_sapiens.GRCh38.115.chromosome.20.gff3.gz \
   --db-name homo_sapiens_core_115_38 \
   --db-host mysql-ens-genebuild-prod-6 \
   --db-port 3306 \
-  --db-user ensadmin \
+  --db-user <write-user> \
   --db-password <password> \
   --coord-system-name chromosome \
   --source ensembl
@@ -171,7 +178,7 @@ gff-loader load-features annotations.gff3 \
   --db-name example_core \
   --db-host mysql-host \
   --db-port 3306 \
-  --db-user ensadmin \
+  --db-user <write-user> \
   --db-password <password> \
   --coord-system-name scaffold \
   --coord-system-version GCA_000000000.1
@@ -186,6 +193,26 @@ anno pipeline core load, load the main annotation GTF first with
 `--source anno_gtf`, then load the separate ncRNA GTF outputs with
 `--source ncrna_gtf`.
 
+The simplest way to reproduce the full anno pipeline load is the combined
+wrapper command. Point it at the anno run output directory that contains
+subdirectories such as `annotation_output`, `rfam_output`, `dust_output`, and
+`cpg_output`:
+
+```bash
+gff-loader load-anno-output /path/to/GCA_000000000.1 \
+  --db-name lepidoptera_example_core \
+  --db-host mysql-ens-genebuild-prod-6 \
+  --db-port 3306 \
+  --db-user <write-user> \
+  --db-password <password> \
+  --coord-system-name primary_assembly
+```
+
+The wrapper requires a non-empty
+`annotation_output/annotation.gtf`. Optional ncRNA, repeat, and simple-feature
+outputs are loaded when their `annotation.gtf` files exist and are non-empty;
+missing or empty optional files are skipped.
+
 The usual anno pipeline load sequence is:
 
 ```bash
@@ -193,7 +220,7 @@ gff-loader load-features /path/to/annotation_output/annotation.gtf \
   --db-name lepidoptera_example_core \
   --db-host mysql-ens-genebuild-prod-6 \
   --db-port 3306 \
-  --db-user ensadmin \
+  --db-user <write-user> \
   --db-password <password> \
   --coord-system-name primary_assembly \
   --source anno_gtf
@@ -202,7 +229,7 @@ gff-loader load-features /path/to/rfam_output/annotation.gtf \
   --db-name lepidoptera_example_core \
   --db-host mysql-ens-genebuild-prod-6 \
   --db-port 3306 \
-  --db-user ensadmin \
+  --db-user <write-user> \
   --db-password <password> \
   --coord-system-name primary_assembly \
   --source ncrna_gtf
@@ -211,7 +238,7 @@ gff-loader load-features /path/to/trnascan_output/annotation.gtf \
   --db-name lepidoptera_example_core \
   --db-host mysql-ens-genebuild-prod-6 \
   --db-port 3306 \
-  --db-user ensadmin \
+  --db-user <write-user> \
   --db-password <password> \
   --coord-system-name primary_assembly \
   --source ncrna_gtf
@@ -220,6 +247,35 @@ gff-loader load-features /path/to/trnascan_output/annotation.gtf \
 The Rfam/tRNAscan loads insert genes with source `ensembl` and analysis logic
 name `ncrna`, matching the original Perl loader. If either ncRNA output file is
 empty or absent, skip that file.
+
+Anno repeat/simple outputs are loaded separately with
+`load-single-line-features`, matching the old Perl
+`-load_type single_line_feature` mode:
+
+```bash
+gff-loader load-single-line-features /path/to/dust_output/annotation.gtf \
+  --analysis-name dust \
+  --db-name lepidoptera_example_core \
+  --db-host mysql-ens-genebuild-prod-6 \
+  --db-port 3306 \
+  --db-user <write-user> \
+  --db-password <password> \
+  --coord-system-name primary_assembly
+```
+
+Use the matching analysis name for each anno output:
+
+```text
+dust_output/annotation.gtf         -> dust
+red_output/annotation.gtf          -> repeatdetector
+trf_output/annotation.gtf          -> trf
+repeatmasker_output/annotation.gtf -> repeatmask_repbase_human
+cpg_output/annotation.gtf          -> cpg
+eponine_output/annotation.gtf      -> eponine
+```
+
+The repeat analyses load into `repeat_consensus` and `repeat_feature`.
+`cpg` and `eponine` load into `simple_feature`.
 
 Set `--coord-system-name` to the coordinate system containing the GTF seqids.
 For example, if the GTF first column contains names such as `17`, the target
@@ -253,7 +309,7 @@ gff-loader create-core annotations.gff3 genome.fna \
   --assembly-accession GCF_000001635.27 \
   --db-host mysql-ens-genebuild-prod-6 \
   --db-port 3306 \
-  --db-user ensadmin \
+  --db-user <write-user> \
   --db-password <password> \
   --source generic
 ```
@@ -646,6 +702,36 @@ attribute is used directly, so Rfam values such as `misc_RNA`, `rRNA`,
 `ribozyme`, `snRNA`, and `snoRNA` are preserved. If a transcript has no
 `biotype`, it defaults to `misc_RNA`.
 
+### Single-Line Repeat/Simple Feature Loader
+
+Use `load-single-line-features` for the anno pipeline outputs that the old Perl
+loader handled with `-load_type single_line_feature`.
+
+Supported repeat analyses:
+
+```text
+dust
+repeatdetector
+repeatmask_repbase_human
+trf
+```
+
+For repeats, the loader reads GTF attributes `repeat_name`, `repeat_class`,
+`repeat_type`, `repeat_consensus`, and `score` when present. Missing
+`repeat_name` and `repeat_class` default to the analysis name, missing
+`repeat_consensus` defaults to `N`, and repeat coordinates are loaded with
+`repeat_start = 1` and `repeat_end = feature length`, matching the Perl loader.
+
+Supported simple-feature analyses:
+
+```text
+cpg
+eponine
+```
+
+For simple features, rows are inserted into `simple_feature` with an empty
+display label and score `0`, matching the old Perl behavior.
+
 ### Adding Another GFF Source
 
 To add another source, create a new `GffSourceConfig` in
@@ -676,7 +762,7 @@ gff-loader load-features custom.gff3 \
   --db-name custom_core \
   --db-host mysql-host \
   --db-port 3306 \
-  --db-user ensadmin \
+  --db-user <write-user> \
   --db-password <password> \
   --source custom
 ```
@@ -1468,7 +1554,7 @@ gff-loader refseq run \
   --species-name "Mus musculus" \
   --db-host mysql-ens-genebuild-prod-6 \
   --db-port 4532 \
-  --db-user ensadmin \
+  --db-user <write-user> \
   --db-password <password>
 ```
 
@@ -1525,7 +1611,7 @@ gff-loader load-features GCF_000001635.27_GRCm39_ensembl.gff3 \
   --db-name mus_musculus_gcf000001635v27_core_114_27 \
   --db-host mysql-ens-genebuild-prod-6 \
   --db-port 3306 \
-  --db-user ensadmin \
+  --db-user <write-user> \
   --db-password <password> \
   --coord-system-name primary_assembly \
   --source refseq
@@ -1555,7 +1641,7 @@ summary = load_gff_features_to_core(
     gff_path="annotations.gff3",
     db_name="example_core",
     db_host="mysql-host",
-    db_user="ensadmin",
+    db_user="write-user",
     db_password="password",
     db_port=3306,
     source_config=source_config,
