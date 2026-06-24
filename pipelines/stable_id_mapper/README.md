@@ -149,11 +149,26 @@ New: 384
 This proves the command runs, but it should not be interpreted as a useful
 biological mapping result. Install `minimap2` before evaluating mapping quality.
 
-### Convert Assembly Mapper Output to Core-DB SQL
+### Core-DB SQL Generator
 
-For quick core-DB loading, `main_output_to_stable_id_event_sql.py` converts the
-reference GFF3, target GFF3, and `main.py`'s mapped GFF3 into executable SQL.
-The generated SQL:
+`main_output_to_stable_id_event_sql.py` is a quick converter from `main.py`
+output to SQL that can be reviewed and then run against an Ensembl core DB.
+The script does not connect to MySQL itself; it only writes SQL and optional TSV
+files.
+
+Inputs needed:
+
+- old/reference GFF3: the same file passed to `main.py --ref-gff`
+- new/target GFF3: the same file passed to `main.py --target-gff`
+- mapped GFF3: the file produced by `main.py --output-gff`
+- `mapping_session_id`: the core-DB mapping session ID to write into
+  `stable_id_event`
+- gene, transcript, and translation stable-ID ranges, passed as
+  `PREFIX:START-END`
+- output SQL path
+- optional output TSV path for review
+
+The generated executable SQL:
 
 1. backs up the core tables it will touch inside the same DB,
 2. stages gene/transcript/translation stable-ID decisions,
@@ -162,9 +177,28 @@ The generated SQL:
    `A -> B`, `B -> C` collisions,
 5. inserts rows into `stable_id_event`.
 
-The ID ranges come from the registry DB. For this quick script, pass those
-ranges as arguments in `PREFIX:START-END` form. `START` and `END` may include
+It does not update exons.
+
+#### Get the Stable-ID Range
+
+The ID ranges come from `gb1` / `gb_assembly_metadata`. Query them with the GCA
+accession for the assembly:
+
+```sql
+SELECT
+    species_log.gca_accession,
+    CONCAT(prefix.prefix, ':', stable.stable_space_start, '-', stable.stable_space_end) AS id_range
+FROM stable_space_species_log AS species_log
+INNER JOIN stable_space AS stable ON stable.stable_space_id = species_log.stable_space_id
+INNER JOIN species_prefix AS prefix ON prefix.lowest_taxon_id = species_log.lowest_taxon_id
+WHERE species_log.gca_accession = '<GCA_accession>';
+```
+
+Pass the returned ranges to the script as `--gene-range`,
+`--transcript-range`, and `--translation-range`. `START` and `END` may include
 leading zeroes; the widest width is preserved when generating IDs.
+
+#### Run from `main.py` Output
 
 ```bash
 python3 main_output_to_stable_id_event_sql.py \
