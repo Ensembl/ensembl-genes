@@ -190,6 +190,27 @@ receive new IDs from `--translation-range`.
 Review the TSV before running the SQL against a core database. The SQL also
 contains `SELECT` count checks for staged rows versus DB-matched rows.
 
+Add `--dry-run` to generate validation-only SQL:
+
+```bash
+python3 main_output_to_stable_id_event_sql.py \
+  --ref-gff ref.gff3 \
+  --target-gff tar.gff3 \
+  --mapped-gff out/root-smoke/mapped.gff3 \
+  --mapping-session-id 1 \
+  --gene-range ENSGALG:90000000000-90000099999 \
+  --transcript-range ENSGALT:90000000000-90000099999 \
+  --translation-range ENSGALP:90000000000-90000099999 \
+  --include-translations \
+  --dry-run \
+  --output-sql out/root-smoke/core_updates.dry_run.sql \
+  --output-tsv out/root-smoke/core_updates.tsv
+```
+
+Dry-run SQL only creates temporary tables and emits `SELECT` checks. It does
+not create backup tables, update core feature tables, delete previous events, or
+insert into `stable_id_event`.
+
 ## Workflow 2: LiftOn-to-Reference Mapper
 
 Use `lifton_id_mapper.py` when you have:
