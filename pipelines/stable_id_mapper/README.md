@@ -149,6 +149,47 @@ New: 384
 This proves the command runs, but it should not be interpreted as a useful
 biological mapping result. Install `minimap2` before evaluating mapping quality.
 
+### Convert Assembly Mapper Output to Core-DB SQL
+
+For quick core-DB loading, `main_output_to_stable_id_event_sql.py` converts the
+reference GFF3, target GFF3, and `main.py`'s mapped GFF3 into executable SQL.
+The generated SQL:
+
+1. backs up the core tables it will touch inside the same DB,
+2. stages gene/transcript/translation stable-ID decisions,
+3. resolves target rows to internal DB IDs before applying updates,
+4. updates stable IDs with a two-phase temporary rename to avoid cascading
+   `A -> B`, `B -> C` collisions,
+5. inserts rows into `stable_id_event`.
+
+The ID ranges come from the registry DB. For this quick script, pass those
+ranges as arguments in `PREFIX:START-END` form. `START` and `END` may include
+leading zeroes; the widest width is preserved when generating IDs.
+
+```bash
+python3 main_output_to_stable_id_event_sql.py \
+  --ref-gff ref.gff3 \
+  --target-gff tar.gff3 \
+  --mapped-gff out/root-smoke/mapped.gff3 \
+  --mapping-session-id 1 \
+  --gene-range ENSGALG:90000000000-90000099999 \
+  --transcript-range ENSGALT:90000000000-90000099999 \
+  --translation-range ENSGALP:90000000000-90000099999 \
+  --include-translations \
+  --backup-prefix stable_id_mapper_backup_test \
+  --output-sql out/root-smoke/core_updates.sql \
+  --output-tsv out/root-smoke/core_updates.tsv
+```
+
+By default the script mirrors the feature scope handled by `main.py`: genes,
+transcripts, and CDS-derived translations under parsed transcripts. It does not
+create exon rows. Translation mappings are inferred only when one old and one
+target translation sit under a mapped transcript; otherwise target translations
+receive new IDs from `--translation-range`.
+
+Review the TSV before running the SQL against a core database. The SQL also
+contains `SELECT` count checks for staged rows versus DB-matched rows.
+
 ## Workflow 2: LiftOn-to-Reference Mapper
 
 Use `lifton_id_mapper.py` when you have:
