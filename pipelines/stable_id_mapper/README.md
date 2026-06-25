@@ -161,6 +161,8 @@ Inputs needed:
 - old/reference GFF3: the same file passed to `main.py --ref-gff`
 - new/target GFF3: the same file passed to `main.py --target-gff`
 - mapped GFF3: the file produced by `main.py --output-gff`
+- mapping report: the file produced by `main.py --report`; if `--report` is
+  not passed, the converter looks for `report.txt` next to `--mapped-gff`
 - `mapping_session_id`: the core-DB mapping session ID to write into
   `stable_id_event`
 - gene, transcript, and translation stable-ID ranges, passed as
@@ -205,6 +207,7 @@ python3 main_output_to_stable_id_event_sql.py \
   --ref-gff ref.gff3 \
   --target-gff tar.gff3 \
   --mapped-gff out/root-smoke/mapped.gff3 \
+  --report out/root-smoke/report.txt \
   --mapping-session-id 1 \
   --gene-range ENSGALG:90000000000-90000099999 \
   --transcript-range ENSGALT:90000000000-90000099999 \
@@ -232,6 +235,7 @@ python3 main_output_to_stable_id_event_sql.py \
   --ref-gff ref.gff3 \
   --target-gff tar.gff3 \
   --mapped-gff out/root-smoke/mapped.gff3 \
+  --report out/root-smoke/report.txt \
   --mapping-session-id 1 \
   --gene-range ENSGALG:90000000000-90000099999 \
   --transcript-range ENSGALT:90000000000-90000099999 \

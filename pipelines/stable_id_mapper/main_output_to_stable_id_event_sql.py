@@ -164,6 +164,32 @@ def first_parent(attrs: Dict[str, str]) -> Optional[str]:
     return parent
 
 
+def parse_missing_gene_ids(report_path: Path) -> set[str]:
+    missing: set[str] = set()
+    in_missing_section = False
+    with report_path.open() as handle:
+        for line in handle:
+            stripped = line.strip()
+            if stripped == "Missing gene IDs:":
+                in_missing_section = True
+                continue
+            if in_missing_section and stripped.endswith("gene IDs:"):
+                break
+            if not in_missing_section or not stripped:
+                continue
+            stable_id, _version = split_stable_id(stripped)
+            if stable_id:
+                missing.add(stable_id)
+    return missing
+
+
+def default_report_path(mapped_gff: Path) -> Optional[Path]:
+    candidate = mapped_gff.parent / "report.txt"
+    if candidate.exists():
+        return candidate
+    return None
+
+
 def overlap_len(a: Feature, b: Feature) -> int:
     if a.seqid != b.seqid or a.strand != b.strand:
         return 0
@@ -391,9 +417,10 @@ def build_gene_decisions(
     old_features: Dict[str, Dict[str, Feature]],
     target_features: Dict[str, Dict[str, Feature]],
     mapped_features: Dict[str, Dict[str, Feature]],
+    missing_gene_ids: set[str],
     allocators: Dict[str, IdAllocator],
     args: argparse.Namespace,
-) -> tuple[list[Decision], dict[str, str]]:
+) -> tuple[list[Decision], dict[str, str], set[str]]:
     decisions: list[Decision] = []
     used_targets: set[str] = set()
     old_gene_to_target_gene: dict[str, str] = {}
@@ -402,70 +429,27 @@ def build_gene_decisions(
     target_genes = target_features["gene"]
     mapped_genes = mapped_features["gene"]
 
-    for old_id in sorted(old_genes):
-        old = old_genes[old_id]
-        mapped = mapped_genes.get(old_id)
-        target = (
-            best_unused_match(
-                mapped,
-                target_genes.values(),
-                used_targets,
-                args.min_gene_overlap,
-            )
-            if mapped
-            else None
-        )
-        if mapped is None:
-            decisions.append(
-                Decision(
-                    feature_type="gene",
-                    action="missing",
-                    current_stable_id=None,
-                    current_version=0,
-                    old_stable_id=old.stable_id,
-                    old_version=old.version,
-                    new_stable_id=None,
-                    new_version=0,
-                    mapping_session_id=args.mapping_session_id,
-                    score=args.score_missing,
-                    reason="old gene not present in mapped output",
-                )
-            )
-            continue
-
-        if target is not None:
-            used_targets.add(target.stable_id)
-            current_stable_id = target.stable_id
-            current_version = target.version
-            old_gene_to_target_gene[old.stable_id] = target.stable_id
-            reason = "mapped old gene matched to target gene by coordinate overlap"
-        else:
-            current_stable_id = mapped.stable_id
-            current_version = mapped.version
-            old_gene_to_target_gene[old.stable_id] = mapped.stable_id
-            reason = "old gene present in mapped output; no target gene overlap found"
-
-        new_version = mapped.version
+    for old_id in sorted(missing_gene_ids):
+        old = old_genes.get(old_id)
         decisions.append(
             Decision(
                 feature_type="gene",
-                action="mapped",
-                current_stable_id=current_stable_id,
-                current_version=current_version,
-                old_stable_id=old.stable_id,
-                old_version=old.version,
-                new_stable_id=old.stable_id,
-                new_version=new_version,
+                action="missing",
+                current_stable_id=None,
+                current_version=0,
+                old_stable_id=old.stable_id if old else old_id,
+                old_version=old.version if old else 1,
+                new_stable_id=None,
+                new_version=0,
                 mapping_session_id=args.mapping_session_id,
-                score=score_for_versions(old.version, new_version, args),
-                reason=reason,
+                score=args.score_missing,
+                reason="old gene listed as missing by main.py report",
             )
         )
 
     for mapped_id in sorted(mapped_genes):
-        if mapped_id in old_genes:
-            continue
         mapped = mapped_genes[mapped_id]
+        old = old_genes.get(mapped_id)
         target = best_unused_match(
             mapped,
             target_genes.values(),
@@ -476,29 +460,47 @@ def build_gene_decisions(
             used_targets.add(target.stable_id)
             current_stable_id = target.stable_id
             current_version = target.version
-            reason = "mapped output gene not in old annotation; target gene matched by coordinate overlap"
         else:
             current_stable_id = mapped.stable_id
             current_version = mapped.version
-            reason = "mapped output gene not in old annotation"
-        new_id = allocators["gene"].allocate()
+
+        if old is None:
+            new_id = allocators["gene"].allocate()
+            decisions.append(
+                Decision(
+                    feature_type="gene",
+                    action="new",
+                    current_stable_id=current_stable_id,
+                    current_version=current_version,
+                    old_stable_id=None,
+                    old_version=0,
+                    new_stable_id=new_id,
+                    new_version=1,
+                    mapping_session_id=args.mapping_session_id,
+                    score=args.score_new,
+                    reason="mapped output gene not in old annotation",
+                )
+            )
+            continue
+
+        old_gene_to_target_gene[old.stable_id] = current_stable_id
         decisions.append(
             Decision(
                 feature_type="gene",
-                action="new",
+                action="mapped",
                 current_stable_id=current_stable_id,
                 current_version=current_version,
-                old_stable_id=None,
-                old_version=0,
-                new_stable_id=new_id,
-                new_version=1,
+                old_stable_id=old.stable_id,
+                old_version=old.version,
+                new_stable_id=old.stable_id,
+                new_version=mapped.version,
                 mapping_session_id=args.mapping_session_id,
-                score=args.score_new,
-                reason=reason,
+                score=score_for_versions(old.version, mapped.version, args),
+                reason="old gene present in mapped output from main.py",
             )
         )
 
-    return decisions, old_gene_to_target_gene
+    return decisions, old_gene_to_target_gene, missing_gene_ids
 
 
 def build_transcript_decisions(
@@ -506,23 +508,25 @@ def build_transcript_decisions(
     target_features: Dict[str, Dict[str, Feature]],
     mapped_features: Dict[str, Dict[str, Feature]],
     old_gene_to_target_gene: dict[str, str],
+    missing_gene_ids: set[str],
     allocators: Dict[str, IdAllocator],
     args: argparse.Namespace,
-) -> tuple[list[Decision], dict[str, str]]:
+) -> tuple[list[Decision], dict[str, str], set[str]]:
     decisions: list[Decision] = []
     used_targets: set[str] = set()
     old_transcript_to_target_transcript: dict[str, str] = {}
+    missing_transcript_ids: set[str] = set()
 
     old_transcripts = old_features["transcript"]
     target_transcripts = target_features["transcript"]
     mapped_transcripts = mapped_features["transcript"]
 
-    for old_id in sorted(old_transcripts):
-        old = old_transcripts[old_id]
-        mapped = mapped_transcripts.get(old_id)
+    for mapped_id in sorted(mapped_transcripts):
+        mapped = mapped_transcripts[mapped_id]
+        old = old_transcripts.get(mapped_id)
         target_parent = (
             old_gene_to_target_gene.get(old.parent_stable_id)
-            if old.parent_stable_id
+            if old and old.parent_stable_id
             else None
         )
         target = (
@@ -544,37 +548,34 @@ def build_transcript_decisions(
                 args.min_transcript_overlap,
             )
 
-        if mapped is None:
-            decisions.append(
-                Decision(
-                    feature_type="transcript",
-                    action="missing",
-                    current_stable_id=None,
-                    current_version=0,
-                    old_stable_id=old.stable_id,
-                    old_version=old.version,
-                    new_stable_id=None,
-                    new_version=0,
-                    mapping_session_id=args.mapping_session_id,
-                    score=args.score_missing,
-                    reason="old transcript not present in mapped output",
-                )
-            )
-            continue
-
         if target is not None:
             used_targets.add(target.stable_id)
             current_stable_id = target.stable_id
             current_version = target.version
-            old_transcript_to_target_transcript[old.stable_id] = target.stable_id
-            reason = "mapped old transcript matched to target transcript by coordinate overlap"
         else:
             current_stable_id = mapped.stable_id
             current_version = mapped.version
-            old_transcript_to_target_transcript[old.stable_id] = mapped.stable_id
-            reason = "old transcript present in mapped output; no target transcript overlap found"
 
-        new_version = mapped.version
+        if old is None:
+            new_id = allocators["transcript"].allocate()
+            decisions.append(
+                Decision(
+                    feature_type="transcript",
+                    action="new",
+                    current_stable_id=current_stable_id,
+                    current_version=current_version,
+                    old_stable_id=None,
+                    old_version=0,
+                    new_stable_id=new_id,
+                    new_version=1,
+                    mapping_session_id=args.mapping_session_id,
+                    score=args.score_new,
+                    reason="mapped output transcript not in old annotation",
+                )
+            )
+            continue
+
+        old_transcript_to_target_transcript[old.stable_id] = current_stable_id
         decisions.append(
             Decision(
                 feature_type="transcript",
@@ -584,50 +585,37 @@ def build_transcript_decisions(
                 old_stable_id=old.stable_id,
                 old_version=old.version,
                 new_stable_id=old.stable_id,
-                new_version=new_version,
+                new_version=mapped.version,
                 mapping_session_id=args.mapping_session_id,
-                score=score_for_versions(old.version, new_version, args),
-                reason=reason,
+                score=score_for_versions(old.version, mapped.version, args),
+                reason="old transcript present in mapped output from main.py",
             )
         )
 
-    for mapped_id in sorted(mapped_transcripts):
-        if mapped_id in old_transcripts:
+    for old_id in sorted(old_transcripts):
+        old = old_transcripts[old_id]
+        if old.stable_id in mapped_transcripts:
             continue
-        mapped = mapped_transcripts[mapped_id]
-        target = best_unused_match(
-            mapped,
-            target_transcripts.values(),
-            used_targets,
-            args.min_transcript_overlap,
-        )
-        if target is not None:
-            used_targets.add(target.stable_id)
-            current_stable_id = target.stable_id
-            current_version = target.version
-            reason = "mapped output transcript not in old annotation; target transcript matched by coordinate overlap"
-        else:
-            current_stable_id = mapped.stable_id
-            current_version = mapped.version
-            reason = "mapped output transcript not in old annotation"
-        new_id = allocators["transcript"].allocate()
+        if old.parent_stable_id not in missing_gene_ids:
+            continue
+        missing_transcript_ids.add(old.stable_id)
         decisions.append(
             Decision(
                 feature_type="transcript",
-                action="new",
-                current_stable_id=current_stable_id,
-                current_version=current_version,
-                old_stable_id=None,
-                old_version=0,
-                new_stable_id=new_id,
-                new_version=1,
+                action="missing",
+                current_stable_id=None,
+                current_version=0,
+                old_stable_id=old.stable_id,
+                old_version=old.version,
+                new_stable_id=None,
+                new_version=0,
                 mapping_session_id=args.mapping_session_id,
-                score=args.score_new,
-                reason=reason,
+                score=args.score_missing,
+                reason="old transcript belongs to a gene listed as missing by main.py report",
             )
         )
 
-    return decisions, old_transcript_to_target_transcript
+    return decisions, old_transcript_to_target_transcript, missing_transcript_ids
 
 
 def translations_by_parent(features: Dict[str, Feature]) -> Dict[str, list[Feature]]:
@@ -643,6 +631,7 @@ def build_translation_decisions(
     old_features: Dict[str, Dict[str, Feature]],
     target_features: Dict[str, Dict[str, Feature]],
     old_transcript_to_target_transcript: dict[str, str],
+    missing_transcript_ids: set[str],
     allocators: Dict[str, IdAllocator],
     args: argparse.Namespace,
 ) -> list[Decision]:
@@ -652,8 +641,11 @@ def build_translation_decisions(
     old_by_parent = translations_by_parent(old_features["translation"])
     target_by_parent = translations_by_parent(target_features["translation"])
 
-    for old_transcript_id in sorted(old_by_parent):
-        old_translations = old_by_parent[old_transcript_id]
+    mapped_or_missing_transcripts = set(old_transcript_to_target_transcript) | missing_transcript_ids
+    for old_transcript_id in sorted(mapped_or_missing_transcripts):
+        old_translations = old_by_parent.get(old_transcript_id, [])
+        if not old_translations:
+            continue
         target_transcript_id = old_transcript_to_target_transcript.get(old_transcript_id)
         target_translations = target_by_parent.get(target_transcript_id or "", [])
 
@@ -691,7 +683,7 @@ def build_translation_decisions(
                     new_version=0,
                     mapping_session_id=args.mapping_session_id,
                     score=args.score_missing,
-                    reason="old translation could not be paired one-to-one under a mapped transcript",
+                    reason="old translation could not be paired under a mapped transcript",
                 )
             )
 
@@ -723,17 +715,23 @@ def build_decisions(
     old_features: Dict[str, Dict[str, Feature]],
     target_features: Dict[str, Dict[str, Feature]],
     mapped_features: Dict[str, Dict[str, Feature]],
+    missing_gene_ids: set[str],
     allocators: Dict[str, IdAllocator],
     args: argparse.Namespace,
 ) -> list[Decision]:
-    gene_decisions, old_gene_to_target_gene = build_gene_decisions(
-        old_features, target_features, mapped_features, allocators, args
+    gene_decisions, old_gene_to_target_gene, missing_gene_ids = build_gene_decisions(
+        old_features, target_features, mapped_features, missing_gene_ids, allocators, args
     )
-    transcript_decisions, old_transcript_to_target_transcript = build_transcript_decisions(
+    (
+        transcript_decisions,
+        old_transcript_to_target_transcript,
+        missing_transcript_ids,
+    ) = build_transcript_decisions(
         old_features,
         target_features,
         mapped_features,
         old_gene_to_target_gene,
+        missing_gene_ids,
         allocators,
         args,
     )
@@ -742,6 +740,7 @@ def build_decisions(
             old_features,
             target_features,
             old_transcript_to_target_transcript,
+            missing_transcript_ids,
             allocators,
             args,
         )
@@ -1074,6 +1073,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--ref-gff", required=True, type=Path)
     parser.add_argument("--target-gff", required=True, type=Path)
     parser.add_argument("--mapped-gff", required=True, type=Path)
+    parser.add_argument("--report", type=Path)
     parser.add_argument("--mapping-session-id", required=True, type=int)
     parser.add_argument("--gene-range", required=True, type=parse_range)
     parser.add_argument("--transcript-range", required=True, type=parse_range)
@@ -1131,11 +1131,24 @@ def main() -> None:
     old_features = load_features(args.ref_gff, args.default_translation_version)
     target_features = load_features(args.target_gff, args.default_translation_version)
     mapped_features = load_features(args.mapped_gff, args.default_translation_version)
+    report_path = args.report or default_report_path(args.mapped_gff)
+    if report_path:
+        missing_gene_ids = parse_missing_gene_ids(report_path)
+        sys.stderr.write(
+            f"Using missing gene list from {report_path}: "
+            f"{len(missing_gene_ids)} genes\n"
+        )
+    else:
+        missing_gene_ids = set(old_features["gene"]) - set(mapped_features["gene"])
+        sys.stderr.write(
+            "Warning: no main.py report found; missing genes inferred from "
+            "ref-gff minus mapped-gff.\n"
+        )
 
     reserved = reserve_existing_ids(old_features, target_features, mapped_features)
     allocators = make_allocators(args, reserved)
     decisions = build_decisions(
-        old_features, target_features, mapped_features, allocators, args
+        old_features, target_features, mapped_features, missing_gene_ids, allocators, args
     )
 
     write_sql(decisions, args.output_sql, args)
