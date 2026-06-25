@@ -100,6 +100,8 @@ class RawFeature:
 class CdsRow:
     parent_stable_id: str
     parent_version: Optional[int]
+    translation_stable_id: str
+    translation_version: Optional[int]
     seqid: str
     start: int
     end: int
@@ -191,11 +193,15 @@ def parse_gff3(path: str | Path) -> dict[str, dict[str, Feature]]:
 
             parents = parent_ids(attrs.get("Parent"))
             if feature_type_lc == "cds":
+                protein_stable_id, protein_version = split_stable_id(attrs.get("protein_id"))
                 for parent_stable_id, parent_version in parents:
                     cds_rows.append(
                         CdsRow(
                             parent_stable_id=parent_stable_id,
                             parent_version=parent_version,
+                            translation_stable_id=protein_stable_id or parent_stable_id,
+                            translation_version=protein_version
+                            if protein_stable_id else parent_version,
                             seqid=seqid,
                             start=start_i,
                             end=end_i,
@@ -256,11 +262,13 @@ def parse_gff3(path: str | Path) -> dict[str, dict[str, Feature]]:
         if cds.parent_stable_id not in transcript_ids:
             continue
         transcript = features["transcript"][cds.parent_stable_id]
-        version = cds.parent_version if cds.parent_version is not None else transcript.version
-        previous = features["translation"].get(cds.parent_stable_id)
+        version = (
+            cds.translation_version if cds.translation_version is not None else transcript.version
+        )
+        previous = features["translation"].get(cds.translation_stable_id)
         if previous is None:
-            features["translation"][cds.parent_stable_id] = Feature(
-                stable_id=cds.parent_stable_id,
+            features["translation"][cds.translation_stable_id] = Feature(
+                stable_id=cds.translation_stable_id,
                 version=version,
                 seqid=cds.seqid,
                 start=cds.start,
@@ -269,7 +277,7 @@ def parse_gff3(path: str | Path) -> dict[str, dict[str, Feature]]:
                 parent_stable_id=cds.parent_stable_id,
             )
         else:
-            features["translation"][cds.parent_stable_id] = Feature(
+            features["translation"][cds.translation_stable_id] = Feature(
                 stable_id=previous.stable_id,
                 version=previous.version,
                 seqid=previous.seqid,
