@@ -101,6 +101,7 @@ class Decision:
 class GffRecord:
     stable_id: str
     version: int
+    id_namespace: str
     feature_type_lc: str
     seqid: str
     start: int
@@ -138,6 +139,12 @@ def split_stable_id(raw: Optional[str]) -> tuple[Optional[str], Optional[int]]:
         if maybe_version.isdigit():
             return maybe_core, int(maybe_version)
     return token, None
+
+
+def id_namespace(raw: Optional[str]) -> str:
+    if raw and ":" in raw:
+        return raw.split(":", 1)[0].lower()
+    return ""
 
 
 def parse_version(attrs: Dict[str, str], fallback: Optional[int], default: int) -> int:
@@ -196,7 +203,8 @@ def load_features(
             end_i = int(end)
             parent = first_parent(attrs)
 
-            stable_id, embedded_version = split_stable_id(attrs.get("ID"))
+            raw_id = attrs.get("ID")
+            stable_id, embedded_version = split_stable_id(raw_id)
             if not stable_id:
                 continue
 
@@ -214,6 +222,7 @@ def load_features(
                 GffRecord(
                     stable_id=stable_id,
                     version=parse_version(attrs, embedded_version, default=1),
+                    id_namespace=id_namespace(raw_id),
                     feature_type_lc=feature_type_lc,
                     seqid=seqid,
                     start=start_i,
@@ -225,7 +234,13 @@ def load_features(
                 )
             )
 
-    gene_ids = {record.stable_id for record in records if record.parent_stable_id is None}
+    gene_ids = {record.stable_id for record in records if record.id_namespace == "gene"}
+    if not gene_ids:
+        gene_ids = {
+            record.stable_id
+            for record in records
+            if record.parent_stable_id is None and record.feature_type_lc != "cds"
+        }
     for record in records:
         if record.stable_id in gene_ids:
             features["gene"][record.stable_id] = Feature(
@@ -385,10 +400,11 @@ def build_gene_decisions(
 
     old_genes = old_features["gene"]
     target_genes = target_features["gene"]
+    mapped_genes = mapped_features["gene"]
 
     for old_id in sorted(old_genes):
         old = old_genes[old_id]
-        mapped = mapped_features["gene"].get(old_id)
+        mapped = mapped_genes.get(old_id)
         target = (
             best_unused_match(
                 mapped,
@@ -399,7 +415,7 @@ def build_gene_decisions(
             if mapped
             else None
         )
-        if target is None:
+        if mapped is None:
             decisions.append(
                 Decision(
                     feature_type="gene",
@@ -412,48 +428,73 @@ def build_gene_decisions(
                     new_version=0,
                     mapping_session_id=args.mapping_session_id,
                     score=args.score_missing,
-                    reason="old gene not present in mapped output or no target overlap",
+                    reason="old gene not present in mapped output",
                 )
             )
             continue
 
-        used_targets.add(target.stable_id)
-        old_gene_to_target_gene[old.stable_id] = target.stable_id
-        new_version = mapped.version if mapped else old.version
+        if target is not None:
+            used_targets.add(target.stable_id)
+            current_stable_id = target.stable_id
+            current_version = target.version
+            old_gene_to_target_gene[old.stable_id] = target.stable_id
+            reason = "mapped old gene matched to target gene by coordinate overlap"
+        else:
+            current_stable_id = mapped.stable_id
+            current_version = mapped.version
+            old_gene_to_target_gene[old.stable_id] = mapped.stable_id
+            reason = "old gene present in mapped output; no target gene overlap found"
+
+        new_version = mapped.version
         decisions.append(
             Decision(
                 feature_type="gene",
                 action="mapped",
-                current_stable_id=target.stable_id,
-                current_version=target.version,
+                current_stable_id=current_stable_id,
+                current_version=current_version,
                 old_stable_id=old.stable_id,
                 old_version=old.version,
                 new_stable_id=old.stable_id,
                 new_version=new_version,
                 mapping_session_id=args.mapping_session_id,
                 score=score_for_versions(old.version, new_version, args),
-                reason="mapped old gene matched to target gene by coordinate overlap",
+                reason=reason,
             )
         )
 
-    for target_id in sorted(target_genes):
-        if target_id in used_targets:
+    for mapped_id in sorted(mapped_genes):
+        if mapped_id in old_genes:
             continue
-        target = target_genes[target_id]
+        mapped = mapped_genes[mapped_id]
+        target = best_unused_match(
+            mapped,
+            target_genes.values(),
+            used_targets,
+            args.min_gene_overlap,
+        )
+        if target is not None:
+            used_targets.add(target.stable_id)
+            current_stable_id = target.stable_id
+            current_version = target.version
+            reason = "mapped output gene not in old annotation; target gene matched by coordinate overlap"
+        else:
+            current_stable_id = mapped.stable_id
+            current_version = mapped.version
+            reason = "mapped output gene not in old annotation"
         new_id = allocators["gene"].allocate()
         decisions.append(
             Decision(
                 feature_type="gene",
                 action="new",
-                current_stable_id=target.stable_id,
-                current_version=target.version,
+                current_stable_id=current_stable_id,
+                current_version=current_version,
                 old_stable_id=None,
                 old_version=0,
                 new_stable_id=new_id,
                 new_version=1,
                 mapping_session_id=args.mapping_session_id,
                 score=args.score_new,
-                reason="target gene did not receive an old stable ID",
+                reason=reason,
             )
         )
 
@@ -474,10 +515,11 @@ def build_transcript_decisions(
 
     old_transcripts = old_features["transcript"]
     target_transcripts = target_features["transcript"]
+    mapped_transcripts = mapped_features["transcript"]
 
     for old_id in sorted(old_transcripts):
         old = old_transcripts[old_id]
-        mapped = mapped_features["transcript"].get(old_id)
+        mapped = mapped_transcripts.get(old_id)
         target_parent = (
             old_gene_to_target_gene.get(old.parent_stable_id)
             if old.parent_stable_id
@@ -491,7 +533,7 @@ def build_transcript_decisions(
                 args.min_transcript_overlap,
                 parent_filter=target_parent,
             )
-            if mapped
+            if mapped and target_parent
             else None
         )
         if target is None and mapped:
@@ -502,7 +544,7 @@ def build_transcript_decisions(
                 args.min_transcript_overlap,
             )
 
-        if target is None:
+        if mapped is None:
             decisions.append(
                 Decision(
                     feature_type="transcript",
@@ -515,48 +557,73 @@ def build_transcript_decisions(
                     new_version=0,
                     mapping_session_id=args.mapping_session_id,
                     score=args.score_missing,
-                    reason="old transcript not present in mapped output or no target overlap",
+                    reason="old transcript not present in mapped output",
                 )
             )
             continue
 
-        used_targets.add(target.stable_id)
-        old_transcript_to_target_transcript[old.stable_id] = target.stable_id
-        new_version = mapped.version if mapped else old.version
+        if target is not None:
+            used_targets.add(target.stable_id)
+            current_stable_id = target.stable_id
+            current_version = target.version
+            old_transcript_to_target_transcript[old.stable_id] = target.stable_id
+            reason = "mapped old transcript matched to target transcript by coordinate overlap"
+        else:
+            current_stable_id = mapped.stable_id
+            current_version = mapped.version
+            old_transcript_to_target_transcript[old.stable_id] = mapped.stable_id
+            reason = "old transcript present in mapped output; no target transcript overlap found"
+
+        new_version = mapped.version
         decisions.append(
             Decision(
                 feature_type="transcript",
                 action="mapped",
-                current_stable_id=target.stable_id,
-                current_version=target.version,
+                current_stable_id=current_stable_id,
+                current_version=current_version,
                 old_stable_id=old.stable_id,
                 old_version=old.version,
                 new_stable_id=old.stable_id,
                 new_version=new_version,
                 mapping_session_id=args.mapping_session_id,
                 score=score_for_versions(old.version, new_version, args),
-                reason="mapped old transcript matched to target transcript by coordinate overlap",
+                reason=reason,
             )
         )
 
-    for target_id in sorted(target_transcripts):
-        if target_id in used_targets:
+    for mapped_id in sorted(mapped_transcripts):
+        if mapped_id in old_transcripts:
             continue
-        target = target_transcripts[target_id]
+        mapped = mapped_transcripts[mapped_id]
+        target = best_unused_match(
+            mapped,
+            target_transcripts.values(),
+            used_targets,
+            args.min_transcript_overlap,
+        )
+        if target is not None:
+            used_targets.add(target.stable_id)
+            current_stable_id = target.stable_id
+            current_version = target.version
+            reason = "mapped output transcript not in old annotation; target transcript matched by coordinate overlap"
+        else:
+            current_stable_id = mapped.stable_id
+            current_version = mapped.version
+            reason = "mapped output transcript not in old annotation"
         new_id = allocators["transcript"].allocate()
         decisions.append(
             Decision(
                 feature_type="transcript",
                 action="new",
-                current_stable_id=target.stable_id,
-                current_version=target.version,
+                current_stable_id=current_stable_id,
+                current_version=current_version,
                 old_stable_id=None,
                 old_version=0,
                 new_stable_id=new_id,
                 new_version=1,
                 mapping_session_id=args.mapping_session_id,
                 score=args.score_new,
-                reason="target transcript did not receive an old stable ID",
+                reason=reason,
             )
         )
 
