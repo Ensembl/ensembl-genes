@@ -424,6 +424,24 @@ def build_gene_decisions(
         )
         old_version = old_version_for(ref_features["gene"], old_id, mapped)
         if target is None:
+            if old_id in used_targets:
+                decisions.append(
+                    Decision(
+                        feature_type="gene",
+                        action="missing",
+                        current_stable_id=None,
+                        current_version=0,
+                        old_stable_id=old_id,
+                        old_version=old_version,
+                        new_stable_id=None,
+                        new_version=0,
+                        mapping_session_id=mapping_session_id,
+                        score=0.0,
+                        reason="mapped gene fallback target stable ID was already claimed",
+                    )
+                )
+                continue
+
             used_targets.add(old_id)
             target_feature = target_features["gene"].get(old_id)
             if target_feature is not None:
@@ -550,6 +568,25 @@ def build_transcript_decisions(
 
         old_version = old.version if old else mapped.version
         if target is None:
+            if old_id in used_targets:
+                missing_transcript_ids.add(old_id)
+                decisions.append(
+                    Decision(
+                        feature_type="transcript",
+                        action="missing",
+                        current_stable_id=None,
+                        current_version=0,
+                        old_stable_id=old_id,
+                        old_version=old_version,
+                        new_stable_id=None,
+                        new_version=0,
+                        mapping_session_id=mapping_session_id,
+                        score=0.0,
+                        reason="mapped transcript fallback target stable ID was already claimed",
+                    )
+                )
+                continue
+
             used_targets.add(old_id)
             target_feature = target_features["transcript"].get(old_id)
             if target_feature is not None:
