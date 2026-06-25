@@ -456,14 +456,27 @@ def build_gene_decisions(
             used_targets,
             args.min_gene_overlap,
         )
-        if target is not None:
-            used_targets.add(target.stable_id)
-            current_stable_id = target.stable_id
-            current_version = target.version
-        else:
-            current_stable_id = mapped.stable_id
-            current_version = mapped.version
-            used_targets.add(current_stable_id)
+        if target is None:
+            decisions.append(
+                Decision(
+                    feature_type="gene",
+                    action="missing",
+                    current_stable_id=None,
+                    current_version=0,
+                    old_stable_id=old.stable_id if old else mapped.stable_id,
+                    old_version=old.version if old else mapped.version,
+                    new_stable_id=None,
+                    new_version=0,
+                    mapping_session_id=args.mapping_session_id,
+                    score=args.score_missing,
+                    reason="mapped gene did not match a target gene by coordinate overlap",
+                )
+            )
+            continue
+
+        used_targets.add(target.stable_id)
+        current_stable_id = target.stable_id
+        current_version = target.version
 
         if old is None:
             new_id = allocators["gene"].allocate()
@@ -549,13 +562,27 @@ def build_transcript_decisions(
                 args.min_transcript_overlap,
             )
 
-        if target is not None:
-            used_targets.add(target.stable_id)
-            current_stable_id = target.stable_id
-            current_version = target.version
-        else:
-            current_stable_id = mapped.stable_id
-            current_version = mapped.version
+        if target is None:
+            decisions.append(
+                Decision(
+                    feature_type="transcript",
+                    action="missing",
+                    current_stable_id=None,
+                    current_version=0,
+                    old_stable_id=old.stable_id if old else mapped.stable_id,
+                    old_version=old.version if old else mapped.version,
+                    new_stable_id=None,
+                    new_version=0,
+                    mapping_session_id=args.mapping_session_id,
+                    score=args.score_missing,
+                    reason="mapped transcript did not match a target transcript by coordinate overlap",
+                )
+            )
+            continue
+
+        used_targets.add(target.stable_id)
+        current_stable_id = target.stable_id
+        current_version = target.version
 
         if old is None:
             new_id = allocators["transcript"].allocate()
