@@ -25,29 +25,6 @@ from datetime import datetime
 from pathlib import Path
 from typing import Dict, Iterable, Optional
 
-
-TRANSCRIPT_TYPES = {
-    "mrna",
-    "transcript",
-    "lnc_rna",
-    "ncrna",
-    "mirna",
-    "snorna",
-    "snrna",
-    "rrna",
-    "scarna",
-    "antisense_rna",
-    "sense_intronic",
-    "sense_overlapping",
-    "pirna",
-    "vault_rna",
-    "pseudogenic_transcript",
-    "pseudogene_transcript",
-    "trna",
-    "srp_rna",
-    "y_rna",
-}
-
 FEATURE_ORDER = ("gene", "transcript", "translation")
 PK_BY_TYPE = {
     "gene": "gene_id",
@@ -120,6 +97,20 @@ class Decision:
     reason: str
 
 
+@dataclass(frozen=True)
+class GffRecord:
+    stable_id: str
+    version: int
+    feature_type_lc: str
+    seqid: str
+    start: int
+    end: int
+    strand: str
+    parent_stable_id: Optional[str]
+    translation_stable_id: Optional[str]
+    translation_version: int
+
+
 def parse_attrs(attr_text: str) -> Dict[str, str]:
     attrs: Dict[str, str] = {}
     if not attr_text or attr_text == ".":
@@ -179,28 +170,16 @@ def overlap_score(a: Feature, b: Feature) -> float:
     return overlap / max(a.length, b.length)
 
 
-def is_gene(feature_type_lc: str, namespace: str, scope: str) -> bool:
-    if scope == "main-compatible":
-        return feature_type_lc == "gene"
-    return namespace == "gene" or feature_type_lc in {"gene", "ncrna_gene", "pseudogene"}
-
-
-def is_transcript(feature_type_lc: str, namespace: str, scope: str) -> bool:
-    if scope == "main-compatible":
-        return feature_type_lc in {"mrna", "transcript"}
-    return namespace == "transcript" or feature_type_lc in TRANSCRIPT_TYPES
-
-
 def load_features(
     path: Path,
     default_translation_version: int,
-    feature_scope: str,
 ) -> Dict[str, Dict[str, Feature]]:
     features: Dict[str, Dict[str, Feature]] = {
         "gene": {},
         "transcript": {},
         "translation": {},
     }
+    records: list[GffRecord] = []
 
     with path.open() as handle:
         for line in handle:
@@ -215,76 +194,99 @@ def load_features(
             attrs = parse_attrs(attr_text)
             start_i = int(start)
             end_i = int(end)
+            parent = first_parent(attrs)
 
-            if feature_type_lc == "cds":
-                stable_id, embedded_version = split_stable_id(
-                    attrs.get("protein_id") or attrs.get("ID")
-                )
-                if not stable_id:
-                    continue
-                parent = first_parent(attrs)
-                if feature_scope == "main-compatible" and parent not in features["transcript"]:
-                    continue
-                version = parse_version(
-                    attrs, embedded_version, default_translation_version
-                )
-                # Several CDS rows can belong to one translation. Keep the full
-                # span so overlap-based matching remains sane if needed later.
-                previous = features["translation"].get(stable_id)
-                if previous:
-                    features["translation"][stable_id] = Feature(
-                        feature_type="translation",
-                        stable_id=stable_id,
-                        version=version,
-                        seqid=previous.seqid,
-                        start=min(previous.start, start_i),
-                        end=max(previous.end, end_i),
-                        strand=previous.strand,
-                        parent_stable_id=previous.parent_stable_id,
-                    )
-                else:
-                    features["translation"][stable_id] = Feature(
-                        feature_type="translation",
-                        stable_id=stable_id,
-                        version=version,
-                        seqid=seqid,
-                        start=start_i,
-                        end=end_i,
-                        strand=strand,
-                        parent_stable_id=parent,
-                    )
-                continue
-
-            raw_id = attrs.get("ID")
-            stable_id, embedded_version = split_stable_id(raw_id)
+            stable_id, embedded_version = split_stable_id(attrs.get("ID"))
             if not stable_id:
                 continue
 
-            namespace = raw_id.split(":", 1)[0].lower() if raw_id and ":" in raw_id else ""
+            translation_stable_id = None
+            translation_version = default_translation_version
+            if feature_type_lc == "cds":
+                translation_stable_id, translation_embedded_version = split_stable_id(
+                    attrs.get("protein_id") or attrs.get("ID")
+                )
+                translation_version = parse_version(
+                    attrs, translation_embedded_version, default_translation_version
+                )
 
-            if is_gene(feature_type_lc, namespace, feature_scope):
-                version = parse_version(attrs, embedded_version, default=1)
-                features["gene"][stable_id] = Feature(
-                    feature_type="gene",
+            records.append(
+                GffRecord(
                     stable_id=stable_id,
-                    version=version,
+                    version=parse_version(attrs, embedded_version, default=1),
+                    feature_type_lc=feature_type_lc,
                     seqid=seqid,
                     start=start_i,
                     end=end_i,
                     strand=strand,
+                    parent_stable_id=parent,
+                    translation_stable_id=translation_stable_id,
+                    translation_version=translation_version,
                 )
-            elif is_transcript(feature_type_lc, namespace, feature_scope):
-                version = parse_version(attrs, embedded_version, default=1)
-                features["transcript"][stable_id] = Feature(
-                    feature_type="transcript",
-                    stable_id=stable_id,
-                    version=version,
-                    seqid=seqid,
-                    start=start_i,
-                    end=end_i,
-                    strand=strand,
-                    parent_stable_id=first_parent(attrs),
-                )
+            )
+
+    gene_ids = {record.stable_id for record in records if record.parent_stable_id is None}
+    for record in records:
+        if record.stable_id in gene_ids:
+            features["gene"][record.stable_id] = Feature(
+                feature_type="gene",
+                stable_id=record.stable_id,
+                version=record.version,
+                seqid=record.seqid,
+                start=record.start,
+                end=record.end,
+                strand=record.strand,
+            )
+
+    transcript_ids = {
+        record.stable_id
+        for record in records
+        if record.parent_stable_id in gene_ids and record.feature_type_lc != "cds"
+    }
+    for record in records:
+        if record.stable_id in transcript_ids:
+            features["transcript"][record.stable_id] = Feature(
+                feature_type="transcript",
+                stable_id=record.stable_id,
+                version=record.version,
+                seqid=record.seqid,
+                start=record.start,
+                end=record.end,
+                strand=record.strand,
+                parent_stable_id=record.parent_stable_id,
+            )
+
+    for record in records:
+        if record.feature_type_lc != "cds" or not record.translation_stable_id:
+            continue
+        if record.parent_stable_id not in transcript_ids:
+            continue
+
+        # Several CDS rows can belong to one translation. Keep the full span so
+        # overlap-based matching remains sane if needed later.
+        previous = features["translation"].get(record.translation_stable_id)
+        if previous:
+            features["translation"][record.translation_stable_id] = Feature(
+                feature_type="translation",
+                stable_id=record.translation_stable_id,
+                version=record.translation_version,
+                seqid=previous.seqid,
+                start=min(previous.start, record.start),
+                end=max(previous.end, record.end),
+                strand=previous.strand,
+                parent_stable_id=previous.parent_stable_id,
+            )
+        else:
+            features["translation"][record.translation_stable_id] = Feature(
+                feature_type="translation",
+                stable_id=record.translation_stable_id,
+                version=record.translation_version,
+                seqid=record.seqid,
+                start=record.start,
+                end=record.end,
+                strand=record.strand,
+                parent_stable_id=record.parent_stable_id,
+            )
 
     return features
 
@@ -1035,16 +1037,6 @@ def parse_args() -> argparse.Namespace:
             "stable_id_event inserts."
         ),
     )
-    parser.add_argument(
-        "--feature-scope",
-        choices=["main-compatible", "all-ensembl-gff"],
-        default="main-compatible",
-        help=(
-            "main-compatible mirrors the feature types parsed by main.py "
-            "(gene, mRNA/transcript, CDS under parsed transcripts). "
-            "all-ensembl-gff also reads common noncoding/pseudogene GFF3 types."
-        ),
-    )
     return parser.parse_args()
 
 
@@ -1069,15 +1061,9 @@ def print_summary(decisions: list[Decision]) -> None:
 
 def main() -> None:
     args = parse_args()
-    old_features = load_features(
-        args.ref_gff, args.default_translation_version, args.feature_scope
-    )
-    target_features = load_features(
-        args.target_gff, args.default_translation_version, args.feature_scope
-    )
-    mapped_features = load_features(
-        args.mapped_gff, args.default_translation_version, args.feature_scope
-    )
+    old_features = load_features(args.ref_gff, args.default_translation_version)
+    target_features = load_features(args.target_gff, args.default_translation_version)
+    mapped_features = load_features(args.mapped_gff, args.default_translation_version)
 
     reserved = reserve_existing_ids(old_features, target_features, mapped_features)
     allocators = make_allocators(args, reserved)

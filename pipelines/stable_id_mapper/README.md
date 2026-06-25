@@ -215,11 +215,12 @@ python3 main_output_to_stable_id_event_sql.py \
   --output-tsv out/root-smoke/core_updates.tsv
 ```
 
-By default the script mirrors the feature scope handled by `main.py`: genes,
-transcripts, and CDS-derived translations under parsed transcripts. It does not
-create exon rows. Translation mappings are inferred only when one old and one
-target translation sit under a mapped transcript; otherwise target translations
-receive new IDs from `--translation-range`.
+The script trusts `main.py`'s mapped GFF3 as the source of successfully mapped
+old IDs. It classifies the reference and target GFF3s by hierarchy: top-level
+features are genes, children of genes are transcripts, and `CDS` records are
+translations. It does not update exons. Translation mappings are inferred only
+when one old and one target translation sit under a mapped transcript;
+otherwise target translations receive new IDs from `--translation-range`.
 
 Review the TSV before running the SQL against a core database. The SQL also
 contains `SELECT` count checks for staged rows versus DB-matched rows.
