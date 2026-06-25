@@ -463,6 +463,7 @@ def build_gene_decisions(
         else:
             current_stable_id = mapped.stable_id
             current_version = mapped.version
+            used_targets.add(current_stable_id)
 
         if old is None:
             new_id = allocators["gene"].allocate()
