@@ -424,19 +424,21 @@ def build_gene_decisions(
         )
         old_version = old_version_for(ref_features["gene"], old_id, mapped)
         if target is None:
+            used_targets.add(old_id)
+            old_gene_to_target_gene[old_id] = old_id
             decisions.append(
                 Decision(
                     feature_type="gene",
-                    action="missing",
-                    current_stable_id=None,
+                    action="mapped",
+                    current_stable_id=old_id,
                     current_version=0,
                     old_stable_id=old_id,
                     old_version=old_version,
-                    new_stable_id=None,
-                    new_version=0,
+                    new_stable_id=old_id,
+                    new_version=mapped.version,
                     mapping_session_id=mapping_session_id,
                     score=0.0,
-                    reason="mapped gene did not match a target gene by coordinate overlap",
+                    reason="mapped gene trusted from main.py after coordinate overlap failed",
                 )
             )
             continue
@@ -545,20 +547,21 @@ def build_transcript_decisions(
 
         old_version = old.version if old else mapped.version
         if target is None:
-            missing_transcript_ids.add(old_id)
+            used_targets.add(old_id)
+            old_transcript_to_target_transcript[old_id] = old_id
             decisions.append(
                 Decision(
                     feature_type="transcript",
-                    action="missing",
-                    current_stable_id=None,
+                    action="mapped",
+                    current_stable_id=old_id,
                     current_version=0,
                     old_stable_id=old_id,
                     old_version=old_version,
-                    new_stable_id=None,
-                    new_version=0,
+                    new_stable_id=old_id,
+                    new_version=mapped.version,
                     mapping_session_id=mapping_session_id,
                     score=0.0,
-                    reason="mapped transcript did not match a target transcript by coordinate overlap",
+                    reason="mapped transcript trusted from main.py after coordinate overlap failed",
                 )
             )
             continue
@@ -1200,6 +1203,27 @@ def print_summary(decisions: list[Decision]) -> None:
         f"({assigned} assigned, {missing} missing): "
         + ", ".join(parts)
         + "\n"
+    )
+    fallback_counts = Counter(
+        decision.feature_type
+        for decision in decisions
+        if decision.feature_type in ("gene", "transcript")
+        and decision.action == "mapped"
+        and "trusted from main.py after coordinate overlap failed" in decision.reason
+    )
+    overlap_counts = Counter(
+        decision.feature_type
+        for decision in decisions
+        if decision.feature_type in ("gene", "transcript")
+        and decision.action == "mapped"
+        and "matched a target" in decision.reason
+        and "by coordinate overlap" in decision.reason
+    )
+    sys.stderr.write(
+        "Mapped by coordinate overlap: "
+        f"{overlap_counts['gene']} genes, {overlap_counts['transcript']} transcripts; "
+        "mapped by minimap2 alone (main.py fallback): "
+        f"{fallback_counts['gene']} genes, {fallback_counts['transcript']} transcripts\n"
     )
 
 
