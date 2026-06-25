@@ -118,84 +118,47 @@ def find_2bit(output_path: str) -> Optional[str]:
 
 def find_annotation_files(output_path: str) -> Dict[str, Optional[str]]:
     """
-    Find GFF3 and GTF annotation files in the clade (vertabrates/ etc) directory structure.
-    Prioritizes main annotation files over specialized variants like abinitio.
+    Find GFF3 and GTF annotation files in the clade directory structure.
+    Prefers sorted files over unsorted. Excludes abinitio, primary_assembly,
+    and chr-only toplevel files. Fails loudly if the result is ambiguous.
 
     Args:
         output_path: Path to the base output directory
 
     Returns:
         Dict[str, Optional[str]]: Dictionary with 'gff3' and 'gtf' keys mapping
-                                to file paths or None if not found
+                                  to file paths or None if not found
     """
     annotation_files: Dict[str, Optional[str]] = {"gff3": None, "gtf": None}
 
-    # Look for GFF3 files
-    gff3_pattern = os.path.join(output_path, "*", "gff3", "**", "*.gff3.gz")
-    gff3_matches = glob.glob(gff3_pattern, recursive=True)
-    if gff3_matches:
-        # Prioritize main GFF3 files over specialized variants
-        main_gff3 = _select_main_annotation_file(gff3_matches, "gff3")
-        annotation_files["gff3"] = main_gff3
+    for file_type in ("gff3", "gtf"):
+        pattern = os.path.join(output_path, "*", file_type, "**", f"*.{file_type}.gz*")
+        matches = glob.glob(pattern, recursive=True)
 
-    # Look for GTF files
-    gtf_pattern = os.path.join(output_path, "*", "gtf", "**", "*.gtf.gz")
-    gtf_matches = glob.glob(gtf_pattern, recursive=True)
-    if gtf_matches:
-        # Prioritize main GTF files over specialized variants
-        main_gtf = _select_main_annotation_file(gtf_matches, "gtf")
-        annotation_files["gtf"] = main_gtf
+        candidates = [
+            f
+            for f in matches
+            if "abinitio" not in os.path.basename(f).lower()
+            and "primary_assembly" not in os.path.basename(f)
+            and f".chr.{file_type}" not in os.path.basename(f)
+        ]
+
+        # Prefer sorted over unsorted
+        sorted_candidates = [f for f in candidates if f.endswith(".sorted.gz")]
+        candidates = sorted_candidates if sorted_candidates else candidates
+
+        if not candidates:
+            raise FileNotFoundError(
+                f"No main {file_type} annotation file found in {output_path}"
+            )
+        if len(candidates) > 1:
+            raise ValueError(
+                f"Multiple main {file_type} candidates found: {candidates}"
+            )
+
+        annotation_files[file_type] = candidates[0]
 
     return annotation_files
-
-
-def _select_main_annotation_file(file_list: List[str], file_type: str) -> str:
-    """
-    Select the main annotation file from a list of candidates.
-
-    Prioritizes files in this order:
-    1. Files ending with .{file_type}.gz (main annotation)
-    2. Files ending with .chr.{file_type}.gz (chromosome-level)
-    3. Any other files (avoiding abinitio, which are typically minimal)
-
-    Args:
-        file_list: List of file paths to choose from
-        file_type: Type of file ('gtf' or 'gff3')
-
-    Returns:
-        str: Path to the selected main annotation file
-    """
-    if not file_list:
-        raise ValueError("Empty file list provided")
-
-    # Sort files by priority
-    main_files = []
-    chr_files = []
-    other_files = []
-    abinitio_files = []
-
-    for filepath in file_list:
-        filename = os.path.basename(filepath)
-
-        if "abinitio" in filename.lower():
-            abinitio_files.append(filepath)
-        elif filename.endswith(f".{file_type}.gz"):
-            main_files.append(filepath)
-        elif filename.endswith(f".chr.{file_type}.gz"):
-            chr_files.append(filepath)
-        else:
-            other_files.append(filepath)
-
-    # Return in order of preference
-    if main_files:  # pylint: disable=no-else-return
-        return main_files[0]
-    elif chr_files:  # pylint: disable:no-else-return
-        return chr_files[0]
-    elif other_files:
-        return other_files[0]
-    else:
-        # Only abinitio files found - return first one but this might not be ideal
-        return abinitio_files[0]
 
 
 def is_compressed_file(filepath: str) -> bool:
