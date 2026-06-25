@@ -425,6 +425,9 @@ def build_gene_decisions(
         old_version = old_version_for(ref_features["gene"], old_id, mapped)
         if target is None:
             used_targets.add(old_id)
+            target_feature = target_features["gene"].get(old_id)
+            if target_feature is not None:
+                used_targets.add(target_feature.stable_id)
             old_gene_to_target_gene[old_id] = old_id
             decisions.append(
                 Decision(
@@ -548,6 +551,9 @@ def build_transcript_decisions(
         old_version = old.version if old else mapped.version
         if target is None:
             used_targets.add(old_id)
+            target_feature = target_features["transcript"].get(old_id)
+            if target_feature is not None:
+                used_targets.add(target_feature.stable_id)
             old_transcript_to_target_transcript[old_id] = old_id
             decisions.append(
                 Decision(
