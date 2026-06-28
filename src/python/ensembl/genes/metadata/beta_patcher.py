@@ -34,13 +34,13 @@ try:
     from ensembl.production.metadata.api.adaptors.genome import GenomeAdaptor
 
     METADATA_API_AVAILABLE = True
-except ImportError:
+except ImportError as exc:
     METADATA_API_AVAILABLE = False
     logging.warning(
-        "ensembl-metadata-api not available. Install with:\n"
-        "  git clone https://github.com/Ensembl/ensembl-metadata-api.git\n"
-        "  cd ensembl-metadata-api\n"
-        "  pip install -r requirements.txt && pip install -e ."
+        "ensembl-metadata-api not available. Install it into the active environment,\n"
+        "or run beta_patcher with METADATA_URI/TAXONOMY_URI and\n"
+        "BETA_PATCHER_FORCE_DIRECT=1 to use direct SQLAlchemy access.\n"
+        f"ImportError: {exc}"
     )
 
 
@@ -55,11 +55,12 @@ def setup_logging(output_dir: Path, genome_uuid: str) -> logging.Logger:
         level=logging.INFO,
         format="%(asctime)s - %(levelname)s - %(message)s",
         handlers=[logging.FileHandler(log_file), logging.StreamHandler(sys.stdout)],
+        force=True,
     )
     return logging.getLogger(__name__)
 
 
-def get_genome_adaptor() -> Optional[GenomeAdaptor]:
+def get_genome_adaptor() -> Optional["GenomeAdaptor"]:
     """
     Create a GenomeAdaptor instance using environment variables.
 
@@ -91,6 +92,39 @@ def get_genome_adaptor() -> Optional[GenomeAdaptor]:
         return None
 
 
+def _get_metadata_connection():
+    """Return an object exposing ``connect()`` for metadata DB access.
+
+    Preference order:
+    1) ensembl-metadata-api adaptor (unless BETA_PATCHER_FORCE_DIRECT=1)
+    2) Direct SQLAlchemy engine from METADATA_URI
+    Returns None if neither is available.
+    """
+    if os.getenv("BETA_PATCHER_FORCE_DIRECT") == "1":
+        uri = os.getenv("METADATA_URI")
+        if not uri:
+            return None
+        try:
+            return create_engine(uri)
+        except Exception as e:
+            logging.error(f"Failed to create engine from METADATA_URI: {e}")
+            return None
+
+    if METADATA_API_AVAILABLE:
+        adaptor = get_genome_adaptor()
+        if adaptor and getattr(adaptor, "metadata_db", None):
+            return adaptor.metadata_db
+
+    uri = os.getenv("METADATA_URI")
+    if not uri:
+        return None
+    try:
+        return create_engine(uri)
+    except Exception as e:
+        logging.error(f"Failed to create engine from METADATA_URI: {e}")
+        return None
+
+
 def get_genome_by_uuid(genome_uuid: str) -> Optional[Dict]:
     """
     Fetch genome details by UUID using ensembl-metadata-api.
@@ -101,15 +135,15 @@ def get_genome_by_uuid(genome_uuid: str) -> Optional[Dict]:
     Returns:
         Dict containing genome information or None if not found
     """
-    adaptor = get_genome_adaptor()
-    if not adaptor:
+    conn_provider = _get_metadata_connection()
+    if not conn_provider:
         return None
 
     try:
         query = text(
             "SELECT genome_uuid, production_name FROM genome WHERE genome_uuid = :genome_uuid"
         )
-        with adaptor.metadata_db.connect() as conn:
+        with conn_provider.connect() as conn:
             row = conn.execute(query, {"genome_uuid": genome_uuid}).fetchone()
         if row:
             return {
@@ -135,8 +169,8 @@ def get_team_responsible_for_genome(
     Returns:
         Team responsible string or None if not found
     """
-    adaptor = get_genome_adaptor()
-    if not adaptor:
+    conn_provider = _get_metadata_connection()
+    if not conn_provider:
         return None
 
     try:
@@ -154,7 +188,7 @@ def get_team_responsible_for_genome(
         """
         )
 
-        with adaptor.metadata_db.connect() as conn:
+        with conn_provider.connect() as conn:
             result = conn.execute(
                 query, {"genome_uuid": genome_uuid, "dataset_type": dataset_type}
             )
@@ -186,8 +220,8 @@ def get_affected_genomes_and_teams(
     if table_location not in ["organism", "assembly"]:
         return []
 
-    adaptor = get_genome_adaptor()
-    if not adaptor:
+    conn_provider = _get_metadata_connection()
+    if not conn_provider:
         return []
 
     try:
@@ -213,7 +247,7 @@ def get_affected_genomes_and_teams(
             )
 
         affected_genomes = []
-        with adaptor.metadata_db.connect() as conn:
+        with conn_provider.connect() as conn:
             result = conn.execute(query, {"genome_uuid": genome_uuid})
             for row in result:
                 uuid, prod_name = row
@@ -249,12 +283,12 @@ def get_current_metadata_value(
         None            — DB value is NULL
         str             — current DB value
     """
-    adaptor = get_genome_adaptor()
-    if not adaptor:
+    conn_provider = _get_metadata_connection()
+    if not conn_provider:
         return _VALUE_UNKNOWN
 
     try:
-        with adaptor.metadata_db.connect() as conn:
+        with conn_provider.connect() as conn:
             if table_location == "dataset_attribute":
                 row = conn.execute(
                     text(
@@ -523,8 +557,8 @@ def get_existing_dataset_attribute_ids(
     Returns:
         List of dataset_attribute_id integers (one per genome_dataset entry), or []
     """
-    adaptor = get_genome_adaptor()
-    if not adaptor:
+    conn_provider = _get_metadata_connection()
+    if not conn_provider:
         return []
 
     try:
@@ -542,7 +576,7 @@ def get_existing_dataset_attribute_ids(
         """
         )
 
-        with adaptor.metadata_db.connect() as conn:
+        with conn_provider.connect() as conn:
             result = conn.execute(
                 query,
                 {
@@ -1224,6 +1258,7 @@ See patches_template.csv for a complete example.
         level=logging.INFO,
         format="%(asctime)s - %(levelname)s - %(message)s",
         handlers=[logging.FileHandler(log_file), logging.StreamHandler(sys.stdout)],
+        force=True,
     )
     logger = logging.getLogger(__name__)
 
