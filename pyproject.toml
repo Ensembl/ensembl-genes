@@ -20,7 +20,8 @@ dependencies = [
     "requests",
     "sqlalchemy >=1.4.16",
     "xmltodict",
-    "pandas"
+    "pandas",
+    "PyYAML"
 ]
 
 [project.optional-dependencies]
@@ -43,6 +44,7 @@ cicd = [
     "mypy",
     "types-PyMySQL",
     "types-requests",
+    "types-PyYAML",
     "coverage>=7,<8",
 ]
 
@@ -58,7 +60,6 @@ core_meta_data = "ensembl.genes.metadata.core_meta_data:main"
 busco_lineage_selector = "ensembl.genes.metrics.busco_lineage_selector:main"
 busco_metakeys_patch = "ensembl.genes.metrics.busco_metakeys_patch:main"
 check_busco_score = "ensembl.genes.metrics.check_busco_score:main"
-write_yaml = "ensembl.genes.projects.write_yaml:main"
 pid_overlap = "ensembl.genes.stable_id.pid_overlap:main"
 bioproject_tracking = "ensembl.genes.tracking.bioproject_tracking:main"
 live_tracking = "ensembl.genes.tracking.live_tracking:main"

@@ -11,11 +11,12 @@
     "db_user": "ensro",
     "db_pass": ""
   },
-  "meta": {
-    "db_host": "mysql-ens-meta-prod-1.ebi.ac.uk",
-    "db_port": 4483,
+  "meta_beta": {
+    "db_host": "mysql-ens-production-1.ebi.ac.uk",
+    "db_port": 4721,
     "db_user": "ensro",
-    "db_pass": ""
+    "db_pass": "",
+    "db_name": "ensembl_genome_metadata"
   },
   "st5": {
       "db_host": "mysql-ens-sta-5.ebi.ac.uk",
@@ -33,7 +34,7 @@
       "db_host": "mysql-ens-genebuild-prod-1.ebi.ac.uk",
       "db_port": 4527,
       "db_user": "ensro",
-      "db_pass": ""
+      "db_pass": "",
+      "db_name": "gb_assembly_metadata"
    }
-    
 }

@@ -1,0 +1,6 @@
+*_test_yaml
+*_species.yaml
+*_audit.tsv
+test_guuids.txt
+test_dbs.txt
+slurm-*.out
