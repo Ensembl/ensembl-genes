@@ -1,35 +1,41 @@
 # Ensembl Genes - Info From Registry Module
 
 ## Overview
+
 The `info_from_registry` module is a Python component of the Ensembl Gene Annotation pipelines that interfaces with the Metadata Registry to retrieve database connection and metadata information. This module is specifically designed to support pipeline initialisation and registry status update workflows.
 
 ## Purpose
+
 This module serves as an interface between the Metadata Registry and the annotation pipeline, providing:
 
-- **Registry Data Extraction**:  Gathers assembly-specific database and assembly information
+- **Registry Data Extraction**: Gathers assembly-specific database and assembly information
 - **Pipeline Initialisation**: Provides necessary metadata to start annotation pipelines
 - **Status Monitoring**: Tracks GCA status
 - **Connection Management**: Handles database connection parameters and credentials
 
 ## Core Features
+
 ### Registry Integration
+
 - Connects to the Metadata Registry
 - Extracts database metadata (host, port, database names)
 - Retrieves assembly information
 - Handles authentication and secure connections
 
 ### Configuration Generation
+
 - Creates pipeline configuration files
 - Generates assembly-specific parameter sets
 - Produces database connection strings
 - Formats data for downstream pipeline consumption
 
 ## Main function
+
 ### Initialise non vertebrate pipeline
 
 ```bash
 # Copy user_pipeline_settings.json into your working directory
-cp settings.json  path/to/working/directory
+cp user_pipeline_settings.json  path/to/working/directory
 
 # Fill out details in user_pipeline_settings
 vim user_pipeline_settings.json
@@ -38,14 +44,85 @@ vim user_pipeline_settings.json
 vim gcas
 
 # Run script to collect info and initialise pipeline
-python3 genebuild_start_pipeline.py --gcas gcas --settings_file user_pipeline_settings.json 
+python3 genebuild_start_pipeline.py --gcas gcas --settings_file user_pipeline_settings.json
 ```
 
 #### Expected behaviour
+
 The script will create a json for all provided GCAs. This file will contain all parameters needed to start the annotation pipeline. Based on the JSON an eHIVE pipeline will be initialised (with force option!). Finally, GCAs are seeded into the pipeline (into analysis 1 by default) for anno. The script checks if a given GCA was annotated before. If it was it would throw an error. Please use `genebuild = 1` option to override the behaviour. The script also assigns `stable ID` and writes it back to the registry. Clade settings can be found in the `clade_settings.json` file. Clade is assigned based on lowest taxon ID. `init_file` can be used to suppress most behaviour and load from a file. Optional: if `seed_url` is provided, the provided pipeline will be seeded. Initialisation is skipped.
 
+## Server settings
 
-## Breakdown of files and scripts 
+Pipeline database servers are configured in `server_settings.json`. The script selects the server block by matching the `dbowner` value in `user_pipeline_settings.json` to a top-level key in `server_settings.json`.
+
+Each `dbowner` entry must define separate blocks for the vertebrate (`main`) and non-vertebrate (`anno`) pipelines:
+
+```json
+{
+    "example_user": {
+        "main": {
+            "pipeline_db": {
+                "db_host": "${GBS4}",
+                "db_port": "${GBP4}"
+            },
+            "core_db": {
+                "db_host": "${GBS2}",
+                "db_port": "${GBP2}"
+            },
+            "databases": {
+                "db_host": "${GBS3}",
+                "db_port": "${GBP3}"
+            }
+        },
+        "anno": {
+            "pipeline_db": {
+                "db_host": "${GBS7}",
+                "db_port": "${GBP7}"
+            },
+            "core_db": {
+                "db_host": "${GBS6}",
+                "db_port": "${GBP6}"
+            }
+        }
+    }
+}
+```
+
+The `main` pipeline requires:
+
+- `pipeline_db`: the eHive pipeline database server
+- `core_db`: the core database server
+- `databases`: the server used for additional database lookups
+
+The `anno` pipeline requires:
+
+- `pipeline_db`: the eHive pipeline database server
+- `core_db`: the core database server
+
+Values in `server_settings.json` can be literal values or environment variable placeholders in the form `${VARIABLE_NAME}`. For example, `"db_host": "${GBS4}"` uses the value of the `GBS4` environment variable at runtime. Ports are converted to integers after placeholder expansion.
+
+To add or change default servers, edit `server_settings.json` under the relevant `dbowner` and pipeline type.
+
+### Custom server override
+
+`user_pipeline_settings.json` still supports a per-run `custom_server` override. If all required custom values for the selected pipeline type are filled in, those values take precedence over `server_settings.json`.
+
+For `anno`, the required custom values are:
+
+- `pipeline_db_host`
+- `pipeline_db_port`
+- `core_db_host`
+- `core_db_port`
+
+For `main`, the required custom values are all of the above plus:
+
+- `databases_host`
+- `databases_port`
+
+Leave `custom_server` values empty to use the `dbowner` defaults from `server_settings.json`.
+
+## Breakdown of files and scripts
+
 `anno_settings.json`
 Contains basic settings for the non-vertebrate pipeline.
 
@@ -91,6 +168,9 @@ Helper to add information about status and metrics to the registry.
 
 `seed_nonvert.py`
 Seeds anno pipeline analysis 1 by default.
+
+`server_settings.json`
+Defines default database servers by `dbowner` and pipeline type. Supports literal host/port values and environment variable placeholders such as `${GBS4}`.
 
 `start_pipeline_from_registry.py`
 Creates json with all parameters from the registry and parameters generated by the scripts.
