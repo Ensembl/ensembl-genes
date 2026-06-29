@@ -1,0 +1,184 @@
+{
+    "lazar": {
+        "main": {
+            "pipeline_db": {
+                "db_host": "${GBS4}",
+                "db_port": "${GBP4}"
+            },
+            "core_db": {
+                "db_host": "${GBS3}",
+                "db_port": "${GBP3}"
+            },
+            "databases": {
+                "db_host": "${GBS2}",
+                "db_port": "${GBP2}"
+            }
+        },
+        "anno": {
+            "pipeline_db": {
+                "db_host": "${GBS7}",
+                "db_port": "${GBP7}"
+            },
+            "core_db": {
+                "db_host": "${GBS6}",
+                "db_port": "${GBP6}"
+            }
+        }
+    },
+    "vianey": {
+        "main": {
+            "pipeline_db": {
+                "db_host": "${GBS4}",
+                "db_port": "${GBP4}"
+            },
+            "core_db": {
+                "db_host": "${GBS2}",
+                "db_port": "${GBP2}"
+            },
+            "databases": {
+                "db_host": "${GBS3}",
+                "db_port": "${GBP3}"
+            }
+        },
+        "anno": {
+            "pipeline_db": {
+                "db_host": "${GBS2}",
+                "db_port": "${GBP2}"
+            },
+            "core_db": {
+                "db_host": "${GBS6}",
+                "db_port": "${GBP6}"
+            }
+        }
+    },
+    "swati": {
+        "main": {
+            "pipeline_db": {
+                "db_host": "${GBS4}",
+                "db_port": "${GBP4}"
+            },
+            "core_db": {
+                "db_host": "${GBS2}",
+                "db_port": "${GBP2}"
+            },
+            "databases": {
+                "db_host": "${GBS3}",
+                "db_port": "${GBP3}"
+            }
+        },
+        "anno": {
+            "pipeline_db": {
+                "db_host": "${GBS2}",
+                "db_port": "${GBP2}"
+            },
+            "core_db": {
+                "db_host": "${GBS6}",
+                "db_port": "${GBP6}"
+            }
+        }
+    },
+    "jackt": {
+        "main": {
+            "pipeline_db": {
+                "db_host": "${GBS4}",
+                "db_port": "${GBP4}"
+            },
+            "core_db": {
+                "db_host": "${GBS2}",
+                "db_port": "${GBP2}"
+            },
+            "databases": {
+                "db_host": "${GBS3}",
+                "db_port": "${GBP3}"
+            }
+        },
+        "anno": {
+            "pipeline_db": {
+                "db_host": "${GBS2}",
+                "db_port": "${GBP2}"
+            },
+            "core_db": {
+                "db_host": "${GBS6}",
+                "db_port": "${GBP6}"
+            }
+        }
+    },
+    "ereboperezsilva": {
+        "main": {
+            "pipeline_db": {
+                "db_host": "${GBS4}",
+                "db_port": "${GBP4}"
+            },
+            "core_db": {
+                "db_host": "${GBS2}",
+                "db_port": "${GBP2}"
+            },
+            "databases": {
+                "db_host": "${GBS3}",
+                "db_port": "${GBP3}"
+            }
+        },
+        "anno": {
+            "pipeline_db": {
+                "db_host": "${GBS2}",
+                "db_port": "${GBP2}"
+            },
+            "core_db": {
+                "db_host": "${GBS6}",
+                "db_port": "${GBP6}"
+            }
+        }
+    },
+    "ftricomi": {
+        "main": {
+            "pipeline_db": {
+                "db_host": "${GBS4}",
+                "db_port": "${GBP4}"
+            },
+            "core_db": {
+                "db_host": "${GBS2}",
+                "db_port": "${GBP2}"
+            },
+            "databases": {
+                "db_host": "${GBS3}",
+                "db_port": "${GBP3}"
+            }
+        },
+        "anno": {
+            "pipeline_db": {
+                "db_host": "${GBS2}",
+                "db_port": "${GBP2}"
+            },
+            "core_db": {
+                "db_host": "${GBS6}",
+                "db_port": "${GBP6}"
+            }
+        }
+    },
+    "leanne": {
+        "main": {
+            "pipeline_db": {
+                "db_host": "${GBS4}",
+                "db_port": "${GBP4}"
+            },
+            "core_db": {
+                "db_host": "${GBS2}",
+                "db_port": "${GBP2}"
+            },
+            "databases": {
+                "db_host": "${GBS3}",
+                "db_port": "${GBP3}"
+            }
+        },
+        "anno": {
+            "pipeline_db": {
+                "db_host": "${GBS2}",
+                "db_port": "${GBP2}"
+            },
+            "core_db": {
+                "db_host": "${GBS6}",
+                "db_port": "${GBP6}"
+            }
+        }
+    }
+}

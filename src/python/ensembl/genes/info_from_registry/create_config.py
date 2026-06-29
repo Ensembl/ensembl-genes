@@ -34,17 +34,16 @@ Example usage:
         "password": "secure_pw",
         "user": "readonly_user",
         "user_r": "reader_user",
-        "release_number": "104"
     }
     edit_config(settings)
 """
 
-import os
-import shutil
-import re
 import logging
+import os
+import re
+import shutil
 from pathlib import Path
-from typing import Dict, Any
+from typing import Any, Dict
 
 # Configure logging
 logging.basicConfig(
@@ -196,7 +195,7 @@ def edit_config_anno(
 
     content = re.sub(
         r"'release_number'\s*=>\s*[^,]+,",
-        f"'release_number'                     => '{settings['release_number']}',",
+        "'release_number'                     => 114,",
         content,
     )
 

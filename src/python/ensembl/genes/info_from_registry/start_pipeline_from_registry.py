@@ -27,32 +27,32 @@ Typical usage:
 """
 
 import argparse
+import json
 import logging
 import os
-from pathlib import Path
-import sys
-import json
-from typing import Optional, Dict, Any, Union
 import shutil
-import pymysql  # type: ignore
+import sys
+from pathlib import Path
+from typing import Any, Dict, Optional, Union
 
+import pymysql  # type: ignore
+from ensembl.genes.info_from_registry.assign_species_prefix import get_species_prefix
+from ensembl.genes.info_from_registry.assign_stable_space import get_stable_space
 from ensembl.genes.info_from_registry.build_anno_commands import (
     build_annotation_commands,
 )
 from ensembl.genes.info_from_registry.check_if_annotated import check_if_annotated
+from ensembl.genes.info_from_registry.create_config import (
+    edit_config_anno,
+    edit_config_main,
+)
+from ensembl.genes.info_from_registry.create_pipe_reg import create_registry_entry
 from ensembl.genes.info_from_registry.mysql_helper import mysql_fetch_data
 from ensembl.genes.info_from_registry.taxonomy_helper import (
     assign_clade,
     assign_clade_info_custom_loading,
     get_parent_taxon,
 )
-from ensembl.genes.info_from_registry.create_pipe_reg import create_registry_entry
-from ensembl.genes.info_from_registry.create_config import (
-    edit_config_anno,
-    edit_config_main,
-)
-from ensembl.genes.info_from_registry.assign_species_prefix import get_species_prefix
-from ensembl.genes.info_from_registry.assign_stable_space import get_stable_space
 from ensembl.genes.metrics.busco_lineage_selector import get_dataset_match
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
@@ -144,276 +144,172 @@ def load_main_settings() -> dict:
         return json.load(f)
 
 
+def load_server_settings() -> dict:
+    """
+    Load per-user server settings.
+
+    Values in the JSON may be literal values or environment variable placeholders
+    in the form ${VARIABLE_NAME}.
+    """
+    logger.info("Loading server settings json")
+    settings_path = Path(__file__).with_name("server_settings.json")
+    with open(settings_path, "r") as f:
+        return json.load(f)
+
+
+def resolve_server_value(value: Any) -> Any:
+    """
+    Resolve environment placeholders in server_settings.json values.
+    """
+    if isinstance(value, str) and value.startswith("${") and value.endswith("}"):
+        env_name = value[2:-1]
+        return os.environ.get(env_name)
+    return value
+
+
+def resolve_server_port(value: Any, setting_name: str) -> Optional[int]:
+    """
+    Resolve a configured port value and convert it to an integer.
+    """
+    resolved_value = resolve_server_value(value)
+    if resolved_value in (None, ""):
+        return None
+    try:
+        return int(resolved_value)
+    except (TypeError, ValueError) as exc:
+        raise ValueError(f"Invalid port for {setting_name}: {resolved_value}") from exc
+
+
+def required_server_keys(pipeline_type: str) -> dict:
+    """
+    Return the required server definitions for a pipeline type.
+    """
+    if pipeline_type not in {"anno", "main"}:
+        raise ValueError(f"Unknown pipeline type for server settings: {pipeline_type}")
+
+    server_keys = {
+        "pipeline_db": ("pipeline_db_host", "pipeline_db_port"),
+        "core_db": ("core_db_host", "core_db_port"),
+    }
+    if pipeline_type == "main":
+        server_keys["databases"] = ("databases_host", "databases_port")
+    return server_keys
+
+
+def custom_server_settings(settings: dict, pipeline_type: str) -> Optional[dict]:
+    """
+    Return custom server settings if all required custom values are provided.
+    """
+    custom = settings.get("custom_server", {})
+    server_keys = required_server_keys(pipeline_type)
+    required_keys = [
+        custom_key for custom_pair in server_keys.values() for custom_key in custom_pair
+    ]
+    if not all(custom.get(key) for key in required_keys):
+        return None
+
+    logger.info("Custom server settings detected for %s pipeline", pipeline_type)
+    result = {}
+    for server_key, (host_key, port_key) in server_keys.items():
+        db_host = resolve_server_value(custom[host_key])
+        db_port = resolve_server_port(custom[port_key], f"custom_server.{port_key}")
+        if not db_host:
+            raise ValueError(f"Missing host for custom_server.{host_key}")
+        if db_port is None:
+            raise ValueError(f"Missing port for custom_server.{port_key}")
+        result[server_key] = {
+            "db_host": db_host,
+            "db_user": settings["user"],
+            "db_port": db_port,
+            "db_password": settings["password"],
+        }
+    return result
+
+
+def get_server_settings(settings: dict, pipeline_type: str) -> dict:
+    """
+    Determine and return server connection settings for a pipeline type.
+
+    Custom values in user_pipeline_settings.json take priority. Otherwise the
+    dbowner entry in server_settings.json is used.
+    """
+    logger.info("Getting %s server settings", pipeline_type)
+
+    custom_settings = custom_server_settings(settings, pipeline_type)
+    if custom_settings:
+        return custom_settings
+
+    server_owner = str(settings.get("dbowner", "")).strip()
+    if not server_owner:
+        raise ValueError("No dbowner defined in pipeline settings")
+
+    server_settings = load_server_settings()
+    owner_settings = server_settings.get(server_owner)
+    if owner_settings is None:
+        raise ValueError(f"No server settings found for dbowner: {server_owner}")
+
+    pipeline_settings = owner_settings.get(pipeline_type)
+    if pipeline_settings is None:
+        raise ValueError(
+            f"No {pipeline_type} server settings found for dbowner: {server_owner}"
+        )
+
+    missing_server_keys = set(required_server_keys(pipeline_type)) - set(
+        pipeline_settings
+    )
+    if missing_server_keys:
+        missing_keys = ", ".join(sorted(missing_server_keys))
+        raise ValueError(
+            f"Missing {pipeline_type} server settings for dbowner {server_owner}: {missing_keys}"
+        )
+
+    result = {}
+    for server_key in required_server_keys(pipeline_type):
+        db_settings = pipeline_settings[server_key]
+        db_host = resolve_server_value(db_settings.get("db_host"))
+        db_port = resolve_server_port(
+            db_settings.get("db_port"),
+            f"{server_owner}.{pipeline_type}.{server_key}.db_port",
+        )
+        if not db_host:
+            raise ValueError(
+                f"Missing host for {server_owner}.{pipeline_type}.{server_key}"
+            )
+        if db_port is None:
+            raise ValueError(
+                f"Missing port for {server_owner}.{pipeline_type}.{server_key}"
+            )
+        result[server_key] = {
+            "db_host": db_host,
+            "db_user": settings["user"],
+            "db_port": db_port,
+            "db_password": settings["password"],
+        }
+
+    logger.info(
+        "Resolved %s server settings for dbowner %s: %s",
+        pipeline_type,
+        server_owner,
+        {
+            key: {"db_host": value["db_host"], "db_port": value["db_port"]}
+            for key, value in result.items()
+        },
+    )
+    return result
+
+
 def get_server_settings_anno(settings: dict) -> dict:
     """
-    Determine and return server connection settings for pipeline and core databases.
-
-    Uses either custom server settings from the configuration or falls back
-    to environment-variable-based defaults depending on the 'server_set' parameter.
-
-    Args:
-        settings (dict): The pipeline settings dictionary.
-
-    Returns:
-        dict: Nested dictionary with keys 'pipeline_db' and 'core_db', each containing
-              connection parameters like 'db_host', 'db_user', 'db_port', and 'db_password'.
-
-    Raises:
-        ValueError: If the 'server_set' value is unknown or unsupported.
+    Determine and return annotation server connection settings.
     """
-
-    logger.info("Getting server settings")
-
-    custom = settings.get("custom_server", {})
-
-    if all(
-        custom.get(k)
-        for k in [
-            "pipeline_db_host",
-            "pipeline_db_port",
-            "core_db_host",
-            "core_db_port",
-        ]
-    ):
-        logger.info("Custom server settings detected")
-
-        logger.info(
-            "Custom ports: pipeline=%s core=%s",
-            custom.get("pipeline_db_port"),
-            custom.get("core_db_port"),
-        )
-
-        result = {
-            "pipeline_db": {
-                "db_host": custom["pipeline_db_host"],
-                "db_user": settings["user"],
-                "db_port": custom["pipeline_db_port"],
-                "db_password": settings["password"],
-            },
-            "core_db": {
-                "db_host": custom["core_db_host"],
-                "db_user": settings["user"],
-                "db_port": custom["core_db_port"],
-                "db_password": settings["password"],
-            },
-        }
-
-        logger.info("Final server settings: %s", result)
-        return result
-
-    server_set = str(settings.get("server_set", "1"))
-    logger.info("Using server_set=%s", server_set)
-
-    if server_set == "1":
-        raw_pipeline_port = os.environ.get("GBP4")
-        raw_core_port = os.environ.get("GBP3")
-
-        logger.info(
-            "Env vars (set 1): GBS4=%s GBP4=%s | GBS3=%s GBP3=%s",
-            os.environ.get("GBS4"),
-            raw_pipeline_port,
-            os.environ.get("GBS3"),
-            raw_core_port,
-        )
-
-        result = {
-            "pipeline_db": {
-                "db_host": os.environ.get("GBS4"),
-                "db_user": settings["user"],
-                "db_port": int(raw_pipeline_port) if raw_pipeline_port else None,
-                "db_password": settings["password"],
-            },
-            "core_db": {
-                "db_host": os.environ.get("GBS3"),
-                "db_user": settings["user"],
-                "db_port": int(raw_core_port) if raw_core_port else None,
-                "db_password": settings["password"],
-            },
-        }
-
-        logger.info("Final server settings: %s", result)
-        return result
-
-    if server_set == "2":
-        raw_pipeline_port = os.environ.get("GBP7")
-        raw_core_port = os.environ.get("GBP6")
-
-        logger.info(
-            "Env vars (set 2): GBS7=%s GBP7=%s | GBS6=%s GBP6=%s",
-            os.environ.get("GBS7"),
-            raw_pipeline_port,
-            os.environ.get("GBS6"),
-            raw_core_port,
-        )
-
-        result = {
-            "pipeline_db": {
-                "db_host": os.environ.get("GBS7"),
-                "db_user": settings["user"],
-                "db_port": int(raw_pipeline_port) if raw_pipeline_port else None,
-                "db_password": settings["password"],
-            },
-            "core_db": {
-                "db_host": os.environ.get("GBS6"),
-                "db_user": settings["user"],
-                "db_port": int(raw_core_port) if raw_core_port else None,
-                "db_password": settings["password"],
-            },
-        }
-
-        logger.info("Final server settings: %s", result)
-        return result
-
-    raise ValueError(f"Unknown server_set value: {server_set}")
+    return get_server_settings(settings, "anno")
 
 
 def get_server_settings_main(settings: dict) -> dict:
     """
-    Determine and return server connection settings for pipeline and core databases.
-
-    Uses either custom server settings from the configuration or falls back
-    to environment-variable-based defaults depending on the 'server_set' parameter.
-
-    Args:
-        settings (dict): The pipeline settings dictionary.
-
-    Returns:
-        dict: Nested dictionary with keys 'pipeline_db' and 'core_db', each containing
-              connection parameters like 'db_host', 'db_user', 'db_port', and 'db_password'.
-
-    Raises:
-        ValueError: If the 'server_set' value is unknown or unsupported.
+    Determine and return main server connection settings.
     """
-
-    logger.info("Getting server settings")
-    custom = settings.get("custom_server", {})
-    # Check if all custom_server values are non-empty
-    if all(
-        custom.get(k)
-        for k in [
-            "pipeline_db_host",
-            "pipeline_db_port",
-            "core_db_host",
-            "core_db_port",
-            "databases_host",
-            "databases_port",
-        ]
-    ):
-        logger.info("Custom server settings detected")
-
-        logger.info(
-            "Custom ports: pipeline=%s core=%s databases=%s",
-            custom.get("pipeline_db_port"),
-            custom.get("core_db_port"),
-            custom.get("databases_port"),
-        )
-
-        result = {
-            "pipeline_db": {
-                "db_host": custom["pipeline_db_host"],
-                "db_user": settings["user"],
-                "db_port": custom["pipeline_db_port"],
-                "db_password": settings["password"],
-            },
-            "core_db": {
-                "db_host": custom["core_db_host"],
-                "db_user": settings["user"],
-                "db_port": custom["core_db_port"],
-                "db_password": settings["password"],
-            },
-            "databases": {
-                "db_host": custom["databases_host"],
-                "db_user": settings["user"],
-                "db_port": custom["databases_port"],
-                "db_password": settings["password"],
-            },
-        }
-
-        logger.info("Final server settings: %s", result)
-        return result
-
-    server_set = str(settings.get("server_set", "1"))
-    logger.info("Using server_set=%s", server_set)
-
-    if server_set == "1":
-        raw_pipeline_port = os.environ.get("GBP4")
-        raw_core_port = os.environ.get("GBP2")
-        raw_databases_port = os.environ.get("GBP3")
-
-        logger.info(
-            "Env vars (set 1): GBS4=%s GBP4=%s | GBS2=%s GBP2=%s | GBS3=%s GBP3=%s",
-            os.environ.get("GBS4"),
-            raw_pipeline_port,
-            os.environ.get("GBS2"),
-            raw_core_port,
-            os.environ.get("GBS3"),
-            raw_databases_port,
-        )
-
-        result = {
-            "pipeline_db": {
-                "db_host": os.environ.get("GBS4"),
-                "db_user": settings["user"],
-                "db_port": int(raw_pipeline_port) if raw_pipeline_port else None,
-                "db_password": settings["password"],
-            },
-            "core_db": {
-                "db_host": os.environ.get("GBS2"),
-                "db_user": settings["user"],
-                "db_port": int(raw_core_port) if raw_core_port else None,
-                "db_password": settings["password"],
-            },
-            "databases": {
-                "db_host": os.environ.get("GBS3"),
-                "db_user": settings["user"],
-                "db_port": int(raw_databases_port) if raw_databases_port else None,
-                "db_password": settings["password"],
-            },
-        }
-
-        logger.info("Final server settings: %s", result)
-        return result
-
-    if server_set == "2":
-        raw_pipeline_port = os.environ.get("GBP7")
-        raw_core_port = os.environ.get("GBP5")
-        raw_databases_port = os.environ.get("GBP6")
-
-        logger.info(
-            "Env vars (set 2): GBS7=%s GBP7=%s | GBS5=%s GBP5=%s | GBS6=%s GBP6=%s",
-            os.environ.get("GBS7"),
-            raw_pipeline_port,
-            os.environ.get("GBS5"),
-            raw_core_port,
-            os.environ.get("GBS6"),
-            raw_databases_port,
-        )
-
-        result = {
-            "pipeline_db": {
-                "db_host": os.environ.get("GBS7"),
-                "db_user": settings["user"],
-                "db_port": int(raw_pipeline_port) if raw_pipeline_port else None,
-                "db_password": settings["password"],
-            },
-            "core_db": {
-                "db_host": os.environ.get("GBS5"),
-                "db_user": settings["user"],
-                "db_port": int(raw_core_port) if raw_core_port else None,
-                "db_password": settings["password"],
-            },
-            "databases": {
-                "db_host": os.environ.get("GBS6"),
-                "db_user": settings["user"],
-                "db_port": int(raw_databases_port) if raw_databases_port else None,
-                "db_password": settings["password"],
-            },
-        }
-
-        logger.info("Final server settings: %s", result)
-        return result
-
-    raise ValueError(f"Unknown server_set value: {server_set}")
+    return get_server_settings(settings, "main")
 
 
 def get_metadata_from_registry(
@@ -463,15 +359,15 @@ def get_metadata_from_registry(
         placeholders = ",".join(["%s"] * len(assembly_accessions))
 
         registry_query = f"""
-            SELECT 
-                s.species_taxon_id, 
+            SELECT
+                s.species_taxon_id,
                 a.lowest_taxon_id AS taxon_id,
                 a.asm_name AS assembly_name,
-                s.common_name, 
+                s.common_name,
                 a.refseq_accession AS assembly_refseq_accession,
                 a.release_date AS assembly_date,
                 s.scientific_name AS species_name,
-                a.assembly_id, 
+                a.assembly_id,
                 mb.bioproject_name AS assembly_group
             FROM assembly a
             JOIN bioproject b ON a.assembly_id = b.assembly_id
@@ -577,9 +473,7 @@ def add_generated_data(  # pylint:disable=too-many-locals
     info_dict["species_url"] = (
         f"{registry_info['species_name'].capitalize()}_{assembly_accession}"
     )
-    info_dict["core_dbname"] = (
-        f"{settings['dbowner']}_{production_gca}_core_{settings['release_number']}_1"
-    )
+    info_dict["core_dbname"] = f"{settings['dbowner']}_{production_gca}_core_114_1"
 
     logger.info(f"Values formatted for {assembly_accession}")
 
@@ -650,7 +544,7 @@ def get_info_for_pipeline_anno(  # pylint:disable=too-many-locals
     diamond_validation_db = Path(anno_settings["diamond_validation_db"])
     current_genebuild = settings["current_genebuild"]
     num_threads = anno_settings["num_threads"]
-    ensembl_release = settings["release_number"]
+    ensembl_release = 114
 
     # Add values back to dictionary
     info_dict.update(
@@ -705,14 +599,13 @@ def get_info_for_pipeline_main(  # pylint:disable=too-many-locals
     long_read_fastq_dir = long_read_dir / "input"
     current_genebuild = settings["current_genebuild"]
     registry_file = output_path / "Databases.pm"
-    release_number = settings["release_number"]
+    release_number = 114
     dbname_accession = assembly_accession.replace(".", "v").replace("_", "").lower()
-    email_address = settings["email"]
+    email_address = f"{settings['dbowner']}@ebi.ac.uk"
     dbowner = settings["dbowner"]
     user_r = settings["user_r"]
     user = settings["user"]
     password = settings["password"]
-    server_set = settings["server_set"]
     pipeline_name = settings["pipeline_name"]
     long_read_summary_file = (
         long_read_dir / f"{info_dict['species_name']}_long_read.csv"
@@ -720,7 +613,7 @@ def get_info_for_pipeline_main(  # pylint:disable=too-many-locals
     long_read_summary_file_genus = (
         long_read_dir / f"{info_dict['species_name']}_long_read_gen.csv"
     )
-    pipe_db_name = f"{dbowner}_{dbname_accession}_pipe_{release_number}"
+    pipe_db_name = f"{dbowner}_{dbname_accession}_pipe_114"
 
     # Add values back to dictionary
     info_dict.update(
@@ -742,7 +635,6 @@ def get_info_for_pipeline_main(  # pylint:disable=too-many-locals
             "user_r": str(user_r),
             "user": str(user),
             "password": str(password),
-            "server_set": server_set,
             "pipeline_name": str(pipeline_name),
             "long_read_summary_file": str(long_read_summary_file),
             "long_read_summary_file_genus": str(long_read_summary_file_genus),
@@ -790,7 +682,7 @@ def copy_general_module():
 
 def current_projection_source_db(projection_source_production_name: str) -> dict:
     """
-    Find the reference core database and server info for the given 
+    Find the reference core database and server info for the given
     projection_source_production_name.
     If not found, fall back to homo_sapiens core.
     Args:
@@ -1033,9 +925,9 @@ def main(  # pylint:disable=too-many-branches, too-many-statements, too-many-loc
         else:
             # Non-vertebrate (anno) pipeline
             pipeline_type = "anno"
-            gca_dict[gca][
-                "pipe_db_name"
-            ] = f"{settings['dbowner']}_{settings['pipeline_name']}_pipe_{settings['release_number']}"
+            gca_dict[gca]["pipe_db_name"] = (
+                f"{settings['dbowner']}_{settings['pipeline_name']}_pipe_114"
+            )
             server_settings = get_server_settings_anno(settings)
             server_info.update(server_settings)
 
@@ -1058,9 +950,7 @@ def main(  # pylint:disable=too-many-branches, too-many-statements, too-many-loc
                 "busco_lineage.json",
             )
 
-            with open(
-                busco_lineage_file, "r"
-            ) as f:  # pylint:disable=unspecified-encoding
+            with open(busco_lineage_file, "r") as f:  # pylint:disable=unspecified-encoding
                 dataset = json.load(f)
 
             ncbi_url = f"https://api.ncbi.nlm.nih.gov/datasets/v2alpha/taxonomy/taxon/{info_dict['taxon_id']}/dataset_report"
