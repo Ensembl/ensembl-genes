@@ -3314,9 +3314,9 @@ for running genome annotation pipelines.</p>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">registry_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;common_name&quot;</span><span class="p">):</span>
         <span class="n">info_dict</span><span class="p">[</span><span class="s2">&quot;common_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;NA&quot;</span>
 
-    <span class="n">info_dict</span><span class="p">[</span><span class="s2">&quot;species_display_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">registry_info</span><span class="p">[</span><span class="s1">&#39;species_name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">registry_info</span><span class="p">[</span><span class="s1">&#39;common_name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">) - </span><span class="si">{</span><span class="n">assembly_accession</span><span class="si">}</span><span class="s2">&quot;</span>
-    <span class="p">)</span>
+    <span class="n">info_dict</span><span class="p">[</span>
+        <span class="s2">&quot;species_display_name&quot;</span>
+    <span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">registry_info</span><span class="p">[</span><span class="s1">&#39;species_name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">registry_info</span><span class="p">[</span><span class="s1">&#39;common_name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">) - </span><span class="si">{</span><span class="n">assembly_accession</span><span class="si">}</span><span class="s2">&quot;</span>
     <span class="n">info_dict</span><span class="p">[</span><span class="s2">&quot;species_strain&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;reference&quot;</span>
 
     <span class="n">raw_species</span> <span class="o">=</span> <span class="p">(</span>
@@ -3340,9 +3340,9 @@ for running genome annotation pipelines.</p>
     <span class="n">info_dict</span><span class="p">[</span><span class="s2">&quot;species_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">species_name</span>
     <span class="n">info_dict</span><span class="p">[</span><span class="s2">&quot;production_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">production_name</span>
     <span class="n">info_dict</span><span class="p">[</span><span class="s2">&quot;species_strain_group&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">production_name</span>
-    <span class="n">info_dict</span><span class="p">[</span><span class="s2">&quot;species_url&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">registry_info</span><span class="p">[</span><span class="s1">&#39;species_name&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">capitalize</span><span class="p">()</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">assembly_accession</span><span class="si">}</span><span class="s2">&quot;</span>
-    <span class="p">)</span>
+    <span class="n">info_dict</span><span class="p">[</span>
+        <span class="s2">&quot;species_url&quot;</span>
+    <span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">registry_info</span><span class="p">[</span><span class="s1">&#39;species_name&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">capitalize</span><span class="p">()</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">assembly_accession</span><span class="si">}</span><span class="s2">&quot;</span>
     <span class="n">info_dict</span><span class="p">[</span><span class="s2">&quot;core_dbname&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;dbowner&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">production_gca</span><span class="si">}</span><span class="s2">_core_114_1&quot;</span>
 
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Values formatted for </span><span class="si">{</span><span class="n">assembly_accession</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
@@ -5979,7 +5979,9 @@ in the form ${VARIABLE_NAME}.</p>
 <span class="normal">1077</span>
 <span class="normal">1078</span>
 <span class="normal">1079</span>
-<span class="normal">1080</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span>  <span class="c1"># pylint:disable=too-many-branches, too-many-statements, too-many-locals</span>
+<span class="normal">1080</span>
+<span class="normal">1081</span>
+<span class="normal">1082</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span>  <span class="c1"># pylint:disable=too-many-branches, too-many-statements, too-many-locals</span>
     <span class="n">gcas</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">settings_file</span><span class="p">:</span> <span class="nb">str</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">dict</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -6101,9 +6103,9 @@ in the form ${VARIABLE_NAME}.</p>
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># Non-vertebrate (anno) pipeline</span>
             <span class="n">pipeline_type</span> <span class="o">=</span> <span class="s2">&quot;anno&quot;</span>
-            <span class="n">gca_dict</span><span class="p">[</span><span class="n">gca</span><span class="p">][</span><span class="s2">&quot;pipe_db_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;dbowner&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;pipeline_name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">_pipe_114&quot;</span>
-            <span class="p">)</span>
+            <span class="n">gca_dict</span><span class="p">[</span><span class="n">gca</span><span class="p">][</span>
+                <span class="s2">&quot;pipe_db_name&quot;</span>
+            <span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;dbowner&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;pipeline_name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">_pipe_114&quot;</span>
             <span class="n">server_settings</span> <span class="o">=</span> <span class="n">get_server_settings_anno</span><span class="p">(</span><span class="n">settings</span><span class="p">)</span>
             <span class="n">server_info</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">server_settings</span><span class="p">)</span>
 
@@ -6126,7 +6128,9 @@ in the form ${VARIABLE_NAME}.</p>
                 <span class="s2">&quot;busco_lineage.json&quot;</span><span class="p">,</span>
             <span class="p">)</span>
 
-            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">busco_lineage_file</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>  <span class="c1"># pylint:disable=unspecified-encoding</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span>
+                <span class="n">busco_lineage_file</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span>
+            <span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>  <span class="c1"># pylint:disable=unspecified-encoding</span>
                 <span class="n">dataset</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
 
             <span class="n">ncbi_url</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;https://api.ncbi.nlm.nih.gov/datasets/v2alpha/taxonomy/taxon/</span><span class="si">{</span><span class="n">info_dict</span><span class="p">[</span><span class="s1">&#39;taxon_id&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">/dataset_report&quot;</span>
