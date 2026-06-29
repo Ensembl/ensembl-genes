@@ -2381,7 +2381,7 @@
 <h2 id="purpose">Purpose<a class="headerlink" href="#purpose" title="Permanent link">&para;</a></h2>
 <p>This module serves as an interface between the Metadata Registry and the annotation pipeline, providing:</p>
 <ul>
-<li><strong>Registry Data Extraction</strong>:  Gathers assembly-specific database and assembly information</li>
+<li><strong>Registry Data Extraction</strong>: Gathers assembly-specific database and assembly information</li>
 <li><strong>Pipeline Initialisation</strong>: Provides necessary metadata to start annotation pipelines</li>
 <li><strong>Status Monitoring</strong>: Tracks GCA status</li>
 <li><strong>Connection Management</strong>: Handles database connection parameters and credentials</li>
@@ -2404,7 +2404,7 @@
 <h2 id="main-function">Main function<a class="headerlink" href="#main-function" title="Permanent link">&para;</a></h2>
 <h3 id="initialise-non-vertebrate-pipeline">Initialise non vertebrate pipeline<a class="headerlink" href="#initialise-non-vertebrate-pipeline" title="Permanent link">&para;</a></h3>
 <pre><code class="language-bash"># Copy user_pipeline_settings.json into your working directory
-cp settings.json  path/to/working/directory
+cp user_pipeline_settings.json  path/to/working/directory
 
 # Fill out details in user_pipeline_settings
 vim user_pipeline_settings.json
@@ -2413,10 +2413,70 @@ vim user_pipeline_settings.json
 vim gcas
 
 # Run script to collect info and initialise pipeline
-python3 genebuild_start_pipeline.py --gcas gcas --settings_file user_pipeline_settings.json 
+python3 genebuild_start_pipeline.py --gcas gcas --settings_file user_pipeline_settings.json
 </code></pre>
 <h4 id="expected-behaviour">Expected behaviour<a class="headerlink" href="#expected-behaviour" title="Permanent link">&para;</a></h4>
 <p>The script will create a json for all provided GCAs. This file will contain all parameters needed to start the annotation pipeline. Based on the JSON an eHIVE pipeline will be initialised (with force option!). Finally, GCAs are seeded into the pipeline (into analysis 1 by default) for anno. The script checks if a given GCA was annotated before. If it was it would throw an error. Please use <code>genebuild = 1</code> option to override the behaviour. The script also assigns <code>stable ID</code> and writes it back to the registry. Clade settings can be found in the <code>clade_settings.json</code> file. Clade is assigned based on lowest taxon ID. <code>init_file</code> can be used to suppress most behaviour and load from a file. Optional: if <code>seed_url</code> is provided, the provided pipeline will be seeded. Initialisation is skipped.</p>
+<h2 id="server-settings">Server settings<a class="headerlink" href="#server-settings" title="Permanent link">&para;</a></h2>
+<p>Pipeline database servers are configured in <code>server_settings.json</code>. The script selects the server block by matching the <code>dbowner</code> value in <code>user_pipeline_settings.json</code> to a top-level key in <code>server_settings.json</code>.</p>
+<p>Each <code>dbowner</code> entry must define separate blocks for the vertebrate (<code>main</code>) and non-vertebrate (<code>anno</code>) pipelines:</p>
+<pre><code class="language-json">{
+    &quot;example_user&quot;: {
+        &quot;main&quot;: {
+            &quot;pipeline_db&quot;: {
+                &quot;db_host&quot;: &quot;${GBS4}&quot;,
+                &quot;db_port&quot;: &quot;${GBP4}&quot;
+            },
+            &quot;core_db&quot;: {
+                &quot;db_host&quot;: &quot;${GBS2}&quot;,
+                &quot;db_port&quot;: &quot;${GBP2}&quot;
+            },
+            &quot;databases&quot;: {
+                &quot;db_host&quot;: &quot;${GBS3}&quot;,
+                &quot;db_port&quot;: &quot;${GBP3}&quot;
+            }
+        },
+        &quot;anno&quot;: {
+            &quot;pipeline_db&quot;: {
+                &quot;db_host&quot;: &quot;${GBS7}&quot;,
+                &quot;db_port&quot;: &quot;${GBP7}&quot;
+            },
+            &quot;core_db&quot;: {
+                &quot;db_host&quot;: &quot;${GBS6}&quot;,
+                &quot;db_port&quot;: &quot;${GBP6}&quot;
+            }
+        }
+    }
+}
+</code></pre>
+<p>The <code>main</code> pipeline requires:</p>
+<ul>
+<li><code>pipeline_db</code>: the eHive pipeline database server</li>
+<li><code>core_db</code>: the core database server</li>
+<li><code>databases</code>: the server used for additional database lookups</li>
+</ul>
+<p>The <code>anno</code> pipeline requires:</p>
+<ul>
+<li><code>pipeline_db</code>: the eHive pipeline database server</li>
+<li><code>core_db</code>: the core database server</li>
+</ul>
+<p>Values in <code>server_settings.json</code> can be literal values or environment variable placeholders in the form <code>${VARIABLE_NAME}</code>. For example, <code>"db_host": "${GBS4}"</code> uses the value of the <code>GBS4</code> environment variable at runtime. Ports are converted to integers after placeholder expansion.</p>
+<p>To add or change default servers, edit <code>server_settings.json</code> under the relevant <code>dbowner</code> and pipeline type.</p>
+<h3 id="custom-server-override">Custom server override<a class="headerlink" href="#custom-server-override" title="Permanent link">&para;</a></h3>
+<p><code>user_pipeline_settings.json</code> still supports a per-run <code>custom_server</code> override. If all required custom values for the selected pipeline type are filled in, those values take precedence over <code>server_settings.json</code>.</p>
+<p>For <code>anno</code>, the required custom values are:</p>
+<ul>
+<li><code>pipeline_db_host</code></li>
+<li><code>pipeline_db_port</code></li>
+<li><code>core_db_host</code></li>
+<li><code>core_db_port</code></li>
+</ul>
+<p>For <code>main</code>, the required custom values are all of the above plus:</p>
+<ul>
+<li><code>databases_host</code></li>
+<li><code>databases_port</code></li>
+</ul>
+<p>Leave <code>custom_server</code> values empty to use the <code>dbowner</code> defaults from <code>server_settings.json</code>.</p>
 <h2 id="breakdown-of-files-and-scripts">Breakdown of files and scripts<a class="headerlink" href="#breakdown-of-files-and-scripts" title="Permanent link">&para;</a></h2>
 <p><code>anno_settings.json</code>
 Contains basic settings for the non-vertebrate pipeline.</p>
@@ -2449,6 +2509,8 @@ Specifies the projection source DB details for the main pipeline.</p>
 Helper to add information about status and metrics to the registry.</p>
 <p><code>seed_nonvert.py</code>
 Seeds anno pipeline analysis 1 by default.</p>
+<p><code>server_settings.json</code>
+Defines default database servers by <code>dbowner</code> and pipeline type. Supports literal host/port values and environment variable placeholders such as <code>${GBS4}</code>.</p>
 <p><code>start_pipeline_from_registry.py</code>
 Creates json with all parameters from the registry and parameters generated by the scripts.</p>
 <p><code>taxonomy_helper.py</code>
