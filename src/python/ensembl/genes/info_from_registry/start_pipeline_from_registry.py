@@ -444,9 +444,9 @@ def add_generated_data(  # pylint:disable=too-many-locals
     if not registry_info.get("common_name"):
         info_dict["common_name"] = "NA"
 
-    info_dict["species_display_name"] = (
-        f"{registry_info['species_name']} ({registry_info['common_name']}) - {assembly_accession}"
-    )
+    info_dict[
+        "species_display_name"
+    ] = f"{registry_info['species_name']} ({registry_info['common_name']}) - {assembly_accession}"
     info_dict["species_strain"] = "reference"
 
     raw_species = (
@@ -470,9 +470,9 @@ def add_generated_data(  # pylint:disable=too-many-locals
     info_dict["species_name"] = species_name
     info_dict["production_name"] = production_name
     info_dict["species_strain_group"] = production_name
-    info_dict["species_url"] = (
-        f"{registry_info['species_name'].capitalize()}_{assembly_accession}"
-    )
+    info_dict[
+        "species_url"
+    ] = f"{registry_info['species_name'].capitalize()}_{assembly_accession}"
     info_dict["core_dbname"] = f"{settings['dbowner']}_{production_gca}_core_114_1"
 
     logger.info(f"Values formatted for {assembly_accession}")
@@ -925,9 +925,9 @@ def main(  # pylint:disable=too-many-branches, too-many-statements, too-many-loc
         else:
             # Non-vertebrate (anno) pipeline
             pipeline_type = "anno"
-            gca_dict[gca]["pipe_db_name"] = (
-                f"{settings['dbowner']}_{settings['pipeline_name']}_pipe_114"
-            )
+            gca_dict[gca][
+                "pipe_db_name"
+            ] = f"{settings['dbowner']}_{settings['pipeline_name']}_pipe_114"
             server_settings = get_server_settings_anno(settings)
             server_info.update(server_settings)
 
@@ -950,7 +950,9 @@ def main(  # pylint:disable=too-many-branches, too-many-statements, too-many-loc
                 "busco_lineage.json",
             )
 
-            with open(busco_lineage_file, "r") as f:  # pylint:disable=unspecified-encoding
+            with open(
+                busco_lineage_file, "r"
+            ) as f:  # pylint:disable=unspecified-encoding
                 dataset = json.load(f)
 
             ncbi_url = f"https://api.ncbi.nlm.nih.gov/datasets/v2alpha/taxonomy/taxon/{info_dict['taxon_id']}/dataset_report"
