@@ -1841,6 +1841,62 @@
   
   
     <li class="md-nav__item">
+      <a href="../../metadata/core_meta_reg/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    core_meta_reg
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../metadata/truth_checker/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    truth_checker
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../metadata/" class="md-nav__link">
         
   
@@ -2766,6 +2822,7 @@ parameters like user credentials, pipeline name, and release version.</p>
     "password": "secure_pw",
     "user": "readonly_user",
     "user_r": "reader_user",
+    "release_number": "104"
 }
 edit_config(settings)</p>
 </details>
@@ -2836,8 +2893,7 @@ edit_config(settings)</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/python/ensembl/genes/info_from_registry/create_config.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 57</span>
-<span class="normal"> 58</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 58</span>
 <span class="normal"> 59</span>
 <span class="normal"> 60</span>
 <span class="normal"> 61</span>
@@ -2892,7 +2948,8 @@ edit_config(settings)</p>
 <span class="normal">110</span>
 <span class="normal">111</span>
 <span class="normal">112</span>
-<span class="normal">113</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">copy_config</span><span class="p">(</span>
+<span class="normal">113</span>
+<span class="normal">114</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">copy_config</span><span class="p">(</span>
     <span class="n">settings</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">info_dict</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">pipeline</span><span class="p">:</span> <span class="nb">str</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -2999,8 +3056,7 @@ KeyError
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/python/ensembl/genes/info_from_registry/create_config.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">116</span>
-<span class="normal">117</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">117</span>
 <span class="normal">118</span>
 <span class="normal">119</span>
 <span class="normal">120</span>
@@ -3114,7 +3170,8 @@ KeyError
 <span class="normal">228</span>
 <span class="normal">229</span>
 <span class="normal">230</span>
-<span class="normal">231</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">edit_config_anno</span><span class="p">(</span>
+<span class="normal">231</span>
+<span class="normal">232</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">edit_config_anno</span><span class="p">(</span>
     <span class="n">anno_settings</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
     <span class="n">settings</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
     <span class="n">info_dict</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
@@ -3196,7 +3253,7 @@ KeyError
 
     <span class="n">content</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span>
         <span class="sa">r</span><span class="s2">&quot;&#39;release_number&#39;\s*=&gt;\s*[^,]+,&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;&#39;release_number&#39;                     =&gt; 114,&quot;</span><span class="p">,</span>
+        <span class="sa">f</span><span class="s2">&quot;&#39;release_number&#39;                     =&gt; &#39;</span><span class="si">{</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;release_number&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&#39;,&quot;</span><span class="p">,</span>
         <span class="n">content</span><span class="p">,</span>
     <span class="p">)</span>
 
@@ -3265,8 +3322,7 @@ ValueError
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/python/ensembl/genes/info_from_registry/create_config.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">234</span>
-<span class="normal">235</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">235</span>
 <span class="normal">236</span>
 <span class="normal">237</span>
 <span class="normal">238</span>
@@ -3358,7 +3414,8 @@ ValueError
 <span class="normal">324</span>
 <span class="normal">325</span>
 <span class="normal">326</span>
-<span class="normal">327</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">edit_config_main</span><span class="p">(</span>  <span class="c1"># pylint: disable=too-many-locals, too-many-branches</span>
+<span class="normal">327</span>
+<span class="normal">328</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">edit_config_main</span><span class="p">(</span>  <span class="c1"># pylint: disable=too-many-locals, too-many-branches</span>
     <span class="n">settings</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">info_dict</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">pipeline</span><span class="p">:</span> <span class="nb">str</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
