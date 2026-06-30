@@ -455,7 +455,7 @@ def test_refseq_discovery_and_conversion_helpers(tmp_path: Path) -> None:
             "GCF_037462849.1",
             source_config=get_source_config("refseq"),
         )
-        == "scientific_name_gcf037462849v1_core_114_1"
+        == "scientific_name_gcf037462849v1_rs_core_114_1"
     )
 
     report = write_lines(
