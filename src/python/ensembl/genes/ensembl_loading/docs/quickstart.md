@@ -263,7 +263,7 @@ When `--source refseq` is used, the derived name follows the RefSeq production
 style:
 
 ```text
-Scientific name + GCF_037462849.1 -> scientific_name_gcf037462849v1_core_114_1
+Scientific name + GCF_037462849.1 -> scientific_name_gcf037462849v1_rs_core_114_1
 ```
 
 `create-core` performs these operations in one transaction:

@@ -441,7 +441,7 @@ the derived core DB name. RefSeq core names use this shape:
 ```
 
 For example, `Scientific name` with `GCF_037462849.1` becomes
-`scientific_name_gcf037462849v1_core_114_1`. `--assembly-accession` remains
+`scientific_name_gcf037462849v1_rs_core_114_1`. `--assembly-accession` remains
 available only as an override for unusual cases where the loaded core metadata
 should use a different assembly identifier.
 
