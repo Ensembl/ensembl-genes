@@ -948,8 +948,7 @@ def derive_refseq_core_db_name(
     species_token = species_db_name_token(species_name)
     accession_token = refseq_accession_db_token(assembly_accession)
     release = ensembl_release or core_schema_version()
-    assembly_version = assembly_version_db_token(assembly_accession)
-    return f"{species_token}_{accession_token}_core_{release}_{assembly_version}"
+    return f"{species_token}_{accession_token}_rs_core_{release}_1"
 
 
 def derive_core_db_name(
