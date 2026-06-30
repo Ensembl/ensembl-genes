@@ -23,9 +23,7 @@ dependencies = [
     "pandas",
     "pyfaidx",
     "pyranges1 >= 1.3",
-    "biopython",
-	"unquote",
-	"heapq"
+    "biopython"
 ]
 
 [project.optional-dependencies]
