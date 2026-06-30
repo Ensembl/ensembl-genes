@@ -22,6 +22,7 @@ that are shared across multiple scripts.
 
 import re
 from typing import TYPE_CHECKING, Any, Optional, TypeAlias, cast
+
 import pymysql
 
 if TYPE_CHECKING:
@@ -32,9 +33,7 @@ else:
     RegistryConnection = pymysql.connections.Connection
 
 
-def fetch_assembly_id(
-    connection: RegistryConnection, assembly: str
-) -> Optional[int]:
+def fetch_assembly_id(connection: RegistryConnection, assembly: str) -> Optional[int]:
     """
     Fetch the assembly ID for a given assembly accession.
 
