@@ -21,13 +21,19 @@ that are shared across multiple scripts.
 """
 
 import re
-from typing import cast, Optional, Any
+from typing import TYPE_CHECKING, Any, Optional, TypeAlias, cast
+
 import pymysql
 
+if TYPE_CHECKING:
+    RegistryConnection: TypeAlias = pymysql.connections.Connection[
+        pymysql.cursors.DictCursor
+    ]
+else:
+    RegistryConnection = pymysql.connections.Connection
 
-def fetch_assembly_id(
-    connection: pymysql.connections.Connection, assembly: str
-) -> Optional[int]:
+
+def fetch_assembly_id(connection: RegistryConnection, assembly: str) -> Optional[int]:
     """
     Fetch the assembly ID for a given assembly accession.
 
@@ -53,7 +59,7 @@ def fetch_assembly_id(
 
 
 def fetch_current_genebuild_record(
-    connection: pymysql.connections.Connection,
+    connection: RegistryConnection,
     assembly: str,
     genebuilder: Optional[str] = None,
 ) -> Optional[dict[str, Any]]:
@@ -95,7 +101,7 @@ def fetch_current_genebuild_record(
 
 
 def fetch_genebuild_status_id(
-    connection: pymysql.connections.Connection, assembly: str
+    connection: RegistryConnection, assembly: str
 ) -> Optional[int]:
     """
     Fetch the current genebuild status ID for a given assembly.
@@ -111,7 +117,7 @@ def fetch_genebuild_status_id(
 
 
 def fetch_highest_genebuild_version(
-    connection: pymysql.connections.Connection, assembly: str
+    connection: RegistryConnection, assembly: str
 ) -> Optional[str]:
     """
     Fetch the highest genebuild version for a given assembly across all genebuilders.
@@ -168,7 +174,7 @@ def increment_genebuild_version(version: str) -> str:
 
 
 def fetch_registry_ids(
-    connection: pymysql.connections.Connection,
+    connection: RegistryConnection,
     assembly: str,
     genebuilder: Optional[str] = None,
 ) -> tuple[int, Optional[int]]:
