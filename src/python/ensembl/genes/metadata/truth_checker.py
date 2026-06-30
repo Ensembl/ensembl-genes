@@ -33,7 +33,6 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional
 
-
 SQL_STRING = r"'(?P<{name}>(?:''|[^'])*)'"
 INSERT_RE = re.compile(
     r"^INSERT\s+IGNORE\s+INTO\s+meta\s*"
@@ -60,7 +59,11 @@ DELETE_RE = re.compile(
     re.IGNORECASE,
 )
 USE_RE = re.compile(r"^USE\s+\S+\s*;\s*$", re.IGNORECASE)
-IGNORED_METADATA_KEYS = {"genebuild.method", "genebuild.start_date"}
+# method and start_date are set by the pipeline and so it is not expected that the old script see these values
+# assembly.date used to come from ENA_LAST_UPDATE but the registry gets assembly date from NCBI directly which we
+# consider as authoritative. it is therefore ignored if there is ambiguity.
+# These keys are still logged for record keeping but they do not cause the script to fail.
+IGNORED_METADATA_KEYS = {"genebuild.method", "genebuild.start_date", "assembly.date"}
 
 
 class TruthCheckError(Exception):
@@ -177,7 +180,9 @@ def parse_sql_patch(sql_path: Path) -> List[Dict[str, str]]:
     )
 
 
-def actions_by_key(actions: Iterable[Dict[str, str]]) -> Dict[str, List[Dict[str, str]]]:
+def actions_by_key(
+    actions: Iterable[Dict[str, str]]
+) -> Dict[str, List[Dict[str, str]]]:
     """Group SQL actions by meta_key for clearer diffs."""
     grouped: Dict[str, List[Dict[str, str]]] = {}
     for action in actions:
@@ -457,7 +462,9 @@ def write_report(path: Optional[Path], report: Dict[str, Any]) -> None:
         handle.write("\n")
 
 
-def resolve_work_dir(args: argparse.Namespace) -> tempfile.TemporaryDirectory[str] | None:
+def resolve_work_dir(
+    args: argparse.Namespace,
+) -> tempfile.TemporaryDirectory[str] | None:
     """Create a tempdir unless the user provided persistent output."""
     if args.work_dir:
         Path(args.work_dir).mkdir(parents=True, exist_ok=True)
@@ -510,9 +517,7 @@ def run_truth_check(args: argparse.Namespace) -> Dict[str, Any]:
         differences = compare_metadata(old_metadata, registry_metadata)
 
         report = {
-            "status": "ok"
-            if differences["different_key_count"] == 0
-            else "failed",
+            "status": "ok" if differences["different_key_count"] == 0 else "failed",
             "database": args.db_name,
             "production_name": args.production_name,
             "generated_at": datetime.now().isoformat(timespec="seconds"),
