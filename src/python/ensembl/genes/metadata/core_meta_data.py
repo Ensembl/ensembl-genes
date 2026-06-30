@@ -291,7 +291,7 @@ def sql_escape(value: Any) -> str:
     return normalise_text(value).replace("'", "''")
 
 
-def write_metadata_json(
+def write_metadata_json(  # pylint: disable=too-many-arguments
     json_path: Path,
     db_name: str,
     species_id: int,

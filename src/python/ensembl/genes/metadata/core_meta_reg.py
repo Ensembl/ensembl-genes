@@ -22,12 +22,19 @@ import logging.config
 import os
 from datetime import date, datetime
 from pathlib import Path
-from typing import Any, Dict, Iterable, List, Optional, Tuple
+from typing import TYPE_CHECKING, Any, Dict, Iterable, List, Optional, Tuple, TypeAlias
 
 import pymysql
 from ensembl.genes.info_from_registry.registry_helper import (
     fetch_current_genebuild_record,
 )
+
+if TYPE_CHECKING:
+    RegistryConnection: TypeAlias = pymysql.connections.Connection[
+        pymysql.cursors.DictCursor
+    ]
+else:
+    RegistryConnection = pymysql.connections.Connection
 
 logger: logging.Logger = logging.getLogger(__name__)
 
@@ -83,7 +90,7 @@ META_KEYS_TO_REMOVE = [
 ]
 
 
-def mysql_fetch_data(
+def mysql_fetch_data(  # pylint: disable=too-many-arguments
     query: str,
     database: str,
     host: str,
@@ -223,7 +230,7 @@ def read_provider_static_file(path: Path) -> Dict[str, Dict[str, str]]:
 
 def setup_logging(output_dir: Path, output_name: str) -> None:
     """Configure the script logger using the local logging.conf file."""
-    global logger  # pylint:disable=global-statement
+    global logger  # pylint:disable=global-statement,invalid-name
 
     metadata_dir = Path(__file__).parent
     log_file_path = output_dir / f"{output_name}_metadata.log"
@@ -237,7 +244,7 @@ def setup_logging(output_dir: Path, output_name: str) -> None:
     logger.disabled = False
 
 
-def get_core_metadata(
+def get_core_metadata(  # pylint: disable=too-many-arguments
     db_name: str,
     host: str,
     port: int,
@@ -330,7 +337,7 @@ def registry_accession_candidates(
 
 
 def fetch_registry_assembly(
-    connection: pymysql.connections.Connection,
+    connection: RegistryConnection,
     accession_candidates: Iterable[str],
 ) -> Tuple[str, Dict[str, Any]]:
     """Fetch assembly, organism, and species registry data for an accession."""
@@ -380,7 +387,8 @@ def fetch_registry_assembly(
 
 
 def fetch_registry_bioprojects(
-    connection: pymysql.connections.Connection, assembly_id: int
+    connection: RegistryConnection,
+    assembly_id: int,
 ) -> List[Dict[str, Any]]:
     """Fetch all bioproject rows for a registry assembly."""
     query = """
@@ -398,7 +406,7 @@ def fetch_registry_bioprojects(
 
 
 def fetch_registry_genebuilds(
-    connection: pymysql.connections.Connection,
+    connection: RegistryConnection,
     registry_gca: str,
     assembly_id: int,
     genebuilder: Optional[str],
@@ -967,7 +975,7 @@ def write_sql(sql_path: Path, db_name: str, sql_actions: List[Dict[str, str]]) -
             print(action["sql"], file=sql_out)
 
 
-def write_metadata_json(
+def write_metadata_json(  # pylint: disable=too-many-arguments
     json_path: Path,
     db_name: str,
     species_id: int,

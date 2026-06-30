@@ -59,8 +59,10 @@ DELETE_RE = re.compile(
     re.IGNORECASE,
 )
 USE_RE = re.compile(r"^USE\s+\S+\s*;\s*$", re.IGNORECASE)
-# method and start_date are set by the pipeline and so it is not expected that the old script see these values
-# assembly.date used to come from ENA_LAST_UPDATE but the registry gets assembly date from NCBI directly which we
+# method and start_date are set by the pipeline, so it is not expected
+# that the old script see these values.
+# assembly.date used to come from ENA_LAST_UPDATE but the registry gets
+# assembly date from NCBI directly which we
 # consider as authoritative. it is therefore ignored if there is ambiguity.
 # These keys are still logged for record keeping but they do not cause the script to fail.
 IGNORED_METADATA_KEYS = {"genebuild.method", "genebuild.start_date", "assembly.date"}
@@ -340,7 +342,7 @@ def script_env(repo_root: Path) -> Dict[str, str]:
     return env
 
 
-def run_command(
+def run_command(  # pylint: disable=too-many-arguments
     name: str,
     command: List[str],
     output_dir: Path,
@@ -486,7 +488,12 @@ def run_truth_check(args: argparse.Namespace) -> Dict[str, Any]:
     repo_root = args.repo_root
     temp_dir = resolve_work_dir(args)
     try:
-        base_dir = Path(args.work_dir) if args.work_dir else Path(temp_dir.name)
+        if args.work_dir:
+            base_dir = Path(args.work_dir)
+        else:
+            if temp_dir is None:
+                raise TruthCheckError("Could not resolve a temporary work directory")
+            base_dir = Path(temp_dir.name)
         base_dir.mkdir(parents=True, exist_ok=True)
 
         basename = output_name(args.db_name, args.production_name)
