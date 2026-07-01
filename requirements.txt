@@ -3,5 +3,5 @@ pylint
 Sphinx
 requests
 pymysql==1.1.3
-sqlalchemy==2.0.49
+sqlalchemy==2.0.51
 pandas
