@@ -5,7 +5,8 @@ Each runner registers its own subcommand via a register(subparsers) function.
 To add a new runner: import it here and append it to RUNNERS.
 
 Usage:
-	python cli.py translation-validity --annotation_file annotations.gff3 --genome_fasta genome.fa
+        python cli.py translation-validity \
+            --annotation_file annotations.gff3 --genome_fasta genome.fa
 """
 
 import argparse

@@ -5,7 +5,8 @@ Loads a GFF3/GTF annotation into a PyRanges object, extracts CDS sequences
 from a genomic FASTA using pyfaidx, and runs CDS validity QC checks.
 
 Usage:
-	python assess_translation_validity.py --annotation_file annotations.gff3 --genome_fasta genome.fa
+        python assess_translation_validity.py \
+            --annotation_file annotations.gff3 --genome_fasta genome.fa
 """
 
 import argparse

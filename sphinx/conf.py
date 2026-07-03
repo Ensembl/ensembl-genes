@@ -220,12 +220,8 @@ def _write_package_page(
 ) -> None:
     package = _package_name(package_dir)
     output_path = output_dir / f"{package}.rst"
-    child_dirs = sorted(
-        path for path in package_dirs if path.parent == package_dir
-    )
-    child_modules = sorted(
-        path for path in module_paths if path.parent == package_dir
-    )
+    child_dirs = sorted(path for path in package_dirs if path.parent == package_dir)
+    child_modules = sorted(path for path in module_paths if path.parent == package_dir)
     child_markdown = sorted(
         (path for path in markdown_paths if path.parent == package_dir),
         key=lambda path: (path.name != "README.md", path.name.lower()),
@@ -245,8 +241,7 @@ def _write_package_page(
         f"{path.stem} <{_module_name(path)}>" for path in child_modules
     )
     toctree_entries.extend(
-        f"{path.name} <{_source_file_doc_name(path)}>"
-        for path in child_source_files
+        f"{path.name} <{_source_file_doc_name(path)}>" for path in child_source_files
     )
 
     lines = [
@@ -317,9 +312,7 @@ def _generate_reference_pages(app: Sphinx) -> None:
         if path.name != "__init__.py" and "__pycache__" not in path.parts
     }
     markdown_paths = {
-        path
-        for path in PACKAGE_DIR.rglob("*.md")
-        if "__pycache__" not in path.parts
+        path for path in PACKAGE_DIR.rglob("*.md") if "__pycache__" not in path.parts
     }
     source_file_paths = {
         path

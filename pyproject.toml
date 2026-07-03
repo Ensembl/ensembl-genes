@@ -94,6 +94,7 @@ ignore_missing_imports = true
 
 [tool.pylint.'MASTER']
 init-hook = "import sys; sys.path.append('src/python')"
+persistent = false
 disable = ["duplicate-code"]
 
 [tool.pixi.project]
@@ -102,7 +103,7 @@ channels = ["pypi"]
 
 [tool.pylint."MESSAGES CONTROL"]
 
-disable = ["import-error"]
+disable = ["import-error", "no-name-in-module"]
 
 [tool.pylint."DESIGN"]
 max-positional-arguments = 20
