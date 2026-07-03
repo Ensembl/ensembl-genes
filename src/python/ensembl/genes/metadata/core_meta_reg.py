@@ -299,7 +299,6 @@ def get_core_metadata(  # pylint: disable=too-many-arguments
             OR meta_key LIKE 'gencode%%'
           )
     """
-    print(core_query)
     core_meta = mysql_fetch_data(
         core_query,
         host=host,
@@ -463,16 +462,16 @@ def fetch_registry_metadata(
     genebuilder: Optional[str],
 ) -> Dict[str, Any]:
     """Fetch all registry metadata needed by this script."""
-    connection = pymysql.connect(
-        database=registry_config["db_name"],
-        host=registry_config["db_host"],
-        port=int(registry_config["db_port"]),
-        user=registry_config["db_user"],
-        password=registry_config.get("db_password", ""),
-        cursorclass=pymysql.cursors.DictCursor,
-    )
-
+    connection = None
     try:
+        connection = pymysql.connect(
+            database=registry_config["db_name"],
+            host=registry_config["db_host"],
+            port=int(registry_config["db_port"]),
+            user=registry_config["db_user"],
+            password=registry_config.get("db_password", ""),
+            cursorclass=pymysql.cursors.DictCursor,
+        )
         queried_accession, assembly = fetch_registry_assembly(
             connection, accession_candidates
         )
@@ -485,8 +484,17 @@ def fetch_registry_metadata(
             int(assembly["assembly_id"]),
             genebuilder,
         )
+    except pymysql.Error as exc:
+        logger.exception(
+            "Could not fetch registry metadata from %s:%s/%s",
+            registry_config["db_host"],
+            registry_config["db_port"],
+            registry_config["db_name"],
+        )
+        raise RuntimeError("Could not fetch registry metadata") from exc
     finally:
-        connection.close()
+        if connection is not None:
+            connection.close()
 
     return {
         "queried_accession": queried_accession,
@@ -1017,19 +1025,21 @@ def build_arg_parser() -> argparse.ArgumentParser:
         "-o",
         "--output_dir",
         type=str,
-        default=".",
-        help="Path where the output and temp files will write to. Uses current dir by default",
+        required=True,
+        help="Path where the output and temp files will write to.",
     )
     parser.add_argument(
         "-d",
         "--db_name",
         help="Database name",
+        type=str,
         required=True,
     )
     parser.add_argument(
         "-s",
         "--host",
         help="Core database host server",
+        type=str,
         required=True,
     )
     parser.add_argument(
@@ -1042,17 +1052,20 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--db_user",
         default="ensro",
+        type=str,
         help="Core database user",
     )
     parser.add_argument(
         "--db_password",
         default="",
+        type=str,
         help="Core database password",
     )
     parser.add_argument(
         "-n",
         "--production_name",
         help="species.production_name",
+        type=str,
         required=False,
     )
     parser.add_argument(
@@ -1065,11 +1078,13 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "-a",
         "--assembly_accession",
+        type=str,
         help="Assembly accession to query in the registry. Defaults to assembly.accession from the core DB.",
     )
     parser.add_argument(
         "--registry_host",
         default=os.environ.get("GBS1"),
+        type=str,
         help="Registry database host. Defaults to GBS1.",
     )
     parser.add_argument(
@@ -1081,24 +1096,29 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--registry_user",
         default="ensro",
+        type=str,
         help="Registry database user",
     )
     parser.add_argument(
         "--registry_password",
         default="",
+        type=str,
         help="Registry database password",
     )
     parser.add_argument(
         "--registry_db",
         default=DEFAULT_REGISTRY_DB,
+        type=str,
         help=f"Registry database name. Defaults to {DEFAULT_REGISTRY_DB}.",
     )
     parser.add_argument(
         "--genebuilder",
+        type=str,
         help="Optional registry genebuilder to use when multiple current genebuild records exist.",
     )
     parser.add_argument(
         "--json_output",
+        type=Path,
         help="Path for JSON metadata output. Defaults to <output_name>.json in output_dir.",
     )
     parser.add_argument(

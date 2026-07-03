@@ -367,6 +367,7 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "--json_output",
+        type=Path,
         help="Path for JSON metadata output. Defaults to <output_name>.json in output_dir.",
     )
 
