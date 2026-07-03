@@ -21,4 +21,4 @@ git clone https://github.com/Ensembl/ensembl-genes.git
 pip install -e ensembl-genes/.[cicd,docs]
 ```
 
-Documentation is generated with Sphinx. The source lives in `sphinx/`.
+Documentation is generated with Sphinx. The source lives in `sphinx`.
