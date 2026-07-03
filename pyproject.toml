@@ -29,7 +29,11 @@ dependencies = [
 [project.optional-dependencies]
 docs = [
     "sphinx>=7,<9",
+    "myst-parser",
+    "furo",
+]
 
+mkdocs = [
     "mkdocs",
     "mkdocs-material",
     "mkdocs-gen-files",
@@ -102,4 +106,3 @@ disable = ["import-error"]
 
 [tool.pylint."DESIGN"]
 max-positional-arguments = 20
-
