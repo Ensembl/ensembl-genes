@@ -2,7 +2,7 @@ name: 'Docs: Build and Publish (Sphinx)'
 
 on:
   push:
-    branches: [ main ]
+    branches: [ "**" ]
     paths:
       - 'sphinx/**'
       - 'src/**'
