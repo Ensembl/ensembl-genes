@@ -91,7 +91,7 @@ compute_feature_wide_metrics()
 Before creating a new module ask:
 
 * Is this computing a statistic?
-* Does it avoid file I/O?
+* Does it avoid file I/O? 
 * Can it be unit tested independently?
 
 If the answer is yes, it belongs here.
