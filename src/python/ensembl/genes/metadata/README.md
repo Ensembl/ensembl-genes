@@ -35,6 +35,58 @@ optional arguments:
 
 This script doesn't currently deal with collections, species_ids are hardcoded at **LN:207**. This should be updated, but for now, if you are dealing with a collection db, please hardcode the `species_id`.
 
+## Running truth_checker.py
+
+Compares the output from `core_meta_data.py` with the registry-backed `core_meta_reg.py` for the same core database. It runs both scripts, loads their generated JSON metadata, and fails if the metadata values differ. The `core_meta_data.py` script uses the registry to fetch the latest metadata, while `core_meta_reg.py` will use NCBI and ENA.
+
+Use this when checking that changes in `core_meta_reg.py` still match the existing metadata output.
+
+**Basic usage:**
+```bash
+python truth_checker.py \
+  -d <database_name> \
+  -s <core_host> \
+  -p <core_port> \
+  -t <team>
+```
+
+For collection databases, pass the production name:
+```bash
+python truth_checker.py \
+  -d <database_name> \
+  -s <core_host> \
+  -p <core_port> \
+  -t <team> \
+  -n <production_name>
+```
+
+The registry connection defaults to:
+
+- `--registry_host`: `$GBS1`
+- `--registry_port`: `$GBP1`
+- `--registry_user`: `ensro`
+- `--registry_db`: `gb_assembly_metadata`
+
+You can override these, and pass registry-specific selection options when needed:
+```bash
+python truth_checker.py \
+  -d <database_name> \
+  -s <core_host> \
+  -p <core_port> \
+  -t <team> \
+  --assembly_accession <GCA_or_GCF_accession> \
+  --genebuilder <genebuilder>
+```
+
+Useful debugging options:
+
+- `--work_dir <path>` writes generated SQL and JSON files to a chosen directory.
+- `--keep_outputs` keeps temporary output files when `--work_dir` is not provided.
+- `--report_json <path>` writes a structured comparison report.
+- `--verbose_scripts` passes `-v` through to both metadata scripts.
+
+Successful runs print `TRUTH_CHECK_OK`. Differences print `TRUTH_CHECK_FAILED` with a JSON report showing missing, extra, and mismatched metadata keys.
+
 ## Running beta_patcher.py
 
 Generates SQL patches for beta metadata fixes in both production metadata DB and core DBs.

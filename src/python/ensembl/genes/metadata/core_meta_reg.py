@@ -485,7 +485,9 @@ def fetch_registry_metadata(
             genebuilder,
         )
     except pymysql.Error as exc:
-        logger.exception("Could not fetch registry metadata from configured registry connection")
+        logger.exception(
+            "Could not fetch registry metadata from configured registry connection"
+        )
         raise RuntimeError("Could not fetch registry metadata") from exc
     finally:
         if connection is not None:
