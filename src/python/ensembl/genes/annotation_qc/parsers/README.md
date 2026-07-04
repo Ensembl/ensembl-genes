@@ -108,7 +108,7 @@ Independent of QC workflow
 
 # Adding a new parser
 
-When adding support for a new file format
+When adding support for a new file format:
 
 1. Create a new parser module.
 2. Read the external format.
