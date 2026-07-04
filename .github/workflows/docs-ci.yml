@@ -4,14 +4,17 @@ on:
   push:
     branches: [ "**" ]
     paths:
+      - '.github/workflows/docs-ci.yml'
       - 'sphinx/**'
       - 'src/**'
       - 'pyproject.toml'
   pull_request:
     paths:
+      - '.github/workflows/docs-ci.yml'
       - 'sphinx/**'
       - 'src/**'
       - 'pyproject.toml'
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -49,17 +52,10 @@ jobs:
         run: |
           sphinx-build -M html sphinx sphinx/_build
 
-      - name: Upload generated Sphinx artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: sphinx-site
-          path: sphinx/_build/html
+
 
       - name: Publish Sphinx to gh-pages
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        uses: peaceiris/actions-gh-pages@v4
+        uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_branch: gh-pages
-          publish_dir: sphinx/_build/html
-          force_orphan: true
+          publish_dir: sphinx/_build
