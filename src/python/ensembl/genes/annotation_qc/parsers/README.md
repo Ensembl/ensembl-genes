@@ -119,7 +119,7 @@ When adding support for a new file format:
 
 ---
 
-# Common mistakes
+# Common mistakes 
 
 ❌ Computing statistics while parsing
 
