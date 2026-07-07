@@ -2,8 +2,9 @@
 
 from __future__ import annotations
 
+import statistics
 import sys
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 
 import lifton_id_mapper
@@ -49,8 +50,91 @@ class LiftonMatchSummary:
     gene_pairs_path: Path
 
 
+@dataclass(frozen=True)
+class MatchDiagnostics:
+    query_transcripts: int
+    queries_with_window_candidates: int
+    scored_candidates: int
+    queries_above_min_score: int
+    best_scores: tuple[float, ...] = field(default_factory=tuple)
+    no_candidate_examples: tuple[str, ...] = field(default_factory=tuple)
+    below_threshold_examples: tuple[str, ...] = field(default_factory=tuple)
+
+    @property
+    def max_score(self) -> float:
+        return max(self.best_scores) if self.best_scores else 0.0
+
+    @property
+    def median_score(self) -> float:
+        return statistics.median(self.best_scores) if self.best_scores else 0.0
+
+    @property
+    def p90_score(self) -> float:
+        if not self.best_scores:
+            return 0.0
+        ordered = sorted(self.best_scores)
+        index = min(len(ordered) - 1, int(0.9 * (len(ordered) - 1)))
+        return ordered[index]
+
+
 def _transcripts_with_structure(annotation) -> int:
     return sum(1 for transcript in annotation.tx_index.values() if transcript.exons)
+
+
+def _matching_diagnostics(
+    lifton,
+    target,
+    window: int,
+    min_score: float,
+) -> MatchDiagnostics:
+    index = lifton_id_mapper.GeneIntervalIndex(target)
+    query_transcripts = 0
+    queries_with_window_candidates = 0
+    scored_candidates = 0
+    queries_above_min_score = 0
+    best_scores: list[float] = []
+    no_candidate_examples: list[str] = []
+    below_threshold_examples: list[str] = []
+
+    for query_id, query in lifton.tx_index.items():
+        if not query.exons:
+            continue
+        query_transcripts += 1
+        candidates = lifton_id_mapper.candidate_transcripts_for(
+            query,
+            target,
+            index,
+            window,
+        )
+        if not candidates:
+            if len(no_candidate_examples) < 3:
+                no_candidate_examples.append(query_id)
+            continue
+        queries_with_window_candidates += 1
+
+        best_score = 0.0
+        for candidate in candidates:
+            if candidate.contig != query.contig or candidate.strand != query.strand:
+                continue
+            score, _details = lifton_id_mapper.score_pair(query, candidate)
+            scored_candidates += 1
+            best_score = max(best_score, score)
+
+        if best_score >= min_score:
+            queries_above_min_score += 1
+        elif len(below_threshold_examples) < 3:
+            below_threshold_examples.append(f"{query_id}:{best_score:.3f}")
+        best_scores.append(best_score)
+
+    return MatchDiagnostics(
+        query_transcripts=query_transcripts,
+        queries_with_window_candidates=queries_with_window_candidates,
+        scored_candidates=scored_candidates,
+        queries_above_min_score=queries_above_min_score,
+        best_scores=tuple(best_scores),
+        no_candidate_examples=tuple(no_candidate_examples),
+        below_threshold_examples=tuple(below_threshold_examples),
+    )
 
 
 def run_lifton_matching(config: LiftonMatchConfig) -> LiftonMatchSummary:
@@ -65,6 +149,25 @@ def run_lifton_matching(config: LiftonMatchConfig) -> LiftonMatchSummary:
         f"target_genes={len(target.genes)}, "
         f"target_transcripts={len(target.tx_index)}, "
         f"target_transcripts_with_structure={_transcripts_with_structure(target)}\n"
+    )
+    diagnostics = _matching_diagnostics(
+        lifton,
+        target,
+        config.window,
+        config.min_score,
+    )
+    sys.stderr.write(
+        "Structural matching candidate diagnostics: "
+        f"query_transcripts={diagnostics.query_transcripts}, "
+        f"queries_with_window_candidates={diagnostics.queries_with_window_candidates}, "
+        f"scored_candidates={diagnostics.scored_candidates}, "
+        f"queries_above_min_score={diagnostics.queries_above_min_score}, "
+        f"best_score_max={diagnostics.max_score:.3f}, "
+        f"best_score_median={diagnostics.median_score:.3f}, "
+        f"best_score_p90={diagnostics.p90_score:.3f}, "
+        f"no_candidate_examples={','.join(diagnostics.no_candidate_examples) or 'none'}, "
+        "below_threshold_examples="
+        f"{','.join(diagnostics.below_threshold_examples) or 'none'}\n"
     )
     pairs = lifton_id_mapper.compute_pairs(
         lifton,

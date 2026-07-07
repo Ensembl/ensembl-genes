@@ -39,7 +39,9 @@ Outputs
 Notes
 -----
 - Designed for GFF3 with gene/mRNA(or transcript)/exon (CDS optional).
-- Biotype is ignored for scoring (captured as metadata only).
+- The stable-ID pipeline only matches the same parent feature classes used by
+  the decision layer: gene plus mRNA/transcript. Other transcript-like rows are
+  ignored.
 - UTR differences are expected; internal exons and intron chains are weighted
   more than boundaries/UTRs.
 """
@@ -240,13 +242,11 @@ def load_gff3_as_annotation(path: str, label: str) -> Annotation:
     # Temporary storage: transcript attributes before exons
     tx_meta: Dict[str, Tuple[str,str,Dict[str,str]]] = {}
     cds_blocks: Dict[str, List[Tuple[int,int]]] = collections.defaultdict(list)
+    explicit_gene_ids: Set[str] = set()
+    explicit_transcript_ids: Set[str] = set()
 
-    # Treat a broad set of SO terms as transcript-like (non-coding included)
-    TRANSCRIPT_TYPES = set(t.lower() for t in [
-        'mRNA','transcript','lnc_RNA','ncRNA','miRNA','snoRNA','snRNA','rRNA','scaRNA',
-        'antisense_RNA','sense_intronic','sense_overlapping','piRNA','vault_RNA',
-        'pseudogenic_transcript','pseudogene_transcript','tRNA','srp_RNA','Y_RNA'
-    ])
+    # Keep this aligned with stable_id_mapping.gff3.TRANSCRIPT_FEATURE_TYPES.
+    TRANSCRIPT_TYPES = {'mrna', 'transcript'}
 
     def norm_parent_gene_id(x: Optional[str]) -> Optional[str]:
         if not x:
@@ -280,6 +280,7 @@ def load_gff3_as_annotation(path: str, label: str) -> Annotation:
                 parent_raw = attrs.get('Parent') or attrs.get('gene_id')
                 if not tid:
                     continue
+                explicit_transcript_ids.add(tid)
                 gid = norm_parent_gene_id(parent_raw) or attrs.get('gene_id')
                 # Create transcript and (placeholder) gene if needed
                 if gid and gid not in ann.genes:
@@ -301,11 +302,16 @@ def load_gff3_as_annotation(path: str, label: str) -> Annotation:
                 gid = attrs.get('ID') or attrs.get('gene_id') or attrs.get('Name')
                 if not gid:
                     continue
+                explicit_gene_ids.add(gid)
                 g = ann.genes.get(gid)
                 if g is None:
                     g = Gene(gid, seqid, strand)
                     g.attrs.update(attrs)
                     ann.genes[gid] = g
+                else:
+                    g.contig = seqid
+                    g.strand = strand
+                    g.attrs.update(attrs)
 
             elif ftype_l in ('exon', 'cds'):
                 parent = attrs.get('Parent')
@@ -329,6 +335,12 @@ def load_gff3_as_annotation(path: str, label: str) -> Annotation:
                 # ignore other feature types for structure
                 pass
 
+    ann.tx_index = {
+        tid: transcript
+        for tid, transcript in ann.tx_index.items()
+        if tid in explicit_transcript_ids
+    }
+
     # LiftOn outputs can be CDS-only for some transcripts. Use CDS blocks as
     # transcript-structure evidence only when explicit exon rows are absent.
     for tid, blocks in cds_blocks.items():
@@ -338,7 +350,8 @@ def load_gff3_as_annotation(path: str, label: str) -> Annotation:
         for start_i, end_i in blocks:
             t.add_exon(start_i, end_i)
 
-    # Link transcripts to genes & compute spans
+    # Link transcripts to explicit gene rows only, matching the decision parser.
+    linked_transcript_ids: Set[str] = set()
     for tid, t in list(ann.tx_index.items()):
         # fill basic metadata from tx_meta if present (kept for compatibility; may be empty)
         if tid in tx_meta:
@@ -348,15 +361,25 @@ def load_gff3_as_annotation(path: str, label: str) -> Annotation:
             for k,v in a.items():
                 ann.tx_index[tid].attrs.setdefault(k, v)
         gid = t.gene_id or norm_parent_gene_id(t.attrs.get('Parent')) or t.attrs.get('gene_id')
-        if not gid:
-            gid = f"gene_of:{tid}"
-            t.gene_id = gid
+        if not gid or gid not in explicit_gene_ids:
+            continue
         g = ann.genes.get(gid)
         if g is None:
-            g = Gene(gid, t.contig, t.strand)
-            ann.genes[gid] = g
+            continue
         t.gene_id = gid
         g.add_tx(t)
+        linked_transcript_ids.add(tid)
+
+    ann.tx_index = {
+        tid: transcript
+        for tid, transcript in ann.tx_index.items()
+        if tid in linked_transcript_ids
+    }
+    ann.genes = {
+        gid: gene
+        for gid, gene in ann.genes.items()
+        if gid in explicit_gene_ids
+    }
 
     return ann
 

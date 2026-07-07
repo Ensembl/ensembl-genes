@@ -7,6 +7,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 import run_stable_id_mapping
 import stable_id_mapping.workflow as workflow
+import lifton_id_mapper
 from stable_id_mapping.ids import parse_id_range
 from stable_id_mapping.lifton_matching import LiftonMatchConfig, LiftonMatchSummary
 from stable_id_mapping.lifton_matching import run_lifton_matching
@@ -46,6 +47,27 @@ chrT	test	mRNA	10	100	.	+	.	ID=transcript:ENST0001.1;Parent=gene:ENSG0001.1
 
     assert missing == {"ENSG0002"}
     assert "gene:ENSG0002" in report.read_text(encoding="utf-8")
+
+
+def test_structural_parser_uses_stable_id_feature_universe(tmp_path: Path) -> None:
+    gff = tmp_path / "annotation.gff3"
+    write_text(
+        gff,
+        """
+##gff-version 3
+chrT	test	gene	100	500	.	+	.	ID=gene:ENSXG0001.1
+chrT	test	mRNA	100	500	.	+	.	ID=transcript:ENSXT0001.1;Parent=gene:ENSXG0001.1
+chrT	test	exon	100	200	.	+	.	ID=exon:one;Parent=transcript:ENSXT0001.1
+chrT	test	ncRNA_gene	700	900	.	+	.	ID=gene:ENSXGNC1.1
+chrT	test	lnc_RNA	700	900	.	+	.	ID=transcript:ENSXTNC1.1;Parent=gene:ENSXGNC1.1
+chrT	test	exon	700	900	.	+	.	ID=exon:nc;Parent=transcript:ENSXTNC1.1
+        """,
+    )
+
+    annotation = lifton_id_mapper.load_gff3_as_annotation(str(gff), "test")
+
+    assert set(annotation.genes) == {"gene:ENSXG0001.1"}
+    assert set(annotation.tx_index) == {"transcript:ENSXT0001.1"}
 
 
 def test_lifton_matching_uses_cds_when_lifton_output_has_no_exons(
