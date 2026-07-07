@@ -119,6 +119,8 @@ def load_transcript_scores(
                     "intron_sim",
                     "jacc_internal",
                     "jacc_all",
+                    "query_coverage",
+                    "span_containment",
                     "exon_count_sim",
                     "boundary_sim",
                     "lifton_identity_prior",

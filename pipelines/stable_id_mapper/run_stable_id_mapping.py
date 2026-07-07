@@ -17,6 +17,7 @@ from stable_id_mapping.lifton import (
     format_command,
     prepare_lifton_feature_types_file,
 )
+from stable_id_mapping.rules import DEFAULT_RULES_PATH, load_mapping_rules
 from stable_id_mapping.workflow import SingleSpeciesRunConfig, run_single_species_pipeline
 
 
@@ -34,6 +35,12 @@ def parse_args(argv: Optional[list[str]] = None) -> argparse.Namespace:
     parser.add_argument("--transcript-range", type=parse_id_range, required=True)
     parser.add_argument("--translation-range", type=parse_id_range, required=True)
     parser.add_argument("--output-dir", type=Path, required=True)
+    parser.add_argument(
+        "--rules-config",
+        type=Path,
+        default=DEFAULT_RULES_PATH,
+        help="JSON file with stable-ID mapping rules and thresholds",
+    )
 
     parser.add_argument(
         "--existing-lifton-gff",
@@ -71,12 +78,12 @@ def parse_args(argv: Optional[list[str]] = None) -> argparse.Namespace:
         help="Additional argument passed to lifton before FASTA positional arguments",
     )
 
-    parser.add_argument("--match-window", type=int, default=100000)
-    parser.add_argument("--match-topk", type=int, default=5)
-    parser.add_argument("--match-min-score", type=float, default=0.60)
-    parser.add_argument("--match-good", type=float, default=0.75)
-    parser.add_argument("--match-confident", type=float, default=0.85)
-    parser.add_argument("--match-gene-fraction", type=float, default=0.60)
+    parser.add_argument("--match-window", type=int)
+    parser.add_argument("--match-topk", type=int)
+    parser.add_argument("--match-min-score", type=float)
+    parser.add_argument("--match-good", type=float)
+    parser.add_argument("--match-confident", type=float)
+    parser.add_argument("--match-gene-fraction", type=float)
 
     parser.add_argument("--no-translations", action="store_true")
     parser.add_argument(
@@ -87,7 +94,7 @@ def parse_args(argv: Optional[list[str]] = None) -> argparse.Namespace:
     parser.add_argument("--replace-events-for-session", action="store_true")
     parser.add_argument("--backup-prefix", default=default_backup_prefix())
     parser.add_argument("--batch-size", type=int, default=500)
-    parser.add_argument("--min-overlap", type=float, default=0.10)
+    parser.add_argument("--min-overlap", type=float)
     parser.add_argument(
         "--dry-run-lifton-command",
         action="store_true",
@@ -97,6 +104,8 @@ def parse_args(argv: Optional[list[str]] = None) -> argparse.Namespace:
 
 
 def config_from_args(args: argparse.Namespace) -> SingleSpeciesRunConfig:
+    rules = load_mapping_rules(args.rules_config)
+    structural = rules.structural_matching
     kwargs = {}
     if args.lifton_feature_types is not None:
         kwargs["lifton_feature_types"] = args.lifton_feature_types
@@ -123,13 +132,33 @@ def config_from_args(args: argparse.Namespace) -> SingleSpeciesRunConfig:
         replace_events_for_session=args.replace_events_for_session,
         backup_prefix=args.backup_prefix,
         batch_size=args.batch_size,
-        min_overlap=args.min_overlap,
-        match_window=args.match_window,
-        match_topk=args.match_topk,
-        match_min_score=args.match_min_score,
-        match_good=args.match_good,
-        match_confident=args.match_confident,
-        match_gene_fraction=args.match_gene_fraction,
+        min_overlap=(
+            args.min_overlap
+            if args.min_overlap is not None
+            else rules.coordinate_overlap.min_overlap
+        ),
+        match_window=(
+            args.match_window if args.match_window is not None else structural.window
+        ),
+        match_topk=args.match_topk if args.match_topk is not None else structural.topk,
+        match_min_score=(
+            args.match_min_score
+            if args.match_min_score is not None
+            else structural.min_score
+        ),
+        match_good=args.match_good if args.match_good is not None else structural.good_score,
+        match_confident=(
+            args.match_confident
+            if args.match_confident is not None
+            else structural.confident_score
+        ),
+        match_gene_fraction=(
+            args.match_gene_fraction
+            if args.match_gene_fraction is not None
+            else structural.gene_fraction
+        ),
+        match_score_weights=dict(structural.score_weights),
+        rules_config=args.rules_config,
         **kwargs,
     )
 

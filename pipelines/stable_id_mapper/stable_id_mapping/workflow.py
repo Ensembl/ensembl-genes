@@ -14,6 +14,7 @@ from .lifton_matching import LiftonMatchConfig, LiftonMatchSummary, run_lifton_m
 from .models import Decision
 from .pipeline import run_pipeline
 from .reports import write_missing_gene_report
+from .rules import DEFAULT_RULES_PATH, default_score_weights
 from .scoring import load_lifton_score_evidence
 
 
@@ -49,6 +50,8 @@ class SingleSpeciesRunConfig:
     match_good: float = 0.75
     match_confident: float = 0.85
     match_gene_fraction: float = 0.60
+    match_score_weights: dict[str, float] = field(default_factory=default_score_weights)
+    rules_config: Path = DEFAULT_RULES_PATH
 
     @property
     def lifton_output_gff(self) -> Path:
@@ -96,6 +99,8 @@ class SingleSpeciesRunConfig:
             raise ValueError("db_name is required")
         if self.mapping_session_id < 1:
             raise ValueError("mapping_session_id must be >= 1")
+        if not self.rules_config.exists():
+            raise FileNotFoundError(self.rules_config)
 
 
 @dataclass(frozen=True)
@@ -114,6 +119,7 @@ def run_single_species_pipeline(
 ) -> SingleSpeciesRunResult:
     config.validate_inputs()
     config.output_dir.mkdir(parents=True, exist_ok=True)
+    sys.stderr.write(f"Using stable-ID mapping rules: {config.rules_config}\n")
     if config.existing_lifton_gff is None:
         lifton_config = LiftonRunConfig(
             ref_gff=config.ref_gff,
@@ -147,6 +153,7 @@ def run_single_species_pipeline(
                 good=config.match_good,
                 confident=config.match_confident,
                 gene_fraction=config.match_gene_fraction,
+                score_weights=config.match_score_weights,
             )
         )
     else:

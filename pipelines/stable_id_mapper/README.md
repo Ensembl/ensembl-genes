@@ -78,6 +78,11 @@ Required manual inputs:
 - gene, transcript, and translation stable-ID ranges
 - output directory
 
+Mapping thresholds and score weights live in `stable_id_mapping_rules.json`.
+Use `--rules-config path/to/rules.json` to run with a copied/edited rules file.
+Explicit CLI flags such as `--match-min-score` and `--min-overlap` override the
+rules file for that run.
+
 Example:
 
 ```bash
@@ -110,6 +115,23 @@ out/stable-id-run/score_evidence.tsv
 out/stable-id-run/stable_id_decisions.tsv
 out/stable-id-run/sql/stable_id_updates.dry_run.sql
 ```
+
+The default rules file currently controls:
+
+```text
+coordinate_overlap.min_overlap
+structural_matching.window
+structural_matching.topk
+structural_matching.min_score
+structural_matching.good_score
+structural_matching.confident_score
+structural_matching.gene_fraction
+structural_matching.score_weights
+```
+
+The score weights tune how transcript pair confidence is calculated. The
+pipeline still only maps genes, transcripts, and translations; exon/CDS rows are
+used only as transcript-structure evidence.
 
 Use `--dry-run-lifton-command` to print the LiftOn command without executing the
 pipeline. This is useful on systems where LiftOn is provided by a module or

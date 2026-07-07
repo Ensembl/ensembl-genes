@@ -8,6 +8,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 import lifton_id_mapper
+from .rules import default_score_weights
 
 
 @dataclass(frozen=True)
@@ -21,6 +22,7 @@ class LiftonMatchConfig:
     good: float = 0.75
     confident: float = 0.85
     gene_fraction: float = 0.60
+    score_weights: dict[str, float] = field(default_factory=default_score_weights)
 
     @property
     def transcript_pairs_path(self) -> Path:
@@ -86,6 +88,7 @@ def _matching_diagnostics(
     target,
     window: int,
     min_score: float,
+    score_weights: dict[str, float],
 ) -> MatchDiagnostics:
     index = lifton_id_mapper.GeneIntervalIndex(target)
     query_transcripts = 0
@@ -116,7 +119,11 @@ def _matching_diagnostics(
         for candidate in candidates:
             if candidate.contig != query.contig or candidate.strand != query.strand:
                 continue
-            score, _details = lifton_id_mapper.score_pair(query, candidate)
+            score, _details = lifton_id_mapper.score_pair(
+                query,
+                candidate,
+                score_weights=score_weights,
+            )
             scored_candidates += 1
             best_score = max(best_score, score)
 
@@ -155,6 +162,7 @@ def run_lifton_matching(config: LiftonMatchConfig) -> LiftonMatchSummary:
         target,
         config.window,
         config.min_score,
+        config.score_weights,
     )
     sys.stderr.write(
         "Structural matching candidate diagnostics: "
@@ -175,6 +183,7 @@ def run_lifton_matching(config: LiftonMatchConfig) -> LiftonMatchSummary:
         window=config.window,
         min_candidate_score=config.min_score,
         topk=config.topk,
+        score_weights=config.score_weights,
     )
     lifton_id_mapper.write_transcript_pairs(
         pairs,

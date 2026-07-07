@@ -55,6 +55,17 @@ import gzip
 from bisect import bisect_left
 from typing import Dict, List, Tuple, Iterable, Optional, Set
 
+DEFAULT_SCORE_WEIGHTS = {
+    'query_coverage': 0.45,
+    'span_containment': 0.25,
+    'intron_sim': 0.10,
+    'jacc_internal': 0.05,
+    'jacc_all': 0.05,
+    'exon_count_sim': 0.04,
+    'boundary_sim': 0.03,
+    'lifton_identity_prior': 0.03,
+}
+
 ###############################################################################
 # Utility: GFF3 parsing/writing
 ###############################################################################
@@ -466,6 +477,26 @@ def jaccard_len(a: List[Tuple[int,int]], b: List[Tuple[int,int]]) -> float:
     denom = la + lb - inter
     return (inter / denom) if denom > 0 else 0.0
 
+def query_coverage_len(query: List[Tuple[int,int]], target: List[Tuple[int,int]]) -> float:
+    if not query:
+        return 0.0
+    query_len = _interval_len(query)
+    if query_len <= 0:
+        return 0.0
+    return _interval_intersection_len(query, target) / query_len
+
+def span_containment_similarity(q: Transcript, r: Transcript) -> float:
+    qs, qe = q.span()
+    rs, re = r.span()
+    if qs == 0 or rs == 0:
+        return 0.0
+    overlap = max(0, min(qe, re) - max(qs, rs) + 1)
+    if overlap == 0:
+        return 0.0
+    q_len = qe - qs + 1
+    r_len = re - rs + 1
+    return overlap / min(q_len, r_len)
+
 def intron_chain_similarity(q: Transcript, r: Transcript) -> float:
     iq = q.intron_pairs()
     ir = r.intron_pairs()
@@ -519,29 +550,56 @@ def lifton_identity_prior(t: Transcript) -> float:
     # map [0,1] to [0,1] directly; we'll weight it lightly in score
     return max(0.0, min(1.0, sum(vals) / len(vals)))
 
-def score_pair(q: Transcript, r: Transcript) -> Tuple[float, Dict[str, float]]:
+def normalized_score_weights(
+    score_weights: Optional[Dict[str, float]] = None,
+) -> Dict[str, float]:
+    weights = dict(DEFAULT_SCORE_WEIGHTS)
+    if score_weights:
+        weights.update({key: float(value) for key, value in score_weights.items()})
+    total = sum(weights.values())
+    if total <= 0:
+        raise ValueError("score weights must sum to a positive value")
+    return {key: value / total for key, value in weights.items()}
+
+
+def score_pair(
+    q: Transcript,
+    r: Transcript,
+    score_weights: Optional[Dict[str, float]] = None,
+) -> Tuple[float, Dict[str, float]]:
     # Components
     intron_sim = intron_chain_similarity(q, r)
-    jacc_all = jaccard_len(q.merged_exons(), r.merged_exons())
+    q_exons = q.merged_exons()
+    r_exons = r.merged_exons()
+    jacc_all = jaccard_len(q_exons, r_exons)
     jacc_internal = jaccard_len(q.merged_internal_exons(), r.merged_internal_exons())
+    query_cov = query_coverage_len(q_exons, r_exons)
+    span_containment = span_containment_similarity(q, r)
     ex_ct_sim = exon_count_similarity(q, r)
     bnd_sim = boundary_similarity(q, r)
     prior = lifton_identity_prior(q)  # Only from LiftOn side
+    weights = normalized_score_weights(score_weights)
 
-    # Weighted sum — internal structure is emphasized
+    # Weighted sum. LiftOn projections may be CDS-only while the target model has
+    # full exons/UTRs, so asymmetric query coverage is a better primary signal
+    # than symmetric exon Jaccard for stable-ID evidence.
     score = (
-        0.50 * intron_sim +
-        0.25 * jacc_internal +
-        0.10 * jacc_all +
-        0.05 * ex_ct_sim +
-        0.05 * bnd_sim +
-        0.05 * prior
+        weights['query_coverage'] * query_cov +
+        weights['span_containment'] * span_containment +
+        weights['intron_sim'] * intron_sim +
+        weights['jacc_internal'] * jacc_internal +
+        weights['jacc_all'] * jacc_all +
+        weights['exon_count_sim'] * ex_ct_sim +
+        weights['boundary_sim'] * bnd_sim +
+        weights['lifton_identity_prior'] * prior
     )
 
     details = {
         'intron_sim': intron_sim,
         'jacc_internal': jacc_internal,
         'jacc_all': jacc_all,
+        'query_coverage': query_cov,
+        'span_containment': span_containment,
         'exon_count_sim': ex_ct_sim,
         'boundary_sim': bnd_sim,
         'lifton_identity_prior': prior,
@@ -567,7 +625,14 @@ def candidate_transcripts_for(q: Transcript, ref_ann: Annotation, idx: GeneInter
     return cands
 
 
-def compute_pairs(lifton: Annotation, reference: Annotation, window: int, min_candidate_score: float, topk: int) -> List[Pair]:
+def compute_pairs(
+    lifton: Annotation,
+    reference: Annotation,
+    window: int,
+    min_candidate_score: float,
+    topk: int,
+    score_weights: Optional[Dict[str, float]] = None,
+) -> List[Pair]:
     idx = GeneIntervalIndex(reference)
     pairs: List[Pair] = []
 
@@ -581,7 +646,7 @@ def compute_pairs(lifton: Annotation, reference: Annotation, window: int, min_ca
         for r in cands:
             if r.contig != q.contig or r.strand != q.strand:
                 continue
-            sc, det = score_pair(q, r)
+            sc, det = score_pair(q, r, score_weights=score_weights)
             if sc >= min_candidate_score:
                 best.append((sc, r, det))
         if not best:
@@ -656,8 +721,9 @@ def write_transcript_pairs(pairs: List[Pair], lifton: Annotation, reference: Ann
     with open(path, 'w') as out:
         header = [
             'lifton_tx','ref_tx','score','status','intron_sim','jacc_internal','jacc_all',
-            'exon_count_sim','boundary_sim','lifton_identity_prior','lifton_gene','ref_gene',
-            'contig','strand','lifton_exons','ref_exons'
+            'query_coverage','span_containment','exon_count_sim','boundary_sim',
+            'lifton_identity_prior','lifton_gene','ref_gene','contig','strand',
+            'lifton_exons','ref_exons'
         ]
         out.write('\t'.join(header) + '\n')
         for p in pairs:
@@ -666,6 +732,7 @@ def write_transcript_pairs(pairs: List[Pair], lifton: Annotation, reference: Ann
             row = [
                 p.q_id, p.r_id, f"{p.score:.6f}", status,
                 f"{p.details['intron_sim']:.6f}", f"{p.details['jacc_internal']:.6f}", f"{p.details['jacc_all']:.6f}",
+                f"{p.details['query_coverage']:.6f}", f"{p.details['span_containment']:.6f}",
                 f"{p.details['exon_count_sim']:.6f}", f"{p.details['boundary_sim']:.6f}", f"{p.details['lifton_identity_prior']:.6f}",
                 q.gene_id, r.gene_id, q.contig, q.strand, str(q.exon_count()), str(r.exon_count())
             ]

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import sys
+import json
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
@@ -90,10 +91,10 @@ chrT	LiftOn	CDS	300	500	.	+	0	ID=CDS:ENSXP0001;Parent=transcript:ENSXT0001.1
         target_gff,
         """
 ##gff-version 3
-chrT	test	gene	100	500	.	+	.	ID=gene:ENSXG9001.1
-chrT	test	mRNA	100	500	.	+	.	ID=transcript:ENSXT9001.1;Parent=gene:ENSXG9001.1
-chrT	test	exon	100	200	.	+	.	ID=exon:one;Parent=transcript:ENSXT9001.1
-chrT	test	exon	300	500	.	+	.	ID=exon:two;Parent=transcript:ENSXT9001.1
+chrT	test	gene	50	550	.	+	.	ID=gene:ENSXG9001.1
+chrT	test	mRNA	50	550	.	+	.	ID=transcript:ENSXT9001.1;Parent=gene:ENSXG9001.1
+chrT	test	exon	50	250	.	+	.	ID=exon:one;Parent=transcript:ENSXT9001.1
+chrT	test	exon	280	550	.	+	.	ID=exon:two;Parent=transcript:ENSXT9001.1
         """,
     )
 
@@ -108,9 +109,10 @@ chrT	test	exon	300	500	.	+	.	ID=exon:two;Parent=transcript:ENSXT9001.1
 
     assert summary.transcript_pairs == 1
     assert summary.gene_pairs == 1
-    assert "transcript:ENSXT0001" in summary.transcript_pairs_path.read_text(
-        encoding="utf-8"
-    )
+    transcript_pairs_text = summary.transcript_pairs_path.read_text(encoding="utf-8")
+    assert "query_coverage" in transcript_pairs_text
+    assert "span_containment" in transcript_pairs_text
+    assert "transcript:ENSXT0001" in transcript_pairs_text
     assert "gene:ENSXG0001" in summary.gene_pairs_path.read_text(encoding="utf-8")
 
 
@@ -270,6 +272,76 @@ def test_top_level_cli_builds_expected_lifton_command(tmp_path: Path) -> None:
     ]
     assert command[-2:] == [str(ref_fasta), str(target_fasta)]
     assert feature_types_file.read_text(encoding="utf-8") == "gene\n"
+
+
+def test_top_level_cli_loads_rules_config_with_flag_overrides(tmp_path: Path) -> None:
+    ref_fasta = tmp_path / "ref.fa"
+    target_fasta = tmp_path / "target.fa"
+    ref_gff = tmp_path / "ref.gff3"
+    target_gff = tmp_path / "target.gff3"
+    rules_path = tmp_path / "rules.json"
+    for path in (ref_fasta, target_fasta, ref_gff, target_gff):
+        write_text(path, "")
+    rules_path.write_text(
+        json.dumps(
+            {
+                "coordinate_overlap": {"min_overlap": 0.2},
+                "structural_matching": {
+                    "window": 123,
+                    "topk": 2,
+                    "min_score": 0.41,
+                    "good_score": 0.61,
+                    "confident_score": 0.81,
+                    "gene_fraction": 0.71,
+                    "score_weights": {
+                        "query_coverage": 2,
+                        "span_containment": 1,
+                    },
+                },
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    args = run_stable_id_mapping.parse_args(
+        [
+            "--ref-fasta",
+            str(ref_fasta),
+            "--ref-gff",
+            str(ref_gff),
+            "--target-fasta",
+            str(target_fasta),
+            "--target-gff",
+            str(target_gff),
+            "--db-name",
+            "species_core",
+            "--mapping-session-id",
+            "4",
+            "--gene-range",
+            "ENSXG:1-10",
+            "--transcript-range",
+            "ENSXT:1-10",
+            "--translation-range",
+            "ENSXP:1-10",
+            "--output-dir",
+            str(tmp_path / "out"),
+            "--rules-config",
+            str(rules_path),
+            "--match-min-score",
+            "0.5",
+        ]
+    )
+    config = run_stable_id_mapping.config_from_args(args)
+
+    assert config.rules_config == rules_path
+    assert config.min_overlap == 0.2
+    assert config.match_window == 123
+    assert config.match_topk == 2
+    assert config.match_min_score == 0.5
+    assert config.match_good == 0.61
+    assert config.match_confident == 0.81
+    assert config.match_gene_fraction == 0.71
+    assert config.match_score_weights["query_coverage"] == 2
 
 
 def test_single_species_workflow_reuses_existing_outputs(
