@@ -1,3 +1,4 @@
+# pylint: disable=missing-module-docstring, missing-function-docstring, broad-exception-caught, import-outside-toplevel, unused-import
 from __future__ import annotations
 
 import json

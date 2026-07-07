@@ -1,3 +1,5 @@
+"""Tests for Reverse Gene Builder locus summarisation."""
+
 from __future__ import annotations
 
 import pandas as pd
@@ -6,6 +8,7 @@ from ensembl.genes.rgb.summary import summarize_loci
 
 
 def test_summarize_minimal():
+    """Summarise a minimal locus with one core and one layer gene."""
     loci = pd.DataFrame(
         [
             {

@@ -1,7 +1,8 @@
+# pylint: disable=missing-module-docstring, missing-class-docstring, missing-function-docstring, too-many-locals
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Dict, Iterable, List, Tuple
+from typing import Dict, List, Tuple
 
 import pandas as pd
 
@@ -98,27 +99,44 @@ def build_loci(
     for df in (core, layer):
         for (seq, strand), g in df.groupby(["seq_region_name", "seq_region_strand"]):
             lst = union_key_to_intervals.setdefault((seq, strand), [])
-            lst += [Interval(int(s), int(e)) for s, e in zip(g.seq_region_start, g.seq_region_end)]
+            lst += [
+                Interval(int(s), int(e))
+                for s, e in zip(g.seq_region_start, g.seq_region_end)
+            ]
 
-    strict_records: List[Tuple[str, int, int, int, int, int, str]] = []
-    expanded_records: List[Tuple[str, int, int, int, int, int, str]] = []
+    strict_records: List[Tuple[str, int, int, int, int, int, int, str]] = []
+    expanded_records: List[Tuple[str, int, int, int, int, int, int, str]] = []
     # Map genes → loci
     gene_map_records: List[Tuple[str, int, str, int, int, str, str]] = []
 
     for (seq, strand), intervals in union_key_to_intervals.items():
         strict_list = _merge_overlaps([Interval(i.start, i.end) for i in intervals])
-        expanded_list = _merge_with_gap([Interval(i.start, i.end) for i in strict_list], gap_bp)
+        expanded_list = _merge_with_gap(
+            [Interval(i.start, i.end) for i in strict_list], gap_bp
+        )
 
         # Build strict locus rows with counts
         # Pre-slice core/layer genes for this key
-        core_key = core[(core.seq_region_name == seq) & (core.seq_region_strand == strand)]
-        layer_key = layer[(layer.seq_region_name == seq) & (layer.seq_region_strand == strand)]
+        core_key = core[
+            (core.seq_region_name == seq) & (core.seq_region_strand == strand)
+        ]
+        layer_key = layer[
+            (layer.seq_region_name == seq) & (layer.seq_region_strand == strand)
+        ]
 
         # Strict loci
-        strict_ids: List[Locus] = [Locus(seq, strand, it.start, it.end, i) for i, it in enumerate(strict_list)]
+        strict_ids: List[Locus] = [
+            Locus(seq, strand, it.start, it.end, i) for i, it in enumerate(strict_list)
+        ]
         for loc in strict_ids:
-            c_count = ((core_key.seq_region_start <= loc.end) & (core_key.seq_region_end >= loc.start)).sum()
-            l_count = ((layer_key.seq_region_start <= loc.end) & (layer_key.seq_region_end >= loc.start)).sum()
+            c_count = (
+                (core_key.seq_region_start <= loc.end)
+                & (core_key.seq_region_end >= loc.start)
+            ).sum()
+            l_count = (
+                (layer_key.seq_region_start <= loc.end)
+                & (layer_key.seq_region_end >= loc.start)
+            ).sum()
             strict_records.append(
                 (
                     seq,
@@ -133,10 +151,19 @@ def build_loci(
             )
 
         # Expanded loci
-        expanded_ids: List[Locus] = [Locus(seq, strand, it.start, it.end, i) for i, it in enumerate(expanded_list)]
+        expanded_ids: List[Locus] = [
+            Locus(seq, strand, it.start, it.end, i)
+            for i, it in enumerate(expanded_list)
+        ]
         for loc in expanded_ids:
-            c_count = ((core_key.seq_region_start <= loc.end) & (core_key.seq_region_end >= loc.start)).sum()
-            l_count = ((layer_key.seq_region_start <= loc.end) & (layer_key.seq_region_end >= loc.start)).sum()
+            c_count = (
+                (core_key.seq_region_start <= loc.end)
+                & (core_key.seq_region_end >= loc.start)
+            ).sum()
+            l_count = (
+                (layer_key.seq_region_start <= loc.end)
+                & (layer_key.seq_region_end >= loc.start)
+            ).sum()
             expanded_records.append(
                 (
                     seq,
@@ -151,17 +178,19 @@ def build_loci(
             )
 
         # Map each gene to its strict and expanded locus
-        for _, row in pd.concat([core_key.assign(db_kind="core"), layer_key.assign(db_kind="layer")]).iterrows():
+        for _, row in pd.concat(
+            [core_key.assign(db_kind="core"), layer_key.assign(db_kind="layer")]
+        ).iterrows():
             iv = Interval(int(row.seq_region_start), int(row.seq_region_end))
 
-            def find_locus(loci: List[Locus]) -> str:
+            def find_locus(iv_to_find: Interval, loci: List[Locus]) -> str:
                 for loc in loci:
-                    if not (iv.end < loc.start or iv.start > loc.end):
+                    if not (iv_to_find.end < loc.start or iv_to_find.start > loc.end):
                         return loc.locus_id
                 return ""
 
-            strict_id = find_locus(strict_ids)
-            expanded_id = find_locus(expanded_ids)
+            strict_id = find_locus(iv, strict_ids)
+            expanded_id = find_locus(iv, expanded_ids)
             gene_map_records.append(
                 (
                     str(row.db_kind),

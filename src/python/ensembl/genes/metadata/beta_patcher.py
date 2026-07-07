@@ -16,7 +16,7 @@ Usage:
     python beta_patcher.py patches.csv --jira-ticket EBD-1111 --core-suffix _core_115_1
 """
 
-# pylint: disable=logging-fstring-interpolation, unspecified-encoding, broad-exception-caught, unused-variable, too-many-lines, too-many-locals
+# pylint: disable=logging-fstring-interpolation, unspecified-encoding, broad-exception-caught, unused-variable, too-many-lines, too-many-locals, too-many-return-statements
 import argparse
 import os
 import csv
@@ -962,7 +962,9 @@ def resolve_genome_info(
     else:
         core_server = None
         # Only build core DB name when production_name is known
-        core_db_name = f"{production_name}{patch['core_suffix']}" if production_name else None
+        core_db_name = (
+            f"{production_name}{patch['core_suffix']}" if production_name else None
+        )
 
     return {
         "genome_uuid": genome_uuid,
@@ -1247,7 +1249,9 @@ See patches_template.csv for a complete example.
     # Offline mode: skip API/DB lookups and core discovery
     # Usage: export BETA_PATCHER_OFFLINE=1 (or set via env before running)
     if os.getenv("BETA_PATCHER_OFFLINE") == "1":
-        logging.getLogger(__name__).warning("Offline mode enabled: skipping metadata API lookups and core discovery")
+        logging.getLogger(__name__).warning(
+            "Offline mode enabled: skipping metadata API lookups and core discovery"
+        )
 
     # Validate CSV file exists
     if not args.csv_file.exists():

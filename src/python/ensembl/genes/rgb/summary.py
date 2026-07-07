@@ -1,13 +1,15 @@
+# pylint: disable=missing-module-docstring, missing-function-docstring, broad-exception-caught, import-outside-toplevel, too-many-arguments, too-many-locals, too-many-statements, unnecessary-comprehension, invalid-name, unused-argument, unused-variable, line-too-long
 from __future__ import annotations
 
-from dataclasses import dataclass
-from typing import Dict, Iterable, List, Optional, Sequence, Tuple
+from typing import Dict, List, Optional, Sequence, Tuple
 
 import numpy as np
 import pandas as pd
 
 
-def _merge_intervals(starts: Sequence[int], ends: Sequence[int]) -> List[Tuple[int, int]]:
+def _merge_intervals(
+    starts: Sequence[int], ends: Sequence[int]
+) -> List[Tuple[int, int]]:
     if len(starts) == 0:
         return []
     ivs = sorted(zip(map(int, starts), map(int, ends)))
@@ -36,7 +38,7 @@ def _intersect_bp(a: List[Tuple[int, int]], b: List[Tuple[int, int]]) -> int:
         s = max(s1, s2)
         e = min(e1, e2)
         if s <= e:
-            cov += (e - s + 1)
+            cov += e - s + 1
         if e1 < e2:
             i += 1
         else:
@@ -95,13 +97,15 @@ def summarize_loci(
 ) -> pd.DataFrame:
     evidence_map = evidence_map or {}
     # Pre-index for joins
-    gm = gene_map_df[[
-        "db_kind",
-        "gene_id",
-        "seq_region_name",
-        "seq_region_strand",
-        "locus_id_strict",
-    ]].rename(columns={"locus_id_strict": "locus_id"})
+    gm = gene_map_df[
+        [
+            "db_kind",
+            "gene_id",
+            "seq_region_name",
+            "seq_region_strand",
+            "locus_id_strict",
+        ]
+    ].rename(columns={"locus_id_strict": "locus_id"})
 
     # Attach locus_id to genes
     core_genes2 = core_genes.merge(
@@ -123,7 +127,9 @@ def summarize_loci(
     loci = loci_df.copy()
     if "locus_id" not in loci.columns:
         # Fallback: derive deterministic order per (seq,strand) but may not match mapping
-        loci = loci.sort_values(["seq_region_name", "seq_region_strand", "locus_start", "locus_end"]).copy()
+        loci = loci.sort_values(
+            ["seq_region_name", "seq_region_strand", "locus_start", "locus_end"]
+        ).copy()
         loci["locus_id"] = (
             loci.seq_region_name.astype(str)
             + ":"
@@ -133,7 +139,9 @@ def summarize_loci(
             + ":"
             + loci.locus_end.astype(int).astype(str)
             + ":"
-            + loci.groupby(["seq_region_name", "seq_region_strand"]).cumcount().astype(str)
+            + loci.groupby(["seq_region_name", "seq_region_strand"])
+            .cumcount()
+            .astype(str)
         )
 
     # Interval unions per locus
@@ -142,8 +150,12 @@ def summarize_loci(
         return _total_span(ivs)
 
     def cover_bp(layer_df: pd.DataFrame, core_df: pd.DataFrame) -> Tuple[int, int, int]:
-        la = _merge_intervals(layer_df.seq_region_start.values, layer_df.seq_region_end.values)
-        co = _merge_intervals(core_df.seq_region_start.values, core_df.seq_region_end.values)
+        la = _merge_intervals(
+            layer_df.seq_region_start.values, layer_df.seq_region_end.values
+        )
+        co = _merge_intervals(
+            core_df.seq_region_start.values, core_df.seq_region_end.values
+        )
         layer_span = _total_span(la)
         core_span = _total_span(co)
         inter = _intersect_bp(la, co)
@@ -159,9 +171,13 @@ def summarize_loci(
 
     for _, loc in loci.iterrows():
         cg = core_by_locus.get(loc.locus_id, pd.DataFrame(columns=core_genes2.columns))
-        lg = layer_by_locus.get(loc.locus_id, pd.DataFrame(columns=layer_genes2.columns))
+        lg = layer_by_locus.get(
+            loc.locus_id, pd.DataFrame(columns=layer_genes2.columns)
+        )
         ctx = core_tx_by_locus.get(loc.locus_id, pd.DataFrame(columns=core_tx2.columns))
-        ltx = layer_tx_by_locus.get(loc.locus_id, pd.DataFrame(columns=layer_tx2.columns))
+        ltx = layer_tx_by_locus.get(
+            loc.locus_id, pd.DataFrame(columns=layer_tx2.columns)
+        )
 
         # Counts
         core_gene_count = len(cg)
@@ -172,7 +188,9 @@ def summarize_loci(
         # Span and coverage
         layer_span_bp, core_span_bp, covered_bp = cover_bp(lg, cg)
         uncovered_bp = max(layer_span_bp - covered_bp, 0)
-        coverage_fraction = (_safe_ratio(covered_bp, layer_span_bp) if layer_span_bp > 0 else 0.0)
+        coverage_fraction = (
+            _safe_ratio(covered_bp, layer_span_bp) if layer_span_bp > 0 else 0.0
+        )
 
         # Diversity
         logic_names = set(ltx.logic_name.dropna().astype(str).tolist())
@@ -233,12 +251,24 @@ def summarize_loci(
             strand = 1.0
             # coherence needs subcluster count; placeholder 1.0 for Phase 2
             coherence = 1.0
-            score = 0.25 * n_obj + 0.2 * n_tx + 0.15 * n_logic + 0.15 * n_class + 0.15 * span + 0.05 * strand + 0.05 * coherence
+            score = (
+                0.25 * n_obj
+                + 0.2 * n_tx
+                + 0.15 * n_logic
+                + 0.15 * n_class
+                + 0.15 * span
+                + 0.05 * strand
+                + 0.05 * coherence
+            )
             S.append(score)
         else:
             S.append(0.0)
     out["no_core_score"] = S
-    out["evidence_rich_no_core_flag"] = ((out.core_gene_count == 0) & (out.layer_gene_count > 0) & (out.no_core_score >= 0.6)).astype(int)
+    out["evidence_rich_no_core_flag"] = (
+        (out.core_gene_count == 0)
+        & (out.layer_gene_count > 0)
+        & (out.no_core_score >= 0.6)
+    ).astype(int)
 
     # Diagnostic categories (coarse)
     cat = []

@@ -1,8 +1,9 @@
+# pylint: disable=missing-module-docstring, missing-class-docstring, missing-function-docstring, line-too-long
 from __future__ import annotations
 
 import contextlib
 from dataclasses import dataclass
-from typing import Dict, Iterable, List, Optional, Tuple
+from typing import Iterable, List, Optional, Tuple
 
 import pandas as pd
 import pymysql
@@ -38,7 +39,9 @@ def connect(params: DBParams):
 
 
 def list_seq_regions(
-    conn, coord_system_name: Optional[str] = None, allowlist: Optional[Iterable[str]] = None
+    conn,
+    coord_system_name: Optional[str] = None,
+    allowlist: Optional[Iterable[str]] = None,
 ) -> List[str]:
     sql = [
         "SELECT sr.name AS name",
@@ -65,7 +68,7 @@ def _gene_query(coord_system_name: Optional[str]) -> str:
         if coord_system_name
         else ""
     )
-    return f'''
+    return f"""
 SELECT
   g.gene_id,
   g.stable_id,
@@ -82,14 +85,18 @@ JOIN seq_region sr ON g.seq_region_id = sr.seq_region_id
 LEFT JOIN analysis a ON g.analysis_id = a.analysis_id
 WHERE sr.name = %s
 ORDER BY g.seq_region_start, g.seq_region_end;
-'''
+"""
 
 
 def fetch_genes_for_region(
     conn, seq_region_name: str, coord_system_name: Optional[str]
 ) -> pd.DataFrame:
     sql = _gene_query(coord_system_name)
-    params = (coord_system_name, seq_region_name) if coord_system_name else (seq_region_name,)
+    params = (
+        (coord_system_name, seq_region_name)
+        if coord_system_name
+        else (seq_region_name,)
+    )
     with conn.cursor() as cur:
         cur.execute(sql, params)
         rows = cur.fetchall()
@@ -131,7 +138,7 @@ def _transcript_query(coord_system_name: Optional[str]) -> str:
         if coord_system_name
         else ""
     )
-    return f'''
+    return f"""
 SELECT
   t.transcript_id,
   t.gene_id,
@@ -147,14 +154,18 @@ JOIN seq_region sr ON t.seq_region_id = sr.seq_region_id
 LEFT JOIN analysis a ON t.analysis_id = a.analysis_id
 WHERE sr.name = %s
 ORDER BY t.seq_region_start, t.seq_region_end;
-'''
+"""
 
 
 def fetch_transcripts_for_region(
     conn, seq_region_name: str, coord_system_name: Optional[str]
 ) -> pd.DataFrame:
     sql = _transcript_query(coord_system_name)
-    params = (coord_system_name, seq_region_name) if coord_system_name else (seq_region_name,)
+    params = (
+        (coord_system_name, seq_region_name)
+        if coord_system_name
+        else (seq_region_name,)
+    )
     with conn.cursor() as cur:
         cur.execute(sql, params)
         rows = cur.fetchall()

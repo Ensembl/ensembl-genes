@@ -1,3 +1,5 @@
+"""Tests for Reverse Gene Builder locus construction."""
+
 from __future__ import annotations
 
 import pandas as pd
@@ -6,6 +8,7 @@ from ensembl.genes.rgb.loci import build_loci
 
 
 def test_build_loci_basic():
+    """Build strict and expanded loci from simple core/layer gene sets."""
     core = pd.DataFrame(
         [
             {
