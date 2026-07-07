@@ -1,0 +1,23 @@
+{
+  "coordinate_overlap": {
+    "min_overlap": 0.1
+  },
+  "structural_matching": {
+    "window": 100000,
+    "topk": 5,
+    "min_score": 0.3,
+    "good_score": 0.45,
+    "confident_score": 0.6,
+    "gene_fraction": 0.6,
+    "score_weights": {
+      "span_containment": 0.55,
+      "query_coverage": 0.25,
+      "intron_sim": 0.05,
+      "jacc_internal": 0.03,
+      "jacc_all": 0.03,
+      "exon_count_sim": 0.02,
+      "boundary_sim": 0.05,
+      "lifton_identity_prior": 0.02
+    }
+  }
+}

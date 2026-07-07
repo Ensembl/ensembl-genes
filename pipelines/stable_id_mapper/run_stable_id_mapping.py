@@ -203,6 +203,11 @@ def main() -> None:
     sys.stderr.write(f"LiftOn GFF3: {result.lifton_gff}\n")
     sys.stderr.write(f"Transcript scores: {result.match_summary.transcript_pairs_path}\n")
     sys.stderr.write(f"Gene scores: {result.match_summary.gene_pairs_path}\n")
+    if result.match_summary.gene_locus_comparison_path is not None:
+        sys.stderr.write(
+            "Gene locus comparison: "
+            f"{result.match_summary.gene_locus_comparison_path}\n"
+        )
     sys.stderr.write(f"Score evidence: {result.output_score_evidence_tsv}\n")
     sys.stderr.write(f"Stable-ID TSV: {result.output_tsv}\n")
     sys.stderr.write(f"SQL: {result.output_sql}\n")

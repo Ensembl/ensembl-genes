@@ -110,6 +110,7 @@ out/stable-id-run/lifton/lifton_feature_types.txt
 out/stable-id-run/lifton/projected_ref_on_target.gff3
 out/stable-id-run/matching/lifton.transcript_pairs.tsv
 out/stable-id-run/matching/lifton.gene_pairs.tsv
+out/stable-id-run/matching/lifton.gene_locus_comparison.tsv
 out/stable-id-run/reports/missing_genes.txt
 out/stable-id-run/score_evidence.tsv
 out/stable-id-run/stable_id_decisions.tsv
@@ -174,6 +175,13 @@ target GFF3 feature. Projected LiftOn IDs alone are not treated as mapped unless
 they are tied to a concrete target feature. `score_evidence.tsv` lists the
 normalized evidence loaded from the LiftOn gene and transcript pair tables,
 including confidence labels and score source.
+
+`matching/lifton.gene_locus_comparison.tsv` is a calibration report, not a
+decision input yet. It compares each LiftOn-projected old gene with the best
+nearby target gene by whole-gene span overlap and writes those locus metrics
+next to the accepted transcript-structure evidence. This makes it easier to
+spot cases where transcript structure is too strict because a different isoform
+or CDS/exon representation was favored.
 
 ## Workflow 1: Assembly-to-Assembly Mapper
 

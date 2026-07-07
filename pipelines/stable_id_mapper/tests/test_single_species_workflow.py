@@ -114,6 +114,12 @@ chrT	test	exon	280	550	.	+	.	ID=exon:two;Parent=transcript:ENSXT9001.1
     assert "span_containment" in transcript_pairs_text
     assert "transcript:ENSXT0001" in transcript_pairs_text
     assert "gene:ENSXG0001" in summary.gene_pairs_path.read_text(encoding="utf-8")
+    assert summary.gene_locus_comparison_path is not None
+    locus_text = summary.gene_locus_comparison_path.read_text(encoding="utf-8")
+    assert "locus_score" in locus_text
+    assert "old_gene_coverage" in locus_text
+    assert "structure_accepted_target_gene" in locus_text
+    assert "gene:ENSXG0001.1\tgene:ENSXG9001.1" in locus_text
 
 
 def test_single_species_workflow_with_patched_lifton(

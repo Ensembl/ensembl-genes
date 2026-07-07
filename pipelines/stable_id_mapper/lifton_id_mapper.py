@@ -209,7 +209,10 @@ class Transcript:
         return self._tes
 
 class Gene:
-    __slots__ = ('id', 'contig', 'strand', 'transcripts', 'span_start', 'span_end', 'attrs')
+    __slots__ = (
+        'id', 'contig', 'strand', 'transcripts', 'span_start', 'span_end',
+        'feature_start', 'feature_end', 'attrs'
+    )
     def __init__(self, gid: str, contig: str, strand: str):
         self.id = gid
         self.contig = contig
@@ -217,7 +220,13 @@ class Gene:
         self.transcripts: Dict[str, Transcript] = {}
         self.span_start = 10**18
         self.span_end = -1
+        self.feature_start = 0
+        self.feature_end = 0
         self.attrs: Dict[str, str] = {}
+
+    def set_feature_span(self, start: int, end: int):
+        self.feature_start = min(start, end)
+        self.feature_end = max(start, end)
 
     def add_tx(self, tx: Transcript):
         self.transcripts[tx.id] = tx
@@ -323,6 +332,7 @@ def load_gff3_as_annotation(path: str, label: str) -> Annotation:
                     g.contig = seqid
                     g.strand = strand
                     g.attrs.update(attrs)
+                g.set_feature_span(start_i, end_i)
 
             elif ftype_l in ('exon', 'cds'):
                 parent = attrs.get('Parent')
