@@ -21,7 +21,6 @@ import argparse
 import os
 import csv
 import logging
-import os
 import sys
 from datetime import datetime
 from pathlib import Path
@@ -38,10 +37,9 @@ try:
 except ImportError as exc:
     METADATA_API_AVAILABLE = False
     logging.warning(
-        "ensembl-metadata-api not available. Install with:\n"
-        "  git clone https://github.com/Ensembl/ensembl-metadata-api.git\n"
-        "  cd ensembl-metadata-api\n"
-        "  pip install -r requirements.txt && pip install -e .\n"
+        "ensembl-metadata-api not available. Install it into the active environment, "
+        "or run beta_patcher with METADATA_URI/TAXONOMY_URI and "
+        "BETA_PATCHER_FORCE_DIRECT=1 to use direct SQLAlchemy access. "
         f"ImportError: {exc}"
     )
 

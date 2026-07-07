@@ -37,29 +37,192 @@ This script doesn't currently deal with collections, species_ids are hardcoded a
 
 ## Running beta_patcher.py
 
-Generates SQL patches for beta metadata fixes in both production metadata DB and core DBs.
+Generates validation and patch SQL for beta metadata fixes in:
+
+1. the production metadata database (`ensembl_genome_metadata`)
+2. the matching beta core database `meta` table
+
+The script takes a CSV of requested changes, resolves each `genome_uuid` to a
+`production_name`, discovers the matching core database on ST6/ST5, and writes
+separate `validate_*.sql` and `patch_*.sql` files.
 
 **Setup:**
+
+Install `ensembl-genes` in the active environment so the `beta_patcher`
+console command is available:
+
 ```bash
-pip install -r requirements.txt
-git clone https://github.com/Ensembl/ensembl-metadata-api.git
-cd ensembl-metadata-api && pip install -r requirements.txt && pip install -e .
+# From a local checkout
+cd ensembl-genes
+pip install .
 ```
 
-You also require two environemtal variables to enable interaction with the production metadata db. Substitute in the valid connection details for these database servers.
+For development work, use an editable install instead:
+
+```bash
+cd ensembl-genes
+pip install -e .
+```
+
+The metadata API package is optional, but preferred when available:
+
+```bash
+git clone https://github.com/Ensembl/ensembl-metadata-api.git
+cd ensembl-metadata-api
+pip install -e .
+```
+
+You also require connection details for the production metadata and taxonomy
+databases. The metadata URI is used by the API path and by the direct SQLAlchemy
+fallback.
+
 ```bash
 export METADATA_URI="mysql+pymysql://user:pass@host:port/ensembl_genome_metadata"
 export TAXONOMY_URI="mysql+pymysql://user:pass@host:port/ncbi_taxonomy"
 ```
 
+If the metadata API is installed but incompatible with the current schema, force
+direct SQLAlchemy access:
+
+```bash
+export BETA_PATCHER_FORCE_DIRECT=1
+```
+
+For metadata-only patch generation without metadata DB/core discovery, use
+offline mode. This generates metadata SQL and skips core patches because the
+core database name cannot be resolved.
+
+```bash
+export BETA_PATCHER_OFFLINE=1
+```
+
 **Usage:**
+
+Assume `ensembl-genes` is installed in the active environment and use the
+`beta_patcher` console command.
+
 ```bash
 # Basic usage
-python beta_patcher.py patches.csv --jira-ticket EBD-1111 --output-dir ./patches/
+beta_patcher \
+  patches.csv \
+  --jira-ticket EBD-1111 \
+  --output-dir ./patches/
+
+# Use explicit metadata/taxonomy URIs instead of environment variables
+beta_patcher \
+  patches.csv \
+  --jira-ticket EBD-1111 \
+  --metadata-uri "mysql+pymysql://user:pass@host:port/ensembl_genome_metadata" \
+  --taxonomy-uri "mysql+pymysql://user:pass@host:port/ncbi_taxonomy" \
+  --output-dir ./patches/
 
 # With team filter (only applies patches where all affected genomes belong to specified team)
-python beta_patcher.py patches.csv --jira-ticket EBD-1111 --team-filter Genebuild
+beta_patcher \
+  patches.csv \
+  --jira-ticket EBD-1111 \
+  --team-filter Genebuild
+
+# Override beta core server discovery
+beta_patcher \
+  patches.csv \
+  --jira-ticket EBD-1111 \
+  --st6-uri "mysql+pymysql://ensro:@mysql-ens-sta-6:4695/" \
+  --st5-uri "mysql+pymysql://ensro:@mysql-ens-sta-5:4684/"
 ```
+
+When working from a repo checkout without installing the package, use the module
+entry point as a development fallback:
+
+```bash
+PYTHONPATH=src/python python3 -m ensembl.genes.metadata.beta_patcher \
+  patches.csv \
+  --jira-ticket EBD-1111 \
+  --output-dir ./patches/
+```
+
+**CSV format:**
+
+Required columns:
+
+- `genome_uuid`
+- `meta_key`
+- `desired_meta_value`
+
+Optional columns:
+
+- `dataset_type` - defaults to `genebuild`
+- `species_id` - defaults to `1`
+- `table_location` - defaults to `dataset_attribute`
+
+Valid `table_location` values are:
+
+- `dataset_attribute` - updates metadata DB `dataset_attribute.value` and the
+  core DB `meta.meta_value`
+- `genome` - updates a column in the metadata DB `genome` table and the core DB
+  `meta.meta_value`
+- `organism` - updates a column in the metadata DB `organism` table and the core
+  DB `meta.meta_value`
+- `assembly` - updates a column in the metadata DB `assembly` table and the core
+  DB `meta.meta_value`
+
+Use `\N` in `desired_meta_value` to set SQL `NULL` in the metadata database.
+Core DB patches store this as the string `'NULL'`, matching the current core
+`meta` table convention.
+
+Wrap CSV values containing commas in double quotes. If `species_id` is reported
+as invalid, check for an unquoted comma in `desired_meta_value`.
+
+Example:
+
+```csv
+genome_uuid,meta_key,desired_meta_value,dataset_type,species_id,table_location
+a7335667-93e7-11ec-a39d-005056b38ce3,assembly.name,GRCh38.p14,genebuild,1,dataset_attribute
+a7335667-93e7-11ec-a39d-005056b38ce3,genebuild_version,2024-01,genebuild,1,genome
+b8446778-a4f8-22fd-b4ae-116167c49df4,strain,reference,genebuild,1,organism
+d0668990-c6h0-44hf-d6cg-338389e6bfh6,genebuild.annotation_source,ensembl,genebuild,1,dataset_attribute
+```
+
+There is a template at `src/python/ensembl/genes/metadata/patches_template.csv`.
+
+**Generated files:**
+
+For a Jira ticket such as `EBD-1111`, the script writes:
+
+- `validate_metadata_EBD-1111.sql`
+- `patch_metadata_EBD-1111.sql`
+- `validate_core_EBD-1111_<server>.sql`
+- `patch_core_EBD-1111_<server>.sql`
+- `patch_csv_<timestamp>.log`
+
+Run the `validate_*.sql` files before applying the corresponding `patch_*.sql`
+files.
+
+Alternatively, for large patches it is advisable to make a copy of the metadata
+DB and confirm the patches have the intended effect.
+
+**Core database discovery:**
+
+By default, the script searches ST6 first and ST5 second using:
+
+- `mysql+pymysql://ensro:@mysql-ens-sta-6:4695/`
+- `mysql+pymysql://ensro:@mysql-ens-sta-5:4684/`
+
+The chosen core database must match `{production_name}%_core_%`. Exact matches
+starting `{production_name}_core_` are preferred. If ST5/ST6 discovery is not
+used, `--core-suffix` is appended to `production_name`; the default suffix is
+`_core_114_1`.
+
+**Safety checks:**
+
+- Existing metadata values are checked. Matching values are written as
+  `SKIPPED (no change)`.
+- `dataset_attribute` patches update existing `dataset_attribute_id` rows when
+  present; otherwise they insert the missing attribute.
+- `organism` and `assembly` patches can affect multiple genomes that share the
+  same organism or assembly. The output SQL includes affected genomes and teams.
+- `--team-filter` skips shared `organism` or `assembly` patches unless all
+  affected genomes belong to the requested team.
+- The log reports whether any requested fields require THOAS updates.
 
 ### Finding genome_uuid for organism/assembly patches
 
