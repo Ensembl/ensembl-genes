@@ -115,6 +115,9 @@ Use `--dry-run-lifton-command` to print the LiftOn command without executing the
 pipeline. This is useful on systems where LiftOn is provided by a module or
 container. The dry run also writes `lifton/lifton_feature_types.txt`, because
 LiftOn expects `-f` to point to a file rather than a comma-separated inline list.
+The default feature file contains only `gene`, so LiftOn projects whole gene
+models and does not try to lift child rows such as exons or UTRs as independent
+loci.
 
 After a successful LiftOn run, reuse existing outputs while debugging matching,
 scoring, and SQL:
@@ -375,8 +378,8 @@ lifton -f out/lifton/lifton_feature_types.txt \
 ```
 
 Use `--dry-run-command` to print the command without executing it. Use
-`--feature-types` to override the default feature list; the wrapper writes the
-list to `lifton_feature_types.txt` before calling LiftOn. Use
+`--feature-types` to override the default parent feature list (`gene`); the
+wrapper writes the list to `lifton_feature_types.txt` before calling LiftOn. Use
 `--feature-types-file` if you already have a LiftOn feature-type file.
 
 Use `lifton_id_mapper.py` when you have:

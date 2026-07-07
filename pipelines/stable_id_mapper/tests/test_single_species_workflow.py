@@ -202,10 +202,7 @@ def test_top_level_cli_builds_expected_lifton_command(tmp_path: Path) -> None:
         "-g",
     ]
     assert command[-2:] == [str(ref_fasta), str(target_fasta)]
-    assert (
-        feature_types_file.read_text(encoding="utf-8")
-        == "CDS\nexon\nfive_prime_UTR\ngene\nmRNA\nthree_prime_UTR\n"
-    )
+    assert feature_types_file.read_text(encoding="utf-8") == "gene\n"
 
 
 def test_single_species_workflow_reuses_existing_outputs(

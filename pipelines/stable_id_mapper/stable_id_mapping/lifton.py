@@ -9,12 +9,7 @@ from pathlib import Path
 from typing import Optional, Sequence
 
 DEFAULT_LIFTON_FEATURE_TYPES = (
-    "CDS",
-    "exon",
-    "five_prime_UTR",
     "gene",
-    "mRNA",
-    "three_prime_UTR",
 )
 GENERATED_FEATURE_TYPES_FILE_NAME = "lifton_feature_types.txt"
 

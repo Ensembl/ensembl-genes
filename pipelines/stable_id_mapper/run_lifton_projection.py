@@ -39,7 +39,7 @@ def parse_args(argv: Optional[list[str]] = None) -> argparse.Namespace:
         "--feature-types",
         type=parse_feature_types,
         default=DEFAULT_LIFTON_FEATURE_TYPES,
-        help="Comma-separated feature types passed to lifton -f",
+        help="Comma-separated parent feature types written to the lifton -f file",
     )
     parser.add_argument(
         "--feature-types-file",
