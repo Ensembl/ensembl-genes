@@ -53,7 +53,16 @@ class SyntheticCase:
 
 
 def available_case_names() -> tuple[str, ...]:
-    return ("high_identity", "isoform_shift_gene_only", "unrelated_empty_lifton")
+    return (
+        "high_identity",
+        "isoform_shift_gene_only",
+        "unrelated_empty_lifton",
+        "duplicated_competing_locus",
+        "split_old_gene",
+        "merged_old_genes",
+        "strand_mismatch",
+        "contig_mismatch",
+    )
 
 
 def write_synthetic_cases(
@@ -114,6 +123,16 @@ def _write_case_by_name(output_dir: Path, name: str) -> SyntheticCase:
         return _write_isoform_shift_gene_only(output_dir / name)
     if name == "unrelated_empty_lifton":
         return _write_unrelated_empty_lifton(output_dir / name)
+    if name == "duplicated_competing_locus":
+        return _write_duplicated_competing_locus(output_dir / name)
+    if name == "split_old_gene":
+        return _write_split_old_gene(output_dir / name)
+    if name == "merged_old_genes":
+        return _write_merged_old_genes(output_dir / name)
+    if name == "strand_mismatch":
+        return _write_strand_mismatch(output_dir / name)
+    if name == "contig_mismatch":
+        return _write_contig_mismatch(output_dir / name)
     raise ValueError(f"Unknown synthetic case: {name}")
 
 
@@ -193,6 +212,134 @@ def _write_unrelated_empty_lifton(case_dir: Path) -> SyntheticCase:
             "gene": {"mapped": 0, "missing": 3, "new": 3},
             "transcript": {"mapped": 0, "missing": 3, "new": 3},
             "translation": {"mapped": 0, "missing": 3, "new": 3},
+        },
+    )
+
+
+def _write_duplicated_competing_locus(case_dir: Path) -> SyntheticCase:
+    old = (
+        GeneModel("ENSFAKEG000301", "ENSFAKET000301", "ENSFAKEP000301", "chrRef", 100, 500, "+", ((100, 150), (320, 500))),
+        GeneModel("ENSFAKEG000302", "ENSFAKET000302", "ENSFAKEP000302", "chrRef", 100, 500, "+", ((100, 180), (300, 500))),
+    )
+    lifton = tuple(_with_seqid(model, "chrSynthetic") for model in old)
+    target = (
+        GeneModel("ENSFAKEG900301", "ENSFAKET900301", "ENSFAKEP900301", "chrSynthetic", 100, 500, "+", ((100, 180), (300, 500))),
+    )
+    return _write_case(
+        case_dir,
+        "duplicated_competing_locus",
+        (
+            "Two projected old genes compete for one target locus. The better "
+            "structural match should claim the target; the other old gene is missing."
+        ),
+        old,
+        target,
+        lifton,
+        {
+            "gene": {"mapped": 1, "missing": 1, "new": 0},
+            "transcript": {"mapped": 1, "missing": 1, "new": 0},
+            "translation": {"mapped": 1, "missing": 1, "new": 0},
+        },
+    )
+
+
+def _write_split_old_gene(case_dir: Path) -> SyntheticCase:
+    old = (
+        GeneModel("ENSFAKEG000401", "ENSFAKET000401", "ENSFAKEP000401", "chrRef", 100, 1000, "+", ((100, 300), (700, 1000))),
+    )
+    lifton = (_with_seqid(old[0], "chrSynthetic"),)
+    target = (
+        GeneModel("ENSFAKEG900401", "ENSFAKET900401", "ENSFAKEP900401", "chrSynthetic", 100, 300, "+", ((100, 300),)),
+        GeneModel("ENSFAKEG900402", "ENSFAKET900402", "ENSFAKEP900402", "chrSynthetic", 700, 1000, "+", ((700, 1000),)),
+    )
+    return _write_case(
+        case_dir,
+        "split_old_gene",
+        (
+            "One old projected gene overlaps two target genes. Current conservative "
+            "behavior maps the old stable ID to one representative target and leaves "
+            "the other target feature new."
+        ),
+        old,
+        target,
+        lifton,
+        {
+            "gene": {"mapped": 1, "missing": 0, "new": 1},
+            "transcript": {"mapped": 1, "missing": 0, "new": 1},
+            "translation": {"mapped": 1, "missing": 0, "new": 1},
+        },
+    )
+
+
+def _write_merged_old_genes(case_dir: Path) -> SyntheticCase:
+    old = (
+        GeneModel("ENSFAKEG000501", "ENSFAKET000501", "ENSFAKEP000501", "chrRef", 100, 300, "+", ((100, 300),)),
+        GeneModel("ENSFAKEG000502", "ENSFAKET000502", "ENSFAKEP000502", "chrRef", 700, 1000, "+", ((700, 1000),)),
+    )
+    lifton = tuple(_with_seqid(model, "chrSynthetic") for model in old)
+    target = (
+        GeneModel("ENSFAKEG900501", "ENSFAKET900501", "ENSFAKEP900501", "chrSynthetic", 100, 1000, "+", ((100, 300), (700, 1000))),
+    )
+    return _write_case(
+        case_dir,
+        "merged_old_genes",
+        (
+            "Two old projected genes overlap one merged target gene. Current "
+            "one-to-one behavior maps one old stable ID and marks the other old gene missing."
+        ),
+        old,
+        target,
+        lifton,
+        {
+            "gene": {"mapped": 1, "missing": 1, "new": 0},
+            "transcript": {"mapped": 1, "missing": 1, "new": 0},
+            "translation": {"mapped": 1, "missing": 1, "new": 0},
+        },
+    )
+
+
+def _write_strand_mismatch(case_dir: Path) -> SyntheticCase:
+    old = (
+        GeneModel("ENSFAKEG000601", "ENSFAKET000601", "ENSFAKEP000601", "chrRef", 100, 500, "+", ((100, 500),)),
+    )
+    lifton = (_with_seqid(old[0], "chrSynthetic"),)
+    target = (
+        GeneModel("ENSFAKEG900601", "ENSFAKET900601", "ENSFAKEP900601", "chrSynthetic", 100, 500, "-", ((100, 500),)),
+    )
+    return _write_case(
+        case_dir,
+        "strand_mismatch",
+        "Projected and target genes overlap perfectly in span but are on opposite strands. Expected: no mapping.",
+        old,
+        target,
+        lifton,
+        {
+            "gene": {"mapped": 0, "missing": 1, "new": 1},
+            "transcript": {"mapped": 0, "missing": 1, "new": 1},
+            "translation": {"mapped": 0, "missing": 1, "new": 1},
+        },
+    )
+
+
+def _write_contig_mismatch(case_dir: Path) -> SyntheticCase:
+    old = (
+        GeneModel("ENSFAKEG000701", "ENSFAKET000701", "ENSFAKEP000701", "chrRef", 100, 500, "+", ((100, 500),)),
+    )
+    lifton = (_with_seqid(old[0], "chrSyntheticA"),)
+    target = (
+        GeneModel("ENSFAKEG900701", "ENSFAKET900701", "ENSFAKEP900701", "chrSyntheticB", 100, 500, "+", ((100, 500),)),
+    )
+    return _write_case(
+        case_dir,
+        "contig_mismatch",
+        "Projected and target genes overlap numerically but are on different contigs. Expected: no mapping.",
+        old,
+        target,
+        lifton,
+        {
+            "gene": {"mapped": 0, "missing": 1, "new": 1},
+            "transcript": {"mapped": 0, "missing": 1, "new": 1},
+            "translation": {"mapped": 0, "missing": 1, "new": 1},
         },
     )
 

@@ -4,10 +4,12 @@ import sys
 from collections import Counter
 from pathlib import Path
 
+import pytest
+
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from stable_id_mapping.ids import parse_id_range
-from stable_id_mapping.synthetic_cases import write_synthetic_cases
+from stable_id_mapping.synthetic_cases import available_case_names, write_synthetic_cases
 from stable_id_mapping.workflow import SingleSpeciesRunConfig, run_single_species_pipeline
 
 
@@ -45,12 +47,23 @@ def run_synthetic_case(case):
     )
 
 
+@pytest.mark.parametrize("case_name", available_case_names())
+def test_synthetic_case_decision_counts_match_expectations(
+    tmp_path: Path,
+    case_name: str,
+) -> None:
+    case = write_synthetic_cases(tmp_path, [case_name])[0]
+
+    result = run_synthetic_case(case)
+
+    assert decision_counts(result) == case.expected_decisions
+
+
 def test_high_identity_synthetic_case_maps_all_features(tmp_path: Path) -> None:
     case = write_synthetic_cases(tmp_path, ["high_identity"])[0]
 
     result = run_synthetic_case(case)
 
-    assert decision_counts(result) == case.expected_decisions
     assert result.match_summary.gene_pairs == 3
     assert result.match_summary.transcript_pairs == 3
 
@@ -76,3 +89,37 @@ def test_unrelated_empty_lifton_synthetic_case_maps_nothing(tmp_path: Path) -> N
     assert decision_counts(result) == case.expected_decisions
     assert result.match_summary.gene_pairs == 0
     assert result.match_summary.transcript_pairs == 0
+
+
+def test_duplicated_competing_locus_uses_best_structural_match(
+    tmp_path: Path,
+) -> None:
+    case = write_synthetic_cases(tmp_path, ["duplicated_competing_locus"])[0]
+
+    result = run_synthetic_case(case)
+    mapped_genes = [
+        decision
+        for decision in result.decisions
+        if decision.feature_type == "gene" and decision.action == "mapped"
+    ]
+
+    assert len(mapped_genes) == 1
+    assert mapped_genes[0].old_stable_id == "ENSFAKEG000302"
+    assert mapped_genes[0].current_stable_id == "ENSFAKEG900301"
+    assert result.match_summary.gene_pairs == 1
+
+
+@pytest.mark.parametrize("case_name", ["strand_mismatch", "contig_mismatch"])
+def test_mismatch_controls_have_no_locus_candidate(
+    tmp_path: Path,
+    case_name: str,
+) -> None:
+    case = write_synthetic_cases(tmp_path, [case_name])[0]
+
+    result = run_synthetic_case(case)
+    comparison_text = result.match_summary.gene_locus_comparison_path.read_text(
+        encoding="utf-8"
+    )
+
+    assert "no_locus_candidate" in comparison_text
+    assert result.match_summary.gene_pairs == 0

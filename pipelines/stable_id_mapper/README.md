@@ -201,11 +201,28 @@ for each case. The current cases are:
 high_identity              all old genes/transcripts/translations should map
 isoform_shift_gene_only    gene locus should map, transcript structure should not
 unrelated_empty_lifton     no old features should map; target features are new
+duplicated_competing_locus two old projections compete for one target locus
+split_old_gene             one old gene overlaps two target genes
+merged_old_genes           two old genes overlap one merged target gene
+strand_mismatch            overlapping spans on opposite strands should not map
+contig_mismatch            matching numeric spans on different contigs should not map
 ```
 
 Each case also writes `case.json` with the expected decision counts. These cases
 are meant for regression checks and rule calibration before drawing conclusions
 from messy real annotation examples.
+
+For a completed real-data run, pick a small review set with:
+
+```bash
+python3 pipelines/stable_id_mapper/pick_real_stable_id_examples.py \
+  --run-dir pipelines/stable_id_mapper/out/chr9-locus-calibration
+```
+
+This writes `reports/real_example_candidates.tsv` with representative examples
+such as structural gene mappings, coordinate-fallback mappings, high locus
+overlap with no accepted structure, locus/structure disagreements, and projected
+genes with no target locus candidate.
 
 ## Workflow 1: Assembly-to-Assembly Mapper
 
