@@ -62,6 +62,91 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
+## Single-Species Stable-ID Pipeline
+
+The main one-species entrypoint is `run_stable_id_mapping.py`. It runs LiftOn,
+writes structural matching score tables, loads those scores as mapping
+evidence, generates a missing-gene report from the projected GFF3, and then
+writes stable-ID decision TSV plus review SQL.
+
+Required manual inputs:
+
+- old/reference FASTA and GFF3
+- new/target FASTA and GFF3
+- core DB name
+- mapping session ID
+- gene, transcript, and translation stable-ID ranges
+- output directory
+
+Example:
+
+```bash
+python3 run_stable_id_mapping.py \
+  --ref-fasta ref.fa \
+  --ref-gff ref.gff3 \
+  --target-fasta tar.fa \
+  --target-gff tar.gff3 \
+  --db-name gallus_gallus_core_test \
+  --mapping-session-id 1 \
+  --gene-range ENSGALG:90000000000-90000099999 \
+  --transcript-range ENSGALT:90000000000-90000099999 \
+  --translation-range ENSGALP:90000000000-90000099999 \
+  --output-dir out/stable-id-run \
+  --lifton-threads 10
+```
+
+By default the SQL is dry-run/review SQL ending in `ROLLBACK`. Add
+`--write-executable-sql` only after reviewing the TSV and SQL checks.
+
+Expected outputs:
+
+```text
+out/stable-id-run/lifton/projected_ref_on_target.gff3
+out/stable-id-run/matching/lifton.transcript_pairs.tsv
+out/stable-id-run/matching/lifton.gene_pairs.tsv
+out/stable-id-run/reports/missing_genes.txt
+out/stable-id-run/score_evidence.tsv
+out/stable-id-run/stable_id_decisions.tsv
+out/stable-id-run/sql/stable_id_updates.dry_run.sql
+```
+
+Use `--dry-run-lifton-command` to print the LiftOn command without executing the
+pipeline. This is useful on systems where LiftOn is provided by a module or
+container.
+
+After a successful LiftOn run, reuse existing outputs while debugging matching,
+scoring, and SQL:
+
+```bash
+python3 run_stable_id_mapping.py \
+  --ref-fasta ref.fa \
+  --ref-gff ref.gff3 \
+  --target-fasta tar.fa \
+  --target-gff tar.gff3 \
+  --db-name gallus_gallus_core_test \
+  --mapping-session-id 1 \
+  --gene-range ENSGALG:90000000000-90000099999 \
+  --transcript-range ENSGALT:90000000000-90000099999 \
+  --translation-range ENSGALP:90000000000-90000099999 \
+  --output-dir out/stable-id-rerun \
+  --existing-lifton-gff out/stable-id-run/lifton/projected_ref_on_target.gff3
+```
+
+To skip both LiftOn and structural matching, provide all three reuse files:
+
+```bash
+--existing-lifton-gff out/stable-id-run/lifton/projected_ref_on_target.gff3 \
+--existing-transcript-pairs out/stable-id-run/matching/lifton.transcript_pairs.tsv \
+--existing-gene-pairs out/stable-id-run/matching/lifton.gene_pairs.tsv
+```
+
+Scores in `stable_id_decisions.tsv` and `stable_id_event.score` use LiftOn
+structural evidence when an exact old-target gene or transcript pair is present.
+If no score evidence exists for a mapped pair, the pipeline falls back to the
+coordinate-overlap score used by the mapped/projected GFF3 decision layer.
+`score_evidence.tsv` lists the normalized evidence loaded from the LiftOn gene
+and transcript pair tables, including confidence labels and score source.
+
 ## Workflow 1: Assembly-to-Assembly Mapper
 
 Use `main.py` when you have:
@@ -151,9 +236,10 @@ biological mapping result. Install `minimap2` before evaluating mapping quality.
 
 ### Core-DB SQL Generator
 
-`main_output_to_stable_id_event_sql.py` is a quick converter from `main.py`
-output to SQL that can be reviewed and then run against an Ensembl core DB.
-The script does not connect to MySQL itself; it only writes SQL and optional TSV
+`main_output_to_stable_id_event_sql.py` is a compatibility wrapper around the
+modular `stable_id_mapping` package. It converts a projected/mapped GFF3 and
+mapping report to SQL that can be reviewed and then run against an Ensembl core
+DB. It does not connect to MySQL itself; it only writes SQL and optional TSV
 files.
 
 Inputs needed:
@@ -163,6 +249,7 @@ Inputs needed:
 - mapped GFF3: the file produced by `main.py --output-gff`
 - mapping report: the file produced by `main.py --report`; if `--report` is
   not passed, the converter looks for `report.txt` next to `--mapped-gff`
+- core DB name, used for the generated SQL `USE` statement
 - `mapping_session_id`: the core-DB mapping session ID to write into
   `stable_id_event`
 - gene, transcript, and translation stable-ID ranges, passed as
@@ -200,7 +287,7 @@ Pass the returned ranges to the script as `--gene-range`,
 `--transcript-range`, and `--translation-range`. `START` and `END` may include
 leading zeroes; the widest width is preserved when generating IDs.
 
-#### Run from `main.py` Output
+#### Run from Mapped/Projected Output
 
 ```bash
 python3 main_output_to_stable_id_event_sql.py \
@@ -208,6 +295,7 @@ python3 main_output_to_stable_id_event_sql.py \
   --target-gff tar.gff3 \
   --mapped-gff out/root-smoke/mapped.gff3 \
   --report out/root-smoke/report.txt \
+  --db-name gallus_gallus_core_test \
   --mapping-session-id 1 \
   --gene-range ENSGALG:90000000000-90000099999 \
   --transcript-range ENSGALT:90000000000-90000099999 \
@@ -218,12 +306,17 @@ python3 main_output_to_stable_id_event_sql.py \
   --output-tsv out/root-smoke/core_updates.tsv
 ```
 
-The script trusts `main.py`'s mapped GFF3 as the source of successfully mapped
-old IDs. It classifies the reference and target GFF3s by hierarchy: top-level
-features are genes, children of genes are transcripts, and `CDS` records are
-translations. It does not update exons. Translation mappings are inferred only
-when one old and one target translation sit under a mapped transcript;
-otherwise target translations receive new IDs from `--translation-range`.
+The script trusts the mapped/projected GFF3 as the source of successfully
+mapped old IDs. It classifies the reference and target GFF3s by hierarchy:
+`gene` records are genes, `mRNA`/`transcript` children of genes are transcripts,
+and `CDS` records are translations. It does not update exons. Mapped stable IDs
+always keep the old stable ID and increment the old version by one. New stable
+IDs are allocated from the supplied stable-space range with version `1`.
+Translation mappings are inferred only when one old and one target translation
+sit under a mapped transcript; otherwise target translations receive new IDs
+from `--translation-range`. When called through `run_stable_id_mapping.py`,
+the generated decision and SQL scores are fed by LiftOn structural score
+evidence where available.
 
 Review the TSV before running the SQL against a core database. The SQL also
 contains `SELECT` count checks for staged rows versus DB-matched rows.
@@ -236,6 +329,7 @@ python3 main_output_to_stable_id_event_sql.py \
   --target-gff tar.gff3 \
   --mapped-gff out/root-smoke/mapped.gff3 \
   --report out/root-smoke/report.txt \
+  --db-name gallus_gallus_core_test \
   --mapping-session-id 1 \
   --gene-range ENSGALG:90000000000-90000099999 \
   --transcript-range ENSGALT:90000000000-90000099999 \
@@ -251,6 +345,36 @@ not create backup tables, update core feature tables, delete previous events, or
 insert into `stable_id_event`.
 
 ## Workflow 2: LiftOn-to-Reference Mapper
+
+### Run LiftOn Projection
+
+The stable-ID pipeline should run LiftOn itself. The wrapper keeps this as a
+separate file-in/file-out step so it can be moved into Nextflow later without
+changing the Python decision logic.
+
+```bash
+python3 run_lifton_projection.py \
+  --ref-gff ref.gff3 \
+  --ref-fasta ref.fa \
+  --target-fasta tar.fa \
+  --output-gff out/lifton/projected_ref_on_target.gff3 \
+  --threads 10
+```
+
+The wrapper runs a command shaped like:
+
+```bash
+lifton -f CDS,exon,five_prime_UTR,gene,mRNA,three_prime_UTR \
+  -t 10 \
+  -g ref.gff3 \
+  -o out/lifton/projected_ref_on_target.gff3 \
+  ref.fa \
+  tar.fa
+```
+
+Use `--dry-run-command` to print the command without executing it. Use
+`--feature-types-file` if you need to pass a LiftOn feature-type file instead
+of the default feature list.
 
 Use `lifton_id_mapper.py` when you have:
 
@@ -347,13 +471,14 @@ final `0.05` of the score.
 
 ## Testing
 
-There are currently no committed unit tests for these stable-ID mapping
-scripts.
-
 Basic checks:
 
 ```bash
+python3 pipelines/stable_id_mapper/main_output_to_stable_id_event_sql.py --test
+python3 -m pytest pipelines/stable_id_mapper/tests
 python3 main.py --help
+python3 run_stable_id_mapping.py --help
+python3 run_lifton_projection.py --help
 python3 lifton_id_mapper.py --help
 python3 -m compileall .
 ```
@@ -363,9 +488,6 @@ If `pytest` is installed, run:
 ```bash
 python3 -m pytest
 ```
-
-At the time this README was written, the branch contains `pytest.ini` but no
-test files, so `pytest` is expected to collect no tests unless tests are added.
 
 ## Known Limitations
 
@@ -403,11 +525,11 @@ Good next steps for making this branch production-ready:
 
 1. Add unit tests for ID parsing, new-ID allocation, GFF3 parsing, scoring, and
    parent/child ID consistency.
-2. Broaden `gff_io.py` support for Ensembl feature types and preserve exon/CDS
-   attributes.
+2. Run real LiftOn smoke tests and tune score thresholds/reporting from those
+   outputs.
 3. Fix assembly mapper output so generated transcript IDs are consistently used
    by child features.
-4. Use `minimap2` in smoke tests and record expected mapping summaries for the
-   bundled fixtures.
+4. Use LiftOn and `minimap2` in smoke tests and record expected mapping
+   summaries for the bundled fixtures.
 5. Decide whether these scripts should stay as a standalone pipeline or move
    under `src/python/ensembl/genes/stable_id`.
