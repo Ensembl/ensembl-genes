@@ -183,6 +183,30 @@ next to the accepted transcript-structure evidence. This makes it easier to
 spot cases where transcript structure is too strict because a different isoform
 or CDS/exon representation was favored.
 
+### Synthetic Calibration Cases
+
+The bundled chicken chromosome 9 files are useful real-data examples, but they
+are not a formal truth set unless the old and target annotations are known to be
+near-equivalent. For behavior with known expectations, generate synthetic cases:
+
+```bash
+python3 pipelines/stable_id_mapper/generate_synthetic_stable_id_cases.py \
+  --output-dir pipelines/stable_id_mapper/out/synthetic_cases
+```
+
+The generator writes small FASTA/GFF3/LiftOn-output triples and prints a command
+for each case. The current cases are:
+
+```text
+high_identity              all old genes/transcripts/translations should map
+isoform_shift_gene_only    gene locus should map, transcript structure should not
+unrelated_empty_lifton     no old features should map; target features are new
+```
+
+Each case also writes `case.json` with the expected decision counts. These cases
+are meant for regression checks and rule calibration before drawing conclusions
+from messy real annotation examples.
+
 ## Workflow 1: Assembly-to-Assembly Mapper
 
 Use `main.py` when you have:
