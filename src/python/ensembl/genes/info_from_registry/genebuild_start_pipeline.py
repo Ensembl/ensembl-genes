@@ -189,7 +189,7 @@ def main(  # pylint:disable=too-many-statements, too-many-locals
             ehive_urls["anno"] = ehive_url  # type: ignore[assignment]
             logger.info(f"Extracted EHIVE_URL: {ehive_url}")
 
-            update_registry_path_in_pipedb(parent_dir, server_info)
+            update_registry_path_in_pipedb(str(parent_dir), server_info)
             seed_url = ehive_url  # unify below
 
         # Common seeding step

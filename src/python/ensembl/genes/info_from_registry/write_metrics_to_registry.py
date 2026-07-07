@@ -263,7 +263,7 @@ def main(  # pylint:disable=too-many-arguments, too-many-locals
             host=core_host,
             port=core_port,
             user=core_user,
-            password=core_password,
+            password=core_password or "",
         )
 
         if not core_connection:

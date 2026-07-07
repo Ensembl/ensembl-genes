@@ -447,9 +447,8 @@ def get_metadata_from_registry(
         init_file = Path(settings["init_file"])
         if init_file.exists():
             logger.info("Loading info from init file")
-            registry_info = custom_loading(settings)
-            registry_info = assign_clade_info_custom_loading(registry_info)
-            return registry_info
+            custom_registry_info = custom_loading(settings)
+            return assign_clade_info_custom_loading(custom_registry_info)
         raise FileNotFoundError(f"INI file not found: {init_file}")
 
     try:
@@ -480,7 +479,7 @@ def get_metadata_from_registry(
             WHERE CONCAT(a.gca_chain, '.', a.gca_version) IN ({placeholders})
         """
 
-        registry_info = mysql_fetch_data(
+        registry_rows = mysql_fetch_data(
             registry_query,
             host=server_info["registry"]["db_host"],
             user=server_info["registry"]["db_user"],
@@ -489,13 +488,13 @@ def get_metadata_from_registry(
             password="",
             params=assembly_accessions,
         )
-        if not registry_info:
+        if not registry_rows:
             raise ValueError(
                 f"No registry data found for accessions: {assembly_accessions}"
             )
 
         logger.info(f"Registry query successful for {assembly_accessions}")
-        return registry_info[0]
+        return registry_rows[0]
 
     except pymysql.Error as err:
         logger.error("MySQL error: %s", err)
