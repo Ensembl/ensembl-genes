@@ -239,6 +239,7 @@ def load_gff3_as_annotation(path: str, label: str) -> Annotation:
     ann = Annotation(label)
     # Temporary storage: transcript attributes before exons
     tx_meta: Dict[str, Tuple[str,str,Dict[str,str]]] = {}
+    cds_blocks: Dict[str, List[Tuple[int,int]]] = collections.defaultdict(list)
 
     # Treat a broad set of SO terms as transcript-like (non-coding included)
     TRANSCRIPT_TYPES = set(t.lower() for t in [
@@ -287,6 +288,14 @@ def load_gff3_as_annotation(path: str, label: str) -> Annotation:
                     t = Transcript(tid, gid or '', seqid, strand)
                     t.attrs.update(attrs)
                     ann.tx_index[tid] = t
+                else:
+                    t = ann.tx_index[tid]
+                    if gid and not t.gene_id:
+                        t.gene_id = gid
+                    t.contig = seqid
+                    t.strand = strand
+                    for k, v in attrs.items():
+                        t.attrs.setdefault(k, v)
 
             elif ftype_l == 'gene':
                 gid = attrs.get('ID') or attrs.get('gene_id') or attrs.get('Name')
@@ -298,7 +307,7 @@ def load_gff3_as_annotation(path: str, label: str) -> Annotation:
                     g.attrs.update(attrs)
                     ann.genes[gid] = g
 
-            elif ftype_l == 'exon':
+            elif ftype_l in ('exon', 'cds'):
                 parent = attrs.get('Parent')
                 if not parent:
                     continue
@@ -311,11 +320,23 @@ def load_gff3_as_annotation(path: str, label: str) -> Annotation:
                         strand2 = strand
                         t = Transcript(tid, attrs.get('gene_id',''), seqid2, strand2)
                         ann.tx_index[tid] = t
-                    t.add_exon(start_i, end_i)
+                    if ftype_l == 'exon':
+                        t.add_exon(start_i, end_i)
+                    else:
+                        cds_blocks[tid].append((start_i, end_i))
 
             else:
                 # ignore other feature types for structure
                 pass
+
+    # LiftOn outputs can be CDS-only for some transcripts. Use CDS blocks as
+    # transcript-structure evidence only when explicit exon rows are absent.
+    for tid, blocks in cds_blocks.items():
+        t = ann.tx_index.get(tid)
+        if t is None or t.exons:
+            continue
+        for start_i, end_i in blocks:
+            t.add_exon(start_i, end_i)
 
     # Link transcripts to genes & compute spans
     for tid, t in list(ann.tx_index.items()):

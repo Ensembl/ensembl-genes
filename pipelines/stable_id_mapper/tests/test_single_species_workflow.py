@@ -8,7 +8,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 import run_stable_id_mapping
 import stable_id_mapping.workflow as workflow
 from stable_id_mapping.ids import parse_id_range
-from stable_id_mapping.lifton_matching import LiftonMatchSummary
+from stable_id_mapping.lifton_matching import LiftonMatchConfig, LiftonMatchSummary
+from stable_id_mapping.lifton_matching import run_lifton_matching
 from stable_id_mapping.reports import write_missing_gene_report
 from stable_id_mapping.workflow import SingleSpeciesRunConfig, run_single_species_pipeline
 
@@ -45,6 +46,50 @@ chrT	test	mRNA	10	100	.	+	.	ID=transcript:ENST0001.1;Parent=gene:ENSG0001.1
 
     assert missing == {"ENSG0002"}
     assert "gene:ENSG0002" in report.read_text(encoding="utf-8")
+
+
+def test_lifton_matching_uses_cds_when_lifton_output_has_no_exons(
+    tmp_path: Path,
+) -> None:
+    lifton_gff = tmp_path / "lifton.gff3"
+    target_gff = tmp_path / "target.gff3"
+    out_prefix = tmp_path / "matching" / "lifton"
+    write_text(
+        lifton_gff,
+        """
+##gff-version 3
+chrT	LiftOn	gene	100	500	.	+	.	ID=gene:ENSXG0001.1
+chrT	LiftOn	mRNA	100	500	.	+	.	ID=transcript:ENSXT0001.1;Parent=gene:ENSXG0001.1
+chrT	LiftOn	CDS	100	200	.	+	0	ID=CDS:ENSXP0001;Parent=transcript:ENSXT0001.1
+chrT	LiftOn	CDS	300	500	.	+	0	ID=CDS:ENSXP0001;Parent=transcript:ENSXT0001.1
+        """,
+    )
+    write_text(
+        target_gff,
+        """
+##gff-version 3
+chrT	test	gene	100	500	.	+	.	ID=gene:ENSXG9001.1
+chrT	test	mRNA	100	500	.	+	.	ID=transcript:ENSXT9001.1;Parent=gene:ENSXG9001.1
+chrT	test	exon	100	200	.	+	.	ID=exon:one;Parent=transcript:ENSXT9001.1
+chrT	test	exon	300	500	.	+	.	ID=exon:two;Parent=transcript:ENSXT9001.1
+        """,
+    )
+
+    summary = run_lifton_matching(
+        LiftonMatchConfig(
+            lifton_gff=lifton_gff,
+            target_gff=target_gff,
+            out_prefix=out_prefix,
+            min_score=0.60,
+        )
+    )
+
+    assert summary.transcript_pairs == 1
+    assert summary.gene_pairs == 1
+    assert "transcript:ENSXT0001" in summary.transcript_pairs_path.read_text(
+        encoding="utf-8"
+    )
+    assert "gene:ENSXG0001" in summary.gene_pairs_path.read_text(encoding="utf-8")
 
 
 def test_single_species_workflow_with_patched_lifton(

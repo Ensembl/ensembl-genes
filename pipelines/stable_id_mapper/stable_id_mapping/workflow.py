@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import sys
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Optional
@@ -149,9 +150,16 @@ def run_single_species_pipeline(
             )
         )
     else:
+        transcript_pair_count = _count_data_rows(config.existing_transcript_pairs)
+        gene_pair_count = _count_data_rows(config.existing_gene_pairs)
+        if transcript_pair_count == 0 and gene_pair_count == 0:
+            sys.stderr.write(
+                "Warning: reusing empty structural pair tables; "
+                "run with only --existing-lifton-gff to regenerate matching.\n"
+            )
         match_summary = LiftonMatchSummary(
-            transcript_pairs=_count_data_rows(config.existing_transcript_pairs),
-            gene_pairs=_count_data_rows(config.existing_gene_pairs),
+            transcript_pairs=transcript_pair_count,
+            gene_pairs=gene_pair_count,
             transcript_pairs_path=config.existing_transcript_pairs,
             gene_pairs_path=config.existing_gene_pairs,
         )

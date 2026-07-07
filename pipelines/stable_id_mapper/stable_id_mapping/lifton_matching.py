@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import sys
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -48,10 +49,23 @@ class LiftonMatchSummary:
     gene_pairs_path: Path
 
 
+def _transcripts_with_structure(annotation) -> int:
+    return sum(1 for transcript in annotation.tx_index.values() if transcript.exons)
+
+
 def run_lifton_matching(config: LiftonMatchConfig) -> LiftonMatchSummary:
     config.validate()
     lifton = lifton_id_mapper.load_gff3_as_annotation(str(config.lifton_gff), "LiftOn")
     target = lifton_id_mapper.load_gff3_as_annotation(str(config.target_gff), "Target")
+    sys.stderr.write(
+        "Structural matching inputs: "
+        f"lifton_genes={len(lifton.genes)}, "
+        f"lifton_transcripts={len(lifton.tx_index)}, "
+        f"lifton_transcripts_with_structure={_transcripts_with_structure(lifton)}, "
+        f"target_genes={len(target.genes)}, "
+        f"target_transcripts={len(target.tx_index)}, "
+        f"target_transcripts_with_structure={_transcripts_with_structure(target)}\n"
+    )
     pairs = lifton_id_mapper.compute_pairs(
         lifton,
         target,
@@ -74,10 +88,18 @@ def run_lifton_matching(config: LiftonMatchConfig) -> LiftonMatchSummary:
         min_gene_fraction=config.gene_fraction,
     )
     lifton_id_mapper.write_gene_pairs(gene_pairs, str(config.gene_pairs_path))
+    if not pairs:
+        sys.stderr.write(
+            "Warning: structural matching produced no transcript pairs. "
+            "Check contig names, strands, transcript structure rows, and match thresholds.\n"
+        )
+    sys.stderr.write(
+        "Structural matching outputs: "
+        f"transcript_pairs={len(pairs)}, gene_pairs={len(gene_pairs)}\n"
+    )
     return LiftonMatchSummary(
         transcript_pairs=len(pairs),
         gene_pairs=len(gene_pairs),
         transcript_pairs_path=config.transcript_pairs_path,
         gene_pairs_path=config.gene_pairs_path,
     )
-
