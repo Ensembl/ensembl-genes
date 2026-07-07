@@ -74,6 +74,16 @@ def best_evidence_match(
     return None
 
 
+def sorted_evidence_candidates(
+    evidence: ScoreEvidence,
+    feature_type: str,
+) -> list[MappingEvidence]:
+    return sorted(
+        evidence.by_feature_type.get(feature_type, {}).values(),
+        key=lambda item: (-item.score, item.old_stable_id, item.target_stable_id),
+    )
+
+
 def build_gene_decisions(
     ref_features: dict[str, dict[str, Feature]],
     target_features: dict[str, dict[str, Feature]],
@@ -86,6 +96,7 @@ def build_gene_decisions(
 ) -> tuple[list[Decision], dict[str, str]]:
     decisions: list[Decision] = []
     used_targets: set[str] = set()
+    assigned_old_genes: set[str] = set()
     old_gene_to_target_gene: dict[str, str] = {}
 
     for old_id in sorted(missing_gene_ids):
@@ -106,41 +117,47 @@ def build_gene_decisions(
             )
         )
 
-    for old_id in sorted(mapped_features["gene"]):
-        mapped = mapped_features["gene"][old_id]
-        evidence_match = best_evidence_match(
-            score_evidence,
-            "gene",
-            old_id,
-            target_features["gene"],
-            used_targets,
-        )
-        old_version = old_version_for(ref_features["gene"], old_id, mapped)
-        new_version = mapped_version(old_version)
-        if evidence_match is not None:
-            target, evidence = evidence_match
-            used_targets.add(target.stable_id)
-            old_gene_to_target_gene[old_id] = target.stable_id
-            decisions.append(
-                Decision(
-                    feature_type="gene",
-                    action="mapped",
-                    current_stable_id=target.stable_id,
-                    current_version=target.version,
-                    old_stable_id=old_id,
-                    old_version=old_version,
-                    new_stable_id=old_id,
-                    new_version=new_version,
-                    mapping_session_id=mapping_session_id,
-                    score=evidence.score,
-                    reason=(
-                        "mapped gene matched a target gene by lifton structural evidence; "
-                        f"score_source={evidence.source} confidence={evidence.confidence}"
-                    ),
-                )
-            )
+    for evidence in sorted_evidence_candidates(score_evidence, "gene"):
+        old_id = evidence.old_stable_id
+        if old_id in assigned_old_genes:
+            continue
+        mapped = mapped_features["gene"].get(old_id)
+        if mapped is None:
+            continue
+        target = target_features["gene"].get(evidence.target_stable_id)
+        if target is None or target.stable_id in used_targets:
             continue
 
+        old_version = old_version_for(ref_features["gene"], old_id, mapped)
+        new_version = mapped_version(old_version)
+        used_targets.add(target.stable_id)
+        assigned_old_genes.add(old_id)
+        old_gene_to_target_gene[old_id] = target.stable_id
+        decisions.append(
+            Decision(
+                feature_type="gene",
+                action="mapped",
+                current_stable_id=target.stable_id,
+                current_version=target.version,
+                old_stable_id=old_id,
+                old_version=old_version,
+                new_stable_id=old_id,
+                new_version=new_version,
+                mapping_session_id=mapping_session_id,
+                score=evidence.score,
+                reason=(
+                    "mapped gene matched a target gene by lifton structural evidence; "
+                    f"score_source={evidence.source} confidence={evidence.confidence}"
+                ),
+            )
+        )
+
+    for old_id in sorted(mapped_features["gene"]):
+        if old_id in assigned_old_genes:
+            continue
+        mapped = mapped_features["gene"][old_id]
+        old_version = old_version_for(ref_features["gene"], old_id, mapped)
+        new_version = mapped_version(old_version)
         target = best_unused_match(
             mapped,
             target_features["gene"].values(),
