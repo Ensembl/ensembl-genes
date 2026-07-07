@@ -16,11 +16,11 @@ Usage:
     python beta_patcher.py patches.csv --jira-ticket EBD-1111 --core-suffix _core_115_1
 """
 
-# pylint: disable=logging-fstring-interpolation, unspecified-encoding, broad-exception-caught, unused-variable, too-many-lines, too-many-locals
+# pylint: disable=logging-fstring-interpolation, unspecified-encoding, broad-exception-caught, unused-variable, too-many-lines, too-many-locals, too-many-return-statements
 import argparse
+import os
 import csv
 import logging
-import os
 import sys
 from datetime import datetime
 from pathlib import Path
@@ -37,9 +37,9 @@ try:
 except ImportError as exc:
     METADATA_API_AVAILABLE = False
     logging.warning(
-        "ensembl-metadata-api not available. Install it into the active environment,\n"
-        "or run beta_patcher with METADATA_URI/TAXONOMY_URI and\n"
-        "BETA_PATCHER_FORCE_DIRECT=1 to use direct SQLAlchemy access.\n"
+        "ensembl-metadata-api not available. Install it into the active environment, "
+        "or run beta_patcher with METADATA_URI/TAXONOMY_URI and "
+        "BETA_PATCHER_FORCE_DIRECT=1 to use direct SQLAlchemy access. "
         f"ImportError: {exc}"
     )
 
@@ -100,6 +100,7 @@ def _get_metadata_connection():
     2) Direct SQLAlchemy engine from METADATA_URI
     Returns None if neither is available.
     """
+    # Forced direct connection (avoid ORM mismatches like genebuild_version)
     if os.getenv("BETA_PATCHER_FORCE_DIRECT") == "1":
         uri = os.getenv("METADATA_URI")
         if not uri:
@@ -110,11 +111,13 @@ def _get_metadata_connection():
             logging.error(f"Failed to create engine from METADATA_URI: {e}")
             return None
 
+    # Try API adaptor first when available
     if METADATA_API_AVAILABLE:
         adaptor = get_genome_adaptor()
         if adaptor and getattr(adaptor, "metadata_db", None):
             return adaptor.metadata_db
 
+    # Fallback to direct engine via env
     uri = os.getenv("METADATA_URI")
     if not uri:
         return None
@@ -929,21 +932,24 @@ def resolve_genome_info(
     row_num = patch["row_num"]
     genome_uuid = patch["genome_uuid"]
 
+    offline = os.getenv("BETA_PATCHER_OFFLINE", "0") == "1"
     logger.info(
         f"Row {row_num}: Fetching production_name for genome_uuid: {genome_uuid}"
     )
-    genome_info = get_genome_by_uuid(genome_uuid)
+    production_name: Optional[str] = None
+    if not offline:
+        genome_info = get_genome_by_uuid(genome_uuid)
+        if not genome_info:
+            # Allow offline-style fallback even if API/URIs are misconfigured
+            logger.warning(
+                f"Row {row_num}: Could not fetch genome information for UUID: {genome_uuid}; "
+                "continuing in offline mode (metadata-only)."
+            )
+        else:
+            production_name = genome_info["production_name"]
+            logger.info(f"Row {row_num}: Found production_name: {production_name}")
 
-    if not genome_info:
-        logger.error(
-            f"Row {row_num}: Could not fetch genome information for UUID: {genome_uuid}"
-        )
-        return None
-
-    production_name = genome_info["production_name"]
-    logger.info(f"Row {row_num}: Found production_name: {production_name}")
-
-    if server_uris:
+    if production_name and server_uris:
         match = find_core_db(production_name, server_uris)
         if match:
             core_server, core_db_name = match
@@ -955,11 +961,14 @@ def resolve_genome_info(
             core_server, core_db_name = None, None
     else:
         core_server = None
-        core_db_name = f"{production_name}{patch['core_suffix']}"
+        # Only build core DB name when production_name is known
+        core_db_name = (
+            f"{production_name}{patch['core_suffix']}" if production_name else None
+        )
 
     return {
         "genome_uuid": genome_uuid,
-        "production_name": production_name,
+        "production_name": production_name or f"UNKNOWN_{genome_uuid[:8]}",
         "core_server": core_server,
         "core_db_name": core_db_name,
     }
@@ -1236,6 +1245,13 @@ See patches_template.csv for a complete example.
     )
 
     args = parser.parse_args()
+
+    # Offline mode: skip API/DB lookups and core discovery
+    # Usage: export BETA_PATCHER_OFFLINE=1 (or set via env before running)
+    if os.getenv("BETA_PATCHER_OFFLINE") == "1":
+        logging.getLogger(__name__).warning(
+            "Offline mode enabled: skipping metadata API lookups and core discovery"
+        )
 
     # Validate CSV file exists
     if not args.csv_file.exists():
