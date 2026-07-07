@@ -44,6 +44,19 @@ class ScoreEvidence:
             (evidence.old_stable_id, evidence.target_stable_id)
         ] = evidence
 
+    def candidates(self, feature_type: str, old_stable_id: str) -> list[MappingEvidence]:
+        candidates = [
+            item
+            for (old_id, _target_id), item in self.by_feature_type.get(
+                feature_type, {}
+            ).items()
+            if old_id == old_stable_id
+        ]
+        return sorted(
+            candidates,
+            key=lambda item: (-item.score, item.target_stable_id),
+        )
+
     def all(self) -> list[MappingEvidence]:
         out: list[MappingEvidence] = []
         for feature_scores in self.by_feature_type.values():
@@ -203,4 +216,3 @@ def write_score_evidence_tsv(
                     item.detail,
                 ]
             )
-

@@ -8,7 +8,7 @@ from typing import Iterable, Optional
 
 from .ids import IdAllocator
 from .models import Decision, Feature
-from .scoring import ScoreEvidence, score_with_evidence
+from .scoring import MappingEvidence, ScoreEvidence, score_with_evidence
 
 
 def overlap_score(a: Feature, b: Feature) -> float:
@@ -54,6 +54,26 @@ def mapped_version(old_version: int) -> int:
     return old_version + 1
 
 
+def best_evidence_match(
+    evidence: ScoreEvidence,
+    feature_type: str,
+    old_id: str,
+    target_features: dict[str, Feature],
+    used_ids: set[str],
+    parent_filter: Optional[str] = None,
+) -> Optional[tuple[Feature, MappingEvidence]]:
+    for item in evidence.candidates(feature_type, old_id):
+        target = target_features.get(item.target_stable_id)
+        if target is None:
+            continue
+        if target.stable_id in used_ids:
+            continue
+        if parent_filter is not None and target.parent_stable_id != parent_filter:
+            continue
+        return target, item
+    return None
+
+
 def build_gene_decisions(
     ref_features: dict[str, dict[str, Feature]],
     target_features: dict[str, dict[str, Feature]],
@@ -88,51 +108,62 @@ def build_gene_decisions(
 
     for old_id in sorted(mapped_features["gene"]):
         mapped = mapped_features["gene"][old_id]
+        evidence_match = best_evidence_match(
+            score_evidence,
+            "gene",
+            old_id,
+            target_features["gene"],
+            used_targets,
+        )
+        old_version = old_version_for(ref_features["gene"], old_id, mapped)
+        new_version = mapped_version(old_version)
+        if evidence_match is not None:
+            target, evidence = evidence_match
+            used_targets.add(target.stable_id)
+            old_gene_to_target_gene[old_id] = target.stable_id
+            decisions.append(
+                Decision(
+                    feature_type="gene",
+                    action="mapped",
+                    current_stable_id=target.stable_id,
+                    current_version=target.version,
+                    old_stable_id=old_id,
+                    old_version=old_version,
+                    new_stable_id=old_id,
+                    new_version=new_version,
+                    mapping_session_id=mapping_session_id,
+                    score=evidence.score,
+                    reason=(
+                        "mapped gene matched a target gene by lifton structural evidence; "
+                        f"score_source={evidence.source} confidence={evidence.confidence}"
+                    ),
+                )
+            )
+            continue
+
         target = best_unused_match(
             mapped,
             target_features["gene"].values(),
             used_targets,
             min_overlap,
         )
-        old_version = old_version_for(ref_features["gene"], old_id, mapped)
-        new_version = mapped_version(old_version)
         if target is None:
-            if old_id in used_targets:
-                decisions.append(
-                    Decision(
-                        feature_type="gene",
-                        action="missing",
-                        current_stable_id=None,
-                        current_version=0,
-                        old_stable_id=old_id,
-                        old_version=old_version,
-                        new_stable_id=None,
-                        new_version=0,
-                        mapping_session_id=mapping_session_id,
-                        score=0.0,
-                        reason="mapped gene fallback target stable ID was already claimed",
-                    )
-                )
-                continue
-
-            used_targets.add(old_id)
-            target_feature = target_features["gene"].get(old_id)
-            if target_feature is not None:
-                used_targets.add(target_feature.stable_id)
-            old_gene_to_target_gene[old_id] = old_id
             decisions.append(
                 Decision(
                     feature_type="gene",
-                    action="mapped",
-                    current_stable_id=old_id,
-                    current_version=target_feature.version if target_feature else 0,
+                    action="missing",
+                    current_stable_id=None,
+                    current_version=0,
                     old_stable_id=old_id,
                     old_version=old_version,
-                    new_stable_id=old_id,
-                    new_version=new_version,
+                    new_stable_id=None,
+                    new_version=0,
                     mapping_session_id=mapping_session_id,
                     score=0.0,
-                    reason="mapped gene trusted after coordinate overlap failed",
+                    reason=(
+                        "mapped gene did not match any target gene by lifton evidence "
+                        "or coordinate overlap"
+                    ),
                 )
             )
             continue
@@ -236,6 +267,50 @@ def build_transcript_decisions(
         target_parent = old_gene_to_target_gene.get(old_parent or "")
 
         if target_parent is None:
+            evidence_match = best_evidence_match(
+                score_evidence,
+                "transcript",
+                old_id,
+                target_features["transcript"],
+                used_targets,
+            )
+        else:
+            evidence_match = best_evidence_match(
+                score_evidence,
+                "transcript",
+                old_id,
+                target_features["transcript"],
+                used_targets,
+                parent_filter=target_parent,
+            )
+
+        old_version = old.version if old else mapped.version
+        new_version = mapped_version(old_version)
+        if evidence_match is not None:
+            target, evidence = evidence_match
+            used_targets.add(target.stable_id)
+            old_transcript_to_target_transcript[old_id] = target.stable_id
+            decisions.append(
+                Decision(
+                    feature_type="transcript",
+                    action="mapped",
+                    current_stable_id=target.stable_id,
+                    current_version=target.version,
+                    old_stable_id=old_id,
+                    old_version=old_version,
+                    new_stable_id=old_id,
+                    new_version=new_version,
+                    mapping_session_id=mapping_session_id,
+                    score=evidence.score,
+                    reason=(
+                        "mapped transcript matched a target transcript by lifton structural evidence; "
+                        f"score_source={evidence.source} confidence={evidence.confidence}"
+                    ),
+                )
+            )
+            continue
+
+        if target_parent is None:
             target = best_unused_match(
                 mapped,
                 target_features["transcript"].values(),
@@ -251,46 +326,24 @@ def build_transcript_decisions(
                 parent_filter=target_parent,
             )
 
-        old_version = old.version if old else mapped.version
-        new_version = mapped_version(old_version)
         if target is None:
-            if old_id in used_targets:
-                missing_transcript_ids.add(old_id)
-                decisions.append(
-                    Decision(
-                        feature_type="transcript",
-                        action="missing",
-                        current_stable_id=None,
-                        current_version=0,
-                        old_stable_id=old_id,
-                        old_version=old_version,
-                        new_stable_id=None,
-                        new_version=0,
-                        mapping_session_id=mapping_session_id,
-                        score=0.0,
-                        reason="mapped transcript fallback target stable ID was already claimed",
-                    )
-                )
-                continue
-
-            used_targets.add(old_id)
-            target_feature = target_features["transcript"].get(old_id)
-            if target_feature is not None:
-                used_targets.add(target_feature.stable_id)
-            old_transcript_to_target_transcript[old_id] = old_id
+            missing_transcript_ids.add(old_id)
             decisions.append(
                 Decision(
                     feature_type="transcript",
-                    action="mapped",
-                    current_stable_id=old_id,
-                    current_version=target_feature.version if target_feature else 0,
+                    action="missing",
+                    current_stable_id=None,
+                    current_version=0,
                     old_stable_id=old_id,
                     old_version=old_version,
-                    new_stable_id=old_id,
-                    new_version=new_version,
+                    new_stable_id=None,
+                    new_version=0,
                     mapping_session_id=mapping_session_id,
                     score=0.0,
-                    reason="mapped transcript trusted after coordinate overlap failed",
+                    reason=(
+                        "mapped transcript did not match any target transcript by lifton evidence "
+                        "or coordinate overlap"
+                    ),
                 )
             )
             continue

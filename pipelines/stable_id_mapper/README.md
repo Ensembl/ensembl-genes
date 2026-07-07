@@ -145,12 +145,13 @@ To skip both LiftOn and structural matching, provide all three reuse files:
 --existing-gene-pairs out/stable-id-run/matching/lifton.gene_pairs.tsv
 ```
 
-Scores in `stable_id_decisions.tsv` and `stable_id_event.score` use LiftOn
-structural evidence when an exact old-target gene or transcript pair is present.
-If no score evidence exists for a mapped pair, the pipeline falls back to the
-coordinate-overlap score used by the mapped/projected GFF3 decision layer.
-`score_evidence.tsv` lists the normalized evidence loaded from the LiftOn gene
-and transcript pair tables, including confidence labels and score source.
+The LiftOn structural pair tables are the primary evidence for claiming a target
+gene or transcript. If no usable pair-table match exists, the decision layer
+falls back to coordinate overlap between the projected old feature and the
+target GFF3 feature. Projected LiftOn IDs alone are not treated as mapped unless
+they are tied to a concrete target feature. `score_evidence.tsv` lists the
+normalized evidence loaded from the LiftOn gene and transcript pair tables,
+including confidence labels and score source.
 
 ## Workflow 1: Assembly-to-Assembly Mapper
 
