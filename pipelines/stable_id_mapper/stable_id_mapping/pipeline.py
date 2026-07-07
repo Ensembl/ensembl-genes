@@ -64,12 +64,46 @@ def print_summary(decisions: list[Decision]) -> None:
     )
 
 
+def print_score_evidence_summary(
+    config: StableIdEventConfig,
+    mapped_features: dict[str, dict],
+    target_features: dict[str, dict],
+) -> None:
+    parts: list[str] = []
+    for feature_type in ("gene", "transcript"):
+        evidence_items = list(
+            config.score_evidence.by_feature_type.get(feature_type, {}).values()
+        )
+        old_in_mapped = sum(
+            1 for item in evidence_items if item.old_stable_id in mapped_features[feature_type]
+        )
+        target_in_target = sum(
+            1
+            for item in evidence_items
+            if item.target_stable_id in target_features[feature_type]
+        )
+        usable = sum(
+            1
+            for item in evidence_items
+            if item.old_stable_id in mapped_features[feature_type]
+            and item.target_stable_id in target_features[feature_type]
+        )
+        parts.append(
+            f"{feature_type}:loaded={len(evidence_items)},"
+            f"old_in_mapped={old_in_mapped},"
+            f"target_in_target={target_in_target},"
+            f"usable={usable}"
+        )
+    sys.stderr.write("Score evidence usability: " + "; ".join(parts) + "\n")
+
+
 def run_pipeline(config: StableIdEventConfig) -> list[Decision]:
     config.validate()
     ref_features = parse_gff3(config.ref_gff)
     target_features = parse_gff3(config.target_gff)
     mapped_features = parse_gff3(config.mapped_gff)
     missing_gene_ids = parse_missing_gene_ids(config.report)
+    print_score_evidence_summary(config, mapped_features, target_features)
     reserved_ids = collect_reserved_ids(ref_features, target_features, mapped_features)
     allocators = make_allocators(config, reserved_ids)
     decisions = build_decisions(
