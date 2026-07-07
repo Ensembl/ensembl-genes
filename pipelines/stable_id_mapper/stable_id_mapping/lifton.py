@@ -16,6 +16,7 @@ DEFAULT_LIFTON_FEATURE_TYPES = (
     "mRNA",
     "three_prime_UTR",
 )
+GENERATED_FEATURE_TYPES_FILE_NAME = "lifton_feature_types.txt"
 
 
 @dataclass(frozen=True)
@@ -47,7 +48,25 @@ class LiftonRunConfig:
     def feature_types_arg(self) -> str:
         if self.feature_types_file is not None:
             return str(self.feature_types_file)
-        return ",".join(self.feature_types)
+        return str(self.generated_feature_types_file)
+
+    @property
+    def generated_feature_types_file(self) -> Path:
+        return self.output_gff.parent / GENERATED_FEATURE_TYPES_FILE_NAME
+
+
+def prepare_lifton_feature_types_file(config: LiftonRunConfig) -> Optional[Path]:
+    """Create the LiftOn feature-type file when inline feature types are configured."""
+    config.validate_inputs()
+    if config.feature_types_file is not None:
+        return None
+    feature_types_file = config.generated_feature_types_file
+    feature_types_file.parent.mkdir(parents=True, exist_ok=True)
+    feature_types_file.write_text(
+        "".join(f"{feature_type}\n" for feature_type in config.feature_types),
+        encoding="utf-8",
+    )
+    return feature_types_file
 
 
 def build_lifton_command(config: LiftonRunConfig) -> list[str]:
@@ -89,6 +108,7 @@ def run_lifton(
     config.validate_inputs()
     find_lifton_executable(config.executable)
     config.output_gff.parent.mkdir(parents=True, exist_ok=True)
+    prepare_lifton_feature_types_file(config)
     command = build_lifton_command(config)
     completed = subprocess.run(
         command,

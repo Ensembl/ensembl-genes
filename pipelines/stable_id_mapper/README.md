@@ -101,6 +101,7 @@ By default the SQL is dry-run/review SQL ending in `ROLLBACK`. Add
 Expected outputs:
 
 ```text
+out/stable-id-run/lifton/lifton_feature_types.txt
 out/stable-id-run/lifton/projected_ref_on_target.gff3
 out/stable-id-run/matching/lifton.transcript_pairs.tsv
 out/stable-id-run/matching/lifton.gene_pairs.tsv
@@ -112,7 +113,8 @@ out/stable-id-run/sql/stable_id_updates.dry_run.sql
 
 Use `--dry-run-lifton-command` to print the LiftOn command without executing the
 pipeline. This is useful on systems where LiftOn is provided by a module or
-container.
+container. The dry run also writes `lifton/lifton_feature_types.txt`, because
+LiftOn expects `-f` to point to a file rather than a comma-separated inline list.
 
 After a successful LiftOn run, reuse existing outputs while debugging matching,
 scoring, and SQL:
@@ -364,7 +366,7 @@ python3 run_lifton_projection.py \
 The wrapper runs a command shaped like:
 
 ```bash
-lifton -f CDS,exon,five_prime_UTR,gene,mRNA,three_prime_UTR \
+lifton -f out/lifton/lifton_feature_types.txt \
   -t 10 \
   -g ref.gff3 \
   -o out/lifton/projected_ref_on_target.gff3 \
@@ -373,8 +375,9 @@ lifton -f CDS,exon,five_prime_UTR,gene,mRNA,three_prime_UTR \
 ```
 
 Use `--dry-run-command` to print the command without executing it. Use
-`--feature-types-file` if you need to pass a LiftOn feature-type file instead
-of the default feature list.
+`--feature-types` to override the default feature list; the wrapper writes the
+list to `lifton_feature_types.txt` before calling LiftOn. Use
+`--feature-types-file` if you already have a LiftOn feature-type file.
 
 Use `lifton_id_mapper.py` when you have:
 

@@ -11,7 +11,12 @@ from typing import Optional
 from run_lifton_projection import parse_feature_types
 from stable_id_mapping.config import default_backup_prefix
 from stable_id_mapping.ids import parse_id_range
-from stable_id_mapping.lifton import LiftonRunConfig, build_lifton_command, format_command
+from stable_id_mapping.lifton import (
+    LiftonRunConfig,
+    build_lifton_command,
+    format_command,
+    prepare_lifton_feature_types_file,
+)
 from stable_id_mapping.workflow import SingleSpeciesRunConfig, run_single_species_pipeline
 
 
@@ -129,22 +134,26 @@ def config_from_args(args: argparse.Namespace) -> SingleSpeciesRunConfig:
     )
 
 
-def lifton_command_for_config(config: SingleSpeciesRunConfig) -> list[str]:
+def lifton_command_for_config(
+    config: SingleSpeciesRunConfig,
+    prepare_feature_types: bool = False,
+) -> list[str]:
     if config.existing_lifton_gff is not None:
         return []
-    return build_lifton_command(
-        LiftonRunConfig(
-            ref_gff=config.ref_gff,
-            ref_fasta=config.ref_fasta,
-            target_fasta=config.target_fasta,
-            output_gff=config.lifton_output_gff,
-            threads=config.lifton_threads,
-            executable=config.lifton_executable,
-            feature_types=config.lifton_feature_types,
-            feature_types_file=config.lifton_feature_types_file,
-            extra_args=config.lifton_extra_args,
-        )
+    lifton_config = LiftonRunConfig(
+        ref_gff=config.ref_gff,
+        ref_fasta=config.ref_fasta,
+        target_fasta=config.target_fasta,
+        output_gff=config.lifton_output_gff,
+        threads=config.lifton_threads,
+        executable=config.lifton_executable,
+        feature_types=config.lifton_feature_types,
+        feature_types_file=config.lifton_feature_types_file,
+        extra_args=config.lifton_extra_args,
     )
+    if prepare_feature_types:
+        prepare_lifton_feature_types_file(lifton_config)
+    return build_lifton_command(lifton_config)
 
 
 def main() -> None:
@@ -153,7 +162,7 @@ def main() -> None:
     if config.output_dir.exists():
         sys.stderr.write(f"Using existing output directory {config.output_dir}\n")
     if args.dry_run_lifton_command:
-        command = lifton_command_for_config(config)
+        command = lifton_command_for_config(config, prepare_feature_types=True)
         if command:
             print(format_command(command))
         else:

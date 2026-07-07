@@ -12,6 +12,7 @@ from stable_id_mapping.lifton import (
     build_lifton_command,
     find_lifton_executable,
     format_command,
+    prepare_lifton_feature_types_file,
 )
 
 
@@ -47,7 +48,7 @@ def test_build_lifton_command(tmp_path: Path) -> None:
     assert command == [
         "lifton",
         "-f",
-        "gene,mRNA,exon,CDS",
+        str(tmp_path / "lifton_feature_types.txt"),
         "-t",
         "4",
         "-g",
@@ -58,6 +59,17 @@ def test_build_lifton_command(tmp_path: Path) -> None:
         str(config.ref_fasta),
         str(config.target_fasta),
     ]
+
+
+def test_prepare_lifton_feature_types_file_writes_one_type_per_line(
+    tmp_path: Path,
+) -> None:
+    config = make_config(tmp_path)
+
+    feature_types_file = prepare_lifton_feature_types_file(config)
+
+    assert feature_types_file == tmp_path / "lifton_feature_types.txt"
+    assert feature_types_file.read_text(encoding="utf-8") == "gene\nmRNA\nexon\nCDS\n"
 
 
 def test_feature_types_file_overrides_inline_feature_types(tmp_path: Path) -> None:
@@ -95,4 +107,3 @@ def test_format_command_quotes_spaces() -> None:
     command = ["lifton", "-g", "/tmp/ref genes.gff3", "/tmp/ref.fa", "/tmp/tar.fa"]
 
     assert format_command(command) == "lifton -g '/tmp/ref genes.gff3' /tmp/ref.fa /tmp/tar.fa"
-

@@ -13,6 +13,7 @@ from stable_id_mapping.lifton import (
     LiftonRunConfig,
     build_lifton_command,
     format_command,
+    prepare_lifton_feature_types_file,
     run_lifton,
 )
 
@@ -78,12 +79,14 @@ def config_from_args(args: argparse.Namespace) -> LiftonRunConfig:
 def main() -> None:
     args = parse_args()
     config = config_from_args(args)
-    command = build_lifton_command(config)
     if config.output_gff.exists():
         sys.stderr.write(f"Warning: overwriting existing output {config.output_gff}\n")
     if args.dry_run_command:
+        prepare_lifton_feature_types_file(config)
+        command = build_lifton_command(config)
         print(format_command(command))
         return
+    command = build_lifton_command(config)
     sys.stderr.write(format_command(command) + "\n")
     run_lifton(config)
 

@@ -187,17 +187,25 @@ def test_top_level_cli_builds_expected_lifton_command(tmp_path: Path) -> None:
     )
     config = run_stable_id_mapping.config_from_args(args)
 
-    command = run_stable_id_mapping.lifton_command_for_config(config)
+    command = run_stable_id_mapping.lifton_command_for_config(
+        config,
+        prepare_feature_types=True,
+    )
+    feature_types_file = tmp_path / "out" / "lifton" / "lifton_feature_types.txt"
 
     assert command[:6] == [
         "lifton",
         "-f",
-        "CDS,exon,five_prime_UTR,gene,mRNA,three_prime_UTR",
+        str(feature_types_file),
         "-t",
         "12",
         "-g",
     ]
     assert command[-2:] == [str(ref_fasta), str(target_fasta)]
+    assert (
+        feature_types_file.read_text(encoding="utf-8")
+        == "CDS\nexon\nfive_prime_UTR\ngene\nmRNA\nthree_prime_UTR\n"
+    )
 
 
 def test_single_species_workflow_reuses_existing_outputs(
