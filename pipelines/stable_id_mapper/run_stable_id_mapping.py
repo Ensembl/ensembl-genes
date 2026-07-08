@@ -167,6 +167,7 @@ def lifton_command_for_config(
     config: SingleSpeciesRunConfig,
     prepare_feature_types: bool = False,
 ) -> list[str]:
+    config.validate_inputs()
     if config.existing_lifton_gff is not None:
         return []
     lifton_config = LiftonRunConfig(

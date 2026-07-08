@@ -17,6 +17,16 @@ from .reports import write_missing_gene_report
 from .rules import DEFAULT_RULES_PATH, default_score_weights
 from .scoring import load_lifton_score_evidence
 
+LIFTON_CHILD_FEATURE_TYPES = {
+    "mrna",
+    "transcript",
+    "exon",
+    "cds",
+    "five_prime_utr",
+    "three_prime_utr",
+    "utr",
+}
+
 
 @dataclass(frozen=True)
 class SingleSpeciesRunConfig:
@@ -101,6 +111,18 @@ class SingleSpeciesRunConfig:
             raise ValueError("mapping_session_id must be >= 1")
         if not self.rules_config.exists():
             raise FileNotFoundError(self.rules_config)
+        bad_lifton_types = child_lifton_feature_types(
+            self.lifton_feature_types,
+            self.lifton_feature_types_file,
+        )
+        if bad_lifton_types:
+            bad_text = ", ".join(bad_lifton_types)
+            raise ValueError(
+                "Stable-ID mapping should run LiftOn on parent gene loci only. "
+                f"Remove child feature type(s) from LiftOn -f: {bad_text}. "
+                "Exon/CDS rows are still used later as structural evidence; they "
+                "must not be projected as independent LiftOn loci."
+            )
 
 
 @dataclass(frozen=True)
@@ -212,3 +234,23 @@ def run_single_species_pipeline(
 def _count_data_rows(path: Path) -> int:
     with path.open() as handle:
         return max(0, sum(1 for _line in handle) - 1)
+
+
+def child_lifton_feature_types(
+    feature_types: tuple[str, ...],
+    feature_types_file: Optional[Path],
+) -> tuple[str, ...]:
+    if feature_types_file is None:
+        configured = feature_types
+    else:
+        configured = tuple(
+            line.strip()
+            for line in feature_types_file.read_text(encoding="utf-8").splitlines()
+            if line.strip() and not line.lstrip().startswith("#")
+        )
+    bad = {
+        feature_type
+        for feature_type in configured
+        if feature_type.lower() in LIFTON_CHILD_FEATURE_TYPES
+    }
+    return tuple(sorted(bad, key=str.lower))

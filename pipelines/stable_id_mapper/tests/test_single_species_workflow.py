@@ -4,6 +4,8 @@ import sys
 import json
 from pathlib import Path
 
+import pytest
+
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 import run_stable_id_mapping
@@ -278,6 +280,88 @@ def test_top_level_cli_builds_expected_lifton_command(tmp_path: Path) -> None:
     ]
     assert command[-2:] == [str(target_fasta), str(ref_fasta)]
     assert feature_types_file.read_text(encoding="utf-8") == "gene\n"
+
+
+def test_top_level_cli_rejects_child_lifton_feature_types(tmp_path: Path) -> None:
+    ref_fasta = tmp_path / "ref.fa"
+    target_fasta = tmp_path / "target.fa"
+    ref_gff = tmp_path / "ref.gff3"
+    target_gff = tmp_path / "target.gff3"
+    for path in (ref_fasta, target_fasta, ref_gff, target_gff):
+        write_text(path, "")
+
+    args = run_stable_id_mapping.parse_args(
+        [
+            "--ref-fasta",
+            str(ref_fasta),
+            "--ref-gff",
+            str(ref_gff),
+            "--target-fasta",
+            str(target_fasta),
+            "--target-gff",
+            str(target_gff),
+            "--db-name",
+            "species_core",
+            "--mapping-session-id",
+            "4",
+            "--gene-range",
+            "ENSXG:1-10",
+            "--transcript-range",
+            "ENSXT:1-10",
+            "--translation-range",
+            "ENSXP:1-10",
+            "--output-dir",
+            str(tmp_path / "out"),
+            "--lifton-feature-types",
+            "gene,mRNA",
+        ]
+    )
+    config = run_stable_id_mapping.config_from_args(args)
+
+    with pytest.raises(ValueError, match="Remove child feature type"):
+        run_stable_id_mapping.lifton_command_for_config(config)
+
+
+def test_top_level_cli_rejects_child_lifton_feature_types_file(tmp_path: Path) -> None:
+    ref_fasta = tmp_path / "ref.fa"
+    target_fasta = tmp_path / "target.fa"
+    ref_gff = tmp_path / "ref.gff3"
+    target_gff = tmp_path / "target.gff3"
+    feature_types_file = tmp_path / "feature_types.txt"
+    for path in (ref_fasta, target_fasta, ref_gff, target_gff):
+        write_text(path, "")
+    write_text(feature_types_file, "gene\ntranscript")
+
+    args = run_stable_id_mapping.parse_args(
+        [
+            "--ref-fasta",
+            str(ref_fasta),
+            "--ref-gff",
+            str(ref_gff),
+            "--target-fasta",
+            str(target_fasta),
+            "--target-gff",
+            str(target_gff),
+            "--db-name",
+            "species_core",
+            "--mapping-session-id",
+            "4",
+            "--gene-range",
+            "ENSXG:1-10",
+            "--transcript-range",
+            "ENSXT:1-10",
+            "--translation-range",
+            "ENSXP:1-10",
+            "--output-dir",
+            str(tmp_path / "out"),
+            "--lifton-feature-types-file",
+            str(feature_types_file),
+        ]
+    )
+    config = run_stable_id_mapping.config_from_args(args)
+
+    with pytest.raises(ValueError, match="transcript"):
+        run_stable_id_mapping.lifton_command_for_config(config)
 
 
 def test_top_level_cli_loads_rules_config_with_flag_overrides(tmp_path: Path) -> None:
