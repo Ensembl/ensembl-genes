@@ -371,6 +371,152 @@ chrT	test	gene	100	200	.	+	.	ID=gene:ENSXG0002.1
     )
 
 
+def test_gene_same_stable_id_target_wins_before_other_evidence(
+    tmp_path: Path,
+) -> None:
+    ref_gff = tmp_path / "ref.gff3"
+    target_gff = tmp_path / "target.gff3"
+    mapped_gff = tmp_path / "mapped.gff3"
+    report = tmp_path / "report.txt"
+
+    write_text(
+        ref_gff,
+        """
+##gff-version 3
+chr1	test	gene	100	500	.	+	.	ID=gene:ENSXG0001.4
+chr1	test	mRNA	100	500	.	+	.	ID=transcript:ENSXT0001.4;Parent=gene:ENSXG0001.4
+        """,
+    )
+    write_text(
+        target_gff,
+        """
+##gff-version 3
+chrT	test	gene	100	200	.	+	.	ID=gene:ENSXG0001.5
+chrT	test	mRNA	100	200	.	+	.	ID=transcript:ENSXT0001.5;Parent=gene:ENSXG0001.5
+chrT	test	gene	100	500	.	+	.	ID=gene:ENSXG9001.1
+chrT	test	mRNA	100	500	.	+	.	ID=transcript:ENSXT9001.1;Parent=gene:ENSXG9001.1
+        """,
+    )
+    write_text(
+        mapped_gff,
+        """
+##gff-version 3
+chrT	test	gene	100	500	.	+	.	ID=gene:ENSXG0001.4
+chrT	test	mRNA	100	500	.	+	.	ID=transcript:ENSXT0001.4;Parent=gene:ENSXG0001.4
+        """,
+    )
+    write_text(report, "Missing gene IDs:\n")
+
+    evidence = ScoreEvidence()
+    evidence.add(
+        MappingEvidence(
+            feature_type="gene",
+            old_stable_id="ENSXG0001",
+            target_stable_id="ENSXG9001",
+            score=0.95,
+            source="lifton_gene_aggregate",
+            confidence="high",
+        )
+    )
+
+    decisions = run_pipeline(
+        StableIdEventConfig(
+            ref_gff=ref_gff,
+            target_gff=target_gff,
+            mapped_gff=mapped_gff,
+            report=report,
+            mapping_session_id=17,
+            gene_range=parse_id_range("ENSXG:7000-7999"),
+            transcript_range=parse_id_range("ENSXT:7000-7999"),
+            translation_range=parse_id_range("ENSXP:7000-7999"),
+            output_sql=tmp_path / "out.sql",
+            include_translations=False,
+            dry_run=True,
+            score_evidence=evidence,
+        )
+    )
+
+    gene_decisions = [
+        decision for decision in decisions if decision.feature_type == "gene"
+    ]
+    mapped_gene = next(
+        decision for decision in gene_decisions if decision.action == "mapped"
+    )
+
+    assert mapped_gene.old_stable_id == "ENSXG0001"
+    assert mapped_gene.current_stable_id == "ENSXG0001"
+    assert mapped_gene.new_version == 5
+    assert "already carries the old stable ID" in mapped_gene.reason
+    assert not any(
+        decision.action == "new" and decision.current_stable_id == "ENSXG0001"
+        for decision in gene_decisions
+    )
+
+
+def test_lifton_copy_gene_ids_do_not_become_old_stable_id_decisions(
+    tmp_path: Path,
+) -> None:
+    ref_gff = tmp_path / "ref.gff3"
+    target_gff = tmp_path / "target.gff3"
+    mapped_gff = tmp_path / "mapped.gff3"
+    report = tmp_path / "report.txt"
+
+    write_text(
+        ref_gff,
+        """
+##gff-version 3
+chr1	test	gene	100	500	.	+	.	ID=gene:ENSXG0001.4
+        """,
+    )
+    write_text(
+        target_gff,
+        """
+##gff-version 3
+chrT	test	gene	100	500	.	+	.	ID=gene:ENSXG9001.1
+        """,
+    )
+    write_text(
+        mapped_gff,
+        """
+##gff-version 3
+chrT	test	gene	100	500	.	+	.	ID=gene:ENSXG0001_1.4
+        """,
+    )
+    write_text(report, "Missing gene IDs:\n")
+
+    decisions = run_pipeline(
+        StableIdEventConfig(
+            ref_gff=ref_gff,
+            target_gff=target_gff,
+            mapped_gff=mapped_gff,
+            report=report,
+            mapping_session_id=17,
+            gene_range=parse_id_range("ENSXG:7000-7999"),
+            transcript_range=parse_id_range("ENSXT:7000-7999"),
+            translation_range=parse_id_range("ENSXP:7000-7999"),
+            output_sql=tmp_path / "out.sql",
+            include_translations=False,
+            dry_run=True,
+        )
+    )
+
+    gene_decisions = [
+        decision for decision in decisions if decision.feature_type == "gene"
+    ]
+
+    assert not any(
+        decision.old_stable_id == "ENSXG0001_1" for decision in gene_decisions
+    )
+    assert any(
+        decision.action == "missing" and decision.old_stable_id == "ENSXG0001"
+        for decision in gene_decisions
+    )
+    assert any(
+        decision.action == "new" and decision.current_stable_id == "ENSXG9001"
+        for decision in gene_decisions
+    )
+
+
 def test_allocator_skips_reserved_ids() -> None:
     reserved_features = {
         "gene": {
