@@ -212,7 +212,8 @@ Each case also writes `case.json` with the expected decision counts. These cases
 are meant for regression checks and rule calibration before drawing conclusions
 from messy real annotation examples.
 
-For a completed real-data run, pick a small review set with:
+For a completed real-data run, pick a small review set from the pipeline's own
+outputs with:
 
 ```bash
 python3 pipelines/stable_id_mapper/pick_real_stable_id_examples.py \
@@ -223,6 +224,54 @@ This writes `reports/real_example_candidates.tsv` with representative examples
 such as structural gene mappings, coordinate-fallback mappings, high locus
 overlap with no accepted structure, locus/structure disagreements, and projected
 genes with no target locus candidate.
+
+That report is for inspecting a run; it is not an external truth set. To get
+real examples from old/new annotation releases, compare GFF3 files from an
+Ensembl-style FTP mirror:
+
+```bash
+python3 pipelines/stable_id_mapper/pick_ftp_stable_id_truth_examples.py \
+  --ftp-root https://ftp.ensembl.org/pub \
+  --old-release 114 \
+  --new-release 115 \
+  --species gallus_gallus \
+  --feature-type gene \
+  --seqid 9 \
+  --output pipelines/stable_id_mapper/out/gallus_gallus_r114_r115_gene_truth.tsv \
+  --manifest pipelines/stable_id_mapper/out/gallus_gallus_r114_r115_sources.json
+```
+
+The same tool also accepts direct local paths or URLs:
+
+```bash
+python3 pipelines/stable_id_mapper/pick_ftp_stable_id_truth_examples.py \
+  --old-gff old.gff3.gz \
+  --new-gff new.gff3.gz \
+  --feature-type gene \
+  --output real_gene_truth.tsv
+```
+
+It classifies examples as shared stable IDs at the same locus, shared stable IDs
+with changed coordinates, version-changed stable IDs, old-only missing
+candidates, and new-only new-feature candidates. For complex official remaps
+where the old stable ID changes to a different new stable ID, use the core DB
+`stable_id_event` table as the gold standard rather than GFF3 alone.
+
+If LiftOn fails while indexing `lifton_output/intermediate_files/transcripts.fa`,
+diagnose the reference inputs and the failed intermediate FASTA with:
+
+```bash
+python3 pipelines/stable_id_mapper/diagnose_lifton_inputs.py \
+  --ref-fasta ref.fa \
+  --ref-gff ref.gff3 \
+  --lifton-transcripts-fa test_ii/lifton/lifton_output/intermediate_files/transcripts.fa \
+  --output-tsv test_ii/lifton_input_diagnostics.tsv
+```
+
+This checks for GFF3 seqids missing from the reference FASTA, out-of-bounds
+transcript/exon/CDS coordinates, transcript rows with no exon/CDS children,
+duplicate feature IDs, and malformed or empty FASTA records in LiftOn's
+intermediate transcript FASTA.
 
 ## Workflow 1: Assembly-to-Assembly Mapper
 
