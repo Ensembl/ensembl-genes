@@ -83,7 +83,10 @@ def main() -> None:
         example_limit=args.example_limit,
     )
     if args.output_tsv is not None:
-        write_issues(issues, args.output_tsv)
+        try:
+            write_issues(issues, args.output_tsv)
+        except OSError as error:
+            print(f"Warning: could not write diagnostics TSV {args.output_tsv}: {error}")
 
     fatal_count = sum(1 for issue in issues if issue.severity == "fatal")
     if fatal_count:
@@ -317,7 +320,15 @@ def print_summary(
     for issue_type, count in issue_counts.most_common():
         print(f"  {issue_type}: {count}")
     print("Examples:")
-    for issue in issues[:example_limit]:
+    severity_order = {"fatal": 0, "warning": 1}
+    ordered_issues = sorted(
+        enumerate(issues),
+        key=lambda indexed_issue: (
+            severity_order.get(indexed_issue[1].severity, 2),
+            indexed_issue[0],
+        ),
+    )
+    for _index, issue in ordered_issues[:example_limit]:
         print(
             f"  [{issue.severity}] {issue.issue_type} "
             f"{issue.feature_id}: {issue.detail}"

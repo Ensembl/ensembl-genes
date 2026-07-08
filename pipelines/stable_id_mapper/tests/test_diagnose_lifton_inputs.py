@@ -1,12 +1,15 @@
 from __future__ import annotations
 
 import sys
+from collections import Counter
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from diagnose_lifton_inputs import (
+    Issue,
     diagnose_models,
+    print_summary,
     read_fasta_lengths,
     read_gff_transcripts,
     validate_fasta_records,
@@ -66,3 +69,21 @@ ACTG
     issues = validate_fasta_records(transcripts_fa)
 
     assert any(issue.issue_type == "empty_fasta_record" for issue in issues)
+
+
+def test_print_summary_shows_fatal_examples_before_warnings(capsys) -> None:
+    print_summary(
+        fasta_lengths={"chr1": 100},
+        transcripts={},
+        feature_counts=Counter(),
+        issues=[
+            Issue("warning", "duplicate_feature_id", "CDS:ONE", "2 rows share this ID"),
+            Issue("fatal", "fasta_has_no_records", "transcripts.fa", "No FASTA headers found"),
+        ],
+        example_limit=1,
+    )
+
+    captured = capsys.readouterr()
+
+    assert "[fatal] fasta_has_no_records transcripts.fa" in captured.out
+    assert "[warning] duplicate_feature_id CDS:ONE" not in captured.out
