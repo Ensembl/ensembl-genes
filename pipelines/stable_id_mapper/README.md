@@ -494,8 +494,8 @@ lifton -f out/lifton/lifton_feature_types.txt \
   -t 10 \
   -g ref.gff3 \
   -o out/lifton/projected_ref_on_target.gff3 \
-  ref.fa \
-  tar.fa
+  tar.fa \
+  ref.fa
 ```
 
 Use `--dry-run-command` to print the command without executing it. Use

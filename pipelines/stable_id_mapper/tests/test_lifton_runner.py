@@ -56,8 +56,8 @@ def test_build_lifton_command(tmp_path: Path) -> None:
         "-o",
         str(config.output_gff),
         "--debug",
-        str(config.ref_fasta),
         str(config.target_fasta),
+        str(config.ref_fasta),
     ]
 
 

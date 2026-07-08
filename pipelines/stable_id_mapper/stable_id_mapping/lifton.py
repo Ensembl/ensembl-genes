@@ -77,8 +77,8 @@ def build_lifton_command(config: LiftonRunConfig) -> list[str]:
         "-o",
         str(config.output_gff),
         *config.extra_args,
-        str(config.ref_fasta),
         str(config.target_fasta),
+        str(config.ref_fasta),
     ]
 
 

@@ -276,7 +276,7 @@ def test_top_level_cli_builds_expected_lifton_command(tmp_path: Path) -> None:
         "12",
         "-g",
     ]
-    assert command[-2:] == [str(ref_fasta), str(target_fasta)]
+    assert command[-2:] == [str(target_fasta), str(ref_fasta)]
     assert feature_types_file.read_text(encoding="utf-8") == "gene\n"
 
 
