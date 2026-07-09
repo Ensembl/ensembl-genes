@@ -56,9 +56,9 @@ class SingleSpeciesRunConfig:
     min_overlap: float = 0.75
     match_window: int = 100000
     match_topk: int = 5
-    match_min_score: float = 0.60
-    match_good: float = 0.75
-    match_confident: float = 0.85
+    match_min_score: float = 0.30
+    match_good: float = 0.45
+    match_confident: float = 0.60
     match_gene_fraction: float = 0.60
     match_score_weights: dict[str, float] = field(default_factory=default_score_weights)
     rules_config: Path = DEFAULT_RULES_PATH

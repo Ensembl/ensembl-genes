@@ -89,8 +89,11 @@ The default rules are in:
 pipelines/stable_id_mapper/stable_id_mapping_rules.json
 ```
 
-`stable_id_mapping_rules_locus_calibration.json` is kept as the calibration
-copy used during real-data tuning. It currently has the same intended defaults.
+Small chicken test fixtures are kept under:
+
+```text
+pipelines/stable_id_mapper/test_data/chicken_chr9/
+```
 
 ## Command-Line Parameters
 
@@ -489,12 +492,9 @@ How to interpret the audit:
 
 ## Synthetic Calibration Cases
 
-Generate deterministic small cases with known expected counts:
-
-```bash
-python3 pipelines/stable_id_mapper/generate_synthetic_stable_id_cases.py \
-  --output-dir pipelines/stable_id_mapper/out/synthetic_cases
-```
+Deterministic small cases with known expected counts are kept in
+`stable_id_mapping/synthetic_cases.py` and exercised by
+`tests/test_synthetic_cases.py`.
 
 Current cases:
 
@@ -509,38 +509,7 @@ strand_mismatch            opposite strands should not map
 contig_mismatch            same numeric spans on different contigs should not map
 ```
 
-## Diagnostic Helpers
-
-`diagnose_lifton_inputs.py`
-: Checks reference FASTA/GFF3 and a failed LiftOn intermediate transcript FASTA
-  for missing seqids, malformed FASTA, duplicate IDs, out-of-bounds features,
-  and transcript child structure problems.
-
-`diagnose_structural_matching_inputs.py`
-: Checks whether target exon/CDS `Parent` attributes link to transcript rows by
-  exact ID or core stable ID.
-
-`diagnose_stable_id_feature_counts.py`
-: Reports the feature universe seen by the stable-ID decision parser.
-
-`pick_real_stable_id_examples.py`
-: Selects representative examples from a completed run.
-
-`pick_ftp_stable_id_truth_examples.py`
-: Samples examples from old/new Ensembl-style GFF3 releases or direct GFF3
-  paths. Use core DB `stable_id_event` as gold standard for complex official
-  remaps.
-
-## Compatibility And Prototype Scripts
-
-`main_output_to_stable_id_event_sql.py`
-: Compatibility wrapper around the modular SQL/decision code. It starts from an
-  existing mapped/projected GFF3 and report rather than running LiftOn and
-  structural matching.
-
-`main.py` / `mapper.py`
-: Older assembly-to-assembly prototype using gene-sequence alignment. It is
-  useful as a prototype but is not the recommended production path.
+## Support Scripts
 
 `lifton_id_mapper.py`
 : Standalone structural mapper used internally by `run_stable_id_mapping.py`.
@@ -555,12 +524,6 @@ python3 -m pytest pipelines/stable_id_mapper/tests
 python3 pipelines/stable_id_mapper/run_stable_id_mapping.py --help
 python3 pipelines/stable_id_mapper/audit_stable_id_run.py --help
 python3 pipelines/stable_id_mapper/run_lifton_projection.py --help
-```
-
-The compatibility SQL wrapper also has a built-in smoke test:
-
-```bash
-python3 pipelines/stable_id_mapper/main_output_to_stable_id_event_sql.py --test
 ```
 
 ## Known Limitations

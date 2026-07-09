@@ -20,9 +20,9 @@ class LiftonMatchConfig:
     out_prefix: Path
     window: int = 100000
     topk: int = 5
-    min_score: float = 0.60
-    good: float = 0.75
-    confident: float = 0.85
+    min_score: float = 0.30
+    good: float = 0.45
+    confident: float = 0.60
     gene_fraction: float = 0.60
     score_weights: dict[str, float] = field(default_factory=default_score_weights)
 

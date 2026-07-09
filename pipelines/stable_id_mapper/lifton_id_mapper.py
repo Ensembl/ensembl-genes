@@ -27,7 +27,7 @@ python lifton_id_mapper.py \
   --reference ensembl.gff3 \
   --out-prefix out/mapping \
   --window 100000 \
-  --min-score 0.75 \
+  --min-score 0.30 \
   --rename-mode alias  # or: rename
 
 Outputs
@@ -56,14 +56,14 @@ from bisect import bisect_left
 from typing import Dict, List, Tuple, Iterable, Optional, Set
 
 DEFAULT_SCORE_WEIGHTS = {
-    'query_coverage': 0.45,
-    'span_containment': 0.25,
-    'intron_sim': 0.10,
-    'jacc_internal': 0.05,
-    'jacc_all': 0.05,
-    'exon_count_sim': 0.04,
-    'boundary_sim': 0.03,
-    'lifton_identity_prior': 0.03,
+    'span_containment': 0.55,
+    'query_coverage': 0.25,
+    'intron_sim': 0.05,
+    'jacc_internal': 0.03,
+    'jacc_all': 0.03,
+    'exon_count_sim': 0.02,
+    'boundary_sim': 0.05,
+    'lifton_identity_prior': 0.02,
 }
 
 ###############################################################################
@@ -902,9 +902,9 @@ def main():
 
     ap.add_argument('--window', type=int, default=100000, help='Window (bp) around LiftOn transcript span for candidate reference genes [default: 100000]')
     ap.add_argument('--topk', type=int, default=5, help='Keep top-K candidates per transcript before matching [default: 5]')
-    ap.add_argument('--min-score', type=float, default=0.60, help='Minimum candidate score to consider [default: 0.60]')
-    ap.add_argument('--good', type=float, default=0.75, help='Score threshold for status=good [default: 0.75]')
-    ap.add_argument('--confident', type=float, default=0.85, help='Score threshold for status=confident [default: 0.85]')
+    ap.add_argument('--min-score', type=float, default=0.30, help='Minimum candidate score to consider [default: 0.30]')
+    ap.add_argument('--good', type=float, default=0.45, help='Score threshold for status=good [default: 0.45]')
+    ap.add_argument('--confident', type=float, default=0.60, help='Score threshold for status=confident [default: 0.60]')
     ap.add_argument('--gene-fraction', type=float, default=0.60, help='Min fraction of transcript weight to assign LiftOn gene to a reference gene [default: 0.60]')
 
     ap.add_argument('--rewrite-reference', action='store_true', help='Write mapped_reference.gff3 with LiftOn IDs (alias or rename mode)')

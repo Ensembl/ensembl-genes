@@ -79,7 +79,7 @@ def write_synthetic_cases(
 def stable_id_mapping_command(
     case: SyntheticCase,
     run_dir: Optional[Path] = None,
-    rules_config: str | Path = "pipelines/stable_id_mapper/stable_id_mapping_rules_locus_calibration.json",
+    rules_config: str | Path = "pipelines/stable_id_mapper/stable_id_mapping_rules.json",
 ) -> list[str]:
     run_dir = run_dir or case.case_dir / "run"
     return [
