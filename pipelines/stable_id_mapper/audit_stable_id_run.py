@@ -202,6 +202,10 @@ def audit_run(
             for row in missing_rows
         ),
         "coordinate_scores": tuple(to_float(row.get("score")) for row in coordinate_mapped),
+        "coordinate_score_bands": Counter(
+            score_band(to_float(row.get("score")))
+            for row in coordinate_mapped
+        ),
         "coordinate_locus_status": Counter(
             row.get("locus_vs_structure", "") or "<no locus row>"
             for row in coordinate_rows
@@ -229,6 +233,13 @@ def audit_run(
         ),
         "missing_locus_target_claimed": Counter(
             yes_no(row.get("target_gene_by_locus_claimed_by_old"))
+            for row in missing_rows
+        ),
+        "missing_locus_status_and_claimed": Counter(
+            (
+                row.get("locus_vs_structure", "") or "<no locus row>",
+                yes_no(row.get("target_gene_by_locus_claimed_by_old")),
+            )
             for row in missing_rows
         ),
         "missing_structure_target_claimed": Counter(
@@ -567,6 +578,7 @@ def print_summary(summary: dict[str, object], limit: int) -> None:
             f"median={statistics.median(coordinate_scores):.3f}, "
             f"max={max(coordinate_scores):.3f}"
         )
+    print_counter("Coordinate-only score bands", summary["coordinate_score_bands"])
 
     print_counter("Missing gene reasons", summary["missing_reason_counts"])
     print_counter("Missing gene locus status", summary["missing_locus_status"])
@@ -577,6 +589,10 @@ def print_summary(summary: dict[str, object], limit: int) -> None:
     print_counter(
         "Missing gene structural target already claimed",
         summary["missing_structure_target_claimed"],
+    )
+    print_pair_counter(
+        "Missing gene locus status + target claimed",
+        summary["missing_locus_status_and_claimed"],
     )
     print_counter("Coordinate-only gene locus status", summary["coordinate_locus_status"])
     print_counter(
@@ -614,6 +630,16 @@ def print_counter(label: str, value: object, limit: int = 5) -> None:
     print(f"{label}:")
     for key, count in value.most_common(limit):
         print(f"  {key or '<blank>'}: {count}")
+
+
+def print_pair_counter(label: str, value: object, limit: int = 10) -> None:
+    assert isinstance(value, Counter)
+    if not value:
+        print(f"{label}: none")
+        return
+    print(f"{label}:")
+    for (left, right), count in value.most_common(limit):
+        print(f"  {left}, claimed={right}: {count}")
 
 
 def print_examples(label: str, value: object, limit: int) -> None:
@@ -689,6 +715,16 @@ def to_float(value: Optional[str]) -> float:
 
 def yes_no(value: Optional[str]) -> str:
     return "yes" if value else "no"
+
+
+def score_band(score: float) -> str:
+    if score < 0.5:
+        return "<0.50"
+    if score < 0.75:
+        return "0.50-0.75"
+    if score < 0.95:
+        return "0.75-0.95"
+    return ">=0.95"
 
 
 def open_text(path: Path):
