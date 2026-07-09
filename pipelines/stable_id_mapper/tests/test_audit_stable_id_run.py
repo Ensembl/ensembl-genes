@@ -45,7 +45,7 @@ chr1	test	gene	1500	1800	.	-	.	ID=gene:ENSG0003.1;biotype=lncRNA
 ##gff-version 3
 chrT	test	gene	100	500	.	+	.	ID=gene:ENSG9001.1;biotype=protein_coding
 chrT	test	gene	900	1200	.	+	.	ID=gene:ENSG9002.1;biotype=protein_coding
-chrT	test	gene	2000	2300	.	+	.	ID=gene:ENSG9003.1;biotype=lncRNA
+chrT	test	gene	2000	2300	.	+	.	ID=gene:ENSG0003.2;biotype=lncRNA
         """,
     )
     write_text(
@@ -55,7 +55,7 @@ type	action	current_stable_id	current_version	old_stable_id	old_version	new_stab
 gene	mapped	ENSG9001	1	ENSG0001	1	ENSG0001	2	1	0.91	mapped gene matched a target gene by lifton structural evidence; score_source=lifton_gene_aggregate confidence=high
 gene	mapped	ENSG9002	1	ENSG0002	1	ENSG0002	2	1	0.42	mapped gene matched a target gene by coordinate overlap; score_source=coordinate_overlap
 gene	missing		0	ENSG0003	1		0	1	0	mapped gene did not match any target gene by lifton evidence or coordinate overlap
-gene	new	ENSG9003	1		0	ENSNEWG1	1	1	0	target gene was not claimed by any mapped gene
+gene	new	ENSG0003	2		0	ENSNEWG1	1	1	0	target gene was not claimed by any mapped gene
         """,
     )
     write_tsv(
@@ -154,9 +154,13 @@ gene	new	ENSG9003	1		0	ENSNEWG1	1	1	0	target gene was not claimed by any mapped 
     assert summary["gene_counts"]["coordinate_mapped"] == 1
     assert summary["gene_counts"]["missing"] == 1
     assert summary["gene_counts"]["new"] == 1
+    assert summary["locus_rows_loaded"] == 2
+    assert summary["new_target_id_in_ref"]["yes"] == 1
+    assert summary["new_target_id_in_ref_old_action"]["missing"] == 1
     assert (output_dir / "missing_genes.tsv").exists()
     assert (output_dir / "coordinate_mapped_genes.tsv").exists()
     assert (output_dir / "new_genes.tsv").exists()
     assert "ENSG0003" in (output_dir / "missing_genes.tsv").read_text()
     assert "ENSG9002" in (output_dir / "coordinate_mapped_genes.tsv").read_text()
-    assert "ENSG9003" in (output_dir / "new_genes.tsv").read_text()
+    assert "ref_same_id_action" in (output_dir / "new_genes.tsv").read_text()
+    assert "missing" in (output_dir / "new_genes.tsv").read_text()

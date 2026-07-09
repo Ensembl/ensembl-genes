@@ -71,6 +71,14 @@ def parse_args(argv: Optional[list[str]] = None) -> argparse.Namespace:
     parser.add_argument("--ref-gff", type=Path, help="Reference GFF3 for biotypes/loci")
     parser.add_argument("--target-gff", type=Path, help="Target GFF3 for biotypes/loci")
     parser.add_argument(
+        "--locus-comparison",
+        type=Path,
+        help=(
+            "lifton.gene_locus_comparison.tsv to use. Defaults to "
+            "RUN_DIR/matching/lifton.gene_locus_comparison.tsv"
+        ),
+    )
+    parser.add_argument(
         "--output-dir",
         type=Path,
         help="Output directory. Defaults to RUN_DIR/reports/stable_id_audit",
@@ -87,7 +95,13 @@ def parse_args(argv: Optional[list[str]] = None) -> argparse.Namespace:
 def main() -> None:
     args = parse_args()
     output_dir = args.output_dir or args.run_dir / "reports" / "stable_id_audit"
-    summary = audit_run(args.run_dir, args.ref_gff, args.target_gff, output_dir)
+    summary = audit_run(
+        args.run_dir,
+        args.ref_gff,
+        args.target_gff,
+        output_dir,
+        args.locus_comparison,
+    )
     print_summary(summary, args.limit)
 
 
@@ -96,13 +110,15 @@ def audit_run(
     ref_gff: Optional[Path],
     target_gff: Optional[Path],
     output_dir: Path,
+    locus_comparison: Optional[Path] = None,
 ) -> dict[str, object]:
     decisions_path = run_dir / "stable_id_decisions.tsv"
     if not decisions_path.exists():
         raise FileNotFoundError(decisions_path)
 
     decisions = read_tsv(decisions_path)
-    locus_rows = read_tsv(run_dir / "matching" / "lifton.gene_locus_comparison.tsv")
+    locus_path = locus_comparison or run_dir / "matching" / "lifton.gene_locus_comparison.tsv"
+    locus_rows = read_tsv(locus_path)
     ref_genes = load_gene_info(ref_gff) if ref_gff else {}
     target_genes = load_gene_info(target_gff) if target_gff else {}
 
@@ -114,6 +130,11 @@ def audit_run(
     locus_usage = target_usage_from_locus_rows(locus_rows)
 
     gene_decisions = [row for row in decisions if row.get("type") == "gene"]
+    gene_decisions_by_old = {
+        row.get("old_stable_id", ""): row
+        for row in gene_decisions
+        if row.get("old_stable_id")
+    }
     missing = [row for row in gene_decisions if row.get("action") == "missing"]
     coordinate_mapped = [
         row
@@ -136,7 +157,13 @@ def audit_run(
         target_genes,
         locus_by_old,
     )
-    new_rows = new_gene_rows(new, ref_genes, target_genes, locus_usage)
+    new_rows = new_gene_rows(
+        new,
+        ref_genes,
+        target_genes,
+        locus_usage,
+        gene_decisions_by_old,
+    )
 
     paths = {
         "missing": output_dir / "missing_genes.tsv",
@@ -149,6 +176,8 @@ def audit_run(
 
     return {
         "paths": paths,
+        "locus_path": locus_path,
+        "locus_rows_loaded": len(locus_rows),
         "counts": Counter((row.get("type"), row.get("action")) for row in decisions),
         "gene_counts": {
             "structural_mapped": len(structural_mapped),
@@ -171,6 +200,11 @@ def audit_run(
         ),
         "new_target_id_in_ref": Counter(
             row.get("target_id_also_in_ref_gff", "no") for row in new_rows
+        ),
+        "new_target_id_in_ref_old_action": Counter(
+            row.get("ref_same_id_action", "")
+            for row in new_rows
+            if row.get("target_id_also_in_ref_gff") == "yes"
         ),
         "new_with_locus_candidates": sum(
             1
@@ -284,12 +318,14 @@ def new_gene_rows(
     ref_genes: dict[str, GeneInfo],
     target_genes: dict[str, GeneInfo],
     locus_usage: dict[str, dict[str, object]],
+    gene_decisions_by_old: dict[str, dict[str, str]],
 ) -> list[dict[str, str]]:
     out: list[dict[str, str]] = []
     for row in rows:
         target_id = row.get("current_stable_id", "")
         target = target_genes.get(target_id)
         usage = locus_usage.get(target_id, {})
+        same_id_old_decision = gene_decisions_by_old.get(target_id, {})
         out.append(
             {
                 "target_stable_id": target_id,
@@ -298,6 +334,10 @@ def new_gene_rows(
                 "target_annotation_class": target.annotation_class if target else "",
                 "target_locus": target.locus if target else "",
                 "target_id_also_in_ref_gff": "yes" if target_id in ref_genes else "no",
+                "ref_same_id_action": same_id_old_decision.get("action", ""),
+                "ref_same_id_mapped_target": same_id_old_decision.get("current_stable_id", ""),
+                "ref_same_id_score": same_id_old_decision.get("score", ""),
+                "ref_same_id_reason": same_id_old_decision.get("reason", ""),
                 "locus_candidate_for_old_count": str(
                     usage.get("locus_candidate_count", 0)
                 ),
@@ -446,6 +486,10 @@ def print_summary(summary: dict[str, object], limit: int) -> None:
     print("Gene decision audit:")
     for key in ("structural_mapped", "coordinate_mapped", "missing", "new"):
         print(f"  {key}: {gene_counts[key]}")
+    print(
+        "Gene locus comparison rows loaded: "
+        f"{summary['locus_rows_loaded']} ({summary['locus_path']})"
+    )
 
     coordinate_scores = summary["coordinate_scores"]
     assert isinstance(coordinate_scores, tuple)
@@ -466,6 +510,10 @@ def print_summary(summary: dict[str, object], limit: int) -> None:
         limit=10,
     )
     print_counter("New target ID also present in ref GFF", summary["new_target_id_in_ref"])
+    print_counter(
+        "New target IDs also in ref GFF: old-ID decision action",
+        summary["new_target_id_in_ref_old_action"],
+    )
     print(
         "New genes seen as candidate targets: "
         f"locus={summary['new_with_locus_candidates']}, "
@@ -505,7 +553,11 @@ def print_examples(label: str, value: object, limit: int) -> None:
                 row.get("target_stable_id", ""),
                 row.get("assigned_new_stable_id", ""),
                 row.get("target_annotation_class", ""),
-                row.get("target_id_also_in_ref_gff", ""),
+                (
+                    "in_ref="
+                    f"{row.get('target_id_also_in_ref_gff', '')};"
+                    f"old_action={row.get('ref_same_id_action', '')}"
+                ),
                 row.get("reason", ""),
             ]
         elif "target_stable_id" in row:
