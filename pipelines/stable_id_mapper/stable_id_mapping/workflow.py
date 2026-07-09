@@ -53,7 +53,7 @@ class SingleSpeciesRunConfig:
     replace_events_for_session: bool = False
     backup_prefix: str = field(default_factory=default_backup_prefix)
     batch_size: int = 500
-    min_overlap: float = 0.10
+    min_overlap: float = 0.75
     match_window: int = 100000
     match_topk: int = 5
     match_min_score: float = 0.60

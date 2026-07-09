@@ -1,6 +1,6 @@
 {
   "coordinate_overlap": {
-    "min_overlap": 0.1
+    "min_overlap": 0.75
   },
   "structural_matching": {
     "window": 100000,

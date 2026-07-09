@@ -33,7 +33,7 @@ class StableIdEventConfig:
     backup_prefix: str = field(default_factory=default_backup_prefix)
     batch_size: int = 500
     replace_events_for_session: bool = False
-    min_overlap: float = 0.10
+    min_overlap: float = 0.75
     score_evidence: ScoreEvidence = field(default_factory=ScoreEvidence)
     output_score_evidence_tsv: Optional[Path] = None
 
