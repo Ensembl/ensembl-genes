@@ -26,7 +26,7 @@ packaged `src/python/ensembl/genes` modules.
   as transcript-structure evidence.
 - One old feature can claim at most one target feature, and one target feature
   can be claimed by at most one old feature. Competition produces missing/new
-  decisions that should be reviewed in the audit tables.
+  decisions that can be reviewed in the audit tables.
 
 ## Data Flow
 
@@ -50,8 +50,8 @@ review TSV + score evidence + dry-run or executable SQL
 optional audit tables for missing, coordinate-only, and new genes
 ```
 
-The DB name is used only in generated SQL as a `USE` statement. The Python
-pipeline does not connect to MySQL.
+The DB name is used only in generated SQL as a `USE` statement. **The Python
+pipeline does not connect to MySQL.** This will be implemented in the nextflow pipeline.
 
 ## Requirements
 
@@ -75,7 +75,7 @@ python3 pipelines/stable_id_mapper/run_stable_id_mapping.py \
   --target-fasta tar.fa \
   --target-gff tar.gff3 \
   --db-name species_core_test \
-  --mapping-session-id 10 \
+  --mapping-session-id X \
   --gene-range ENSXXXXG:90000000000-90000099999 \
   --transcript-range ENSXXXXT:90000000000-90000099999 \
   --translation-range ENSXXXXP:90000000000-90000099999 \
@@ -114,6 +114,12 @@ All options accepted by `run_stable_id_mapping.py` are listed below.
 `--db-name NAME`
 : Core database name to write into the SQL `USE` statement.
 
+`--output-dir PATH`
+: Output directory for LiftOn output, matching tables, reports, decision TSV,
+  score evidence, and SQL.
+
+### Required for now, will be automatic in next stage
+
 `--mapping-session-id INT`
 : Stable-ID mapping session ID to write into SQL and decision TSV rows.
 
@@ -125,10 +131,6 @@ All options accepted by `run_stable_id_mapping.py` are listed below.
 
 `--translation-range PREFIX:START-END`
 : Stable-space range for newly assigned translation stable IDs.
-
-`--output-dir PATH`
-: Output directory for LiftOn output, matching tables, reports, decision TSV,
-  score evidence, and SQL.
 
 ### Rules And Thresholds
 
@@ -568,8 +570,9 @@ python3 pipelines/stable_id_mapper/main_output_to_stable_id_event_sql.py --test
 - Structural matching uses greedy one-to-one assignment, not a global optimum.
 - Biotype is reported in audits but is not used as mapping evidence.
 - Target stable IDs are intentionally ignored as evidence, even when they match
-  reference IDs.
+  reference IDs. This is to avoid confusion when the IDs assigned don't follow
+  stable_id range selection.
 - Coordinate fallback currently uses one shared `min_overlap` threshold for
   genes, transcripts, and translations.
-- Large missing buckets can be correct when the target annotation intentionally
+- Large missing buckets can be correct when the target annotation knowingly
   contains fewer genes than the reference annotation.
