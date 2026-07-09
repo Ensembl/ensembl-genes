@@ -49,7 +49,7 @@ class SingleSpeciesRunConfig:
     lifton_feature_types_file: Optional[Path] = None
     lifton_extra_args: tuple[str, ...] = field(default_factory=tuple)
     include_translations: bool = True
-    dry_run_sql: bool = True
+    dry_run_sql: bool = False
     replace_events_for_session: bool = False
     backup_prefix: str = field(default_factory=default_backup_prefix)
     batch_size: int = 500

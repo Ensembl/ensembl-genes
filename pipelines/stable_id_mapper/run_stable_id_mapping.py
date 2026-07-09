@@ -87,9 +87,14 @@ def parse_args(argv: Optional[list[str]] = None) -> argparse.Namespace:
 
     parser.add_argument("--no-translations", action="store_true")
     parser.add_argument(
+        "--dry-run-sql",
+        action="store_true",
+        help="Write review SQL ending in ROLLBACK instead of executable COMMIT SQL",
+    )
+    parser.add_argument(
         "--write-executable-sql",
         action="store_true",
-        help="Write COMMIT SQL instead of dry-run ROLLBACK SQL",
+        help=argparse.SUPPRESS,
     )
     parser.add_argument("--replace-events-for-session", action="store_true")
     parser.add_argument("--backup-prefix", default=default_backup_prefix())
@@ -128,7 +133,7 @@ def config_from_args(args: argparse.Namespace) -> SingleSpeciesRunConfig:
         lifton_feature_types_file=args.lifton_feature_types_file,
         lifton_extra_args=tuple(args.extra_lifton_arg),
         include_translations=not args.no_translations,
-        dry_run_sql=not args.write_executable_sql,
+        dry_run_sql=args.dry_run_sql,
         replace_events_for_session=args.replace_events_for_session,
         backup_prefix=args.backup_prefix,
         batch_size=args.batch_size,

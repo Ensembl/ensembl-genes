@@ -285,6 +285,8 @@ def test_top_level_cli_builds_expected_lifton_command(tmp_path: Path) -> None:
     )
     config = run_stable_id_mapping.config_from_args(args)
 
+    assert config.dry_run_sql is False
+    assert config.output_sql == tmp_path / "out" / "sql" / "stable_id_updates.sql"
     command = run_stable_id_mapping.lifton_command_for_config(
         config,
         prepare_feature_types=True,
@@ -301,6 +303,45 @@ def test_top_level_cli_builds_expected_lifton_command(tmp_path: Path) -> None:
     ]
     assert command[-2:] == [str(target_fasta), str(ref_fasta)]
     assert feature_types_file.read_text(encoding="utf-8") == "gene\n"
+
+
+def test_top_level_cli_can_request_dry_run_sql(tmp_path: Path) -> None:
+    ref_fasta = tmp_path / "ref.fa"
+    target_fasta = tmp_path / "target.fa"
+    ref_gff = tmp_path / "ref.gff3"
+    target_gff = tmp_path / "target.gff3"
+    for path in (ref_fasta, target_fasta, ref_gff, target_gff):
+        write_text(path, "")
+
+    args = run_stable_id_mapping.parse_args(
+        [
+            "--ref-fasta",
+            str(ref_fasta),
+            "--ref-gff",
+            str(ref_gff),
+            "--target-fasta",
+            str(target_fasta),
+            "--target-gff",
+            str(target_gff),
+            "--db-name",
+            "species_core",
+            "--mapping-session-id",
+            "4",
+            "--gene-range",
+            "ENSXG:1-10",
+            "--transcript-range",
+            "ENSXT:1-10",
+            "--translation-range",
+            "ENSXP:1-10",
+            "--output-dir",
+            str(tmp_path / "out"),
+            "--dry-run-sql",
+        ]
+    )
+    config = run_stable_id_mapping.config_from_args(args)
+
+    assert config.dry_run_sql is True
+    assert config.output_sql == tmp_path / "out" / "sql" / "stable_id_updates.dry_run.sql"
 
 
 def test_top_level_cli_rejects_child_lifton_feature_types(tmp_path: Path) -> None:

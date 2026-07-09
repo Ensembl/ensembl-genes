@@ -44,7 +44,7 @@ structural matcher compares LiftOn output to target GFF3
 decision layer assigns mapped / missing / new stable-ID decisions
         |
         v
-review TSV + score evidence + dry-run or executable SQL
+review TSV + score evidence + executable SQL
         |
         v
 optional audit tables for missing, coordinate-only, and new genes
@@ -210,9 +210,9 @@ LiftOn and structural matching and regenerates decisions/SQL only.
 `--no-translations`
 : Skip translation decisions and SQL.
 
-`--write-executable-sql`
-: Write executable SQL ending in `COMMIT`. Without this flag, SQL is dry-run
-  review SQL ending in `ROLLBACK`.
+`--dry-run-sql`
+: Write review SQL ending in `ROLLBACK`. Without this flag, the pipeline writes
+  executable SQL ending in `COMMIT`.
 
 `--replace-events-for-session`
 : In executable SQL only, delete existing `stable_id_event` rows for the same
@@ -345,11 +345,10 @@ out/stable-id-run/matching/lifton.gene_pairs.tsv
 out/stable-id-run/matching/lifton.gene_locus_comparison.tsv
 out/stable-id-run/score_evidence.tsv
 out/stable-id-run/stable_id_decisions.tsv
-out/stable-id-run/sql/stable_id_updates.dry_run.sql
+out/stable-id-run/sql/stable_id_updates.sql
 ```
 
-If `--write-executable-sql` is used, the SQL suffix is `.sql` instead of
-`.dry_run.sql`.
+If `--dry-run-sql` is used, the SQL suffix is `.dry_run.sql`.
 
 ### LiftOn Outputs
 
@@ -416,14 +415,14 @@ Missing rows have an `old_stable_id` but no `current_stable_id` or
 New rows have a `current_stable_id` and an allocated `new_stable_id` from the
 supplied range with version `1`.
 
-`sql/stable_id_updates.dry_run.sql`
-: Review SQL. It creates temporary decision/update tables, emits count checks,
-  and ends in `ROLLBACK`.
-
 `sql/stable_id_updates.sql`
-: Executable SQL, written only with `--write-executable-sql`. It creates backup
-  tables, stages decisions, updates stable IDs with a temporary rename step to
-  avoid collisions, inserts `stable_id_event`, and ends in `COMMIT`.
+: Executable SQL. It creates backup tables, stages decisions, updates stable IDs
+  with a temporary rename step to avoid collisions, inserts `stable_id_event`,
+  and ends in `COMMIT`.
+
+`sql/stable_id_updates.dry_run.sql`
+: Review SQL, written only with `--dry-run-sql`. It creates temporary
+  decision/update tables, emits count checks, and ends in `ROLLBACK`.
 
 ## Audit A Completed Run
 
