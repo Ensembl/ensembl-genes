@@ -157,10 +157,14 @@ gene	new	ENSG0003	2		0	ENSNEWG1	1	1	0	target gene was not claimed by any mapped 
     assert summary["locus_rows_loaded"] == 2
     assert summary["new_target_id_in_ref"]["yes"] == 1
     assert summary["new_target_id_in_ref_old_action"]["missing"] == 1
+    assert summary["missing_locus_target_claimed"]["no"] == 1
     assert (output_dir / "missing_genes.tsv").exists()
     assert (output_dir / "coordinate_mapped_genes.tsv").exists()
     assert (output_dir / "new_genes.tsv").exists()
     assert "ENSG0003" in (output_dir / "missing_genes.tsv").read_text()
+    assert "target_gene_by_locus_claimed_by_old" in (
+        output_dir / "missing_genes.tsv"
+    ).read_text()
     assert "ENSG9002" in (output_dir / "coordinate_mapped_genes.tsv").read_text()
     assert "ref_same_id_action" in (output_dir / "new_genes.tsv").read_text()
     assert "missing" in (output_dir / "new_genes.tsv").read_text()

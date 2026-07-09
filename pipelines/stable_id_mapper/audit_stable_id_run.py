@@ -135,6 +135,11 @@ def audit_run(
         for row in gene_decisions
         if row.get("old_stable_id")
     }
+    mapped_gene_decisions_by_target = {
+        row.get("current_stable_id", ""): row
+        for row in gene_decisions
+        if row.get("action") == "mapped" and row.get("current_stable_id")
+    }
     missing = [row for row in gene_decisions if row.get("action") == "missing"]
     coordinate_mapped = [
         row
@@ -150,12 +155,18 @@ def audit_run(
     new = [row for row in gene_decisions if row.get("action") == "new"]
 
     output_dir.mkdir(parents=True, exist_ok=True)
-    missing_rows = missing_gene_rows(missing, ref_genes, locus_by_old)
+    missing_rows = missing_gene_rows(
+        missing,
+        ref_genes,
+        locus_by_old,
+        mapped_gene_decisions_by_target,
+    )
     coordinate_rows = coordinate_gene_rows(
         coordinate_mapped,
         ref_genes,
         target_genes,
         locus_by_old,
+        mapped_gene_decisions_by_target,
     )
     new_rows = new_gene_rows(
         new,
@@ -216,6 +227,14 @@ def audit_run(
             for row in new_rows
             if int(row.get("structure_candidate_for_old_count") or 0) > 0
         ),
+        "missing_locus_target_claimed": Counter(
+            yes_no(row.get("target_gene_by_locus_claimed_by_old"))
+            for row in missing_rows
+        ),
+        "missing_structure_target_claimed": Counter(
+            yes_no(row.get("structure_accepted_target_claimed_by_old"))
+            for row in missing_rows
+        ),
         "missing_rows": missing_rows,
         "coordinate_rows": coordinate_rows,
         "new_rows": new_rows,
@@ -226,12 +245,22 @@ def missing_gene_rows(
     rows: list[dict[str, str]],
     ref_genes: dict[str, GeneInfo],
     locus_by_old: dict[str, dict[str, str]],
+    mapped_gene_decisions_by_target: dict[str, dict[str, str]],
 ) -> list[dict[str, str]]:
     out: list[dict[str, str]] = []
     for row in rows:
         old_id = row.get("old_stable_id", "")
         old = ref_genes.get(old_id)
         locus = locus_by_old.get(old_id, {})
+        target_gene_by_locus = core_id(locus.get("target_gene_by_locus", ""))
+        structural_target_gene = core_id(locus.get("structure_accepted_target_gene", ""))
+        best_tx_target_gene = core_id(locus.get("best_tx_structure_target_gene", ""))
+        locus_target_claim = mapped_gene_decisions_by_target.get(target_gene_by_locus, {})
+        structural_target_claim = mapped_gene_decisions_by_target.get(
+            structural_target_gene,
+            {},
+        )
+        best_tx_target_claim = mapped_gene_decisions_by_target.get(best_tx_target_gene, {})
         out.append(
             {
                 "old_stable_id": old_id,
@@ -240,12 +269,29 @@ def missing_gene_rows(
                 "reason": row.get("reason", ""),
                 "locus_vs_structure": locus.get("locus_vs_structure", ""),
                 "locus_score": locus.get("locus_score", ""),
-                "target_gene_by_locus": core_id(locus.get("target_gene_by_locus", "")),
-                "structure_accepted_target_gene": core_id(
-                    locus.get("structure_accepted_target_gene", "")
+                "target_gene_by_locus": target_gene_by_locus,
+                "target_gene_by_locus_claimed_by_old": locus_target_claim.get(
+                    "old_stable_id",
+                    "",
                 ),
-                "best_tx_structure_target_gene": core_id(
-                    locus.get("best_tx_structure_target_gene", "")
+                "target_gene_by_locus_claim_score": locus_target_claim.get("score", ""),
+                "structure_accepted_target_gene": structural_target_gene,
+                "structure_accepted_target_claimed_by_old": structural_target_claim.get(
+                    "old_stable_id",
+                    "",
+                ),
+                "structure_accepted_target_claim_score": structural_target_claim.get(
+                    "score",
+                    "",
+                ),
+                "best_tx_structure_target_gene": best_tx_target_gene,
+                "best_tx_structure_target_claimed_by_old": best_tx_target_claim.get(
+                    "old_stable_id",
+                    "",
+                ),
+                "best_tx_structure_target_claim_score": best_tx_target_claim.get(
+                    "score",
+                    "",
                 ),
                 "best_tx_structure_score": locus.get("best_tx_structure_score", ""),
                 "lifton_locus": format_locus(
@@ -271,6 +317,7 @@ def coordinate_gene_rows(
     ref_genes: dict[str, GeneInfo],
     target_genes: dict[str, GeneInfo],
     locus_by_old: dict[str, dict[str, str]],
+    mapped_gene_decisions_by_target: dict[str, dict[str, str]],
 ) -> list[dict[str, str]]:
     out: list[dict[str, str]] = []
     for row in rows:
@@ -279,6 +326,14 @@ def coordinate_gene_rows(
         old = ref_genes.get(old_id)
         target = target_genes.get(target_id)
         locus = locus_by_old.get(old_id, {})
+        target_gene_by_locus = core_id(locus.get("target_gene_by_locus", ""))
+        structural_target_gene = core_id(locus.get("structure_accepted_target_gene", ""))
+        best_tx_target_gene = core_id(locus.get("best_tx_structure_target_gene", ""))
+        structural_target_claim = mapped_gene_decisions_by_target.get(
+            structural_target_gene,
+            {},
+        )
+        best_tx_target_claim = mapped_gene_decisions_by_target.get(best_tx_target_gene, {})
         out.append(
             {
                 "old_stable_id": old_id,
@@ -293,12 +348,24 @@ def coordinate_gene_rows(
                 "reason": row.get("reason", ""),
                 "locus_vs_structure": locus.get("locus_vs_structure", ""),
                 "locus_score": locus.get("locus_score", ""),
-                "target_gene_by_locus": core_id(locus.get("target_gene_by_locus", "")),
-                "structure_accepted_target_gene": core_id(
-                    locus.get("structure_accepted_target_gene", "")
+                "target_gene_by_locus": target_gene_by_locus,
+                "structure_accepted_target_gene": structural_target_gene,
+                "structure_accepted_target_claimed_by_old": structural_target_claim.get(
+                    "old_stable_id",
+                    "",
                 ),
-                "best_tx_structure_target_gene": core_id(
-                    locus.get("best_tx_structure_target_gene", "")
+                "structure_accepted_target_claim_score": structural_target_claim.get(
+                    "score",
+                    "",
+                ),
+                "best_tx_structure_target_gene": best_tx_target_gene,
+                "best_tx_structure_target_claimed_by_old": best_tx_target_claim.get(
+                    "old_stable_id",
+                    "",
+                ),
+                "best_tx_structure_target_claim_score": best_tx_target_claim.get(
+                    "score",
+                    "",
                 ),
                 "best_tx_structure_score": locus.get("best_tx_structure_score", ""),
             }
@@ -503,6 +570,14 @@ def print_summary(summary: dict[str, object], limit: int) -> None:
 
     print_counter("Missing gene reasons", summary["missing_reason_counts"])
     print_counter("Missing gene locus status", summary["missing_locus_status"])
+    print_counter(
+        "Missing gene locus candidate target already claimed",
+        summary["missing_locus_target_claimed"],
+    )
+    print_counter(
+        "Missing gene structural target already claimed",
+        summary["missing_structure_target_claimed"],
+    )
     print_counter("Coordinate-only gene locus status", summary["coordinate_locus_status"])
     print_counter(
         "New gene annotation classes",
@@ -574,7 +649,12 @@ def print_examples(label: str, value: object, limit: int) -> None:
                 row.get("old_biotype", ""),
                 row.get("locus_score", ""),
                 row.get("locus_vs_structure", ""),
-                row.get("reason", ""),
+                (
+                    "locus_claimed_by="
+                    f"{row.get('target_gene_by_locus_claimed_by_old', '')};"
+                    "structure_claimed_by="
+                    f"{row.get('structure_accepted_target_claimed_by_old', '')}"
+                ),
             ]
         print("  " + "\t".join(str(item) for item in visible))
 
@@ -605,6 +685,10 @@ def to_float(value: Optional[str]) -> float:
         return float(value)
     except ValueError:
         return 0.0
+
+
+def yes_no(value: Optional[str]) -> str:
+    return "yes" if value else "no"
 
 
 def open_text(path: Path):
