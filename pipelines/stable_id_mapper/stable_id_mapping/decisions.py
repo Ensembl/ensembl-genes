@@ -84,21 +84,6 @@ def sorted_evidence_candidates(
     )
 
 
-def same_stable_id_score_source(
-    evidence: ScoreEvidence,
-    feature_type: str,
-    old_id: str,
-    target_id: str,
-) -> tuple[float, str]:
-    matched_evidence = evidence.get(feature_type, old_id, target_id)
-    if matched_evidence is None:
-        return 1.0, "same_stable_id"
-    return matched_evidence.score, (
-        f"same_stable_id;{matched_evidence.source} "
-        f"confidence={matched_evidence.confidence}"
-    )
-
-
 def build_gene_decisions(
     ref_features: dict[str, dict[str, Feature]],
     target_features: dict[str, dict[str, Feature]],
@@ -113,39 +98,6 @@ def build_gene_decisions(
     used_targets: set[str] = set()
     assigned_old_genes: set[str] = set()
     old_gene_to_target_gene: dict[str, str] = {}
-
-    for old_id in sorted(ref_features["gene"]):
-        target = target_features["gene"].get(old_id)
-        if target is None:
-            continue
-        old = ref_features["gene"][old_id]
-        score, score_source = same_stable_id_score_source(
-            score_evidence,
-            "gene",
-            old_id,
-            target.stable_id,
-        )
-        used_targets.add(target.stable_id)
-        assigned_old_genes.add(old_id)
-        old_gene_to_target_gene[old_id] = target.stable_id
-        decisions.append(
-            Decision(
-                feature_type="gene",
-                action="mapped",
-                current_stable_id=target.stable_id,
-                current_version=target.version,
-                old_stable_id=old_id,
-                old_version=old.version,
-                new_stable_id=old_id,
-                new_version=mapped_version(old.version),
-                mapping_session_id=mapping_session_id,
-                score=score,
-                reason=(
-                    "target gene already carries the old stable ID; "
-                    f"score_source={score_source}"
-                ),
-            )
-        )
 
     for evidence in sorted_evidence_candidates(score_evidence, "gene"):
         old_id = evidence.old_stable_id
@@ -237,8 +189,7 @@ def build_gene_decisions(
         old = ref_features["gene"][old_id]
         if old_id in missing_gene_ids:
             reason = (
-                "reference gene was not projected by LiftOn and no same-ID "
-                "target gene was available"
+                "reference gene was not projected by LiftOn"
             )
         else:
             reason = (
@@ -322,40 +273,6 @@ def build_transcript_decisions(
                     mapping_session_id=mapping_session_id,
                     score=0.0,
                     reason="transcript belongs to a gene that was not mapped",
-                )
-            )
-            continue
-
-        same_id_target = target_features["transcript"].get(old_id)
-        if (
-            same_id_target is not None
-            and same_id_target.stable_id not in used_targets
-            and same_id_target.parent_stable_id == target_parent
-        ):
-            score, score_source = same_stable_id_score_source(
-                score_evidence,
-                "transcript",
-                old_id,
-                same_id_target.stable_id,
-            )
-            used_targets.add(same_id_target.stable_id)
-            old_transcript_to_target_transcript[old_id] = same_id_target.stable_id
-            decisions.append(
-                Decision(
-                    feature_type="transcript",
-                    action="mapped",
-                    current_stable_id=same_id_target.stable_id,
-                    current_version=same_id_target.version,
-                    old_stable_id=old_id,
-                    old_version=old_version,
-                    new_stable_id=old_id,
-                    new_version=new_version,
-                    mapping_session_id=mapping_session_id,
-                    score=score,
-                    reason=(
-                        "target transcript already carries the old stable ID; "
-                        f"score_source={score_source}"
-                    ),
                 )
             )
             continue

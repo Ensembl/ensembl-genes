@@ -371,7 +371,7 @@ chrT	test	gene	100	200	.	+	.	ID=gene:ENSXG0002.1
     )
 
 
-def test_gene_same_stable_id_target_wins_before_other_evidence(
+def test_gene_same_stable_id_target_does_not_win_without_evidence(
     tmp_path: Path,
 ) -> None:
     ref_gff = tmp_path / "ref.gff3"
@@ -442,15 +442,17 @@ chrT	test	mRNA	100	500	.	+	.	ID=transcript:ENSXT0001.4;Parent=gene:ENSXG0001.4
     mapped_gene = next(
         decision for decision in gene_decisions if decision.action == "mapped"
     )
+    new_same_id_target = next(
+        decision
+        for decision in gene_decisions
+        if decision.action == "new" and decision.current_stable_id == "ENSXG0001"
+    )
 
     assert mapped_gene.old_stable_id == "ENSXG0001"
-    assert mapped_gene.current_stable_id == "ENSXG0001"
+    assert mapped_gene.current_stable_id == "ENSXG9001"
     assert mapped_gene.new_version == 5
-    assert "already carries the old stable ID" in mapped_gene.reason
-    assert not any(
-        decision.action == "new" and decision.current_stable_id == "ENSXG0001"
-        for decision in gene_decisions
-    )
+    assert "by lifton structural evidence" in mapped_gene.reason
+    assert new_same_id_target.new_stable_id == "ENSXG7000"
 
 
 def test_lifton_copy_gene_ids_do_not_become_old_stable_id_decisions(

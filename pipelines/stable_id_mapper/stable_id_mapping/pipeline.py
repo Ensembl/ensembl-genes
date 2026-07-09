@@ -48,13 +48,6 @@ def print_summary(decisions: list[Decision]) -> None:
         and decision.action == "mapped"
         and "by lifton structural evidence" in decision.reason
     )
-    same_id_counts = Counter(
-        decision.feature_type
-        for decision in decisions
-        if decision.feature_type in ("gene", "transcript")
-        and decision.action == "mapped"
-        and "already carries the old stable ID" in decision.reason
-    )
     overlap_counts = Counter(
         decision.feature_type
         for decision in decisions
@@ -64,9 +57,7 @@ def print_summary(decisions: list[Decision]) -> None:
         and "by coordinate overlap" in decision.reason
     )
     sys.stderr.write(
-        "Mapped by same stable ID: "
-        f"{same_id_counts['gene']} genes, {same_id_counts['transcript']} transcripts; "
-        "mapped by LiftOn structural evidence: "
+        "Mapped by LiftOn structural evidence: "
         f"{evidence_counts['gene']} genes, {evidence_counts['transcript']} transcripts; "
         "mapped by coordinate overlap: "
         f"{overlap_counts['gene']} genes, {overlap_counts['transcript']} transcripts\n"
