@@ -28,9 +28,9 @@ import pymysql
 import xmltodict
 
 try:
-    from ensembl.genes.metadata import bioproject_from_registry
+    from ensembl.genes.metadata.bioproject_from_registry import get_bioproject_names
 except ImportError:
-    import bioproject_from_registry  # type: ignore[no-redef]
+    from bioproject_from_registry import get_bioproject_names
 
 # Module logger (configured in __main__ via logging.config)
 logger: logging.Logger = logging.getLogger(__name__)
@@ -430,7 +430,7 @@ if __name__ == "__main__":
     elif db == "bos_taurus_core_110_1":
         truth_dict["organism.biosample_id"] = "SAMN03145444"
 
-    bioproject_names = bioproject_from_registry.get_bioproject_names(
+    bioproject_names = get_bioproject_names(
         gca_accession, user=server_info["meta"]["db_user"]
     )
 
@@ -730,10 +730,10 @@ if __name__ == "__main__":
     # single-value truth_dict update path.
     for bioproject_name in bioproject_names:
         if bioproject_name not in core_genome_groups:
-            genome_group_meta_value = bioproject_name.replace("'", "''")
+            meta_value = bioproject_name.replace("'", "''")
             print(
                 f"INSERT IGNORE INTO meta (species_id, meta_key, meta_value) "
-                f"VALUES({species_id}, 'genome.genome_group', '{genome_group_meta_value}');",
+                f"VALUES({species_id}, 'genome.genome_group', '{meta_value}');",
                 file=sql_out,
             )
 
