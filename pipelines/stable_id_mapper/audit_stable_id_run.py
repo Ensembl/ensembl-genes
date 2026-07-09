@@ -13,7 +13,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterable, Optional
 
-from stable_id_mapping.gff3 import parse_attrs, split_stable_id
+from stable_id_mapping.gff3 import parent_ids, parse_attrs, split_stable_id
 
 
 BIOTYPE_KEYS = (
@@ -35,10 +35,24 @@ class GeneInfo:
     strand: str
     biotype: str
     raw_id: str
+    child_feature_types: tuple[str, ...] = ()
 
     @property
     def locus(self) -> str:
         return f"{self.seqid}:{self.start}-{self.end}({self.strand})"
+
+    @property
+    def annotation_class(self) -> str:
+        if self.biotype:
+            return self.biotype
+        child_types = set(self.child_feature_types)
+        if "mrna" in child_types:
+            return "protein_coding_like_from_mRNA"
+        if "transcript" in child_types:
+            return "transcript_child_no_biotype"
+        if child_types:
+            return "+".join(sorted(child_types))
+        return "<unknown>"
 
 
 def parse_args(argv: Optional[list[str]] = None) -> argparse.Namespace:
@@ -143,9 +157,30 @@ def audit_run(
             "new": len(new),
         },
         "missing_reason_counts": Counter(row.get("reason", "") for row in missing),
+        "missing_locus_status": Counter(
+            row.get("locus_vs_structure", "") or "<no locus row>"
+            for row in missing_rows
+        ),
         "coordinate_scores": tuple(to_float(row.get("score")) for row in coordinate_mapped),
-        "new_biotypes": Counter(
-            row.get("target_biotype", "<unknown>") for row in new_rows
+        "coordinate_locus_status": Counter(
+            row.get("locus_vs_structure", "") or "<no locus row>"
+            for row in coordinate_rows
+        ),
+        "new_annotation_classes": Counter(
+            row.get("target_annotation_class", "<unknown>") for row in new_rows
+        ),
+        "new_target_id_in_ref": Counter(
+            row.get("target_id_also_in_ref_gff", "no") for row in new_rows
+        ),
+        "new_with_locus_candidates": sum(
+            1
+            for row in new_rows
+            if int(row.get("locus_candidate_for_old_count") or 0) > 0
+        ),
+        "new_with_structure_candidates": sum(
+            1
+            for row in new_rows
+            if int(row.get("structure_candidate_for_old_count") or 0) > 0
         ),
         "missing_rows": missing_rows,
         "coordinate_rows": coordinate_rows,
@@ -216,7 +251,9 @@ def coordinate_gene_rows(
                 "target_stable_id": target_id,
                 "score": row.get("score", ""),
                 "old_biotype": old.biotype if old else "",
+                "old_annotation_class": old.annotation_class if old else "",
                 "target_biotype": target.biotype if target else "",
+                "target_annotation_class": target.annotation_class if target else "",
                 "old_locus": old.locus if old else "",
                 "target_locus": target.locus if target else "",
                 "reason": row.get("reason", ""),
@@ -258,6 +295,7 @@ def new_gene_rows(
                 "target_stable_id": target_id,
                 "assigned_new_stable_id": row.get("new_stable_id", ""),
                 "target_biotype": target.biotype if target else "",
+                "target_annotation_class": target.annotation_class if target else "",
                 "target_locus": target.locus if target else "",
                 "target_id_also_in_ref_gff": "yes" if target_id in ref_genes else "no",
                 "locus_candidate_for_old_count": str(
@@ -321,25 +359,50 @@ def target_usage_from_locus_rows(
 
 
 def load_gene_info(path: Path) -> dict[str, GeneInfo]:
-    genes: dict[str, GeneInfo] = {}
+    gene_rows: dict[str, tuple[str, str, str, str, str, str, str]] = {}
+    child_types_by_gene: dict[str, set[str]] = defaultdict(set)
     for fields in iter_gff3_rows(path):
         seqid, _source, feature_type, start, end, _score, strand, _phase, attrs_text = fields
-        if feature_type.lower() != "gene":
-            continue
+        feature_type_lc = feature_type.lower()
         attrs = parse_attrs(attrs_text)
-        stable_id, _version = split_stable_id(attrs.get("ID"))
-        if not stable_id:
+        if feature_type_lc == "gene":
+            stable_id, _version = split_stable_id(attrs.get("ID"))
+            if not stable_id:
+                continue
+            gene_rows[stable_id] = (
+                seqid,
+                start,
+                end,
+                strand,
+                first_attr(attrs, BIOTYPE_KEYS) or "",
+                attrs.get("ID", ""),
+                feature_type_lc,
+            )
             continue
-        genes[stable_id] = GeneInfo(
+        for parent_id, _version in parent_ids(attrs.get("Parent")):
+            child_types_by_gene[parent_id].add(feature_type_lc)
+
+    return {
+        stable_id: GeneInfo(
             stable_id=stable_id,
             seqid=seqid,
             start=start,
             end=end,
             strand=strand,
-            biotype=first_attr(attrs, BIOTYPE_KEYS) or "",
-            raw_id=attrs.get("ID", ""),
+            biotype=biotype,
+            raw_id=raw_id,
+            child_feature_types=tuple(sorted(child_types_by_gene.get(stable_id, ()))),
         )
-    return genes
+        for stable_id, (
+            seqid,
+            start,
+            end,
+            strand,
+            biotype,
+            raw_id,
+            _feature_type,
+        ) in gene_rows.items()
+    }
 
 
 def iter_gff3_rows(path: Path) -> Iterable[list[str]]:
@@ -395,7 +458,19 @@ def print_summary(summary: dict[str, object], limit: int) -> None:
         )
 
     print_counter("Missing gene reasons", summary["missing_reason_counts"])
-    print_counter("New gene biotypes", summary["new_biotypes"], limit=10)
+    print_counter("Missing gene locus status", summary["missing_locus_status"])
+    print_counter("Coordinate-only gene locus status", summary["coordinate_locus_status"])
+    print_counter(
+        "New gene annotation classes",
+        summary["new_annotation_classes"],
+        limit=10,
+    )
+    print_counter("New target ID also present in ref GFF", summary["new_target_id_in_ref"])
+    print(
+        "New genes seen as candidate targets: "
+        f"locus={summary['new_with_locus_candidates']}, "
+        f"structure={summary['new_with_structure_candidates']}"
+    )
 
     paths = summary["paths"]
     assert isinstance(paths, dict)
@@ -425,13 +500,30 @@ def print_examples(label: str, value: object, limit: int) -> None:
         print("  none")
         return
     for row in value[:limit]:
-        visible = [
-            row.get("old_stable_id") or row.get("target_stable_id") or "",
-            row.get("target_stable_id") or row.get("assigned_new_stable_id") or "",
-            row.get("score") or row.get("locus_score") or "",
-            row.get("locus_vs_structure") or row.get("target_biotype") or "",
-            row.get("reason", ""),
-        ]
+        if "assigned_new_stable_id" in row:
+            visible = [
+                row.get("target_stable_id", ""),
+                row.get("assigned_new_stable_id", ""),
+                row.get("target_annotation_class", ""),
+                row.get("target_id_also_in_ref_gff", ""),
+                row.get("reason", ""),
+            ]
+        elif "target_stable_id" in row:
+            visible = [
+                row.get("old_stable_id", ""),
+                row.get("target_stable_id", ""),
+                row.get("score", ""),
+                row.get("locus_vs_structure", ""),
+                row.get("reason", ""),
+            ]
+        else:
+            visible = [
+                row.get("old_stable_id", ""),
+                row.get("old_biotype", ""),
+                row.get("locus_score", ""),
+                row.get("locus_vs_structure", ""),
+                row.get("reason", ""),
+            ]
         print("  " + "\t".join(str(item) for item in visible))
 
 
