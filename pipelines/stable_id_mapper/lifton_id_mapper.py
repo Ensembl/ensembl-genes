@@ -91,6 +91,49 @@ def parse_gff3_attributes(attr_str: str) -> Dict[str, str]:
             d[p] = ''
     return d
 
+def core_gff3_id(value: Optional[str]) -> Optional[str]:
+    if not value:
+        return None
+    token = value.split(',', 1)[0].strip()
+    if not token:
+        return None
+    if ':' in token:
+        prefix, rest = token.split(':', 1)
+        if prefix.lower() in ('gene', 'transcript', 'mrna', 'rna', 'cds', 'exon', 'protein'):
+            token = rest
+    if '.' in token:
+        base, maybe_version = token.rsplit('.', 1)
+        if maybe_version.isdigit():
+            token = base
+    return token or None
+
+def build_core_id_index(ids: Iterable[str]) -> Dict[str, Optional[str]]:
+    index: Dict[str, Optional[str]] = {}
+    for raw_id in ids:
+        core_id = core_gff3_id(raw_id)
+        if not core_id:
+            continue
+        if core_id in index and index[core_id] != raw_id:
+            index[core_id] = None
+        else:
+            index[core_id] = raw_id
+    return index
+
+def resolve_feature_id(
+    raw_id: Optional[str],
+    explicit_ids: Set[str],
+    core_index: Dict[str, Optional[str]],
+) -> Optional[str]:
+    if not raw_id:
+        return None
+    raw_id = raw_id.strip()
+    if raw_id in explicit_ids:
+        return raw_id
+    core_id = core_gff3_id(raw_id)
+    if not core_id:
+        return None
+    return core_index.get(core_id)
+
 def format_gff3_attributes(attrs: Dict[str, str]) -> str:
     # keep order stable for readability
     return ';'.join(f"{k}={v}" for k, v in attrs.items()) if attrs else '.'
@@ -261,6 +304,7 @@ def load_gff3_as_annotation(path: str, label: str) -> Annotation:
     ann = Annotation(label)
     # Temporary storage: transcript attributes before exons
     tx_meta: Dict[str, Tuple[str,str,Dict[str,str]]] = {}
+    child_blocks: Dict[str, List[Tuple[str,int,int]]] = collections.defaultdict(list)
     cds_blocks: Dict[str, List[Tuple[int,int]]] = collections.defaultdict(list)
     explicit_gene_ids: Set[str] = set()
     explicit_transcript_ids: Set[str] = set()
@@ -338,19 +382,8 @@ def load_gff3_as_annotation(path: str, label: str) -> Annotation:
                 parent = attrs.get('Parent')
                 if not parent:
                     continue
-                # Parent may be comma-separated; we assign to each
                 for tid in parent.split(','):
-                    t = ann.tx_index.get(tid)
-                    if t is None:
-                        # exon precedes transcript line: create minimal transcript
-                        seqid2 = seqid
-                        strand2 = strand
-                        t = Transcript(tid, attrs.get('gene_id',''), seqid2, strand2)
-                        ann.tx_index[tid] = t
-                    if ftype_l == 'exon':
-                        t.add_exon(start_i, end_i)
-                    else:
-                        cds_blocks[tid].append((start_i, end_i))
+                    child_blocks[tid.strip()].append((ftype_l, start_i, end_i))
 
             else:
                 # ignore other feature types for structure
@@ -362,6 +395,20 @@ def load_gff3_as_annotation(path: str, label: str) -> Annotation:
         if tid in explicit_transcript_ids
     }
 
+    transcript_core_index = build_core_id_index(explicit_transcript_ids)
+    for parent_id, blocks in child_blocks.items():
+        tid = resolve_feature_id(parent_id, explicit_transcript_ids, transcript_core_index)
+        if tid is None:
+            continue
+        t = ann.tx_index.get(tid)
+        if t is None:
+            continue
+        for child_type, start_i, end_i in blocks:
+            if child_type == 'exon':
+                t.add_exon(start_i, end_i)
+            else:
+                cds_blocks[tid].append((start_i, end_i))
+
     # LiftOn outputs can be CDS-only for some transcripts. Use CDS blocks as
     # transcript-structure evidence only when explicit exon rows are absent.
     for tid, blocks in cds_blocks.items():
@@ -372,6 +419,7 @@ def load_gff3_as_annotation(path: str, label: str) -> Annotation:
             t.add_exon(start_i, end_i)
 
     # Link transcripts to explicit gene rows only, matching the decision parser.
+    gene_core_index = build_core_id_index(explicit_gene_ids)
     linked_transcript_ids: Set[str] = set()
     for tid, t in list(ann.tx_index.items()):
         # fill basic metadata from tx_meta if present (kept for compatibility; may be empty)
@@ -381,7 +429,11 @@ def load_gff3_as_annotation(path: str, label: str) -> Annotation:
             t.strand = strand
             for k,v in a.items():
                 ann.tx_index[tid].attrs.setdefault(k, v)
-        gid = t.gene_id or norm_parent_gene_id(t.attrs.get('Parent')) or t.attrs.get('gene_id')
+        gid = resolve_feature_id(
+            t.gene_id or norm_parent_gene_id(t.attrs.get('Parent')) or t.attrs.get('gene_id'),
+            explicit_gene_ids,
+            gene_core_index,
+        )
         if not gid or gid not in explicit_gene_ids:
             continue
         g = ann.genes.get(gid)

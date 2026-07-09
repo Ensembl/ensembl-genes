@@ -73,6 +73,27 @@ chrT	test	exon	700	900	.	+	.	ID=exon:nc;Parent=transcript:ENSXTNC1.1
     assert set(annotation.tx_index) == {"transcript:ENSXT0001.1"}
 
 
+def test_structural_parser_links_children_by_core_stable_id(tmp_path: Path) -> None:
+    gff = tmp_path / "annotation.gff3"
+    write_text(
+        gff,
+        """
+##gff-version 3
+chrT	test	gene	100	500	.	+	.	ID=gene:ENSXG0001.2
+chrT	test	mRNA	100	500	.	+	.	ID=ENSXT0001.3;Parent=ENSXG0001
+chrT	test	CDS	100	200	.	+	0	ID=CDS:ENSXP0001;Parent=transcript:ENSXT0001
+chrT	test	CDS	300	500	.	+	0	ID=CDS:ENSXP0001;Parent=transcript:ENSXT0001
+        """,
+    )
+
+    annotation = lifton_id_mapper.load_gff3_as_annotation(str(gff), "test")
+    transcript = annotation.tx_index["ENSXT0001.3"]
+
+    assert set(annotation.genes) == {"gene:ENSXG0001.2"}
+    assert transcript.gene_id == "gene:ENSXG0001.2"
+    assert transcript.exon_count() == 2
+
+
 def test_lifton_matching_uses_cds_when_lifton_output_has_no_exons(
     tmp_path: Path,
 ) -> None:
