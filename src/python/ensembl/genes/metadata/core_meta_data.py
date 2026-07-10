@@ -17,9 +17,10 @@
 import json
 import re
 import argparse
+from importlib import import_module
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Callable, Dict, List, Optional, Tuple
 
 import logging
 import logging.config
@@ -27,10 +28,16 @@ import requests
 import pymysql
 import xmltodict
 
-try:
-    from ensembl.genes.metadata.bioproject_from_registry import get_bioproject_names
-except ImportError:
-    from bioproject_from_registry import get_bioproject_names
+
+def _load_bioproject_names_getter() -> Callable[..., List[str]]:
+    try:
+        module = import_module("ensembl.genes.metadata.bioproject_from_registry")
+    except ImportError:
+        module = import_module("bioproject_from_registry")
+    return module.get_bioproject_names
+
+
+fetch_bioproject_names = _load_bioproject_names_getter()
 
 # Module logger (configured in __main__ via logging.config)
 logger: logging.Logger = logging.getLogger(__name__)
@@ -430,7 +437,7 @@ if __name__ == "__main__":
     elif db == "bos_taurus_core_110_1":
         truth_dict["organism.biosample_id"] = "SAMN03145444"
 
-    bioproject_names = get_bioproject_names(
+    bioproject_names = fetch_bioproject_names(
         gca_accession, user=server_info["meta"]["db_user"]
     )
 
@@ -730,10 +737,10 @@ if __name__ == "__main__":
     # single-value truth_dict update path.
     for bioproject_name in bioproject_names:
         if bioproject_name not in core_genome_groups:
-            meta_value = bioproject_name.replace("'", "''")
+            genome_group_meta_value = bioproject_name.replace("'", "''")
             print(
                 f"INSERT IGNORE INTO meta (species_id, meta_key, meta_value) "
-                f"VALUES({species_id}, 'genome.genome_group', '{meta_value}');",
+                f"VALUES({species_id}, 'genome.genome_group', '{genome_group_meta_value}');",
                 file=sql_out,
             )
 
