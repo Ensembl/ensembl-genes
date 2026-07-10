@@ -218,6 +218,16 @@ python -m ensembl.genes.projects.generate_project_yaml ./mouse_guuids.txt \
   --project mouse_genomes --output mouse_species.yaml --audit-file mouse_audit.tsv
 ```
 
+### WormBase ParaSite Archive
+Unlike Ensembl projects, WormBase YAML generation requires no UUID input list and discovers species directly from the FTP.
+```bash
+python -m ensembl.genes.projects.generate_wormbase_yaml \
+  --release WBPS19 \
+  --output wormbase_species.yaml \
+  --audit-file wormbase_audit.tsv
+```
+An example Nunjucks template for projects.ensembl.org is provided in `examples/projects.ensembl.org/_projects/wormbase.njk`.
+
 ### Dry Run / Sanity Validation
 To check what will be included without committing the YAML immediately, you can run the pipeline and inspect the audit file:
 ```bash
