@@ -972,3 +972,219 @@ def test_anno_gtf_loads_into_existing_core_with_quality_check(
     assert connection.cursor_instance.exon_transcripts == {(1, 1), (2, 1)}
     assert connection.cursor_instance.translations == {1: "tx1_prot"}
     assert "GFF core quality check: PASS" in capsys.readouterr().out
+
+
+def test_anno_gtf_exon_phases_match_old_loader_boundary_utrs(tmp_path: Path) -> None:
+    gtf = write_lines(
+        tmp_path / "annotation.gtf",
+        [
+            feature_row(
+                "17",
+                "transcript",
+                100,
+                300,
+                "+",
+                'gene_id "gene1"; transcript_id "tx1"; '
+                'translation_coords "100:150:11:200:300:51";',
+            ),
+            feature_row(
+                "17",
+                "exon",
+                100,
+                150,
+                "+",
+                'gene_id "gene1"; transcript_id "tx1"; exon_number "1";',
+            ),
+            feature_row(
+                "17",
+                "exon",
+                200,
+                300,
+                "+",
+                'gene_id "gene1"; transcript_id "tx1"; exon_number "2";',
+            ),
+        ],
+    )
+
+    annotation = gff_core_loader.prepare_annotation_for_load(
+        gtf,
+        source_config=get_source_config("anno_gtf"),
+    )
+
+    exons = annotation.transcripts["tx1"].exons
+    assert [(exon.phase, exon.end_phase) for exon in exons] == [(-1, 2), (2, -1)]
+
+
+def test_anno_gtf_reuses_matching_exons_by_default(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    gtf = write_lines(
+        tmp_path / "annotation.gtf",
+        [
+            feature_row(
+                "17",
+                "transcript",
+                100,
+                200,
+                "+",
+                'gene_id "gene1"; transcript_id "tx1";',
+            ),
+            feature_row(
+                "17",
+                "exon",
+                100,
+                200,
+                "+",
+                'gene_id "gene1"; transcript_id "tx1"; exon_number "1";',
+            ),
+            feature_row(
+                "17",
+                "transcript",
+                100,
+                200,
+                "+",
+                'gene_id "gene1"; transcript_id "tx2";',
+            ),
+            feature_row(
+                "17",
+                "exon",
+                100,
+                200,
+                "+",
+                'gene_id "gene1"; transcript_id "tx2"; exon_number "1";',
+            ),
+        ],
+    )
+    connection = FakeCoreConnection()
+    monkeypatch.setattr(gff_core_loader, "connect_mysql", lambda **_: connection)
+
+    gff_core_loader.load_gff_features_to_core(
+        gff_path=gtf,
+        db_name="existing_core",
+        db_host="mysql-host",
+        db_user="ensro",
+        db_password="secret",
+        db_port=3306,
+        source_config=get_source_config("anno_gtf"),
+    )
+
+    assert connection.cursor_instance.exons == {1: (None,)}
+    assert connection.cursor_instance.exon_transcripts == {(1, 1), (1, 2)}
+
+
+def test_anno_gtf_can_disable_exon_deduplication(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    gtf = write_lines(
+        tmp_path / "annotation.gtf",
+        [
+            feature_row(
+                "17",
+                "transcript",
+                100,
+                200,
+                "+",
+                'gene_id "gene1"; transcript_id "tx1";',
+            ),
+            feature_row(
+                "17",
+                "exon",
+                100,
+                200,
+                "+",
+                'gene_id "gene1"; transcript_id "tx1"; exon_number "1";',
+            ),
+            feature_row(
+                "17",
+                "transcript",
+                100,
+                200,
+                "+",
+                'gene_id "gene1"; transcript_id "tx2";',
+            ),
+            feature_row(
+                "17",
+                "exon",
+                100,
+                200,
+                "+",
+                'gene_id "gene1"; transcript_id "tx2"; exon_number "1";',
+            ),
+        ],
+    )
+    connection = FakeCoreConnection()
+    monkeypatch.setattr(gff_core_loader, "connect_mysql", lambda **_: connection)
+
+    gff_core_loader.load_gff_features_to_core(
+        gff_path=gtf,
+        db_name="existing_core",
+        db_host="mysql-host",
+        db_user="ensro",
+        db_password="secret",
+        db_port=3306,
+        source_config=get_source_config("anno_gtf"),
+        deduplicate_exons=False,
+    )
+
+    assert connection.cursor_instance.exons == {1: (None,), 2: (None,)}
+    assert connection.cursor_instance.exon_transcripts == {(1, 1), (2, 2)}
+
+
+def test_anno_gtf_does_not_reuse_matching_exons_across_genes(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    gtf = write_lines(
+        tmp_path / "annotation.gtf",
+        [
+            feature_row(
+                "17",
+                "transcript",
+                100,
+                200,
+                "+",
+                'gene_id "gene1"; transcript_id "tx1";',
+            ),
+            feature_row(
+                "17",
+                "exon",
+                100,
+                200,
+                "+",
+                'gene_id "gene1"; transcript_id "tx1"; exon_number "1";',
+            ),
+            feature_row(
+                "17",
+                "transcript",
+                100,
+                200,
+                "+",
+                'gene_id "gene2"; transcript_id "tx2";',
+            ),
+            feature_row(
+                "17",
+                "exon",
+                100,
+                200,
+                "+",
+                'gene_id "gene2"; transcript_id "tx2"; exon_number "1";',
+            ),
+        ],
+    )
+    connection = FakeCoreConnection()
+    monkeypatch.setattr(gff_core_loader, "connect_mysql", lambda **_: connection)
+
+    gff_core_loader.load_gff_features_to_core(
+        gff_path=gtf,
+        db_name="existing_core",
+        db_host="mysql-host",
+        db_user="ensro",
+        db_password="secret",
+        db_port=3306,
+        source_config=get_source_config("anno_gtf"),
+    )
+
+    assert connection.cursor_instance.exons == {1: (None,), 2: (None,)}
+    assert connection.cursor_instance.exon_transcripts == {(1, 1), (2, 2)}

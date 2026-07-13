@@ -758,26 +758,59 @@ def compute_exon_phases(annotation: ParsedAnnotation) -> ParsedAnnotation:
             exon.end_phase = -1
 
         coding_bases = 0
-        first_coding_exon_seen = False
+        coding_exons_seen = 0
+        coding_exon_count = sum(
+            1
+            for exon in exons_in_transcript_order
+            if any(
+                max(exon.start, cds.start) <= min(exon.end, cds.end)
+                for cds in ordered_cds
+            )
+        )
         for exon in exons_in_transcript_order:
             exon_coding_len = 0
+            exon_overlap_start: int | None = None
+            exon_overlap_end: int | None = None
             for cds in ordered_cds:
                 overlap_start = max(exon.start, cds.start)
                 overlap_end = min(exon.end, cds.end)
                 if overlap_start <= overlap_end:
                     exon_coding_len += overlap_end - overlap_start + 1
+                    exon_overlap_start = (
+                        overlap_start
+                        if exon_overlap_start is None
+                        else min(exon_overlap_start, overlap_start)
+                    )
+                    exon_overlap_end = (
+                        overlap_end
+                        if exon_overlap_end is None
+                        else max(exon_overlap_end, overlap_end)
+                    )
 
             if exon_coding_len == 0:
                 continue
 
-            if not first_coding_exon_seen and first_phase is not None:
-                exon.phase = first_phase
+            coding_exons_seen += 1
+            five_prime_is_coding = (
+                exon_overlap_start == exon.start
+                if strand == 1
+                else exon_overlap_end == exon.end
+            )
+            three_prime_is_coding = (
+                exon_overlap_end == exon.end
+                if strand == 1
+                else exon_overlap_start == exon.start
+            )
+
+            if coding_exons_seen == 1:
+                if five_prime_is_coding:
+                    exon.phase = first_phase if first_phase is not None else 0
             else:
                 exon.phase = coding_bases % 3
 
             coding_bases += exon_coding_len
-            exon.end_phase = coding_bases % 3
-            first_coding_exon_seen = True
+            if coding_exons_seen < coding_exon_count or three_prime_is_coding:
+                exon.end_phase = coding_bases % 3
 
     return annotation
 
@@ -1262,11 +1295,15 @@ def insert_transcripts_and_exons(
     analysis_id: int,
     source_config: GffSourceConfig = REFSEQ_CONFIG,
     first_exon_id: int = 1,
+    deduplicate_exons: bool = True,
 ) -> tuple[dict[tuple[str, int], int], dict[str, dict[tuple[int, int], int]]]:
     """Insert transcripts, exons, and exon_transcript links."""
 
     exon_id_map: dict[tuple[str, int], int] = {}
     per_transcript_coord_to_exon_id: dict[str, dict[tuple[int, int], int]] = {}
+    shared_exon_ids: dict[
+        tuple[str, int, int, int, int, int, int, str | None], int
+    ] = {}
     next_exon_id = first_exon_id
 
     for transcript_id, transcript in annotation.transcripts.items():
@@ -1297,32 +1334,50 @@ def insert_transcripts_and_exons(
         )
         coord_to_exon_id: dict[tuple[int, int], int] = {}
         for rank, exon in enumerate(sorted_exons, start=1):
-            exon_id = next_exon_id
-            next_exon_id += 1
-            phase_value = 0 if exon.phase in (None, -1) else exon.phase
-            end_phase_value = 0 if exon.end_phase in (None, -1) else exon.end_phase
-            cursor.execute(
-                """INSERT INTO exon
-                   (exon_id, seq_region_id, seq_region_start, seq_region_end,
-                    seq_region_strand, phase, end_phase, stable_id)
-                   VALUES (%s,%s,%s,%s,%s,%s,%s,%s)""",
-                (
-                    exon_id,
-                    seq_region_id,
-                    exon.start,
-                    exon.end,
-                    exon.strand,
-                    phase_value,
-                    end_phase_value,
-                    exon.stable_id,
-                ),
+            phase_value = -1 if exon.phase is None else exon.phase
+            end_phase_value = -1 if exon.end_phase is None else exon.end_phase
+            exon_key = (
+                transcript.gene_id,
+                seq_region_id,
+                exon.start,
+                exon.end,
+                exon.strand,
+                phase_value,
+                end_phase_value,
+                exon.stable_id,
             )
+            exon_id = shared_exon_ids.get(exon_key) if deduplicate_exons else None
+            if exon_id is None:
+                exon_id = next_exon_id
+                next_exon_id += 1
+                cursor.execute(
+                    """INSERT INTO exon
+                       (exon_id, seq_region_id, seq_region_start, seq_region_end,
+                        seq_region_strand, phase, end_phase, stable_id)
+                       VALUES (%s,%s,%s,%s,%s,%s,%s,%s)""",
+                    (
+                        exon_id,
+                        seq_region_id,
+                        exon.start,
+                        exon.end,
+                        exon.strand,
+                        phase_value,
+                        end_phase_value,
+                        exon.stable_id,
+                    ),
+                )
+                if deduplicate_exons:
+                    shared_exon_ids[exon_key] = exon_id
             exon_id_map[(transcript_id, rank)] = exon_id
             coord_to_exon_id[exon.coordinate_key] = exon_id
             cursor.execute(
                 "INSERT INTO exon_transcript (exon_id, transcript_id, rank) "
                 "VALUES (%s,%s,%s)",
-                (exon_id, transcript_id_map[transcript_id], rank),
+                (
+                    exon_id,
+                    transcript_id_map[transcript_id],
+                    rank,
+                ),
             )
 
         per_transcript_coord_to_exon_id[transcript_id] = coord_to_exon_id
@@ -1421,6 +1476,7 @@ def load_to_ensembl_core(
     schema_sql_path: str | Path | None = None,
     logger: logging.Logger | None = None,
     source_config: GffSourceConfig = REFSEQ_CONFIG,
+    deduplicate_exons: bool = True,
 ) -> str:
     """Load converted GFF3/GTF and FASTA files into an Ensembl-style core database.
 
@@ -1496,6 +1552,7 @@ def load_to_ensembl_core(
             transcript_id_map,
             analysis_id,
             source_config=source_config,
+            deduplicate_exons=deduplicate_exons,
         )
         insert_translations(cursor, annotation, transcript_id_map, exon_id_map)
         quality_report = run_core_load_quality_check(
@@ -1540,6 +1597,7 @@ def load_gff_features_to_core(
     coord_system_version: str | None = None,
     source_config: GffSourceConfig = GENERIC_GFF_CONFIG,
     logger: logging.Logger | None = None,
+    deduplicate_exons: bool = True,
 ) -> dict[str, int]:
     """Load GFF3/GTF features into an existing Ensembl core database.
 
@@ -1600,6 +1658,7 @@ def load_gff_features_to_core(
             analysis_id,
             source_config=source_config,
             first_exon_id=first_exon_id,
+            deduplicate_exons=deduplicate_exons,
         )
         insert_translations(cursor, annotation, transcript_id_map, exon_id_map)
         quality_report = run_core_load_quality_check(

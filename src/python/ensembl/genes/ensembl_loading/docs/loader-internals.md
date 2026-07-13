@@ -239,8 +239,8 @@ For each transcript with CDS:
    so far.
 9. `end_phase` is calculated as `coding_bases % 3`.
 
-When exons are inserted into the database, `None` and `-1` phases are currently
-stored as `0`. Coding phases calculated as `0`, `1`, or `2` are stored as-is.
+When exons are inserted into the database, unset phases are stored as `-1`.
+Coding phases calculated as `0`, `1`, or `2` are stored as-is.
 
 `insert_translations()` creates translations from CDS groups:
 
@@ -279,9 +279,12 @@ attributes, usually `Name`, then falls back to normalized transcript ID.
 `NULL`.
 
 `exon`
-: Inserts exon rows per transcript. Exons are not deduplicated across
-transcripts. Positive-strand exons are ranked by start ascending; negative
-strand exons are ranked by start descending. `stable_id` is currently `NULL`.
+: Inserts exon rows and reuses an existing exon from the current load when
+seq_region, start, end, strand, phase, end_phase, and stable_id match. This
+matches the old Ensembl GTF loading behavior where exon frame is part of exon
+identity. Positive-strand exons are ranked by start ascending; negative strand
+exons are ranked by start descending. `stable_id` is currently `NULL` unless
+the selected source config captures exon stable IDs.
 
 `exon_transcript`
 : Links each inserted exon to its transcript with the calculated rank.

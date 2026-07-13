@@ -122,6 +122,28 @@ def add_source_option(
     )
 
 
+def add_exon_deduplication_option(parser: argparse.ArgumentParser) -> None:
+    """Add the default-on old-loader exon reuse option."""
+
+    parser.add_argument(
+        "--deduplicate-exons",
+        dest="deduplicate_exons",
+        action="store_true",
+        default=True,
+        help=(
+            "Reuse exon rows with the same seq_region, coordinates, strand, "
+            "phase, end_phase, and stable_id; this matches the old Ensembl "
+            "GTF loading behavior"
+        ),
+    )
+    parser.add_argument(
+        "--no-deduplicate-exons",
+        dest="deduplicate_exons",
+        action="store_false",
+        help="Insert one exon row per transcript exon link",
+    )
+
+
 def add_existing_core_db_options(parser: argparse.ArgumentParser) -> None:
     """Add DB options for loading features into an existing core DB."""
 
@@ -265,6 +287,7 @@ def run_load_features(args: argparse.Namespace) -> int:
         coord_system_name=args.coord_system_name,
         coord_system_version=args.coord_system_version,
         source_config=source_config,
+        deduplicate_exons=args.deduplicate_exons,
     )
     LOGGER.info(
         "Loaded feature summary: %s genes, %s transcripts, %s CDS transcript groups",
@@ -325,6 +348,10 @@ def run_load_anno_output(  # pylint: disable=too-many-locals,too-many-statements
         "coord_system_name": args.coord_system_name,
         "coord_system_version": args.coord_system_version,
     }
+    feature_db_kwargs = {
+        **db_kwargs,
+        "deduplicate_exons": args.deduplicate_exons,
+    }
     summary = {
         "feature_gtfs": 0,
         "genes": 0,
@@ -340,7 +367,7 @@ def run_load_anno_output(  # pylint: disable=too-many-locals,too-many-statements
     feature_summary = load_gff_features_to_core(
         gff_path=main_gtf,
         source_config=anno_config,
-        **db_kwargs,
+        **feature_db_kwargs,
     )
     summary["feature_gtfs"] += 1
     summary["genes"] += feature_summary["genes"]
@@ -357,7 +384,7 @@ def run_load_anno_output(  # pylint: disable=too-many-locals,too-many-statements
         feature_summary = load_gff_features_to_core(
             gff_path=gtf_path,
             source_config=ncrna_config,
-            **db_kwargs,
+            **feature_db_kwargs,
         )
         summary["feature_gtfs"] += 1
         summary["genes"] += feature_summary["genes"]
@@ -419,6 +446,7 @@ def run_create_core(args: argparse.Namespace) -> int:
         db_port=args.db_port,
         schema_sql_path=args.schema_sql_path,
         source_config=source_config,
+        deduplicate_exons=args.deduplicate_exons,
     )
     LOGGER.info("Loaded core database: %s", db_name)
     return 0
@@ -540,6 +568,7 @@ def run_refseq_pipeline(args: argparse.Namespace) -> int:
                 db_port=args.db_port,
                 schema_sql_path=args.schema_sql_path,
                 source_config=source_config,
+                deduplicate_exons=args.deduplicate_exons,
             )
             LOGGER.info("Loaded core database: %s", db_name)
 
@@ -555,6 +584,7 @@ def add_load_features_parser(subparsers: argparse._SubParsersAction) -> None:
     )
     parser.add_argument("gff", help="Input GFF3/GTF path, plain text or .gz")
     add_existing_core_db_options(parser)
+    add_exon_deduplication_option(parser)
     add_source_option(parser, default="generic")
     parser.set_defaults(func=run_load_features)
 
@@ -597,6 +627,7 @@ def add_load_anno_output_parser(subparsers: argparse._SubParsersAction) -> None:
         help="Analysis logic_name for repeatmasker_output/annotation.gtf",
     )
     add_existing_core_db_options(parser)
+    add_exon_deduplication_option(parser)
     parser.set_defaults(func=run_load_anno_output)
 
 
@@ -615,6 +646,7 @@ def add_create_core_parser(subparsers: argparse._SubParsersAction) -> None:
         help="Optional source assembly report; retained for RefSeq compatibility",
     )
     add_create_core_db_options(parser)
+    add_exon_deduplication_option(parser)
     add_source_option(parser, default="generic")
     parser.set_defaults(func=run_create_core)
 
@@ -700,6 +732,7 @@ def add_refseq_parser(subparsers: argparse._SubParsersAction) -> None:
         help="Load converted files into a core DB after conversion",
     )
     add_create_core_db_options(pipeline_parser, required=False)
+    add_exon_deduplication_option(pipeline_parser)
     add_source_option(pipeline_parser, default="refseq")
     pipeline_parser.set_defaults(func=run_refseq_pipeline)
 
