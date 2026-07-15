@@ -123,7 +123,7 @@ def get_bioproject_names(
     genome_group_names = [
         genome_group_name
         for genome_group_name in registry_genome_group_names
-        if genome_group_name != "hprc"
+        if genome_group_name not in {"hprc", "atlasea"}
     ]
 
     return genome_group_names

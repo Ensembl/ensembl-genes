@@ -129,7 +129,7 @@ def stable_space_per_taxon(taxon_id: int, server_info: dict) -> int:
     return stable_space_id
 
 
-def stable_space_range(stable_space_id: int, server_info: dict) -> bool:
+def stable_space_range(stable_space_id: int, server_info: dict) -> int | bool:
     """Check if a stable space range exists for the given stable space ID.
 
     Args:
@@ -176,9 +176,13 @@ def stable_space_range(stable_space_id: int, server_info: dict) -> bool:
         )
 
         if output_query:
-            new_start = (
-                output_query[0].get("stable_space_end") + 1
-            )  # Increment the end of the previous stable space by 1
+            previous_end = output_query[0].get("stable_space_end")
+            if previous_end is None:
+                logger.error(
+                    f"Previous stable space ID {previous_space_id} has no end value."
+                )
+                return False
+            new_start = int(previous_end) + 1
             new_end = new_start + 4999999
             logger.info(
                 f"New stable space range for ID {stable_space_id} will be \
@@ -312,7 +316,9 @@ def get_stable_space(
         logger.info(
             f"Stable space {stable_space_id} already assigned for GCA {gca_accession}."
         )
-        return stable_space_start
+        if stable_space_start is None:
+            raise ValueError(f"No stable space start found for GCA {gca_accession}.")
+        return int(stable_space_start)
 
     else:
         logger.info(
@@ -329,4 +335,6 @@ def get_stable_space(
                 taxon_id, gca_accession, assembly_id, server_info
             )
 
+        if stable_space_start is None:
+            raise ValueError(f"No stable space start assigned for GCA {gca_accession}.")
         return int(stable_space_start)
