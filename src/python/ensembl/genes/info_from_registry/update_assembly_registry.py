@@ -22,7 +22,6 @@ import argparse
 from datetime import datetime
 from typing import Optional
 
-import pymysql
 from pymysql.connections import Connection
 from pymysql.cursors import DictCursor
 
@@ -489,7 +488,7 @@ def main(  # pylint:disable=too-many-arguments, too-many-statements, too-many-br
                         f"Moving from terminal status '{current_status}' to \
                             '{status}' with new version {effective_version}"
                     )
-                    print(f"Creating new attempt.")
+                    print("Creating new attempt.")
 
                     method_to_insert = (
                         annotation_method if annotation_method else "pending"
@@ -536,7 +535,7 @@ def main(  # pylint:disable=too-many-arguments, too-many-statements, too-many-br
                 print(
                     f"Moving from terminal status '{current_status}' to terminal status '{status}'"
                 )
-                print(f"Updating existing record.")
+                print("Updating existing record.")
                 update_existing_record(
                     connection,
                     record_id,
@@ -551,7 +550,7 @@ def main(  # pylint:disable=too-many-arguments, too-many-statements, too-many-br
             # Completed to terminal transition - UPDATE same record
             elif current_status == completed_status and status in terminal_statuses:
                 print(f"Moving from 'completed' to terminal status '{status}'")
-                print(f"Updating existing record.")
+                print("Updating existing record.")
                 update_existing_record(
                     connection,
                     record_id,
@@ -586,7 +585,7 @@ def main(  # pylint:disable=too-many-arguments, too-many-statements, too-many-br
                 print(
                     f"Moving from active status '{current_status}' to terminal status '{status}'"
                 )
-                print(f"Updating existing record.")
+                print("Updating existing record.")
                 update_existing_record(
                     connection,
                     record_id,
