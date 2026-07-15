@@ -22,7 +22,7 @@ import re
 from datetime import datetime
 from importlib import import_module
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Tuple
+from typing import Any, Callable, Dict, List, Tuple
 
 import pymysql
 import requests

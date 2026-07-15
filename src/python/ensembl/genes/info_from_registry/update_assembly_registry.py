@@ -21,7 +21,11 @@ Utility to update the status of a genebuild in the registry db
 import argparse
 from datetime import datetime
 from typing import Optional
+
 import pymysql
+from pymysql.connections import Connection
+from pymysql.cursors import DictCursor
+
 from ensembl.genes.info_from_registry.mysql_helper import mysql_get_connection
 from ensembl.genes.info_from_registry.registry_helper import (
     fetch_assembly_id,
@@ -32,7 +36,7 @@ from ensembl.genes.info_from_registry.registry_helper import (
 
 
 def ensure_genebuilder_exists(
-    connection: pymysql.connections.Connection, genebuilder: str
+    connection: Connection[DictCursor], genebuilder: str
 ) -> None:
     """
     Ensure genebuilder exists in the genebuilder table.
@@ -54,7 +58,7 @@ def ensure_genebuilder_exists(
 
 # fetch_current_record is now fetch_current_genebuild_record imported from registry_helper
 def insert_new_record(  # pylint:disable=too-many-arguments
-    connection: pymysql.connections.Connection,
+    connection: Connection[DictCursor],
     assembly_id: int,
     assembly: str,
     genebuilder: str,
@@ -88,7 +92,7 @@ def insert_new_record(  # pylint:disable=too-many-arguments
     # Add not avaialable for release type
     query = """
     INSERT INTO genebuild_status (
-        assembly_id, gca_accession, gb_status, last_attempt, 
+        assembly_id, gca_accession, gb_status, last_attempt,
         genebuilder, annotation_source, annotation_method,
         date_started, date_status_update, release_type,
         genebuild_version
@@ -119,7 +123,7 @@ def insert_new_record(  # pylint:disable=too-many-arguments
 
 
 def update_existing_record(  # pylint:disable=too-many-arguments
-    connection: pymysql.connections.Connection,
+    connection: Connection[DictCursor],
     record_id: int,
     status: str,
     current_date: str,
@@ -169,7 +173,7 @@ WHERE genebuild_status_id = %s
 
 
 def set_old_record_historical(
-    connection: pymysql.connections.Connection, record_id: int, dev: bool
+    connection: Connection[DictCursor], record_id: int, dev: bool
 ) -> None:
     """
     Set an existing record to historical (last_attempt = 0).
@@ -622,14 +626,14 @@ if __name__ == "__main__":
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
             Status values should match the gb_status enum:
-            in_progress, insufficient_data, check_busco, completed, 
+            in_progress, insufficient_data, check_busco, completed,
             pre_released, handed_over, archive
 
             Examples:
-            %(prog)s --host localhost --user myuser --password mypass --database registry 
+            %(prog)s --host localhost --user myuser --password mypass --database registry
                     --assembly GCA_123456789.1 --status completed --genebuilder john_doe
 
-            %(prog)s --host localhost --user myuser --password mypass --database registry 
+            %(prog)s --host localhost --user myuser --password mypass --database registry
                     --assembly GCA_123456789.1 --status in_progress --genebuilder jane_smith --dev
         """,
     )
