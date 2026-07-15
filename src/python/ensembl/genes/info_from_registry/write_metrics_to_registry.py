@@ -27,7 +27,9 @@ Uses DELETE then INSERT pattern to avoid stale/duplicated metrics.
 import argparse
 import sys
 from typing import Optional
+
 import pymysql
+
 from ensembl.genes.info_from_registry.mysql_helper import mysql_get_connection
 from ensembl.genes.info_from_registry.registry_helper import fetch_registry_ids
 
