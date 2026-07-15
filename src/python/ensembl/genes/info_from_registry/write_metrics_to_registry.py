@@ -24,6 +24,8 @@ Uses DELETE then INSERT pattern to avoid stale/duplicated metrics.
 """
 
 # pylint:disable=f-string-without-interpolation, broad-exception-raised
+from __future__ import annotations
+
 import argparse
 import sys
 from typing import Optional
