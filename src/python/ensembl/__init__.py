@@ -12,10 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Top-level ensembl package for ensembl-genes documentation imports.
+"""Top-level ``ensembl`` namespace for Ensembl Python packages.
 
-This file intentionally kept minimal to allow `mkdocstrings` to import
-subpackages under `src/python/ensembl` without executing package-level code.
+This package is shared with other distributions such as
+``ensembl-metadata-api``. Extend the package search path so
+``ensembl.genes`` and ``ensembl.production`` can coexist in one
+environment.
 """
+
+from pkgutil import extend_path
+
+__path__ = extend_path(__path__, __name__)
 
 __all__ = []

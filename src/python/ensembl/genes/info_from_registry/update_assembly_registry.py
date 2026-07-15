@@ -315,7 +315,13 @@ def main(  # pylint:disable=too-many-arguments, too-many-statements, too-many-br
             print(f"Current status: '{current_status}', requested status: '{status}'")
 
             # Status categories
-            terminal_statuses = ["live", "pre_released", "handed_over", "archive"]
+            terminal_statuses = [
+                "live",
+                "pre_released",
+                "handed_over",
+                "archive",
+                "coming_soon",
+            ]
             active_statuses = ["insufficient_data", "in_progress", "check_busco"]
             completed_status = "completed"  # terminal-like status
 
@@ -390,6 +396,9 @@ def main(  # pylint:disable=too-many-arguments, too-many-statements, too-many-br
                 )
 
                 if effective_version != current_version:
+                    if effective_version is None:
+                        raise ValueError("genebuild_version is required")
+
                     # Validate the new version against ALL existing versions for this assembly
                     highest_version = fetch_highest_genebuild_version(
                         connection, assembly
@@ -412,7 +421,9 @@ def main(  # pylint:disable=too-many-arguments, too-many-statements, too-many-br
                         annotation_method if annotation_method else "pending"
                     )
                     source_to_insert = (
-                        annotation_source if annotation_source else current_source
+                        annotation_source
+                        if annotation_source
+                        else current_source or "pending"
                     )
 
                     set_old_record_historical(connection, record_id, dev)
@@ -456,6 +467,9 @@ def main(  # pylint:disable=too-many-arguments, too-many-statements, too-many-br
                 )
 
                 if effective_version != current_version:
+                    if effective_version is None:
+                        raise ValueError("genebuild_version is required")
+
                     # Validate the new version against ALL existing versions for this assembly
                     highest_version = fetch_highest_genebuild_version(
                         connection, assembly
@@ -477,7 +491,9 @@ def main(  # pylint:disable=too-many-arguments, too-many-statements, too-many-br
                         annotation_method if annotation_method else "pending"
                     )
                     source_to_insert = (
-                        annotation_source if annotation_source else current_source
+                        annotation_source
+                        if annotation_source
+                        else current_source or "pending"
                     )
 
                     set_old_record_historical(connection, record_id, dev)
