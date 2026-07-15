@@ -28,7 +28,6 @@ import argparse
 import sys
 from typing import Optional
 
-import pymysql
 from pymysql.connections import Connection
 from pymysql.cursors import DictCursor
 
