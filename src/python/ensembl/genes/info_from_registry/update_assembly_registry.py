@@ -18,6 +18,8 @@ Utility to update the status of a genebuild in the registry db
 """
 
 # pylint: disable=f-string-without-interpolation, broad-exception-raised, broad-exception-caught
+from __future__ import annotations
+
 import argparse
 from datetime import datetime
 from typing import Optional
