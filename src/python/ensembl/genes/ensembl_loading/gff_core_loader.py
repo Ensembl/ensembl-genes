@@ -1301,9 +1301,9 @@ def insert_transcripts_and_exons(
 
     exon_id_map: dict[tuple[str, int], int] = {}
     per_transcript_coord_to_exon_id: dict[str, dict[tuple[int, int], int]] = {}
-    shared_exon_ids: dict[
-        tuple[str, int, int, int, int, int, int, str | None], int
-    ] = {}
+    shared_exon_ids: dict[tuple[str, int, int, int, int, int, int, str | None], int] = (
+        {}
+    )
     next_exon_id = first_exon_id
 
     for transcript_id, transcript in annotation.transcripts.items():
