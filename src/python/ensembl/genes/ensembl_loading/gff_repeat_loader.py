@@ -13,7 +13,6 @@ try:  # Support both package imports and direct same-directory imports.
         connect_mysql,
         get_coord_system_id,
         open_text_maybe_gzip,
-        parse_gtf_attributes,
     )
 except ImportError:  # pragma: no cover - used when run beside this file.
     from gff_core_loader import (  # type: ignore
@@ -21,7 +20,6 @@ except ImportError:  # pragma: no cover - used when run beside this file.
         connect_mysql,
         get_coord_system_id,
         open_text_maybe_gzip,
-        parse_gtf_attributes,
     )
 
 
@@ -53,6 +51,32 @@ def available_single_line_feature_analyses() -> tuple[str, ...]:
     return tuple(sorted((*REPEAT_TYPES, *SIMPLE_FEATURE_ANALYSES)))
 
 
+def parse_gtf_attributes_perl_style(attr_str: str) -> dict[str, str]:
+    attrs: dict[str, str] = {}
+    # Strip outer whitespace and trailing semicolons
+    attr_str = attr_str.strip().rstrip(";")
+    if not attr_str:
+        return attrs
+
+    for raw_attr in attr_str.split(";"):
+        raw_attr = raw_attr.strip()
+        if not raw_attr:
+            continue
+
+        parts = raw_attr.split(" ")
+        if len(parts) == 2:
+            key, value = parts
+            # strip all double quotes
+            value = value.replace('"', "")
+            attrs[key] = value
+        else:
+            # emulate Perl: remove all spaces, treat as flag with value "1"
+            key = raw_attr.replace(" ", "")
+            attrs[key] = "1"
+
+    return attrs
+
+
 def parse_single_line_gtf(gtf_path: str | Path) -> list[SingleLineFeatureRecord]:
     """Parse single-line repeat/simple features from an anno pipeline GTF."""
 
@@ -82,7 +106,7 @@ def parse_single_line_gtf(gtf_path: str | Path) -> list[SingleLineFeatureRecord]
                     start=int(columns[3]),
                     end=int(columns[4]),
                     strand=strand_value,
-                    attributes=parse_gtf_attributes(columns[8]),
+                    attributes=parse_gtf_attributes_perl_style(columns[8]),
                 )
             )
     return records
