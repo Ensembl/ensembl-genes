@@ -4,6 +4,7 @@
 # pylint: disable=too-many-arguments,too-many-instance-attributes
 # pylint: disable=too-many-branches,too-many-statements
 # pylint: disable=wrong-import-position
+# pylint: disable=too-many-lines
 
 from __future__ import annotations
 
