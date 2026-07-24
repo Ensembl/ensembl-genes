@@ -5,9 +5,10 @@ from __future__ import annotations
 import gzip
 import logging
 import re
+from collections.abc import Iterator, Mapping, Sequence
 from contextlib import contextmanager
 from pathlib import Path
-from typing import Any, Iterator, Mapping, Protocol, Sequence, TextIO
+from typing import Any, Protocol, TextIO
 
 try:  # Support both package imports and direct same-directory imports.
     from .gff_models import (
@@ -826,13 +827,9 @@ def apply_biotype_overrides(
             gene.biotype = source_config.gene_biotype_overrides[gene.biotype]
 
     for transcript in annotation.transcripts.values():
-        gene_biotype = annotation.genes.get(transcript.gene_id)
-        if (
-            gene_biotype
-            and gene_biotype.biotype in source_config.transcript_biotype_overrides
-        ):
+        if transcript.biotype in source_config.transcript_biotype_overrides:
             transcript.biotype = source_config.transcript_biotype_overrides[
-                gene_biotype.biotype
+                transcript.biotype
             ]
 
     return annotation

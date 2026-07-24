@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from dataclasses import dataclass, field
-from typing import Mapping
 
 
 @dataclass(frozen=True)
@@ -304,6 +304,14 @@ ANNO_GTF_CONFIG = GffSourceConfig(
     parsed_transcript_feature_types=frozenset({"transcript"}),
     biotype_transcript_feature_types=frozenset(),
     transcript_feature_biotype_map={},
+    gene_biotype_overrides={
+        "protein_coding": "anno_protein_coding",
+        "anno_lncRNA": "anno_lncRNA",
+    },
+    transcript_biotype_overrides={
+        "protein_coding": "anno_protein_coding",
+        "lncRNA": "anno_lncRNA",
+    },
     id_prefixes_to_strip=(),
     transcript_biotype_attribute="biotype",
     gene_biotype_attribute="biotype",
