@@ -402,7 +402,7 @@ def test_source_specific_annotation_parsers(tmp_path: Path) -> None:
 
     assert anno.genes["gene1"].start == 50
     assert anno.genes["gene1"].end == 500
-    assert anno.transcripts["tx1"].biotype == "protein_coding"
+    assert anno.transcripts["tx1"].biotype == "anno_protein_coding"
     assert anno.transcripts["tx2"].biotype == "not_set"
     assert [(cds.start, cds.end, cds.phase) for cds in anno.cds_segments["tx1"]] == [
         (110, 150, "0"),
@@ -968,8 +968,8 @@ def test_anno_gtf_loads_into_existing_core_with_quality_check(
     assert connection.rolled_back is False
     assert connection.closed is True
     assert connection.cursor_instance.analysis_inserted == ("ensembl", "Anno_GTF")
-    assert connection.cursor_instance.genes == {1: ("gene1", "protein_coding")}
-    assert connection.cursor_instance.transcripts == {1: ("tx1", "protein_coding")}
+    assert connection.cursor_instance.genes == {1: ("gene1", "anno_protein_coding")}
+    assert connection.cursor_instance.transcripts == {1: ("tx1", "anno_protein_coding")}
     assert connection.cursor_instance.exon_transcripts == {(1, 1), (2, 1)}
     assert connection.cursor_instance.translations == {1: "tx1_prot"}
     assert "GFF core quality check: PASS" in capsys.readouterr().out
