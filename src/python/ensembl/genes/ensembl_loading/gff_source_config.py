@@ -306,7 +306,7 @@ ANNO_GTF_CONFIG = GffSourceConfig(
     transcript_feature_biotype_map={},
     gene_biotype_overrides={
         "protein_coding": "anno_protein_coding",
-        "anno_lncRNA": "anno_lncRNA",
+        "lncRNA": "anno_lncRNA",
     },
     transcript_biotype_overrides={
         "protein_coding": "anno_protein_coding",
