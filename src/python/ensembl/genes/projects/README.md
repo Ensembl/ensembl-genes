@@ -6,14 +6,13 @@ This repository handles the extraction of metadata from Ensembl tracking databas
 
 ## Quick Start
 
-The supported entrypoint for generating YAML is `generate_project_yaml.py`.
+The supported command for generating project-page YAML is
+`generate_project_yaml`.
 
-From the repo root:
+After installing the package:
 
-```bash
-export PYTHONPATH=$PWD/src/python
-
-python -m ensembl.genes.projects.generate_project_yaml ./cbp_guuids.txt \
+```
+generate_project_yaml ./cbp_guuids.txt \
   --project cbp \
   --output cbp_species.yaml \
   --audit-file cbp_audit.tsv
@@ -202,26 +201,26 @@ pytest tests/ensembl/genes/projects -v
 
 ### CBP
 ```bash
-python -m ensembl.genes.projects.generate_project_yaml ./cbp_guuids.txt \
+generate_project_yaml ./cbp_guuids.txt \
   --project cbp --output cbp_species.yaml --audit-file cbp_audit.tsv
 ```
 
 ### HPRC
 ```bash
-python -m ensembl.genes.projects.generate_project_yaml ./hprc_guuids.txt \
+generate_project_yaml ./hprc_guuids.txt \
   --project hprc --output hprc_species.yaml --audit-file hprc_audit.tsv
 ```
 
 ### Mouse Genomes
 ```bash
-python -m ensembl.genes.projects.generate_project_yaml ./mouse_guuids.txt \
+generate_project_yaml ./mouse_guuids.txt \
   --project mouse_genomes --output mouse_species.yaml --audit-file mouse_audit.tsv
 ```
 
 ### Dry Run / Sanity Validation
 To check what will be included without committing the YAML immediately, you can run the pipeline and inspect the audit file:
 ```bash
-python -m ensembl.genes.projects.generate_project_yaml ./cbp_guuids.txt \
+generate_project_yaml ./cbp_guuids.txt \
   --project cbp --output /dev/null --audit-file cbp_audit.tsv
 
 # See what was dropped because FTP files are missing:
@@ -234,7 +233,7 @@ grep included_prerelease cbp_audit.tsv
 ### Changelog / Regression Detection
 Compare a newly generated YAML against a previous version to detect added, removed, or modified entries:
 ```bash
-python -m ensembl.genes.projects.generate_project_yaml ./cbp_guuids.txt \
+generate_project_yaml ./cbp_guuids.txt \
   --project cbp \
   --output cbp_species.yaml \
   --changelog old_cbp_species.yaml
@@ -264,7 +263,7 @@ Total: 3 added, 2 removed, 4 modified.
 
 To also write a machine-readable TSV changelog:
 ```bash
-python -m ensembl.genes.projects.generate_project_yaml ./cbp_guuids.txt \
+generate_project_yaml ./cbp_guuids.txt \
   --project cbp \
   --output cbp_species.yaml \
   --changelog old_cbp_species.yaml \

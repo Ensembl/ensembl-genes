@@ -43,7 +43,7 @@ def get_project_config(project_name: str) -> ProjectConfig:
         return ProjectConfig(
             project_name="hprc",
             allow_core_db_fallback=False,
-            allow_beta_urls=False,
+            allow_beta_urls=True,
             scrape_ncbi_submitter=True,
             scrape_ncbi_population=True,
             check_ftp_variants=True,

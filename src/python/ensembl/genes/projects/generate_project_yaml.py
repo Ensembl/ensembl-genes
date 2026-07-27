@@ -386,7 +386,7 @@ For pre-release discovery without UUIDs, you may still rely on the registry trac
 
     if args.audit_file:
         seen_audit_rows = set()
-        with open(args.audit_file, "a", encoding="utf-8") as af:
+        with open(args.audit_file, "w", encoding="utf-8") as af:
             for c in candidates:
                 beta_link_value = c.doc.get("beta_link", "")
                 image_value = c.doc.get("image", "")

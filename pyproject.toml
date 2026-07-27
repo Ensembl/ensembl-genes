@@ -88,6 +88,10 @@ include-package-data = true
     "docs/*.md",
     "examples/*.yaml",
 ]
+"ensembl.genes.projects" = [
+    "icons.txt",
+    "server_config.json",
+]
 
 [tool.mypy]
 ignore_missing_imports = true
