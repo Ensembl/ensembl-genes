@@ -172,6 +172,15 @@
         "species_division": "EnsemblMetazoa",
         "busco_group": "arachnida_odb12"
     },
+	"orthoptera": {
+        "taxon_id": 6993,
+        "max_intron_length": 100000,
+        "protein_file": "/nfs/production/flicek/ensembl/genebuild/genebuild_virtual_user/protein_sets/orthoptera_uniprot_proteins.fa",
+        "busco_protein_file": "/nfs/production/flicek/ensembl/genebuild/genebuild_virtual_user/protein_sets/insecta_orthodb_proteins.fa",
+        "rfam_accessions_file": "/hps/nobackup/flicek/ensembl/genebuild/blastdb/ncrna/Rfam_14.1/clade_accessions/rfam_insecta_ids.txt",
+        "species_division": "EnsemblMetazoa",
+        "busco_group": "insecta_odb12"
+    },
     "collembola": {
         "taxon_id": 30001,
         "max_intron_length": 100000,
