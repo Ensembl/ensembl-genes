@@ -454,7 +454,7 @@
         "ig_tr_fasta_file": "imgt_mammals_aves_ig_tr.fa",
         "masking_timer_long": "6h",
         "masking_timer_short": "3h",
-        "projection_source_production_name": "danio_rerio"
+        "projection_source_production_name": "homo_sapiens"
     },
     "teleostei": {
         "taxon_id": 186623,
