@@ -4,9 +4,13 @@ from __future__ import annotations
 
 import gzip
 import logging
+from collections.abc import Collection, Iterator
 from contextlib import contextmanager
 from pathlib import Path
-from typing import Collection, Iterator, TextIO
+from typing import TextIO
+
+# pylint: disable=too-many-locals
+
 
 LOGGER = logging.getLogger(__name__)
 
@@ -17,10 +21,10 @@ def open_text_maybe_gzip(path: str | Path) -> Iterator[TextIO]:
 
     input_path = Path(path)
     if input_path.suffix == ".gz":
-        with gzip.open(input_path, "rt") as handle:
+        with gzip.open(input_path, "rt", encoding="utf-8") as handle:
             yield handle
     else:
-        with input_path.open("r") as handle:
+        with input_path.open("r", encoding="utf-8") as handle:
             yield handle
 
 
@@ -29,7 +33,7 @@ def load_refseq_name_map(assembly_report_path: str | Path) -> dict[str, str]:
 
     accession_to_name: dict[str, str] = {}
     report_path = Path(assembly_report_path)
-    with report_path.open("r") as handle:
+    with report_path.open("r", encoding="utf-8") as handle:
         for line in handle:
             if line.startswith("#") or not line.strip():
                 continue
@@ -96,7 +100,7 @@ def convert_fna_headers(
 
     with (
         open_text_maybe_gzip(input_path) as input_handle,
-        output_path.open("w") as output_handle,
+        output_path.open("w", encoding="utf-8") as output_handle,
     ):
         for line in input_handle:
             if line.startswith(">"):
@@ -149,7 +153,7 @@ def convert_gff_to_ensembl(
 
     with (
         open_text_maybe_gzip(input_path) as input_handle,
-        output.open("w") as output_handle,
+        output.open("w", encoding="utf-8") as output_handle,
     ):
         for line in input_handle:
             if line.startswith("#"):

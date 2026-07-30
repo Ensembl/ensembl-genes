@@ -3,8 +3,13 @@
 from __future__ import annotations
 
 import logging
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field
-from typing import Any, Mapping, Protocol, Sequence
+from typing import Any, Protocol
+
+# pylint: disable=too-many-locals
+# pylint: disable=too-many-arguments
+
 
 try:  # Support both package imports and direct same-directory imports.
     from .gff_models import ParsedAnnotation

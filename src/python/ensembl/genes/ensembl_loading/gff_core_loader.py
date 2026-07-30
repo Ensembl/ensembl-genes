@@ -16,6 +16,7 @@ from typing import Any, Protocol, TextIO
 # pylint: disable=too-many-return-statements
 # pylint: disable=too-many-instance-attributes
 # pylint: disable=too-many-lines
+# pylint: disable=unnecessary-ellipsis
 try:  # Support both package imports and direct same-directory imports.
     from .gff_models import (
         CdsSegment,
@@ -58,10 +59,10 @@ def open_text_maybe_gzip(path: str | Path) -> Iterator[TextIO]:
 
     input_path = Path(path)
     if input_path.suffix == ".gz":
-        with gzip.open(input_path, "rt") as handle:
+        with gzip.open(input_path, "rt", encoding="utf-8") as handle:
             yield handle
     else:
-        with input_path.open("r") as handle:
+        with input_path.open("r", encoding="utf-8") as handle:
             yield handle
 
 
@@ -898,7 +899,7 @@ def load_seq_regions_from_fna(
 
         seq_region_ids[name] = seq_region_id
 
-    with Path(fna_path).open("r") as fasta_handle:
+    with Path(fna_path).open("r", encoding="utf-8") as fasta_handle:
         for line in fasta_handle:
             line = line.strip()
             if not line:

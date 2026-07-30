@@ -5,6 +5,8 @@ from __future__ import annotations
 from collections.abc import Mapping
 from dataclasses import dataclass, field
 
+# pylint: disable=too-many-instance-attributes
+
 
 @dataclass(frozen=True)
 class GffSourceConfig:

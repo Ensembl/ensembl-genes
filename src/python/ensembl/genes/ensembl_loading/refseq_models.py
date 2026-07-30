@@ -5,6 +5,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 
+# pylint: disable=too-many-instance-attributes
+
 
 @dataclass(frozen=True)
 class AssemblyPaths:

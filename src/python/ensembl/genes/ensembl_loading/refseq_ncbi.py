@@ -15,6 +15,9 @@ from pathlib import Path
 
 import requests  # type: ignore[import]
 
+# pylint: disable=too-many-arguments
+
+
 try:  # Support both package imports and direct same-directory imports.
     from . import refseq_constants as _refseq_constants
     from . import refseq_models as _refseq_models
