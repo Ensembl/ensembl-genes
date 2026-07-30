@@ -937,7 +937,7 @@ def core_schema_version(schema_sql_path: str | Path | None = None) -> str:
 
     schema_path = Path(schema_sql_path or DEFAULT_CORE_SCHEMA_SQL_PATH)
     try:
-        schema_sql = schema_path.read_text()
+        schema_sql = schema_path.read_text(encoding="utf-8")
     except OSError:
         return DEFAULT_ENSEMBL_RELEASE
 
@@ -1001,7 +1001,7 @@ def derive_core_db_name(
 def load_schema_sql(cursor: DbCursor, schema_sql_path: str | Path) -> None:
     """Load a semicolon-delimited Ensembl schema SQL file."""
 
-    raw_schema = Path(schema_sql_path).read_text()
+    raw_schema = Path(schema_sql_path).read_text(encoding="utf-8")
     clean_schema = re.sub(r"/\*\*.*?\*/", "", raw_schema, flags=re.DOTALL)
     for statement in filter(None, map(str.strip, clean_schema.split(";"))):
         cursor.execute(statement)
