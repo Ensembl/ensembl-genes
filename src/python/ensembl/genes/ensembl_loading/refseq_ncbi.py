@@ -9,9 +9,9 @@ from __future__ import annotations
 
 import csv
 import logging
+from collections.abc import Iterable
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
-from typing import Iterable
 
 import requests  # type: ignore[import]
 
@@ -169,7 +169,7 @@ def write_annotation_metadata_tsv(
 
     output_path = Path(output_tsv)
     sorted_records = sorted(records, key=lambda row: (row.group, row.species_name))
-    with output_path.open("w", newline="") as handle:
+    with output_path.open("w", encoding="utf-8", newline="") as handle:
         writer = csv.DictWriter(
             handle,
             delimiter="\t",
@@ -314,13 +314,13 @@ def download_file(
     log.info("Downloading %s to %s", url, destination_path)
     response = requests.get(url, stream=True, timeout=timeout)
     response.raise_for_status()
-    with destination_path.open("wb") as handle:
+    with destination_path.open("wb", encoding="utf-8") as handle:
         for chunk in response.iter_content(chunk_size=chunk_size):
             if chunk:
                 handle.write(chunk)
 
     if destination_path.stat().st_size == 0:
-        raise IOError(f"Downloaded file is empty: {destination_path}")
+        raise OSError(f"Downloaded file is empty: {destination_path}")
 
     return destination_path
 

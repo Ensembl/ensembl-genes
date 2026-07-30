@@ -10,6 +10,12 @@ from contextlib import contextmanager
 from pathlib import Path
 from typing import Any, Protocol, TextIO
 
+# pylint: disable=too-many-arguments
+# pylint: disable=too-many-locals
+# pylint: disable=too-many-branches
+# pylint: disable=too-many-return-statements
+# pylint: disable=too-many-instance-attributes
+# pylint: disable=too-many-lines
 try:  # Support both package imports and direct same-directory imports.
     from .gff_models import (
         CdsSegment,
@@ -114,12 +120,7 @@ def first_existing_attribute(
 def parse_gff3_attributes(raw_attributes: str) -> dict[str, str]:
     """Parse a GFF3 attribute column into a key-value dictionary."""
 
-    return {
-        key: value
-        for key, value in (
-            item.split("=", 1) for item in raw_attributes.split(";") if "=" in item
-        )
-    }
+    return dict(item.split("=", 1) for item in raw_attributes.split(";") if "=" in item)
 
 
 def parse_gtf_attributes(raw_attributes: str) -> dict[str, str]:
@@ -358,7 +359,7 @@ def cds_segments_from_translation_coords(
             else:
                 cds_start = exon.end - end_exon_offset + 1
 
-        if not (exon.start <= cds_start <= cds_end <= exon.end):
+        if not exon.start <= cds_start <= cds_end <= exon.end:
             raise ValueError(
                 f"translation_coords produced CDS outside exon bounds for "
                 f"transcript {transcript_id}: {transcript.translation_coords}"
@@ -675,7 +676,7 @@ def reconcile_annotation(
             )
             added_exons += 1
 
-    for transcript_id, transcript in list(annotation.transcripts.items()):
+    for _, transcript in list(annotation.transcripts.items()):
         gene_id = transcript.gene_id
         if gene_id not in annotation.genes:
             annotation.genes[gene_id] = GeneRecord(
@@ -1039,12 +1040,12 @@ def connect_mysql(
         connection_args["database"] = db_name
 
     try:
-        import pymysql  # type: ignore[import]
+        import pymysql  # pylint: disable=import-outside-toplevel
 
         return pymysql.connect(**connection_args)
     except ImportError as pymysql_error:
         try:
-            import mysql.connector  # type: ignore[import]
+            import mysql.connector  # pylint: disable=import-outside-toplevel
         except ImportError as mysql_connector_error:  # pragma: no cover
             raise ImportError(
                 "A MySQL client is required for core loading. The package "

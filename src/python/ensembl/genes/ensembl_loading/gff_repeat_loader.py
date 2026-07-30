@@ -3,9 +3,9 @@
 from __future__ import annotations
 
 import logging
+from collections.abc import Mapping
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Mapping
 
 try:  # Support both package imports and direct same-directory imports.
     from .gff_core_loader import (
@@ -52,6 +52,7 @@ def available_single_line_feature_analyses() -> tuple[str, ...]:
 
 
 def parse_gtf_attributes_perl_style(attr_str: str) -> dict[str, str]:
+    """Parse GTF attributes in Perl-style key-value pairs."""
     attrs: dict[str, str] = {}
     # Strip outer whitespace and trailing semicolons
     attr_str = attr_str.strip().rstrip(";")
