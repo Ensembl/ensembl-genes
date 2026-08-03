@@ -1,12 +1,27 @@
 """FTP/HTTP helpers for checking Ensembl/EBI file and beta-page availability."""
 
+import logging
 import socket
 import sys
 import time
 from ftplib import FTP, error_perm, error_temp
-from typing import Any, Optional
+from typing import Any, Callable, Optional
 
 import requests
+
+logger = logging.getLogger(__name__)
+
+# Transient FTP/network errors that warrant a retry after reconnection.
+# error_perm (e.g. "550 No such file or directory") is deliberately excluded
+# because it indicates a permanent server-side condition that will not resolve
+# on reconnect.
+_TRANSIENT_FTP_ERRORS = (
+    ConnectionResetError,
+    EOFError,
+    OSError,
+    error_temp,
+    socket.timeout,
+)
 
 
 class EnsemblFTP:
@@ -22,11 +37,15 @@ class EnsemblFTP:
 
         Args:
             timeout (int, optional): Timeout for FTP connections. Defaults to 30.
-            max_retries (int, optional): Maximum number of retries for failed
-                operations. Defaults to 2.
+            max_retries (int, optional): Total number of FTP operation attempts.
+                ``2`` means one initial attempt plus one retry on transient
+                failure.  Must be at least 1.  Defaults to 2.
             retry_sleep (float, optional): Sleep duration between retries.
                 Defaults to 3.0.
         """
+        if max_retries < 1:
+            raise ValueError("max_retries must be at least 1")
+
         self.timeout = timeout
         self.max_retries = max_retries
         self.retry_sleep = retry_sleep
@@ -61,32 +80,135 @@ class EnsemblFTP:
             self.ebi_ftp = None
             raise
 
-    def _retry(self, fn, which: str, *args, **kwargs) -> Any:
+    def _get_connection(self, which: str) -> FTP:
+        """Return the current live FTP connection for *which* server.
+
+        Args:
+            which: ``"ebi"`` or ``"ensembl"``.
+
+        Returns:
+            The live :class:`ftplib.FTP` object.
+
+        Raises:
+            ValueError: If *which* is not a recognised connection identifier.
+            RuntimeError: If the connection is ``None`` (not yet established or
+                failed to reconnect).
         """
-        Retry FTP operation; on failure, reconnect that endpoint and try again.
+        if which == "ensembl":
+            return self._require_ftp(self.ensembl_ftp)
+        if which == "ebi":
+            return self._require_ftp(self.ebi_ftp)
+        raise ValueError(f"Unknown FTP connection identifier: {which!r}")
+
+    def _reconnect(self, which: str) -> None:
+        """Reconnect the specified FTP server.
+
+        Raises on failure so that :meth:`_retry` can distinguish an operation
+        failure from a reconnect failure and log both appropriately.
+
+        Args:
+            which: ``"ebi"`` or ``"ensembl"``.
+
+        Raises:
+            ValueError: If *which* is not a recognised connection identifier.
+            Exception: Whatever :meth:`_connect_ensembl` or
+                :meth:`_connect_ebi` raises on failure.
         """
-        last_exc: Optional[BaseException] = None
-        for _ in range(self.max_retries):
+        if which == "ensembl":
+            self._connect_ensembl()
+            return
+        if which == "ebi":
+            self._connect_ebi()
+            return
+        raise ValueError(f"Unknown FTP connection identifier: {which!r}")
+
+    def _sleep(self, seconds: float) -> None:
+        """Pause between retry attempts.
+
+        Separated into its own method so that tests can patch it without
+        introducing real delays.
+        """
+        time.sleep(seconds)
+
+    def _retry(
+        self,
+        which: str,
+        operation: Callable[[FTP], Any],
+        *args: Any,
+        **kwargs: Any,
+    ) -> Any:
+        """Retry a complete, stateful FTP operation.
+
+        Each attempt:
+
+        1. Retrieves the current live connection via :meth:`_get_connection`.
+        2. Invokes ``operation(connection, *args, **kwargs)``.
+        3. On a transient FTP/network error: attempts to reconnect and sleeps
+           before the next attempt.  A reconnect failure is also logged and
+           counted against the attempt budget.
+        4. After all attempts are exhausted, re-raises the last meaningful
+           exception.
+
+        Permanent FTP errors (``error_perm``) are **not** in
+        ``_TRANSIENT_FTP_ERRORS`` and therefore propagate immediately without
+        retry.
+
+        The *operation* callable is responsible for restoring any required FTP
+        working-directory state on every invocation, because after a reconnect
+        the new connection starts at the server root.  Example::
+
+            def _op(conn: FTP) -> list[str]:
+                conn.cwd("/")
+                conn.cwd(path)
+                return conn.nlst()
+
+            files = self._retry("ebi", _op)
+
+        Args:
+            which: ``"ebi"`` or ``"ensembl"``.
+            operation: A callable that accepts an :class:`ftplib.FTP` as its
+                first positional argument and returns the desired result.
+            *args: Extra positional arguments forwarded to *operation*.
+            **kwargs: Extra keyword arguments forwarded to *operation*.
+
+        Returns:
+            Whatever *operation* returns on success.
+
+        Raises:
+            Exception: The last transient exception encountered after all
+                attempts are exhausted.
+            ValueError: If *which* is unknown (raised immediately, not retried).
+        """
+        last_exc: Exception | None = None
+
+        for attempt in range(self.max_retries):
             try:
-                return fn(*args, **kwargs)
-            except (
-                ConnectionResetError,
-                EOFError,
-                OSError,
-                error_temp,
-                socket.timeout,
-            ) as e:
-                last_exc = e
-                try:
-                    if which == "ensembl":
-                        self._connect_ensembl()
-                    else:
-                        self._connect_ebi()
-                except Exception:  # pylint: disable=broad-exception-caught
-                    pass
-                time.sleep(self.retry_sleep)
-        assert last_exc is not None
-        raise last_exc
+                conn = self._get_connection(which)
+                return operation(conn, *args, **kwargs)
+            except _TRANSIENT_FTP_ERRORS as exc:
+                last_exc = exc
+                logger.warning(
+                    "FTP %s transient error on attempt %d/%d: %s",
+                    which,
+                    attempt + 1,
+                    self.max_retries,
+                    exc,
+                )
+                if attempt < self.max_retries - 1:
+                    try:
+                        self._reconnect(which)
+                    except Exception as reconnect_exc:  # pylint: disable=broad-exception-caught
+                        logger.warning(
+                            "FTP %s reconnect failed (attempt %d/%d): %s",
+                            which,
+                            attempt + 1,
+                            self.max_retries,
+                            reconnect_exc,
+                        )
+                        last_exc = reconnect_exc
+                    self._sleep(self.retry_sleep)
+
+        raise last_exc  # type: ignore[misc]
 
     # ---- utils ----
     def _require_ftp(self, ftp: Optional[FTP]) -> FTP:
@@ -94,16 +216,40 @@ class EnsemblFTP:
             raise RuntimeError("FTP connection is not available")
         return ftp
 
-    def return_to_root(self, ftp_connection: FTP) -> None:
-        """Return to root
+    def return_to_root(self, which: str) -> None:
+        """Navigate to the FTP root directory.
 
         Args:
-            ftp_connection (FTP): Ftp path
+            which: ``"ebi"`` or ``"ensembl"``.
         """
-        which = "ensembl" if ftp_connection is self.ensembl_ftp else "ebi"
-        self._retry(ftp_connection.cwd, which, "/")
+
+        def _op(conn: FTP) -> None:
+            conn.cwd("/")
+
+        self._retry(which, _op)
 
     # ---- lookups ----
+    def _list_directory(self, which: str, path: str) -> list[str]:
+        """List the files in *path* on the *which* FTP server.
+
+        Navigates to the root and then to *path* inside the operation callable,
+        so that the full navigation is repeated on every retry attempt.
+
+        Args:
+            which: ``"ebi"`` or ``"ensembl"``.
+            path: Absolute FTP path to list.
+
+        Returns:
+            A list of filenames (bare names, not full paths).
+        """
+
+        def _op(conn: FTP) -> list[str]:
+            conn.cwd("/")
+            conn.cwd(path)
+            return conn.nlst()
+
+        return self._retry(which, _op)
+
     def check_for_file(  # pylint: disable=too-many-locals, too-many-arguments, too-many-return-statements
         self,
         species_name: str,
@@ -131,7 +277,6 @@ class EnsemblFTP:
         file_name: Optional[str] = None
 
         if file_type == "repeatmodeler":
-            ftp_connection = self.ebi_ftp
             which = "ebi"
             ftp_path = self.ebi_ftp_path
             path = (
@@ -141,7 +286,6 @@ class EnsemblFTP:
             )
             file_name = accession + ".repeatmodeler.fa"
         elif file_type == "busco":
-            ftp_connection = self.ensembl_ftp
             which = "ensembl"
             ftp_path = self.ensembl_ftp_path
             path = (
@@ -159,10 +303,7 @@ class EnsemblFTP:
             return ""
 
         try:
-            ftp_connection = self._require_ftp(ftp_connection)
-            self.return_to_root(ftp_connection)
-            self._retry(ftp_connection.cwd, which, path)
-            files_list = self._retry(ftp_connection.nlst, which)
+            files_list = self._list_directory(which, path)
 
             if file_type == "busco":
                 if file_name_protein and file_name_protein in files_list:
@@ -201,16 +342,10 @@ class EnsemblFTP:
         Returns:
             str: URL to the pre-release file if found, else empty string
         """
-        ftp = self.ebi_ftp
-        which = "ebi"
         base = self.ebi_ftp_path
         path = f"pub/databases/ensembl/pre-release/{species_name}/{accession}/"
         try:
-
-            ftp = self._require_ftp(ftp)
-            self.return_to_root(ftp)
-            self._retry(ftp.cwd, which, path)
-            for fname in self._retry(ftp.nlst, which):
+            for fname in self._list_directory("ebi", path):
                 if fname.lower().endswith(extension):
                     return base + path + fname
         except error_perm:

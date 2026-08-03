@@ -4,32 +4,175 @@ Converts internal GenomeMetadata objects into specific project YAML schemas.
 
 import logging
 import re
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
-import requests
 
+from ensembl.genes.projects.accession_utils import accession_to_ftp_path
 from ensembl.genes.projects.config import ProjectConfig
 from ensembl.genes.projects.ftp_client import (
     check_beta_species_status,
     check_url_status,
 )
+from ensembl.genes.projects.ftp_manifest import (
+    EBI_FTP_BASE,
+    AssemblyRecord,
+    EnsemblFtpManifest,
+    ProviderDateRecord,
+    _parse_manifest_date,
+)
 from ensembl.genes.projects.icon_resolver import IconResolver
+from ensembl.genes.projects.legacy_vep_manifest import (
+    LegacyVepManifest,
+    _manifest_url,
+)
 from ensembl.genes.projects.models import GenomeMetadata
 
 logger = logging.getLogger(__name__)
+
+# ---------------------------------------------------------------------------
+# Provider alias map: lower-cased metadata annotation_source -> manifest key.
+# Only add entries that are verified against real metadata + manifest values.
+# ---------------------------------------------------------------------------
+_PROVIDER_ALIASES: dict[str, str] = {
+    "braker2": "braker",
+    "ensembl_braker": "braker",
+}
 
 
 class YamlRenderer:  # pylint: disable=too-few-public-methods
     """Renders GenomeMetadata into validated dictionary structures for YAML output."""
 
-    def __init__(self, config: ProjectConfig, ftp_client=None):
+    def __init__(
+        self,
+        config: ProjectConfig,
+        ftp_client=None,
+        manifest: Optional[EnsemblFtpManifest] = None,
+        legacy_vep_manifest: Optional[LegacyVepManifest] = None,
+    ):
         self.config = config
         self.ftp_client = ftp_client
+        self.manifest = manifest
+        self.legacy_vep_manifest = legacy_vep_manifest
         self.icon_resolver = IconResolver()
         # Per-run cache of beta species availability, keyed by genome UUID.
         self._beta_status_cache: Dict[str, str] = {}
         # Per-run cache for FTP species name resolution.
         self._ftp_species_cache: Dict[str, str] = {}
+
+    def _resolve_vep_url(
+        self,
+        meta: GenomeMetadata,
+        ftp_assets: Dict[str, Any],
+    ) -> tuple[str | None, str]:
+        """Resolve a VEP annotation file URL for an HPRC genome.
+
+        Resolution order:
+
+        A. New manifest — reserved for a future ``vep`` section in
+           ``species.new_ftp_structure.json``.  Currently that manifest does
+           not expose VEP paths so this step is a no-op placeholder.
+
+        B. Legacy manifest (``species.json``) — used when
+           ``config.use_legacy_vep_fallback`` is True and the legacy manifest
+           was successfully loaded.
+
+           The lookup uses the exact assembly accession.  Provider and
+           annotation date are used as tie-breakers when multiple records
+           exist for the same accession.
+
+           If the resolved path is a relative path it is joined with
+           :data:`~legacy_vep_manifest.EBI_FTP_BASE`.  The resulting URL is
+           validated via :func:`~ftp_client.check_url_status` before it is
+           emitted.
+
+        C. No result — ``variants_vep`` is omitted.
+
+        Args:
+            meta: Genome metadata for the current record.
+            ftp_assets: The dict returned by ``_resolve_ftp_assets()``; used
+                to extract the selected provider and resolved date.
+
+        Returns:
+            ``(url_or_none, audit_status)`` where *audit_status* is one of:
+
+            * ``available_new_manifest`` — not currently reachable
+            * ``available_legacy_manifest`` — directory URL from ``species.json``, validated
+            * ``not_found`` — neither manifest contained a VEP path
+            * ``legacy_manifest_unavailable`` — fallback enabled but manifest absent
+            * ``legacy_url_unavailable`` — legacy directory found but URL check failed
+            * ``ambiguous_legacy_record`` — multiple unresolvable VEP records
+            * ``not_applicable`` — VEP fallback disabled for this project
+
+        The emitted URL points to the dated release *directory* (e.g.
+        ``.../vep/ensembl/geneset/2022_07/``), not to the
+        ``genes.gff3.bgz`` file directly.
+        """
+        # Step A: new accession-based manifest.
+        # The current new manifest schema has no VEP section; reserved for
+        # when it is added in the future.  Do not speculate.
+        # (If a "vep" key appears in ftp_assets in the future, handle it here.)
+
+        # VEP fallback disabled for this project.
+        if not self.config.use_legacy_vep_fallback:
+            return None, "not_applicable"
+
+        # Step B: legacy manifest.
+        if self.legacy_vep_manifest is None:
+            return None, "legacy_manifest_unavailable"
+
+        resolved_provider = ftp_assets.get("resolved_provider")
+        resolved_date = ftp_assets.get("resolved_date")
+
+        # Check for ambiguity before attempting resolution.
+        if self.legacy_vep_manifest.is_ambiguous(
+            meta.accession,
+            provider=resolved_provider,
+            annotation_date=resolved_date,
+        ):
+            providers_dates = [
+                f"{r.provider}/{r.date_key}"
+                for r in self.legacy_vep_manifest._index.get(meta.accession, [])  # pylint: disable=protected-access
+            ]
+            logger.info(
+                "Ambiguous legacy VEP records for %s: %s. No VEP URL emitted.",
+                meta.accession,
+                providers_dates,
+            )
+            return None, "ambiguous_legacy_record"
+
+        legacy_record = self.legacy_vep_manifest.lookup_vep(
+            meta.accession,
+            provider=resolved_provider,
+            annotation_date=resolved_date,
+        )
+
+        if legacy_record is None:
+            return None, "not_found"
+
+        # Derive the dated release directory from the primary VEP file path.
+        # The manifest stores a direct file path (genes.gff3.bgz); the project
+        # page links to the containing directory so users can browse or download
+        # any of the VEP files (the .csi companion index is also present there).
+        vep_dir_path = legacy_record.directory_path
+        if vep_dir_path.startswith(("http://", "https://")):
+            # Guard for future schema changes where the manifest might supply
+            # a full URL rather than a relative path.
+            vep_directory_url = vep_dir_path
+        else:
+            vep_directory_url = _manifest_url(
+                LegacyVepManifest.EBI_FTP_BASE, vep_dir_path
+            )
+
+        # Validate the directory URL before emitting.
+        if not check_url_status(vep_directory_url):
+            logger.info(
+                "Legacy VEP directory for %s is not reachable: %s",
+                meta.accession,
+                vep_directory_url,
+            )
+            return None, "legacy_url_unavailable"
+
+        return vep_directory_url, "available_legacy_manifest"
 
     def _check_beta_status(self, genome_uuid: str) -> str:
         """Cached wrapper around ``check_beta_species_status``."""
@@ -71,6 +214,116 @@ class YamlRenderer:  # pylint: disable=too-few-public-methods
         if self.config.schema_type == "mouse":
             return self._render_mouse(meta)
         return self._render_standard(meta)
+
+    # ------------------------------------------------------------------
+    # Provider / date selection helpers (manifest-based)
+    # ------------------------------------------------------------------
+
+    def _resolve_provider(
+        self,
+        record: AssemblyRecord,
+        meta: GenomeMetadata,
+    ) -> tuple[str | None, str]:
+        """Select the FTP provider for a manifest record.
+
+        Selection order (see implementation plan §Decision 2):
+
+        1. Exact normalised match of ``meta.annotation_source`` to a provider key.
+        2. Alias map match.
+        3. Single-provider shortcut.
+        4. Explicit Ensembl preference (if ``config.prefer_ensembl_provider``).
+        5. Ambiguity — no URL generated.
+
+        Returns:
+            (provider_key, provider_status) where provider_key is None on
+            ambiguity.
+        """
+        providers = record.providers
+        if not providers:
+            return None, "ambiguous"
+
+        # Step 1 & 2: normalised / alias match
+        raw_source = (meta.annotation_source or "").lower().strip()
+        if raw_source:
+            # Resolve alias
+            resolved_source = _PROVIDER_ALIASES.get(raw_source, raw_source)
+            if resolved_source in providers:
+                return resolved_source, "exact_match" if resolved_source == raw_source else "alias_match"
+
+        # Step 3: single provider
+        if len(providers) == 1:
+            return next(iter(providers)), "single_provider"
+
+        # Step 4: explicit Ensembl preference
+        if self.config.prefer_ensembl_provider and "ensembl" in providers:
+            return "ensembl", "ensembl_preference"
+
+        # Step 5: ambiguity
+        logger.info(
+            "Provider ambiguity for %s: annotation_source=%r, providers=%s. "
+            "No released URL will be generated.",
+            meta.accession,
+            meta.annotation_source,
+            sorted(providers.keys()),
+        )
+        return None, "ambiguous"
+
+    @staticmethod
+    def _resolve_date(
+        provider_dates: dict[str, ProviderDateRecord],
+        meta: GenomeMetadata,
+    ) -> tuple[str | None, str]:
+        """Select the annotation date from a provider's date records.
+
+        Selection order:
+
+        1. Normalised prefix match against ``meta.annotation_date``.
+        2. Latest parseable date (largest tuple).
+        3. All dates unparseable → return (None, "unparseable").
+
+        Returns:
+            (date_key, date_status) where date_key is None on failure.
+        """
+        if not provider_dates:
+            return None, "unparseable"
+
+        # Build a list of (tuple, date_key) for parseable dates
+        parsed: list[tuple[tuple[int, ...], str]] = []
+        for date_key in provider_dates:
+            t = _parse_manifest_date(date_key)
+            if t is None:
+                logger.warning(
+                    "Manifest date key %r could not be parsed; skipping.", date_key
+                )
+                continue
+            parsed.append((t, date_key))
+
+        if not parsed:
+            return None, "unparseable"
+
+        # Step 1: try to match meta.annotation_date
+        if meta.annotation_date:
+            meta_tuple = _parse_manifest_date(meta.annotation_date)
+            if meta_tuple is not None:
+                # Prefix match: manifest (YYYY, MM) matches metadata (YYYY, MM, *)
+                meta_prefix = meta_tuple[:2]
+                matches = [
+                    (t, dk) for (t, dk) in parsed if t[:2] == meta_prefix
+                ]
+                if len(matches) == 1:
+                    return matches[0][1], "exact_match"
+                if len(matches) > 1:
+                    # Multiple manifest dates match — pick latest
+                    best = max(matches, key=lambda x: x[0])
+                    return best[1], "latest_selected"
+
+        # Step 2: latest date
+        best = max(parsed, key=lambda x: x[0])
+        return best[1], "latest_selected"
+
+    # ------------------------------------------------------------------
+    # Pre-release species name normalisation (unchanged)
+    # ------------------------------------------------------------------
 
     def _normalise_species_for_ftp(self, species_name: str) -> List[str]:
         variants: List[str] = []
@@ -127,37 +380,24 @@ class YamlRenderer:  # pylint: disable=too-few-public-methods
 
         return variants
 
-    @staticmethod
-    def _scan_ftp_directory_for_date(base_url: str, metadata_date: str) -> str:
-        """List an FTP geneset directory and return the newest date with valid GTF/GFF3.
-
-        Returns the date string (``YYYY_MM``) if found, or an empty string.
-        """
-        try:
-            response = requests.get(base_url, timeout=10)
-            if response.status_code != 200:
-                return ""
-            matches = re.findall(r'href="(\d{4}_\d{2})/?', response.text)
-            dates = sorted(set(matches), reverse=True)
-            for d in dates:
-                gtf_d = f"{base_url}{d}/genes.gtf.gz"
-                gff3_d = f"{base_url}{d}/genes.gff3.gz"
-                if check_url_status(gtf_d) and check_url_status(gff3_d):
-                    if d != metadata_date:
-                        logger.info(
-                            "Resolved FTP date %s differs from metadata %s",
-                            d,
-                            metadata_date,
-                        )
-                    return d
-        except Exception as e:  # pylint: disable=broad-exception-caught
-            logger.debug("Error fetching directory %s: %s", base_url, e)
-        return ""
+    # ------------------------------------------------------------------
+    # FTP asset resolution
+    # ------------------------------------------------------------------
 
     def _resolve_ftp_assets(  # pylint: disable=too-many-locals,too-many-branches,too-many-statements
         self, meta: GenomeMetadata
     ) -> Dict[str, Any]:
-        # Original old base logic for checking if we used a fallback
+        """Resolve FTP file URLs for one genome.
+
+        Resolution order:
+        1. Manifest-based released path (new accession-based structure).
+        2. Pre-release fallback (unchanged species-name-based structure).
+
+        Returns a dict that the schema renderers consume.  Internal
+        ``__audit_*`` keys are present; they are stripped by the orchestration
+        layer before YAML serialisation.
+        """
+        # ftp_species_name is still needed for pre-release and repeat-library paths.
         ftp_species_name_base = meta.species_name.capitalize().replace(" ", "_")
         variants = self._normalise_species_for_ftp(meta.species_name)
 
@@ -166,62 +406,141 @@ class YamlRenderer:  # pylint: disable=too-few-public-methods
             if meta.annotation_date
             else "unknown_date"
         )
-        source = (meta.annotation_source or "ensembl").lower().strip()
 
-        target_released = meta.is_released
-        resolved_rel_variant = None
-        resolved_date = metadata_date
         audit_decision = "excluded"
         audit_reason = "No released or pre-release FTP assets found."
+        manifest_status = "n/a"
+        provider_status = "n/a"
+        date_status = "n/a"
 
-        # 1. Try Released logic
-        if target_released:
-            for variant in variants:
-                base_url = (
-                    "https://ftp.ebi.ac.uk/pub/ensemblorganisms/"
-                    f"{variant}/{meta.accession}/{source}/geneset/"
+        # ------------------------------------------------------------------
+        # 1. Try Released logic (manifest-based)
+        # ------------------------------------------------------------------
+        if meta.is_released and self.manifest is not None:
+            manifest_record = self.manifest.lookup(meta.accession)
+
+            if manifest_record is None:
+                manifest_status = "not_found"
+                logger.debug(
+                    "Accession %s not found in manifest.", meta.accession
+                )
+            else:
+                manifest_status = "found"
+
+                # Select provider
+                provider, provider_status = self._resolve_provider(
+                    manifest_record, meta
                 )
 
-                # 1a. Try metadata date first
-                gtf_test = f"{base_url}{metadata_date}/genes.gtf.gz"
-                gff3_test = f"{base_url}{metadata_date}/genes.gff3.gz"
-                if check_url_status(gtf_test) and check_url_status(gff3_test):
-                    resolved_rel_variant = variant
-                    resolved_date = metadata_date
-                    break
-
-                # 1b. If metadata date fails, scan directory listing
-                found_date = self._scan_ftp_directory_for_date(base_url, metadata_date)
-                if found_date:
-                    resolved_rel_variant = variant
-                    resolved_date = found_date
-                    break
-
-                if resolved_rel_variant:
-                    break
-
-            if resolved_rel_variant:
-                self._ftp_species_cache[meta.species_name] = resolved_rel_variant
-                if resolved_rel_variant != ftp_species_name_base:
-                    logger.info(
-                        "Resolved FTP species name: input=%r used=%r",
-                        meta.species_name,
-                        resolved_rel_variant,
+                if provider is None:
+                    # Ambiguous — fall through to pre-release
+                    audit_reason = (
+                        f"Provider ambiguity for {meta.accession}: "
+                        f"providers={sorted(manifest_record.providers.keys())}. "
+                        "Falling back to pre-release."
+                    )
+                else:
+                    # Select date
+                    provider_dates = manifest_record.providers[provider]
+                    date_key, date_status = self._resolve_date(
+                        provider_dates, meta
                     )
 
-                audit_decision = "included_released"
-                audit_reason = "Found released FTP assets."
-                return {
-                    "is_released": True,
-                    "ftp_species_name": resolved_rel_variant,
-                    "resolved_date": resolved_date,
-                    "audit_decision": audit_decision,
-                    "audit_reason": audit_reason,
-                }
+                    if date_key is None:
+                        audit_reason = (
+                            f"No usable annotation date found for "
+                            f"{meta.accession}/{provider} in manifest."
+                        )
+                    else:
+                        pdr = provider_dates[date_key]
 
-        # 2. Try Pre-release Fallback
+                        # Check for at least one required annotation file
+                        ann = pdr.annotation_files
+                        has_gtf = "genes.gtf.gz" in ann
+                        has_gff3 = "genes.gff3.gz" in ann
+                        if not has_gtf and not has_gff3:
+                            audit_reason = (
+                                f"Manifest record {meta.accession}/{provider}/{date_key} "
+                                "contains neither genes.gtf.gz nor genes.gff3.gz."
+                            )
+                        else:
+                            # Build released asset dict
+                            try:
+                                acc_path = accession_to_ftp_path(meta.accession)
+                            except ValueError as exc:
+                                audit_reason = (
+                                    f"Could not compute FTP path for {meta.accession}: {exc}"
+                                )
+                            else:
+                                resolved_annotation_files = {
+                                    fname: EBI_FTP_BASE + rel_path
+                                    for fname, rel_path in ann.items()
+                                }
+                                resolved_homology_files = {
+                                    fname: EBI_FTP_BASE + rel_path
+                                    for fname, rel_path in pdr.homology_files.items()
+                                }
+                                resolved_variation_files = {
+                                    fname: EBI_FTP_BASE + rel_path
+                                    for fname, rel_path in pdr.variation_files.items()
+                                }
+                                resolved_genome_files = {
+                                    fname: EBI_FTP_BASE + rel_path
+                                    for fname, rel_path in manifest_record.assembly_genome_files.items()
+                                }
+
+                                audit_decision = "included_released"
+                                audit_reason = "Found released FTP assets in manifest."
+
+                                if provider_status == "exact_match":
+                                    pass  # expected
+                                elif provider_status in ("single_provider", "alias_match"):
+                                    logger.info(
+                                        "Provider %r selected for %s via %s.",
+                                        provider, meta.accession, provider_status,
+                                    )
+                                elif provider_status == "ensembl_preference":
+                                    logger.info(
+                                        "Provider 'ensembl' selected for %s by "
+                                        "explicit preference policy.",
+                                        meta.accession,
+                                    )
+
+                                if date_status == "latest_selected":
+                                    logger.info(
+                                        "No metadata date match for %s/%s; "
+                                        "using latest manifest date %r.",
+                                        meta.accession, provider, date_key,
+                                    )
+
+                                return {
+                                    "is_released": True,
+                                    "ftp_species_name": ftp_species_name_base,
+                                    "acc_ftp_path": acc_path,
+                                    "resolved_provider": provider,
+                                    "resolved_date": date_key,
+                                    "annotation_files": resolved_annotation_files,
+                                    "genome_files": resolved_genome_files,
+                                    "homology_files": resolved_homology_files,
+                                    "variation_files": resolved_variation_files,
+                                    "audit_decision": audit_decision,
+                                    "audit_reason": audit_reason,
+                                    "__audit_manifest_status__": manifest_status,
+                                    "__audit_provider_status__": provider_status,
+                                    "__audit_date_status__": date_status,
+                                }
+        elif meta.is_released and self.manifest is None:
+            manifest_status = "manifest_unavailable"
+            audit_reason = (
+                "Manifest unavailable; cannot resolve released FTP path. "
+                "Attempting pre-release fallback."
+            )
+
+        # ------------------------------------------------------------------
+        # 2. Try Pre-release Fallback (unchanged species-name-based logic)
+        # ------------------------------------------------------------------
         resolved_pre_variant = None
-        pre_release_urls = {}
+        pre_release_urls: dict[str, str] = {}
         if self.ftp_client:
             for variant in variants:
                 fb_gtf = self.ftp_client.check_pre_release_file(
@@ -269,24 +588,44 @@ class YamlRenderer:  # pylint: disable=too-few-public-methods
                     resolved_pre_variant,
                 )
 
-            audit_decision = "included_prerelease"
-            audit_reason = "Found pre-release FTP assets."
             return {
                 "is_released": False,
                 "ftp_species_name": resolved_pre_variant,
+                "acc_ftp_path": None,
+                "resolved_provider": None,
                 "resolved_date": metadata_date,
-                "audit_decision": audit_decision,
-                "audit_reason": audit_reason,
+                "annotation_files": {},
+                "genome_files": {},
+                "homology_files": {},
+                "variation_files": {},
                 "pre_release_urls": pre_release_urls,
+                "audit_decision": "included_prerelease",
+                "audit_reason": "Found pre-release FTP assets.",
+                "__audit_manifest_status__": manifest_status,
+                "__audit_provider_status__": provider_status,
+                "__audit_date_status__": date_status,
             }
 
         return {
             "is_released": False,
             "ftp_species_name": ftp_species_name_base,
+            "acc_ftp_path": None,
+            "resolved_provider": None,
             "resolved_date": metadata_date,
+            "annotation_files": {},
+            "genome_files": {},
+            "homology_files": {},
+            "variation_files": {},
             "audit_decision": "excluded",
             "audit_reason": audit_reason,
+            "__audit_manifest_status__": manifest_status,
+            "__audit_provider_status__": provider_status,
+            "__audit_date_status__": date_status,
         }
+
+    # ------------------------------------------------------------------
+    # Schema renderers
+    # ------------------------------------------------------------------
 
     def _render_standard(  # pylint: disable=too-many-locals,too-many-branches,too-many-statements
         self, meta: GenomeMetadata
@@ -319,30 +658,30 @@ class YamlRenderer:  # pylint: disable=too-few-public-methods
         doc["__audit_decision__"] = ftp_resolution["audit_decision"]
         doc["__audit_reason__"] = ftp_resolution["audit_reason"]
         doc["__audit_resolved_date__"] = ftp_resolution["resolved_date"]
+        doc["__audit_manifest_status__"] = ftp_resolution.get("__audit_manifest_status__", "")
+        doc["__audit_provider_status__"] = ftp_resolution.get("__audit_provider_status__", "")
+        doc["__audit_date_status__"] = ftp_resolution.get("__audit_date_status__", "")
 
         if ftp_resolution["audit_decision"] == "excluded":
             return doc  # Returns only audit keys
 
         if target_released:
             meta.annotation_date = ftp_resolution["resolved_date"].replace("_", "-")
-            doc["annotation_gtf"] = self._build_ftp_url(
-                meta, "geneset", "genes.gtf.gz", ftp_species_name
-            )
-            doc["annotation_gff3"] = self._build_ftp_url(
-                meta, "geneset", "genes.gff3.gz", ftp_species_name
-            )
-            doc["proteins"] = self._build_ftp_url(
-                meta, "geneset", "pep.fa.gz", ftp_species_name
-            )
-            doc["transcripts"] = self._build_ftp_url(
-                meta, "geneset", "cdna.fa.gz", ftp_species_name
-            )
-            doc["softmasked_genome"] = (
-                "https://ftp.ebi.ac.uk/pub/ensemblorganisms/"
-                f"{ftp_species_name}/{meta.accession}/genome/softmasked.fa.gz"
-            )
+            ann = ftp_resolution.get("annotation_files", {})
+            genome = ftp_resolution.get("genome_files", {})
 
-            # repeat_library — checked before emitting; omitted if file does not exist
+            if "genes.gtf.gz" in ann:
+                doc["annotation_gtf"] = ann["genes.gtf.gz"]
+            if "genes.gff3.gz" in ann:
+                doc["annotation_gff3"] = ann["genes.gff3.gz"]
+            if "pep.fa.bgz" in ann:
+                doc["proteins"] = ann["pep.fa.bgz"]
+            if "cdna.fa.bgz" in ann:
+                doc["transcripts"] = ann["cdna.fa.bgz"]
+            if "softmasked.fa.bgz" in genome:
+                doc["softmasked_genome"] = genome["softmasked.fa.bgz"]
+
+            # repeat_library — uses different FTP hierarchy; ftp_species_name still correct
             repeat_species = ftp_species_name.lower()
             repeat_url = (
                 "https://ftp.ebi.ac.uk/pub/databases/ensembl/"
@@ -351,23 +690,14 @@ class YamlRenderer:  # pylint: disable=too-few-public-methods
             )
             if check_url_status(repeat_url):
                 doc["repeat_library"] = repeat_url
-
-            if not check_url_status(doc["annotation_gff3"]):
-                uncompressed_gff = self._build_ftp_url(
-                    meta, "geneset", "genes.gff3", ftp_species_name
-                )
-                if check_url_status(uncompressed_gff):
-                    doc["annotation_gff3"] = uncompressed_gff
         else:
             pre_urls = ftp_resolution.get("pre_release_urls", {})
             for k, v in pre_urls.items():
                 doc[k] = v
 
-        if target_released:
-            doc["ftp_dumps"] = (
-                "https://ftp.ebi.ac.uk/pub/ensemblorganisms/"
-                f"{ftp_species_name}/{meta.accession}/"
-            )
+        acc_path = ftp_resolution.get("acc_ftp_path")
+        if target_released and acc_path:
+            doc["ftp_dumps"] = EBI_FTP_BASE + acc_path + "/"
         else:
             doc["ftp_dumps"] = (
                 "https://ftp.ebi.ac.uk/pub/databases/ensembl/pre-release/"
@@ -418,40 +748,46 @@ class YamlRenderer:  # pylint: disable=too-few-public-methods
         doc["__audit_decision__"] = ftp_resolution["audit_decision"]
         doc["__audit_reason__"] = ftp_resolution["audit_reason"]
         doc["__audit_resolved_date__"] = ftp_resolution["resolved_date"]
+        doc["__audit_manifest_status__"] = ftp_resolution.get("__audit_manifest_status__", "")
+        doc["__audit_provider_status__"] = ftp_resolution.get("__audit_provider_status__", "")
+        doc["__audit_date_status__"] = ftp_resolution.get("__audit_date_status__", "")
 
         if ftp_resolution["audit_decision"] == "excluded":
             return doc  # Returns only audit keys
 
         if target_released:
             meta.annotation_date = ftp_resolution["resolved_date"].replace("_", "-")
-            doc["annotation_gtf"] = self._build_ftp_url(
-                meta, "geneset", "genes.gtf.gz", ftp_species_name
-            )
-            doc["annotation_gff3"] = self._build_ftp_url(
-                meta, "geneset", "genes.gff3.gz", ftp_species_name
-            )
-            doc["proteins"] = self._build_ftp_url(
-                meta, "geneset", "pep.fa.gz", ftp_species_name
-            )
-            doc["transcripts"] = self._build_ftp_url(
-                meta, "geneset", "cdna.fa.gz", ftp_species_name
-            )
+            ann = ftp_resolution.get("annotation_files", {})
+
+            if "genes.gtf.gz" in ann:
+                doc["annotation_gtf"] = ann["genes.gtf.gz"]
+            if "genes.gff3.gz" in ann:
+                doc["annotation_gff3"] = ann["genes.gff3.gz"]
+            if "pep.fa.bgz" in ann:
+                doc["proteins"] = ann["pep.fa.bgz"]
+            if "cdna.fa.bgz" in ann:
+                doc["transcripts"] = ann["cdna.fa.bgz"]
         else:
             pre_urls = ftp_resolution.get("pre_release_urls", {})
             for k, v in pre_urls.items():
                 doc[k] = v
 
-        vep_url = (
-            "https://ftp.ebi.ac.uk/pub/ensemblorganisms/"
-            f"{ftp_species_name}/{meta.accession}/vep/ensembl/geneset/"
-        )
-        if check_url_status(vep_url):
+        # VEP resolution: try the new manifest first (no VEP section yet),
+        # then fall back to the legacy species.json manifest for HPRC.
+        vep_url, vep_status = self._resolve_vep_url(meta, ftp_resolution)
+        if vep_url:
             doc["variants_vep"] = vep_url
+        doc["__audit_vep_status__"] = vep_status
 
-        doc["ftp_dumps"] = (
-            "https://ftp.ebi.ac.uk/pub/ensemblorganisms/"
-            f"{ftp_species_name}/{meta.accession}/"
-        )
+        acc_path = ftp_resolution.get("acc_ftp_path")
+        if target_released and acc_path:
+            doc["ftp_dumps"] = EBI_FTP_BASE + acc_path + "/"
+        else:
+            doc["ftp_dumps"] = (
+                "https://ftp.ebi.ac.uk/pub/ensemblorganisms/"
+                f"{ftp_species_name}/{meta.accession}/"
+            )
+
         beta_link, beta_status = self._resolve_beta_link(meta, target_released)
         doc["beta_link"] = beta_link
         doc["__audit_beta_status__"] = beta_status
@@ -475,37 +811,36 @@ class YamlRenderer:  # pylint: disable=too-few-public-methods
         doc["__audit_decision__"] = ftp_resolution["audit_decision"]
         doc["__audit_reason__"] = ftp_resolution["audit_reason"]
         doc["__audit_resolved_date__"] = ftp_resolution["resolved_date"]
+        doc["__audit_manifest_status__"] = ftp_resolution.get("__audit_manifest_status__", "")
+        doc["__audit_provider_status__"] = ftp_resolution.get("__audit_provider_status__", "")
+        doc["__audit_date_status__"] = ftp_resolution.get("__audit_date_status__", "")
 
         if ftp_resolution["audit_decision"] == "excluded":
             return doc  # Returns only audit keys
 
         if target_released:
             meta.annotation_date = ftp_resolution["resolved_date"].replace("_", "-")
-            doc["annotation_gtf"] = self._build_ftp_url(
-                meta, "geneset", "genes.gtf.gz", ftp_species_name
-            )
-            doc["annotation_gff3"] = self._build_ftp_url(
-                meta, "geneset", "genes.gff3.gz", ftp_species_name
-            )
-            doc["proteins"] = self._build_ftp_url(
-                meta, "geneset", "pep.fa.gz", ftp_species_name
-            )
-            doc["transcripts"] = self._build_ftp_url(
-                meta, "geneset", "cdna.fa.gz", ftp_species_name
-            )
-            doc["softmasked_genome"] = self._build_ftp_url(
-                meta, "genome", "softmasked.fa.gz", ftp_species_name
-            )
+            ann = ftp_resolution.get("annotation_files", {})
+            genome = ftp_resolution.get("genome_files", {})
+
+            if "genes.gtf.gz" in ann:
+                doc["annotation_gtf"] = ann["genes.gtf.gz"]
+            if "genes.gff3.gz" in ann:
+                doc["annotation_gff3"] = ann["genes.gff3.gz"]
+            if "pep.fa.bgz" in ann:
+                doc["proteins"] = ann["pep.fa.bgz"]
+            if "cdna.fa.bgz" in ann:
+                doc["transcripts"] = ann["cdna.fa.bgz"]
+            if "softmasked.fa.bgz" in genome:
+                doc["softmasked_genome"] = genome["softmasked.fa.bgz"]
         else:
             pre_urls = ftp_resolution.get("pre_release_urls", {})
             for k, v in pre_urls.items():
                 doc[k] = v
 
-        if target_released:
-            doc["ftp_dumps"] = (
-                "https://ftp.ebi.ac.uk/pub/ensemblorganisms/"
-                f"{ftp_species_name}/{meta.accession}/"
-            )
+        acc_path = ftp_resolution.get("acc_ftp_path")
+        if target_released and acc_path:
+            doc["ftp_dumps"] = EBI_FTP_BASE + acc_path + "/"
         else:
             doc["ftp_dumps"] = (
                 "https://ftp.ebi.ac.uk/pub/databases/ensembl/pre-release/"
@@ -521,25 +856,6 @@ class YamlRenderer:  # pylint: disable=too-few-public-methods
             doc["alternate"] = meta.alternate_of
 
         return {k: v for k, v in doc.items() if v is not None}
-
-    def _build_ftp_url(
-        self,
-        meta: GenomeMetadata,
-        category: str,
-        file_suffix: str,
-        ftp_species_name: str,
-    ) -> str:
-        """Helper to build standard FTP URLs for standard/mouse schemas."""
-        date = meta.annotation_date
-        if date:
-            date = date.replace("-", "_")
-        if not date:
-            date = "unknown_date"
-        source = (meta.annotation_source or "ensembl").lower().strip()
-        return (
-            "https://ftp.ebi.ac.uk/pub/ensemblorganisms/"
-            f"{ftp_species_name}/{meta.accession}/{source}/{category}/{date}/{file_suffix}"
-        )
 
     def _build_rapid_ftp_url(self, meta: GenomeMetadata, resource_type: str) -> str:
         """Helper to build Rapid Release FTP URLs"""

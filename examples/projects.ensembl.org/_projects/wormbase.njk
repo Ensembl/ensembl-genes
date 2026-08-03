@@ -1,0 +1,82 @@
+---
+layout: projects
+permalink: /wormbase/
+redirect_from:
+  - /wormbase
+title: "WormBase ParaSite Data Archive"
+img:
+  src: /img/wormbase.png
+  width: 228
+description: >-
+  Data archive for WormBase ParaSite species.
+---
+
+<h2>WormBase ParaSite Data Archive</h2>
+
+<p>
+WormBase ParaSite has provided high-quality genome assemblies, gene annotations and comparative genomics resources for nematodes and other parasitic helminths for many years. This page provides a central archive of the publicly available data files hosted by WormBase ParaSite, including genome assemblies, annotations, protein and transcript sequences, comparative genomics datasets and repeat libraries where available.
+</p>
+
+<p>
+Species are linked to their corresponding
+<a href="https://www.ncbi.nlm.nih.gov/bioproject/" target="_blank">NCBI BioProject</a>,
+and each row provides direct access to the available download files on the WormBase ParaSite FTP site.
+</p>
+
+<table class="table_zebra">
+  <thead class="table-sticky-header">
+    <tr>
+      <th>Species</th>
+      <th>BioProject</th>
+      <th>Genome</th>
+      <th>Annotation</th>
+      <th>Proteins</th>
+      <th>Transcripts</th>
+      <th>Comparative data</th>
+      <th>Phenotypes</th>
+      <th>Repeats</th>
+      <th>Species page</th>
+      <th>FTP directory</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for row in site.data.wormbase.species %}
+    <tr>
+      <td><em>{{ row.species }}</em></td>
+      <td><a href="{{ row.bioproject_link }}">{{ row.bioproject }}</a></td>
+      <td>
+        {% if row.genome %}<a href="{{ row.genome }}">raw</a>{% endif %}
+        {% if row.genome_masked %} | <a href="{{ row.genome_masked }}">masked</a>{% endif %}
+        {% if row.genome_softmasked %} | <a href="{{ row.genome_softmasked }}">soft-masked</a>{% endif %}
+      </td>
+      <td>
+        {% if row.annotation_gff3 %}<a href="{{ row.annotation_gff3 }}">GFF3</a>{% endif %}
+        {% if row.annotation_gtf %} | <a href="{{ row.annotation_gtf }}">GTF</a>{% endif %}
+      </td>
+      <td>
+        {% if row.proteins %}<a href="{{ row.proteins }}">FASTA</a>{% endif %}
+      </td>
+      <td>
+        {% if row.transcripts_mrna %}<a href="{{ row.transcripts_mrna }}">mRNA</a>{% endif %}
+        {% if row.transcripts_cds %} | <a href="{{ row.transcripts_cds }}">CDS</a>{% endif %}
+      </td>
+      <td>
+        {% if row.orthologues %}<a href="{{ row.orthologues }}">orthologues</a>{% endif %}
+        {% if row.paralogues %} | <a href="{{ row.paralogues }}">paralogues</a>{% endif %}
+      </td>
+      <td>
+        {% if row.phenotypes %}<a href="{{ row.phenotypes }}">GAF</a>{% endif %}
+      </td>
+      <td>
+        {% if row.repeat_families %}<a href="{{ row.repeat_families }}">FASTA</a>{% endif %}
+      </td>
+      <td>
+        {% if row.species_page %}<a href="{{ row.species_page }}">view</a>{% endif %}
+      </td>
+      <td>
+        {% if row.ftp_dumps %}<a href="{{ row.ftp_dumps }}">FTP</a>{% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>

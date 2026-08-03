@@ -193,8 +193,15 @@ class TestStandardRenderIntegration:
             "is_released": True,
             "ftp_species_name": "Achillea_ptarmica",
             "resolved_date": "2024_01",
+            "acc_ftp_path": "GCA/982/375/345/1",
             "audit_decision": "included_released",
             "audit_reason": "Found released FTP assets.",
+            "annotation_files": {
+                "genes.gtf.gz": "https://ftp.ebi.ac.uk/pub/ensemblorganisms/GCA/982/375/345/1/ensembl/2024_01/geneset/genes.gtf.gz",
+            },
+            "genome_files": {},
+            "homology_files": {},
+            "variation_files": {},
         }
         with (
             patch.object(renderer, "_resolve_ftp_assets", return_value=ftp_resolution),
@@ -225,8 +232,15 @@ class TestStandardRenderIntegration:
             "is_released": True,
             "ftp_species_name": "Achillea_ptarmica",
             "resolved_date": "2024_01",
+            "acc_ftp_path": "GCA/982/375/345/1",
             "audit_decision": "included_released",
             "audit_reason": "Found released FTP assets.",
+            "annotation_files": {
+                "genes.gtf.gz": "https://ftp.ebi.ac.uk/pub/ensemblorganisms/GCA/982/375/345/1/ensembl/2024_01/geneset/genes.gtf.gz",
+            },
+            "genome_files": {},
+            "homology_files": {},
+            "variation_files": {},
         }
         with (
             patch.object(renderer, "_resolve_ftp_assets", return_value=ftp_resolution),

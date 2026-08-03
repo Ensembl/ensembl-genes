@@ -1,0 +1,264 @@
+{
+  "species": {
+    "Meles_meles": {
+      "taxid": 9662,
+      "species_taxonomy_id": 9662,
+      "scientific_name": "Meles meles",
+      "common_name": "Eurasian badger",
+      "strain": null,
+      "strain_type": null,
+      "biosample_id": "SAMEA7524400",
+      "assemblies": {
+        "GCA_922984935.2": {
+          "name": "mMelMel3.2_paternal_haplotype",
+          "level": "primary_assembly",
+          "genebuild_providers": {
+            "ensembl": {
+              "2022_11": {
+                "release": "2022_11",
+                "paths": {
+                  "genebuild": {
+                    "files": {
+                      "annotations": {
+                        "cdna.fa.bgz": "GCA/922/984/935/2/ensembl/2022_11/geneset/cdna.fa.bgz",
+                        "genes.embl.gz": "GCA/922/984/935/2/ensembl/2022_11/geneset/genes.embl.gz",
+                        "genes.gff3.bgz": "GCA/922/984/935/2/ensembl/2022_11/geneset/genes.gff3.bgz",
+                        "genes.gff3.gz": "GCA/922/984/935/2/ensembl/2022_11/geneset/genes.gff3.gz",
+                        "genes.gtf.bgz": "GCA/922/984/935/2/ensembl/2022_11/geneset/genes.gtf.bgz",
+                        "genes.gtf.gz": "GCA/922/984/935/2/ensembl/2022_11/geneset/genes.gtf.gz",
+                        "pep.fa.bgz": "GCA/922/984/935/2/ensembl/2022_11/geneset/pep.fa.bgz",
+                        "xref.tsv.gz": "GCA/922/984/935/2/ensembl/2022_11/geneset/xref.tsv.gz"
+                      }
+                    }
+                  },
+                  "homologies": {
+                    "files": {
+                      "homology_data": {
+                        "homology.tsv.gz": "GCA/922/984/935/2/ensembl/2022_11/homology/2024_09_18/homology.tsv.gz"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "assembly": {
+            "files": {
+              "genome_sequences": {
+                "chromosomes.tsv.gz": "GCA/922/984/935/2/ensembl/2022_11/genome/chromosomes.tsv.gz",
+                "hardmasked.fa.bgz": "GCA/922/984/935/2/ensembl/2022_11/genome/hardmasked.fa.bgz",
+                "softmasked.fa.bgz": "GCA/922/984/935/2/ensembl/2022_11/genome/softmasked.fa.bgz",
+                "unmasked.fa.bgz": "GCA/922/984/935/2/ensembl/2022_11/genome/unmasked.fa.bgz"
+              }
+            }
+          }
+        }
+      }
+    },
+    "Chrysaora_quinquecirrha": {
+      "taxid": 6148,
+      "species_taxonomy_id": 6148,
+      "scientific_name": "Chrysaora quinquecirrha",
+      "common_name": "Jellyfishes",
+      "strain": null,
+      "strain_type": null,
+      "biosample_id": "SAMN12326774",
+      "assemblies": {
+        "GCA_012295145.1": {
+          "name": "ASM1229514v1",
+          "level": "primary_assembly",
+          "genebuild_providers": {
+            "ensembl": {
+              "2023_10": {
+                "release": "2023_10",
+                "paths": {
+                  "genebuild": {
+                    "files": {
+                      "annotations": {
+                        "cdna.fa.bgz": "GCA/012/295/145/1/ensembl/2023_10/geneset/cdna.fa.bgz",
+                        "genes.gff3.gz": "GCA/012/295/145/1/ensembl/2023_10/geneset/genes.gff3.gz",
+                        "pep.fa.bgz": "GCA/012/295/145/1/ensembl/2023_10/geneset/pep.fa.bgz",
+                        "xref.tsv.gz": "GCA/012/295/145/1/ensembl/2023_10/geneset/xref.tsv.gz"
+                      }
+                    }
+                  },
+                  "homologies": {
+                    "files": {
+                      "homology_data": {}
+                    }
+                  }
+                }
+              },
+              "2024_02": {
+                "release": "2024_02",
+                "paths": {
+                  "genebuild": {
+                    "files": {
+                      "annotations": {
+                        "cdna.fa.bgz": "GCA/012/295/145/1/ensembl/2024_02/geneset/cdna.fa.bgz",
+                        "genes.gff3.gz": "GCA/012/295/145/1/ensembl/2024_02/geneset/genes.gff3.gz",
+                        "genes.gtf.gz": "GCA/012/295/145/1/ensembl/2024_02/geneset/genes.gtf.gz",
+                        "pep.fa.bgz": "GCA/012/295/145/1/ensembl/2024_02/geneset/pep.fa.bgz"
+                      }
+                    }
+                  },
+                  "homologies": {
+                    "files": {
+                      "homology_data": {
+                        "homology.tsv.gz": "GCA/012/295/145/1/ensembl/2024_02/homology/2024_09_18/homology.tsv.gz"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "assembly": {
+            "files": {
+              "genome_sequences": {
+                "softmasked.fa.bgz": "GCA/012/295/145/1/ensembl/2023_10/genome/softmasked.fa.bgz"
+              }
+            }
+          }
+        }
+      }
+    },
+    "Chanos_chanos": {
+      "taxid": 29144,
+      "species_taxonomy_id": 29144,
+      "scientific_name": "Chanos chanos",
+      "common_name": "Milkfish",
+      "strain": null,
+      "strain_type": null,
+      "biosample_id": "SAMN09984765",
+      "assemblies": {
+        "GCF_021464435.1": {
+          "name": "ULB_Chis1_1.0",
+          "level": "primary_assembly",
+          "genebuild_providers": {
+            "refseq": {
+              "2023_04": {
+                "release": "2023_04",
+                "paths": {
+                  "genebuild": {
+                    "files": {
+                      "annotations": {
+                        "cdna.fa.bgz": "GCF/021/464/435/1/refseq/2023_04/geneset/cdna.fa.bgz",
+                        "genes.gff3.gz": "GCF/021/464/435/1/refseq/2023_04/geneset/genes.gff3.gz",
+                        "genes.gtf.gz": "GCF/021/464/435/1/refseq/2023_04/geneset/genes.gtf.gz",
+                        "pep.fa.bgz": "GCF/021/464/435/1/refseq/2023_04/geneset/pep.fa.bgz",
+                        "xref.tsv.gz": "GCF/021/464/435/1/refseq/2023_04/geneset/xref.tsv.gz"
+                      }
+                    }
+                  },
+                  "homologies": {
+                    "files": {
+                      "homology_data": {
+                        "homology.tsv.gz": "GCF/021/464/435/1/refseq/2023_04/homology/2024_09_18/homology.tsv.gz"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "assembly": {
+            "files": {
+              "genome_sequences": {
+                "hardmasked.fa.bgz": "GCF/021/464/435/1/refseq/2023_04/genome/hardmasked.fa.bgz",
+                "softmasked.fa.bgz": "GCF/021/464/435/1/refseq/2023_04/genome/softmasked.fa.bgz",
+                "unmasked.fa.bgz": "GCF/021/464/435/1/refseq/2023_04/genome/unmasked.fa.bgz"
+              }
+            }
+          }
+        }
+      }
+    },
+    "Ambiguous_species": {
+      "taxid": 99999,
+      "species_taxonomy_id": 99999,
+      "scientific_name": "Ambiguous species",
+      "common_name": "Test ambiguous",
+      "strain": null,
+      "strain_type": null,
+      "biosample_id": "SAMN00000001",
+      "assemblies": {
+        "GCA_999999999.1": {
+          "name": "test_asm",
+          "level": "primary_assembly",
+          "genebuild_providers": {
+            "community": {
+              "2023_05": {
+                "release": "2023_05",
+                "paths": {
+                  "genebuild": {
+                    "files": {
+                      "annotations": {
+                        "genes.gtf.gz": "GCA/999/999/999/1/community/2023_05/geneset/genes.gtf.gz"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "braker": {
+              "2023_05": {
+                "release": "2023_05",
+                "paths": {
+                  "genebuild": {
+                    "files": {
+                      "annotations": {
+                        "genes.gtf.gz": "GCA/999/999/999/1/braker/2023_05/geneset/genes.gtf.gz"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "assembly": {
+            "files": {
+              "genome_sequences": {}
+            }
+          }
+        }
+      }
+    },
+    "No_gtf_species": {
+      "taxid": 88888,
+      "species_taxonomy_id": 88888,
+      "scientific_name": "No gtf species",
+      "common_name": "Test no GTF",
+      "strain": null,
+      "strain_type": null,
+      "biosample_id": "SAMN00000002",
+      "assemblies": {
+        "GCA_888888888.1": {
+          "name": "no_gtf_asm",
+          "level": "primary_assembly",
+          "genebuild_providers": {
+            "ensembl": {
+              "2022_01": {
+                "release": "2022_01",
+                "paths": {
+                  "genebuild": {
+                    "files": {
+                      "annotations": {
+                        "pep.fa.bgz": "GCA/888/888/888/1/ensembl/2022_01/geneset/pep.fa.bgz"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "assembly": {
+            "files": {
+              "genome_sequences": {}
+            }
+          }
+        }
+      }
+    }
+  }
+}

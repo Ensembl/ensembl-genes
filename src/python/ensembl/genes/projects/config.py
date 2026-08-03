@@ -26,6 +26,25 @@ class ProjectConfig:  # pylint: disable=too-many-instance-attributes
     # Formatting Directives
     schema_type: str = "standard"  # "standard", "hprc", "mouse"
 
+    # Provider selection policy for released FTP
+    prefer_ensembl_provider: bool = True
+    """
+    When True and provider resolution is otherwise ambiguous, select the
+    'ensembl' provider if present in the manifest record.  This is an
+    explicit product policy for Ensembl-operated project pages.
+    Set to False for project pages whose intended annotation is non-Ensembl.
+    """
+
+    # VEP fallback policy
+    use_legacy_vep_fallback: bool = False
+    """
+    When True, the generator will also download the legacy species.json
+    manifest and use it to resolve VEP annotation file paths that are not
+    (yet) present in the new accession-based manifest.  Currently only
+    required for HPRC.  A failure to load the legacy manifest is not fatal;
+    VEP links will simply be omitted and recorded in the audit trail.
+    """
+
     # Pre-release Registry Scoping
     bioproject_scoping: Optional[List[str]] = None
     custom_group_scoping: Optional[List[str]] = None
@@ -49,6 +68,7 @@ def get_project_config(project_name: str) -> ProjectConfig:
             check_ftp_variants=True,
             schema_type="hprc",
             bioproject_scoping=["HPRC"],
+            use_legacy_vep_fallback=True,
         )
     if name_lower in ("mouse_genomes", "mouse"):
         return ProjectConfig(
