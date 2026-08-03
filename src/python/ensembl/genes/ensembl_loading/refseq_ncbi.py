@@ -317,7 +317,7 @@ def download_file(
     log.info("Downloading %s to %s", url, destination_path)
     response = requests.get(url, stream=True, timeout=timeout)
     response.raise_for_status()
-    with destination_path.open("wb", encoding="utf-8") as handle:
+    with destination_path.open("wb") as handle:  # pylint: disable=unspecified-encoding
         for chunk in response.iter_content(chunk_size=chunk_size):
             if chunk:
                 handle.write(chunk)
