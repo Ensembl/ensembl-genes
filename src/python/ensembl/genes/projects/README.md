@@ -65,14 +65,17 @@ The script generates two main outputs:
 2. **Audit TSV (`--audit-file`)**: A highly recommended log file that records the decision for every candidate genome. 
    - Decisions include: `included_released`, `included_prerelease`, `excluded`, `excluded_duplicate`, or `kept_duplicate`.
 
-## Publishability Rules
+## Publishability Rules and FTP Resolution
 
 A genome is only included in the final YAML if it has valid FTP assets. A GUUID alone is not enough.
-- **Released FTP**: The script checks the released FTP path.
-- **Pre-release Fallback**: If the released FTP is not found, the script tries the pre-release FTP fallback.
-- **Exclusion**: If neither exists, the genome is excluded from the YAML.
-- **Dynamic Date Resolution**: The metadata database date is used as a hint, but the code dynamically lists the FTP directory to resolve the actual date if it differs.
-- **Annotation Source**: The `annotation_source` from the metadata controls whether the FTP path points to `ensembl`, `braker`, or other sources.
+
+- **Accession-Based FTP Structure**: Released genesets, genome sequences, homologies, and variant files are resolved via the authoritative manifest `species.new_ftp_structure.json`. The layout uses GCA/GCF accession triplets (e.g. `GCA/922/984/935/2/`). Manifest paths are used verbatim.
+- **Legacy VEP Fallback (HPRC only)**: Where VEP annotation directories are not yet present in the new accession-based manifest, HPRC project pages temporarily fall back to the legacy `species.json` manifest (`use_legacy_vep_fallback: True` in `config.py`).
+  - `variants_vep` links to the containing dated VEP directory (e.g. `https://ftp.ebi.ac.uk/pub/ensemblorganisms/Homo_sapiens/GCA_009914755.4/vep/ensembl/geneset/2022_07/`), not directly to `genes.gff3.bgz`.
+  - The legacy VEP directory URL is checked via HTTP before emission.
+  - Failure to load the legacy manifest or resolve a VEP URL does not exclude an HPRC genome; `variants_vep` is simply omitted and recorded in the audit TSV.
+- **Pre-release Fallback**: If released FTP assets are not found in the manifest, the script attempts the pre-release FTP fallback. A failure of either manifest does not prevent valid pre-release fallback.
+- **Exclusion**: If neither released nor pre-release assets exist, the genome is excluded from the YAML.
 
 ## Images and Icons
 

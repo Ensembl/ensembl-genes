@@ -65,11 +65,7 @@ def _extract_audit_fields(doc: Dict[str, Any]) -> Dict[str, Any]:
     This prevents any newly added audit key from accidentally leaking into
     YAML output because someone forgot to add an explicit ``doc.pop()`` call.
     """
-    return {
-        key: doc.pop(key)
-        for key in list(doc)
-        if key.startswith("__audit_")
-    }
+    return {key: doc.pop(key) for key in list(doc) if key.startswith("__audit_")}
 
 
 def _load_server_config() -> dict:
@@ -326,16 +322,17 @@ For pre-release discovery without UUIDs, you may still rely on the registry trac
     # to overlook in logs and CI output.
     if manifest is None:
         skipped_count = sum(
-            1 for c in candidates
-            if c.audit_manifest_status == "manifest_unavailable"
+            1 for c in candidates if c.audit_manifest_status == "manifest_unavailable"
         )
         fallback_count = sum(
-            1 for c in candidates
+            1
+            for c in candidates
             if c.audit_manifest_status == "manifest_unavailable"
             and c.audit_decision == "included_prerelease"
         )
         excluded_count = sum(
-            1 for c in candidates
+            1
+            for c in candidates
             if c.audit_manifest_status == "manifest_unavailable"
             and c.audit_decision == "excluded"
         )

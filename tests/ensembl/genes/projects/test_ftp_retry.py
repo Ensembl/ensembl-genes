@@ -24,8 +24,9 @@ from ensembl.genes.projects.ftp_client import EnsemblFTP, _TRANSIENT_FTP_ERRORS
 
 def make_client(max_retries: int = 2) -> EnsemblFTP:
     """Return an EnsemblFTP with FTP connections mocked out."""
-    with patch.object(EnsemblFTP, "_connect_ensembl"), patch.object(
-        EnsemblFTP, "_connect_ebi"
+    with (
+        patch.object(EnsemblFTP, "_connect_ensembl"),
+        patch.object(EnsemblFTP, "_connect_ebi"),
     ):
         client = EnsemblFTP(timeout=5, max_retries=max_retries)
     # Install mock FTP objects

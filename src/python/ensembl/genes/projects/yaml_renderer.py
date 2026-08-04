@@ -130,8 +130,10 @@ class YamlRenderer:  # pylint: disable=too-few-public-methods
             annotation_date=resolved_date,
         ):
             providers_dates = [
-                f"{r.provider}/{r.date_key}"
-                for r in self.legacy_vep_manifest._index.get(meta.accession, [])  # pylint: disable=protected-access
+                f"{p}/{d}"
+                for p, d in self.legacy_vep_manifest.candidate_provider_dates(
+                    meta.accession
+                )
             ]
             logger.info(
                 "Ambiguous legacy VEP records for %s: %s. No VEP URL emitted.",
@@ -248,7 +250,9 @@ class YamlRenderer:  # pylint: disable=too-few-public-methods
             # Resolve alias
             resolved_source = _PROVIDER_ALIASES.get(raw_source, raw_source)
             if resolved_source in providers:
-                return resolved_source, "exact_match" if resolved_source == raw_source else "alias_match"
+                return resolved_source, (
+                    "exact_match" if resolved_source == raw_source else "alias_match"
+                )
 
         # Step 3: single provider
         if len(providers) == 1:
@@ -307,9 +311,7 @@ class YamlRenderer:  # pylint: disable=too-few-public-methods
             if meta_tuple is not None:
                 # Prefix match: manifest (YYYY, MM) matches metadata (YYYY, MM, *)
                 meta_prefix = meta_tuple[:2]
-                matches = [
-                    (t, dk) for (t, dk) in parsed if t[:2] == meta_prefix
-                ]
+                matches = [(t, dk) for (t, dk) in parsed if t[:2] == meta_prefix]
                 if len(matches) == 1:
                     return matches[0][1], "exact_match"
                 if len(matches) > 1:
@@ -421,9 +423,7 @@ class YamlRenderer:  # pylint: disable=too-few-public-methods
 
             if manifest_record is None:
                 manifest_status = "not_found"
-                logger.debug(
-                    "Accession %s not found in manifest.", meta.accession
-                )
+                logger.debug("Accession %s not found in manifest.", meta.accession)
             else:
                 manifest_status = "found"
 
@@ -442,9 +442,7 @@ class YamlRenderer:  # pylint: disable=too-few-public-methods
                 else:
                     # Select date
                     provider_dates = manifest_record.providers[provider]
-                    date_key, date_status = self._resolve_date(
-                        provider_dates, meta
-                    )
+                    date_key, date_status = self._resolve_date(provider_dates, meta)
 
                     if date_key is None:
                         audit_reason = (
@@ -468,9 +466,7 @@ class YamlRenderer:  # pylint: disable=too-few-public-methods
                             try:
                                 acc_path = accession_to_ftp_path(meta.accession)
                             except ValueError as exc:
-                                audit_reason = (
-                                    f"Could not compute FTP path for {meta.accession}: {exc}"
-                                )
+                                audit_reason = f"Could not compute FTP path for {meta.accession}: {exc}"
                             else:
                                 resolved_annotation_files = {
                                     fname: EBI_FTP_BASE + rel_path
@@ -494,10 +490,15 @@ class YamlRenderer:  # pylint: disable=too-few-public-methods
 
                                 if provider_status == "exact_match":
                                     pass  # expected
-                                elif provider_status in ("single_provider", "alias_match"):
+                                elif provider_status in (
+                                    "single_provider",
+                                    "alias_match",
+                                ):
                                     logger.info(
                                         "Provider %r selected for %s via %s.",
-                                        provider, meta.accession, provider_status,
+                                        provider,
+                                        meta.accession,
+                                        provider_status,
                                     )
                                 elif provider_status == "ensembl_preference":
                                     logger.info(
@@ -510,7 +511,9 @@ class YamlRenderer:  # pylint: disable=too-few-public-methods
                                     logger.info(
                                         "No metadata date match for %s/%s; "
                                         "using latest manifest date %r.",
-                                        meta.accession, provider, date_key,
+                                        meta.accession,
+                                        provider,
+                                        date_key,
                                     )
 
                                 return {
@@ -658,8 +661,12 @@ class YamlRenderer:  # pylint: disable=too-few-public-methods
         doc["__audit_decision__"] = ftp_resolution["audit_decision"]
         doc["__audit_reason__"] = ftp_resolution["audit_reason"]
         doc["__audit_resolved_date__"] = ftp_resolution["resolved_date"]
-        doc["__audit_manifest_status__"] = ftp_resolution.get("__audit_manifest_status__", "")
-        doc["__audit_provider_status__"] = ftp_resolution.get("__audit_provider_status__", "")
+        doc["__audit_manifest_status__"] = ftp_resolution.get(
+            "__audit_manifest_status__", ""
+        )
+        doc["__audit_provider_status__"] = ftp_resolution.get(
+            "__audit_provider_status__", ""
+        )
         doc["__audit_date_status__"] = ftp_resolution.get("__audit_date_status__", "")
 
         if ftp_resolution["audit_decision"] == "excluded":
@@ -748,8 +755,12 @@ class YamlRenderer:  # pylint: disable=too-few-public-methods
         doc["__audit_decision__"] = ftp_resolution["audit_decision"]
         doc["__audit_reason__"] = ftp_resolution["audit_reason"]
         doc["__audit_resolved_date__"] = ftp_resolution["resolved_date"]
-        doc["__audit_manifest_status__"] = ftp_resolution.get("__audit_manifest_status__", "")
-        doc["__audit_provider_status__"] = ftp_resolution.get("__audit_provider_status__", "")
+        doc["__audit_manifest_status__"] = ftp_resolution.get(
+            "__audit_manifest_status__", ""
+        )
+        doc["__audit_provider_status__"] = ftp_resolution.get(
+            "__audit_provider_status__", ""
+        )
         doc["__audit_date_status__"] = ftp_resolution.get("__audit_date_status__", "")
 
         if ftp_resolution["audit_decision"] == "excluded":
@@ -811,8 +822,12 @@ class YamlRenderer:  # pylint: disable=too-few-public-methods
         doc["__audit_decision__"] = ftp_resolution["audit_decision"]
         doc["__audit_reason__"] = ftp_resolution["audit_reason"]
         doc["__audit_resolved_date__"] = ftp_resolution["resolved_date"]
-        doc["__audit_manifest_status__"] = ftp_resolution.get("__audit_manifest_status__", "")
-        doc["__audit_provider_status__"] = ftp_resolution.get("__audit_provider_status__", "")
+        doc["__audit_manifest_status__"] = ftp_resolution.get(
+            "__audit_manifest_status__", ""
+        )
+        doc["__audit_provider_status__"] = ftp_resolution.get(
+            "__audit_provider_status__", ""
+        )
         doc["__audit_date_status__"] = ftp_resolution.get("__audit_date_status__", "")
 
         if ftp_resolution["audit_decision"] == "excluded":

@@ -90,9 +90,7 @@ class AssemblyRecord:
     accession: str
     species_key: str  # top-level species name, used in error messages
     assembly_genome_files: dict[str, str] = field(default_factory=dict)
-    providers: dict[str, dict[str, "ProviderDateRecord"]] = field(
-        default_factory=dict
-    )
+    providers: dict[str, dict[str, "ProviderDateRecord"]] = field(default_factory=dict)
 
 
 # ---------------------------------------------------------------------------
@@ -179,9 +177,7 @@ class EnsemblFtpManifest:
         except ManifestError:
             raise
         except Exception as exc:  # pylint: disable=broad-exception-caught
-            raise ManifestError(
-                f"Failed to build manifest index: {exc}"
-            ) from exc
+            raise ManifestError(f"Failed to build manifest index: {exc}") from exc
 
         logger.info(
             "Manifest loaded: %d assemblies across %d species entries.",
@@ -268,9 +264,7 @@ class EnsemblFtpManifest:
                             continue
                         record.providers[provider] = {}
                         for date_key, date_data in dates_data.items():
-                            pdr = self._parse_provider_date_record(
-                                date_key, date_data
-                            )
+                            pdr = self._parse_provider_date_record(date_key, date_data)
                             record.providers[provider][date_key] = pdr
 
                 self._index[accession] = record
@@ -297,9 +291,7 @@ class EnsemblFtpManifest:
 
         # Variation files
         variation_files: dict[str, str] = {}
-        var = (
-            paths.get("short_variants", {}).get("files", {}).get("variation_data", {})
-        )
+        var = paths.get("short_variants", {}).get("files", {}).get("variation_data", {})
         if isinstance(var, dict):
             variation_files = dict(var)
 

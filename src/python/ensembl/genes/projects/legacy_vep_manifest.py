@@ -41,6 +41,8 @@ from typing import Any
 
 import requests
 
+from ensembl.genes.projects.ftp_manifest import EBI_FTP_BASE, _parse_manifest_date
+
 logger = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
@@ -48,7 +50,6 @@ logger = logging.getLogger(__name__)
 # ---------------------------------------------------------------------------
 
 LEGACY_MANIFEST_URL = "https://ftp.ebi.ac.uk/pub/ensemblorganisms/species.json"
-EBI_FTP_BASE = "https://ftp.ebi.ac.uk/pub/ensemblorganisms/"
 
 # The primary VEP file in every record observed in the live manifest.
 # The companion index file (.csi) is not emitted in YAML.
@@ -121,6 +122,7 @@ class LegacyVepRecord:
                 f"{self.vep_relative_path!r}: no parent directory."
             )
         return f"{parent}/"
+
 
 # ---------------------------------------------------------------------------
 # URL joining helper
@@ -317,6 +319,56 @@ class LegacyVepManifest:
     # Public lookup
     # ------------------------------------------------------------------
 
+    def candidate_provider_dates(self, accession: str) -> list[tuple[str, str]]:
+        """Return list of (provider, date_key) tuples for all VEP records of an accession."""
+        return [(r.provider, r.date_key) for r in self._index.get(accession, [])]
+
+    def _filter_candidates(
+        self,
+        accession: str,
+        *,
+        provider: str | None = None,
+        annotation_date: str | None = None,
+    ) -> list[LegacyVepRecord]:
+        """Filter candidates for *accession* by provider, date hint, and latest date."""
+        candidates = list(self._index.get(accession, []))
+        if len(candidates) <= 1:
+            return candidates
+
+        # Step 1: filter by provider
+        if provider:
+            prov_lower = provider.lower()
+            by_provider = [c for c in candidates if c.provider.lower() == prov_lower]
+            if by_provider:
+                candidates = by_provider
+            if len(candidates) == 1:
+                return candidates
+
+        # Step 2: filter by date prefix (YYYY_MM)
+        if annotation_date:
+            date_prefix = annotation_date.replace("-", "_")[:7]  # "YYYY_MM"
+            by_date = [c for c in candidates if c.date_key[:7] == date_prefix]
+            if by_date:
+                candidates = by_date
+            if len(candidates) == 1:
+                return candidates
+
+        # Step 3: select latest parseable release date if multiple dates exist
+        parseable_candidates = []
+        for c in candidates:
+            parsed = _parse_manifest_date(c.date_key)
+            if parsed is not None:
+                parseable_candidates.append((parsed, c))
+
+        if parseable_candidates:
+            max_date = max(p[0] for p in parseable_candidates)
+            latest_candidates = [c for p, c in parseable_candidates if p == max_date]
+            if len(latest_candidates) == 1:
+                return latest_candidates
+            candidates = latest_candidates
+
+        return candidates
+
     def lookup_vep(
         self,
         accession: str,
@@ -329,60 +381,24 @@ class LegacyVepManifest:
         Resolution order when multiple records exist for an accession:
 
         1. Exact provider match (normalised lowercase).
-        2. Exact or prefix-normalised annotation-date match
-           (``"2022-07"`` matches ``"2022_07"``; only the first two components
-           are compared so ``"2022-07-15"`` also matches ``"2022_07"``).
-        3. Only one record remains after filtering → return it.
-        4. Multiple records remain → return ``None`` with an ``ambiguous``
-           indication (caller should log the ambiguity).
-
-        Args:
-            accession: Assembly accession, e.g. ``"GCA_018852605.1"``.
-            provider: Provider key from the new manifest (used as a hint; not
-                mandatory).
-            annotation_date: Annotation date string from metadata, in any of
-                ``YYYY_MM``, ``YYYY-MM``, or ``YYYY-MM-DD`` formats.
-
-        Returns:
-            A :class:`LegacyVepRecord` if exactly one match is found, or
-            ``None`` if the accession is absent, has no VEP data, or is
-            ambiguous.
+        2. Exact or prefix-normalised annotation-date match.
+        3. Latest parseable release date.
+        4. Single remaining match returned, or ``None`` if ambiguous/absent.
         """
-        candidates = list(self._index.get(accession, []))
-        if not candidates:
-            return None
-
+        candidates = self._filter_candidates(
+            accession, provider=provider, annotation_date=annotation_date
+        )
         if len(candidates) == 1:
             return candidates[0]
 
-        # Step 1: filter by provider
-        if provider:
-            prov_lower = provider.lower()
-            by_provider = [c for c in candidates if c.provider.lower() == prov_lower]
-            if by_provider:
-                candidates = by_provider
-            if len(candidates) == 1:
-                return candidates[0]
-
-        # Step 2: filter by date prefix (YYYY_MM)
-        if annotation_date:
-            date_prefix = annotation_date.replace("-", "_")[:7]  # "YYYY_MM"
-            by_date = [
-                c for c in candidates if c.date_key[:7] == date_prefix
-            ]
-            if by_date:
-                candidates = by_date
-            if len(candidates) == 1:
-                return candidates[0]
-
-        # Multiple records remain — ambiguous
-        logger.info(
-            "Ambiguous legacy VEP records for %s: %s candidates. "
-            "Providers/dates: %s. No VEP URL will be emitted.",
-            accession,
-            len(candidates),
-            [(c.provider, c.date_key) for c in candidates],
-        )
+        if len(candidates) > 1:
+            logger.info(
+                "Ambiguous legacy VEP records for %s: %s candidates. "
+                "Providers/dates: %s. No VEP URL will be emitted.",
+                accession,
+                len(candidates),
+                [(c.provider, c.date_key) for c in candidates],
+            )
         return None
 
     def is_ambiguous(
@@ -392,30 +408,10 @@ class LegacyVepManifest:
         provider: str | None = None,
         annotation_date: str | None = None,
     ) -> bool:
-        """Return ``True`` if *accession* has multiple unresolvable VEP records.
-
-        This is a convenience method for building audit messages.  It mirrors
-        the resolution logic in :meth:`lookup_vep` but returns a boolean rather
-        than the resolved record.
-        """
-        candidates = list(self._index.get(accession, []))
-        if len(candidates) <= 1:
-            return False
-
-        if provider:
-            by_provider = [
-                c for c in candidates if c.provider.lower() == provider.lower()
-            ]
-            if by_provider:
-                candidates = by_provider
-        if len(candidates) <= 1:
-            return False
-
-        if annotation_date:
-            date_prefix = annotation_date.replace("-", "_")[:7]
-            by_date = [c for c in candidates if c.date_key[:7] == date_prefix]
-            if by_date:
-                candidates = by_date
+        """Return ``True`` if *accession* has multiple unresolvable VEP records."""
+        candidates = self._filter_candidates(
+            accession, provider=provider, annotation_date=annotation_date
+        )
         return len(candidates) > 1
 
     def __len__(self) -> int:

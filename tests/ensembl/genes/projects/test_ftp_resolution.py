@@ -31,9 +31,7 @@ from ensembl.genes.projects.yaml_renderer import YamlRenderer
 # Shared fixture data
 # ---------------------------------------------------------------------------
 
-_FIXTURE_PATH = (
-    Path(__file__).parent / "fixtures" / "manifest_sample.json"
-)
+_FIXTURE_PATH = Path(__file__).parent / "fixtures" / "manifest_sample.json"
 with _FIXTURE_PATH.open() as _f:
     _FIXTURE_DATA = json.load(_f)
 
@@ -88,26 +86,35 @@ def _make_renderer(
         allow_beta_urls=False,
     )
     ftp_client = MagicMock() if with_ftp_client else None
-    with patch(
-        "ensembl.genes.projects.yaml_renderer.check_beta_species_status",
-        return_value="unavailable",
-    ), patch(
-        "ensembl.genes.projects.yaml_renderer.check_url_status",
-        return_value=False,
+    with (
+        patch(
+            "ensembl.genes.projects.yaml_renderer.check_beta_species_status",
+            return_value="unavailable",
+        ),
+        patch(
+            "ensembl.genes.projects.yaml_renderer.check_url_status",
+            return_value=False,
+        ),
     ):
         renderer = YamlRenderer(config, ftp_client=ftp_client, manifest=manifest)
     return renderer
 
 
 def _render(renderer: YamlRenderer, meta: GenomeMetadata) -> dict:
-    with patch(
-        "ensembl.genes.projects.yaml_renderer.check_url_status",
-        return_value=False,
-    ), patch(
-        "ensembl.genes.projects.yaml_renderer.check_beta_species_status",
-        return_value="unavailable",
-    ), patch.object(
-        renderer.icon_resolver, "resolve_icon", return_value=("fish.svg", "fish", "test")
+    with (
+        patch(
+            "ensembl.genes.projects.yaml_renderer.check_url_status",
+            return_value=False,
+        ),
+        patch(
+            "ensembl.genes.projects.yaml_renderer.check_beta_species_status",
+            return_value="unavailable",
+        ),
+        patch.object(
+            renderer.icon_resolver,
+            "resolve_icon",
+            return_value=("fish.svg", "fish", "test"),
+        ),
     ):
         return renderer.render(meta)
 
@@ -115,6 +122,7 @@ def _render(renderer: YamlRenderer, meta: GenomeMetadata) -> dict:
 # ---------------------------------------------------------------------------
 # Provider selection tests
 # ---------------------------------------------------------------------------
+
 
 class TestProviderSelection:
     """P1–P8: all provider selection policy paths."""
@@ -170,7 +178,7 @@ class TestProviderSelection:
                             }
                         }
                     }
-                }
+                },
             }
         }
         meta = _make_meta(
@@ -224,8 +232,14 @@ class TestProviderSelection:
             "2023_05": {
                 "release": "2023_05",
                 "paths": {
-                    "genebuild": {"files": {"annotations": {"genes.gtf.gz": "GCA/999/999/999/1/ensembl/2023_05/geneset/genes.gtf.gz"}}}
-                }
+                    "genebuild": {
+                        "files": {
+                            "annotations": {
+                                "genes.gtf.gz": "GCA/999/999/999/1/ensembl/2023_05/geneset/genes.gtf.gz"
+                            }
+                        }
+                    }
+                },
             }
         }
         meta = _make_meta(
@@ -241,6 +255,7 @@ class TestProviderSelection:
 # ---------------------------------------------------------------------------
 # Date selection tests
 # ---------------------------------------------------------------------------
+
 
 class TestDateSelection:
     """D1–D4: date normalisation and matching."""
@@ -290,6 +305,7 @@ class TestDateSelection:
 # File classification and verbatim path tests
 # ---------------------------------------------------------------------------
 
+
 class TestFileClassification:
     """R8–R12: usable-geneset definition and optional-file handling."""
 
@@ -302,11 +318,9 @@ class TestFileClassification:
         renderer = _make_renderer(prefer_ensembl=False)
         # community provider has only genes.gtf.gz
         assets = renderer._resolve_ftp_assets(meta)
-        # Single-provider or exact match, should be released
-        assert assets["audit_decision"] in ("included_released", "excluded")
-        # If found, gtf must be present
-        if assets["audit_decision"] == "included_released":
-            assert "genes.gtf.gz" in assets["annotation_files"]
+        assert assets["audit_decision"] == "included_released"
+        assert "genes.gtf.gz" in assets["annotation_files"]
+        assert "genes.gff3.gz" not in assets["annotation_files"]
 
     def test_r9_gff3_only_is_released(self):
         """Manifest record with GFF3 but no GTF still counts as a released geneset."""
@@ -335,17 +349,28 @@ class TestFileClassification:
 
     def test_r11_missing_optional_pep_does_not_exclude(self):
         """A manifest record without pep.fa.bgz is still considered released."""
-        # 2023_10 for jellyfish has pep but no gtf; use 2024_02 which has both
+        import copy
+
+        data_no_pep = copy.deepcopy(_FIXTURE_DATA)
+        # Remove pep.fa.bgz from 2024_02 release of Chrysaora quinquecirrha
+        for species_name, sp in data_no_pep["species"].items():
+            if species_name == "Chrysaora_quinquecirrha":
+                for acc, asm in sp.get("assemblies", {}).items():
+                    for prov, dates in asm.get("genebuild_providers", {}).items():
+                        for d, date_obj in dates.items():
+                            date_obj.get("paths", {}).get("genebuild", {}).get(
+                                "files", {}
+                            ).get("annotations", {}).pop("pep.fa.bgz", None)
+
         meta = _make_meta(
             accession="GCA_012295145.1",
             species_name="Chrysaora quinquecirrha",
             annotation_date="2024-02-01",
         )
-        renderer = _make_renderer()
+        renderer = _make_renderer(manifest_data=data_no_pep)
         assets = renderer._resolve_ftp_assets(meta)
         assert assets["audit_decision"] == "included_released"
-        # 2024_02 has pep.fa.bgz
-        assert "pep.fa.bgz" in assets["annotation_files"]
+        assert "pep.fa.bgz" not in assets["annotation_files"]
 
     def test_r12_genome_files_from_assembly_record(self):
         """softmasked_genome URL uses assembly_genome_files, not provider/date files."""
@@ -361,6 +386,7 @@ class TestFileClassification:
 # Verbatim manifest path tests
 # ---------------------------------------------------------------------------
 
+
 class TestVerbatimPaths:
     """R1–R3: manifest paths used verbatim (not reconstructed)."""
 
@@ -371,7 +397,9 @@ class TestVerbatimPaths:
         assets = renderer._resolve_ftp_assets(meta)
         assert assets["audit_decision"] == "included_released"
         expected_path = "GCA/922/984/935/2/ensembl/2022_11/geneset/genes.gtf.gz"
-        assert assets["annotation_files"]["genes.gtf.gz"] == EBI_FTP_BASE + expected_path
+        assert (
+            assets["annotation_files"]["genes.gtf.gz"] == EBI_FTP_BASE + expected_path
+        )
 
     def test_r2_homology_path_verbatim_with_date_subdir(self):
         """Homology URL preserves the YYYY_MM_DD subdirectory verbatim."""
@@ -380,7 +408,11 @@ class TestVerbatimPaths:
         assets = renderer._resolve_ftp_assets(meta)
         hom_url = assets["homology_files"].get("homology.tsv.gz", "")
         assert "2024_09_18" in hom_url
-        assert hom_url == EBI_FTP_BASE + "GCA/922/984/935/2/ensembl/2022_11/homology/2024_09_18/homology.tsv.gz"
+        assert (
+            hom_url
+            == EBI_FTP_BASE
+            + "GCA/922/984/935/2/ensembl/2022_11/homology/2024_09_18/homology.tsv.gz"
+        )
 
     def test_r3_softmasked_url_verbatim(self):
         """softmasked.fa.bgz URL is built from AssemblyRecord.assembly_genome_files verbatim."""
@@ -388,12 +420,17 @@ class TestVerbatimPaths:
         meta = _make_meta()
         assets = renderer._resolve_ftp_assets(meta)
         soft_url = assets["genome_files"].get("softmasked.fa.bgz", "")
-        assert soft_url == EBI_FTP_BASE + "GCA/922/984/935/2/ensembl/2022_11/genome/softmasked.fa.bgz"
+        assert (
+            soft_url
+            == EBI_FTP_BASE
+            + "GCA/922/984/935/2/ensembl/2022_11/genome/softmasked.fa.bgz"
+        )
 
 
 # ---------------------------------------------------------------------------
 # Manifest unavailable tests
 # ---------------------------------------------------------------------------
+
 
 class TestManifestUnavailable:
     """R12: manifest=None falls back to pre-release."""
@@ -410,6 +447,7 @@ class TestManifestUnavailable:
 # ---------------------------------------------------------------------------
 # Audit key lifecycle test
 # ---------------------------------------------------------------------------
+
 
 class TestAuditKeyLifecycle:
     """R15: __audit_*__ keys present before extraction, absent from clean doc."""
@@ -452,6 +490,7 @@ class TestAuditKeyLifecycle:
 # ---------------------------------------------------------------------------
 # Standard project regression test
 # ---------------------------------------------------------------------------
+
 
 class TestStandardProjectRegression:
     """R13: standard project rendering produces expected schema."""
@@ -505,24 +544,16 @@ class TestStandardProjectRegression:
 # HPRC rendering test
 # ---------------------------------------------------------------------------
 
-class TestHprcRendering:
-    """R14: HPRC rendering regression — VEP intentionally absent."""
 
-    def test_hprc_no_variants_vep(self):
-        """HPRC output does not contain variants_vep (old URL is broken)."""
+class TestHprcRendering:
+    """R14: HPRC rendering regression."""
+
+    def test_hprc_without_legacy_manifest_has_no_variants_vep(self):
+        """HPRC output does not contain variants_vep when legacy manifest is unavailable."""
         renderer = _make_renderer(schema_type="hprc")
         meta = _make_meta(assembly_name="CHM13v2.0")
         doc = _render(renderer, meta)
         assert "variants_vep" not in doc
-
-    def test_hprc_no_broken_vep_url(self):
-        """No old-format VEP URL (containing ftp_species_name) is emitted."""
-        renderer = _make_renderer(schema_type="hprc")
-        meta = _make_meta()
-        doc = _render(renderer, meta)
-        for v in doc.values():
-            if isinstance(v, str) and "vep" in v.lower():
-                pytest.fail(f"Unexpected VEP URL in HPRC output: {v}")
 
     def test_hprc_no_internal_keys(self):
         """No __audit_*__ keys appear in the cleaned HPRC doc after extraction."""

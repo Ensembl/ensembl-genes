@@ -29,9 +29,7 @@ from ensembl.genes.projects.legacy_vep_manifest import (
 # Fixtures
 # ---------------------------------------------------------------------------
 
-_FIXTURE_PATH = (
-    Path(__file__).parent / "fixtures" / "legacy_species_vep_sample.json"
-)
+_FIXTURE_PATH = Path(__file__).parent / "fixtures" / "legacy_species_vep_sample.json"
 
 
 def _load_fixture() -> dict:
@@ -58,9 +56,7 @@ class TestManifestUrl:
         assert url == "https://ftp.ebi.ac.uk/pub/ensemblorganisms/a/b.bgz"
 
     def test_both_slashes_normalised(self):
-        url = _manifest_url(
-            "https://ftp.ebi.ac.uk/pub/ensemblorganisms/", "/a/b.bgz"
-        )
+        url = _manifest_url("https://ftp.ebi.ac.uk/pub/ensemblorganisms/", "/a/b.bgz")
         assert url == "https://ftp.ebi.ac.uk/pub/ensemblorganisms/a/b.bgz"
 
     def test_no_double_slash_in_middle(self):

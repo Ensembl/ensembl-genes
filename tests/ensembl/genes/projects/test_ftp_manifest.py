@@ -27,9 +27,7 @@ from ensembl.genes.projects.ftp_manifest import (
 )
 
 # Load the shared fixture once at module level.
-_FIXTURE_PATH = (
-    Path(__file__).parent / "fixtures" / "manifest_sample.json"
-)
+_FIXTURE_PATH = Path(__file__).parent / "fixtures" / "manifest_sample.json"
 with _FIXTURE_PATH.open() as _f:
     _FIXTURE_DATA = json.load(_f)
 
@@ -186,9 +184,7 @@ class TestEnsemblFtpManifestFromUrl:
         import requests as req_mod
 
         mock_response = MagicMock()
-        mock_response.raise_for_status.side_effect = req_mod.exceptions.HTTPError(
-            "503"
-        )
+        mock_response.raise_for_status.side_effect = req_mod.exceptions.HTTPError("503")
         with patch("requests.get", return_value=mock_response):
             with pytest.raises(ManifestError, match="Could not download"):
                 EnsemblFtpManifest.from_url()

@@ -27,49 +27,13 @@ from ensembl.genes.projects.yaml_renderer import YamlRenderer
 # Fixture data
 # ---------------------------------------------------------------------------
 
-_NEW_FIXTURE = Path(__file__).parent / "fixtures" / "manifest_sample.json"
 _LEGACY_FIXTURE = Path(__file__).parent / "fixtures" / "legacy_species_vep_sample.json"
-
-with _NEW_FIXTURE.open() as _f:
-    _NEW_MANIFEST_DATA = json.load(_f)
 
 with _LEGACY_FIXTURE.open() as _f:
     _LEGACY_MANIFEST_DATA = json.load(_f)
 
-# A real HPRC accession that appears in the new manifest fixture and has
-# a VEP entry in the legacy fixture.
+# A real HPRC accession that appears in the legacy fixture.
 _HPRC_ACCESSION = "GCA_018852605.1"
-
-# Minimal new manifest entry for an HPRC assembly (no VEP section)
-_HPRC_NEW_MANIFEST_DATA = {
-    "species": [
-        {
-            "assembly_accession": _HPRC_ACCESSION,
-            "assembly_name": "HG002.alt.pat.f1_v2",
-            "species_name": "Homo_sapiens",
-            "taxonomy_id": 9606,
-            "providers": [
-                {
-                    "name": "ensembl",
-                    "releases": [
-                        {
-                            "release_date": "2022_07",
-                            "geneset_files": {
-                                "genes.gtf.gz": "GCA/018/852/605/1/ensembl/2022_07/geneset/genes.gtf.gz",
-                                "genes.gff3.gz": "GCA/018/852/605/1/ensembl/2022_07/geneset/genes.gff3.gz",
-                                "pep.fa.bgz": "GCA/018/852/605/1/ensembl/2022_07/geneset/pep.fa.bgz",
-                                "cdna.fa.bgz": "GCA/018/852/605/1/ensembl/2022_07/geneset/cdna.fa.bgz",
-                            },
-                        }
-                    ],
-                }
-            ],
-            "assembly_genome_files": {
-                "softmasked.fa.bgz": "GCA/018/852/605/1/genome/softmasked.fa.bgz",
-            },
-        }
-    ]
-}
 
 
 def _make_hprc_meta(
@@ -96,15 +60,12 @@ def _make_hprc_renderer(
     *,
     new_manifest_data=None,
     legacy_manifest_data=None,
-    url_check_result: bool = True,
 ) -> YamlRenderer:
-    """Build a YamlRenderer for HPRC with controlled manifests and URL check."""
+    """Build a YamlRenderer for HPRC with controlled manifests."""
     config = get_project_config("hprc")
 
     new_manifest = (
-        EnsemblFtpManifest(new_manifest_data)
-        if new_manifest_data is not None
-        else None
+        EnsemblFtpManifest(new_manifest_data) if new_manifest_data is not None else None
     )
     legacy_manifest = (
         LegacyVepManifest(legacy_manifest_data)
@@ -112,32 +73,12 @@ def _make_hprc_renderer(
         else None
     )
 
-    with patch(
-        "ensembl.genes.projects.yaml_renderer.check_beta_species_status",
-        return_value="unavailable",
-    ), patch(
-        "ensembl.genes.projects.yaml_renderer.check_url_status",
-        return_value=url_check_result,
-    ):
-        renderer = YamlRenderer(
-            config,
-            ftp_client=None,
-            manifest=new_manifest,
-            legacy_vep_manifest=legacy_manifest,
-        )
-    return renderer
-
-
-def _render_hprc(renderer: YamlRenderer, meta: GenomeMetadata) -> dict:
-    """Render meta and return the raw doc (still contains __audit_*__ keys)."""
-    with patch(
-        "ensembl.genes.projects.yaml_renderer.check_beta_species_status",
-        return_value="unavailable",
-    ), patch(
-        "ensembl.genes.projects.yaml_renderer.check_url_status",
-        return_value=renderer.legacy_vep_manifest is not None,
-    ):
-        return renderer.render(meta)
+    return YamlRenderer(
+        config,
+        ftp_client=None,
+        manifest=new_manifest,
+        legacy_vep_manifest=legacy_manifest,
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -318,12 +259,12 @@ class TestVepResolutionOrder:
 
         assert len(captured_urls) == 1
         checked = captured_urls[0]
-        assert checked.endswith("/"), (
-            f"check_url_status received a non-directory URL: {checked!r}"
-        )
-        assert "genes.gff3.bgz" not in checked, (
-            f"check_url_status received a file URL instead of a directory: {checked!r}"
-        )
+        assert checked.endswith(
+            "/"
+        ), f"check_url_status received a non-directory URL: {checked!r}"
+        assert (
+            "genes.gff3.bgz" not in checked
+        ), f"check_url_status received a file URL instead of a directory: {checked!r}"
         assert "2022_07" in checked
 
 
@@ -365,19 +306,30 @@ class TestHprcRendererOutput:
         """Full render: variants_vep emitted when legacy manifest resolves."""
         renderer = _make_hprc_renderer(
             legacy_manifest_data=_LEGACY_MANIFEST_DATA,
-            url_check_result=True,
         )
         meta = _make_hprc_meta()
 
-        with patch.object(renderer, "_resolve_ftp_assets", return_value=_HPRC_FTP_RESOLUTION), \
-             patch("ensembl.genes.projects.yaml_renderer.check_beta_species_status", return_value="unavailable"), \
-             patch("ensembl.genes.projects.yaml_renderer.check_url_status", return_value=True):
+        with (
+            patch.object(
+                renderer, "_resolve_ftp_assets", return_value=_HPRC_FTP_RESOLUTION
+            ),
+            patch(
+                "ensembl.genes.projects.yaml_renderer.check_beta_species_status",
+                return_value="unavailable",
+            ),
+            patch(
+                "ensembl.genes.projects.yaml_renderer.check_url_status",
+                return_value=True,
+            ),
+        ):
             doc = renderer.render(meta)
 
         assert "variants_vep" in doc
         vep = doc["variants_vep"]
         assert vep.startswith("https://")
-        assert vep.endswith("/"), "variants_vep must link to a directory (trailing slash)"
+        assert vep.endswith(
+            "/"
+        ), "variants_vep must link to a directory (trailing slash)"
         assert "genes.gff3.bgz" not in vep, "variants_vep must not contain a filename"
         assert "genes.gff3.bgz.csi" not in vep
         assert _HPRC_ACCESSION in vep
@@ -388,13 +340,22 @@ class TestHprcRendererOutput:
         """Full render: variants_vep omitted when URL check fails."""
         renderer = _make_hprc_renderer(
             legacy_manifest_data=_LEGACY_MANIFEST_DATA,
-            url_check_result=False,
         )
         meta = _make_hprc_meta()
 
-        with patch.object(renderer, "_resolve_ftp_assets", return_value=_HPRC_FTP_RESOLUTION), \
-             patch("ensembl.genes.projects.yaml_renderer.check_beta_species_status", return_value="unavailable"), \
-             patch("ensembl.genes.projects.yaml_renderer.check_url_status", return_value=False):
+        with (
+            patch.object(
+                renderer, "_resolve_ftp_assets", return_value=_HPRC_FTP_RESOLUTION
+            ),
+            patch(
+                "ensembl.genes.projects.yaml_renderer.check_beta_species_status",
+                return_value="unavailable",
+            ),
+            patch(
+                "ensembl.genes.projects.yaml_renderer.check_url_status",
+                return_value=False,
+            ),
+        ):
             doc = renderer.render(meta)
 
         assert "variants_vep" not in doc
@@ -405,9 +366,19 @@ class TestHprcRendererOutput:
         renderer = _make_hprc_renderer(legacy_manifest_data=None)
         meta = _make_hprc_meta()
 
-        with patch.object(renderer, "_resolve_ftp_assets", return_value=_HPRC_FTP_RESOLUTION), \
-             patch("ensembl.genes.projects.yaml_renderer.check_beta_species_status", return_value="unavailable"), \
-             patch("ensembl.genes.projects.yaml_renderer.check_url_status", return_value=True):
+        with (
+            patch.object(
+                renderer, "_resolve_ftp_assets", return_value=_HPRC_FTP_RESOLUTION
+            ),
+            patch(
+                "ensembl.genes.projects.yaml_renderer.check_beta_species_status",
+                return_value="unavailable",
+            ),
+            patch(
+                "ensembl.genes.projects.yaml_renderer.check_url_status",
+                return_value=True,
+            ),
+        ):
             doc = renderer.render(meta)
 
         assert "variants_vep" not in doc
@@ -417,14 +388,27 @@ class TestHprcRendererOutput:
         """Full render: accession absent from legacy manifest → not_found."""
         renderer = _make_hprc_renderer(
             legacy_manifest_data=_LEGACY_MANIFEST_DATA,
-            url_check_result=True,
         )
         meta = _make_hprc_meta(accession="GCA_999000001.1")
-        no_vep_resolution = {**_HPRC_FTP_RESOLUTION, "resolved_provider": None, "resolved_date": "2023_01"}
+        no_vep_resolution = {
+            **_HPRC_FTP_RESOLUTION,
+            "resolved_provider": None,
+            "resolved_date": "2023_01",
+        }
 
-        with patch.object(renderer, "_resolve_ftp_assets", return_value=no_vep_resolution), \
-             patch("ensembl.genes.projects.yaml_renderer.check_beta_species_status", return_value="unavailable"), \
-             patch("ensembl.genes.projects.yaml_renderer.check_url_status", return_value=True):
+        with (
+            patch.object(
+                renderer, "_resolve_ftp_assets", return_value=no_vep_resolution
+            ),
+            patch(
+                "ensembl.genes.projects.yaml_renderer.check_beta_species_status",
+                return_value="unavailable",
+            ),
+            patch(
+                "ensembl.genes.projects.yaml_renderer.check_url_status",
+                return_value=True,
+            ),
+        ):
             doc = renderer.render(meta)
 
         assert "variants_vep" not in doc
@@ -435,9 +419,19 @@ class TestHprcRendererOutput:
         renderer = _make_hprc_renderer(legacy_manifest_data=None)
         meta = _make_hprc_meta()
 
-        with patch.object(renderer, "_resolve_ftp_assets", return_value=_HPRC_FTP_RESOLUTION), \
-             patch("ensembl.genes.projects.yaml_renderer.check_beta_species_status", return_value="unavailable"), \
-             patch("ensembl.genes.projects.yaml_renderer.check_url_status", return_value=True):
+        with (
+            patch.object(
+                renderer, "_resolve_ftp_assets", return_value=_HPRC_FTP_RESOLUTION
+            ),
+            patch(
+                "ensembl.genes.projects.yaml_renderer.check_beta_species_status",
+                return_value="unavailable",
+            ),
+            patch(
+                "ensembl.genes.projects.yaml_renderer.check_url_status",
+                return_value=True,
+            ),
+        ):
             doc = renderer.render(meta)
 
         # Core HPRC fields must still be present
@@ -449,13 +443,22 @@ class TestHprcRendererOutput:
         """VEP URL must come from the manifest, not be built from ftp_species_name."""
         renderer = _make_hprc_renderer(
             legacy_manifest_data=_LEGACY_MANIFEST_DATA,
-            url_check_result=True,
         )
         meta = _make_hprc_meta()
 
-        with patch.object(renderer, "_resolve_ftp_assets", return_value=_HPRC_FTP_RESOLUTION), \
-             patch("ensembl.genes.projects.yaml_renderer.check_beta_species_status", return_value="unavailable"), \
-             patch("ensembl.genes.projects.yaml_renderer.check_url_status", return_value=True):
+        with (
+            patch.object(
+                renderer, "_resolve_ftp_assets", return_value=_HPRC_FTP_RESOLUTION
+            ),
+            patch(
+                "ensembl.genes.projects.yaml_renderer.check_beta_species_status",
+                return_value="unavailable",
+            ),
+            patch(
+                "ensembl.genes.projects.yaml_renderer.check_url_status",
+                return_value=True,
+            ),
+        ):
             doc = renderer.render(meta)
 
         vep = doc.get("variants_vep", "")
@@ -472,13 +475,22 @@ class TestHprcRendererOutput:
         """All __audit_*__ keys disappear after _extract_audit_fields."""
         renderer = _make_hprc_renderer(
             legacy_manifest_data=_LEGACY_MANIFEST_DATA,
-            url_check_result=True,
         )
         meta = _make_hprc_meta()
 
-        with patch.object(renderer, "_resolve_ftp_assets", return_value=_HPRC_FTP_RESOLUTION), \
-             patch("ensembl.genes.projects.yaml_renderer.check_beta_species_status", return_value="unavailable"), \
-             patch("ensembl.genes.projects.yaml_renderer.check_url_status", return_value=True):
+        with (
+            patch.object(
+                renderer, "_resolve_ftp_assets", return_value=_HPRC_FTP_RESOLUTION
+            ),
+            patch(
+                "ensembl.genes.projects.yaml_renderer.check_beta_species_status",
+                return_value="unavailable",
+            ),
+            patch(
+                "ensembl.genes.projects.yaml_renderer.check_url_status",
+                return_value=True,
+            ),
+        ):
             doc = renderer.render(meta)
 
         _extract_audit_fields(doc)
@@ -542,12 +554,15 @@ class TestNonHprcUnchanged:
             taxonomy_lineage=[],
         )
 
-        with patch(
-            "ensembl.genes.projects.yaml_renderer.check_beta_species_status",
-            return_value="unavailable",
-        ), patch(
-            "ensembl.genes.projects.yaml_renderer.check_url_status",
-            return_value=False,
+        with (
+            patch(
+                "ensembl.genes.projects.yaml_renderer.check_beta_species_status",
+                return_value="unavailable",
+            ),
+            patch(
+                "ensembl.genes.projects.yaml_renderer.check_url_status",
+                return_value=False,
+            ),
         ):
             doc = renderer.render(meta)
 
@@ -556,15 +571,10 @@ class TestNonHprcUnchanged:
         # Standard schema must not have a vep_status audit key
         assert "__audit_vep_status__" not in doc
 
-    def test_legacy_manifest_fetched_once_not_per_genome(self):
-        """The legacy manifest is constructed once and shared via the renderer.
-
-        This test verifies the design property: renderer holds one
-        LegacyVepManifest instance that is reused across all render() calls.
-        """
+    def test_renderer_reuses_injected_legacy_manifest(self):
+        """The renderer holds and reuses one LegacyVepManifest instance."""
         config = get_project_config("hprc")
         legacy = LegacyVepManifest(_LEGACY_MANIFEST_DATA)
         renderer = YamlRenderer(config, legacy_vep_manifest=legacy)
 
-        # The same object is used for both render calls
         assert renderer.legacy_vep_manifest is legacy
