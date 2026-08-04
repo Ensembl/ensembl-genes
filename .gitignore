@@ -141,3 +141,7 @@ dist
 build
 *swp
 __pycache__
+
+#other
+.nextflow
+.codex

@@ -41,6 +41,7 @@ from ensembl.genes.ensembl_loading.refseq_ncbi import (
     accession_subdir,
     parse_assembly_summary,
 )
+from ensembl.genes.metadata import core_meta_data
 
 
 def feature_row(
@@ -509,6 +510,109 @@ def test_refseq_discovery_and_conversion_helpers(tmp_path: Path) -> None:
     assert records[0].paths.gff_url.endswith("_genomic.gff.gz")
 
 
+def test_initialise_core_tables_loads_assembly_report_meta(
+    tmp_path: Path,
+) -> None:
+    assembly_report = write_lines(
+        tmp_path / "assembly_report.txt",
+        [
+            "# Assembly name: GCA_000001405.29_GRCh38.p14",
+            "# Organism name: Homo sapiens (human)",
+            "# Common name: human",
+            "# Taxid: 9606",
+            "# Date: 2024/04/18 00:00:00",
+        ],
+    )
+    cursor = FakeCoreCursor()
+
+    coord_system_id, analysis_id = gff_core_loader.initialise_core_tables(
+        cursor,
+        "Homo sapiens",
+        "GCA_000001405.29",
+        assembly_report_path=assembly_report,
+    )
+
+    assert coord_system_id == 1
+    assert analysis_id == 7
+    assert cursor.analysis_inserted == ("refseq_import", "NCBI_RefSeq")
+    assert cursor.meta_rows == [
+        (1, "species.scientific_name", "Homo sapiens"),
+        (1, "species.common_name", "human"),
+        (1, "species.display_name", "human"),
+        (1, "species.taxonomy_id", "9606"),
+        (1, "assembly.accession", "GCA_000001405.29"),
+        (1, "assembly.name", "GCA_000001405.29_GRCh38.p14"),
+        (1, "assembly.date", "2024-04-18"),
+        (1, "genebuild.start_date", "2024-04-18"),
+        (1, "assembly.default", "1"),
+        (1, "assembly.web_accession_source", "NCBI"),
+        (1, "assembly.web_accession_type", "INSDC Assembly ID"),
+        (1, "genebuild.level", "toplevel"),
+        (1, "transcriptbuild.level", "toplevel"),
+        (1, "exonbuild.level", "toplevel"),
+    ]
+
+
+def test_initialise_core_tables_loads_refseq_alt_accession(
+    tmp_path: Path,
+) -> None:
+    assembly_report = write_lines(
+        tmp_path / "assembly_report.txt",
+        [
+            "# Assembly name: GRCm39",
+            "# Organism name: Mus musculus (house mouse)",
+            "# Taxid: 10090",
+            "# Date: 2020-06-24",
+            "# GenBank assembly accession: GCA_000001635.9",
+            "# RefSeq assembly accession: GCF_000001635.27",
+        ],
+    )
+    cursor = FakeCoreCursor()
+
+    gff_core_loader.initialise_core_tables(
+        cursor,
+        "Mus musculus",
+        "GCF_000001635.27",
+        assembly_report_path=assembly_report,
+    )
+
+    assert cursor.meta_rows == [
+        (1, "species.scientific_name", "Mus musculus"),
+        (1, "species.common_name", "house mouse"),
+        (1, "species.display_name", "house mouse"),
+        (1, "species.taxonomy_id", "10090"),
+        (1, "assembly.accession", "GCF_000001635.27"),
+        (1, "assembly.alt_accession", "GCA_000001635.9"),
+        (1, "assembly.name", "GRCm39"),
+        (1, "assembly.date", "2020-06-24"),
+        (1, "genebuild.start_date", "2020-06-24"),
+        (1, "assembly.default", "1"),
+        (1, "assembly.web_accession_source", "NCBI"),
+        (1, "assembly.web_accession_type", "INSDC Assembly ID"),
+        (1, "genebuild.level", "toplevel"),
+        (1, "transcriptbuild.level", "toplevel"),
+        (1, "exonbuild.level", "toplevel"),
+    ]
+
+
+def test_biosample_fallback_uses_gca_chain_without_version() -> None:
+    assert core_meta_data.normalize_assembly_accession_chain("GCA_000001635.9") == (
+        "GCA_000001635"
+    )
+    assert (
+        core_meta_data.fallback_biosample_id_from_gca_chain("GCA_000001635.9")
+        == "SAMN26853311"
+    )
+    assert (
+        core_meta_data.fallback_biosample_id_from_gca_chain("GCA_000001405.29")
+        == "SAMN12121739"
+    )
+
+
+def test_biosample_fallback_returns_empty_for_unknown_chain() -> None:
+    assert core_meta_data.fallback_biosample_id_from_gca_chain("GCA_999999999.1") == ""
+
+
 class FakeCoreCursor:
     def __init__(self) -> None:
         self.lastrowid = 0
@@ -520,6 +624,7 @@ class FakeCoreCursor:
         self.exons: dict[int, tuple[str | None]] = {}
         self.exon_transcripts: set[tuple[int, int]] = set()
         self.translations: dict[int, str | None] = {}
+        self.meta_rows: list[tuple[int, str, str]] = []
         self.analysis_inserted: tuple[Any, ...] | None = None
 
     def execute(self, operation: str, params: Sequence[Any] | None = None) -> None:
@@ -528,10 +633,15 @@ class FakeCoreCursor:
             self.fetchone_result = (1,)
         elif sql.startswith("select analysis_id from analysis"):
             self.fetchone_result = None
+        elif sql.startswith("insert into coord_system"):
+            self.lastrowid = 1
         elif sql.startswith("insert into analysis"):
             assert params is not None
             self.analysis_inserted = tuple(params)
             self.lastrowid = 7
+        elif sql.startswith("insert into meta"):
+            assert params is not None
+            self.meta_rows.append((1, params[0], params[1]))
         elif sql.startswith("select seq_region_id from seq_region"):
             assert params is not None
             seq_name = params[0]

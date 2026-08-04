@@ -5,6 +5,7 @@ from __future__ import annotations
 import gzip
 import logging
 import re
+from datetime import datetime
 from collections.abc import Iterator, Mapping, Sequence
 from contextlib import contextmanager
 from pathlib import Path
@@ -51,6 +52,8 @@ DEFAULT_CORE_SCHEMA_SQL_PATH = (
     Path(__file__).resolve().parent / "config" / "core_schema.sql"
 )
 DEFAULT_ENSEMBL_RELEASE = "114"
+DEFAULT_ASSEMBLY_WEB_ACCESSION_SOURCE = "NCBI"
+DEFAULT_ASSEMBLY_WEB_ACCESSION_TYPE = "INSDC Assembly ID"
 
 
 @contextmanager
@@ -64,6 +67,91 @@ def open_text_maybe_gzip(path: str | Path) -> Iterator[TextIO]:
     else:
         with input_path.open("r", encoding="utf-8") as handle:
             yield handle
+
+
+def normalize_assembly_report_date(raw_date: str) -> str:
+    """Normalize a header date from the NCBI assembly report."""
+
+    value = raw_date.strip()
+    if not value:
+        return ""
+    value = value.replace("/", "-")
+    if len(value) >= 10:
+        value = value[:10]
+    return value
+
+
+def parse_assembly_report_metadata(
+    assembly_report_path: str | Path,
+    species_name: str,
+    assembly_accession: str,
+) -> dict[str, str]:
+    """Read assembly-report header metadata needed for core DB bootstrapping."""
+
+    metadata: dict[str, str] = {
+        "species.scientific_name": species_name,
+        "species.common_name": "",
+        "species.display_name": species_name,
+        "species.taxonomy_id": "",
+        "assembly.accession": assembly_accession,
+        "assembly.alt_accession": "",
+        "assembly.name": assembly_accession,
+        "assembly.date": "",
+        "genebuild.start_date": "",
+        "assembly.default": "1",
+        "assembly.web_accession_source": DEFAULT_ASSEMBLY_WEB_ACCESSION_SOURCE,
+        "assembly.web_accession_type": DEFAULT_ASSEMBLY_WEB_ACCESSION_TYPE,
+    }
+
+    if not str(assembly_report_path):
+        return metadata
+    report_path = Path(assembly_report_path)
+
+    common_name_pattern = re.compile(r"^(?P<scientific>.+?)\s*\((?P<common>[^()]+)\)$")
+    with open_text_maybe_gzip(report_path) as handle:
+        for raw_line in handle:
+            line = raw_line.strip()
+            if not line.startswith("#"):
+                break
+            if ":" not in line:
+                continue
+            header_key, header_value = line[1:].split(":", 1)
+            header_key = header_key.strip().lower()
+            header_value = header_value.strip()
+
+            if header_key == "assembly name" and header_value:
+                metadata["assembly.name"] = header_value
+            elif (
+                header_key == "genbank assembly accession"
+                and header_value
+                and assembly_accession.startswith("GCF")
+            ):
+                metadata["assembly.alt_accession"] = header_value
+            elif header_key == "date" and header_value:
+                normalized_date = normalize_assembly_report_date(header_value)
+                metadata["assembly.date"] = normalized_date
+                metadata["genebuild.start_date"] = normalized_date
+            elif header_key == "taxid" and header_value:
+                metadata["species.taxonomy_id"] = header_value
+            elif header_key == "organism name" and header_value:
+                match = common_name_pattern.match(header_value)
+                if match:
+                    metadata["species.scientific_name"] = match.group("scientific").strip()
+                    metadata["species.common_name"] = match.group("common").strip()
+                else:
+                    metadata["species.scientific_name"] = header_value
+            elif header_key == "common name" and header_value:
+                metadata["species.common_name"] = header_value
+
+    if metadata["species.common_name"]:
+        metadata["species.display_name"] = metadata["species.common_name"]
+    else:
+        metadata["species.display_name"] = metadata["species.scientific_name"]
+
+    if not metadata["genebuild.start_date"]:
+        metadata["genebuild.start_date"] = datetime.now().strftime("%Y-%m-%d")
+
+    return metadata
 
 
 class DbCursor(Protocol):
@@ -1199,10 +1287,16 @@ def initialise_core_tables(
     cursor: DbCursor,
     species_name: str,
     assembly_accession: str,
+    assembly_report_path: str | Path = "",
     source_config: GffSourceConfig = REFSEQ_CONFIG,
 ) -> tuple[int, int]:
     """Insert coord_system, meta, and analysis bootstrap rows."""
 
+    assembly_metadata = parse_assembly_report_metadata(
+        assembly_report_path,
+        species_name,
+        assembly_accession,
+    )
     cursor.execute(
         "INSERT INTO coord_system (name,version,rank,attrib) "
         "VALUES ('primary_assembly','',1,'default_version,sequence_level')"
@@ -1211,9 +1305,11 @@ def initialise_core_tables(
     cursor.executemany(
         "INSERT INTO meta (species_id,meta_key,meta_value) VALUES (1,%s,%s)",
         [
-            ("species.scientific_name", species_name),
-            ("assembly.accession", assembly_accession),
-            ("assembly.name", assembly_accession),
+            (meta_key, meta_value)
+            for meta_key, meta_value in assembly_metadata.items()
+            if meta_value != ""
+        ]
+        + [
             ("genebuild.level", "toplevel"),
             ("transcriptbuild.level", "toplevel"),
             ("exonbuild.level", "toplevel"),
@@ -1488,8 +1584,6 @@ def load_to_ensembl_core(
     str
         The database name that was created or reused.
     """
-
-    del assembly_report_path
     log = logger or LOGGER
     db_name = derive_core_db_name(
         species_name,
@@ -1519,6 +1613,7 @@ def load_to_ensembl_core(
             cursor,
             species_name,
             assembly_accession,
+            assembly_report_path=assembly_report_path,
             source_config=source_config,
         )
         seq_region_ids = load_seq_regions_from_fna(
