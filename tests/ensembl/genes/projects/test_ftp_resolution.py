@@ -572,3 +572,131 @@ class TestHprcRendering:
         doc = _render(renderer, meta)
         assert "ftp_dumps" in doc
         assert "GCA/922/984/935/2" in doc["ftp_dumps"]
+
+
+# ---------------------------------------------------------------------------
+# Handed-over pre-release regression tests
+# ---------------------------------------------------------------------------
+
+
+class TestHandedOverPreRelease:
+    """Regression tests for the handed_over discovery fix.
+
+    An active, unreleased ``handed_over`` genebuild must be treated as a
+    pre-release candidate and pass through the normal FTP validation path.
+    """
+
+    def test_handed_over_with_prerelease_ftp_is_included(self):
+        """Unreleased handed_over candidate with working pre-release FTP
+        assets produces a complete YAML document."""
+        renderer = _make_renderer(with_ftp_client=True)
+        meta = _make_meta(
+            accession="GCA_051175935.2",
+            species_name="Anthias nicholsi",
+            annotation_method="Ensembl Genebuild",
+            is_released=False,
+            genome_uuid="unknown",
+        )
+
+        # Mock FTP client to return pre-release URLs for all checked extensions
+        base = (
+            "https://ftp.ebi.ac.uk/pub/databases/ensembl/pre-release/"
+            "Anthias_nicholsi/GCA_051175935.2/"
+            "anthias_nicholsi_gca051175935v2"
+        )
+
+        def mock_check(variant, accession, ext):
+            if ext == ".gtf.gz":
+                return f"{base}.gtf.gz"
+            if ext in (".gff3.gz", ".gff3"):
+                return f"{base}.gff3.gz"
+            if ext == ".dna.softmasked.fa.gz":
+                return f"{base}.dna.softmasked.fa.gz"
+            return None
+
+        renderer.ftp_client.check_pre_release_file.side_effect = mock_check
+
+        doc = _render(renderer, meta)
+
+        assert doc["__audit_decision__"] == "included_prerelease"
+        assert "annotation_gtf" in doc
+        assert "annotation_gff3" in doc
+        assert "softmasked_genome" in doc
+        assert "ftp_dumps" in doc
+        assert "pre-release" in doc["ftp_dumps"]
+
+    def test_handed_over_without_ftp_is_excluded_by_renderer(self):
+        """Unreleased handed_over candidate with no valid pre-release FTP
+        assets is excluded by the renderer, not by the registry query."""
+        renderer = _make_renderer(with_ftp_client=True)
+        meta = _make_meta(
+            accession="GCA_051175935.2",
+            species_name="Anthias nicholsi",
+            annotation_method="Ensembl Genebuild",
+            is_released=False,
+            genome_uuid="unknown",
+        )
+
+        # No pre-release files found
+        renderer.ftp_client.check_pre_release_file.return_value = None
+
+        doc = _render(renderer, meta)
+
+        assert doc["__audit_decision__"] == "excluded"
+        assert "annotation_gtf" not in doc
+
+    def test_anthias_nicholsi_regression(self):
+        """Exact regression case for GCA_051175935.2 (Anthias nicholsi).
+
+        Simulates the handed_over record with working pre-release FTP
+        and verifies the full YAML output matches the expected schema.
+        """
+        renderer = _make_renderer(with_ftp_client=True)
+        meta = _make_meta(
+            accession="GCA_051175935.2",
+            species_name="Anthias nicholsi",
+            annotation_method="Ensembl Genebuild",
+            annotation_date="2026-07-28",
+            is_released=False,
+            genome_uuid="unknown",
+            assembly_name="fAntiNich1.1",
+        )
+
+        base = (
+            "https://ftp.ebi.ac.uk/pub/databases/ensembl/pre-release/"
+            "Anthias_nicholsi/GCA_051175935.2/"
+            "anthias_nicholsi_gca051175935v2"
+        )
+
+        def mock_check(variant, accession, ext):
+            if ext == ".gtf.gz":
+                return f"{base}.gtf.gz"
+            if ext in (".gff3.gz", ".gff3"):
+                return f"{base}.gff3.gz"
+            if ext == ".dna.softmasked.fa.gz":
+                return f"{base}.dna.softmasked.fa.gz"
+            if ext == ".pep.fa.gz":
+                return None
+            if ext == ".cdna.fa.gz":
+                return None
+            return None
+
+        renderer.ftp_client.check_pre_release_file.side_effect = mock_check
+
+        doc = _render(renderer, meta)
+
+        # Core YAML fields
+        assert doc["species"] == "Anthias nicholsi"
+        assert doc["accession"] == "GCA_051175935.2"
+        assert doc["annotation_method"] == "Ensembl Genebuild"
+
+        # Pre-release FTP URLs
+        assert doc["annotation_gtf"].endswith(".gtf.gz")
+        assert doc["annotation_gff3"].endswith(".gff3.gz")
+        assert doc["softmasked_genome"].endswith(".dna.softmasked.fa.gz")
+        assert "pre-release" in doc["annotation_gtf"]
+        assert "pre-release" in doc["ftp_dumps"]
+
+        # Audit
+        assert doc["__audit_decision__"] == "included_prerelease"
+        assert doc["__audit_reason__"] == "Found pre-release FTP assets."
