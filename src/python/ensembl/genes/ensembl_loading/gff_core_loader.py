@@ -5,9 +5,9 @@ from __future__ import annotations
 import gzip
 import logging
 import re
-from datetime import datetime
 from collections.abc import Iterator, Mapping, Sequence
 from contextlib import contextmanager
+from datetime import datetime
 from pathlib import Path
 from typing import Any, Protocol, TextIO
 
@@ -97,6 +97,7 @@ def parse_assembly_report_metadata(
         "assembly.alt_accession": "",
         "assembly.name": assembly_accession,
         "assembly.date": "",
+        "assembly.provider": "",
         "genebuild.start_date": "",
         "assembly.default": "1",
         "assembly.web_accession_source": DEFAULT_ASSEMBLY_WEB_ACCESSION_SOURCE,
@@ -127,16 +128,21 @@ def parse_assembly_report_metadata(
                 and assembly_accession.startswith("GCF")
             ):
                 metadata["assembly.alt_accession"] = header_value
+                metadata["annotation.provider_name"] = "NCBI RefSeq"
             elif header_key == "date" and header_value:
                 normalized_date = normalize_assembly_report_date(header_value)
                 metadata["assembly.date"] = normalized_date
                 metadata["genebuild.start_date"] = normalized_date
             elif header_key == "taxid" and header_value:
                 metadata["species.taxonomy_id"] = header_value
+            elif header_key == "submitter" and header_value:
+                metadata["assembly.provider_name"] = header_value
             elif header_key == "organism name" and header_value:
                 match = common_name_pattern.match(header_value)
                 if match:
-                    metadata["species.scientific_name"] = match.group("scientific").strip()
+                    metadata["species.scientific_name"] = match.group(
+                        "scientific"
+                    ).strip()
                     metadata["species.common_name"] = match.group("common").strip()
                 else:
                     metadata["species.scientific_name"] = header_value
