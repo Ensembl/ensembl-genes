@@ -588,6 +588,7 @@ def test_initialise_core_tables_loads_refseq_alt_accession(
         (1, "assembly.default", "1"),
         (1, "assembly.web_accession_source", "NCBI"),
         (1, "assembly.web_accession_type", "INSDC Assembly ID"),
+        (1, "annotation.provider_name", "NCBI RefSeq"),
         (1, "genebuild.level", "toplevel"),
         (1, "transcriptbuild.level", "toplevel"),
         (1, "exonbuild.level", "toplevel"),
