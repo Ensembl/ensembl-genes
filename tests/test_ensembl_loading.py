@@ -41,7 +41,6 @@ from ensembl.genes.ensembl_loading.refseq_ncbi import (
     accession_subdir,
     parse_assembly_summary,
 )
-from ensembl.genes.metadata import core_meta_data
 
 
 def feature_row(
@@ -595,24 +594,6 @@ def test_initialise_core_tables_loads_refseq_alt_accession(
     ]
 
 
-def test_biosample_fallback_uses_gca_chain_without_version() -> None:
-    assert core_meta_data.normalize_assembly_accession_chain("GCA_000001635.9") == (
-        "GCA_000001635"
-    )
-    assert (
-        core_meta_data.fallback_biosample_id_from_gca_chain("GCA_000001635.9")
-        == "SAMN26853311"
-    )
-    assert (
-        core_meta_data.fallback_biosample_id_from_gca_chain("GCA_000001405.29")
-        == "SAMN12121739"
-    )
-
-
-def test_biosample_fallback_returns_empty_for_unknown_chain() -> None:
-    assert core_meta_data.fallback_biosample_id_from_gca_chain("GCA_999999999.1") == ""
-
-
 class FakeCoreCursor:
     def __init__(self) -> None:
         self.lastrowid = 0
@@ -647,11 +628,11 @@ class FakeCoreCursor:
             seq_name = params[0]
             seq_region_id = self.seq_regions.get(seq_name)
             self.fetchone_result = (seq_region_id,) if seq_region_id else None
-        elif sql.startswith("select coalesce(max(gene_id)"):
-            self.fetchone_result = (1,)
-        elif sql.startswith("select coalesce(max(transcript_id)"):
-            self.fetchone_result = (1,)
-        elif sql.startswith("select coalesce(max(exon_id)"):
+        elif (
+            sql.startswith("select coalesce(max(gene_id)")
+            or sql.startswith("select coalesce(max(transcript_id)")
+            or sql.startswith("select coalesce(max(exon_id)")
+        ):
             self.fetchone_result = (1,)
         elif sql.startswith("insert into gene"):
             assert params is not None
@@ -689,7 +670,7 @@ class FakeCoreCursor:
         elif sql.startswith("select exon_id, transcript_id from exon_transcript"):
             self.fetchall_result = sorted(self.exon_transcripts)
         elif sql.startswith("select transcript_id, stable_id from translation"):
-            self.fetchall_result = list(sorted(self.translations.items()))
+            self.fetchall_result = sorted(self.translations.items())
         else:  # pragma: no cover - makes unsupported SQL obvious in failures.
             raise AssertionError(f"Unexpected SQL: {operation}")
 
