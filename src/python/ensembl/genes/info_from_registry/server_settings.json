@@ -6,12 +6,12 @@
                 "db_port": "${GBP4}"
             },
             "core_db": {
-                "db_host": "${GBS3}",
-                "db_port": "${GBP3}"
-            },
-            "databases": {
                 "db_host": "${GBS2}",
                 "db_port": "${GBP2}"
+            },
+            "databases": {
+                "db_host": "${GBS3}",
+                "db_port": "${GBP3}"
             }
         },
         "anno": {
