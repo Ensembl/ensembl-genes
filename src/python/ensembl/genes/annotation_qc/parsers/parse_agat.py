@@ -280,6 +280,7 @@ def add_arguments(parser: argparse.ArgumentParser) -> None:
     )
     parser.add_argument("--output", required=True, help="Output CSV")
 
+
 def run(args: argparse.Namespace) -> None:
     """Run the AGAT parsing and mapping step."""
     mapping_path = Path(args.mapping_json) if args.mapping_json else None

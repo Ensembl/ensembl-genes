@@ -64,6 +64,7 @@ def add_arguments(parser: argparse.ArgumentParser) -> None:
         help="Sample/accession name. Defaults to FASTA filename.",
     )
 
+
 def run(args: argparse.Namespace) -> None:
     """Run the InterProScan summary calculation."""
     if not args.input_tsv.is_file():
