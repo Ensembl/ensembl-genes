@@ -69,6 +69,7 @@ check_for_transcriptomic = "ensembl.genes.transcriptomic_data.check_for_transcri
 get_transcriptomic_data = "ensembl.genes.transcriptomic_data.get_transcriptomic_data:main"
 select_transcriptomic_data = "ensembl.genes.transcriptomic_data.select_transcriptomic_data:main"
 parse_agat = "ensembl.genes.annotation_qc.parsers.parse_agat:main"
+parse_interpro = "ensembl.genes.annotation_qc.parsers.interpro:main"
 
 
 [build-system]
