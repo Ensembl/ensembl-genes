@@ -266,10 +266,8 @@ def select_and_rename_metrics(
     df_final.to_csv(output_csv, index=False)
 
 
-def main() -> None:
-    """Parse command-line arguments and run the parsing/mapping step."""
-
-    parser = argparse.ArgumentParser()
+def add_arguments(parser: argparse.ArgumentParser) -> None:
+    """Add AGAT parser arguments to an argparse parser."""
     parser.add_argument(
         "--input_txt",
         required=True,
@@ -282,8 +280,8 @@ def main() -> None:
     )
     parser.add_argument("--output", required=True, help="Output CSV")
 
-    args = parser.parse_args()
-
+def run(args: argparse.Namespace) -> None:
+    """Run the AGAT parsing and mapping step."""
     mapping_path = Path(args.mapping_json) if args.mapping_json else None
 
     select_and_rename_metrics(
@@ -291,6 +289,23 @@ def main() -> None:
         mapping_path,
         Path(args.output),
     )
+
+
+def register(subparsers) -> None:
+    """Register AGAT parsing as an annotation QC subcommand."""
+    parser = subparsers.add_parser(
+        "parse-agat",
+        help="Convert AGAT statistics into Ensembl genebuild metrics.",
+    )
+    add_arguments(parser)
+    parser.set_defaults(func=run)
+
+
+def main() -> None:
+    """Parse standalone AGAT arguments and run the parser."""
+    parser = argparse.ArgumentParser()
+    add_arguments(parser)
+    run(parser.parse_args())
 
 
 if __name__ == "__main__":
