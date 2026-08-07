@@ -33,7 +33,7 @@ import os
 import shutil
 import sys
 from pathlib import Path
-from typing import Any, Dict, Optional, Union
+from typing import Any
 
 import pymysql  # type: ignore
 from ensembl.genes.info_from_registry.assign_species_prefix import get_species_prefix
@@ -167,7 +167,7 @@ def resolve_server_value(value: Any) -> Any:
     return value
 
 
-def resolve_server_port(value: Any, setting_name: str) -> Optional[int]:
+def resolve_server_port(value: Any, setting_name: str) -> int | None:
     """
     Resolve a configured port value and convert it to an integer.
     """
@@ -196,7 +196,7 @@ def required_server_keys(pipeline_type: str) -> dict:
     return server_keys
 
 
-def custom_server_settings(settings: dict, pipeline_type: str) -> Optional[dict]:
+def custom_server_settings(settings: dict, pipeline_type: str) -> dict | None:
     """
     Return custom server settings if all required custom values are provided.
     """
@@ -316,7 +316,7 @@ def get_metadata_from_registry(
     server_info: dict,  # pylint:disable=redefined-outer-name
     assembly_accession,
     settings: dict,
-) -> Optional[Dict[str, Any]]:
+) -> dict[str, Any] | None:
     """
     Retrieve registry metadata for a given genome assembly accession or list of accessions.
 
@@ -338,7 +338,7 @@ def get_metadata_from_registry(
     """
 
     # Check if using custom init file
-    if "init_file" in settings and settings["init_file"]:
+    if settings.get("init_file"):
         logger.info("Initialization file detected")
         init_file = Path(settings["init_file"])
         if init_file.exists():
@@ -473,7 +473,9 @@ def add_generated_data(  # pylint:disable=too-many-locals
     info_dict["species_url"] = (
         f"{registry_info['species_name'].capitalize()}_{assembly_accession}"
     )
-    info_dict["core_dbname"] = f"{settings['dbowner']}_{production_gca}_core_114_1"
+    info_dict["core_dbname"] = (
+        f"{settings['dbowner']}_{production_gca}_core_{settings['release_number']}_1"
+    )
 
     logger.info(f"Values formatted for {assembly_accession}")
 
@@ -544,7 +546,7 @@ def get_info_for_pipeline_anno(  # pylint:disable=too-many-locals
     diamond_validation_db = Path(anno_settings["diamond_validation_db"])
     current_genebuild = settings["current_genebuild"]
     num_threads = anno_settings["num_threads"]
-    ensembl_release = 114
+    ensembl_release = settings["release_number"]
 
     # Add values back to dictionary
     info_dict.update(
@@ -599,7 +601,7 @@ def get_info_for_pipeline_main(  # pylint:disable=too-many-locals
     long_read_fastq_dir = long_read_dir / "input"
     current_genebuild = settings["current_genebuild"]
     registry_file = output_path / "Databases.pm"
-    release_number = 114
+    release_number = settings["release_number"]
     dbname_accession = assembly_accession.replace(".", "v").replace("_", "").lower()
     email_address = f"{settings['dbowner']}@ebi.ac.uk"
     dbowner = settings["dbowner"]
@@ -613,7 +615,7 @@ def get_info_for_pipeline_main(  # pylint:disable=too-many-locals
     long_read_summary_file_genus = (
         long_read_dir / f"{info_dict['species_name']}_long_read_gen.csv"
     )
-    pipe_db_name = f"{dbowner}_{dbname_accession}_pipe_114"
+    pipe_db_name = f"{dbowner}_{dbname_accession}_pipe_{release_number}"
 
     # Add values back to dictionary
     info_dict.update(
@@ -780,7 +782,7 @@ def custom_loading(settings: dict) -> dict[str, str]:
     return custom_dict
 
 
-def create_dir(path: str | Path, mode: Optional[int] = None) -> None:
+def create_dir(path: str | Path, mode: int | None = None) -> None:
     """
     Create a directory and optionally set its permissions.
 
@@ -927,7 +929,7 @@ def main(  # pylint:disable=too-many-branches, too-many-statements, too-many-loc
             pipeline_type = "anno"
             gca_dict[gca][
                 "pipe_db_name"
-            ] = f"{settings['dbowner']}_{settings['pipeline_name']}_pipe_114"
+            ] = f"{settings['dbowner']}_{settings['pipeline_name']}_pipe_{settings['release_number']}"
             server_settings = get_server_settings_anno(settings)
             server_info.update(server_settings)
 
@@ -1027,7 +1029,7 @@ def main(  # pylint:disable=too-many-branches, too-many-statements, too-many-loc
     # -------------------------
     # Save JSONs
     # -------------------------
-    saved_paths: Dict[str, Union[Path, Dict[str, Path]]] = {}
+    saved_paths: dict[str, Path | dict[str, Path]] = {}
 
     # Save anno GCAs as a single file
     anno_params = {

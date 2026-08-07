@@ -195,7 +195,7 @@ def edit_config_anno(
 
     content = re.sub(
         r"'release_number'\s*=>\s*[^,]+,",
-        "'release_number'                     => 114,",
+        f"'release_number'                     => '{settings['release_number']}',",
         content,
     )
 

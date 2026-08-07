@@ -14,5 +14,6 @@
         "databases_host": "",
         "databases_port": ""
     },
-    "init_file": ""
+    "init_file": "",
+    "release_number": "114"
 }
