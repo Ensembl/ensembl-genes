@@ -37,6 +37,7 @@ def count_hits(tsv: Path) -> int:
 
 
 def main() -> None:
+    """Main entry point. Summarise InterProScan protein hits."""
     parser = argparse.ArgumentParser(description="Summarise InterProScan protein hits.")
 
     parser.add_argument(
