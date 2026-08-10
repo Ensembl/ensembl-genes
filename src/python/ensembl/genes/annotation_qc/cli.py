@@ -16,9 +16,15 @@ sys.path.insert(0, str(Path(__file__).parent))
 
 # pylint: disable=wrong-import-position
 from runners import assess_translation_validity
+from parsers import interpro, parse_agat
 
 RUNNERS = [
     assess_translation_validity,
+]
+
+PARSERS = [
+    parse_agat,
+    interpro,
 ]
 
 
@@ -32,6 +38,9 @@ def main():
 
     for runner in RUNNERS:
         runner.register(subparsers)
+
+    for parser_module in PARSERS:
+        parser_module.register(subparsers)
 
     args = parser.parse_args()
     args.func(args)

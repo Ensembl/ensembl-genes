@@ -36,10 +36,8 @@ def count_hits(tsv: Path) -> int:
         )
 
 
-def main() -> None:
-    """Main entry point. Summarise InterProScan protein hits."""
-    parser = argparse.ArgumentParser(description="Summarise InterProScan protein hits.")
-
+def add_arguments(parser: argparse.ArgumentParser) -> None:
+    """Add InterProScan parser arguments to an argparse parser."""
     parser.add_argument(
         "--input_tsv",
         type=Path,
@@ -66,8 +64,9 @@ def main() -> None:
         help="Sample/accession name. Defaults to FASTA filename.",
     )
 
-    args = parser.parse_args()
 
+def run(args: argparse.Namespace) -> None:
+    """Run the InterProScan summary calculation."""
     if not args.input_tsv.is_file():
         raise FileNotFoundError(f"Input TSV not found: {args.input_tsv}")
 
@@ -112,6 +111,23 @@ def main() -> None:
         )
 
     print(f"Wrote {outfile}")
+
+
+def register(subparsers) -> None:
+    """Register InterProScan parsing as an annotation QC subcommand."""
+    parser = subparsers.add_parser(
+        "parse-interpro",
+        help="Summarise InterProScan protein hits.",
+    )
+    add_arguments(parser)
+    parser.set_defaults(func=run)
+
+
+def main() -> None:
+    """Parse standalone InterProScan arguments and run the parser."""
+    parser = argparse.ArgumentParser(description="Summarise InterProScan protein hits.")
+    add_arguments(parser)
+    run(parser.parse_args())
 
 
 if __name__ == "__main__":
