@@ -1,0 +1,9 @@
+ensembl.genes.annotation_qc.parsers.parse_agat
+==============================================
+
+Source: ``src/python/ensembl/genes/annotation_qc/parsers/parse_agat.py``
+
+.. automodule:: ensembl.genes.annotation_qc.parsers.parse_agat
+   :members:
+   :show-inheritance:
+   :undoc-members:

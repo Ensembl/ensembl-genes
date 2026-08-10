@@ -1,0 +1,27 @@
+ensembl.genes.annotation_qc
+===========================
+
+Source directory: ``src/python/ensembl/genes/annotation_qc``
+
+Package Contents
+----------------
+
+.. automodule:: ensembl.genes.annotation_qc
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+Folders, Scripts, and Files
+---------------------------
+
+.. toctree::
+   :maxdepth: 2
+
+   README <ensembl.genes.annotation_qc.README>
+   config <ensembl.genes.annotation_qc.config>
+   metrics <ensembl.genes.annotation_qc.metrics>
+   notebooks <ensembl.genes.annotation_qc.notebooks>
+   parsers <ensembl.genes.annotation_qc.parsers>
+   reports <ensembl.genes.annotation_qc.reports>
+   runners <ensembl.genes.annotation_qc.runners>
+   cli <ensembl.genes.annotation_qc.cli>

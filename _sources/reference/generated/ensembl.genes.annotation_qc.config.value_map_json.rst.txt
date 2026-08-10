@@ -1,0 +1,8 @@
+value_map.json
+==============
+
+Source: ``src/python/ensembl/genes/annotation_qc/config/value_map.json``
+
+.. literalinclude:: ../../../src/python/ensembl/genes/annotation_qc/config/value_map.json
+   :language: json
+   :linenos:

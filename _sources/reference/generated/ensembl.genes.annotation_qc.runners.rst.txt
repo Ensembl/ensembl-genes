@@ -1,0 +1,23 @@
+ensembl.genes.annotation_qc.runners
+===================================
+
+Source directory: ``src/python/ensembl/genes/annotation_qc/runners``
+
+Package Contents
+----------------
+
+.. automodule:: ensembl.genes.annotation_qc.runners
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+Folders, Scripts, and Files
+---------------------------
+
+.. toctree::
+   :maxdepth: 2
+
+   README <ensembl.genes.annotation_qc.runners.README>
+   assess_translation_validity <ensembl.genes.annotation_qc.runners.assess_translation_validity>
+   genebuild_stats <ensembl.genes.annotation_qc.runners.genebuild_stats>
+   pairwise_compare <ensembl.genes.annotation_qc.runners.pairwise_compare>

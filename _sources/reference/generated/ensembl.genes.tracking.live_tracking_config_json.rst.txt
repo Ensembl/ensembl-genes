@@ -1,0 +1,8 @@
+live_tracking_config.json
+=========================
+
+Source: ``src/python/ensembl/genes/tracking/live_tracking_config.json``
+
+.. literalinclude:: ../../../src/python/ensembl/genes/tracking/live_tracking_config.json
+   :language: json
+   :linenos:

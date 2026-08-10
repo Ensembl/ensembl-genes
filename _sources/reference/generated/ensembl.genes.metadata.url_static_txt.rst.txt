@@ -1,0 +1,8 @@
+url_static.txt
+==============
+
+Source: ``src/python/ensembl/genes/metadata/url_static.txt``
+
+.. literalinclude:: ../../../src/python/ensembl/genes/metadata/url_static.txt
+   :language: text
+   :linenos:

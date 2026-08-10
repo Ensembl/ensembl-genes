@@ -1,0 +1,12 @@
+ensembl.genes.annotation_qc.notebooks
+=====================================
+
+Source directory: ``src/python/ensembl/genes/annotation_qc/notebooks``
+
+Folders, Scripts, and Files
+---------------------------
+
+.. toctree::
+   :maxdepth: 2
+
+   Example.ipynb <ensembl.genes.annotation_qc.notebooks.Example_ipynb>

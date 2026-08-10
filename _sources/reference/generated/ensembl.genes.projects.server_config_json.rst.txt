@@ -1,0 +1,8 @@
+server_config.json
+==================
+
+Source: ``src/python/ensembl/genes/projects/server_config.json``
+
+.. literalinclude:: ../../../src/python/ensembl/genes/projects/server_config.json
+   :language: json
+   :linenos:

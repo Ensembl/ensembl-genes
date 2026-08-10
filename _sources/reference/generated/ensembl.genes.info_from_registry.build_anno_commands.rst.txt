@@ -1,0 +1,9 @@
+ensembl.genes.info_from_registry.build_anno_commands
+====================================================
+
+Source: ``src/python/ensembl/genes/info_from_registry/build_anno_commands.py``
+
+.. automodule:: ensembl.genes.info_from_registry.build_anno_commands
+   :members:
+   :show-inheritance:
+   :undoc-members:

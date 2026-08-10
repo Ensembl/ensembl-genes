@@ -1,0 +1,1247 @@
+<!doctype html>
+<html class="no-js" lang="en" data-content_root="../../../../">
+  <head><meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../../genindex.html"><link rel="search" title="Search" href="../../../../search.html">
+        <link rel="prefetch" href="../../../../_static/ebang.png" as="image">
+
+    <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
+        <title>ensembl.genes.metadata.core_meta_data - Ensembl Genes</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=d111a655" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?v=7bdb33bb" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo-extensions.css?v=8dab3a3b" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f2f2f2;
+  --color-code-foreground: #1e1e1e;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle site navigation sidebar">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc" aria-label="Toggle table of contents sidebar">
+<label class="overlay sidebar-overlay" for="__navigation"></label>
+<label class="overlay toc-overlay" for="__toc"></label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <span class="icon"><svg><use href="#svg-menu"></use></svg></span>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../../../../index.html"><div class="brand">Ensembl Genes</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+        <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../../index.html">
+  <div class="sidebar-logo-container">
+    <img class="sidebar-logo" src="../../../../_static/ebang.png" alt="Logo"/>
+  </div>
+  
+  <span class="sidebar-brand-text">Ensembl Genes</span>
+  
+</a><form class="sidebar-search-container" method="get" action="../../../../search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../install.html">How to install this repository</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../usage.html">Usage</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../code_of_conduct.html">Code of Conduct</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../coverage.html">Coverage report</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../../api.html">API Reference</a><input aria-label="Toggle navigation of API Reference" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../../reference/generated/index.html">Generated Code Reference</a><input aria-label="Toggle navigation of Generated Code Reference" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.html">ensembl.genes</a><input aria-label="Toggle navigation of ensembl.genes" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.annotation_qc.html">annotation_qc</a><input aria-label="Toggle navigation of annotation_qc" class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.annotation_qc.README.html">README</a></li>
+<li class="toctree-l5 has-children"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.annotation_qc.config.html">config</a><input aria-label="Toggle navigation of config" class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.annotation_qc.config.feature_levels_yaml.html">feature_levels.yaml</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.annotation_qc.config.value_map_json.html">value_map.json</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.annotation_qc.config.value_mapping_csv.html">value_mapping.csv</a></li>
+</ul>
+</li>
+<li class="toctree-l5 has-children"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.annotation_qc.metrics.html">metrics</a><input aria-label="Toggle navigation of metrics" class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.annotation_qc.metrics.README.html">README</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.annotation_qc.metrics.feature_wide_metrics_README.html">feature_wide_metrics_README</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.annotation_qc.metrics.genome_wide_metrics_README.html">genome_wide_metrics_README</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.annotation_qc.metrics.events.html">events</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.annotation_qc.metrics.feature_wide_metrics.html">feature_wide_metrics</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.annotation_qc.metrics.features.html">features</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.annotation_qc.metrics.geneset.html">geneset</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.annotation_qc.metrics.genome_wide_metrics.html">genome_wide_metrics</a></li>
+</ul>
+</li>
+<li class="toctree-l5 has-children"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.annotation_qc.notebooks.html">notebooks</a><input aria-label="Toggle navigation of notebooks" class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" role="switch" type="checkbox"/><label for="toctree-checkbox-7"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.annotation_qc.notebooks.Example_ipynb.html">Example.ipynb</a></li>
+</ul>
+</li>
+<li class="toctree-l5 has-children"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.annotation_qc.parsers.html">parsers</a><input aria-label="Toggle navigation of parsers" class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.annotation_qc.parsers.README.html">parsers</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.annotation_qc.parsers.README.html#responsibilities">Responsibilities</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.annotation_qc.parsers.README.html#what-does-not-belong-here">What does NOT belong here?</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.annotation_qc.parsers.README.html#inputs">Inputs</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.annotation_qc.parsers.README.html#outputs">Outputs</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.annotation_qc.parsers.README.html#design-principles">Design principles</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.annotation_qc.parsers.README.html#adding-a-new-parser">Adding a new parser</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.annotation_qc.parsers.README.html#common-mistakes">Common mistakes</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.annotation_qc.parsers.README.html#testing">Testing</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.annotation_qc.parsers.README.html#related-packages">Related packages</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.annotation_qc.parsers.README.html#id1">Parsers</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.annotation_qc.parsers.README.html#annotation-parser-gff3-gtf">Annotation Parser (GFF3 / GTF)</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.annotation_qc.parsers.annotation.html">annotation</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.annotation_qc.parsers.diamond.html">diamond</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.annotation_qc.parsers.interpro.html">interpro</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.annotation_qc.parsers.parse_agat.html">parse_agat</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.annotation_qc.parsers.sequence.html">sequence</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.annotation_qc.parsers.tool_output.html">tool_output</a></li>
+</ul>
+</li>
+<li class="toctree-l5 has-children"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.annotation_qc.reports.html">reports</a><input aria-label="Toggle navigation of reports" class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" role="switch" type="checkbox"/><label for="toctree-checkbox-9"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.annotation_qc.reports.README.html">reports</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.annotation_qc.reports.README.html#responsibilities">Responsibilities</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.annotation_qc.reports.README.html#what-does-not-belong-here">What does NOT belong here?</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.annotation_qc.reports.README.html#inputs">Inputs</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.annotation_qc.reports.README.html#outputs">Outputs</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.annotation_qc.reports.README.html#design-principles">Design principles</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.annotation_qc.reports.README.html#adding-a-new-report">Adding a new report</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.annotation_qc.reports.README.html#common-mistakes">Common mistakes</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.annotation_qc.reports.README.html#testing">Testing</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.annotation_qc.reports.README.html#related-packages">Related packages</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.annotation_qc.reports.plotting_utils.html">plotting_utils</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.annotation_qc.reports.tabular_reports.html">tabular_reports</a></li>
+</ul>
+</li>
+<li class="toctree-l5 has-children"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.annotation_qc.runners.html">runners</a><input aria-label="Toggle navigation of runners" class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" role="switch" type="checkbox"/><label for="toctree-checkbox-10"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.annotation_qc.runners.README.html">runners</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.annotation_qc.runners.README.html#responsibilities">Responsibilities</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.annotation_qc.runners.README.html#what-does-not-belong-here">What does NOT belong here?</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.annotation_qc.runners.README.html#workflow">Workflow</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.annotation_qc.runners.README.html#inputs">Inputs</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.annotation_qc.runners.README.html#outputs">Outputs</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.annotation_qc.runners.README.html#design-principles">Design principles</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.annotation_qc.runners.README.html#example-workflow">Example workflow</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.annotation_qc.runners.README.html#adding-a-new-runner">Adding a new runner</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.annotation_qc.runners.README.html#common-mistakes">Common mistakes</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.annotation_qc.runners.README.html#testing">Testing</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.annotation_qc.runners.README.html#related-packages">Related packages</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.annotation_qc.runners.assess_translation_validity.html">assess_translation_validity</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.annotation_qc.runners.genebuild_stats.html">genebuild_stats</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.annotation_qc.runners.pairwise_compare.html">pairwise_compare</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.annotation_qc.cli.html">cli</a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.automation.html">automation</a><input aria-label="Toggle navigation of automation" class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" role="switch" type="checkbox"/><label for="toctree-checkbox-11"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.automation.README.html">README</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.automation.pre_release_ftp.html">pre_release_ftp</a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.content.html">content</a><input aria-label="Toggle navigation of content" class="toctree-checkbox" id="toctree-checkbox-12" name="toctree-checkbox-12" role="switch" type="checkbox"/><label for="toctree-checkbox-12"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.content.main_static_content.html">main_static_content</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.content.main_static_murine_content.html">main_static_murine_content</a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.info_from_registry.html">info_from_registry</a><input aria-label="Toggle navigation of info_from_registry" class="toctree-checkbox" id="toctree-checkbox-13" name="toctree-checkbox-13" role="switch" type="checkbox"/><label for="toctree-checkbox-13"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.info_from_registry.README.html">README</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.info_from_registry.assign_species_prefix.html">assign_species_prefix</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.info_from_registry.assign_stable_space.html">assign_stable_space</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.info_from_registry.build_anno_commands.html">build_anno_commands</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.info_from_registry.check_if_annotated.html">check_if_annotated</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.info_from_registry.check_stable_space_old_registry.html">check_stable_space_old_registry</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.info_from_registry.create_config.html">create_config</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.info_from_registry.create_pipe_reg.html">create_pipe_reg</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.info_from_registry.genebuild_start_pipeline.html">genebuild_start_pipeline</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.info_from_registry.mysql_helper.html">mysql_helper</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.info_from_registry.registry_helper.html">registry_helper</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.info_from_registry.seed_nonvert.html">seed_nonvert</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.info_from_registry.start_pipeline_from_registry.html">start_pipeline_from_registry</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.info_from_registry.taxonomy_helper.html">taxonomy_helper</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.info_from_registry.update_assembly_registry.html">update_assembly_registry</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.info_from_registry.write_metrics_to_registry.html">write_metrics_to_registry</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.info_from_registry.anno_settings_json.html">anno_settings.json</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.info_from_registry.clade_settings_json.html">clade_settings.json</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.info_from_registry.main_settings_json.html">main_settings.json</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.info_from_registry.projection_source_json.html">projection_source.json</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.info_from_registry.stable_id_special_cases_json.html">stable_id_special_cases.json</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.info_from_registry.user_pipeline_settings_json.html">user_pipeline_settings.json</a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.metadata.html">metadata</a><input aria-label="Toggle navigation of metadata" class="toctree-checkbox" id="toctree-checkbox-14" name="toctree-checkbox-14" role="switch" type="checkbox"/><label for="toctree-checkbox-14"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.metadata.README.html">README</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.metadata.beta_patcher.html">beta_patcher</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.metadata.core_meta_data.html">core_meta_data</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.metadata.logging_conf.html">logging.conf</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.metadata.patches_template_csv.html">patches_template.csv</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.metadata.provider_static_txt.html">provider_static.txt</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.metadata.ref_static_txt.html">ref_static.txt</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.metadata.requirements_txt.html">requirements.txt</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.metadata.snp_static_txt.html">snp_static.txt</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.metadata.url_static_txt.html">url_static.txt</a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.metrics.html">metrics</a><input aria-label="Toggle navigation of metrics" class="toctree-checkbox" id="toctree-checkbox-15" name="toctree-checkbox-15" role="switch" type="checkbox"/><label for="toctree-checkbox-15"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.metrics.busco_lineage_selector.html">busco_lineage_selector</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.metrics.busco_metakeys_patch.html">busco_metakeys_patch</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.metrics.check_busco_score.html">check_busco_score</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.metrics.busco_lineage_json.html">busco_lineage.json</a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.projects.html">projects</a><input aria-label="Toggle navigation of projects" class="toctree-checkbox" id="toctree-checkbox-16" name="toctree-checkbox-16" role="switch" type="checkbox"/><label for="toctree-checkbox-16"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.projects.README.html">README</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.projects.write_yaml.html">write_yaml</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.projects.icons_txt.html">icons.txt</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.projects.pyproject_toml.html">pyproject.toml</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.projects.server_config_json.html">server_config.json</a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.stable_id.html">stable_id</a><input aria-label="Toggle navigation of stable_id" class="toctree-checkbox" id="toctree-checkbox-17" name="toctree-checkbox-17" role="switch" type="checkbox"/><label for="toctree-checkbox-17"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.stable_id.pid_overlap.html">pid_overlap</a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.tracking.html">tracking</a><input aria-label="Toggle navigation of tracking" class="toctree-checkbox" id="toctree-checkbox-18" name="toctree-checkbox-18" role="switch" type="checkbox"/><label for="toctree-checkbox-18"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.tracking.README.html">README</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.tracking.bioproject_tracking.html">bioproject_tracking</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.tracking.live_tracking.html">live_tracking</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.tracking.bioproject_tracking_config_json.html">bioproject_tracking_config.json</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.tracking.live_tracking_config_json.html">live_tracking_config.json</a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.transcriptomic_data.html">transcriptomic_data</a><input aria-label="Toggle navigation of transcriptomic_data" class="toctree-checkbox" id="toctree-checkbox-19" name="toctree-checkbox-19" role="switch" type="checkbox"/><label for="toctree-checkbox-19"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.transcriptomic_data.check_for_transcriptomic.html">check_for_transcriptomic</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.transcriptomic_data.get_transcriptomic_data.html">get_transcriptomic_data</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../reference/generated/ensembl.genes.transcriptomic_data.select_transcriptomic_data.html">select_transcriptomic_data</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+            <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+          </label>
+        </div>
+        <article role="main" id="furo-main-content">
+          <h1>Source code for ensembl.genes.metadata.core_meta_data</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python3</span>
+<span class="c1"># See the NOTICE file distributed with this work for additional information</span>
+<span class="c1"># regarding copyright ownership.</span>
+<span class="c1">#</span>
+<span class="c1"># Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="c1"># you may not use this file except in compliance with the License.</span>
+<span class="c1"># You may obtain a copy of the License at</span>
+<span class="c1">#</span>
+<span class="c1">#     http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c1">#</span>
+<span class="c1"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="c1"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c1"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c1"># See the License for the specific language governing permissions and</span>
+<span class="c1"># limitations under the License.</span>
+<span class="c1"># pylint: disable=missing-module-docstring, consider-using-with, logging-not-lazy, logging-fstring-interpolation, consider-using-dict-items, unspecified-encoding,invalid-name , broad-exception-caught, line-too-long, redefined-outer-name, missing-timeout, unused-argument, missing-function-docstring</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">argparse</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging.config</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">requests</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pymysql</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xmltodict</span>
+
+<span class="c1"># Module logger (configured in __main__ via logging.config)</span>
+<span class="n">logger</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="mysql_fetch_data">
+<a class="viewcode-back" href="../../../../reference/generated/ensembl.genes.metadata.core_meta_data.html#ensembl.genes.metadata.core_meta_data.mysql_fetch_data">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">mysql_fetch_data</span><span class="p">(</span>
+    <span class="n">query</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">database</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">host</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">port</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">user</span><span class="p">:</span> <span class="nb">str</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="o">...</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Run a simple SELECT query and return fetched rows.</span>
+<span class="sd">    Returns an empty list on error.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        query (str): SQL SELECT query to execute.</span>
+<span class="sd">        database (str): Name of the database.</span>
+<span class="sd">        host (str): Host address of the MySQL server.</span>
+<span class="sd">        port (int): Port number of the MySQL server.</span>
+<span class="sd">        user (str): Username to connect to the database.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        List of tuples representing query results.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">conn</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">cursor</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">info</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="o">...</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">conn</span> <span class="o">=</span> <span class="n">pymysql</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span>
+            <span class="n">host</span><span class="o">=</span><span class="n">host</span><span class="p">,</span> <span class="n">user</span><span class="o">=</span><span class="n">user</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="n">port</span><span class="p">,</span> <span class="n">database</span><span class="o">=</span><span class="n">database</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="p">)</span>
+        <span class="n">cursor</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+        <span class="n">info</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">cursor</span><span class="o">.</span><span class="n">fetchall</span><span class="p">())</span>
+    <span class="k">except</span> <span class="n">pymysql</span><span class="o">.</span><span class="n">Error</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="s2">&quot;MySQL error while executing query: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">query</span><span class="p">)</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">cursor</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">cursor</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="s2">&quot;Error closing cursor&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">conn</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">conn</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="s2">&quot;Error closing connection&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">info</span></div>
+
+
+
+<div class="viewcode-block" id="get_ena_metadata">
+<a class="viewcode-back" href="../../../../reference/generated/ensembl.genes.metadata.core_meta_data.html#ensembl.genes.metadata.core_meta_data.get_ena_metadata">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_ena_metadata</span><span class="p">(</span><span class="n">accession</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">truth_dict</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Fetch assembly metadata from ENA XML API.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        accession (str): Assembly accession (e.g., GCA_000001405.28)</span>
+<span class="sd">        truth_dict (Dict[str, Any]): Dictionary containing truth values for metadata.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Dict[str, str]: Dictionary containing metadata from ENA.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">return_dict</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">assembly_url</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;https://www.ebi.ac.uk/ena/browser/api/xml/</span><span class="si">{</span><span class="n">accession</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="n">assembly_xml</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">assembly_url</span><span class="p">)</span>
+    <span class="n">assembly_dict</span> <span class="o">=</span> <span class="n">xmltodict</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">assembly_xml</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+
+    <span class="n">assembly_attribs</span> <span class="o">=</span> <span class="n">assembly_dict</span><span class="p">[</span><span class="s2">&quot;ASSEMBLY_SET&quot;</span><span class="p">][</span><span class="s2">&quot;ASSEMBLY&quot;</span><span class="p">][</span><span class="s2">&quot;ASSEMBLY_ATTRIBUTES&quot;</span><span class="p">][</span>
+        <span class="s2">&quot;ASSEMBLY_ATTRIBUTE&quot;</span>
+    <span class="p">]</span>
+    <span class="c1"># fix if single or multiple items</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">assembly_attribs</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="n">assembly_attribs</span> <span class="o">=</span> <span class="p">[</span><span class="n">assembly_attribs</span><span class="p">]</span>
+
+    <span class="c1"># assembly metadata</span>
+    <span class="n">return_dict</span><span class="p">[</span><span class="s2">&quot;assembly.name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="p">(</span>
+            <span class="n">assembly_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ASSEMBLY_SET&quot;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ASSEMBLY&quot;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;NAME&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">assembly_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ASSEMBLY_SET&quot;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ASSEMBLY&quot;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;NAME&quot;</span><span class="p">)</span>
+        <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+    <span class="p">)</span>
+
+    <span class="n">return_dict</span><span class="p">[</span><span class="s2">&quot;assembly.level&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">assembly_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ASSEMBLY_SET&quot;</span><span class="p">,</span> <span class="p">{})</span>
+        <span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ASSEMBLY&quot;</span><span class="p">,</span> <span class="p">{})</span>
+        <span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ASSEMBLY_LEVEL&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">attrib_set</span> <span class="ow">in</span> <span class="n">assembly_attribs</span><span class="p">:</span>
+        <span class="c1"># assembly date</span>
+        <span class="k">if</span> <span class="n">attrib_set</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;TAG&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;ENA-LAST-UPDATED&quot;</span><span class="p">:</span>
+            <span class="n">return_dict</span><span class="p">[</span><span class="s2">&quot;assembly.date&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">attrib_set</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;VALUE&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+
+    <span class="c1"># organism metadata: sample id</span>
+    <span class="k">if</span> <span class="s2">&quot;organism.biosample_id&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">truth_dict</span><span class="p">:</span>
+        <span class="n">biosample_id</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">assembly_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ASSEMBLY_SET&quot;</span><span class="p">,</span> <span class="p">{})</span>
+            <span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ASSEMBLY&quot;</span><span class="p">,</span> <span class="p">{})</span>
+            <span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;SAMPLE_REF&quot;</span><span class="p">,</span> <span class="p">{})</span>
+            <span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;IDENTIFIERS&quot;</span><span class="p">,</span> <span class="p">{})</span>
+            <span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;PRIMARY_ID&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">biosample_id</span><span class="p">:</span>
+            <span class="n">return_dict</span><span class="p">[</span><span class="s2">&quot;organism.biosample_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">biosample_id</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span>
+                <span class="s2">&quot; | BIOSAMPLE_ID | organism.biosample_id could not be found in the ENA metadata, this is a required key!&quot;</span>
+            <span class="p">)</span>
+
+    <span class="c1"># taxonomy id (workaround for bad records)</span>
+    <span class="k">if</span> <span class="n">accession</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;GCA_944452655.1&quot;</span><span class="p">,</span> <span class="s2">&quot;GCA_944452715.1&quot;</span><span class="p">):</span>
+        <span class="n">return_dict</span><span class="p">[</span><span class="s2">&quot;organism.taxonomy_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;1539398&quot;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">tax_id</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">assembly_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ASSEMBLY_SET&quot;</span><span class="p">,</span> <span class="p">{})</span>
+            <span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ASSEMBLY&quot;</span><span class="p">,</span> <span class="p">{})</span>
+            <span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;TAXON&quot;</span><span class="p">,</span> <span class="p">{})</span>
+            <span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;TAXON_ID&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">tax_id</span><span class="p">:</span>
+            <span class="n">return_dict</span><span class="p">[</span><span class="s2">&quot;organism.taxonomy_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tax_id</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="s2">&quot; | TAXONOMY_ID | organism.taxonomy_id could not be found in the ENA metadata&quot;</span>
+            <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">return_dict</span></div>
+
+
+
+<div class="viewcode-block" id="get_ncbi_metadata">
+<a class="viewcode-back" href="../../../../reference/generated/ensembl.genes.metadata.core_meta_data.html#ensembl.genes.metadata.core_meta_data.get_ncbi_metadata">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_ncbi_metadata</span><span class="p">(</span>
+    <span class="n">accession</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">assembly_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">scientific_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">search</span><span class="p">:</span> <span class="nb">str</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Fetch assembly metadata from NCBI assembly report.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        accession (str): Assembly accession (e.g., GCA_000001405.28)</span>
+<span class="sd">        assembly_name (str): Assembly name (e.g., GRCh38)</span>
+<span class="sd">        scientific_name (str): Scientific name of the organism</span>
+<span class="sd">        search (str): Type of metadata to search for (&quot;ucsc&quot; or &quot;biosample&quot;)</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Dict[str, str]: Dictionary containing metadata from NCBI.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">organism</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">accession</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">assembly_name</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="n">ncbi_url</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;https://ftp.ncbi.nlm.nih.gov/genomes/all/</span><span class="si">{</span><span class="n">accession</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">3</span><span class="p">]</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">accession</span><span class="p">[</span><span class="mi">4</span><span class="p">:</span><span class="mi">7</span><span class="p">]</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">accession</span><span class="p">[</span><span class="mi">7</span><span class="p">:</span><span class="mi">10</span><span class="p">]</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">accession</span><span class="p">[</span><span class="mi">10</span><span class="p">:</span><span class="mi">13</span><span class="p">]</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">organism</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">organism</span><span class="si">}</span><span class="s2">_assembly_report.txt&quot;</span>
+    <span class="n">ncbi_return</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">ncbi_url</span><span class="p">)</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()</span>
+
+    <span class="n">return_dict</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;assembly.ucsc_alias&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;organism.strain&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;organism.strain_type&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="k">if</span> <span class="n">search</span> <span class="o">==</span> <span class="s2">&quot;ucsc&quot;</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">ncbi_return</span><span class="p">:</span>
+            <span class="n">ucsc_match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;# Synonyms:\s*([A-Za-z0-9]+)&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">ucsc_match</span><span class="p">:</span>
+                <span class="n">return_dict</span><span class="p">[</span><span class="s2">&quot;assembly.ucsc_alias&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ucsc_match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">elif</span> <span class="n">search</span> <span class="o">==</span> <span class="s2">&quot;biosample&quot;</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">ncbi_return</span><span class="p">:</span>
+            <span class="n">strain_match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span>
+                <span class="sa">r</span><span class="s2">&quot;# Infraspecific name:\s*([A-Za-z]+)=([A-Za-z0-9 \-\./]+)&quot;</span><span class="p">,</span> <span class="n">line</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">strain_match</span><span class="p">:</span>
+                <span class="n">return_dict</span><span class="p">[</span><span class="s2">&quot;organism.strain_type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">strain_match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+                <span class="n">return_dict</span><span class="p">[</span><span class="s2">&quot;organism.strain&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">strain_match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">return_dict</span></div>
+
+
+
+<div class="viewcode-block" id="get_biosample_metadata">
+<a class="viewcode-back" href="../../../../reference/generated/ensembl.genes.metadata.core_meta_data.html#ensembl.genes.metadata.core_meta_data.get_biosample_metadata">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_biosample_metadata</span><span class="p">(</span>
+    <span class="n">biosample_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">assembly_accession</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">assembly_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">scientific_name</span><span class="p">:</span> <span class="nb">str</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Fetch assembly metadata from EBI BioSample API.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        biosample_id (str): BioSample accession (e.g., SAMN00000001)</span>
+<span class="sd">        assembly_accession (str): Assembly accession (e.g., GCA_000001405.28)</span>
+<span class="sd">        assembly_name (str): Assembly name (e.g., GRCh38)</span>
+<span class="sd">        scientific_name (str): Scientific name of the organism</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Dict[str, str]: Dictionary containing metadata from BioSample.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">biosample_url</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;https://www.ebi.ac.uk/biosamples/samples/</span><span class="si">{</span><span class="n">biosample_id</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="n">biosample_return</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">biosample_url</span><span class="p">)</span><span class="o">.</span><span class="n">text</span>
+    <span class="n">return_dict</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;organism.strain&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;organism.strain_type&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">}</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">biosample_data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">biosample_return</span><span class="p">)</span>
+
+        <span class="n">strain_types</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;population&quot;</span><span class="p">,</span> <span class="s2">&quot;race&quot;</span><span class="p">,</span> <span class="s2">&quot;ecotype&quot;</span><span class="p">,</span> <span class="s2">&quot;breed&quot;</span><span class="p">,</span> <span class="s2">&quot;strain&quot;</span><span class="p">,</span> <span class="s2">&quot;cultivar&quot;</span><span class="p">}</span>
+
+        <span class="k">for</span> <span class="n">strain_type</span> <span class="ow">in</span> <span class="n">strain_types</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">return_dict</span><span class="p">[</span><span class="s2">&quot;organism.strain&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">biosample_data</span><span class="p">[</span><span class="s2">&quot;characteristics&quot;</span><span class="p">][</span>
+                    <span class="n">strain_type</span>
+                <span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;text&quot;</span><span class="p">]</span>
+                <span class="n">return_dict</span><span class="p">[</span><span class="s2">&quot;organism.strain_type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">strain_type</span>
+                <span class="k">break</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="k">continue</span>
+
+        <span class="k">if</span> <span class="n">return_dict</span><span class="p">[</span><span class="s2">&quot;organism.strain&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;Caucasian&quot;</span><span class="p">:</span>
+            <span class="n">return_dict</span><span class="p">[</span><span class="s2">&quot;organism.strain&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;European&quot;</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">return_dict</span><span class="p">[</span><span class="s2">&quot;assembly.tol_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">biosample_data</span><span class="p">[</span><span class="s2">&quot;characteristics&quot;</span><span class="p">][</span><span class="s2">&quot;tolid&quot;</span><span class="p">][</span>
+                <span class="mi">0</span>
+            <span class="p">][</span><span class="s2">&quot;text&quot;</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="n">return_dict</span><span class="p">[</span><span class="s2">&quot;assembly.tol_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+    <span class="k">except</span> <span class="n">json</span><span class="o">.</span><span class="n">decoder</span><span class="o">.</span><span class="n">JSONDecodeError</span><span class="p">:</span>
+        <span class="c1"># fallback to NCBI</span>
+        <span class="n">biosample_dict</span> <span class="o">=</span> <span class="n">get_ncbi_metadata</span><span class="p">(</span>
+            <span class="n">assembly_accession</span><span class="p">,</span> <span class="n">assembly_name</span><span class="p">,</span> <span class="n">scientific_name</span><span class="p">,</span> <span class="s2">&quot;biosample&quot;</span>
+        <span class="p">)</span>
+        <span class="n">return_dict</span><span class="p">[</span><span class="s2">&quot;organism.strain&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">biosample_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;organism.strain&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="n">return_dict</span><span class="p">[</span><span class="s2">&quot;organism.strain_type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">biosample_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+            <span class="s2">&quot;organism.strain_type&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span>
+        <span class="p">)</span>
+        <span class="n">return_dict</span><span class="p">[</span><span class="s2">&quot;assembly.tol_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="n">return_dict</span></div>
+
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;Prepare SQL updates for core dbs&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;-o&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;--output_dir&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Path where the output and temp files will write to. </span><span class="se">\</span>
+<span class="s2">        Uses current dir by default&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;-d&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;--db_name&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Database name&quot;</span><span class="p">,</span>
+        <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;-s&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;--host&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Host server&quot;</span><span class="p">,</span>
+        <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;-p&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;--port&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Host server port&quot;</span><span class="p">,</span>
+        <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;-n&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;--production_name&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;species.production_name&quot;</span><span class="p">,</span>
+        <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;-t&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;--team&quot;</span><span class="p">,</span>
+        <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">capitalize</span><span class="p">(),</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Team responsible for the database&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;-v&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;--verbose&quot;</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Enable verbose output (check that all required keys are not NULL/ empty)&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+
+    <span class="n">server_info</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;staging&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;db_host&quot;</span><span class="p">:</span> <span class="n">args</span><span class="o">.</span><span class="n">host</span><span class="p">,</span>
+            <span class="s2">&quot;db_port&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">port</span><span class="p">),</span>
+            <span class="s2">&quot;db_user&quot;</span><span class="p">:</span> <span class="s2">&quot;ensro&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;meta&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;db_host&quot;</span><span class="p">:</span> <span class="s2">&quot;mysql-ens-meta-prod-1.ebi.ac.uk&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;db_port&quot;</span><span class="p">:</span> <span class="mi">4483</span><span class="p">,</span>
+            <span class="s2">&quot;db_user&quot;</span><span class="p">:</span> <span class="s2">&quot;ensro&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;db_pass&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+    <span class="p">}</span>
+
+    <span class="n">metadata_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span>
+    <span class="n">provider_static_file</span> <span class="o">=</span> <span class="n">metadata_dir</span> <span class="o">/</span> <span class="s2">&quot;provider_static.txt&quot;</span>
+    <span class="n">ref_static_file</span> <span class="o">=</span> <span class="n">metadata_dir</span> <span class="o">/</span> <span class="s2">&quot;ref_static.txt&quot;</span>
+    <span class="n">snp_static_file</span> <span class="o">=</span> <span class="n">metadata_dir</span> <span class="o">/</span> <span class="s2">&quot;snp_static.txt&quot;</span>
+    <span class="n">url_static_file</span> <span class="o">=</span> <span class="n">metadata_dir</span> <span class="o">/</span> <span class="s2">&quot;url_static.txt&quot;</span>
+
+    <span class="n">db</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">db_name</span>
+    <span class="n">output_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">output_dir</span><span class="p">)</span>
+    <span class="n">output_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">production_name</span><span class="p">:</span>
+        <span class="n">sql_out</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">output_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">production_name</span><span class="si">}</span><span class="s2">.sql&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">sql_out</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">output_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">db</span><span class="si">}</span><span class="s2">.sql&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Working on database: </span><span class="si">{</span><span class="n">db</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;USE </span><span class="si">{</span><span class="n">db</span><span class="si">}</span><span class="s2">;&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sql_out</span><span class="p">)</span>
+
+    <span class="c1"># set up logger</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">production_name</span><span class="p">:</span>
+        <span class="n">log_file_path</span> <span class="o">=</span> <span class="n">output_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">production_name</span><span class="si">}</span><span class="s2">_metadata.log&quot;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">log_file_path</span> <span class="o">=</span> <span class="n">output_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">db</span><span class="si">}</span><span class="s2">_metadata.log&quot;</span>
+    <span class="n">log_ini_path</span> <span class="o">=</span> <span class="n">metadata_dir</span> <span class="o">/</span> <span class="s2">&quot;logging.conf&quot;</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">fileConfig</span><span class="p">(</span>
+        <span class="n">log_ini_path</span><span class="p">,</span>
+        <span class="n">defaults</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;logfilename&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">log_file_path</span><span class="p">)},</span>
+        <span class="n">disable_existing_loggers</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">()</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">propagate</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="n">core_dict</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">production_name</span><span class="p">:</span>
+        <span class="n">core_dict</span><span class="p">[</span><span class="s2">&quot;species.production_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">production_name</span>
+        <span class="c1"># getting species_id via the production_name</span>
+        <span class="n">species_query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;SELECT species_id FROM meta WHERE meta_key=&#39;species.production_name&#39; AND meta_value=&#39;</span><span class="si">{</span><span class="n">core_dict</span><span class="p">[</span><span class="s1">&#39;species.production_name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&#39;;&quot;</span>
+        <span class="n">species_meta</span> <span class="o">=</span> <span class="n">mysql_fetch_data</span><span class="p">(</span>
+            <span class="n">species_query</span><span class="p">,</span>
+            <span class="n">host</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">&quot;staging&quot;</span><span class="p">][</span><span class="s2">&quot;db_host&quot;</span><span class="p">],</span>
+            <span class="n">user</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">&quot;staging&quot;</span><span class="p">][</span><span class="s2">&quot;db_user&quot;</span><span class="p">],</span>
+            <span class="n">port</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">&quot;staging&quot;</span><span class="p">][</span><span class="s2">&quot;db_port&quot;</span><span class="p">],</span>
+            <span class="n">database</span><span class="o">=</span><span class="n">db</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">species_id</span> <span class="o">=</span> <span class="n">species_meta</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;species ID: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">species_id</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">species_id</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="nb">print</span><span class="p">(</span>
+            <span class="s2">&quot;WARNING: no production_name provided, using default species ID =&quot;</span>
+            <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">species_id</span><span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="c1"># get all existing assembly, species and genebuild metadata from the core db</span>
+    <span class="n">core_query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;SELECT meta_key,meta_value FROM meta WHERE species_id = </span><span class="si">{</span><span class="n">species_id</span><span class="si">}</span><span class="s2"> AND (meta_key LIKE &#39;assembly%&#39; OR meta_key LIKE &#39;species%&#39; OR meta_key LIKE &#39;genebuild%&#39; OR meta_key LIKE &#39;organism%&#39; OR meta_key LIKE &#39;sample%&#39; OR meta_key LIKE &#39;annotation%&#39; OR meta_key LIKE &#39;gencode%&#39;);&quot;</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">core_query</span><span class="p">)</span>
+    <span class="n">core_meta</span> <span class="o">=</span> <span class="n">mysql_fetch_data</span><span class="p">(</span>
+        <span class="n">core_query</span><span class="p">,</span>
+        <span class="n">host</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">&quot;staging&quot;</span><span class="p">][</span><span class="s2">&quot;db_host&quot;</span><span class="p">],</span>
+        <span class="n">user</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">&quot;staging&quot;</span><span class="p">][</span><span class="s2">&quot;db_user&quot;</span><span class="p">],</span>
+        <span class="n">port</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">&quot;staging&quot;</span><span class="p">][</span><span class="s2">&quot;db_port&quot;</span><span class="p">],</span>
+        <span class="n">database</span><span class="o">=</span><span class="n">db</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">for</span> <span class="n">meta_pair</span> <span class="ow">in</span> <span class="n">core_meta</span><span class="p">:</span>
+        <span class="n">core_dict</span><span class="p">[</span><span class="n">meta_pair</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="n">meta_pair</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="c1"># get the assembly metadata from the sources of truth (sources of truth in parentheses)</span>
+    <span class="c1"># expected assembly meta_keys: assembly.accession (from core), assembly.date (from ena), assembly.is_reference (static), assembly.name (ena), assembly.provider_name (core or default), assembly.provider_url (core or default), assembly.level (ena), assembly.tolid (biosample), assembly.ucsc_alias (ncbi), assembly.long_name, assembly.url_name (static)</span>
+    <span class="c1"># expected organism meta_keys: organism.taxonomy_id (ena), organism.species_taxonomy_id (taxonomy db), organism.common_name (taxonomy db), organism.strain (biosample), organism.scientific_name (taxonomy db), organism.scientific_parlance_name (static), organism.strain_type (biosample), organism.sample_accession (ena)</span>
+    <span class="c1"># expected genebuild meta_keys: genebuild.initial_release_date, genebuild.last_geneset_update, genebuild.level, genebuild.method, genebuild.method_display, genebuild.start_date, genebuild.version (create and check and required), genebuild.sample_gene (core), genebuild.sample_location (core), genebuild.id, genebuild.projection_source_db, genebuild.havana_datafreeze_date, genebuild.provider_name (static or core or default), genebuild.provider_url (static or core or default), genebuild.annotation_source (core or default)</span>
+    <span class="n">truth_dict</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="c1"># now some assembly.accession values will be GCFs - that breaks finding things based on a GCA</span>
+    <span class="n">gca_accession</span> <span class="o">=</span> <span class="n">core_dict</span><span class="p">[</span><span class="s2">&quot;assembly.accession&quot;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">core_dict</span><span class="p">[</span><span class="s2">&quot;assembly.accession&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;GCF&quot;</span><span class="p">):</span>
+        <span class="n">gca_accession</span> <span class="o">=</span> <span class="n">core_dict</span><span class="p">[</span><span class="s2">&quot;assembly.alt_accession&quot;</span><span class="p">]</span>
+        <span class="n">truth_dict</span><span class="p">[</span><span class="s2">&quot;assembly.alt_accession&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">core_dict</span><span class="p">[</span><span class="s2">&quot;assembly.alt_accession&quot;</span><span class="p">]</span>
+        <span class="n">truth_dict</span><span class="p">[</span><span class="s2">&quot;assembly.accession_refseq&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">core_dict</span><span class="p">[</span><span class="s2">&quot;assembly.accession&quot;</span><span class="p">]</span>
+        <span class="n">truth_dict</span><span class="p">[</span><span class="s2">&quot;assembly.accession_body&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;RefSeq&quot;</span>
+    <span class="k">elif</span> <span class="s2">&quot;assembly.accession_refseq&quot;</span> <span class="ow">in</span> <span class="n">core_dict</span><span class="p">:</span>
+        <span class="c1"># if the core comes from the main site, we need to put the GCF back as the main accession</span>
+        <span class="n">truth_dict</span><span class="p">[</span><span class="s2">&quot;assembly.alt_accession&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">core_dict</span><span class="p">[</span><span class="s2">&quot;assembly.alt_accession&quot;</span><span class="p">]</span>
+        <span class="n">core_dict</span><span class="p">[</span><span class="s2">&quot;assembly.accession&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">core_dict</span><span class="p">[</span><span class="s2">&quot;assembly.accession_refseq&quot;</span><span class="p">]</span>
+        <span class="n">truth_dict</span><span class="p">[</span><span class="s2">&quot;assembly.accession_body&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;RefSeq&quot;</span>
+
+    <span class="c1"># Some goddamn ENA assembly records do not have the BioSample ID, so I&#39;m hardcoding them, I swear to jaysus, I&#39;m so done with metadata!!!</span>
+    <span class="k">if</span> <span class="n">db</span> <span class="o">==</span> <span class="s2">&quot;caenorhabditis_elegans_core_57_110_282&quot;</span><span class="p">:</span>
+        <span class="n">truth_dict</span><span class="p">[</span><span class="s2">&quot;organism.biosample_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;SAMN04256190&quot;</span>
+    <span class="k">elif</span> <span class="n">db</span> <span class="o">==</span> <span class="s2">&quot;ciona_intestinalis_core_110_3&quot;</span><span class="p">:</span>
+        <span class="n">truth_dict</span><span class="p">[</span><span class="s2">&quot;organism.biosample_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;SAMD00414333&quot;</span>
+    <span class="k">elif</span> <span class="n">db</span> <span class="o">==</span> <span class="s2">&quot;homo_sapiens_37_core_110_37&quot;</span><span class="p">:</span>
+        <span class="n">truth_dict</span><span class="p">[</span><span class="s2">&quot;organism.biosample_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;SAMN12121739&quot;</span>
+    <span class="k">elif</span> <span class="n">db</span> <span class="o">==</span> <span class="s2">&quot;homo_sapiens_core_110_38&quot;</span><span class="p">:</span>
+        <span class="n">truth_dict</span><span class="p">[</span><span class="s2">&quot;organism.biosample_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;SAMN12121739&quot;</span>
+    <span class="k">elif</span> <span class="n">db</span> <span class="o">==</span> <span class="s2">&quot;saccharomyces_cerevisiae_core_57_110_4&quot;</span><span class="p">:</span>
+        <span class="n">truth_dict</span><span class="p">[</span><span class="s2">&quot;organism.biosample_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;SAMEA3184125&quot;</span>
+    <span class="k">elif</span> <span class="n">db</span> <span class="o">==</span> <span class="s2">&quot;mus_musculus_core_110_39&quot;</span><span class="p">:</span>
+        <span class="n">truth_dict</span><span class="p">[</span><span class="s2">&quot;organism.biosample_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;SAMN26853311&quot;</span>
+    <span class="k">elif</span> <span class="n">db</span> <span class="o">==</span> <span class="s2">&quot;bos_taurus_core_110_1&quot;</span><span class="p">:</span>
+        <span class="n">truth_dict</span><span class="p">[</span><span class="s2">&quot;organism.biosample_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;SAMN03145444&quot;</span>
+
+    <span class="c1"># get metadata from ENA records</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">truth_dict</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">get_ena_metadata</span><span class="p">(</span><span class="n">gca_accession</span><span class="p">,</span> <span class="n">truth_dict</span><span class="p">))</span>
+    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="s2">&quot;No assembly accession found, cannot process any further&quot;</span><span class="p">)</span>
+
+    <span class="c1"># get common and scientific names from NCBI taxonomy (seems inefficient to query the db twice, but I don&#39;t think it returns ordered results and I don&#39;t want to risk mixing them up)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">name_query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;SELECT name FROM ncbi_taxa_name WHERE taxon_id=</span><span class="si">{</span><span class="n">truth_dict</span><span class="p">[</span><span class="s1">&#39;organism.taxonomy_id&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> AND name_class=&#39;genbank common name&#39;;&quot;</span>
+        <span class="n">name_info</span> <span class="o">=</span> <span class="n">mysql_fetch_data</span><span class="p">(</span>
+            <span class="n">name_query</span><span class="p">,</span>
+            <span class="n">host</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">&quot;meta&quot;</span><span class="p">][</span><span class="s2">&quot;db_host&quot;</span><span class="p">],</span>
+            <span class="n">user</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">&quot;meta&quot;</span><span class="p">][</span><span class="s2">&quot;db_user&quot;</span><span class="p">],</span>
+            <span class="n">port</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">&quot;meta&quot;</span><span class="p">][</span><span class="s2">&quot;db_port&quot;</span><span class="p">],</span>
+            <span class="n">database</span><span class="o">=</span><span class="s2">&quot;ncbi_taxonomy&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">truth_dict</span><span class="p">[</span><span class="s2">&quot;organism.common_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">name_info</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">capitalize</span><span class="p">()</span>
+    <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>  <span class="c1"># not everything has a genbank common name</span>
+        <span class="n">truth_dict</span><span class="p">[</span><span class="s2">&quot;organism.common_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="n">s_name_query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;SELECT name FROM ncbi_taxa_name WHERE taxon_id=</span><span class="si">{</span><span class="n">truth_dict</span><span class="p">[</span><span class="s1">&#39;organism.taxonomy_id&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> AND name_class=&#39;scientific name&#39;;&quot;</span>
+    <span class="n">s_name_info</span> <span class="o">=</span> <span class="n">mysql_fetch_data</span><span class="p">(</span>
+        <span class="n">s_name_query</span><span class="p">,</span>
+        <span class="n">host</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">&quot;meta&quot;</span><span class="p">][</span><span class="s2">&quot;db_host&quot;</span><span class="p">],</span>
+        <span class="n">user</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">&quot;meta&quot;</span><span class="p">][</span><span class="s2">&quot;db_user&quot;</span><span class="p">],</span>
+        <span class="n">port</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">&quot;meta&quot;</span><span class="p">][</span><span class="s2">&quot;db_port&quot;</span><span class="p">],</span>
+        <span class="n">database</span><span class="o">=</span><span class="s2">&quot;ncbi_taxonomy&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">truth_dict</span><span class="p">[</span><span class="s2">&quot;organism.scientific_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">s_name_info</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">capitalize</span><span class="p">()</span>
+
+    <span class="c1"># get metadata from NCBI taxonomy</span>
+    <span class="n">taxonomy_query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;SELECT rank, parent_id FROM ncbi_taxa_node WHERE taxon_id=</span><span class="si">{</span><span class="n">truth_dict</span><span class="p">[</span><span class="s1">&#39;organism.taxonomy_id&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">;&quot;</span>
+    <span class="n">rank_info</span> <span class="o">=</span> <span class="n">mysql_fetch_data</span><span class="p">(</span>
+        <span class="n">taxonomy_query</span><span class="p">,</span>
+        <span class="n">host</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">&quot;meta&quot;</span><span class="p">][</span><span class="s2">&quot;db_host&quot;</span><span class="p">],</span>
+        <span class="n">user</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">&quot;meta&quot;</span><span class="p">][</span><span class="s2">&quot;db_user&quot;</span><span class="p">],</span>
+        <span class="n">port</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">&quot;meta&quot;</span><span class="p">][</span><span class="s2">&quot;db_port&quot;</span><span class="p">],</span>
+        <span class="n">database</span><span class="o">=</span><span class="s2">&quot;ncbi_taxonomy&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">rank_dict</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">pair</span> <span class="ow">in</span> <span class="n">rank_info</span><span class="p">:</span>
+        <span class="n">rank_dict</span><span class="p">[</span><span class="s2">&quot;rank&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pair</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">rank_dict</span><span class="p">[</span><span class="s2">&quot;parent_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">pair</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+    <span class="k">if</span> <span class="n">rank_dict</span><span class="p">[</span><span class="s2">&quot;rank&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;species&quot;</span><span class="p">:</span>
+        <span class="n">truth_dict</span><span class="p">[</span><span class="s2">&quot;organism.species_taxonomy_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">truth_dict</span><span class="p">[</span><span class="s2">&quot;organism.taxonomy_id&quot;</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">while</span> <span class="n">rank_dict</span><span class="p">[</span><span class="s2">&quot;rank&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;species&quot;</span><span class="p">:</span>
+            <span class="n">current_id</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">rank_dict</span><span class="p">[</span><span class="s2">&quot;parent_id&quot;</span><span class="p">])</span>
+            <span class="n">parent_taxonomy_query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;SELECT rank, parent_id FROM ncbi_taxa_node WHERE taxon_id=</span><span class="si">{</span><span class="n">rank_dict</span><span class="p">[</span><span class="s1">&#39;parent_id&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">;&quot;</span>
+            <span class="n">parent_rank_info</span> <span class="o">=</span> <span class="n">mysql_fetch_data</span><span class="p">(</span>
+                <span class="n">parent_taxonomy_query</span><span class="p">,</span>
+                <span class="n">host</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">&quot;meta&quot;</span><span class="p">][</span><span class="s2">&quot;db_host&quot;</span><span class="p">],</span>
+                <span class="n">user</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">&quot;meta&quot;</span><span class="p">][</span><span class="s2">&quot;db_user&quot;</span><span class="p">],</span>
+                <span class="n">port</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">&quot;meta&quot;</span><span class="p">][</span><span class="s2">&quot;db_port&quot;</span><span class="p">],</span>
+                <span class="n">database</span><span class="o">=</span><span class="s2">&quot;ncbi_taxonomy&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">for</span> <span class="n">pair</span> <span class="ow">in</span> <span class="n">parent_rank_info</span><span class="p">:</span>
+                <span class="n">rank_dict</span><span class="p">[</span><span class="s2">&quot;rank&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pair</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">rank_dict</span><span class="p">[</span><span class="s2">&quot;parent_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">pair</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+            <span class="n">truth_dict</span><span class="p">[</span><span class="s2">&quot;organism.species_taxonomy_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">current_id</span>
+
+    <span class="c1"># get metadata from NCBI records</span>
+    <span class="n">truth_dict</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+        <span class="n">get_ncbi_metadata</span><span class="p">(</span>
+            <span class="n">core_dict</span><span class="p">[</span><span class="s2">&quot;assembly.accession&quot;</span><span class="p">],</span>
+            <span class="n">truth_dict</span><span class="p">[</span><span class="s2">&quot;assembly.name&quot;</span><span class="p">],</span>
+            <span class="n">truth_dict</span><span class="p">[</span><span class="s2">&quot;organism.scientific_name&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;ucsc&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+
+    <span class="c1"># get metadata from BioSample records</span>
+    <span class="k">if</span> <span class="n">truth_dict</span><span class="p">[</span><span class="s2">&quot;organism.biosample_id&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
+        <span class="n">truth_dict</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+            <span class="n">get_biosample_metadata</span><span class="p">(</span>
+                <span class="n">truth_dict</span><span class="p">[</span><span class="s2">&quot;organism.biosample_id&quot;</span><span class="p">],</span>
+                <span class="n">gca_accession</span><span class="p">,</span>
+                <span class="n">truth_dict</span><span class="p">[</span><span class="s2">&quot;assembly.name&quot;</span><span class="p">],</span>
+                <span class="n">truth_dict</span><span class="p">[</span><span class="s2">&quot;organism.scientific_name&quot;</span><span class="p">],</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># there&#39;s probably a better source for ToLIDs - DToL portal?</span>
+        <span class="n">truth_dict</span><span class="p">[</span><span class="s2">&quot;assembly.tol_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+    <span class="c1"># now to get some metadata that can only come from static files</span>
+    <span class="c1"># scientific_parlance_name</span>
+    <span class="n">snp_list</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">snp_static_file</span><span class="p">)</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">snp_list</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">truth_dict</span><span class="p">[</span><span class="s2">&quot;organism.scientific_name&quot;</span><span class="p">]</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+            <span class="n">snp</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="n">truth_dict</span><span class="p">[</span><span class="s2">&quot;organism.scientific_parlance_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">snp</span>
+
+    <span class="c1"># assembly.url_name</span>
+    <span class="n">url_list</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">url_static_file</span><span class="p">)</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">url_list</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">gca_accession</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+            <span class="n">url</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="n">truth_dict</span><span class="p">[</span><span class="s2">&quot;assembly.url_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">url</span>
+
+    <span class="c1"># assembly.is_reference</span>
+    <span class="n">ref_list</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">ref_static_file</span><span class="p">)</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">ref_list</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">truth_dict</span><span class="p">[</span><span class="s2">&quot;organism.scientific_name&quot;</span><span class="p">]</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+            <span class="n">ref_accession</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">gca_accession</span> <span class="o">==</span> <span class="n">ref_accession</span><span class="p">:</span>
+                <span class="n">truth_dict</span><span class="p">[</span><span class="s2">&quot;assembly.is_reference&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+
+    <span class="c1"># now to create some values</span>
+    <span class="c1"># assembly provider and url - if not in core already, set to default provider,&quot;ENA&quot;</span>
+    <span class="k">if</span> <span class="s2">&quot;assembly.provider_name&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">core_dict</span><span class="p">:</span>
+        <span class="n">truth_dict</span><span class="p">[</span><span class="s2">&quot;assembly.provider_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;ENA&quot;</span>
+        <span class="n">truth_dict</span><span class="p">[</span><span class="s2">&quot;assembly.provider_url&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;https://www.ebi.ac.uk/ena/browser/home&quot;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+            <span class="s2">&quot; | ASSEMBLY_PROVIDER | No assembly provider information found, using default, ENA.&quot;</span>
+        <span class="p">)</span>
+
+    <span class="n">provider_dict</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">provider_static_file</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">parts</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="n">provider_dict</span><span class="p">[</span><span class="n">parts</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">parts</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="n">parts</span><span class="p">[</span><span class="mi">2</span><span class="p">]}</span>
+
+    <span class="c1"># genebuild.provider_name and _url keys: check if annotation.provider_name and _url keys exist, if not check spreadsheet, else set to default &quot;Ensembl&quot;, &quot;Ensembl url&quot; (full_genebuild, anno, braker, hprc)</span>
+    <span class="c1"># genebuild.version key is now being used for metadata loading, we are setting it to the first genebuild.version for everything (unless there is already a value set for this key), data teams need to be aware when handing over an updated annotation, i.e. assembly is same as an existing genome, but the gene set has been updated (new data, or a fix)</span>
+    <span class="c1"># maybe add a check on the metadata database here - does the label GCA_XXXX_ENSXX match an existing dataset, then warn! (could be part of the check for required keys!)</span>
+    <span class="k">if</span> <span class="s2">&quot;gencode.version&quot;</span> <span class="ow">in</span> <span class="n">core_dict</span><span class="p">:</span>
+        <span class="n">truth_dict</span><span class="p">[</span><span class="s2">&quot;genebuild.version&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">core_dict</span><span class="p">[</span><span class="s2">&quot;gencode.version&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="n">truth_dict</span><span class="p">[</span><span class="s2">&quot;genebuild.method_display&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Manual annotation&quot;</span>
+    <span class="k">elif</span> <span class="s2">&quot;genebuild.method&quot;</span> <span class="ow">in</span> <span class="n">core_dict</span><span class="p">:</span>
+        <span class="c1"># a quick check where sample genes have BRAKER stable id prefixes, because some braker annotations had incorrect value for genebuild.method (I&#39;m doing this with the sample gene text as it will contain the BRAKER stable id prefix)</span>
+        <span class="k">if</span> <span class="s2">&quot;BRAKER&quot;</span> <span class="ow">in</span> <span class="n">core_dict</span><span class="p">[</span><span class="s2">&quot;sample.gene_text&quot;</span><span class="p">]:</span>
+            <span class="n">truth_dict</span><span class="p">[</span><span class="s2">&quot;genebuild.version&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;BRK01&quot;</span>
+            <span class="n">truth_dict</span><span class="p">[</span><span class="s2">&quot;genebuild.method&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;braker&quot;</span>
+            <span class="n">truth_dict</span><span class="p">[</span><span class="s2">&quot;genebuild.method_display&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;BRAKER2&quot;</span>
+            <span class="n">truth_dict</span><span class="p">[</span><span class="s2">&quot;genebuild.annotation_source&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;braker&quot;</span>
+            <span class="n">truth_dict</span><span class="p">[</span><span class="s2">&quot;genebuild.provider_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Ensembl&quot;</span>
+            <span class="n">truth_dict</span><span class="p">[</span><span class="s2">&quot;genebuild.provider_url&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="s2">&quot;https://beta.ensembl.org/help/articles/braker-2-genome-annotation&quot;</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="s2">&quot;HELIXER&quot;</span> <span class="ow">in</span> <span class="n">core_dict</span><span class="p">[</span><span class="s2">&quot;sample.gene_text&quot;</span><span class="p">]:</span>
+            <span class="n">truth_dict</span><span class="p">[</span><span class="s2">&quot;genebuild.version&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;HLX01&quot;</span>
+            <span class="n">truth_dict</span><span class="p">[</span><span class="s2">&quot;genebuild.method&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;helixer&quot;</span>
+            <span class="n">truth_dict</span><span class="p">[</span><span class="s2">&quot;genebuild.method_display&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Helixer&quot;</span>
+            <span class="n">truth_dict</span><span class="p">[</span><span class="s2">&quot;genebuild.annotation_source&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;helixer&quot;</span>
+            <span class="n">truth_dict</span><span class="p">[</span><span class="s2">&quot;genebuild.provider_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Ensembl&quot;</span>
+            <span class="n">truth_dict</span><span class="p">[</span><span class="s2">&quot;genebuild.provider_url&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="s2">&quot;https://beta.ensembl.org/info/genome/helixer-genome-annotation&quot;</span>
+            <span class="p">)</span>
+        <span class="c1"># otherwise check the genebuild.method for annotation key updates/additions</span>
+        <span class="k">elif</span> <span class="n">core_dict</span><span class="p">[</span><span class="s2">&quot;genebuild.method&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;full_genebuild&quot;</span><span class="p">:</span>
+            <span class="n">truth_dict</span><span class="p">[</span><span class="s2">&quot;genebuild.version&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;ENS01&quot;</span>
+            <span class="n">truth_dict</span><span class="p">[</span><span class="s2">&quot;genebuild.method_display&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Ensembl Genebuild&quot;</span>
+            <span class="n">truth_dict</span><span class="p">[</span><span class="s2">&quot;genebuild.annotation_source&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;ensembl&quot;</span>
+            <span class="n">truth_dict</span><span class="p">[</span><span class="s2">&quot;genebuild.provider_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Ensembl&quot;</span>
+            <span class="n">truth_dict</span><span class="p">[</span><span class="s2">&quot;genebuild.provider_url&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="s2">&quot;https://beta.ensembl.org/help/articles/vertebrate-genome-annotation&quot;</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="n">core_dict</span><span class="p">[</span><span class="s2">&quot;genebuild.method&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;anno&quot;</span><span class="p">:</span>
+            <span class="n">truth_dict</span><span class="p">[</span><span class="s2">&quot;genebuild.version&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;ENS01&quot;</span>
+            <span class="n">truth_dict</span><span class="p">[</span><span class="s2">&quot;genebuild.method_display&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Ensembl Genebuild&quot;</span>
+            <span class="n">truth_dict</span><span class="p">[</span><span class="s2">&quot;genebuild.annotation_source&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;ensembl&quot;</span>
+            <span class="n">truth_dict</span><span class="p">[</span><span class="s2">&quot;genebuild.provider_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Ensembl&quot;</span>
+            <span class="n">truth_dict</span><span class="p">[</span><span class="s2">&quot;genebuild.provider_url&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="s2">&quot;https://beta.ensembl.org/help/articles/non-vertebrate-genome-annotation&quot;</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="n">core_dict</span><span class="p">[</span><span class="s2">&quot;genebuild.method&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;projection_build&quot;</span><span class="p">:</span>
+            <span class="n">truth_dict</span><span class="p">[</span><span class="s2">&quot;genebuild.version&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;ENS01&quot;</span>
+            <span class="n">truth_dict</span><span class="p">[</span><span class="s2">&quot;genebuild.annotation_source&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;ensembl&quot;</span>
+            <span class="n">truth_dict</span><span class="p">[</span><span class="s2">&quot;genebuild.provider_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Ensembl&quot;</span>
+            <span class="k">if</span> <span class="n">core_dict</span><span class="p">[</span><span class="s2">&quot;species.scientific_name&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;homo sapiens&quot;</span><span class="p">:</span>
+                <span class="n">truth_dict</span><span class="p">[</span><span class="s2">&quot;genebuild.provider_url&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="s2">&quot;https://beta.ensembl.org/help/articles/human-genome-automated-annotation&quot;</span>
+                <span class="p">)</span>
+                <span class="n">truth_dict</span><span class="p">[</span><span class="s2">&quot;genebuild.method_display&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Mapping from GRCh38&quot;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">truth_dict</span><span class="p">[</span><span class="s2">&quot;genebuild.provider_url&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="s2">&quot;https://beta.ensembl.org/help/articles/vertebrate-genome-annotation&quot;</span>
+                <span class="p">)</span>
+                <span class="n">truth_dict</span><span class="p">[</span><span class="s2">&quot;genebuild.method_display&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Mapping from reference&quot;</span>
+        <span class="c1"># for non-genebuilds, I don&#39;t have a set of rules (as above), so I rely on the core meta keys and the static</span>
+        <span class="k">elif</span> <span class="n">core_dict</span><span class="p">[</span><span class="s2">&quot;genebuild.method&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;import&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s2">&quot;genebuild.method_display&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">core_dict</span><span class="p">:</span>
+                <span class="n">truth_dict</span><span class="p">[</span><span class="s2">&quot;genebuild.method_display&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Import&quot;</span>
+            <span class="k">if</span> <span class="s2">&quot;genebuild.version&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">core_dict</span><span class="p">:</span>
+                <span class="n">truth_dict</span><span class="p">[</span><span class="s2">&quot;genebuild.version&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;EXT01&quot;</span>
+            <span class="c1"># try to get the annotation source</span>
+            <span class="k">if</span> <span class="p">(</span>
+                <span class="s2">&quot;species.annotation_source&quot;</span> <span class="ow">in</span> <span class="n">core_dict</span>
+                <span class="ow">and</span> <span class="s2">&quot;genebuild.annotation_source&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">core_dict</span>
+            <span class="p">):</span>
+                <span class="n">truth_dict</span><span class="p">[</span><span class="s2">&quot;genebuild.annotation_source&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">core_dict</span><span class="p">[</span>
+                    <span class="s2">&quot;species.annotation_source&quot;</span>
+                <span class="p">]</span>
+            <span class="k">elif</span> <span class="s2">&quot;genebuild.annotation_source&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">core_dict</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span>
+                    <span class="s2">&quot; | GENEBUILD_PROVIDER_URL | No genebuild.annotation_source could be found in the core db, this is a required key!&quot;</span>
+                <span class="p">)</span>
+            <span class="c1"># try to get the annotation provider name from core</span>
+            <span class="k">if</span> <span class="p">(</span>
+                <span class="s2">&quot;annotation.provider_name&quot;</span> <span class="ow">in</span> <span class="n">core_dict</span>
+                <span class="ow">and</span> <span class="s2">&quot;genebuild.provider_name&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">core_dict</span>
+            <span class="p">):</span>
+                <span class="n">truth_dict</span><span class="p">[</span><span class="s2">&quot;genebuild.provider_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">core_dict</span><span class="p">[</span>
+                    <span class="s2">&quot;annotation.provider_name&quot;</span>
+                <span class="p">]</span>
+            <span class="c1"># otherwise get it from provider_static.txt</span>
+            <span class="k">elif</span> <span class="p">(</span>
+                <span class="n">core_dict</span><span class="p">[</span><span class="s2">&quot;species.production_name&quot;</span><span class="p">]</span> <span class="ow">in</span> <span class="n">provider_dict</span>
+                <span class="ow">and</span> <span class="s2">&quot;genebuild.provider_name&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">core_dict</span>
+            <span class="p">):</span>
+                <span class="n">truth_dict</span><span class="p">[</span><span class="s2">&quot;genebuild.provider_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">provider_dict</span><span class="p">[</span>
+                    <span class="n">core_dict</span><span class="p">[</span><span class="s2">&quot;species.production_name&quot;</span><span class="p">][</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
+                <span class="p">]</span>
+            <span class="k">elif</span> <span class="s2">&quot;genebuild.provider_name&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">core_dict</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span>
+                    <span class="s2">&quot; | GENEBUILD_PROVIDER_NAME | No genebuild.provider_name could be found either in the core db or in provider_static.txt, this is a required key!&quot;</span>
+                <span class="p">)</span>
+            <span class="c1"># try to get the annotation provider url from core</span>
+            <span class="k">if</span> <span class="p">(</span>
+                <span class="s2">&quot;annotation.provider_url&quot;</span> <span class="ow">in</span> <span class="n">core_dict</span>
+                <span class="ow">and</span> <span class="s2">&quot;genebuild.provider_url&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">core_dict</span>
+            <span class="p">):</span>
+                <span class="n">truth_dict</span><span class="p">[</span><span class="s2">&quot;genebuild.provider_url&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">core_dict</span><span class="p">[</span>
+                    <span class="s2">&quot;annotation.provider_url&quot;</span>
+                <span class="p">]</span>
+            <span class="c1"># otherwise get it from provider_static.txt</span>
+            <span class="k">elif</span> <span class="p">(</span>
+                <span class="n">core_dict</span><span class="p">[</span><span class="s2">&quot;species.production_name&quot;</span><span class="p">]</span> <span class="ow">in</span> <span class="n">provider_dict</span>
+                <span class="ow">and</span> <span class="s2">&quot;genebuild.provider_url&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">core_dict</span>
+            <span class="p">):</span>
+                <span class="n">truth_dict</span><span class="p">[</span><span class="s2">&quot;genebuild.provider_url&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">provider_dict</span><span class="p">[</span>
+                    <span class="n">core_dict</span><span class="p">[</span><span class="s2">&quot;species.production_name&quot;</span><span class="p">][</span><span class="s2">&quot;url&quot;</span><span class="p">]</span>
+                <span class="p">]</span>
+            <span class="k">elif</span> <span class="s2">&quot;genebuild.provider_url&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">core_dict</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span>
+                    <span class="s2">&quot; | GENEBUILD_PROVIDER_URL | No genebuild.provider_url could be found either in the core db or in provider_static.txt, this is a required key!&quot;</span>
+                <span class="p">)</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+            <span class="s2">&quot; | GENEBUILD_METHOD | No genebuild.method, assuming this is an Ensembl annotation&quot;</span>
+        <span class="p">)</span>
+        <span class="n">truth_dict</span><span class="p">[</span><span class="s2">&quot;genebuild.version&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;ENS01&quot;</span>
+        <span class="n">truth_dict</span><span class="p">[</span><span class="s2">&quot;genebuild.annotation_source&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;ensembl&quot;</span>
+        <span class="n">truth_dict</span><span class="p">[</span><span class="s2">&quot;genebuild.provider_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Ensembl&quot;</span>
+        <span class="n">truth_dict</span><span class="p">[</span><span class="s2">&quot;genebuild.provider_url&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;https://rapid.ensembl.org/info/genome/genebuild/full_genebuild.html&quot;</span>
+        <span class="p">)</span>
+
+    <span class="c1"># if the genebuild.version already exists in the core db, I&#39;ll just leave that value</span>
+    <span class="k">if</span> <span class="s2">&quot;genebuild.version&quot;</span> <span class="ow">in</span> <span class="n">core_dict</span> <span class="ow">and</span> <span class="n">core_dict</span><span class="p">[</span><span class="s2">&quot;genebuild.version&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
+        <span class="n">truth_dict</span><span class="p">[</span><span class="s2">&quot;genebuild.version&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">core_dict</span><span class="p">[</span><span class="s2">&quot;genebuild.version&quot;</span><span class="p">]</span>
+
+    <span class="c1"># if the sample gene info is in the core db, update the meta key names</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">truth_dict</span><span class="p">[</span><span class="s2">&quot;genebuild.sample_gene&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">core_dict</span><span class="p">[</span><span class="s2">&quot;sample.gene_param&quot;</span><span class="p">]</span>
+    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span>
+            <span class="s2">&quot; | SAMPLE.GENE_PARAM | No sample.gene_param could be found in the core db, this is a required key!&quot;</span>
+        <span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">truth_dict</span><span class="p">[</span><span class="s2">&quot;genebuild.sample_location&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">core_dict</span><span class="p">[</span><span class="s2">&quot;sample.location_param&quot;</span><span class="p">]</span>
+    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span>
+            <span class="s2">&quot; | SAMPLE.LOCATION_PARAM | No sample.location_param could be found in the core db, this is a required key!&quot;</span>
+        <span class="p">)</span>
+
+    <span class="c1"># let&#39;s do a check for the genebuild.last_geneset_update key because it&#39;s required by web</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">truth_dict</span><span class="p">[</span><span class="s2">&quot;genebuild.last_geneset_update&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">core_dict</span><span class="p">[</span>
+            <span class="s2">&quot;genebuild.last_geneset_update&quot;</span>
+        <span class="p">]</span>
+    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+            <span class="s2">&quot; | GENEBUILD.LAST_GENESET_UPDATE | No genebuild.last_geneset_update could be found in the core db, this is a required key, I&#39;m setting it to today.&quot;</span>
+        <span class="p">)</span>
+        <span class="n">truth_dict</span><span class="p">[</span><span class="s2">&quot;genebuild.last_geneset_update&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m&quot;</span><span class="p">)</span>
+
+    <span class="c1"># update the remaining species keys -&gt; organisms keys</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">truth_dict</span><span class="p">[</span><span class="s2">&quot;organism.production_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">core_dict</span><span class="p">[</span><span class="s2">&quot;species.production_name&quot;</span><span class="p">]</span>
+    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span>
+            <span class="s2">&quot; | SPECIES.PRODUCTION_NAME | No species.production_name could be found in the core db, this is a required key!&quot;</span>
+        <span class="p">)</span>
+
+    <span class="c1"># Set the team responsible for this genome</span>
+    <span class="n">truth_dict</span><span class="p">[</span><span class="s2">&quot;genebuild.team_responsible&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">team</span>
+
+    <span class="c1"># if the expected meta_key does not exist in the core metadata but there is a truth value, INSERT</span>
+    <span class="c1"># if the expected meta_key exists in the core metadata but the meta_value does not match the truth value and truth value is not NULL, UPDATE</span>
+    <span class="c1"># if the expected meta_key exists in the core metadata and matches the truth value, NO ACTION</span>
+    <span class="k">for</span> <span class="n">meta_key</span> <span class="ow">in</span> <span class="n">truth_dict</span><span class="p">:</span>
+        <span class="c1"># Escape single quotes in truth_dict[meta_key]</span>
+        <span class="n">meta_value</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">truth_dict</span><span class="p">[</span><span class="n">meta_key</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;&#39;&quot;</span><span class="p">,</span> <span class="s2">&quot;&#39;&#39;&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="n">truth_dict</span><span class="p">[</span><span class="n">meta_key</span><span class="p">]</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">meta_key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">core_dict</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">truth_dict</span><span class="p">[</span><span class="n">meta_key</span><span class="p">]:</span>
+                <span class="nb">print</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;INSERT IGNORE INTO meta (species_id, meta_key, meta_value) VALUES(</span><span class="si">{</span><span class="n">species_id</span><span class="si">}</span><span class="s2">, &#39;</span><span class="si">{</span><span class="n">meta_key</span><span class="si">}</span><span class="s2">&#39;, &#39;</span><span class="si">{</span><span class="n">meta_value</span><span class="si">}</span><span class="s2">&#39;);&quot;</span><span class="p">,</span>
+                    <span class="n">file</span><span class="o">=</span><span class="n">sql_out</span><span class="p">,</span>
+                <span class="p">)</span>
+        <span class="k">elif</span> <span class="n">truth_dict</span><span class="p">[</span><span class="n">meta_key</span><span class="p">]</span> <span class="o">!=</span> <span class="n">core_dict</span><span class="p">[</span><span class="n">meta_key</span><span class="p">]</span> <span class="ow">and</span> <span class="n">truth_dict</span><span class="p">[</span><span class="n">meta_key</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;UPDATE meta SET meta_value=&#39;</span><span class="si">{</span><span class="n">meta_value</span><span class="si">}</span><span class="s2">&#39; WHERE meta_key=&#39;</span><span class="si">{</span><span class="n">meta_key</span><span class="si">}</span><span class="s2">&#39;;&quot;</span><span class="p">,</span>
+                <span class="n">file</span><span class="o">=</span><span class="n">sql_out</span><span class="p">,</span>
+            <span class="p">)</span>
+
+    <span class="c1"># do a check on required keys</span>
+    <span class="n">required_meta_keys</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;organism.production_name&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;organism.taxonomy_id&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;organism.scientific_name&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;assembly.accession&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;assembly.name&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;genebuild.version&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;genebuild.method&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;genebuild.method_display&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;genebuild.start_date&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;genebuild.annotation_source&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;genebuild.provider_name&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;genebuild.provider_url&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;genebuild.sample_gene&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;genebuild.sample_location&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;genebuild.last_geneset_update&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;organism.biosample_id&quot;</span><span class="p">,</span>
+    <span class="p">]</span>
+    <span class="k">for</span> <span class="n">required_key</span> <span class="ow">in</span> <span class="n">required_meta_keys</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">required_key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">core_dict</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">required_key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">truth_dict</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;You are missing required meta key: </span><span class="si">{</span><span class="n">required_key</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="c1"># report if there has been a change in common name</span>
+    <span class="k">if</span> <span class="s2">&quot;species.common_name&quot;</span> <span class="ow">in</span> <span class="n">core_dict</span><span class="p">:</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="n">core_dict</span><span class="p">[</span><span class="s2">&quot;species.common_name&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+            <span class="o">!=</span> <span class="n">truth_dict</span><span class="p">[</span><span class="s2">&quot;organism.common_name&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="p">):</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="s1">&#39; | COMMON NAME | The value for species.common_name in your meta table: &quot;&#39;</span>
+                <span class="o">+</span> <span class="n">core_dict</span><span class="p">[</span><span class="s2">&quot;species.common_name&quot;</span><span class="p">]</span>
+                <span class="o">+</span> <span class="s1">&#39;&quot; does not match the value that I am assigning to organism.common_name: &quot;&#39;</span>
+                <span class="o">+</span> <span class="n">truth_dict</span><span class="p">[</span><span class="s2">&quot;organism.common_name&quot;</span><span class="p">]</span>
+                <span class="o">+</span> <span class="s1">&#39;&quot;&#39;</span>
+            <span class="p">)</span>
+
+    <span class="n">meta_keys_to_remove</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;species.strain&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;strain.type&quot;</span><span class="p">,</span>
+    <span class="p">]</span>
+    <span class="k">for</span> <span class="n">remove_key</span> <span class="ow">in</span> <span class="n">meta_keys_to_remove</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;DELETE from meta WHERE meta_key=&#39;</span><span class="si">{</span><span class="n">remove_key</span><span class="si">}</span><span class="s2">&#39;;&quot;</span><span class="p">,</span>
+            <span class="n">file</span><span class="o">=</span><span class="n">sql_out</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
+        <span class="c1"># Print with the &#39;required&#39; column if -v flag is present</span>
+        <span class="nb">print</span><span class="p">(</span>
+            <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">key</span><span class="si">:</span><span class="s2">&lt;28</span><span class="si">}</span><span class="s2">   </span><span class="si">{</span><span class="n">val</span><span class="si">:</span><span class="s2">&lt;20</span><span class="si">}</span><span class="s2">   </span><span class="si">{</span><span class="s1">&#39;required&#39;</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">key</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">required_meta_keys</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">truth_dict</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+</pre></div>
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          
+          
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2016-2026, EMBL-European Bioinformatics Institute
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer no-toc">
+      
+      
+      
+    </aside>
+  </div>
+</div><script src="../../../../_static/documentation_options.js?v=01f34227"></script>
+    <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../../_static/scripts/furo.js?v=46bd48cc"></script>
+    </body>
+</html>

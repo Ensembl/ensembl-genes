@@ -1,0 +1,8 @@
+snp_static.txt
+==============
+
+Source: ``src/python/ensembl/genes/metadata/snp_static.txt``
+
+.. literalinclude:: ../../../src/python/ensembl/genes/metadata/snp_static.txt
+   :language: text
+   :linenos:
