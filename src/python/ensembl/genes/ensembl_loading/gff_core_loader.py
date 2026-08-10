@@ -92,6 +92,7 @@ def parse_assembly_report_metadata(
         "species.scientific_name": species_name,
         "species.common_name": "",
         "species.display_name": species_name,
+        "species.production_name": "",
         "species.taxonomy_id": "",
         "assembly.accession": assembly_accession,
         "assembly.alt_accession": "",
@@ -153,6 +154,11 @@ def parse_assembly_report_metadata(
         metadata["species.display_name"] = metadata["species.common_name"]
     else:
         metadata["species.display_name"] = metadata["species.scientific_name"]
+    # add species.production_name
+    metadata["species.production_name"] = (
+        f"{species_db_name_token(metadata['species.scientific_name'])}_"
+        f"{refseq_accession_db_token(metadata['assembly.accession'])}"
+    )
 
     if not metadata["genebuild.start_date"]:
         metadata["genebuild.start_date"] = datetime.now().strftime("%Y-%m-%d")
