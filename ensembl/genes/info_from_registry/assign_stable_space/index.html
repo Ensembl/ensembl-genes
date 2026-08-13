@@ -3412,12 +3412,7 @@
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/python/ensembl/genes/info_from_registry/assign_stable_space.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">224</span>
-<span class="normal">225</span>
-<span class="normal">226</span>
-<span class="normal">227</span>
-<span class="normal">228</span>
-<span class="normal">229</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">229</span>
 <span class="normal">230</span>
 <span class="normal">231</span>
 <span class="normal">232</span>
@@ -3468,7 +3463,12 @@
 <span class="normal">277</span>
 <span class="normal">278</span>
 <span class="normal">279</span>
-<span class="normal">280</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">assign_stable_id</span><span class="p">(</span>
+<span class="normal">280</span>
+<span class="normal">281</span>
+<span class="normal">282</span>
+<span class="normal">283</span>
+<span class="normal">284</span>
+<span class="normal">285</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">assign_stable_id</span><span class="p">(</span>
     <span class="n">taxon_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">gca_accession</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">assembly_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">server_info</span><span class="p">:</span> <span class="nb">dict</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Assign a stable space ID for a given taxon and GCA accession.</span>
@@ -3489,7 +3489,7 @@
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Check if stable space range exists </span><span class="si">{</span><span class="n">stable_space_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
     <span class="n">stable_space_start</span> <span class="o">=</span> <span class="n">stable_space_range</span><span class="p">(</span><span class="n">stable_space_id</span><span class="p">,</span> <span class="n">server_info</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="n">stable_space_start</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">False</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">stable_space_start</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
             <span class="sa">f</span><span class="s2">&quot;Assigned stable space ID </span><span class="si">{</span><span class="n">stable_space_id</span><span class="si">}</span><span class="s2"> for </span><span class="si">{</span><span class="n">gca_accession</span><span class="si">}</span><span class="se">\</span>
 <span class="s2">                and taxon ID </span><span class="si">{</span><span class="n">taxon_id</span><span class="si">}</span><span class="s2">.&quot;</span>
@@ -3649,12 +3649,7 @@
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/python/ensembl/genes/info_from_registry/assign_stable_space.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">283</span>
-<span class="normal">284</span>
-<span class="normal">285</span>
-<span class="normal">286</span>
-<span class="normal">287</span>
-<span class="normal">288</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">288</span>
 <span class="normal">289</span>
 <span class="normal">290</span>
 <span class="normal">291</span>
@@ -3706,7 +3701,12 @@
 <span class="normal">337</span>
 <span class="normal">338</span>
 <span class="normal">339</span>
-<span class="normal">340</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_stable_space</span><span class="p">(</span>
+<span class="normal">340</span>
+<span class="normal">341</span>
+<span class="normal">342</span>
+<span class="normal">343</span>
+<span class="normal">344</span>
+<span class="normal">345</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_stable_space</span><span class="p">(</span>
     <span class="n">taxon_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">gca_accession</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">assembly_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">server_info</span><span class="p">:</span> <span class="nb">dict</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Get the stable space ID for a given taxon and GCA accession.</span>
@@ -4219,18 +4219,19 @@
     <table>
       <thead>
         <tr>
-<th>Name</th>          <th>Type</th>
+          <th>Type</th>
           <th>Description</th>
         </tr>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-<td><code>bool</code></td>            <td>
-                  <code><span title="int">int</span> | <span title="bool">bool</span></code>
+            <td>
+                  <code><span title="int">int</span> | None</code>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>True if the stable space range exists, False otherwise.</p>
+                <p>int | None: The stable space start if the range exists or was created,
+None if the range could not be found or created.</p>
               </div>
             </td>
           </tr>
@@ -4329,7 +4330,12 @@
 <span class="normal">218</span>
 <span class="normal">219</span>
 <span class="normal">220</span>
-<span class="normal">221</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">stable_space_range</span><span class="p">(</span><span class="n">stable_space_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">server_info</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="normal">221</span>
+<span class="normal">222</span>
+<span class="normal">223</span>
+<span class="normal">224</span>
+<span class="normal">225</span>
+<span class="normal">226</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">stable_space_range</span><span class="p">(</span><span class="n">stable_space_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">server_info</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Check if a stable space range exists for the given stable space ID.</span>
 
 <span class="sd">    Args:</span>
@@ -4337,7 +4343,8 @@
 <span class="sd">        server_info (dict): The server information for database connection.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        bool: True if the stable space range exists, False otherwise.</span>
+<span class="sd">        int | None: The stable space start if the range exists or was created,</span>
+<span class="sd">            None if the range could not be found or created.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Get stable space renage for </span><span class="si">{</span><span class="n">stable_space_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
     <span class="n">query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;SELECT * FROM stable_space WHERE stable_space_id = &#39;</span><span class="si">{</span><span class="n">stable_space_id</span><span class="si">}</span><span class="s2">&#39;;&quot;</span>
@@ -4354,7 +4361,11 @@
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
             <span class="sa">f</span><span class="s2">&quot;Stable space ID </span><span class="si">{</span><span class="n">stable_space_id</span><span class="si">}</span><span class="s2"> already exists with range: </span><span class="si">{</span><span class="n">output_query</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">.&quot;</span>
         <span class="p">)</span>
-        <span class="k">return</span> <span class="kc">True</span>
+        <span class="n">stable_space_start</span> <span class="o">=</span> <span class="n">output_query</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;stable_space_start&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">stable_space_start</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Stable space ID </span><span class="si">{</span><span class="n">stable_space_id</span><span class="si">}</span><span class="s2"> has no start value.&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">stable_space_start</span><span class="p">)</span>
 
     <span class="k">else</span><span class="p">:</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
@@ -4381,7 +4392,7 @@
                 <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
                     <span class="sa">f</span><span class="s2">&quot;Previous stable space ID </span><span class="si">{</span><span class="n">previous_space_id</span><span class="si">}</span><span class="s2"> has no end value.&quot;</span>
                 <span class="p">)</span>
-                <span class="k">return</span> <span class="kc">False</span>
+                <span class="k">return</span> <span class="kc">None</span>
             <span class="n">new_start</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">previous_end</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
             <span class="n">new_end</span> <span class="o">=</span> <span class="n">new_start</span> <span class="o">+</span> <span class="mi">4999999</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
@@ -4412,13 +4423,13 @@
                 <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
                     <span class="sa">f</span><span class="s2">&quot;Failed to insert stable space range for ID </span><span class="si">{</span><span class="n">stable_space_id</span><span class="si">}</span><span class="s2">.&quot;</span>
                 <span class="p">)</span>
-                <span class="k">return</span> <span class="kc">False</span>
+                <span class="k">return</span> <span class="kc">None</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">&quot;Failed to create stable space range for ID </span><span class="si">{</span><span class="n">stable_space_id</span><span class="si">}</span><span class="s2">. </span><span class="se">\</span>
 <span class="s2">                    Previous space ID </span><span class="si">{</span><span class="n">previous_space_id</span><span class="si">}</span><span class="s2"> not found.&quot;</span>
             <span class="p">)</span>
-            <span class="k">return</span> <span class="kc">False</span>
+            <span class="k">return</span> <span class="kc">None</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
