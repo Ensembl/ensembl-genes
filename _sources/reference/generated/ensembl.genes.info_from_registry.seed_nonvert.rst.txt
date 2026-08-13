@@ -1,9 +1,0 @@
-ensembl.genes.info_from_registry.seed_nonvert
-=============================================
-
-Source: ``src/python/ensembl/genes/info_from_registry/seed_nonvert.py``
-
-.. automodule:: ensembl.genes.info_from_registry.seed_nonvert
-   :members:
-   :show-inheritance:
-   :undoc-members:

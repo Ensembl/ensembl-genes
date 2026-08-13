@@ -1,9 +1,0 @@
-ensembl.genes.annotation_qc.runners.assess_translation_validity
-===============================================================
-
-Source: ``src/python/ensembl/genes/annotation_qc/runners/assess_translation_validity.py``
-
-.. automodule:: ensembl.genes.annotation_qc.runners.assess_translation_validity
-   :members:
-   :show-inheritance:
-   :undoc-members:

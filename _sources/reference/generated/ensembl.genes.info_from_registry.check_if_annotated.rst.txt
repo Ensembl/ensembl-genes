@@ -1,9 +1,0 @@
-ensembl.genes.info_from_registry.check_if_annotated
-===================================================
-
-Source: ``src/python/ensembl/genes/info_from_registry/check_if_annotated.py``
-
-.. automodule:: ensembl.genes.info_from_registry.check_if_annotated
-   :members:
-   :show-inheritance:
-   :undoc-members:

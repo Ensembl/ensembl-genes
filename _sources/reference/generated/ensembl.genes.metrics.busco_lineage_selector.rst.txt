@@ -1,9 +1,0 @@
-ensembl.genes.metrics.busco_lineage_selector
-============================================
-
-Source: ``src/python/ensembl/genes/metrics/busco_lineage_selector.py``
-
-.. automodule:: ensembl.genes.metrics.busco_lineage_selector
-   :members:
-   :show-inheritance:
-   :undoc-members:

@@ -1,9 +1,0 @@
-ensembl.genes.tracking.live_tracking
-====================================
-
-Source: ``src/python/ensembl/genes/tracking/live_tracking.py``
-
-.. automodule:: ensembl.genes.tracking.live_tracking
-   :members:
-   :show-inheritance:
-   :undoc-members:

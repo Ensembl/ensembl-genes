@@ -1,9 +1,0 @@
-ensembl.genes.info_from_registry.check_stable_space_old_registry
-================================================================
-
-Source: ``src/python/ensembl/genes/info_from_registry/check_stable_space_old_registry.py``
-
-.. automodule:: ensembl.genes.info_from_registry.check_stable_space_old_registry
-   :members:
-   :show-inheritance:
-   :undoc-members:

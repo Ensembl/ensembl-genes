@@ -1,9 +1,0 @@
-ensembl.genes.annotation_qc.metrics.feature_wide_metrics
-========================================================
-
-Source: ``src/python/ensembl/genes/annotation_qc/metrics/feature_wide_metrics.py``
-
-.. automodule:: ensembl.genes.annotation_qc.metrics.feature_wide_metrics
-   :members:
-   :show-inheritance:
-   :undoc-members:

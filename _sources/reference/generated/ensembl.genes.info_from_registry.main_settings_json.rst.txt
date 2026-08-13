@@ -1,8 +1,0 @@
-main_settings.json
-==================
-
-Source: ``src/python/ensembl/genes/info_from_registry/main_settings.json``
-
-.. literalinclude:: ../../../src/python/ensembl/genes/info_from_registry/main_settings.json
-   :language: json
-   :linenos:

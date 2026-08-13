@@ -1,3 +1,0 @@
-```{include} ../../../src/python/ensembl/genes/info_from_registry/README.md
-:parser: myst_parser.sphinx_
-```

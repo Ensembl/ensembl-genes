@@ -1,9 +1,0 @@
-ensembl.genes.metrics.check_busco_score
-=======================================
-
-Source: ``src/python/ensembl/genes/metrics/check_busco_score.py``
-
-.. automodule:: ensembl.genes.metrics.check_busco_score
-   :members:
-   :show-inheritance:
-   :undoc-members:
