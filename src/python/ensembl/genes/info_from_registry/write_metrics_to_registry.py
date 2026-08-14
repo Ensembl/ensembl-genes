@@ -24,16 +24,21 @@ Uses DELETE then INSERT pattern to avoid stale/duplicated metrics.
 """
 
 # pylint:disable=f-string-without-interpolation, broad-exception-raised
+from __future__ import annotations
+
 import argparse
 import sys
 from typing import Optional
-import pymysql
+
+from pymysql.connections import Connection
+from pymysql.cursors import DictCursor
+
 from ensembl.genes.info_from_registry.mysql_helper import mysql_get_connection
 from ensembl.genes.info_from_registry.registry_helper import fetch_registry_ids
 
 
 def fetch_core_metrics(
-    core_connection: pymysql.connections.Connection, species_id: int
+    core_connection: Connection[DictCursor], species_id: int
 ) -> list[dict[str, str]]:
     """
     Fetch metrics from core database meta table.
@@ -91,7 +96,7 @@ def partition_metrics(
 
 
 def write_assembly_metrics(
-    registry_connection: pymysql.connections.Connection,
+    registry_connection: Connection[DictCursor],
     assembly_id: int,
     rows: list[tuple[str, str]],
     dev: bool,
@@ -150,7 +155,7 @@ def write_assembly_metrics(
 
 
 def write_genebuild_metrics(
-    registry_connection: pymysql.connections.Connection,
+    registry_connection: Connection[DictCursor],
     genebuild_status_id: Optional[int],
     assembly_id: int,
     rows: list[tuple[str, str]],

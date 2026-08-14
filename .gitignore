@@ -145,3 +145,14 @@ __pycache__
 #other
 .nextflow
 .codex
+# macOS
+.DS_Store
+
+# Generated project-page pipeline outputs
+# (see src/python/ensembl/genes/projects/generate_project_yaml.py)
+*_species.yaml
+*_audit.tsv
+*_changelog.tsv
+*_guuids.txt
+*_dbs.txt
+slurm-*.out
