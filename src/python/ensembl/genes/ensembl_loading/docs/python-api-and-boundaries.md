@@ -52,6 +52,17 @@ normalization to `gff_annotation.py`, and schema/database row operations to
 `gff_core_database.py`. Existing callers can continue importing the documented
 loader functions from `gff_core_loader`.
 
+For RefSeq GCF assemblies, resolve the official annotation URL first:
+
+```bash
+python -m ensembl.genes.ensembl_loading.ncbi_annotation_report \
+  GCF_000001635.27
+```
+
+The loader calls this resolver automatically for GCF assemblies and stores the
+returned URL as `genebuild.provider_url`. The resolver is isolated so it can be
+removed later without changing the core loader.
+
 ## Current Boundaries
 
 The current modular loader is generic at the GFF feature-loading layer. RefSeq

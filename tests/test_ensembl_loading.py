@@ -23,6 +23,7 @@ if str(SRC_PATH) not in sys.path:
 from ensembl.genes.ensembl_loading import (
     gff_cli,
     gff_core_loader,
+    gff_metadata,
     gff_repeat_loader,
 )
 from ensembl.genes.ensembl_loading.gff_quality_check import (
@@ -539,10 +540,16 @@ def test_initialise_core_tables_loads_assembly_report_meta(
         (1, "species.common_name", "human"),
         (1, "species.display_name", "human"),
         (1, "species.production_name", "homo_sapiens_gca000001405v29"),
+        (1, "species.url", "Homo_sapiens_gca000001405v29"),
         (1, "species.taxonomy_id", "9606"),
         (1, "assembly.accession", "GCA_000001405.29"),
         (1, "assembly.name", "GCA_000001405.29_GRCh38.p14"),
         (1, "assembly.date", "2024-04-18"),
+        (
+            1,
+            "assembly.provider_url",
+            "https://www.ncbi.nlm.nih.gov/assembly/GCA_000001405.29/",
+        ),
         (1, "genebuild.start_date", "2024-04-18"),
         (1, "assembly.default", "1"),
         (1, "assembly.web_accession_source", "NCBI"),
@@ -555,6 +562,7 @@ def test_initialise_core_tables_loads_assembly_report_meta(
 
 def test_initialise_core_tables_loads_refseq_alt_accession(
     tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     assembly_report = write_lines(
         tmp_path / "assembly_report.txt",
@@ -568,6 +576,14 @@ def test_initialise_core_tables_loads_refseq_alt_accession(
         ],
     )
     cursor = FakeCoreCursor()
+    monkeypatch.setattr(
+        gff_metadata,
+        "get_annotation_report_url",
+        lambda _: (
+            "https://www.ncbi.nlm.nih.gov/refseq/annotation_euk/"
+            "Mus_musculus/GCF_000001635.27-RS_2024_02/"
+        ),
+    )
 
     gff_core_loader.initialise_core_tables(
         cursor,
@@ -581,11 +597,24 @@ def test_initialise_core_tables_loads_refseq_alt_accession(
         (1, "species.common_name", "house mouse"),
         (1, "species.display_name", "house mouse"),
         (1, "species.production_name", "mus_musculus_gcf000001635v27"),
+        (1, "species.url", "Mus_musculus_gcf000001635v27"),
         (1, "species.taxonomy_id", "10090"),
         (1, "assembly.accession", "GCF_000001635.27"),
         (1, "assembly.alt_accession", "GCA_000001635.9"),
         (1, "assembly.name", "GRCm39"),
         (1, "assembly.date", "2020-06-24"),
+        (
+            1,
+            "assembly.provider_url",
+            "https://www.ncbi.nlm.nih.gov/assembly/GCF_000001635.27/",
+        ),
+        (
+            1,
+            "genebuild.provider_url",
+            "https://www.ncbi.nlm.nih.gov/refseq/annotation_euk/"
+            "Mus_musculus/GCF_000001635.27-RS_2024_02/",
+        ),
+        (1, "annotation.provider_url", "https://www.ncbi.nlm.nih.gov/refseq/"),
         (1, "genebuild.start_date", "2020-06-24"),
         (1, "assembly.default", "1"),
         (1, "assembly.web_accession_source", "NCBI"),

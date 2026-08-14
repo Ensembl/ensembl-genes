@@ -19,6 +19,11 @@ LOGGER = logging.getLogger(__name__)
 DEFAULT_ASSEMBLY_WEB_ACCESSION_SOURCE = "NCBI"
 DEFAULT_ASSEMBLY_WEB_ACCESSION_TYPE = "INSDC Assembly ID"
 
+try:  # Support both package imports and direct same-directory imports.
+    from .ncbi_annotation_report import get_annotation_report_url
+except ImportError:  # pragma: no cover - used when run beside this file.
+    from ncbi_annotation_report import get_annotation_report_url  # type: ignore
+
 
 def species_db_name_token(species_name: str) -> str:
     """Return the species token used in derived Ensembl core DB names."""
@@ -33,12 +38,30 @@ def species_db_name_token(species_name: str) -> str:
     )
 
 
+def species_url_token(species_name: str) -> str:
+    """Return the species token used in the core ``species.url`` metadata."""
+
+    species_parts = species_name.split()
+    if len(species_parts) < 2:
+        raise ValueError("species_name must contain at least genus and species")
+    genus, species = species_parts[:2]
+    return f"{genus.capitalize()}_{species.lower()}"
+
+
 def refseq_accession_db_token(assembly_accession: str) -> str:
     """Return a compact DB-safe token for a RefSeq assembly accession."""
 
     token = assembly_accession.lower().replace("_", "")
     token = token.replace(".", "v", 1)
     return re.sub(r"[^a-z0-9]+", "_", token).strip("_")
+
+
+def ncbi_assembly_url(assembly_accession: str) -> str:
+    """Return the NCBI assembly page for a GenBank or RefSeq accession."""
+
+    if assembly_accession.upper().startswith(("GCA_", "GCF_")):
+        return f"https://www.ncbi.nlm.nih.gov/assembly/{assembly_accession}/"
+    return ""
 
 
 @contextmanager
@@ -78,17 +101,39 @@ def parse_assembly_report_metadata(
         "species.common_name": "",
         "species.display_name": species_name,
         "species.production_name": "",
+        "species.url": "",
         "species.taxonomy_id": "",
         "assembly.accession": assembly_accession,
         "assembly.alt_accession": "",
         "assembly.name": assembly_accession,
         "assembly.date": "",
+        "assembly.provider_url": ncbi_assembly_url(assembly_accession),
         "assembly.provider": "",
+        "genebuild.provider_url": "",
+        "annotation.provider_url": (
+            "https://www.ncbi.nlm.nih.gov/refseq/"
+            if assembly_accession.upper().startswith("GCF_")
+            else ""
+        ),
         "genebuild.start_date": "",
         "assembly.default": "1",
         "assembly.web_accession_source": DEFAULT_ASSEMBLY_WEB_ACCESSION_SOURCE,
         "assembly.web_accession_type": DEFAULT_ASSEMBLY_WEB_ACCESSION_TYPE,
     }
+
+    metadata["species.production_name"] = (
+        f"{species_db_name_token(species_name)}_"
+        f"{refseq_accession_db_token(assembly_accession)}"
+    )
+    metadata["species.url"] = (
+        f"{species_url_token(species_name)}_"
+        f"{refseq_accession_db_token(assembly_accession)}"
+    )
+
+    if assembly_accession.upper().startswith("GCF_"):
+        metadata["genebuild.provider_url"] = get_annotation_report_url(
+            assembly_accession
+        )
 
     if not str(assembly_report_path):
         return metadata
@@ -142,6 +187,10 @@ def parse_assembly_report_metadata(
     # add species.production_name
     metadata["species.production_name"] = (
         f"{species_db_name_token(metadata['species.scientific_name'])}_"
+        f"{refseq_accession_db_token(metadata['assembly.accession'])}"
+    )
+    metadata["species.url"] = (
+        f"{species_url_token(metadata['species.scientific_name'])}_"
         f"{refseq_accession_db_token(metadata['assembly.accession'])}"
     )
 

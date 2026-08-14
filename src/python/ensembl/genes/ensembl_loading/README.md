@@ -126,6 +126,7 @@ gff_core_loader.py
 gff_annotation.py
 gff_metadata.py
 gff_core_database.py
+ncbi_annotation_report.py
 gff_models.py
 gff_repeat_loader.py
 gff_source_config.py
@@ -133,6 +134,9 @@ gff_source_config.py
 
 The core loader facade keeps the public loading API and transaction workflows.
 Assembly-report metadata and shared text-file handling live in `gff_metadata.py`.
+The temporary `ncbi_annotation_report.py` helper resolves official NCBI
+annotation-report URLs for GCF accessions; `gff_metadata.py` calls it while
+loading GCF metadata.
 GFF feature parsing and annotation normalization live in `gff_annotation.py`;
 schema, sequence, ID allocation, and row-insert helpers live in
 `gff_core_database.py`.

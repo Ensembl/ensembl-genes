@@ -37,6 +37,11 @@ The implementation is split by responsibility:
 : Provides the public loading functions and coordinates the database
   transactions and quality checks.
 
+`ncbi_annotation_report.py`
+: Temporary isolated helper that queries NCBI Datasets for the official
+  annotation-report URL of a GCF accession. It is called by
+  `gff_metadata.py` and can be removed later without changing the core loader.
+
 ## Assembly-Report Metadata
 
 `parse_assembly_report_metadata()` in `gff_metadata.py` reads the leading
@@ -51,6 +56,9 @@ The production name is generated as:
 
 For example, `Bradysia coprophila` and `GCF_014529535.1` become
 `bradysia_coprophila_gcf014529535v1`.
+
+The `species.url` metadata uses the same compact accession but preserves the
+capitalized genus, for example `Bradysia_coprophila_gca014529535v1`.
 
 For RefSeq accessions beginning with `GCF`, the GenBank accession from the
 assembly report is stored as `assembly.alt_accession`. The web accession source
