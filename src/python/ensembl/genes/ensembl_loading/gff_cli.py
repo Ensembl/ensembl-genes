@@ -4,8 +4,9 @@ from __future__ import annotations
 
 import argparse
 import logging
+from collections.abc import Sequence
 from pathlib import Path
-from typing import Any, Sequence
+from typing import Any
 
 try:  # Support both package imports and direct same-directory imports.
     from .gff_core_loader import load_gff_features_to_core, load_to_ensembl_core

@@ -123,10 +123,19 @@ Generic loading modules:
 ```text
 gff_cli.py
 gff_core_loader.py
+gff_annotation.py
+gff_metadata.py
+gff_core_database.py
 gff_models.py
 gff_repeat_loader.py
 gff_source_config.py
 ```
+
+The core loader facade keeps the public loading API and transaction workflows.
+Assembly-report metadata and shared text-file handling live in `gff_metadata.py`.
+GFF feature parsing and annotation normalization live in `gff_annotation.py`;
+schema, sequence, ID allocation, and row-insert helpers live in
+`gff_core_database.py`.
 
 RefSeq-specific modules:
 

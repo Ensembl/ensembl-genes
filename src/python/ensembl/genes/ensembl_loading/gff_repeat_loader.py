@@ -8,27 +8,22 @@ from dataclasses import dataclass
 from pathlib import Path
 
 try:  # Support both package imports and direct same-directory imports.
-    from .gff_core_loader import (
-        DbCursor,
-        connect_mysql,
-        get_coord_system_id,
-        open_text_maybe_gzip,
-    )
+    from .gff_annotation import DbCursor
+    from .gff_core_database import connect_mysql, get_coord_system_id
+    from .gff_metadata import open_text_maybe_gzip
 except ImportError:  # pragma: no cover - used when run beside this file.
-    from gff_core_loader import (  # type: ignore
-        DbCursor,
-        connect_mysql,
-        get_coord_system_id,
-        open_text_maybe_gzip,
-    )
+    from gff_annotation import DbCursor  # type: ignore
+    from gff_core_database import connect_mysql, get_coord_system_id  # type: ignore
+    from gff_metadata import open_text_maybe_gzip  # type: ignore
 
 
 LOGGER = logging.getLogger(__name__)
 
+# first string stored in analysis table, second string stored in repeat_consensus table
 REPEAT_TYPES = {
     "dust": "Dust",
     "repeatdetector": "repeatdetector",
-    "repeatmask_repbase_human": "repeatmasker",
+    "repeatmasker": "repeatmasker",
     "trf": "Tandem repeats",
 }
 SIMPLE_FEATURE_ANALYSES = frozenset({"cpg", "eponine"})

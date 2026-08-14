@@ -14,22 +14,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # pylint: disable=missing-module-docstring, consider-using-with, logging-not-lazy, logging-fstring-interpolation, consider-using-dict-items, unspecified-encoding,invalid-name , broad-exception-caught, line-too-long, redefined-outer-name, missing-timeout, unused-argument, missing-function-docstring
-import json
-import re
 import argparse
-from importlib import import_module
-from datetime import datetime
-from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Tuple
-
+import json
 import logging
 import logging.config
-import requests
+import re
+from collections.abc import Callable
+from datetime import datetime
+from importlib import import_module
+from pathlib import Path
+from typing import Any
+
 import pymysql
+import requests
 import xmltodict
 
 
-def _load_bioproject_names_getter() -> Callable[..., List[str]]:
+def _load_bioproject_names_getter() -> Callable[..., list[str]]:
     try:
         module = import_module("ensembl.genes.metadata.bioproject_from_registry")
     except ImportError:
@@ -43,9 +44,31 @@ fetch_bioproject_names = _load_bioproject_names_getter()
 logger: logging.Logger = logging.getLogger(__name__)
 
 
+BIOSAMPLE_ID_FALLBACKS_BY_GCA_CHAIN: dict[str, str] = {
+    "GCA_000002985": "SAMN04256190",
+    "GCA_000224145": "SAMD00414333",
+    "GCA_000001405": "SAMN12121739",
+    "GCA_000146045": "SAMEA3184125",
+    "GCA_000001635": "SAMN26853311",
+    "GCA_002263795": "SAMN03145444",
+}
+
+
+def normalize_assembly_accession_chain(accession: str) -> str:
+    """Return an assembly accession without its version suffix."""
+    return accession.strip().split(".", maxsplit=1)[0]
+
+
+def fallback_biosample_id_from_gca_chain(accession: str) -> str:
+    """Return the configured BioSample ID for an assembly's GCA chain."""
+    return BIOSAMPLE_ID_FALLBACKS_BY_GCA_CHAIN.get(
+        normalize_assembly_accession_chain(accession), ""
+    )
+
+
 def mysql_fetch_data(
     query: str, database: str, host: str, port: int, user: str
-) -> List[Tuple[Any, ...]]:
+) -> list[tuple[Any, ...]]:
     """
     Run a simple SELECT query and return fetched rows.
     Returns an empty list on error.
@@ -62,7 +85,7 @@ def mysql_fetch_data(
     """
     conn = None
     cursor = None
-    info: List[Tuple[Any, ...]] = []
+    info: list[tuple[Any, ...]] = []
     try:
         conn = pymysql.connect(
             host=host, user=user, port=port, database=database.strip()
@@ -86,7 +109,7 @@ def mysql_fetch_data(
     return info
 
 
-def get_ena_metadata(accession: str, truth_dict: Dict[str, Any]) -> Dict[str, str]:
+def get_ena_metadata(accession: str, truth_dict: dict[str, Any]) -> dict[str, str]:
     """Fetch assembly metadata from ENA XML API.
 
     Args:
@@ -96,7 +119,7 @@ def get_ena_metadata(accession: str, truth_dict: Dict[str, Any]) -> Dict[str, st
     Returns:
         Dict[str, str]: Dictionary containing metadata from ENA.
     """
-    return_dict: Dict[str, str] = {}
+    return_dict: dict[str, str] = {}
     assembly_url = f"https://www.ebi.ac.uk/ena/browser/api/xml/{accession}"
     assembly_xml = requests.get(assembly_url)
     assembly_dict = xmltodict.parse(assembly_xml.text)
@@ -144,10 +167,6 @@ def get_ena_metadata(accession: str, truth_dict: Dict[str, Any]) -> Dict[str, st
         )
         if biosample_id:
             return_dict["organism.biosample_id"] = biosample_id
-        else:
-            logger.critical(
-                " | BIOSAMPLE_ID | organism.biosample_id could not be found in the ENA metadata, this is a required key!"
-            )
 
     # taxonomy id (workaround for bad records)
     if accession in ("GCA_944452655.1", "GCA_944452715.1"):
@@ -171,7 +190,7 @@ def get_ena_metadata(accession: str, truth_dict: Dict[str, Any]) -> Dict[str, st
 
 def get_ncbi_metadata(
     accession: str, assembly_name: str, scientific_name: str, search: str
-) -> Dict[str, str]:
+) -> dict[str, str]:
     """Fetch assembly metadata from NCBI assembly report.
 
     Args:
@@ -187,7 +206,7 @@ def get_ncbi_metadata(
     ncbi_url = f"https://ftp.ncbi.nlm.nih.gov/genomes/all/{accession[0:3]}/{accession[4:7]}/{accession[7:10]}/{accession[10:13]}/{organism}/{organism}_assembly_report.txt"
     ncbi_return = requests.get(ncbi_url).text.splitlines()
 
-    return_dict: Dict[str, str] = {
+    return_dict: dict[str, str] = {
         "assembly.ucsc_alias": "",
         "organism.strain": "",
         "organism.strain_type": "",
@@ -213,7 +232,7 @@ def get_ncbi_metadata(
 
 def get_biosample_metadata(
     biosample_id: str, assembly_accession: str, assembly_name: str, scientific_name: str
-) -> Dict[str, str]:
+) -> dict[str, str]:
     """Fetch assembly metadata from EBI BioSample API.
 
     Args:
@@ -228,7 +247,7 @@ def get_biosample_metadata(
 
     biosample_url = f"https://www.ebi.ac.uk/biosamples/samples/{biosample_id}"
     biosample_return = requests.get(biosample_url).text
-    return_dict: Dict[str, str] = {"organism.strain": "", "organism.strain_type": ""}
+    return_dict: dict[str, str] = {"organism.strain": "", "organism.strain_type": ""}
 
     try:
         biosample_data = json.loads(biosample_return)
@@ -421,22 +440,6 @@ if __name__ == "__main__":
         core_dict["assembly.accession"] = core_dict["assembly.accession_refseq"]
         truth_dict["assembly.accession_body"] = "RefSeq"
 
-    # Some goddamn ENA assembly records do not have the BioSample ID, so I'm hardcoding them, I swear to jaysus, I'm so done with metadata!!!
-    if db == "caenorhabditis_elegans_core_57_110_282":
-        truth_dict["organism.biosample_id"] = "SAMN04256190"
-    elif db == "ciona_intestinalis_core_110_3":
-        truth_dict["organism.biosample_id"] = "SAMD00414333"
-    elif db == "homo_sapiens_37_core_110_37":
-        truth_dict["organism.biosample_id"] = "SAMN12121739"
-    elif db == "homo_sapiens_core_110_38":
-        truth_dict["organism.biosample_id"] = "SAMN12121739"
-    elif db == "saccharomyces_cerevisiae_core_57_110_4":
-        truth_dict["organism.biosample_id"] = "SAMEA3184125"
-    elif db == "mus_musculus_core_110_39":
-        truth_dict["organism.biosample_id"] = "SAMN26853311"
-    elif db == "bos_taurus_core_110_1":
-        truth_dict["organism.biosample_id"] = "SAMN03145444"
-
     bioproject_names = fetch_bioproject_names(
         gca_accession, user=server_info["meta"]["db_user"]
     )
@@ -446,6 +449,13 @@ if __name__ == "__main__":
         truth_dict.update(get_ena_metadata(gca_accession, truth_dict))
     except KeyError:
         logger.critical("No assembly accession found, cannot process any further")
+
+    # Some ENA and NCBI records do not expose a BioSample ID. Use the stable
+    # GCA accession chain as the final fallback for known assemblies.
+    if not truth_dict.get("organism.biosample_id"):
+        fallback_biosample_id = fallback_biosample_id_from_gca_chain(gca_accession)
+        if fallback_biosample_id:
+            truth_dict["organism.biosample_id"] = fallback_biosample_id
 
     # get common and scientific names from NCBI taxonomy (seems inefficient to query the db twice, but I don't think it returns ordered results and I don't want to risk mixing them up)
     try:
@@ -514,7 +524,7 @@ if __name__ == "__main__":
     )
 
     # get metadata from BioSample records
-    if truth_dict["organism.biosample_id"] != "":
+    if truth_dict.get("organism.biosample_id", "") != "":
         truth_dict.update(
             get_biosample_metadata(
                 truth_dict["organism.biosample_id"],
@@ -548,7 +558,7 @@ if __name__ == "__main__":
         if truth_dict["organism.scientific_name"] in line:
             ref_accession = line.split("\t")[1].strip()
             if gca_accession == ref_accession:
-                truth_dict["assembly.is_reference"] = 1
+                truth_dict["assembly.is_reference"] = "1"
 
     # now to create some values
     # assembly provider and url - if not in core already, set to default provider,"ENA"
@@ -749,7 +759,7 @@ if __name__ == "__main__":
     # if the expected meta_key exists in the core metadata and matches the truth value, NO ACTION
     for meta_key in truth_dict:
         # Escape single quotes in truth_dict[meta_key]
-        meta_value: Optional[str] = (
+        meta_value: str | None = (
             truth_dict[meta_key].replace("'", "''") if truth_dict[meta_key] else None
         )
 

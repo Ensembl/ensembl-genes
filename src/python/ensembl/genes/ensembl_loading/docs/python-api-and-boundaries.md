@@ -46,6 +46,12 @@ These functions use standard `logging` rather than printing directly, so callers
 can configure verbosity, capture logs in tests, or integrate them into a larger
 pipeline.
 
+The public loading facade is `gff_core_loader.py`. Its implementation delegates
+assembly-report metadata to `gff_metadata.py`, GFF feature parsing and
+normalization to `gff_annotation.py`, and schema/database row operations to
+`gff_core_database.py`. Existing callers can continue importing the documented
+loader functions from `gff_core_loader`.
+
 ## Current Boundaries
 
 The current modular loader is generic at the GFF feature-loading layer. RefSeq

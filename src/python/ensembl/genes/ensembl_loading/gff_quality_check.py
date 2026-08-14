@@ -9,7 +9,7 @@ from typing import Any, Protocol
 
 # pylint: disable=too-many-locals
 # pylint: disable=too-many-arguments
-# # pylint: disable=unnecessary-ellipsis
+# pylint: disable=unnecessary-ellipsis
 
 
 try:  # Support both package imports and direct same-directory imports.

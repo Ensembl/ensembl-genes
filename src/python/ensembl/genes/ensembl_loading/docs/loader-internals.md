@@ -15,6 +15,47 @@ GFF3/GTF
   -> database inserts
 ```
 
+## Module Boundaries
+
+The implementation is split by responsibility:
+
+`gff_metadata.py`
+: Reads assembly-report headers, normalizes assembly dates and accession
+  tokens, derives species database-name tokens, and opens plain or gzip text
+  files.
+
+`gff_annotation.py`
+: Parses GFF3/GTF feature rows into `ParsedAnnotation` records, reconciles
+  missing gene/transcript/exon relationships, computes exon phases, and applies
+  biotype overrides.
+
+`gff_core_database.py`
+: Handles schema loading, core metadata insertion, FASTA/`seq_region` loading,
+  numeric ID allocation, and feature-row inserts.
+
+`gff_core_loader.py`
+: Provides the public loading functions and coordinates the database
+  transactions and quality checks.
+
+## Assembly-Report Metadata
+
+`parse_assembly_report_metadata()` in `gff_metadata.py` reads the leading
+comment headers from an NCBI assembly report. It populates species metadata,
+assembly metadata, and genebuild dates before the core tables are initialized.
+
+The production name is generated as:
+
+```text
+<normalized scientific name>_<compact assembly accession>
+```
+
+For example, `Bradysia coprophila` and `GCF_014529535.1` become
+`bradysia_coprophila_gcf014529535v1`.
+
+For RefSeq accessions beginning with `GCF`, the GenBank accession from the
+assembly report is stored as `assembly.alt_accession`. The web accession source
+and type default to `NCBI` and `INSDC Assembly ID` respectively.
+
 ### Attribute Parsing And ID Normalization
 
 `parse_gff3_attributes()` converts the ninth GFF column into a dictionary:
