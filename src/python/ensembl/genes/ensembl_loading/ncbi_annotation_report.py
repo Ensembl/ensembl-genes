@@ -15,7 +15,7 @@ import argparse
 import logging
 import re
 from collections.abc import Mapping
-from typing import Any, Protocol
+from typing import Any, Protocol, cast
 from urllib.parse import quote
 
 LOGGER = logging.getLogger(__name__)
@@ -98,15 +98,17 @@ def get_annotation_report_url(
 
     if session is None:
         try:
-            import requests  # pylint: disable=import-outside-toplevel
+            import requests  # type: ignore[import]  # pylint: disable=import-outside-toplevel
         except ImportError as error:  # pragma: no cover - dependency issue
             raise ImportError(
                 "The NCBI annotation resolver requires the 'requests' package."
             ) from error
-        session = requests.Session()
+        http_session = cast(HttpSession, requests.Session())
+    else:
+        http_session = session
 
     url = NCBI_DATASETS_REPORT_URL.format(accession=quote(accession, safe=""))
-    response = session.get(url, timeout=timeout)
+    response = http_session.get(url, timeout=timeout)
     response.raise_for_status()
     report_url = _find_annotation_report_url(response.json())
     if not report_url:
