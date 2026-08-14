@@ -1,5 +1,13 @@
 """Parse and normalize converted GFF3/GTF annotations."""
 
+# Parsing and normalization keep source-specific decisions in one place, which
+# makes a few functions necessarily branch- and argument-heavy.
+# pylint: disable=unnecessary-ellipsis
+# pylint: disable=too-many-arguments
+# pylint: disable=too-many-branches
+# pylint: disable=too-many-locals
+# pylint: disable=too-many-return-statements
+
 from __future__ import annotations
 
 import logging

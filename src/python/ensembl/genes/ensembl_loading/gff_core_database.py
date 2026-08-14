@@ -1,5 +1,10 @@
 """Database schema and row helpers for Ensembl core loading."""
 
+# These helpers mirror the Ensembl core schema operations and intentionally
+# accept the complete set of values needed for each insert workflow.
+# pylint: disable=too-many-arguments
+# pylint: disable=too-many-locals
+
 from __future__ import annotations
 
 import logging

@@ -1,5 +1,9 @@
 """Assembly-report metadata and shared text-file helpers."""
 
+# Assembly reports contain several independent header fields with different
+# fallback rules, so the header parser intentionally has multiple branches.
+# pylint: disable=too-many-branches
+
 from __future__ import annotations
 
 import gzip
