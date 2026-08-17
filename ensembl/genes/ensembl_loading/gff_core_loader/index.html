@@ -3762,8 +3762,7 @@ the GFF seqids.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/python/ensembl/genes/ensembl_loading/gff_core_loader.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">189</span>
-<span class="normal">190</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">190</span>
 <span class="normal">191</span>
 <span class="normal">192</span>
 <span class="normal">193</span>
@@ -3875,7 +3874,8 @@ the GFF seqids.</p>
 <span class="normal">299</span>
 <span class="normal">300</span>
 <span class="normal">301</span>
-<span class="normal">302</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">load_gff_features_to_core</span><span class="p">(</span>
+<span class="normal">302</span>
+<span class="normal">303</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">load_gff_features_to_core</span><span class="p">(</span>
     <span class="n">gff_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span>
     <span class="n">db_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">db_host</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -4135,7 +4135,8 @@ together. Sequence names must already be converted in the GFF3 and FASTA.</p>
 <span class="normal">183</span>
 <span class="normal">184</span>
 <span class="normal">185</span>
-<span class="normal">186</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">load_to_ensembl_core</span><span class="p">(</span>
+<span class="normal">186</span>
+<span class="normal">187</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">load_to_ensembl_core</span><span class="p">(</span>
     <span class="n">converted_gff_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span>
     <span class="n">converted_fna_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span>
     <span class="n">assembly_report_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span>
@@ -4193,17 +4194,18 @@ together. Sequence names must already be converted in the GFF3 and FASTA.</p>
             <span class="n">assembly_report_path</span><span class="o">=</span><span class="n">assembly_report_path</span><span class="p">,</span>
             <span class="n">source_config</span><span class="o">=</span><span class="n">source_config</span><span class="p">,</span>
         <span class="p">)</span>
+        <span class="n">annotation</span> <span class="o">=</span> <span class="n">prepare_annotation_for_load</span><span class="p">(</span>
+            <span class="n">converted_gff_path</span><span class="p">,</span>
+            <span class="n">logger</span><span class="o">=</span><span class="n">log</span><span class="p">,</span>
+            <span class="n">source_config</span><span class="o">=</span><span class="n">source_config</span><span class="p">,</span>
+        <span class="p">)</span>
         <span class="n">seq_region_ids</span> <span class="o">=</span> <span class="n">load_seq_regions_from_fna</span><span class="p">(</span>
             <span class="n">converted_fna_path</span><span class="p">,</span>
             <span class="n">cursor</span><span class="p">,</span>
             <span class="n">coord_system_id</span><span class="p">,</span>
             <span class="n">logger</span><span class="o">=</span><span class="n">log</span><span class="p">,</span>
             <span class="n">source_config</span><span class="o">=</span><span class="n">source_config</span><span class="p">,</span>
-        <span class="p">)</span>
-        <span class="n">annotation</span> <span class="o">=</span> <span class="n">prepare_annotation_for_load</span><span class="p">(</span>
-            <span class="n">converted_gff_path</span><span class="p">,</span>
-            <span class="n">logger</span><span class="o">=</span><span class="n">log</span><span class="p">,</span>
-            <span class="n">source_config</span><span class="o">=</span><span class="n">source_config</span><span class="p">,</span>
+            <span class="n">seq_region_attributes</span><span class="o">=</span><span class="n">annotation</span><span class="o">.</span><span class="n">seq_region_attributes</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">gene_id_map</span><span class="p">,</span> <span class="n">transcript_id_map</span> <span class="o">=</span> <span class="n">allocate_numeric_ids</span><span class="p">(</span><span class="n">annotation</span><span class="p">)</span>
         <span class="n">insert_genes</span><span class="p">(</span>
