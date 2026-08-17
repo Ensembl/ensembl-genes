@@ -3958,16 +3958,16 @@ printing directly and reports progress through the standard logging module.</p>
 <span class="normal">40</span>
 <span class="normal">41</span>
 <span class="normal">42</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">accession_subdir</span><span class="p">(</span><span class="n">assembly_accession</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the NCBI-style three-level accession directory.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Return the NCBI-style three-level accession directory."""</span>
 
     <span class="k">try</span><span class="p">:</span>
-        <span class="n">numeric_accession</span> <span class="o">=</span> <span class="n">assembly_accession</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">numeric_accession</span> <span class="o">=</span> <span class="n">assembly_accession</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"_"</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"."</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
     <span class="k">except</span> <span class="ne">IndexError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Assembly accession must include an underscore: </span><span class="si">{</span><span class="n">assembly_accession</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">"Assembly accession must include an underscore: </span><span class="si">{</span><span class="n">assembly_accession</span><span class="si">}</span><span class="s2">"</span>
         <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span>
     <span class="n">padded</span> <span class="o">=</span> <span class="n">numeric_accession</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="mi">9</span><span class="p">)</span>
-    <span class="k">return</span> <span class="s2">&quot;/&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">padded</span><span class="p">[</span><span class="n">index</span> <span class="p">:</span> <span class="n">index</span> <span class="o">+</span> <span class="mi">3</span><span class="p">]</span> <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+    <span class="k">return</span> <span class="s2">"/"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">padded</span><span class="p">[</span><span class="n">index</span> <span class="p">:</span> <span class="n">index</span> <span class="o">+</span> <span class="mi">3</span><span class="p">]</span> <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -4020,19 +4020,19 @@ printing directly and reports progress through the standard logging module.</p>
 <span class="normal">72</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">build_assembly_paths</span><span class="p">(</span>
     <span class="n">base_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span> <span class="n">assembly_accession</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">ftp_path</span><span class="p">:</span> <span class="nb">str</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_refseq_models</span><span class="o">.</span><span class="n">AssemblyPaths</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Build all local and remote paths for one RefSeq assembly.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Build all local and remote paths for one RefSeq assembly."""</span>
 
-    <span class="n">accession_prefix</span> <span class="o">=</span> <span class="n">assembly_accession</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">accession_prefix</span> <span class="o">=</span> <span class="n">assembly_accession</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"_"</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
     <span class="n">assembly_dir</span> <span class="o">=</span> <span class="p">(</span>
         <span class="n">Path</span><span class="p">(</span><span class="n">base_dir</span><span class="p">)</span>
         <span class="o">/</span> <span class="n">accession_prefix</span>
         <span class="o">/</span> <span class="n">accession_subdir</span><span class="p">(</span><span class="n">assembly_accession</span><span class="p">)</span>
         <span class="o">/</span> <span class="n">assembly_accession</span>
     <span class="p">)</span>
-    <span class="n">ftp_base</span> <span class="o">=</span> <span class="n">ftp_path</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-    <span class="n">gff_url</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">ftp_path</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">ftp_base</span><span class="si">}</span><span class="s2">_genomic.gff.gz&quot;</span>
-    <span class="n">fasta_url</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">ftp_path</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">ftp_base</span><span class="si">}</span><span class="s2">_genomic.fna.gz&quot;</span>
-    <span class="n">assembly_report_url</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">ftp_path</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">ftp_base</span><span class="si">}</span><span class="s2">_assembly_report.txt&quot;</span>
+    <span class="n">ftp_base</span> <span class="o">=</span> <span class="n">ftp_path</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s2">"/"</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"/"</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">gff_url</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">ftp_path</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">ftp_base</span><span class="si">}</span><span class="s2">_genomic.gff.gz"</span>
+    <span class="n">fasta_url</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">ftp_path</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">ftp_base</span><span class="si">}</span><span class="s2">_genomic.fna.gz"</span>
+    <span class="n">assembly_report_url</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">ftp_path</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">ftp_base</span><span class="si">}</span><span class="s2">_assembly_report.txt"</span>
     <span class="k">return</span> <span class="n">_refseq_models</span><span class="o">.</span><span class="n">AssemblyPaths</span><span class="p">(</span>
         <span class="n">assembly_accession</span><span class="o">=</span><span class="n">assembly_accession</span><span class="p">,</span>
         <span class="n">ftp_path</span><span class="o">=</span><span class="n">ftp_path</span><span class="p">,</span>
@@ -4055,7 +4055,7 @@ printing directly and reports progress through the standard logging module.</p>
 
 
 <h3 id="ensembl.genes.ensembl_loading.refseq_ncbi.download_annotations" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">download_annotations</span><span class="p">(</span><span class="n">base_dir</span><span class="o">=</span><span class="s1">&#39;refseq_data&#39;</span><span class="p">,</span> <span class="n">species_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">assembly_acc</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">group</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">max_workers</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">session</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">download_annotations</span><span class="p">(</span><span class="n">base_dir</span><span class="o">=</span><span class="s1">'refseq_data'</span><span class="p">,</span> <span class="n">species_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">assembly_acc</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">group</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">max_workers</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">session</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
 
 <a href="#ensembl.genes.ensembl_loading.refseq_ncbi.download_annotations" class="headerlink" title="Permanent link">&para;</a></h3>
 
@@ -4113,7 +4113,7 @@ printing directly and reports progress through the standard logging module.</p>
 <span class="normal">389</span>
 <span class="normal">390</span>
 <span class="normal">391</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">download_annotations</span><span class="p">(</span>
-    <span class="n">base_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">=</span> <span class="s2">&quot;refseq_data&quot;</span><span class="p">,</span>
+    <span class="n">base_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">=</span> <span class="s2">"refseq_data"</span><span class="p">,</span>
     <span class="n">species_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">assembly_acc</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">group</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -4121,7 +4121,7 @@ printing directly and reports progress through the standard logging module.</p>
     <span class="n">session</span><span class="p">:</span> <span class="n">requests</span><span class="o">.</span><span class="n">Session</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">logger</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">_refseq_models</span><span class="o">.</span><span class="n">AssemblyPaths</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Download RefSeq annotation files selected by accession, species, or group.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Download RefSeq annotation files selected by accession, species, or group."""</span>
 
     <span class="n">log</span> <span class="o">=</span> <span class="n">logger</span> <span class="ow">or</span> <span class="n">LOGGER</span>
     <span class="n">targets</span> <span class="o">=</span> <span class="n">find_annotation_targets</span><span class="p">(</span>
@@ -4133,7 +4133,7 @@ printing directly and reports progress through the standard logging module.</p>
         <span class="n">logger</span><span class="o">=</span><span class="n">log</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">targets</span><span class="p">:</span>
-        <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;No RefSeq annotation targets found&quot;</span><span class="p">)</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">"No RefSeq annotation targets found"</span><span class="p">)</span>
         <span class="k">return</span> <span class="p">[]</span>
 
     <span class="n">worker_count</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">min</span><span class="p">(</span><span class="n">max_workers</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">targets</span><span class="p">)))</span>
@@ -4148,11 +4148,11 @@ printing directly and reports progress through the standard logging module.</p>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">downloaded_paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">future</span><span class="o">.</span><span class="n">result</span><span class="p">())</span>
                 <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                    <span class="s2">&quot;Downloaded annotation files for </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">record</span><span class="o">.</span><span class="n">assembly_accession</span>
+                    <span class="s2">"Downloaded annotation files for </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">record</span><span class="o">.</span><span class="n">assembly_accession</span>
                 <span class="p">)</span>
             <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
                 <span class="n">log</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span>
-                    <span class="s2">&quot;Failed to download annotation files for </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+                    <span class="s2">"Failed to download annotation files for </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span>
                     <span class="n">record</span><span class="o">.</span><span class="n">assembly_accession</span><span class="p">,</span>
                 <span class="p">)</span>
                 <span class="k">raise</span>
@@ -4196,7 +4196,7 @@ printing directly and reports progress through the standard logging module.</p>
     <span class="n">record</span><span class="p">:</span> <span class="n">_refseq_models</span><span class="o">.</span><span class="n">AssemblySummaryRecord</span><span class="p">,</span>
     <span class="n">logger</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_refseq_models</span><span class="o">.</span><span class="n">AssemblyPaths</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Download GFF3, FASTA, and assembly report files for one assembly.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Download GFF3, FASTA, and assembly report files for one assembly."""</span>
 
     <span class="n">log</span> <span class="o">=</span> <span class="n">logger</span> <span class="ow">or</span> <span class="n">LOGGER</span>
     <span class="n">paths</span> <span class="o">=</span> <span class="n">record</span><span class="o">.</span><span class="n">paths</span>
@@ -4261,25 +4261,25 @@ printing directly and reports progress through the standard logging module.</p>
     <span class="n">chunk_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">8192</span><span class="p">,</span>
     <span class="n">logger</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Download one URL to destination unless the file already exists.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Download one URL to destination unless the file already exists."""</span>
 
     <span class="n">log</span> <span class="o">=</span> <span class="n">logger</span> <span class="ow">or</span> <span class="n">LOGGER</span>
     <span class="n">destination_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">destination</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">destination_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
-        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Already exists: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">destination_path</span><span class="p">)</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"Already exists: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">destination_path</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">destination_path</span>
 
     <span class="n">destination_path</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Downloading </span><span class="si">%s</span><span class="s2"> to </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">destination_path</span><span class="p">)</span>
+    <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"Downloading </span><span class="si">%s</span><span class="s2"> to </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">destination_path</span><span class="p">)</span>
     <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">)</span>
     <span class="n">response</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span>
-    <span class="k">with</span> <span class="n">destination_path</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>  <span class="c1"># pylint: disable=unspecified-encoding</span>
+    <span class="k">with</span> <span class="n">destination_path</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">"wb"</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>  <span class="c1"># pylint: disable=unspecified-encoding</span>
         <span class="k">for</span> <span class="n">chunk</span> <span class="ow">in</span> <span class="n">response</span><span class="o">.</span><span class="n">iter_content</span><span class="p">(</span><span class="n">chunk_size</span><span class="o">=</span><span class="n">chunk_size</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">chunk</span><span class="p">:</span>
                 <span class="n">handle</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">chunk</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">destination_path</span><span class="o">.</span><span class="n">stat</span><span class="p">()</span><span class="o">.</span><span class="n">st_size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">OSError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Downloaded file is empty: </span><span class="si">{</span><span class="n">destination_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">OSError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Downloaded file is empty: </span><span class="si">{</span><span class="n">destination_path</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">destination_path</span>
 </code></pre></div></td></tr></table></div>
@@ -4292,7 +4292,7 @@ printing directly and reports progress through the standard logging module.</p>
 
 
 <h3 id="ensembl.genes.ensembl_loading.refseq_ncbi.fetch_assembly_summary" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">fetch_assembly_summary</span><span class="p">(</span><span class="n">group</span><span class="p">,</span> <span class="n">base_dir</span><span class="o">=</span><span class="s1">&#39;refseq_data&#39;</span><span class="p">,</span> <span class="n">session</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">fetch_assembly_summary</span><span class="p">(</span><span class="n">group</span><span class="p">,</span> <span class="n">base_dir</span><span class="o">=</span><span class="s1">'refseq_data'</span><span class="p">,</span> <span class="n">session</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
 
 <a href="#ensembl.genes.ensembl_loading.refseq_ncbi.fetch_assembly_summary" class="headerlink" title="Permanent link">&para;</a></h3>
 
@@ -4323,21 +4323,21 @@ printing directly and reports progress through the standard logging module.</p>
 <span class="normal">136</span>
 <span class="normal">137</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">fetch_assembly_summary</span><span class="p">(</span>
     <span class="n">group</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-    <span class="n">base_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">=</span> <span class="s2">&quot;refseq_data&quot;</span><span class="p">,</span>
+    <span class="n">base_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">=</span> <span class="s2">"refseq_data"</span><span class="p">,</span>
     <span class="n">session</span><span class="p">:</span> <span class="n">requests</span><span class="o">.</span><span class="n">Session</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">timeout</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">20</span><span class="p">,</span>
     <span class="n">logger</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">_refseq_models</span><span class="o">.</span><span class="n">AssemblySummaryRecord</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Fetch and parse the RefSeq assembly summary for one clade group.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Fetch and parse the RefSeq assembly summary for one clade group."""</span>
 
     <span class="n">log</span> <span class="o">=</span> <span class="n">logger</span> <span class="ow">or</span> <span class="n">LOGGER</span>
-    <span class="n">url</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;https://ftp.ncbi.nlm.nih.gov/genomes/refseq/</span><span class="si">{</span><span class="n">group</span><span class="si">}</span><span class="s2">/assembly_summary.txt&quot;</span>
+    <span class="n">url</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"https://ftp.ncbi.nlm.nih.gov/genomes/refseq/</span><span class="si">{</span><span class="n">group</span><span class="si">}</span><span class="s2">/assembly_summary.txt"</span>
     <span class="n">client</span> <span class="o">=</span> <span class="n">session</span> <span class="ow">or</span> <span class="n">requests</span>
-    <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Fetching RefSeq assembly summary for </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">group</span><span class="p">)</span>
+    <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"Fetching RefSeq assembly summary for </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">group</span><span class="p">)</span>
     <span class="n">response</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">)</span>
     <span class="n">response</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span>
     <span class="n">records</span> <span class="o">=</span> <span class="n">parse_assembly_summary</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="p">,</span> <span class="n">group</span><span class="p">,</span> <span class="n">base_dir</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">log</span><span class="p">)</span>
-    <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Parsed </span><span class="si">%s</span><span class="s2"> assemblies for </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">records</span><span class="p">),</span> <span class="n">group</span><span class="p">)</span>
+    <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"Parsed </span><span class="si">%s</span><span class="s2"> assemblies for </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">records</span><span class="p">),</span> <span class="n">group</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">records</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -4349,7 +4349,7 @@ printing directly and reports progress through the standard logging module.</p>
 
 
 <h3 id="ensembl.genes.ensembl_loading.refseq_ncbi.fetch_groups" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">fetch_groups</span><span class="p">(</span><span class="n">base_dir</span><span class="o">=</span><span class="s1">&#39;refseq_data&#39;</span><span class="p">,</span> <span class="n">group_filter</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">session</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">fetch_groups</span><span class="p">(</span><span class="n">base_dir</span><span class="o">=</span><span class="s1">'refseq_data'</span><span class="p">,</span> <span class="n">group_filter</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">session</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
 
 <a href="#ensembl.genes.ensembl_loading.refseq_ncbi.fetch_groups" class="headerlink" title="Permanent link">&para;</a></h3>
 
@@ -4387,13 +4387,13 @@ printing directly and reports progress through the standard logging module.</p>
 <span class="normal">163</span>
 <span class="normal">164</span>
 <span class="normal">165</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">fetch_groups</span><span class="p">(</span>
-    <span class="n">base_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">=</span> <span class="s2">&quot;refseq_data&quot;</span><span class="p">,</span>
+    <span class="n">base_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">=</span> <span class="s2">"refseq_data"</span><span class="p">,</span>
     <span class="n">group_filter</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">session</span><span class="p">:</span> <span class="n">requests</span><span class="o">.</span><span class="n">Session</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">timeout</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">20</span><span class="p">,</span>
     <span class="n">logger</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">_refseq_models</span><span class="o">.</span><span class="n">AssemblySummaryRecord</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Fetch assembly summaries for all configured groups or one group.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Fetch assembly summaries for all configured groups or one group."""</span>
 
     <span class="n">log</span> <span class="o">=</span> <span class="n">logger</span> <span class="ow">or</span> <span class="n">LOGGER</span>
     <span class="n">groups</span> <span class="o">=</span> <span class="p">(</span><span class="n">group_filter</span><span class="p">,)</span> <span class="k">if</span> <span class="n">group_filter</span> <span class="k">else</span> <span class="n">_refseq_constants</span><span class="o">.</span><span class="n">NCBI_GROUPS</span>
@@ -4410,7 +4410,7 @@ printing directly and reports progress through the standard logging module.</p>
                 <span class="p">)</span>
             <span class="p">)</span>
         <span class="k">except</span> <span class="n">requests</span><span class="o">.</span><span class="n">RequestException</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
-            <span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Failed to fetch RefSeq summary for </span><span class="si">%s</span><span class="s2">: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">group</span><span class="p">,</span> <span class="n">exc</span><span class="p">)</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">"Failed to fetch RefSeq summary for </span><span class="si">%s</span><span class="s2">: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">group</span><span class="p">,</span> <span class="n">exc</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">records</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -4422,7 +4422,7 @@ printing directly and reports progress through the standard logging module.</p>
 
 
 <h3 id="ensembl.genes.ensembl_loading.refseq_ncbi.find_annotation_targets" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">find_annotation_targets</span><span class="p">(</span><span class="n">base_dir</span><span class="o">=</span><span class="s1">&#39;refseq_data&#39;</span><span class="p">,</span> <span class="n">species_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">assembly_acc</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">group</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">session</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">find_annotation_targets</span><span class="p">(</span><span class="n">base_dir</span><span class="o">=</span><span class="s1">'refseq_data'</span><span class="p">,</span> <span class="n">species_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">assembly_acc</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">group</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">session</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
 
 <a href="#ensembl.genes.ensembl_loading.refseq_ncbi.find_annotation_targets" class="headerlink" title="Permanent link">&para;</a></h3>
 
@@ -4490,14 +4490,14 @@ printing directly and reports progress through the standard logging module.</p>
 <span class="normal">296</span>
 <span class="normal">297</span>
 <span class="normal">298</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">find_annotation_targets</span><span class="p">(</span>
-    <span class="n">base_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">=</span> <span class="s2">&quot;refseq_data&quot;</span><span class="p">,</span>
+    <span class="n">base_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">=</span> <span class="s2">"refseq_data"</span><span class="p">,</span>
     <span class="n">species_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">assembly_acc</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">group</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">session</span><span class="p">:</span> <span class="n">requests</span><span class="o">.</span><span class="n">Session</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">logger</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">_refseq_models</span><span class="o">.</span><span class="n">AssemblySummaryRecord</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Locate assembly records by accession, species, or latest group batch.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Locate assembly records by accession, species, or latest group batch."""</span>
 
     <span class="n">log</span> <span class="o">=</span> <span class="n">logger</span> <span class="ow">or</span> <span class="n">LOGGER</span>
     <span class="n">groups</span> <span class="o">=</span> <span class="p">(</span><span class="n">group</span><span class="p">,)</span> <span class="k">if</span> <span class="n">group</span> <span class="k">else</span> <span class="n">_refseq_constants</span><span class="o">.</span><span class="n">NCBI_GROUPS</span>
@@ -4509,13 +4509,13 @@ printing directly and reports progress through the standard logging module.</p>
                     <span class="n">group_name</span><span class="p">,</span> <span class="n">base_dir</span><span class="o">=</span><span class="n">base_dir</span><span class="p">,</span> <span class="n">session</span><span class="o">=</span><span class="n">session</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">log</span>
                 <span class="p">)</span>
             <span class="k">except</span> <span class="n">requests</span><span class="o">.</span><span class="n">RequestException</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
-                <span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Failed to fetch RefSeq summary for </span><span class="si">%s</span><span class="s2">: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">group_name</span><span class="p">,</span> <span class="n">exc</span><span class="p">)</span>
+                <span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">"Failed to fetch RefSeq summary for </span><span class="si">%s</span><span class="s2">: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">group_name</span><span class="p">,</span> <span class="n">exc</span><span class="p">)</span>
                 <span class="k">continue</span>
 
             <span class="k">for</span> <span class="n">record</span> <span class="ow">in</span> <span class="n">records</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">record</span><span class="o">.</span><span class="n">assembly_accession</span> <span class="o">==</span> <span class="n">assembly_acc</span><span class="p">:</span>
                     <span class="k">return</span> <span class="p">[</span><span class="n">record</span><span class="p">]</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Assembly </span><span class="si">{</span><span class="n">assembly_acc</span><span class="si">}</span><span class="s2"> not found in RefSeq summaries.&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Assembly </span><span class="si">{</span><span class="n">assembly_acc</span><span class="si">}</span><span class="s2"> not found in RefSeq summaries."</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">species_name</span><span class="p">:</span>
         <span class="n">requested</span> <span class="o">=</span> <span class="n">species_name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
@@ -4525,13 +4525,13 @@ printing directly and reports progress through the standard logging module.</p>
                     <span class="n">group_name</span><span class="p">,</span> <span class="n">base_dir</span><span class="o">=</span><span class="n">base_dir</span><span class="p">,</span> <span class="n">session</span><span class="o">=</span><span class="n">session</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">log</span>
                 <span class="p">)</span>
             <span class="k">except</span> <span class="n">requests</span><span class="o">.</span><span class="n">RequestException</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
-                <span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Failed to fetch RefSeq summary for </span><span class="si">%s</span><span class="s2">: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">group_name</span><span class="p">,</span> <span class="n">exc</span><span class="p">)</span>
+                <span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">"Failed to fetch RefSeq summary for </span><span class="si">%s</span><span class="s2">: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">group_name</span><span class="p">,</span> <span class="n">exc</span><span class="p">)</span>
                 <span class="k">continue</span>
 
             <span class="k">for</span> <span class="n">record</span> <span class="ow">in</span> <span class="n">records</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">record</span><span class="o">.</span><span class="n">organism_name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">requested</span><span class="p">):</span>
                     <span class="k">return</span> <span class="p">[</span><span class="n">record</span><span class="p">]</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Species </span><span class="si">{</span><span class="n">species_name</span><span class="si">}</span><span class="s2"> not found in RefSeq summaries.&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Species </span><span class="si">{</span><span class="n">species_name</span><span class="si">}</span><span class="s2"> not found in RefSeq summaries."</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">group</span><span class="p">:</span>
         <span class="k">return</span> <span class="p">[</span>
@@ -4539,11 +4539,11 @@ printing directly and reports progress through the standard logging module.</p>
             <span class="k">for</span> <span class="n">record</span> <span class="ow">in</span> <span class="n">fetch_assembly_summary</span><span class="p">(</span>
                 <span class="n">group</span><span class="p">,</span> <span class="n">base_dir</span><span class="o">=</span><span class="n">base_dir</span><span class="p">,</span> <span class="n">session</span><span class="o">=</span><span class="n">session</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">log</span>
             <span class="p">)</span>
-            <span class="k">if</span> <span class="n">record</span><span class="o">.</span><span class="n">version_status</span> <span class="o">==</span> <span class="s2">&quot;latest&quot;</span>
+            <span class="k">if</span> <span class="n">record</span><span class="o">.</span><span class="n">version_status</span> <span class="o">==</span> <span class="s2">"latest"</span>
         <span class="p">]</span>
 
     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-        <span class="s2">&quot;Must provide at least one of: assembly_acc, species_name, or group&quot;</span>
+        <span class="s2">"Must provide at least one of: assembly_acc, species_name, or group"</span>
     <span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -4555,7 +4555,7 @@ printing directly and reports progress through the standard logging module.</p>
 
 
 <h3 id="ensembl.genes.ensembl_loading.refseq_ncbi.list_available_annotations" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">list_available_annotations</span><span class="p">(</span><span class="n">base_dir</span><span class="o">=</span><span class="s1">&#39;refseq_data&#39;</span><span class="p">,</span> <span class="n">group_filter</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">max_print</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">return_dict</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">output_tsv</span><span class="o">=</span><span class="s1">&#39;refseq_annotation_metadata.tsv&#39;</span><span class="p">,</span> <span class="n">session</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">list_available_annotations</span><span class="p">(</span><span class="n">base_dir</span><span class="o">=</span><span class="s1">'refseq_data'</span><span class="p">,</span> <span class="n">group_filter</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">max_print</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">return_dict</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">output_tsv</span><span class="o">=</span><span class="s1">'refseq_annotation_metadata.tsv'</span><span class="p">,</span> <span class="n">session</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
 
 <a href="#ensembl.genes.ensembl_loading.refseq_ncbi.list_available_annotations" class="headerlink" title="Permanent link">&para;</a></h3>
 
@@ -4604,19 +4604,19 @@ logging so callers can decide whether it is shown, captured, or suppressed.</p>
 <span class="normal">238</span>
 <span class="normal">239</span>
 <span class="normal">240</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">list_available_annotations</span><span class="p">(</span>
-    <span class="n">base_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">=</span> <span class="s2">&quot;refseq_data&quot;</span><span class="p">,</span>
+    <span class="n">base_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">=</span> <span class="s2">"refseq_data"</span><span class="p">,</span>
     <span class="n">group_filter</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">max_print</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="mi">50</span><span class="p">,</span>
     <span class="n">return_dict</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-    <span class="n">output_tsv</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="s2">&quot;refseq_annotation_metadata.tsv&quot;</span><span class="p">,</span>
+    <span class="n">output_tsv</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="s2">"refseq_annotation_metadata.tsv"</span><span class="p">,</span>
     <span class="n">session</span><span class="p">:</span> <span class="n">requests</span><span class="o">.</span><span class="n">Session</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">logger</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;List RefSeq genome annotations grouped by clade.</span>
+<span class="w">    </span><span class="sd">"""List RefSeq genome annotations grouped by clade.</span>
 
 <span class="sd">    Metadata can optionally be exported to TSV. Summary output is sent through</span>
 <span class="sd">    logging so callers can decide whether it is shown, captured, or suppressed.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="n">log</span> <span class="o">=</span> <span class="n">logger</span> <span class="ow">or</span> <span class="n">LOGGER</span>
     <span class="n">records</span> <span class="o">=</span> <span class="n">fetch_groups</span><span class="p">(</span>
@@ -4630,12 +4630,12 @@ logging so callers can decide whether it is shown, captured, or suppressed.</p>
 
     <span class="n">summaries</span> <span class="o">=</span> <span class="n">summarize_annotations</span><span class="p">(</span><span class="n">records</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">group</span><span class="p">,</span> <span class="n">species_list</span> <span class="ow">in</span> <span class="n">summaries</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">: </span><span class="si">%s</span><span class="s2"> species&quot;</span><span class="p">,</span> <span class="n">group</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">species_list</span><span class="p">))</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"</span><span class="si">%s</span><span class="s2">: </span><span class="si">%s</span><span class="s2"> species"</span><span class="p">,</span> <span class="n">group</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">species_list</span><span class="p">))</span>
         <span class="n">shown_species</span> <span class="o">=</span> <span class="n">species_list</span> <span class="k">if</span> <span class="n">max_print</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">species_list</span><span class="p">[:</span><span class="n">max_print</span><span class="p">]</span>
         <span class="k">for</span> <span class="n">species_summary</span> <span class="ow">in</span> <span class="n">shown_species</span><span class="p">:</span>
-            <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot; - </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">species_summary</span><span class="p">)</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">" - </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">species_summary</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">max_print</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">species_list</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">max_print</span><span class="p">:</span>
-            <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot; ... and </span><span class="si">%s</span><span class="s2"> more species&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">species_list</span><span class="p">)</span> <span class="o">-</span> <span class="n">max_print</span><span class="p">)</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">" ... and </span><span class="si">%s</span><span class="s2"> more species"</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">species_list</span><span class="p">)</span> <span class="o">-</span> <span class="n">max_print</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">summaries</span> <span class="k">if</span> <span class="n">return_dict</span> <span class="k">else</span> <span class="kc">None</span>
 </code></pre></div></td></tr></table></div>
@@ -4648,7 +4648,7 @@ logging so callers can decide whether it is shown, captured, or suppressed.</p>
 
 
 <h3 id="ensembl.genes.ensembl_loading.refseq_ncbi.parse_assembly_summary" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">parse_assembly_summary</span><span class="p">(</span><span class="n">summary_text</span><span class="p">,</span> <span class="n">group</span><span class="p">,</span> <span class="n">base_dir</span><span class="o">=</span><span class="s1">&#39;refseq_data&#39;</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">parse_assembly_summary</span><span class="p">(</span><span class="n">summary_text</span><span class="p">,</span> <span class="n">group</span><span class="p">,</span> <span class="n">base_dir</span><span class="o">=</span><span class="s1">'refseq_data'</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
 
 <a href="#ensembl.genes.ensembl_loading.refseq_ncbi.parse_assembly_summary" class="headerlink" title="Permanent link">&para;</a></h3>
 
@@ -4705,31 +4705,31 @@ logging so callers can decide whether it is shown, captured, or suppressed.</p>
 <span class="normal">117</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">parse_assembly_summary</span><span class="p">(</span>
     <span class="n">summary_text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">group</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-    <span class="n">base_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">=</span> <span class="s2">&quot;refseq_data&quot;</span><span class="p">,</span>
+    <span class="n">base_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">=</span> <span class="s2">"refseq_data"</span><span class="p">,</span>
     <span class="n">logger</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">_refseq_models</span><span class="o">.</span><span class="n">AssemblySummaryRecord</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Parse one NCBI assembly_summary.txt file.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Parse one NCBI assembly_summary.txt file."""</span>
 
     <span class="n">log</span> <span class="o">=</span> <span class="n">logger</span> <span class="ow">or</span> <span class="n">LOGGER</span>
     <span class="n">records</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">_refseq_models</span><span class="o">.</span><span class="n">AssemblySummaryRecord</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">line_number</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">summary_text</span><span class="o">.</span><span class="n">splitlines</span><span class="p">(),</span> <span class="n">start</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;#&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"#"</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span>
             <span class="k">continue</span>
 
-        <span class="n">columns</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">columns</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"</span><span class="se">\t</span><span class="s2">"</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">columns</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">_refseq_constants</span><span class="o">.</span><span class="n">ASSEMBLY_SUMMARY_MIN_COLUMNS</span><span class="p">:</span>
             <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                <span class="s2">&quot;Skipping short assembly summary row </span><span class="si">%s</span><span class="s2"> in </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">line_number</span><span class="p">,</span> <span class="n">group</span>
+                <span class="s2">"Skipping short assembly summary row </span><span class="si">%s</span><span class="s2"> in </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">line_number</span><span class="p">,</span> <span class="n">group</span>
             <span class="p">)</span>
             <span class="k">continue</span>
 
         <span class="n">ftp_path</span> <span class="o">=</span> <span class="n">columns</span><span class="p">[</span><span class="mi">19</span><span class="p">]</span>
-        <span class="k">if</span> <span class="n">ftp_path</span> <span class="o">==</span> <span class="s2">&quot;na&quot;</span><span class="p">:</span>
-            <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Skipping assembly </span><span class="si">%s</span><span class="s2"> because ftp_path is &#39;na&#39;&quot;</span><span class="p">,</span> <span class="n">columns</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">ftp_path</span> <span class="o">==</span> <span class="s2">"na"</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"Skipping assembly </span><span class="si">%s</span><span class="s2"> because ftp_path is 'na'"</span><span class="p">,</span> <span class="n">columns</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
             <span class="k">continue</span>
 
         <span class="n">organism_name</span> <span class="o">=</span> <span class="n">columns</span><span class="p">[</span><span class="mi">7</span><span class="p">]</span>
-        <span class="n">species_name</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">organism_name</span><span class="o">.</span><span class="n">split</span><span class="p">()[:</span><span class="mi">2</span><span class="p">])</span>
+        <span class="n">species_name</span> <span class="o">=</span> <span class="s2">" "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">organism_name</span><span class="o">.</span><span class="n">split</span><span class="p">()[:</span><span class="mi">2</span><span class="p">])</span>
         <span class="n">paths</span> <span class="o">=</span> <span class="n">build_assembly_paths</span><span class="p">(</span><span class="n">base_dir</span><span class="p">,</span> <span class="n">columns</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">ftp_path</span><span class="p">)</span>
         <span class="n">records</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
             <span class="n">_refseq_models</span><span class="o">.</span><span class="n">AssemblySummaryRecord</span><span class="p">(</span>
@@ -4785,13 +4785,13 @@ logging so callers can decide whether it is shown, captured, or suppressed.</p>
 <span class="normal">203</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">summarize_annotations</span><span class="p">(</span>
     <span class="n">records</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">_refseq_models</span><span class="o">.</span><span class="n">AssemblySummaryRecord</span><span class="p">],</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return clade to species summaries for listing and reporting.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Return clade to species summaries for listing and reporting."""</span>
 
     <span class="n">summaries</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">for</span> <span class="n">record</span> <span class="ow">in</span> <span class="n">records</span><span class="p">:</span>
-        <span class="n">status</span> <span class="o">=</span> <span class="s2">&quot;Downloaded&quot;</span> <span class="k">if</span> <span class="n">record</span><span class="o">.</span><span class="n">downloaded</span> <span class="k">else</span> <span class="s2">&quot;Not downloaded&quot;</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="s2">"Downloaded"</span> <span class="k">if</span> <span class="n">record</span><span class="o">.</span><span class="n">downloaded</span> <span class="k">else</span> <span class="s2">"Not downloaded"</span>
         <span class="n">summaries</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">record</span><span class="o">.</span><span class="n">group</span><span class="p">,</span> <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">record</span><span class="o">.</span><span class="n">species_name</span><span class="si">}</span><span class="s2"> [</span><span class="si">{</span><span class="n">status</span><span class="si">}</span><span class="s2">]&quot;</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">record</span><span class="o">.</span><span class="n">species_name</span><span class="si">}</span><span class="s2"> [</span><span class="si">{</span><span class="n">status</span><span class="si">}</span><span class="s2">]"</span>
         <span class="p">)</span>
 
     <span class="k">return</span> <span class="p">{</span>
@@ -4840,20 +4840,20 @@ logging so callers can decide whether it is shown, captured, or suppressed.</p>
 <span class="normal">185</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">write_annotation_metadata_tsv</span><span class="p">(</span>
     <span class="n">records</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">_refseq_models</span><span class="o">.</span><span class="n">AssemblySummaryRecord</span><span class="p">],</span> <span class="n">output_tsv</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Write assembly metadata rows to a tab-separated file.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Write assembly metadata rows to a tab-separated file."""</span>
 
     <span class="n">output_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">output_tsv</span><span class="p">)</span>
     <span class="n">sorted_records</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">records</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">row</span><span class="p">:</span> <span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">group</span><span class="p">,</span> <span class="n">row</span><span class="o">.</span><span class="n">species_name</span><span class="p">))</span>
-    <span class="k">with</span> <span class="n">output_path</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">,</span> <span class="n">newline</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
+    <span class="k">with</span> <span class="n">output_path</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">"w"</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8"</span><span class="p">,</span> <span class="n">newline</span><span class="o">=</span><span class="s2">""</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
         <span class="n">writer</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">DictWriter</span><span class="p">(</span>
             <span class="n">handle</span><span class="p">,</span>
-            <span class="n">delimiter</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">delimiter</span><span class="o">=</span><span class="s2">"</span><span class="se">\t</span><span class="s2">"</span><span class="p">,</span>
             <span class="n">fieldnames</span><span class="o">=</span><span class="n">_refseq_constants</span><span class="o">.</span><span class="n">ANNOTATION_METADATA_FIELDS</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">writer</span><span class="o">.</span><span class="n">writeheader</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">record</span> <span class="ow">in</span> <span class="n">sorted_records</span><span class="p">:</span>
             <span class="n">writer</span><span class="o">.</span><span class="n">writerow</span><span class="p">(</span><span class="n">record</span><span class="o">.</span><span class="n">to_metadata_row</span><span class="p">())</span>
-    <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Wrote RefSeq annotation metadata to </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">output_path</span><span class="p">)</span>
+    <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"Wrote RefSeq annotation metadata to </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">output_path</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">output_path</span>
 </code></pre></div></td></tr></table></div>
             </details>

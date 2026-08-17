@@ -4102,7 +4102,7 @@ descriptions, or any free-text metadata field — taxonomy only.</p>
 <span class="normal">468</span>
 <span class="normal">469</span>
 <span class="normal">470</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">IconResolver</span><span class="p">:</span>  <span class="c1"># pylint: disable=too-few-public-methods</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Resolves an icon filename using taxonomy lineage from multiple sources.</span>
+<span class="w">    </span><span class="sd">"""Resolves an icon filename using taxonomy lineage from multiple sources.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -4110,7 +4110,7 @@ descriptions, or any free-text metadata field — taxonomy only.</p>
 <span class="sd">        Path to a project-level ``icons.txt`` override file.  Each line is</span>
 <span class="sd">        ``&lt;TaxonomyName&gt;\\t&lt;icon_filename&gt;``.  Entries here take priority</span>
 <span class="sd">        over the built-in defaults *for the same taxonomy name*.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -4121,9 +4121,9 @@ descriptions, or any free-text metadata field — taxonomy only.</p>
 
         <span class="c1"># Load project-specific overrides from icons.txt</span>
         <span class="k">if</span> <span class="n">icons_file</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">icons_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="s2">&quot;icons.txt&quot;</span><span class="p">)</span>
+            <span class="n">icons_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="s2">"icons.txt"</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">icons_file</span><span class="p">):</span>
-            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">icons_file</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">icons_file</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8"</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
                 <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">fh</span><span class="p">:</span>
                     <span class="n">parts</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
                     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">:</span>
@@ -4136,8 +4136,8 @@ descriptions, or any free-text metadata field — taxonomy only.</p>
     <span class="c1"># Public API</span>
     <span class="c1"># ------------------------------------------------------------------</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">resolve_icon</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">meta</span><span class="p">:</span> <span class="s2">&quot;GenomeMetadata&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the best icon filename for a genome.</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">resolve_icon</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">meta</span><span class="p">:</span> <span class="s2">"GenomeMetadata"</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""Return the best icon filename for a genome.</span>
 
 <span class="sd">        Tries lineage sources in order:</span>
 <span class="sd">        1. ``meta.taxonomy_lineage`` (pre-fetched from metadata DB)</span>
@@ -4147,30 +4147,30 @@ descriptions, or any free-text metadata field — taxonomy only.</p>
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        (icon, matched_term, lineage_source)</span>
-<span class="sd">            - *icon*: filename e.g. ``&quot;Lepidoptera.png&quot;``</span>
+<span class="sd">            - *icon*: filename e.g. ``"Lepidoptera.png"``</span>
 <span class="sd">            - *matched_term*: taxonomy name that triggered the match</span>
-<span class="sd">            - *lineage_source*: one of ``&quot;metadata_lineage&quot;``,</span>
-<span class="sd">              ``&quot;ncbi_lineage&quot;``, ``&quot;busco_lineage&quot;``,</span>
-<span class="sd">              ``&quot;missing_taxon_id&quot;``, ``&quot;fallback&quot;``</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">accession</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">meta</span><span class="p">,</span> <span class="s2">&quot;accession&quot;</span><span class="p">,</span> <span class="s2">&quot;unknown&quot;</span><span class="p">)</span>
-        <span class="n">taxon_id</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">meta</span><span class="p">,</span> <span class="s2">&quot;taxon_id&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+<span class="sd">            - *lineage_source*: one of ``"metadata_lineage"``,</span>
+<span class="sd">              ``"ncbi_lineage"``, ``"busco_lineage"``,</span>
+<span class="sd">              ``"missing_taxon_id"``, ``"fallback"``</span>
+<span class="sd">        """</span>
+        <span class="n">accession</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">meta</span><span class="p">,</span> <span class="s2">"accession"</span><span class="p">,</span> <span class="s2">"unknown"</span><span class="p">)</span>
+        <span class="n">taxon_id</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">meta</span><span class="p">,</span> <span class="s2">"taxon_id"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
 
         <span class="c1"># Source 1: metadata DB lineage (already on the object)</span>
-        <span class="n">db_lineage</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_normalise_lineage</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">meta</span><span class="p">,</span> <span class="s2">&quot;taxonomy_lineage&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span>
+        <span class="n">db_lineage</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_normalise_lineage</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">meta</span><span class="p">,</span> <span class="s2">"taxonomy_lineage"</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span>
         <span class="k">if</span> <span class="n">db_lineage</span><span class="p">:</span>
             <span class="n">icon</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_match_lineage</span><span class="p">(</span><span class="n">db_lineage</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">icon</span> <span class="o">!=</span> <span class="n">_FALLBACK_ICON</span><span class="p">:</span>
                 <span class="n">matched</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_find_matched_term</span><span class="p">(</span><span class="n">db_lineage</span><span class="p">)</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                    <span class="s2">&quot;Icon resolved via metadata_lineage: taxon_id=</span><span class="si">%s</span><span class="s2"> &quot;</span>
-                    <span class="s2">&quot;accession=</span><span class="si">%s</span><span class="s2"> matched=</span><span class="si">%s</span><span class="s2"> icon=</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+                    <span class="s2">"Icon resolved via metadata_lineage: taxon_id=</span><span class="si">%s</span><span class="s2"> "</span>
+                    <span class="s2">"accession=</span><span class="si">%s</span><span class="s2"> matched=</span><span class="si">%s</span><span class="s2"> icon=</span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span>
                     <span class="n">taxon_id</span><span class="p">,</span>
                     <span class="n">accession</span><span class="p">,</span>
                     <span class="n">matched</span><span class="p">,</span>
                     <span class="n">icon</span><span class="p">,</span>
                 <span class="p">)</span>
-                <span class="k">return</span> <span class="n">icon</span><span class="p">,</span> <span class="n">matched</span><span class="p">,</span> <span class="s2">&quot;metadata_lineage&quot;</span>
+                <span class="k">return</span> <span class="n">icon</span><span class="p">,</span> <span class="n">matched</span><span class="p">,</span> <span class="s2">"metadata_lineage"</span>
 
         <span class="c1"># Source 2: NCBI Entrez live lookup (cached)</span>
         <span class="k">if</span> <span class="n">taxon_id</span><span class="p">:</span>
@@ -4180,46 +4180,46 @@ descriptions, or any free-text metadata field — taxonomy only.</p>
                 <span class="k">if</span> <span class="n">icon</span> <span class="o">!=</span> <span class="n">_FALLBACK_ICON</span><span class="p">:</span>
                     <span class="n">matched</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_find_matched_term</span><span class="p">(</span><span class="n">ncbi_lineage</span><span class="p">)</span>
                     <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                        <span class="s2">&quot;Icon resolved via ncbi_lineage: taxon_id=</span><span class="si">%d</span><span class="s2"> &quot;</span>
-                        <span class="s2">&quot;accession=</span><span class="si">%s</span><span class="s2"> matched=</span><span class="si">%s</span><span class="s2"> icon=</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+                        <span class="s2">"Icon resolved via ncbi_lineage: taxon_id=</span><span class="si">%d</span><span class="s2"> "</span>
+                        <span class="s2">"accession=</span><span class="si">%s</span><span class="s2"> matched=</span><span class="si">%s</span><span class="s2"> icon=</span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span>
                         <span class="n">taxon_id</span><span class="p">,</span>
                         <span class="n">accession</span><span class="p">,</span>
                         <span class="n">matched</span><span class="p">,</span>
                         <span class="n">icon</span><span class="p">,</span>
                     <span class="p">)</span>
-                    <span class="k">return</span> <span class="n">icon</span><span class="p">,</span> <span class="n">matched</span><span class="p">,</span> <span class="s2">&quot;ncbi_lineage&quot;</span>
+                    <span class="k">return</span> <span class="n">icon</span><span class="p">,</span> <span class="n">matched</span><span class="p">,</span> <span class="s2">"ncbi_lineage"</span>
                 <span class="c1"># NCBI returned lineage but nothing matched — still try</span>
                 <span class="c1"># busco as last resort before accepting Metazoa</span>
         <span class="k">elif</span> <span class="ow">not</span> <span class="n">taxon_id</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                <span class="s2">&quot;taxon_id is missing for </span><span class="si">%s</span><span class="s2">. Trying busco_lineage fallback.&quot;</span><span class="p">,</span>
+                <span class="s2">"taxon_id is missing for </span><span class="si">%s</span><span class="s2">. Trying busco_lineage fallback."</span><span class="p">,</span>
                 <span class="n">accession</span><span class="p">,</span>
             <span class="p">)</span>
 
         <span class="c1"># Source 3: BUSCO lineage hint (weak but reliable)</span>
-        <span class="n">busco_lineage</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">meta</span><span class="p">,</span> <span class="s2">&quot;busco_lineage&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">busco_lineage</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">meta</span><span class="p">,</span> <span class="s2">"busco_lineage"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
         <span class="n">icon_from_busco</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resolve_from_busco</span><span class="p">(</span><span class="n">busco_lineage</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">icon_from_busco</span><span class="p">:</span>
             <span class="n">matched</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_busco_matched_term</span><span class="p">(</span><span class="n">busco_lineage</span><span class="p">)</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                <span class="s2">&quot;Icon resolved via busco_lineage: taxon_id=</span><span class="si">%s</span><span class="s2"> &quot;</span>
-                <span class="s2">&quot;accession=</span><span class="si">%s</span><span class="s2"> busco=</span><span class="si">%s</span><span class="s2"> matched=</span><span class="si">%s</span><span class="s2"> icon=</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="s2">"Icon resolved via busco_lineage: taxon_id=</span><span class="si">%s</span><span class="s2"> "</span>
+                <span class="s2">"accession=</span><span class="si">%s</span><span class="s2"> busco=</span><span class="si">%s</span><span class="s2"> matched=</span><span class="si">%s</span><span class="s2"> icon=</span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span>
                 <span class="n">taxon_id</span><span class="p">,</span>
                 <span class="n">accession</span><span class="p">,</span>
                 <span class="n">busco_lineage</span><span class="p">,</span>
                 <span class="n">matched</span><span class="p">,</span>
                 <span class="n">icon_from_busco</span><span class="p">,</span>
             <span class="p">)</span>
-            <span class="k">return</span> <span class="n">icon_from_busco</span><span class="p">,</span> <span class="n">matched</span><span class="p">,</span> <span class="s2">&quot;busco_lineage&quot;</span>
+            <span class="k">return</span> <span class="n">icon_from_busco</span><span class="p">,</span> <span class="n">matched</span><span class="p">,</span> <span class="s2">"busco_lineage"</span>
 
         <span class="c1"># All sources exhausted</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">taxon_id</span><span class="p">:</span>
-            <span class="n">source</span> <span class="o">=</span> <span class="s2">&quot;missing_taxon_id&quot;</span>
+            <span class="n">source</span> <span class="o">=</span> <span class="s2">"missing_taxon_id"</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">source</span> <span class="o">=</span> <span class="s2">&quot;fallback&quot;</span>
+            <span class="n">source</span> <span class="o">=</span> <span class="s2">"fallback"</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-            <span class="s2">&quot;All lineage sources exhausted for accession=</span><span class="si">%s</span><span class="s2"> taxon_id=</span><span class="si">%s</span><span class="s2">. &quot;</span>
-            <span class="s2">&quot;Using fallback </span><span class="si">%s</span><span class="s2">.&quot;</span><span class="p">,</span>
+            <span class="s2">"All lineage sources exhausted for accession=</span><span class="si">%s</span><span class="s2"> taxon_id=</span><span class="si">%s</span><span class="s2">. "</span>
+            <span class="s2">"Using fallback </span><span class="si">%s</span><span class="s2">."</span><span class="p">,</span>
             <span class="n">accession</span><span class="p">,</span>
             <span class="n">taxon_id</span><span class="p">,</span>
             <span class="n">_FALLBACK_ICON</span><span class="p">,</span>
@@ -4232,21 +4232,21 @@ descriptions, or any free-text metadata field — taxonomy only.</p>
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_normalise_lineage</span><span class="p">(</span><span class="n">raw</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Coerce raw lineage data into a clean list of taxonomy names.</span>
+<span class="w">        </span><span class="sd">"""Coerce raw lineage data into a clean list of taxonomy names.</span>
 
 <span class="sd">        Handles:</span>
 <span class="sd">        - ``None`` → ``[]``</span>
 <span class="sd">        - A ``list`` of strings → stripped, empty strings removed</span>
 <span class="sd">        - A semicolon- or comma-separated string → split and stripped</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">raw</span><span class="p">:</span>
             <span class="k">return</span> <span class="p">[]</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">raw</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="c1"># Try semicolon first (common in DB dumps), then comma</span>
-            <span class="k">if</span> <span class="s2">&quot;;&quot;</span> <span class="ow">in</span> <span class="n">raw</span><span class="p">:</span>
-                <span class="n">terms</span> <span class="o">=</span> <span class="n">raw</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;;&quot;</span><span class="p">)</span>
-            <span class="k">elif</span> <span class="s2">&quot;,&quot;</span> <span class="ow">in</span> <span class="n">raw</span><span class="p">:</span>
-                <span class="n">terms</span> <span class="o">=</span> <span class="n">raw</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="s2">";"</span> <span class="ow">in</span> <span class="n">raw</span><span class="p">:</span>
+                <span class="n">terms</span> <span class="o">=</span> <span class="n">raw</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">";"</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="s2">","</span> <span class="ow">in</span> <span class="n">raw</span><span class="p">:</span>
+                <span class="n">terms</span> <span class="o">=</span> <span class="n">raw</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">","</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">terms</span> <span class="o">=</span> <span class="p">[</span><span class="n">raw</span><span class="p">]</span>
             <span class="k">return</span> <span class="p">[</span><span class="n">t</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">terms</span> <span class="k">if</span> <span class="n">t</span><span class="o">.</span><span class="n">strip</span><span class="p">()]</span>
@@ -4255,7 +4255,7 @@ descriptions, or any free-text metadata field — taxonomy only.</p>
         <span class="k">return</span> <span class="p">[]</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_match_lineage</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lineage</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Walk lineage leaf → root; return first matching icon.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Walk lineage leaf → root; return first matching icon."""</span>
         <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">lineage</span><span class="p">:</span>
             <span class="n">icon</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lookup</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">icon</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -4263,11 +4263,11 @@ descriptions, or any free-text metadata field — taxonomy only.</p>
         <span class="k">return</span> <span class="n">_FALLBACK_ICON</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_find_matched_term</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lineage</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the first lineage name that matches a rule.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return the first lineage name that matches a rule."""</span>
         <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">lineage</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lookup</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">name</span>
-        <span class="k">return</span> <span class="s2">&quot;fallback&quot;</span>
+        <span class="k">return</span> <span class="s2">"fallback"</span>
 
     <span class="c1"># ------------------------------------------------------------------</span>
     <span class="c1"># BUSCO lineage parsing</span>
@@ -4275,27 +4275,27 @@ descriptions, or any free-text metadata field — taxonomy only.</p>
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_normalise_busco_token</span><span class="p">(</span><span class="n">busco_lineage</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Extract the taxonomy token from a BUSCO lineage string.</span>
+<span class="w">        </span><span class="sd">"""Extract the taxonomy token from a BUSCO lineage string.</span>
 
-<span class="sd">        E.g. ``&quot;insecta_odb10&quot;`` → ``&quot;insecta&quot;``,</span>
-<span class="sd">             ``&quot;mammalia_odb10&quot;`` → ``&quot;mammalia&quot;``.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        E.g. ``"insecta_odb10"`` → ``"insecta"``,</span>
+<span class="sd">             ``"mammalia_odb10"`` → ``"mammalia"``.</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">busco_lineage</span><span class="p">:</span>
-            <span class="k">return</span> <span class="s2">&quot;&quot;</span>
+            <span class="k">return</span> <span class="s2">""</span>
         <span class="n">token</span> <span class="o">=</span> <span class="n">busco_lineage</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
         <span class="c1"># Strip _odb* suffix</span>
-        <span class="k">if</span> <span class="s2">&quot;_odb&quot;</span> <span class="ow">in</span> <span class="n">token</span><span class="p">:</span>
-            <span class="n">token</span> <span class="o">=</span> <span class="n">token</span><span class="p">[:</span> <span class="n">token</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;_odb&quot;</span><span class="p">)]</span>
-        <span class="c1"># Strip any remaining underscores (some are e.g. &quot;cyprinodontiformes_odb10&quot;)</span>
-        <span class="k">return</span> <span class="n">token</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s2">"_odb"</span> <span class="ow">in</span> <span class="n">token</span><span class="p">:</span>
+            <span class="n">token</span> <span class="o">=</span> <span class="n">token</span><span class="p">[:</span> <span class="n">token</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">"_odb"</span><span class="p">)]</span>
+        <span class="c1"># Strip any remaining underscores (some are e.g. "cyprinodontiformes_odb10")</span>
+        <span class="k">return</span> <span class="n">token</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s2">"_"</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_resolve_from_busco</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">busco_lineage</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Try to resolve an icon from the busco_lineage string.</span>
+<span class="w">        </span><span class="sd">"""Try to resolve an icon from the busco_lineage string.</span>
 
 <span class="sd">        First tries an exact match in ``_BUSCO_TO_TAXON``, then falls</span>
 <span class="sd">        back to substring pattern matching (``_BUSCO_SUBSTRING_PATTERNS``)</span>
 <span class="sd">        to catch variant dataset names like ``eudicotyledons_odb12``.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">token</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_normalise_busco_token</span><span class="p">(</span><span class="n">busco_lineage</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">token</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">None</span>
@@ -4303,7 +4303,7 @@ descriptions, or any free-text metadata field — taxonomy only.</p>
         <span class="c1"># 1. Exact match</span>
         <span class="n">taxon_name</span> <span class="o">=</span> <span class="n">_BUSCO_TO_TAXON</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">token</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">taxon_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">taxon_name</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.png&quot;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">taxon_name</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">".png"</span><span class="p">):</span>
                 <span class="k">return</span> <span class="n">taxon_name</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lookup</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">taxon_name</span><span class="p">)</span>
 
@@ -4315,10 +4315,10 @@ descriptions, or any free-text metadata field — taxonomy only.</p>
         <span class="k">return</span> <span class="kc">None</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_busco_matched_term</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">busco_lineage</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the taxon name derived from busco_lineage.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return the taxon name derived from busco_lineage."""</span>
         <span class="n">token</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_normalise_busco_token</span><span class="p">(</span><span class="n">busco_lineage</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">token</span><span class="p">:</span>
-            <span class="k">return</span> <span class="s2">&quot;busco_empty&quot;</span>
+            <span class="k">return</span> <span class="s2">"busco_empty"</span>
 
         <span class="c1"># Exact match</span>
         <span class="n">exact</span> <span class="o">=</span> <span class="n">_BUSCO_TO_TAXON</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">token</span><span class="p">)</span>
@@ -4328,7 +4328,7 @@ descriptions, or any free-text metadata field — taxonomy only.</p>
         <span class="c1"># Substring pattern</span>
         <span class="k">for</span> <span class="n">pattern</span><span class="p">,</span> <span class="n">_icon</span> <span class="ow">in</span> <span class="n">_BUSCO_SUBSTRING_PATTERNS</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">pattern</span> <span class="ow">in</span> <span class="n">token</span><span class="p">:</span>
-                <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;substring:</span><span class="si">{</span><span class="n">pattern</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="k">return</span> <span class="sa">f</span><span class="s2">"substring:</span><span class="si">{</span><span class="n">pattern</span><span class="si">}</span><span class="s2">"</span>
 
         <span class="k">return</span> <span class="n">token</span>
 
@@ -4337,7 +4337,7 @@ descriptions, or any free-text metadata field — taxonomy only.</p>
     <span class="c1"># ------------------------------------------------------------------</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_get_ncbi_lineage</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">taxon_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return cached taxonomy lineage (leaf → root) for *taxon_id*.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return cached taxonomy lineage (leaf → root) for *taxon_id*."""</span>
         <span class="k">if</span> <span class="n">taxon_id</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lineage_cache</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lineage_cache</span><span class="p">[</span><span class="n">taxon_id</span><span class="p">]</span>
 
@@ -4347,39 +4347,39 @@ descriptions, or any free-text metadata field — taxonomy only.</p>
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_fetch_lineage_from_ncbi</span><span class="p">(</span><span class="n">taxon_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Fetch the full taxonomy lineage from NCBI Entrez.</span>
+<span class="w">        </span><span class="sd">"""Fetch the full taxonomy lineage from NCBI Entrez.</span>
 
 <span class="sd">        Returns a list of scientific names ordered leaf → root.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">url</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="s2">&quot;https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi&quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;?db=taxonomy&amp;id=</span><span class="si">{</span><span class="n">taxon_id</span><span class="si">}</span><span class="s2">&amp;retmode=xml&quot;</span>
+            <span class="s2">"https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi"</span>
+            <span class="sa">f</span><span class="s2">"?db=taxonomy&amp;id=</span><span class="si">{</span><span class="n">taxon_id</span><span class="si">}</span><span class="s2">&amp;retmode=xml"</span>
         <span class="p">)</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">res</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">res</span><span class="o">.</span><span class="n">status_code</span> <span class="o">!=</span> <span class="mi">200</span><span class="p">:</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                    <span class="s2">&quot;NCBI Entrez returned HTTP </span><span class="si">%d</span><span class="s2"> for taxon_id=</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">,</span>
+                    <span class="s2">"NCBI Entrez returned HTTP </span><span class="si">%d</span><span class="s2"> for taxon_id=</span><span class="si">%d</span><span class="s2">"</span><span class="p">,</span>
                     <span class="n">res</span><span class="o">.</span><span class="n">status_code</span><span class="p">,</span>
                     <span class="n">taxon_id</span><span class="p">,</span>
                 <span class="p">)</span>
                 <span class="k">return</span> <span class="p">[]</span>
 
             <span class="n">data</span> <span class="o">=</span> <span class="n">xmltodict</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">res</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
-            <span class="n">taxa_set</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;TaxaSet&quot;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;Taxon&quot;</span><span class="p">,</span> <span class="p">{})</span>
+            <span class="n">taxa_set</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"TaxaSet"</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"Taxon"</span><span class="p">,</span> <span class="p">{})</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">taxa_set</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
                 <span class="n">taxa_set</span> <span class="o">=</span> <span class="n">taxa_set</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
-            <span class="n">lineage</span> <span class="o">=</span> <span class="n">taxa_set</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;LineageEx&quot;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;Taxon&quot;</span><span class="p">,</span> <span class="p">[])</span>
+            <span class="n">lineage</span> <span class="o">=</span> <span class="n">taxa_set</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"LineageEx"</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"Taxon"</span><span class="p">,</span> <span class="p">[])</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">lineage</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
                 <span class="n">lineage</span> <span class="o">=</span> <span class="p">[</span><span class="n">lineage</span><span class="p">]</span>
 
             <span class="c1"># NCBI LineageEx is root → leaf; reverse so most-specific first</span>
             <span class="n">lineage</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">reversed</span><span class="p">(</span><span class="n">lineage</span><span class="p">))</span>
-            <span class="k">return</span> <span class="p">[</span><span class="n">t</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ScientificName&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">lineage</span> <span class="k">if</span> <span class="s2">&quot;ScientificName&quot;</span> <span class="ow">in</span> <span class="n">t</span><span class="p">]</span>
+            <span class="k">return</span> <span class="p">[</span><span class="n">t</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"ScientificName"</span><span class="p">)</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">lineage</span> <span class="k">if</span> <span class="s2">"ScientificName"</span> <span class="ow">in</span> <span class="n">t</span><span class="p">]</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>  <span class="c1"># pylint: disable=broad-exception-caught</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                <span class="s2">&quot;Failed to fetch taxonomy lineage for taxon_id=</span><span class="si">%d</span><span class="s2">: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="s2">"Failed to fetch taxonomy lineage for taxon_id=</span><span class="si">%d</span><span class="s2">: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span>
                 <span class="n">taxon_id</span><span class="p">,</span>
                 <span class="n">exc</span><span class="p">,</span>
             <span class="p">)</span>
@@ -4515,8 +4515,8 @@ descriptions, or any free-text metadata field — taxonomy only.</p>
 <span class="normal">308</span>
 <span class="normal">309</span>
 <span class="normal">310</span>
-<span class="normal">311</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">resolve_icon</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">meta</span><span class="p">:</span> <span class="s2">&quot;GenomeMetadata&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the best icon filename for a genome.</span>
+<span class="normal">311</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">resolve_icon</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">meta</span><span class="p">:</span> <span class="s2">"GenomeMetadata"</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Return the best icon filename for a genome.</span>
 
 <span class="sd">    Tries lineage sources in order:</span>
 <span class="sd">    1. ``meta.taxonomy_lineage`` (pre-fetched from metadata DB)</span>
@@ -4526,30 +4526,30 @@ descriptions, or any free-text metadata field — taxonomy only.</p>
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    (icon, matched_term, lineage_source)</span>
-<span class="sd">        - *icon*: filename e.g. ``&quot;Lepidoptera.png&quot;``</span>
+<span class="sd">        - *icon*: filename e.g. ``"Lepidoptera.png"``</span>
 <span class="sd">        - *matched_term*: taxonomy name that triggered the match</span>
-<span class="sd">        - *lineage_source*: one of ``&quot;metadata_lineage&quot;``,</span>
-<span class="sd">          ``&quot;ncbi_lineage&quot;``, ``&quot;busco_lineage&quot;``,</span>
-<span class="sd">          ``&quot;missing_taxon_id&quot;``, ``&quot;fallback&quot;``</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">accession</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">meta</span><span class="p">,</span> <span class="s2">&quot;accession&quot;</span><span class="p">,</span> <span class="s2">&quot;unknown&quot;</span><span class="p">)</span>
-    <span class="n">taxon_id</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">meta</span><span class="p">,</span> <span class="s2">&quot;taxon_id&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+<span class="sd">        - *lineage_source*: one of ``"metadata_lineage"``,</span>
+<span class="sd">          ``"ncbi_lineage"``, ``"busco_lineage"``,</span>
+<span class="sd">          ``"missing_taxon_id"``, ``"fallback"``</span>
+<span class="sd">    """</span>
+    <span class="n">accession</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">meta</span><span class="p">,</span> <span class="s2">"accession"</span><span class="p">,</span> <span class="s2">"unknown"</span><span class="p">)</span>
+    <span class="n">taxon_id</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">meta</span><span class="p">,</span> <span class="s2">"taxon_id"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
 
     <span class="c1"># Source 1: metadata DB lineage (already on the object)</span>
-    <span class="n">db_lineage</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_normalise_lineage</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">meta</span><span class="p">,</span> <span class="s2">&quot;taxonomy_lineage&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span>
+    <span class="n">db_lineage</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_normalise_lineage</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">meta</span><span class="p">,</span> <span class="s2">"taxonomy_lineage"</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span>
     <span class="k">if</span> <span class="n">db_lineage</span><span class="p">:</span>
         <span class="n">icon</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_match_lineage</span><span class="p">(</span><span class="n">db_lineage</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">icon</span> <span class="o">!=</span> <span class="n">_FALLBACK_ICON</span><span class="p">:</span>
             <span class="n">matched</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_find_matched_term</span><span class="p">(</span><span class="n">db_lineage</span><span class="p">)</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                <span class="s2">&quot;Icon resolved via metadata_lineage: taxon_id=</span><span class="si">%s</span><span class="s2"> &quot;</span>
-                <span class="s2">&quot;accession=</span><span class="si">%s</span><span class="s2"> matched=</span><span class="si">%s</span><span class="s2"> icon=</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="s2">"Icon resolved via metadata_lineage: taxon_id=</span><span class="si">%s</span><span class="s2"> "</span>
+                <span class="s2">"accession=</span><span class="si">%s</span><span class="s2"> matched=</span><span class="si">%s</span><span class="s2"> icon=</span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span>
                 <span class="n">taxon_id</span><span class="p">,</span>
                 <span class="n">accession</span><span class="p">,</span>
                 <span class="n">matched</span><span class="p">,</span>
                 <span class="n">icon</span><span class="p">,</span>
             <span class="p">)</span>
-            <span class="k">return</span> <span class="n">icon</span><span class="p">,</span> <span class="n">matched</span><span class="p">,</span> <span class="s2">&quot;metadata_lineage&quot;</span>
+            <span class="k">return</span> <span class="n">icon</span><span class="p">,</span> <span class="n">matched</span><span class="p">,</span> <span class="s2">"metadata_lineage"</span>
 
     <span class="c1"># Source 2: NCBI Entrez live lookup (cached)</span>
     <span class="k">if</span> <span class="n">taxon_id</span><span class="p">:</span>
@@ -4559,46 +4559,46 @@ descriptions, or any free-text metadata field — taxonomy only.</p>
             <span class="k">if</span> <span class="n">icon</span> <span class="o">!=</span> <span class="n">_FALLBACK_ICON</span><span class="p">:</span>
                 <span class="n">matched</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_find_matched_term</span><span class="p">(</span><span class="n">ncbi_lineage</span><span class="p">)</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                    <span class="s2">&quot;Icon resolved via ncbi_lineage: taxon_id=</span><span class="si">%d</span><span class="s2"> &quot;</span>
-                    <span class="s2">&quot;accession=</span><span class="si">%s</span><span class="s2"> matched=</span><span class="si">%s</span><span class="s2"> icon=</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+                    <span class="s2">"Icon resolved via ncbi_lineage: taxon_id=</span><span class="si">%d</span><span class="s2"> "</span>
+                    <span class="s2">"accession=</span><span class="si">%s</span><span class="s2"> matched=</span><span class="si">%s</span><span class="s2"> icon=</span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span>
                     <span class="n">taxon_id</span><span class="p">,</span>
                     <span class="n">accession</span><span class="p">,</span>
                     <span class="n">matched</span><span class="p">,</span>
                     <span class="n">icon</span><span class="p">,</span>
                 <span class="p">)</span>
-                <span class="k">return</span> <span class="n">icon</span><span class="p">,</span> <span class="n">matched</span><span class="p">,</span> <span class="s2">&quot;ncbi_lineage&quot;</span>
+                <span class="k">return</span> <span class="n">icon</span><span class="p">,</span> <span class="n">matched</span><span class="p">,</span> <span class="s2">"ncbi_lineage"</span>
             <span class="c1"># NCBI returned lineage but nothing matched — still try</span>
             <span class="c1"># busco as last resort before accepting Metazoa</span>
     <span class="k">elif</span> <span class="ow">not</span> <span class="n">taxon_id</span><span class="p">:</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-            <span class="s2">&quot;taxon_id is missing for </span><span class="si">%s</span><span class="s2">. Trying busco_lineage fallback.&quot;</span><span class="p">,</span>
+            <span class="s2">"taxon_id is missing for </span><span class="si">%s</span><span class="s2">. Trying busco_lineage fallback."</span><span class="p">,</span>
             <span class="n">accession</span><span class="p">,</span>
         <span class="p">)</span>
 
     <span class="c1"># Source 3: BUSCO lineage hint (weak but reliable)</span>
-    <span class="n">busco_lineage</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">meta</span><span class="p">,</span> <span class="s2">&quot;busco_lineage&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="n">busco_lineage</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">meta</span><span class="p">,</span> <span class="s2">"busco_lineage"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
     <span class="n">icon_from_busco</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resolve_from_busco</span><span class="p">(</span><span class="n">busco_lineage</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">icon_from_busco</span><span class="p">:</span>
         <span class="n">matched</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_busco_matched_term</span><span class="p">(</span><span class="n">busco_lineage</span><span class="p">)</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-            <span class="s2">&quot;Icon resolved via busco_lineage: taxon_id=</span><span class="si">%s</span><span class="s2"> &quot;</span>
-            <span class="s2">&quot;accession=</span><span class="si">%s</span><span class="s2"> busco=</span><span class="si">%s</span><span class="s2"> matched=</span><span class="si">%s</span><span class="s2"> icon=</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="s2">"Icon resolved via busco_lineage: taxon_id=</span><span class="si">%s</span><span class="s2"> "</span>
+            <span class="s2">"accession=</span><span class="si">%s</span><span class="s2"> busco=</span><span class="si">%s</span><span class="s2"> matched=</span><span class="si">%s</span><span class="s2"> icon=</span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span>
             <span class="n">taxon_id</span><span class="p">,</span>
             <span class="n">accession</span><span class="p">,</span>
             <span class="n">busco_lineage</span><span class="p">,</span>
             <span class="n">matched</span><span class="p">,</span>
             <span class="n">icon_from_busco</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="k">return</span> <span class="n">icon_from_busco</span><span class="p">,</span> <span class="n">matched</span><span class="p">,</span> <span class="s2">&quot;busco_lineage&quot;</span>
+        <span class="k">return</span> <span class="n">icon_from_busco</span><span class="p">,</span> <span class="n">matched</span><span class="p">,</span> <span class="s2">"busco_lineage"</span>
 
     <span class="c1"># All sources exhausted</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">taxon_id</span><span class="p">:</span>
-        <span class="n">source</span> <span class="o">=</span> <span class="s2">&quot;missing_taxon_id&quot;</span>
+        <span class="n">source</span> <span class="o">=</span> <span class="s2">"missing_taxon_id"</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">source</span> <span class="o">=</span> <span class="s2">&quot;fallback&quot;</span>
+        <span class="n">source</span> <span class="o">=</span> <span class="s2">"fallback"</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-        <span class="s2">&quot;All lineage sources exhausted for accession=</span><span class="si">%s</span><span class="s2"> taxon_id=</span><span class="si">%s</span><span class="s2">. &quot;</span>
-        <span class="s2">&quot;Using fallback </span><span class="si">%s</span><span class="s2">.&quot;</span><span class="p">,</span>
+        <span class="s2">"All lineage sources exhausted for accession=</span><span class="si">%s</span><span class="s2"> taxon_id=</span><span class="si">%s</span><span class="s2">. "</span>
+        <span class="s2">"Using fallback </span><span class="si">%s</span><span class="s2">."</span><span class="p">,</span>
         <span class="n">accession</span><span class="p">,</span>
         <span class="n">taxon_id</span><span class="p">,</span>
         <span class="n">_FALLBACK_ICON</span><span class="p">,</span>

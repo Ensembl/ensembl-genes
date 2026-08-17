@@ -3774,41 +3774,41 @@
 <span class="normal">229</span>
 <span class="normal">230</span>
 <span class="normal">231</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">InputSchema</span><span class="p">(</span><span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Input arguments&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Input arguments"""</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-t&quot;</span><span class="p">,</span> <span class="s2">&quot;--taxon_id&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Taxon id&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"-t"</span><span class="p">,</span> <span class="s2">"--taxon_id"</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">"Taxon id"</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-            <span class="s2">&quot;--tree&quot;</span><span class="p">,</span>
-            <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+            <span class="s2">"--tree"</span><span class="p">,</span>
+            <span class="n">action</span><span class="o">=</span><span class="s2">"store_true"</span><span class="p">,</span>
             <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Turn on the &#39;Include subordinate taxa&#39; option in your query to ENA&quot;</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">"Turn on the 'Include subordinate taxa' option in your query to ENA"</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-            <span class="s2">&quot;-f&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;--csv_file&quot;</span><span class="p">,</span>
+            <span class="s2">"-f"</span><span class="p">,</span>
+            <span class="s2">"--csv_file"</span><span class="p">,</span>
             <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
             <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Output file path (csv format)&quot;</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">"Output file path (csv format)"</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-            <span class="s2">&quot;-r&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;--read_type&quot;</span><span class="p">,</span>
-            <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;short&quot;</span><span class="p">,</span> <span class="s2">&quot;long&quot;</span><span class="p">],</span>
+            <span class="s2">"-r"</span><span class="p">,</span>
+            <span class="s2">"--read_type"</span><span class="p">,</span>
+            <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">"short"</span><span class="p">,</span> <span class="s2">"long"</span><span class="p">],</span>
             <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Specify the type of transcriptomic data to download [&#39;short&#39;, &#39;long&#39;]&quot;</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">"Specify the type of transcriptomic data to download ['short', 'long']"</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-            <span class="s2">&quot;-l&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;--limit&quot;</span><span class="p">,</span>
+            <span class="s2">"-l"</span><span class="p">,</span>
+            <span class="s2">"--limit"</span><span class="p">,</span>
             <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
             <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The number of runs to be included in your csv file </span><span class="se">\</span>
-<span class="s2">                - consider that 1 run = 2 files, so setting &#39;-l 50&#39; will </span><span class="se">\</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">"The number of runs to be included in your csv file </span><span class="se">\</span>
+<span class="s2">                - consider that 1 run = 2 files, so setting '-l 50' will </span><span class="se">\</span>
 <span class="s2">                    result in 100 lines in your csv (WARNING: this limit </span><span class="se">\</span>
-<span class="s2">                        does not consider quality of data, it is a simple subsampling)&quot;</span><span class="p">,</span>
+<span class="s2">                        does not consider quality of data, it is a simple subsampling)"</span><span class="p">,</span>
         <span class="p">)</span>
 </code></pre></div></td></tr></table></div>
               </details>
@@ -4046,49 +4046,49 @@
 <span class="normal">192</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_data_from_ena</span><span class="p">(</span>  <span class="c1"># pylint: disable=too-many-locals, too-many-branches</span>
     <span class="n">taxon_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">read_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">tree</span><span class="p">:</span> <span class="nb">bool</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Query ENA API to get short or long read data</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        taxon_id (int): NCBI taxon id</span>
-<span class="sd">        read_type (str): type of read data to query (&#39;short&#39; or &#39;long&#39;)</span>
+<span class="sd">        read_type (str): type of read data to query ('short' or 'long')</span>
 <span class="sd">        tree (bool): whether to include subordinate taxa</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        List[Tuple[str, ...]]: list of tuples with data for csv file</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">csv_data</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
 
     <span class="k">if</span> <span class="n">tree</span><span class="p">:</span>
-        <span class="n">query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;tax_tree(</span><span class="si">{</span><span class="n">taxon_id</span><span class="si">}</span><span class="s2">)&quot;</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"tax_tree(</span><span class="si">{</span><span class="n">taxon_id</span><span class="si">}</span><span class="s2">)"</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;tax_eq(</span><span class="si">{</span><span class="n">taxon_id</span><span class="si">}</span><span class="s2">)&quot;</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"tax_eq(</span><span class="si">{</span><span class="n">taxon_id</span><span class="si">}</span><span class="s2">)"</span>
 
-    <span class="k">if</span> <span class="n">read_type</span> <span class="o">==</span> <span class="s2">&quot;short&quot;</span><span class="p">:</span>
-        <span class="n">query</span> <span class="o">+=</span> <span class="s2">&quot; AND instrument_platform=ILLUMINA AND library_layout=PAIRED&quot;</span>
+    <span class="k">if</span> <span class="n">read_type</span> <span class="o">==</span> <span class="s2">"short"</span><span class="p">:</span>
+        <span class="n">query</span> <span class="o">+=</span> <span class="s2">" AND instrument_platform=ILLUMINA AND library_layout=PAIRED"</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">query</span> <span class="o">+=</span> <span class="s2">&quot; AND (instrument_platform=OXFORD_NANOPORE OR instrument_platform=PACBIO_SMRT)&quot;</span>
+        <span class="n">query</span> <span class="o">+=</span> <span class="s2">" AND (instrument_platform=OXFORD_NANOPORE OR instrument_platform=PACBIO_SMRT)"</span>
 
-    <span class="n">query</span> <span class="o">+=</span> <span class="s2">&quot; AND library_source=TRANSCRIPTOMIC&quot;</span>
+    <span class="n">query</span> <span class="o">+=</span> <span class="s2">" AND library_source=TRANSCRIPTOMIC"</span>
 
-    <span class="n">search_url</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;https://www.ebi.ac.uk/ena/portal/api/search?display=report&amp;query=</span><span class="si">{</span><span class="n">query</span><span class="si">}</span><span class="s2">&amp;domain=read&amp;result=read_run&amp;fields=sample_accession,run_accession,fastq_ftp,read_count,instrument_platform,fastq_md5&quot;</span>  <span class="c1"># pylint: disable=line-too-long</span>
+    <span class="n">search_url</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"https://www.ebi.ac.uk/ena/portal/api/search?display=report&amp;query=</span><span class="si">{</span><span class="n">query</span><span class="si">}</span><span class="s2">&amp;domain=read&amp;result=read_run&amp;fields=sample_accession,run_accession,fastq_ftp,read_count,instrument_platform,fastq_md5"</span>  <span class="c1"># pylint: disable=line-too-long</span>
     <span class="n">search_result</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">search_url</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">60</span><span class="p">)</span>
-    <span class="n">results</span> <span class="o">=</span> <span class="n">search_result</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">:]</span>
-    <span class="n">is_paired</span> <span class="o">=</span> <span class="s2">&quot;1&quot;</span>
-    <span class="n">is_mate_1</span> <span class="o">=</span> <span class="s2">&quot;-1&quot;</span>
-    <span class="n">read_length</span> <span class="o">=</span> <span class="s2">&quot;1&quot;</span>
-    <span class="n">is_plus_13</span> <span class="o">=</span> <span class="s2">&quot;0&quot;</span>
-    <span class="n">centre</span> <span class="o">=</span> <span class="s2">&quot;ENA&quot;</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="n">search_result</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">)[</span><span class="mi">1</span><span class="p">:]</span>
+    <span class="n">is_paired</span> <span class="o">=</span> <span class="s2">"1"</span>
+    <span class="n">is_mate_1</span> <span class="o">=</span> <span class="s2">"-1"</span>
+    <span class="n">read_length</span> <span class="o">=</span> <span class="s2">"1"</span>
+    <span class="n">is_plus_13</span> <span class="o">=</span> <span class="s2">"0"</span>
+    <span class="n">centre</span> <span class="o">=</span> <span class="s2">"ENA"</span>
 
     <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">results</span><span class="p">:</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="p">))</span> <span class="o">==</span> <span class="mi">6</span><span class="p">:</span>
-            <span class="n">row_data</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"</span><span class="se">\t</span><span class="s2">"</span><span class="p">))</span> <span class="o">==</span> <span class="mi">6</span><span class="p">:</span>
+            <span class="n">row_data</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"</span><span class="se">\t</span><span class="s2">"</span><span class="p">)</span>
             <span class="n">sample_accession</span> <span class="o">=</span> <span class="n">row_data</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
             <span class="n">run_accession</span> <span class="o">=</span> <span class="n">row_data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
-            <span class="n">multi_samples</span> <span class="o">=</span> <span class="n">sample_accession</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;;&quot;</span><span class="p">)</span>
+            <span class="n">multi_samples</span> <span class="o">=</span> <span class="n">sample_accession</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">";"</span><span class="p">)</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">multi_samples</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
-                <span class="n">sample</span><span class="p">,</span> <span class="n">description</span> <span class="o">=</span> <span class="s2">&quot;multiple&quot;</span><span class="p">,</span> <span class="s2">&quot;multiple&quot;</span>
+                <span class="n">sample</span><span class="p">,</span> <span class="n">description</span> <span class="o">=</span> <span class="s2">"multiple"</span><span class="p">,</span> <span class="s2">"multiple"</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">sample</span><span class="p">,</span> <span class="n">description</span> <span class="o">=</span> <span class="n">get_sample_info</span><span class="p">(</span><span class="n">sample_accession</span><span class="p">)</span>
 
@@ -4096,39 +4096,39 @@
                 <span class="n">read_count</span> <span class="o">=</span> <span class="n">row_data</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>  <span class="c1"># pylint: disable=unused-variable</span>
                 <span class="n">instrument_platform</span> <span class="o">=</span> <span class="n">row_data</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span>
             <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
-                <span class="n">read_count</span> <span class="o">=</span> <span class="s2">&quot;0&quot;</span>
+                <span class="n">read_count</span> <span class="o">=</span> <span class="s2">"0"</span>
                 <span class="n">instrument_platform</span> <span class="o">=</span> <span class="n">row_data</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
 
-            <span class="n">file_entries</span> <span class="o">=</span> <span class="n">row_data</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;;&quot;</span><span class="p">)</span>
-            <span class="n">md5_entries</span> <span class="o">=</span> <span class="n">row_data</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;;&quot;</span><span class="p">)</span>
+            <span class="n">file_entries</span> <span class="o">=</span> <span class="n">row_data</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">";"</span><span class="p">)</span>
+            <span class="n">md5_entries</span> <span class="o">=</span> <span class="n">row_data</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">";"</span><span class="p">)</span>
 
-            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">file_entries</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span> <span class="ow">and</span> <span class="n">instrument_platform</span> <span class="o">==</span> <span class="s2">&quot;ILLUMINA&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">file_entries</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span> <span class="ow">and</span> <span class="n">instrument_platform</span> <span class="o">==</span> <span class="s2">"ILLUMINA"</span><span class="p">:</span>
                 <span class="k">pass</span>  <span class="c1"># Nothing special to do, continue as normal</span>
-            <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">file_entries</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">instrument_platform</span> <span class="o">==</span> <span class="s2">&quot;PACBIO_SMRT&quot;</span><span class="p">:</span>
+            <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">file_entries</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">instrument_platform</span> <span class="o">==</span> <span class="s2">"PACBIO_SMRT"</span><span class="p">:</span>
                 <span class="k">pass</span>
-            <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">file_entries</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span> <span class="ow">and</span> <span class="n">instrument_platform</span> <span class="o">==</span> <span class="s2">&quot;ILLUMINA&quot;</span><span class="p">:</span>
+            <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">file_entries</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span> <span class="ow">and</span> <span class="n">instrument_platform</span> <span class="o">==</span> <span class="s2">"ILLUMINA"</span><span class="p">:</span>
                 <span class="c1"># Identify the unwanted entry and remove it</span>
                 <span class="n">file_entries</span> <span class="o">=</span> <span class="p">[</span>
-                    <span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">file_entries</span> <span class="k">if</span> <span class="s2">&quot;_1.fastq.gz&quot;</span> <span class="ow">in</span> <span class="n">f</span> <span class="ow">or</span> <span class="s2">&quot;_2.fastq.gz&quot;</span> <span class="ow">in</span> <span class="n">f</span>
+                    <span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">file_entries</span> <span class="k">if</span> <span class="s2">"_1.fastq.gz"</span> <span class="ow">in</span> <span class="n">f</span> <span class="ow">or</span> <span class="s2">"_2.fastq.gz"</span> <span class="ow">in</span> <span class="n">f</span>
                 <span class="p">]</span>
                 <span class="c1"># Assuming the order of md5 corresponds to files and the \</span>
                 <span class="c1"># unwanted file is in the middle</span>
                 <span class="n">md5_entries</span> <span class="o">=</span> <span class="p">[</span>
                     <span class="n">md5_entries</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-                    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">f</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">row_data</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;;&quot;</span><span class="p">))</span>
-                    <span class="k">if</span> <span class="s2">&quot;_1.fastq.gz&quot;</span> <span class="ow">in</span> <span class="n">f</span> <span class="ow">or</span> <span class="s2">&quot;_2.fastq.gz&quot;</span> <span class="ow">in</span> <span class="n">f</span>
+                    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">f</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">row_data</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">";"</span><span class="p">))</span>
+                    <span class="k">if</span> <span class="s2">"_1.fastq.gz"</span> <span class="ow">in</span> <span class="n">f</span> <span class="ow">or</span> <span class="s2">"_2.fastq.gz"</span> <span class="ow">in</span> <span class="n">f</span>
                 <span class="p">]</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="nb">print</span><span class="p">(</span>
-                    <span class="s2">&quot;Warning: Unexpected number of file entries, skipping &quot;</span>
+                    <span class="s2">"Warning: Unexpected number of file entries, skipping "</span>
                     <span class="o">+</span> <span class="n">run_accession</span>
                 <span class="p">)</span>
                 <span class="k">continue</span>  <span class="c1"># Skip further processing for this row</span>
             <span class="c1"># Only proceed if we have exactly 2 entries after any necessary filtering</span>
-            <span class="k">if</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">file_entries</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">instrument_platform</span> <span class="o">==</span> <span class="s2">&quot;PACBIO_SMRT&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span>
-                <span class="nb">len</span><span class="p">(</span><span class="n">file_entries</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span> <span class="ow">and</span> <span class="n">instrument_platform</span> <span class="o">==</span> <span class="s2">&quot;ILLUMINA&quot;</span>
+            <span class="k">if</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">file_entries</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">instrument_platform</span> <span class="o">==</span> <span class="s2">"PACBIO_SMRT"</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span>
+                <span class="nb">len</span><span class="p">(</span><span class="n">file_entries</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span> <span class="ow">and</span> <span class="n">instrument_platform</span> <span class="o">==</span> <span class="s2">"ILLUMINA"</span>
             <span class="p">):</span>
-                <span class="c1"># if &quot;ftp&quot; in row_data[2] and &quot;;&quot; in row_data[5]:</span>
+                <span class="c1"># if "ftp" in row_data[2] and ";" in row_data[5]:</span>
                 <span class="k">for</span> <span class="n">file</span><span class="p">,</span> <span class="n">md5_file</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">file_entries</span><span class="p">,</span> <span class="n">md5_entries</span><span class="p">):</span>
                     <span class="n">file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
                     <span class="n">md5_file_value</span> <span class="o">=</span> <span class="n">md5_file</span>
@@ -4282,7 +4282,7 @@
 <span class="normal">81</span>
 <span class="normal">82</span>
 <span class="normal">83</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_sample_info</span><span class="p">(</span><span class="n">accession</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Get info about sample name and description for the run accession</span>
 
 <span class="sd">    Args:</span>
@@ -4290,8 +4290,8 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">        List: sample name and description</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">biosample_url</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;https://www.ebi.ac.uk/biosamples/samples/</span><span class="si">{</span><span class="n">accession</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="sd">    """</span>
+    <span class="n">biosample_url</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"https://www.ebi.ac.uk/biosamples/samples/</span><span class="si">{</span><span class="n">accession</span><span class="si">}</span><span class="s2">"</span>
 
     <span class="k">try</span><span class="p">:</span>
         <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">biosample_url</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">60</span><span class="p">)</span>
@@ -4300,43 +4300,43 @@
         <span class="n">biosample_data</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
 
         <span class="k">if</span> <span class="p">(</span>
-            <span class="s2">&quot;characteristics&quot;</span> <span class="ow">in</span> <span class="n">biosample_data</span>
-            <span class="ow">and</span> <span class="s2">&quot;tissue&quot;</span> <span class="ow">in</span> <span class="n">biosample_data</span><span class="p">[</span><span class="s2">&quot;characteristics&quot;</span><span class="p">]</span>
+            <span class="s2">"characteristics"</span> <span class="ow">in</span> <span class="n">biosample_data</span>
+            <span class="ow">and</span> <span class="s2">"tissue"</span> <span class="ow">in</span> <span class="n">biosample_data</span><span class="p">[</span><span class="s2">"characteristics"</span><span class="p">]</span>
         <span class="p">):</span>
-            <span class="n">sample</span> <span class="o">=</span> <span class="n">biosample_data</span><span class="p">[</span><span class="s2">&quot;characteristics&quot;</span><span class="p">][</span><span class="s2">&quot;tissue&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;text&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+            <span class="n">sample</span> <span class="o">=</span> <span class="n">biosample_data</span><span class="p">[</span><span class="s2">"characteristics"</span><span class="p">][</span><span class="s2">"tissue"</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">"text"</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
         <span class="k">elif</span> <span class="p">(</span>
-            <span class="s2">&quot;characteristics&quot;</span> <span class="ow">in</span> <span class="n">biosample_data</span>
-            <span class="ow">and</span> <span class="s2">&quot;organism_part&quot;</span> <span class="ow">in</span> <span class="n">biosample_data</span><span class="p">[</span><span class="s2">&quot;characteristics&quot;</span><span class="p">]</span>
+            <span class="s2">"characteristics"</span> <span class="ow">in</span> <span class="n">biosample_data</span>
+            <span class="ow">and</span> <span class="s2">"organism_part"</span> <span class="ow">in</span> <span class="n">biosample_data</span><span class="p">[</span><span class="s2">"characteristics"</span><span class="p">]</span>
         <span class="p">):</span>
-            <span class="n">sample</span> <span class="o">=</span> <span class="n">biosample_data</span><span class="p">[</span><span class="s2">&quot;characteristics&quot;</span><span class="p">][</span><span class="s2">&quot;organism_part&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span>
-                <span class="s2">&quot;text&quot;</span>
+            <span class="n">sample</span> <span class="o">=</span> <span class="n">biosample_data</span><span class="p">[</span><span class="s2">"characteristics"</span><span class="p">][</span><span class="s2">"organism_part"</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span>
+                <span class="s2">"text"</span>
             <span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">sample</span> <span class="o">=</span> <span class="n">accession</span>
 
         <span class="k">if</span> <span class="p">(</span>
-            <span class="s2">&quot;characteristics&quot;</span> <span class="ow">in</span> <span class="n">biosample_data</span>
-            <span class="ow">and</span> <span class="s2">&quot;description&quot;</span> <span class="ow">in</span> <span class="n">biosample_data</span><span class="p">[</span><span class="s2">&quot;characteristics&quot;</span><span class="p">]</span>
+            <span class="s2">"characteristics"</span> <span class="ow">in</span> <span class="n">biosample_data</span>
+            <span class="ow">and</span> <span class="s2">"description"</span> <span class="ow">in</span> <span class="n">biosample_data</span><span class="p">[</span><span class="s2">"characteristics"</span><span class="p">]</span>
         <span class="p">):</span>
-            <span class="n">description</span> <span class="o">=</span> <span class="n">biosample_data</span><span class="p">[</span><span class="s2">&quot;characteristics&quot;</span><span class="p">][</span><span class="s2">&quot;description&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;text&quot;</span><span class="p">]</span>
+            <span class="n">description</span> <span class="o">=</span> <span class="n">biosample_data</span><span class="p">[</span><span class="s2">"characteristics"</span><span class="p">][</span><span class="s2">"description"</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">"text"</span><span class="p">]</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">description</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">250</span><span class="p">:</span>
                 <span class="n">description</span> <span class="o">=</span> <span class="n">accession</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">description</span> <span class="o">=</span> <span class="n">accession</span>
 
-        <span class="n">sample</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;[ ;\(\)\/</span><span class="se">\\</span><span class="s2">]&quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="n">sample</span><span class="p">)</span>
+        <span class="n">sample</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">"[ ;\(\)\/</span><span class="se">\\</span><span class="s2">]"</span><span class="p">,</span> <span class="s2">"_"</span><span class="p">,</span> <span class="n">sample</span><span class="p">)</span>
         <span class="c1"># remove punctuation</span>
-        <span class="n">sample</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;[!</span><span class="se">\&quot;</span><span class="s2">#$%&amp;()*\+,\-\&#39;.\/:;&lt;=&gt;?@\[\]^`{|}~]&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">sample</span><span class="p">)</span>
-        <span class="n">multi_tissues_regex</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;([a-zA-Z]+\,)+&quot;</span>
+        <span class="n">sample</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">"[!</span><span class="se">\"</span><span class="s2">#$%&amp;()*\+,\-\'.\/:;&lt;=&gt;?@\[\]^`{|}~]"</span><span class="p">,</span> <span class="s2">""</span><span class="p">,</span> <span class="n">sample</span><span class="p">)</span>
+        <span class="n">multi_tissues_regex</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">"([a-zA-Z]+\,)+"</span>
         <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">multi_tissues_regex</span><span class="p">,</span> <span class="n">sample</span><span class="p">):</span>
-            <span class="n">sample</span> <span class="o">=</span> <span class="s2">&quot;mixed_tissues&quot;</span>
+            <span class="n">sample</span> <span class="o">=</span> <span class="s2">"mixed_tissues"</span>
 
         <span class="k">return</span> <span class="p">(</span><span class="n">sample</span><span class="p">,</span> <span class="n">description</span><span class="p">)</span>
 
     <span class="k">except</span> <span class="p">(</span><span class="n">RequestException</span><span class="p">,</span> <span class="n">HTTPError</span><span class="p">,</span> <span class="ne">ConnectionError</span><span class="p">,</span> <span class="n">Timeout</span><span class="p">)</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;An error occurred while fetching data from </span><span class="si">{</span><span class="n">biosample_url</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"An error occurred while fetching data from </span><span class="si">{</span><span class="n">biosample_url</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
         <span class="c1"># Handle the error here, you can log it or take other appropriate actions.</span>
-        <span class="k">return</span> <span class="p">(</span><span class="s2">&quot;unknown&quot;</span><span class="p">,</span> <span class="s2">&quot;unknown&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span><span class="s2">"unknown"</span><span class="p">,</span> <span class="s2">"unknown"</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -4381,13 +4381,13 @@
 <span class="normal">253</span>
 <span class="normal">254</span>
 <span class="normal">255</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Entrypoint&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Entrypoint"""</span>
     <span class="n">parser</span> <span class="o">=</span> <span class="n">InputSchema</span><span class="p">()</span>
     <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
 
     <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">csv_file</span><span class="p">)</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">stat</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">csv_file</span><span class="p">)</span><span class="o">.</span><span class="n">st_size</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span>
-            <span class="s2">&quot;File &quot;</span> <span class="o">+</span> <span class="n">args</span><span class="o">.</span><span class="n">csv_file</span> <span class="o">+</span> <span class="s2">&quot; exists, and is not empty, will not overwrite!&quot;</span>
+            <span class="s2">"File "</span> <span class="o">+</span> <span class="n">args</span><span class="o">.</span><span class="n">csv_file</span> <span class="o">+</span> <span class="s2">" exists, and is not empty, will not overwrite!"</span>
         <span class="p">)</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">()</span>
     <span class="k">else</span><span class="p">:</span>
@@ -4397,11 +4397,11 @@
             <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">limit</span><span class="p">:</span>
                 <span class="n">csv_data</span> <span class="o">=</span> <span class="n">csv_data</span><span class="p">[:</span> <span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">limit</span> <span class="o">*</span> <span class="mi">2</span><span class="p">)]</span>
 
-            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">csv_file</span><span class="p">),</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">csv_file</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">csv_file</span><span class="p">),</span> <span class="s2">"w"</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">"utf8"</span><span class="p">)</span> <span class="k">as</span> <span class="n">csv_file</span><span class="p">:</span>
                 <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">csv_data</span><span class="p">:</span>
-                    <span class="n">csv_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">row</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+                    <span class="n">csv_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">"</span><span class="se">\t</span><span class="s2">"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">row</span><span class="p">)</span> <span class="o">+</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
         <span class="k">except</span> <span class="p">(</span><span class="n">RequestException</span><span class="p">,</span> <span class="n">HTTPError</span><span class="p">,</span> <span class="ne">ConnectionError</span><span class="p">,</span> <span class="n">Timeout</span><span class="p">)</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;An error occurred during the data retrieval process: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"An error occurred during the data retrieval process: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>

@@ -3924,7 +3924,7 @@
 <span class="normal">47</span>
 <span class="normal">48</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">Candidate</span><span class="p">:</span>  <span class="c1"># pylint: disable=too-many-instance-attributes</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Holds a genome candidate and its audit metadata during YAML generation.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Holds a genome candidate and its audit metadata during YAML generation."""</span>
 
     <span class="n">identifier</span><span class="p">:</span> <span class="nb">str</span>
     <span class="n">meta</span><span class="p">:</span> <span class="n">GenomeMetadata</span>
@@ -3933,8 +3933,8 @@
     <span class="n">audit_reason</span><span class="p">:</span> <span class="nb">str</span>
     <span class="n">audit_resolved_date</span><span class="p">:</span> <span class="nb">str</span>
     <span class="n">input_order</span><span class="p">:</span> <span class="nb">int</span>
-    <span class="n">audit_image_source</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
-    <span class="n">audit_beta_status</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="n">audit_image_source</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">""</span>
+    <span class="n">audit_beta_status</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">""</span>
 </code></pre></div></td></tr></table></div>
               </details>
 
@@ -3953,7 +3953,7 @@
 
 
 <h4 id="ensembl.genes.projects.generate_project_yaml.Candidate.audit_beta_status" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">audit_beta_status</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">audit_beta_status</span> <span class="o">=</span> <span class="s1">''</span></code>
 
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
@@ -3994,7 +3994,7 @@
 
 
 <h4 id="ensembl.genes.projects.generate_project_yaml.Candidate.audit_image_source" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">audit_image_source</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">audit_image_source</span> <span class="o">=</span> <span class="s1">''</span></code>
 
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
@@ -4555,11 +4555,11 @@
 <span class="normal">451</span>
 <span class="normal">452</span>
 <span class="normal">453</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>  <span class="c1"># pylint: disable=too-many-locals,too-many-branches,too-many-statements</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Generate Ensembl project species.yaml from genome UUIDs and registry.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Generate Ensembl project species.yaml from genome UUIDs and registry."""</span>
     <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span>
-        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Generate Ensembl project species.yaml&quot;</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">"Generate Ensembl project species.yaml"</span><span class="p">,</span>
         <span class="n">formatter_class</span><span class="o">=</span><span class="n">argparse</span><span class="o">.</span><span class="n">RawDescriptionHelpFormatter</span><span class="p">,</span>
-        <span class="n">epilog</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;</span><span class="se">\</span>
+        <span class="n">epilog</span><span class="o">=</span><span class="s2">"""</span><span class="se">\</span>
 <span class="s2">Examples:</span>
 <span class="s2">  python -m ensembl.genes.projects.generate_project_yaml cbp_guuids.txt </span><span class="se">\\</span>
 <span class="s2">      --project cbp </span><span class="se">\\</span>
@@ -4575,33 +4575,33 @@
 
 <span class="s2">Note: The input file should primarily contain Genome UUIDs (one per line). </span>
 <span class="s2">For pre-release discovery without UUIDs, you may still rely on the registry tracking.</span>
-<span class="s2">&quot;&quot;&quot;</span><span class="p">,</span>
+<span class="s2">"""</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;input_file&quot;</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Positional input file containing a list of GUUIDs (one per line)&quot;</span><span class="p">,</span>
+        <span class="s2">"input_file"</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"Positional input file containing a list of GUUIDs (one per line)"</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--project&quot;</span><span class="p">,</span>
+        <span class="s2">"--project"</span><span class="p">,</span>
         <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Project name (e.g. cbp, vgp, dtol, bge, asg, erga, hprc, mouse_genomes)&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"Project name (e.g. cbp, vgp, dtol, bge, asg, erga, hprc, mouse_genomes)"</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--output&quot;</span><span class="p">,</span>
-        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;species.yaml&quot;</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Output YAML file (default: species.yaml)&quot;</span><span class="p">,</span>
+        <span class="s2">"--output"</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">"species.yaml"</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"Output YAML file (default: species.yaml)"</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--audit-file&quot;</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Optional output TSV file for audit logs (highly recommended)&quot;</span><span class="p">,</span>
+        <span class="s2">"--audit-file"</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"Optional output TSV file for audit logs (highly recommended)"</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--changelog&quot;</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Path to a previous YAML file to compare against the new output&quot;</span><span class="p">,</span>
+        <span class="s2">"--changelog"</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"Path to a previous YAML file to compare against the new output"</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--changelog-output&quot;</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Path to write a machine-readable TSV changelog (optional)&quot;</span><span class="p">,</span>
+        <span class="s2">"--changelog-output"</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"Path to write a machine-readable TSV changelog (optional)"</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
@@ -4611,28 +4611,28 @@
     <span class="n">renderer</span> <span class="o">=</span> <span class="n">YamlRenderer</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">ftp_client</span><span class="p">)</span>
 
     <span class="n">server_conf</span> <span class="o">=</span> <span class="n">_load_server_config</span><span class="p">()</span>
-    <span class="n">meta_conf</span> <span class="o">=</span> <span class="n">server_conf</span><span class="p">[</span><span class="s2">&quot;meta_beta&quot;</span><span class="p">]</span>
+    <span class="n">meta_conf</span> <span class="o">=</span> <span class="n">server_conf</span><span class="p">[</span><span class="s2">"meta_beta"</span><span class="p">]</span>
 
     <span class="n">metadata_client</span> <span class="o">=</span> <span class="n">MetadataDbClient</span><span class="p">(</span>
-        <span class="n">host</span><span class="o">=</span><span class="n">meta_conf</span><span class="p">[</span><span class="s2">&quot;db_host&quot;</span><span class="p">],</span>
-        <span class="n">port</span><span class="o">=</span><span class="n">meta_conf</span><span class="p">[</span><span class="s2">&quot;db_port&quot;</span><span class="p">],</span>
-        <span class="n">user</span><span class="o">=</span><span class="n">meta_conf</span><span class="p">[</span><span class="s2">&quot;db_user&quot;</span><span class="p">],</span>
-        <span class="n">dbname</span><span class="o">=</span><span class="n">meta_conf</span><span class="p">[</span><span class="s2">&quot;db_name&quot;</span><span class="p">],</span>
+        <span class="n">host</span><span class="o">=</span><span class="n">meta_conf</span><span class="p">[</span><span class="s2">"db_host"</span><span class="p">],</span>
+        <span class="n">port</span><span class="o">=</span><span class="n">meta_conf</span><span class="p">[</span><span class="s2">"db_port"</span><span class="p">],</span>
+        <span class="n">user</span><span class="o">=</span><span class="n">meta_conf</span><span class="p">[</span><span class="s2">"db_user"</span><span class="p">],</span>
+        <span class="n">dbname</span><span class="o">=</span><span class="n">meta_conf</span><span class="p">[</span><span class="s2">"db_name"</span><span class="p">],</span>
     <span class="p">)</span>
 
-    <span class="n">gb_conf</span> <span class="o">=</span> <span class="n">server_conf</span><span class="p">[</span><span class="s2">&quot;gb1&quot;</span><span class="p">]</span>
+    <span class="n">gb_conf</span> <span class="o">=</span> <span class="n">server_conf</span><span class="p">[</span><span class="s2">"gb1"</span><span class="p">]</span>
     <span class="n">gb_client</span> <span class="o">=</span> <span class="n">GbTrackerClient</span><span class="p">(</span>
-        <span class="n">host</span><span class="o">=</span><span class="n">gb_conf</span><span class="p">[</span><span class="s2">&quot;db_host&quot;</span><span class="p">],</span> <span class="n">port</span><span class="o">=</span><span class="n">gb_conf</span><span class="p">[</span><span class="s2">&quot;db_port&quot;</span><span class="p">],</span> <span class="n">user</span><span class="o">=</span><span class="n">gb_conf</span><span class="p">[</span><span class="s2">&quot;db_user&quot;</span><span class="p">]</span>
+        <span class="n">host</span><span class="o">=</span><span class="n">gb_conf</span><span class="p">[</span><span class="s2">"db_host"</span><span class="p">],</span> <span class="n">port</span><span class="o">=</span><span class="n">gb_conf</span><span class="p">[</span><span class="s2">"db_port"</span><span class="p">],</span> <span class="n">user</span><span class="o">=</span><span class="n">gb_conf</span><span class="p">[</span><span class="s2">"db_user"</span><span class="p">]</span>
     <span class="p">)</span>
 
     <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
     <span class="c1"># Read inputs</span>
     <span class="k">try</span><span class="p">:</span>
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">input_file</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-            <span class="n">identifiers</span> <span class="o">=</span> <span class="p">[</span><span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span> <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()]</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">input_file</span><span class="p">,</span> <span class="s2">"r"</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">identifiers</span> <span class="o">=</span> <span class="p">[</span><span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"</span><span class="se">\t</span><span class="s2">"</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span> <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()]</span>
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>  <span class="c1"># pylint: disable=broad-exception-caught</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error reading input file: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Error reading input file: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 
     <span class="n">yaml_docs</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
@@ -4642,13 +4642,13 @@
     <span class="n">candidates</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Candidate</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
 
     <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">identifier</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">identifiers</span><span class="p">):</span>
-        <span class="k">if</span> <span class="s2">&quot;-&quot;</span> <span class="ow">in</span> <span class="n">identifier</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">identifier</span><span class="p">)</span> <span class="o">==</span> <span class="mi">36</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s2">"-"</span> <span class="ow">in</span> <span class="n">identifier</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">identifier</span><span class="p">)</span> <span class="o">==</span> <span class="mi">36</span><span class="p">:</span>
             <span class="c1"># Explicitly a Genome UUID -&gt; Released genome track</span>
             <span class="n">meta</span> <span class="o">=</span> <span class="n">metadata_client</span><span class="o">.</span><span class="n">fetch_by_identifier</span><span class="p">(</span><span class="n">identifier</span><span class="p">)</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">meta</span><span class="p">:</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                    <span class="s2">&quot;Validation failed for &#39;</span><span class="si">%s</span><span class="s2">&#39;. Could not find UUID in metadata DB.&quot;</span>
-                    <span class="s2">&quot; Ensure this UUID is indexed in ensembl_metadata_qrp.&quot;</span><span class="p">,</span>
+                    <span class="s2">"Validation failed for '</span><span class="si">%s</span><span class="s2">'. Could not find UUID in metadata DB."</span>
+                    <span class="s2">" Ensure this UUID is indexed in ensembl_metadata_qrp."</span><span class="p">,</span>
                     <span class="n">identifier</span><span class="p">,</span>
                 <span class="p">)</span>
                 <span class="n">failed</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">identifier</span><span class="p">)</span>
@@ -4658,13 +4658,13 @@
             <span class="n">meta</span> <span class="o">=</span> <span class="n">gb_client</span><span class="o">.</span><span class="n">fetch_by_identifier</span><span class="p">(</span><span class="n">identifier</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">meta</span><span class="p">:</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                    <span class="s2">&quot;Routed &#39;</span><span class="si">%s</span><span class="s2">&#39; through gb_schema tracking as pre-release data.&quot;</span><span class="p">,</span>
+                    <span class="s2">"Routed '</span><span class="si">%s</span><span class="s2">' through gb_schema tracking as pre-release data."</span><span class="p">,</span>
                     <span class="n">identifier</span><span class="p">,</span>
                 <span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                    <span class="s2">&quot;Validation failed for &#39;</span><span class="si">%s</span><span class="s2">&#39;. Could not find DB in gb_schema.&quot;</span>
-                    <span class="s2">&quot; Core DB fallback is deprecated.&quot;</span><span class="p">,</span>
+                    <span class="s2">"Validation failed for '</span><span class="si">%s</span><span class="s2">'. Could not find DB in gb_schema."</span>
+                    <span class="s2">" Core DB fallback is deprecated."</span><span class="p">,</span>
                     <span class="n">identifier</span><span class="p">,</span>
                 <span class="p">)</span>
                 <span class="n">failed</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">identifier</span><span class="p">)</span>
@@ -4673,11 +4673,11 @@
         <span class="n">patch_ncbi_data</span><span class="p">(</span><span class="n">meta</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
         <span class="n">doc</span> <span class="o">=</span> <span class="n">renderer</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">meta</span><span class="p">)</span>
 
-        <span class="n">audit_decision</span> <span class="o">=</span> <span class="n">doc</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;__audit_decision__&quot;</span><span class="p">,</span> <span class="s2">&quot;excluded&quot;</span><span class="p">)</span>
-        <span class="n">audit_reason</span> <span class="o">=</span> <span class="n">doc</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;__audit_reason__&quot;</span><span class="p">,</span> <span class="s2">&quot;No document returned&quot;</span><span class="p">)</span>
-        <span class="n">audit_resolved_date</span> <span class="o">=</span> <span class="n">doc</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;__audit_resolved_date__&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
-        <span class="n">audit_image_source</span> <span class="o">=</span> <span class="n">doc</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;__audit_image_source__&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
-        <span class="n">audit_beta_status</span> <span class="o">=</span> <span class="n">doc</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;__audit_beta_status__&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="n">audit_decision</span> <span class="o">=</span> <span class="n">doc</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">"__audit_decision__"</span><span class="p">,</span> <span class="s2">"excluded"</span><span class="p">)</span>
+        <span class="n">audit_reason</span> <span class="o">=</span> <span class="n">doc</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">"__audit_reason__"</span><span class="p">,</span> <span class="s2">"No document returned"</span><span class="p">)</span>
+        <span class="n">audit_resolved_date</span> <span class="o">=</span> <span class="n">doc</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">"__audit_resolved_date__"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span>
+        <span class="n">audit_image_source</span> <span class="o">=</span> <span class="n">doc</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">"__audit_image_source__"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span>
+        <span class="n">audit_beta_status</span> <span class="o">=</span> <span class="n">doc</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">"__audit_beta_status__"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span>
 
         <span class="n">candidates</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
             <span class="n">Candidate</span><span class="p">(</span>
@@ -4693,11 +4693,11 @@
             <span class="p">)</span>
         <span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">doc</span> <span class="ow">and</span> <span class="n">audit_decision</span> <span class="o">!=</span> <span class="s2">&quot;excluded&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">doc</span> <span class="ow">and</span> <span class="n">audit_decision</span> <span class="o">!=</span> <span class="s2">"excluded"</span><span class="p">:</span>
             <span class="n">emitted_accessions</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">meta</span><span class="o">.</span><span class="n">accession</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># Exclude and warn</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Excluding </span><span class="si">%s</span><span class="s2">: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">identifier</span><span class="p">,</span> <span class="n">audit_reason</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">"Excluding </span><span class="si">%s</span><span class="s2">: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">identifier</span><span class="p">,</span> <span class="n">audit_reason</span><span class="p">)</span>
             <span class="n">failed</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">identifier</span><span class="p">)</span>
 
     <span class="c1"># GB Registry Discovery Pass</span>
@@ -4712,13 +4712,13 @@
         <span class="n">patch_ncbi_data</span><span class="p">(</span><span class="n">meta</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
         <span class="n">doc</span> <span class="o">=</span> <span class="n">renderer</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">meta</span><span class="p">)</span>
 
-        <span class="n">audit_decision</span> <span class="o">=</span> <span class="n">doc</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;__audit_decision__&quot;</span><span class="p">,</span> <span class="s2">&quot;excluded&quot;</span><span class="p">)</span>
-        <span class="n">audit_reason</span> <span class="o">=</span> <span class="n">doc</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;__audit_reason__&quot;</span><span class="p">,</span> <span class="s2">&quot;No document returned&quot;</span><span class="p">)</span>
-        <span class="n">audit_resolved_date</span> <span class="o">=</span> <span class="n">doc</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;__audit_resolved_date__&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
-        <span class="n">audit_image_source</span> <span class="o">=</span> <span class="n">doc</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;__audit_image_source__&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
-        <span class="n">audit_beta_status</span> <span class="o">=</span> <span class="n">doc</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;__audit_beta_status__&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="n">audit_decision</span> <span class="o">=</span> <span class="n">doc</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">"__audit_decision__"</span><span class="p">,</span> <span class="s2">"excluded"</span><span class="p">)</span>
+        <span class="n">audit_reason</span> <span class="o">=</span> <span class="n">doc</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">"__audit_reason__"</span><span class="p">,</span> <span class="s2">"No document returned"</span><span class="p">)</span>
+        <span class="n">audit_resolved_date</span> <span class="o">=</span> <span class="n">doc</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">"__audit_resolved_date__"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span>
+        <span class="n">audit_image_source</span> <span class="o">=</span> <span class="n">doc</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">"__audit_image_source__"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span>
+        <span class="n">audit_beta_status</span> <span class="o">=</span> <span class="n">doc</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">"__audit_beta_status__"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span>
 
-        <span class="n">identifier</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;discovered_gb_</span><span class="si">{</span><span class="n">meta</span><span class="o">.</span><span class="n">accession</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">identifier</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"discovered_gb_</span><span class="si">{</span><span class="n">meta</span><span class="o">.</span><span class="n">accession</span><span class="si">}</span><span class="s2">"</span>
         <span class="n">candidates</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
             <span class="n">Candidate</span><span class="p">(</span>
                 <span class="n">identifier</span><span class="o">=</span><span class="n">identifier</span><span class="p">,</span>
@@ -4733,30 +4733,30 @@
             <span class="p">)</span>
         <span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">doc</span> <span class="ow">and</span> <span class="n">audit_decision</span> <span class="o">!=</span> <span class="s2">&quot;excluded&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">doc</span> <span class="ow">and</span> <span class="n">audit_decision</span> <span class="o">!=</span> <span class="s2">"excluded"</span><span class="p">:</span>
             <span class="n">emitted_accessions</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">meta</span><span class="o">.</span><span class="n">accession</span><span class="p">)</span>
             <span class="n">discovered_count</span> <span class="o">+=</span> <span class="mi">1</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                <span class="s2">&quot;Discovered and appended GB-only pre-release: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">meta</span><span class="o">.</span><span class="n">accession</span>
+                <span class="s2">"Discovered and appended GB-only pre-release: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">meta</span><span class="o">.</span><span class="n">accession</span>
             <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                <span class="s2">&quot;Discovered GB-only pre-release </span><span class="si">%s</span><span class="s2"> skipped: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="s2">"Discovered GB-only pre-release </span><span class="si">%s</span><span class="s2"> skipped: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span>
                 <span class="n">meta</span><span class="o">.</span><span class="n">accession</span><span class="p">,</span>
                 <span class="n">audit_reason</span><span class="p">,</span>
             <span class="p">)</span>
 
     <span class="n">grouped_candidates</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">candidates</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">c</span><span class="o">.</span><span class="n">audit_decision</span> <span class="o">==</span> <span class="s2">&quot;excluded&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">c</span><span class="o">.</span><span class="n">audit_decision</span> <span class="o">==</span> <span class="s2">"excluded"</span><span class="p">:</span>
             <span class="k">continue</span>
-        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">schema_type</span> <span class="o">==</span> <span class="s2">&quot;hprc&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">schema_type</span> <span class="o">==</span> <span class="s2">"hprc"</span><span class="p">:</span>
             <span class="n">key</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">meta</span><span class="o">.</span><span class="n">accession</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">species_name</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">doc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
-                <span class="s2">&quot;species&quot;</span><span class="p">,</span> <span class="n">c</span><span class="o">.</span><span class="n">doc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;assembly&quot;</span><span class="p">,</span> <span class="n">c</span><span class="o">.</span><span class="n">meta</span><span class="o">.</span><span class="n">species_name</span><span class="p">)</span>
+                <span class="s2">"species"</span><span class="p">,</span> <span class="n">c</span><span class="o">.</span><span class="n">doc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"assembly"</span><span class="p">,</span> <span class="n">c</span><span class="o">.</span><span class="n">meta</span><span class="o">.</span><span class="n">species_name</span><span class="p">)</span>
             <span class="p">)</span>
-            <span class="n">source</span> <span class="o">=</span> <span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">meta</span><span class="o">.</span><span class="n">annotation_source</span> <span class="ow">or</span> <span class="s2">&quot;ensembl&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="n">source</span> <span class="o">=</span> <span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">meta</span><span class="o">.</span><span class="n">annotation_source</span> <span class="ow">or</span> <span class="s2">"ensembl"</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
             <span class="n">key</span> <span class="o">=</span> <span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">meta</span><span class="o">.</span><span class="n">accession</span><span class="p">,</span> <span class="n">species_name</span><span class="p">,</span> <span class="n">source</span><span class="p">)</span>
         <span class="n">grouped_candidates</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
 
@@ -4765,13 +4765,13 @@
             <span class="n">yaml_docs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">group</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">doc</span><span class="p">)</span>
             <span class="k">continue</span>
 
-        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">schema_type</span> <span class="o">==</span> <span class="s2">&quot;hprc&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">schema_type</span> <span class="o">==</span> <span class="s2">"hprc"</span><span class="p">:</span>
 
             <span class="k">def</span><span class="w"> </span><span class="nf">hprc_score</span><span class="p">(</span><span class="n">c</span><span class="p">:</span> <span class="n">Candidate</span><span class="p">):</span>
                 <span class="n">meta_date_normalized</span> <span class="o">=</span> <span class="p">(</span>
-                    <span class="n">c</span><span class="o">.</span><span class="n">meta</span><span class="o">.</span><span class="n">annotation_date</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">)</span>
+                    <span class="n">c</span><span class="o">.</span><span class="n">meta</span><span class="o">.</span><span class="n">annotation_date</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"-"</span><span class="p">,</span> <span class="s2">"_"</span><span class="p">)</span>
                     <span class="k">if</span> <span class="n">c</span><span class="o">.</span><span class="n">meta</span><span class="o">.</span><span class="n">annotation_date</span>
-                    <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+                    <span class="k">else</span> <span class="s2">""</span>
                 <span class="p">)</span>
                 <span class="n">matches_date</span> <span class="o">=</span> <span class="n">meta_date_normalized</span> <span class="o">==</span> <span class="n">c</span><span class="o">.</span><span class="n">audit_resolved_date</span>
                 <span class="n">is_released</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">meta</span><span class="o">.</span><span class="n">is_released</span>
@@ -4787,16 +4787,16 @@
             <span class="n">yaml_docs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">kept</span><span class="o">.</span><span class="n">doc</span><span class="p">)</span>
 
             <span class="k">for</span> <span class="n">excluded</span> <span class="ow">in</span> <span class="n">group</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
-                <span class="n">excluded</span><span class="o">.</span><span class="n">audit_decision</span> <span class="o">=</span> <span class="s2">&quot;excluded_older_geneset&quot;</span>
+                <span class="n">excluded</span><span class="o">.</span><span class="n">audit_decision</span> <span class="o">=</span> <span class="s2">"excluded_older_geneset"</span>
                 <span class="n">excluded</span><span class="o">.</span><span class="n">audit_reason</span> <span class="o">=</span> <span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;older geneset (</span><span class="si">{</span><span class="n">excluded</span><span class="o">.</span><span class="n">audit_resolved_date</span><span class="si">}</span><span class="s2">)&quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot; than </span><span class="si">{</span><span class="n">kept</span><span class="o">.</span><span class="n">audit_resolved_date</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="sa">f</span><span class="s2">"older geneset (</span><span class="si">{</span><span class="n">excluded</span><span class="o">.</span><span class="n">audit_resolved_date</span><span class="si">}</span><span class="s2">)"</span>
+                    <span class="sa">f</span><span class="s2">" than </span><span class="si">{</span><span class="n">kept</span><span class="o">.</span><span class="n">audit_resolved_date</span><span class="si">}</span><span class="s2">"</span>
                 <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">subgroups</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">group</span><span class="p">:</span>
                 <span class="n">subgroups</span><span class="p">[</span>
-                    <span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">audit_resolved_date</span><span class="p">,</span> <span class="n">c</span><span class="o">.</span><span class="n">doc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;annotation_gtf&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">))</span>
+                    <span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">audit_resolved_date</span><span class="p">,</span> <span class="n">c</span><span class="o">.</span><span class="n">doc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"annotation_gtf"</span><span class="p">,</span> <span class="s2">""</span><span class="p">))</span>
                 <span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
 
             <span class="k">for</span> <span class="n">_subkey</span><span class="p">,</span> <span class="n">subgroup</span> <span class="ow">in</span> <span class="n">subgroups</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
@@ -4806,9 +4806,9 @@
 
                 <span class="k">def</span><span class="w"> </span><span class="nf">score</span><span class="p">(</span><span class="n">c</span><span class="p">:</span> <span class="n">Candidate</span><span class="p">):</span>
                     <span class="n">meta_date_normalized</span> <span class="o">=</span> <span class="p">(</span>
-                        <span class="n">c</span><span class="o">.</span><span class="n">meta</span><span class="o">.</span><span class="n">annotation_date</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">)</span>
+                        <span class="n">c</span><span class="o">.</span><span class="n">meta</span><span class="o">.</span><span class="n">annotation_date</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"-"</span><span class="p">,</span> <span class="s2">"_"</span><span class="p">)</span>
                         <span class="k">if</span> <span class="n">c</span><span class="o">.</span><span class="n">meta</span><span class="o">.</span><span class="n">annotation_date</span>
-                        <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+                        <span class="k">else</span> <span class="s2">""</span>
                     <span class="p">)</span>
                     <span class="n">matches_date</span> <span class="o">=</span> <span class="n">meta_date_normalized</span> <span class="o">==</span> <span class="n">c</span><span class="o">.</span><span class="n">audit_resolved_date</span>
                     <span class="n">is_released</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">meta</span><span class="o">.</span><span class="n">is_released</span>
@@ -4816,26 +4816,26 @@
 
                 <span class="n">subgroup</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="n">score</span><span class="p">)</span>
                 <span class="n">kept</span> <span class="o">=</span> <span class="n">subgroup</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-                <span class="n">kept</span><span class="o">.</span><span class="n">audit_decision</span> <span class="o">=</span> <span class="s2">&quot;kept_duplicate&quot;</span>
-                <span class="n">kept</span><span class="o">.</span><span class="n">audit_reason</span> <span class="o">=</span> <span class="s2">&quot;Kept preferred duplicate&quot;</span>
+                <span class="n">kept</span><span class="o">.</span><span class="n">audit_decision</span> <span class="o">=</span> <span class="s2">"kept_duplicate"</span>
+                <span class="n">kept</span><span class="o">.</span><span class="n">audit_reason</span> <span class="o">=</span> <span class="s2">"Kept preferred duplicate"</span>
                 <span class="n">yaml_docs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">kept</span><span class="o">.</span><span class="n">doc</span><span class="p">)</span>
 
                 <span class="k">for</span> <span class="n">excluded</span> <span class="ow">in</span> <span class="n">subgroup</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
-                    <span class="n">excluded</span><span class="o">.</span><span class="n">audit_decision</span> <span class="o">=</span> <span class="s2">&quot;excluded_duplicate&quot;</span>
+                    <span class="n">excluded</span><span class="o">.</span><span class="n">audit_decision</span> <span class="o">=</span> <span class="s2">"excluded_duplicate"</span>
                     <span class="n">excluded</span><span class="o">.</span><span class="n">audit_reason</span> <span class="o">=</span> <span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;same accession/species/source/date as </span><span class="si">{</span><span class="n">kept</span><span class="o">.</span><span class="n">identifier</span><span class="si">}</span><span class="s2">&quot;</span>
+                        <span class="sa">f</span><span class="s2">"same accession/species/source/date as </span><span class="si">{</span><span class="n">kept</span><span class="o">.</span><span class="n">identifier</span><span class="si">}</span><span class="s2">"</span>
                     <span class="p">)</span>
 
     <span class="c1"># --- Alternate haplotype pairing ---</span>
     <span class="c1"># Collect the GenomeMetadata for all kept (non-excluded) candidates so</span>
     <span class="c1"># the resolver can look up BioSample / sample metadata from NCBI.</span>
-    <span class="n">kept_meta</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span><span class="o">.</span><span class="n">meta</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">candidates</span> <span class="k">if</span> <span class="n">c</span><span class="o">.</span><span class="n">audit_decision</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;excluded&quot;</span><span class="p">,)]</span>
+    <span class="n">kept_meta</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span><span class="o">.</span><span class="n">meta</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">candidates</span> <span class="k">if</span> <span class="n">c</span><span class="o">.</span><span class="n">audit_decision</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"excluded"</span><span class="p">,)]</span>
     <span class="n">haplotype_map</span> <span class="o">=</span> <span class="n">HaplotypeResolver</span><span class="p">()</span><span class="o">.</span><span class="n">find_alternate_haplotypes</span><span class="p">(</span><span class="n">kept_meta</span><span class="p">)</span>
 
     <span class="c1"># Build accession → doc index for the final yaml_docs</span>
     <span class="n">doc_by_accession</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">for</span> <span class="n">doc</span> <span class="ow">in</span> <span class="n">yaml_docs</span><span class="p">:</span>
-        <span class="n">acc</span> <span class="o">=</span> <span class="n">doc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;accession&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">doc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;assembly_accession&quot;</span><span class="p">)</span>
+        <span class="n">acc</span> <span class="o">=</span> <span class="n">doc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"accession"</span><span class="p">)</span> <span class="ow">or</span> <span class="n">doc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"assembly_accession"</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">acc</span><span class="p">:</span>
             <span class="n">doc_by_accession</span><span class="p">[</span><span class="n">acc</span><span class="p">]</span> <span class="o">=</span> <span class="n">doc</span>
 
@@ -4844,7 +4844,7 @@
     <span class="n">acc_to_uuid</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{</span>
         <span class="n">c</span><span class="o">.</span><span class="n">meta</span><span class="o">.</span><span class="n">accession</span><span class="p">:</span> <span class="n">c</span><span class="o">.</span><span class="n">meta</span><span class="o">.</span><span class="n">genome_uuid</span>
         <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">candidates</span>
-        <span class="k">if</span> <span class="n">c</span><span class="o">.</span><span class="n">meta</span><span class="o">.</span><span class="n">genome_uuid</span> <span class="ow">and</span> <span class="n">c</span><span class="o">.</span><span class="n">meta</span><span class="o">.</span><span class="n">genome_uuid</span> <span class="o">!=</span> <span class="s2">&quot;unknown&quot;</span>
+        <span class="k">if</span> <span class="n">c</span><span class="o">.</span><span class="n">meta</span><span class="o">.</span><span class="n">genome_uuid</span> <span class="ow">and</span> <span class="n">c</span><span class="o">.</span><span class="n">meta</span><span class="o">.</span><span class="n">genome_uuid</span> <span class="o">!=</span> <span class="s2">"unknown"</span>
     <span class="p">}</span>
 
     <span class="c1"># For any alternate accessions not already in the local cache,</span>
@@ -4863,69 +4863,69 @@
         <span class="k">if</span> <span class="n">acc</span> <span class="ow">in</span> <span class="n">doc_by_accession</span> <span class="ow">and</span> <span class="n">alt_acc</span> <span class="ow">in</span> <span class="n">doc_by_accession</span><span class="p">:</span>
             <span class="n">doc</span> <span class="o">=</span> <span class="n">doc_by_accession</span><span class="p">[</span><span class="n">acc</span><span class="p">]</span>
             <span class="c1"># Only set if not already populated (metadata DB may have set it)</span>
-            <span class="k">if</span> <span class="s2">&quot;alternate&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">doc</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s2">"alternate"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">doc</span><span class="p">:</span>
                 <span class="n">alt_uuid</span> <span class="o">=</span> <span class="n">acc_to_uuid</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">alt_acc</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">alt_uuid</span> <span class="ow">and</span> <span class="n">alt_uuid</span> <span class="o">!=</span> <span class="s2">&quot;unknown&quot;</span><span class="p">:</span>
-                    <span class="n">alt_url</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;https://beta.ensembl.org/species/</span><span class="si">{</span><span class="n">alt_uuid</span><span class="si">}</span><span class="s2">&quot;</span>
-                    <span class="n">doc</span><span class="p">[</span><span class="s2">&quot;alternate&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">alt_url</span>
+                <span class="k">if</span> <span class="n">alt_uuid</span> <span class="ow">and</span> <span class="n">alt_uuid</span> <span class="o">!=</span> <span class="s2">"unknown"</span><span class="p">:</span>
+                    <span class="n">alt_url</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"https://beta.ensembl.org/species/</span><span class="si">{</span><span class="n">alt_uuid</span><span class="si">}</span><span class="s2">"</span>
+                    <span class="n">doc</span><span class="p">[</span><span class="s2">"alternate"</span><span class="p">]</span> <span class="o">=</span> <span class="n">alt_url</span>
                     <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                        <span class="s2">&quot;Set alternate haplotype: </span><span class="si">%s</span><span class="s2"> -&gt; </span><span class="si">%s</span><span class="s2"> (uuid=</span><span class="si">%s</span><span class="s2">)&quot;</span><span class="p">,</span>
+                        <span class="s2">"Set alternate haplotype: </span><span class="si">%s</span><span class="s2"> -&gt; </span><span class="si">%s</span><span class="s2"> (uuid=</span><span class="si">%s</span><span class="s2">)"</span><span class="p">,</span>
                         <span class="n">acc</span><span class="p">,</span>
                         <span class="n">alt_url</span><span class="p">,</span>
                         <span class="n">alt_uuid</span><span class="p">,</span>
                     <span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="c1"># No UUID available — omit the alternate field entirely</span>
-                    <span class="c1"># rather than emitting a raw accession that isn&#39;t a link.</span>
+                    <span class="c1"># rather than emitting a raw accession that isn't a link.</span>
                     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                        <span class="s2">&quot;No genome UUID found for alternate </span><span class="si">%s</span><span class="s2"> of </span><span class="si">%s</span><span class="s2">; &quot;</span>
-                        <span class="s2">&quot;omitting alternate field.&quot;</span><span class="p">,</span>
+                        <span class="s2">"No genome UUID found for alternate </span><span class="si">%s</span><span class="s2"> of </span><span class="si">%s</span><span class="s2">; "</span>
+                        <span class="s2">"omitting alternate field."</span><span class="p">,</span>
                         <span class="n">alt_acc</span><span class="p">,</span>
                         <span class="n">acc</span><span class="p">,</span>
                     <span class="p">)</span>
 
     <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">audit_file</span><span class="p">:</span>
         <span class="n">seen_audit_rows</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">audit_file</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">af</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">audit_file</span><span class="p">,</span> <span class="s2">"w"</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8"</span><span class="p">)</span> <span class="k">as</span> <span class="n">af</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">candidates</span><span class="p">:</span>
-                <span class="n">beta_link_value</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">doc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;beta_link&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
-                <span class="n">image_value</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">doc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;image&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+                <span class="n">beta_link_value</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">doc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"beta_link"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span>
+                <span class="n">image_value</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">doc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"image"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span>
                 <span class="c1"># taxonomy_lineage may be a list; flatten for the audit column</span>
                 <span class="n">tax_lineage</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">meta</span><span class="o">.</span><span class="n">taxonomy_lineage</span>
                 <span class="n">tax_lineage_str</span> <span class="o">=</span> <span class="p">(</span>
-                    <span class="s2">&quot;;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tax_lineage</span><span class="p">)</span>
+                    <span class="s2">";"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tax_lineage</span><span class="p">)</span>
                     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tax_lineage</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">))</span>
-                    <span class="k">else</span> <span class="p">(</span><span class="n">tax_lineage</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+                    <span class="k">else</span> <span class="p">(</span><span class="n">tax_lineage</span> <span class="ow">or</span> <span class="s2">""</span><span class="p">)</span>
                 <span class="p">)</span>
                 <span class="n">row</span> <span class="o">=</span> <span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">c</span><span class="o">.</span><span class="n">identifier</span><span class="si">}</span><span class="se">\t</span><span class="si">{</span><span class="n">c</span><span class="o">.</span><span class="n">meta</span><span class="o">.</span><span class="n">accession</span><span class="si">}</span><span class="se">\t</span><span class="si">{</span><span class="n">c</span><span class="o">.</span><span class="n">meta</span><span class="o">.</span><span class="n">species_name</span><span class="si">}</span><span class="se">\t</span><span class="s2">&quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">c</span><span class="o">.</span><span class="n">meta</span><span class="o">.</span><span class="n">annotation_date</span><span class="si">}</span><span class="se">\t</span><span class="si">{</span><span class="n">c</span><span class="o">.</span><span class="n">audit_resolved_date</span><span class="si">}</span><span class="se">\t</span><span class="s2">&quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">c</span><span class="o">.</span><span class="n">meta</span><span class="o">.</span><span class="n">annotation_source</span><span class="si">}</span><span class="se">\t</span><span class="si">{</span><span class="n">c</span><span class="o">.</span><span class="n">audit_decision</span><span class="si">}</span><span class="se">\t</span><span class="s2">&quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">c</span><span class="o">.</span><span class="n">audit_reason</span><span class="si">}</span><span class="se">\t</span><span class="si">{</span><span class="n">c</span><span class="o">.</span><span class="n">audit_image_source</span><span class="si">}</span><span class="se">\t</span><span class="s2">&quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">c</span><span class="o">.</span><span class="n">audit_beta_status</span><span class="si">}</span><span class="se">\t</span><span class="si">{</span><span class="n">beta_link_value</span><span class="si">}</span><span class="se">\t</span><span class="s2">&quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">c</span><span class="o">.</span><span class="n">meta</span><span class="o">.</span><span class="n">taxon_id</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="si">}</span><span class="se">\t</span><span class="si">{</span><span class="n">c</span><span class="o">.</span><span class="n">meta</span><span class="o">.</span><span class="n">busco_lineage</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="si">}</span><span class="se">\t</span><span class="s2">&quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">tax_lineage_str</span><span class="si">}</span><span class="se">\t</span><span class="si">{</span><span class="n">image_value</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+                    <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">c</span><span class="o">.</span><span class="n">identifier</span><span class="si">}</span><span class="se">\t</span><span class="si">{</span><span class="n">c</span><span class="o">.</span><span class="n">meta</span><span class="o">.</span><span class="n">accession</span><span class="si">}</span><span class="se">\t</span><span class="si">{</span><span class="n">c</span><span class="o">.</span><span class="n">meta</span><span class="o">.</span><span class="n">species_name</span><span class="si">}</span><span class="se">\t</span><span class="s2">"</span>
+                    <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">c</span><span class="o">.</span><span class="n">meta</span><span class="o">.</span><span class="n">annotation_date</span><span class="si">}</span><span class="se">\t</span><span class="si">{</span><span class="n">c</span><span class="o">.</span><span class="n">audit_resolved_date</span><span class="si">}</span><span class="se">\t</span><span class="s2">"</span>
+                    <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">c</span><span class="o">.</span><span class="n">meta</span><span class="o">.</span><span class="n">annotation_source</span><span class="si">}</span><span class="se">\t</span><span class="si">{</span><span class="n">c</span><span class="o">.</span><span class="n">audit_decision</span><span class="si">}</span><span class="se">\t</span><span class="s2">"</span>
+                    <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">c</span><span class="o">.</span><span class="n">audit_reason</span><span class="si">}</span><span class="se">\t</span><span class="si">{</span><span class="n">c</span><span class="o">.</span><span class="n">audit_image_source</span><span class="si">}</span><span class="se">\t</span><span class="s2">"</span>
+                    <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">c</span><span class="o">.</span><span class="n">audit_beta_status</span><span class="si">}</span><span class="se">\t</span><span class="si">{</span><span class="n">beta_link_value</span><span class="si">}</span><span class="se">\t</span><span class="s2">"</span>
+                    <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">c</span><span class="o">.</span><span class="n">meta</span><span class="o">.</span><span class="n">taxon_id</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="s1">''</span><span class="si">}</span><span class="se">\t</span><span class="si">{</span><span class="n">c</span><span class="o">.</span><span class="n">meta</span><span class="o">.</span><span class="n">busco_lineage</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="s1">''</span><span class="si">}</span><span class="se">\t</span><span class="s2">"</span>
+                    <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">tax_lineage_str</span><span class="si">}</span><span class="se">\t</span><span class="si">{</span><span class="n">image_value</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span>
                 <span class="p">)</span>
                 <span class="k">if</span> <span class="n">row</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">seen_audit_rows</span><span class="p">:</span>
                     <span class="n">seen_audit_rows</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
                     <span class="n">af</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
 
     <span class="c1"># Write output</span>
-    <span class="n">yaml_docs</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;species&quot;</span><span class="p">,</span> <span class="n">x</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;assembly&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)))</span>
+    <span class="n">yaml_docs</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"species"</span><span class="p">,</span> <span class="n">x</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"assembly"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)))</span>
 
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">output</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">output</span><span class="p">,</span> <span class="s2">"w"</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">doc</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">yaml_docs</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
             <span class="n">yaml</span><span class="o">.</span><span class="n">dump</span><span class="p">([</span><span class="n">doc</span><span class="p">],</span> <span class="n">f</span><span class="p">,</span> <span class="n">default_flow_style</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
     <span class="nb">print</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s2">&quot;Successfully generated </span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">output</span><span class="si">}</span><span class="s2"> for </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">yaml_docs</span><span class="p">)</span><span class="si">}</span><span class="s2"> genomes&quot;</span>
-        <span class="sa">f</span><span class="s2">&quot; using </span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">schema_type</span><span class="si">}</span><span class="s2"> schema format.&quot;</span>
+        <span class="sa">f</span><span class="s2">"Successfully generated </span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">output</span><span class="si">}</span><span class="s2"> for </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">yaml_docs</span><span class="p">)</span><span class="si">}</span><span class="s2"> genomes"</span>
+        <span class="sa">f</span><span class="s2">" using </span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">schema_type</span><span class="si">}</span><span class="s2"> schema format."</span>
     <span class="p">)</span>
     <span class="k">if</span> <span class="n">failed</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Warning: Failed to retrieve metadata for </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">failed</span><span class="p">)</span><span class="si">}</span><span class="s2"> identifiers: </span><span class="si">{</span><span class="n">failed</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">"Warning: Failed to retrieve metadata for </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">failed</span><span class="p">)</span><span class="si">}</span><span class="s2"> identifiers: </span><span class="si">{</span><span class="n">failed</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
             <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">,</span>
         <span class="p">)</span>
 
@@ -4935,7 +4935,7 @@
             <span class="n">old_docs</span> <span class="o">=</span> <span class="n">load_yaml_as_keyed_dict</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">changelog</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>  <span class="c1"># pylint: disable=broad-exception-caught</span>
             <span class="nb">print</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Warning: Could not load previous YAML for changelog: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s2">"Warning: Could not load previous YAML for changelog: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
                 <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="n">old_docs</span> <span class="o">=</span> <span class="kc">None</span>
@@ -4950,7 +4950,7 @@
 
             <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">changelog_output</span><span class="p">:</span>
                 <span class="n">write_changelog_tsv</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">changelog_output</span><span class="p">,</span> <span class="n">added</span><span class="p">,</span> <span class="n">removed</span><span class="p">,</span> <span class="n">modified</span><span class="p">)</span>
-                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Changelog TSV written to </span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">changelog_output</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Changelog TSV written to </span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">changelog_output</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>

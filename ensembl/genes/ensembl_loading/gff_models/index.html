@@ -4534,7 +4534,7 @@
 <span class="normal">64</span>
 <span class="normal">65</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">CdsSegment</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;A CDS segment parsed from GFF3.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""A CDS segment parsed from GFF3."""</span>
 
     <span class="n">start</span><span class="p">:</span> <span class="nb">int</span>
     <span class="n">end</span><span class="p">:</span> <span class="nb">int</span>
@@ -4691,7 +4691,7 @@
 <span class="normal">24</span>
 <span class="normal">25</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">ExonRecord</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;In-memory representation of an exon before database insertion.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""In-memory representation of an exon before database insertion."""</span>
 
     <span class="n">start</span><span class="p">:</span> <span class="nb">int</span>
     <span class="n">end</span><span class="p">:</span> <span class="nb">int</span>
@@ -4702,7 +4702,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">coordinate_key</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the coordinate key used to map exons back to DB ids.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return the coordinate key used to map exons back to DB ids."""</span>
 
         <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">start</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">end</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
@@ -4917,7 +4917,7 @@
 <span class="normal">38</span>
 <span class="normal">39</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">GeneRecord</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;In-memory representation of a gene parsed from GFF3.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""In-memory representation of a gene parsed from GFF3."""</span>
 
     <span class="n">seq_name</span><span class="p">:</span> <span class="nb">str</span>
     <span class="n">start</span><span class="p">:</span> <span class="nb">int</span>
@@ -5150,7 +5150,7 @@
 <span class="normal">73</span>
 <span class="normal">74</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">ParsedAnnotation</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;All feature records needed to load one parsed GFF3 annotation.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""All feature records needed to load one parsed GFF3 annotation."""</span>
 
     <span class="n">genes</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">GeneRecord</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>
     <span class="n">transcripts</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">TranscriptRecord</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>
@@ -5287,7 +5287,7 @@
 <span class="normal">54</span>
 <span class="normal">55</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">TranscriptRecord</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;In-memory representation of a transcript and its exons.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""In-memory representation of a transcript and its exons."""</span>
 
     <span class="n">gene_id</span><span class="p">:</span> <span class="nb">str</span>
     <span class="n">seq_name</span><span class="p">:</span> <span class="nb">str</span>

@@ -4456,7 +4456,7 @@
 
 
 <h3 id="ensembl.genes.metadata.truth_checker.DELETE_RE" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">DELETE_RE</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s1">&#39;^DELETE</span><span class="se">\\</span><span class="s1">s+from</span><span class="se">\\</span><span class="s1">s+meta</span><span class="se">\\</span><span class="s1">s+WHERE</span><span class="se">\\</span><span class="s1">s+meta_key</span><span class="se">\\</span><span class="s1">s*=</span><span class="se">\\</span><span class="s1">s*&#39;</span> <span class="o">+</span> <span class="n">SQL_STRING</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;meta_key&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\\</span><span class="s1">s*;</span><span class="se">\\</span><span class="s1">s*$&#39;</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span><span class="p">)</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">DELETE_RE</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s1">'^DELETE</span><span class="se">\\</span><span class="s1">s+from</span><span class="se">\\</span><span class="s1">s+meta</span><span class="se">\\</span><span class="s1">s+WHERE</span><span class="se">\\</span><span class="s1">s+meta_key</span><span class="se">\\</span><span class="s1">s*=</span><span class="se">\\</span><span class="s1">s*'</span> <span class="o">+</span> <span class="n">SQL_STRING</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">'meta_key'</span><span class="p">)</span> <span class="o">+</span> <span class="s1">'</span><span class="se">\\</span><span class="s1">s*;</span><span class="se">\\</span><span class="s1">s*$'</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span><span class="p">)</span></code>
 
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
@@ -4476,7 +4476,7 @@
 
 
 <h3 id="ensembl.genes.metadata.truth_checker.IGNORED_METADATA_KEYS" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">IGNORED_METADATA_KEYS</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;genebuild.method&#39;</span><span class="p">,</span> <span class="s1">&#39;genebuild.start_date&#39;</span><span class="p">,</span> <span class="s1">&#39;assembly.date&#39;</span><span class="p">}</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">IGNORED_METADATA_KEYS</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'genebuild.method'</span><span class="p">,</span> <span class="s1">'genebuild.start_date'</span><span class="p">,</span> <span class="s1">'assembly.date'</span><span class="p">}</span></code>
 
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
@@ -4496,7 +4496,7 @@
 
 
 <h3 id="ensembl.genes.metadata.truth_checker.INSERT_RE" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">INSERT_RE</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s1">&#39;^INSERT</span><span class="se">\\</span><span class="s1">s+IGNORE</span><span class="se">\\</span><span class="s1">s+INTO</span><span class="se">\\</span><span class="s1">s+meta</span><span class="se">\\</span><span class="s1">s*</span><span class="se">\\</span><span class="s1">(</span><span class="se">\\</span><span class="s1">s*species_id</span><span class="se">\\</span><span class="s1">s*,</span><span class="se">\\</span><span class="s1">s*meta_key</span><span class="se">\\</span><span class="s1">s*,</span><span class="se">\\</span><span class="s1">s*meta_value</span><span class="se">\\</span><span class="s1">s*</span><span class="se">\\</span><span class="s1">)</span><span class="se">\\</span><span class="s1">s*VALUES</span><span class="se">\\</span><span class="s1">s*</span><span class="se">\\</span><span class="s1">(</span><span class="se">\\</span><span class="s1">s*(?P&lt;species_id&gt;</span><span class="se">\\</span><span class="s1">d+)</span><span class="se">\\</span><span class="s1">s*,</span><span class="se">\\</span><span class="s1">s*&#39;</span> <span class="o">+</span> <span class="n">SQL_STRING</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;meta_key&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\\</span><span class="s1">s*,</span><span class="se">\\</span><span class="s1">s*&#39;</span> <span class="o">+</span> <span class="n">SQL_STRING</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;meta_value&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\\</span><span class="s1">s*</span><span class="se">\\</span><span class="s1">)</span><span class="se">\\</span><span class="s1">s*;</span><span class="se">\\</span><span class="s1">s*$&#39;</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span><span class="p">)</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">INSERT_RE</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s1">'^INSERT</span><span class="se">\\</span><span class="s1">s+IGNORE</span><span class="se">\\</span><span class="s1">s+INTO</span><span class="se">\\</span><span class="s1">s+meta</span><span class="se">\\</span><span class="s1">s*</span><span class="se">\\</span><span class="s1">(</span><span class="se">\\</span><span class="s1">s*species_id</span><span class="se">\\</span><span class="s1">s*,</span><span class="se">\\</span><span class="s1">s*meta_key</span><span class="se">\\</span><span class="s1">s*,</span><span class="se">\\</span><span class="s1">s*meta_value</span><span class="se">\\</span><span class="s1">s*</span><span class="se">\\</span><span class="s1">)</span><span class="se">\\</span><span class="s1">s*VALUES</span><span class="se">\\</span><span class="s1">s*</span><span class="se">\\</span><span class="s1">(</span><span class="se">\\</span><span class="s1">s*(?P&lt;species_id&gt;</span><span class="se">\\</span><span class="s1">d+)</span><span class="se">\\</span><span class="s1">s*,</span><span class="se">\\</span><span class="s1">s*'</span> <span class="o">+</span> <span class="n">SQL_STRING</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">'meta_key'</span><span class="p">)</span> <span class="o">+</span> <span class="s1">'</span><span class="se">\\</span><span class="s1">s*,</span><span class="se">\\</span><span class="s1">s*'</span> <span class="o">+</span> <span class="n">SQL_STRING</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">'meta_value'</span><span class="p">)</span> <span class="o">+</span> <span class="s1">'</span><span class="se">\\</span><span class="s1">s*</span><span class="se">\\</span><span class="s1">)</span><span class="se">\\</span><span class="s1">s*;</span><span class="se">\\</span><span class="s1">s*$'</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span><span class="p">)</span></code>
 
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
@@ -4516,7 +4516,7 @@
 
 
 <h3 id="ensembl.genes.metadata.truth_checker.SQL_STRING" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">SQL_STRING</span> <span class="o">=</span> <span class="s2">&quot;&#39;(?P&lt;</span><span class="si">{name}</span><span class="s2">&gt;(?:&#39;&#39;|[^&#39;])*)&#39;&quot;</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">SQL_STRING</span> <span class="o">=</span> <span class="s2">"'(?P&lt;</span><span class="si">{name}</span><span class="s2">&gt;(?:''|[^'])*)'"</span></code>
 
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
@@ -4536,7 +4536,7 @@
 
 
 <h3 id="ensembl.genes.metadata.truth_checker.UPDATE_RE" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">UPDATE_RE</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s1">&#39;^UPDATE</span><span class="se">\\</span><span class="s1">s+meta</span><span class="se">\\</span><span class="s1">s+SET</span><span class="se">\\</span><span class="s1">s+meta_value</span><span class="se">\\</span><span class="s1">s*=</span><span class="se">\\</span><span class="s1">s*&#39;</span> <span class="o">+</span> <span class="n">SQL_STRING</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;meta_value&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\\</span><span class="s1">s+WHERE</span><span class="se">\\</span><span class="s1">s+meta_key</span><span class="se">\\</span><span class="s1">s*=</span><span class="se">\\</span><span class="s1">s*&#39;</span> <span class="o">+</span> <span class="n">SQL_STRING</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;meta_key&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\\</span><span class="s1">s*;</span><span class="se">\\</span><span class="s1">s*$&#39;</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span><span class="p">)</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">UPDATE_RE</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s1">'^UPDATE</span><span class="se">\\</span><span class="s1">s+meta</span><span class="se">\\</span><span class="s1">s+SET</span><span class="se">\\</span><span class="s1">s+meta_value</span><span class="se">\\</span><span class="s1">s*=</span><span class="se">\\</span><span class="s1">s*'</span> <span class="o">+</span> <span class="n">SQL_STRING</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">'meta_value'</span><span class="p">)</span> <span class="o">+</span> <span class="s1">'</span><span class="se">\\</span><span class="s1">s+WHERE</span><span class="se">\\</span><span class="s1">s+meta_key</span><span class="se">\\</span><span class="s1">s*=</span><span class="se">\\</span><span class="s1">s*'</span> <span class="o">+</span> <span class="n">SQL_STRING</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">'meta_key'</span><span class="p">)</span> <span class="o">+</span> <span class="s1">'</span><span class="se">\\</span><span class="s1">s*;</span><span class="se">\\</span><span class="s1">s*$'</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span><span class="p">)</span></code>
 
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
@@ -4556,7 +4556,7 @@
 
 
 <h3 id="ensembl.genes.metadata.truth_checker.USE_RE" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">USE_RE</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s1">&#39;^USE</span><span class="se">\\</span><span class="s1">s+</span><span class="se">\\</span><span class="s1">S+</span><span class="se">\\</span><span class="s1">s*;</span><span class="se">\\</span><span class="s1">s*$&#39;</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span><span class="p">)</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">USE_RE</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s1">'^USE</span><span class="se">\\</span><span class="s1">s+</span><span class="se">\\</span><span class="s1">S+</span><span class="se">\\</span><span class="s1">s*;</span><span class="se">\\</span><span class="s1">s*$'</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span><span class="p">)</span></code>
 
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
@@ -4615,7 +4615,7 @@
 <span class="normal">96</span>
 <span class="normal">97</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">ScriptRun</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Result paths and process output for one metadata script run.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Result paths and process output for one metadata script run."""</span>
 
     <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
     <span class="n">command</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
@@ -4824,7 +4824,7 @@
 <span class="normal">76</span>
 <span class="normal">77</span>
 <span class="normal">78</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">TruthCheckError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Base error for expected checker failures.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Base error for expected checker failures."""</span>
 
     <span class="n">exit_code</span> <span class="o">=</span> <span class="mi">2</span>
 
@@ -4928,7 +4928,7 @@
 <span class="normal">82</span>
 <span class="normal">83</span>
 <span class="normal">84</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">TruthMismatchError</span><span class="p">(</span><span class="n">TruthCheckError</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Raised when old and registry metadata outputs differ.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Raised when old and registry metadata outputs differ."""</span>
 
     <span class="n">exit_code</span> <span class="o">=</span> <span class="mi">1</span>
 </code></pre></div></td></tr></table></div>
@@ -5003,10 +5003,10 @@
 <span class="normal">192</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">actions_by_key</span><span class="p">(</span>
     <span class="n">actions</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Group SQL actions by meta_key for clearer diffs.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Group SQL actions by meta_key for clearer diffs."""</span>
     <span class="n">grouped</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">for</span> <span class="n">action</span> <span class="ow">in</span> <span class="n">actions</span><span class="p">:</span>
-        <span class="n">grouped</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">action</span><span class="p">[</span><span class="s2">&quot;meta_key&quot;</span><span class="p">],</span> <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
+        <span class="n">grouped</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">action</span><span class="p">[</span><span class="s2">"meta_key"</span><span class="p">],</span> <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">grouped</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -5106,79 +5106,79 @@
 <span class="normal">626</span>
 <span class="normal">627</span>
 <span class="normal">628</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">build_arg_parser</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Build the command line parser.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Build the command line parser."""</span>
     <span class="n">repo_root</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span>
     <span class="n">metadata_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parent</span>
     <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span>
-        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Compare old core metadata output with registry-backed output&quot;</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">"Compare old core metadata output with registry-backed output"</span>
     <span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-d&quot;</span><span class="p">,</span> <span class="s2">&quot;--db_name&quot;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Core database name&quot;</span><span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-s&quot;</span><span class="p">,</span> <span class="s2">&quot;--host&quot;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Core database host&quot;</span><span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-p&quot;</span><span class="p">,</span> <span class="s2">&quot;--port&quot;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Core port&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"-d"</span><span class="p">,</span> <span class="s2">"--db_name"</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">"Core database name"</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"-s"</span><span class="p">,</span> <span class="s2">"--host"</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">"Core database host"</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"-p"</span><span class="p">,</span> <span class="s2">"--port"</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">"Core port"</span><span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;-n&quot;</span><span class="p">,</span> <span class="s2">&quot;--production_name&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;species.production_name for collection DBs&quot;</span>
+        <span class="s2">"-n"</span><span class="p">,</span> <span class="s2">"--production_name"</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">"species.production_name for collection DBs"</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;-t&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;--team&quot;</span><span class="p">,</span>
+        <span class="s2">"-t"</span><span class="p">,</span>
+        <span class="s2">"--team"</span><span class="p">,</span>
         <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="nb">type</span><span class="o">=</span><span class="k">lambda</span> <span class="n">value</span><span class="p">:</span> <span class="n">value</span><span class="o">.</span><span class="n">capitalize</span><span class="p">(),</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Team responsible for the database&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"Team responsible for the database"</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;-a&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;--assembly_accession&quot;</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Assembly accession override for the registry-backed script&quot;</span><span class="p">,</span>
+        <span class="s2">"-a"</span><span class="p">,</span>
+        <span class="s2">"--assembly_accession"</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"Assembly accession override for the registry-backed script"</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--registry_host&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;GBS1&quot;</span><span class="p">))</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--registry_port&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;GBP1&quot;</span><span class="p">),</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--registry_user&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;ensro&quot;</span><span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--registry_password&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--registry_db&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;gb_assembly_metadata&quot;</span><span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--genebuilder&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"--registry_host"</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"GBS1"</span><span class="p">))</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"--registry_port"</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"GBP1"</span><span class="p">),</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"--registry_user"</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">"ensro"</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"--registry_password"</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">""</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"--registry_db"</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">"gb_assembly_metadata"</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"--genebuilder"</span><span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--db_user&quot;</span><span class="p">,</span>
-        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;ensro&quot;</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Core DB user for registry script. The old script always uses ensro.&quot;</span><span class="p">,</span>
+        <span class="s2">"--db_user"</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">"ensro"</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"Core DB user for registry script. The old script always uses ensro."</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--db_password&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"--db_password"</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">""</span><span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--old_script&quot;</span><span class="p">,</span>
+        <span class="s2">"--old_script"</span><span class="p">,</span>
         <span class="nb">type</span><span class="o">=</span><span class="n">Path</span><span class="p">,</span>
-        <span class="n">default</span><span class="o">=</span><span class="n">metadata_dir</span> <span class="o">/</span> <span class="s2">&quot;core_meta_data.py&quot;</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Path to old metadata script&quot;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="n">metadata_dir</span> <span class="o">/</span> <span class="s2">"core_meta_data.py"</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"Path to old metadata script"</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--registry_script&quot;</span><span class="p">,</span>
+        <span class="s2">"--registry_script"</span><span class="p">,</span>
         <span class="nb">type</span><span class="o">=</span><span class="n">Path</span><span class="p">,</span>
-        <span class="n">default</span><span class="o">=</span><span class="n">metadata_dir</span> <span class="o">/</span> <span class="s2">&quot;core_meta_reg.py&quot;</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Path to registry-backed metadata script&quot;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="n">metadata_dir</span> <span class="o">/</span> <span class="s2">"core_meta_reg.py"</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"Path to registry-backed metadata script"</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--repo_root&quot;</span><span class="p">,</span>
+        <span class="s2">"--repo_root"</span><span class="p">,</span>
         <span class="nb">type</span><span class="o">=</span><span class="n">Path</span><span class="p">,</span>
         <span class="n">default</span><span class="o">=</span><span class="n">repo_root</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Repository root used as subprocess working directory&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"Repository root used as subprocess working directory"</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--work_dir&quot;</span><span class="p">,</span>
+        <span class="s2">"--work_dir"</span><span class="p">,</span>
         <span class="nb">type</span><span class="o">=</span><span class="n">Path</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Directory for generated outputs. Defaults to a temporary directory.&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"Directory for generated outputs. Defaults to a temporary directory."</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--keep_outputs&quot;</span><span class="p">,</span>
-        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Keep output files in --work_dir for debugging&quot;</span><span class="p">,</span>
+        <span class="s2">"--keep_outputs"</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">"store_true"</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"Keep output files in --work_dir for debugging"</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--report_json&quot;</span><span class="p">,</span>
+        <span class="s2">"--report_json"</span><span class="p">,</span>
         <span class="nb">type</span><span class="o">=</span><span class="n">Path</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Optional path to write the comparison report JSON&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"Optional path to write the comparison report JSON"</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--verbose_scripts&quot;</span><span class="p">,</span>
-        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Pass -v through to both metadata scripts&quot;</span><span class="p">,</span>
+        <span class="s2">"--verbose_scripts"</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">"store_true"</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"Pass -v through to both metadata scripts"</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="k">return</span> <span class="n">parser</span>
 </code></pre></div></td></tr></table></div>
@@ -5230,27 +5230,27 @@
 <span class="normal">409</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">build_old_command</span><span class="p">(</span>
     <span class="n">args</span><span class="p">:</span> <span class="n">argparse</span><span class="o">.</span><span class="n">Namespace</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">json_path</span><span class="p">:</span> <span class="n">Path</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Build the old core_meta_data.py command.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Build the old core_meta_data.py command."""</span>
     <span class="n">command</span> <span class="o">=</span> <span class="p">[</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">executable</span><span class="p">,</span>
         <span class="nb">str</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">old_script</span><span class="p">),</span>
-        <span class="s2">&quot;-d&quot;</span><span class="p">,</span>
+        <span class="s2">"-d"</span><span class="p">,</span>
         <span class="n">args</span><span class="o">.</span><span class="n">db_name</span><span class="p">,</span>
-        <span class="s2">&quot;-s&quot;</span><span class="p">,</span>
+        <span class="s2">"-s"</span><span class="p">,</span>
         <span class="n">args</span><span class="o">.</span><span class="n">host</span><span class="p">,</span>
-        <span class="s2">&quot;-p&quot;</span><span class="p">,</span>
+        <span class="s2">"-p"</span><span class="p">,</span>
         <span class="nb">str</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">port</span><span class="p">),</span>
-        <span class="s2">&quot;-t&quot;</span><span class="p">,</span>
+        <span class="s2">"-t"</span><span class="p">,</span>
         <span class="n">args</span><span class="o">.</span><span class="n">team</span><span class="p">,</span>
-        <span class="s2">&quot;-o&quot;</span><span class="p">,</span>
+        <span class="s2">"-o"</span><span class="p">,</span>
         <span class="nb">str</span><span class="p">(</span><span class="n">output_dir</span><span class="p">),</span>
-        <span class="s2">&quot;--json_output&quot;</span><span class="p">,</span>
+        <span class="s2">"--json_output"</span><span class="p">,</span>
         <span class="nb">str</span><span class="p">(</span><span class="n">json_path</span><span class="p">),</span>
     <span class="p">]</span>
     <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">production_name</span><span class="p">:</span>
-        <span class="n">command</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;-n&quot;</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">production_name</span><span class="p">])</span>
+        <span class="n">command</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">"-n"</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">production_name</span><span class="p">])</span>
     <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">verbose_scripts</span><span class="p">:</span>
-        <span class="n">command</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;-v&quot;</span><span class="p">)</span>
+        <span class="n">command</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">"-v"</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">command</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -5319,45 +5319,45 @@
 <span class="normal">454</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">build_registry_command</span><span class="p">(</span>
     <span class="n">args</span><span class="p">:</span> <span class="n">argparse</span><span class="o">.</span><span class="n">Namespace</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">json_path</span><span class="p">:</span> <span class="n">Path</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Build the registry-backed core_meta_reg.py command.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Build the registry-backed core_meta_reg.py command."""</span>
     <span class="n">command</span> <span class="o">=</span> <span class="p">[</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">executable</span><span class="p">,</span>
         <span class="nb">str</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">registry_script</span><span class="p">),</span>
-        <span class="s2">&quot;-d&quot;</span><span class="p">,</span>
+        <span class="s2">"-d"</span><span class="p">,</span>
         <span class="n">args</span><span class="o">.</span><span class="n">db_name</span><span class="p">,</span>
-        <span class="s2">&quot;-s&quot;</span><span class="p">,</span>
+        <span class="s2">"-s"</span><span class="p">,</span>
         <span class="n">args</span><span class="o">.</span><span class="n">host</span><span class="p">,</span>
-        <span class="s2">&quot;-p&quot;</span><span class="p">,</span>
+        <span class="s2">"-p"</span><span class="p">,</span>
         <span class="nb">str</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">port</span><span class="p">),</span>
-        <span class="s2">&quot;-t&quot;</span><span class="p">,</span>
+        <span class="s2">"-t"</span><span class="p">,</span>
         <span class="n">args</span><span class="o">.</span><span class="n">team</span><span class="p">,</span>
-        <span class="s2">&quot;-o&quot;</span><span class="p">,</span>
+        <span class="s2">"-o"</span><span class="p">,</span>
         <span class="nb">str</span><span class="p">(</span><span class="n">output_dir</span><span class="p">),</span>
-        <span class="s2">&quot;--json_output&quot;</span><span class="p">,</span>
+        <span class="s2">"--json_output"</span><span class="p">,</span>
         <span class="nb">str</span><span class="p">(</span><span class="n">json_path</span><span class="p">),</span>
     <span class="p">]</span>
     <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">production_name</span><span class="p">:</span>
-        <span class="n">command</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;-n&quot;</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">production_name</span><span class="p">])</span>
+        <span class="n">command</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">"-n"</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">production_name</span><span class="p">])</span>
     <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">assembly_accession</span><span class="p">:</span>
-        <span class="n">command</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;--assembly_accession&quot;</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">assembly_accession</span><span class="p">])</span>
+        <span class="n">command</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">"--assembly_accession"</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">assembly_accession</span><span class="p">])</span>
     <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">registry_host</span><span class="p">:</span>
-        <span class="n">command</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;--registry_host&quot;</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">registry_host</span><span class="p">])</span>
+        <span class="n">command</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">"--registry_host"</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">registry_host</span><span class="p">])</span>
     <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">registry_port</span><span class="p">:</span>
-        <span class="n">command</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;--registry_port&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">registry_port</span><span class="p">)])</span>
+        <span class="n">command</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">"--registry_port"</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">registry_port</span><span class="p">)])</span>
     <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">registry_user</span><span class="p">:</span>
-        <span class="n">command</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;--registry_user&quot;</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">registry_user</span><span class="p">])</span>
+        <span class="n">command</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">"--registry_user"</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">registry_user</span><span class="p">])</span>
     <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">registry_password</span><span class="p">:</span>
-        <span class="n">command</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;--registry_password&quot;</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">registry_password</span><span class="p">])</span>
+        <span class="n">command</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">"--registry_password"</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">registry_password</span><span class="p">])</span>
     <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">registry_db</span><span class="p">:</span>
-        <span class="n">command</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;--registry_db&quot;</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">registry_db</span><span class="p">])</span>
+        <span class="n">command</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">"--registry_db"</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">registry_db</span><span class="p">])</span>
     <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">genebuilder</span><span class="p">:</span>
-        <span class="n">command</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;--genebuilder&quot;</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">genebuilder</span><span class="p">])</span>
+        <span class="n">command</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">"--genebuilder"</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">genebuilder</span><span class="p">])</span>
     <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">db_user</span><span class="p">:</span>
-        <span class="n">command</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;--db_user&quot;</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">db_user</span><span class="p">])</span>
+        <span class="n">command</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">"--db_user"</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">db_user</span><span class="p">])</span>
     <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">db_password</span><span class="p">:</span>
-        <span class="n">command</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;--db_password&quot;</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">db_password</span><span class="p">])</span>
+        <span class="n">command</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">"--db_password"</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">db_password</span><span class="p">])</span>
     <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">verbose_scripts</span><span class="p">:</span>
-        <span class="n">command</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;-v&quot;</span><span class="p">)</span>
+        <span class="n">command</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">"-v"</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">command</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -5425,7 +5425,7 @@
 <span class="normal">236</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">compare_actions</span><span class="p">(</span>
     <span class="n">old_actions</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]],</span> <span class="n">registry_actions</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a structured difference report.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Return a structured difference report."""</span>
     <span class="n">old_by_key</span> <span class="o">=</span> <span class="n">actions_by_key</span><span class="p">(</span><span class="n">old_actions</span><span class="p">)</span>
     <span class="n">registry_by_key</span> <span class="o">=</span> <span class="n">actions_by_key</span><span class="p">(</span><span class="n">registry_actions</span><span class="p">)</span>
     <span class="n">all_keys</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">old_by_key</span><span class="p">)</span> <span class="o">|</span> <span class="nb">set</span><span class="p">(</span><span class="n">registry_by_key</span><span class="p">))</span>
@@ -5441,26 +5441,26 @@
             <span class="k">continue</span>
         <span class="k">if</span> <span class="n">old_entries</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">registry_entries</span><span class="p">:</span>
             <span class="n">missing_from_registry</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                <span class="p">{</span><span class="s2">&quot;meta_key&quot;</span><span class="p">:</span> <span class="n">meta_key</span><span class="p">,</span> <span class="s2">&quot;old&quot;</span><span class="p">:</span> <span class="n">old_entries</span><span class="p">,</span> <span class="s2">&quot;registry&quot;</span><span class="p">:</span> <span class="p">[]}</span>
+                <span class="p">{</span><span class="s2">"meta_key"</span><span class="p">:</span> <span class="n">meta_key</span><span class="p">,</span> <span class="s2">"old"</span><span class="p">:</span> <span class="n">old_entries</span><span class="p">,</span> <span class="s2">"registry"</span><span class="p">:</span> <span class="p">[]}</span>
             <span class="p">)</span>
         <span class="k">elif</span> <span class="n">registry_entries</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">old_entries</span><span class="p">:</span>
             <span class="n">extra_in_registry</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                <span class="p">{</span><span class="s2">&quot;meta_key&quot;</span><span class="p">:</span> <span class="n">meta_key</span><span class="p">,</span> <span class="s2">&quot;old&quot;</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">&quot;registry&quot;</span><span class="p">:</span> <span class="n">registry_entries</span><span class="p">}</span>
+                <span class="p">{</span><span class="s2">"meta_key"</span><span class="p">:</span> <span class="n">meta_key</span><span class="p">,</span> <span class="s2">"old"</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">"registry"</span><span class="p">:</span> <span class="n">registry_entries</span><span class="p">}</span>
             <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">mismatched</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                 <span class="p">{</span>
-                    <span class="s2">&quot;meta_key&quot;</span><span class="p">:</span> <span class="n">meta_key</span><span class="p">,</span>
-                    <span class="s2">&quot;old&quot;</span><span class="p">:</span> <span class="n">old_entries</span><span class="p">,</span>
-                    <span class="s2">&quot;registry&quot;</span><span class="p">:</span> <span class="n">registry_entries</span><span class="p">,</span>
+                    <span class="s2">"meta_key"</span><span class="p">:</span> <span class="n">meta_key</span><span class="p">,</span>
+                    <span class="s2">"old"</span><span class="p">:</span> <span class="n">old_entries</span><span class="p">,</span>
+                    <span class="s2">"registry"</span><span class="p">:</span> <span class="n">registry_entries</span><span class="p">,</span>
                 <span class="p">}</span>
             <span class="p">)</span>
 
     <span class="k">return</span> <span class="p">{</span>
-        <span class="s2">&quot;missing_from_registry&quot;</span><span class="p">:</span> <span class="n">missing_from_registry</span><span class="p">,</span>
-        <span class="s2">&quot;extra_in_registry&quot;</span><span class="p">:</span> <span class="n">extra_in_registry</span><span class="p">,</span>
-        <span class="s2">&quot;mismatched&quot;</span><span class="p">:</span> <span class="n">mismatched</span><span class="p">,</span>
-        <span class="s2">&quot;different_key_count&quot;</span><span class="p">:</span> <span class="p">(</span>
+        <span class="s2">"missing_from_registry"</span><span class="p">:</span> <span class="n">missing_from_registry</span><span class="p">,</span>
+        <span class="s2">"extra_in_registry"</span><span class="p">:</span> <span class="n">extra_in_registry</span><span class="p">,</span>
+        <span class="s2">"mismatched"</span><span class="p">:</span> <span class="n">mismatched</span><span class="p">,</span>
+        <span class="s2">"different_key_count"</span><span class="p">:</span> <span class="p">(</span>
             <span class="nb">len</span><span class="p">(</span><span class="n">missing_from_registry</span><span class="p">)</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">extra_in_registry</span><span class="p">)</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">mismatched</span><span class="p">)</span>
         <span class="p">),</span>
     <span class="p">}</span>
@@ -5545,7 +5545,7 @@
 <span class="normal">329</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">compare_metadata</span><span class="p">(</span>
     <span class="n">old_metadata</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="n">registry_metadata</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a structured difference report for generated metadata values.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Return a structured difference report for generated metadata values."""</span>
     <span class="n">all_keys</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">old_metadata</span><span class="p">)</span> <span class="o">|</span> <span class="nb">set</span><span class="p">(</span><span class="n">registry_metadata</span><span class="p">))</span>
 
     <span class="n">missing_from_registry</span> <span class="o">=</span> <span class="p">[]</span>
@@ -5563,9 +5563,9 @@
             <span class="k">if</span> <span class="n">old_has_key</span> <span class="o">!=</span> <span class="n">registry_has_key</span> <span class="ow">or</span> <span class="n">old_value</span> <span class="o">!=</span> <span class="n">registry_value</span><span class="p">:</span>
                 <span class="n">ignored</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                     <span class="p">{</span>
-                        <span class="s2">&quot;meta_key&quot;</span><span class="p">:</span> <span class="n">meta_key</span><span class="p">,</span>
-                        <span class="s2">&quot;old&quot;</span><span class="p">:</span> <span class="n">old_value</span> <span class="k">if</span> <span class="n">old_has_key</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
-                        <span class="s2">&quot;registry&quot;</span><span class="p">:</span> <span class="n">registry_value</span> <span class="k">if</span> <span class="n">registry_has_key</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+                        <span class="s2">"meta_key"</span><span class="p">:</span> <span class="n">meta_key</span><span class="p">,</span>
+                        <span class="s2">"old"</span><span class="p">:</span> <span class="n">old_value</span> <span class="k">if</span> <span class="n">old_has_key</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+                        <span class="s2">"registry"</span><span class="p">:</span> <span class="n">registry_value</span> <span class="k">if</span> <span class="n">registry_has_key</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
                     <span class="p">}</span>
                 <span class="p">)</span>
             <span class="k">continue</span>
@@ -5574,28 +5574,28 @@
             <span class="k">continue</span>
         <span class="k">if</span> <span class="n">old_has_key</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">registry_has_key</span><span class="p">:</span>
             <span class="n">missing_from_registry</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                <span class="p">{</span><span class="s2">&quot;meta_key&quot;</span><span class="p">:</span> <span class="n">meta_key</span><span class="p">,</span> <span class="s2">&quot;old&quot;</span><span class="p">:</span> <span class="n">old_value</span><span class="p">,</span> <span class="s2">&quot;registry&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">}</span>
+                <span class="p">{</span><span class="s2">"meta_key"</span><span class="p">:</span> <span class="n">meta_key</span><span class="p">,</span> <span class="s2">"old"</span><span class="p">:</span> <span class="n">old_value</span><span class="p">,</span> <span class="s2">"registry"</span><span class="p">:</span> <span class="kc">None</span><span class="p">}</span>
             <span class="p">)</span>
         <span class="k">elif</span> <span class="n">registry_has_key</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">old_has_key</span><span class="p">:</span>
             <span class="n">extra_in_registry</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                <span class="p">{</span><span class="s2">&quot;meta_key&quot;</span><span class="p">:</span> <span class="n">meta_key</span><span class="p">,</span> <span class="s2">&quot;old&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;registry&quot;</span><span class="p">:</span> <span class="n">registry_value</span><span class="p">}</span>
+                <span class="p">{</span><span class="s2">"meta_key"</span><span class="p">:</span> <span class="n">meta_key</span><span class="p">,</span> <span class="s2">"old"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">"registry"</span><span class="p">:</span> <span class="n">registry_value</span><span class="p">}</span>
             <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">mismatched</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                 <span class="p">{</span>
-                    <span class="s2">&quot;meta_key&quot;</span><span class="p">:</span> <span class="n">meta_key</span><span class="p">,</span>
-                    <span class="s2">&quot;old&quot;</span><span class="p">:</span> <span class="n">old_value</span><span class="p">,</span>
-                    <span class="s2">&quot;registry&quot;</span><span class="p">:</span> <span class="n">registry_value</span><span class="p">,</span>
+                    <span class="s2">"meta_key"</span><span class="p">:</span> <span class="n">meta_key</span><span class="p">,</span>
+                    <span class="s2">"old"</span><span class="p">:</span> <span class="n">old_value</span><span class="p">,</span>
+                    <span class="s2">"registry"</span><span class="p">:</span> <span class="n">registry_value</span><span class="p">,</span>
                 <span class="p">}</span>
             <span class="p">)</span>
 
     <span class="k">return</span> <span class="p">{</span>
-        <span class="s2">&quot;missing_from_registry&quot;</span><span class="p">:</span> <span class="n">missing_from_registry</span><span class="p">,</span>
-        <span class="s2">&quot;extra_in_registry&quot;</span><span class="p">:</span> <span class="n">extra_in_registry</span><span class="p">,</span>
-        <span class="s2">&quot;mismatched&quot;</span><span class="p">:</span> <span class="n">mismatched</span><span class="p">,</span>
-        <span class="s2">&quot;ignored&quot;</span><span class="p">:</span> <span class="n">ignored</span><span class="p">,</span>
-        <span class="s2">&quot;ignored_keys&quot;</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">IGNORED_METADATA_KEYS</span><span class="p">),</span>
-        <span class="s2">&quot;different_key_count&quot;</span><span class="p">:</span> <span class="p">(</span>
+        <span class="s2">"missing_from_registry"</span><span class="p">:</span> <span class="n">missing_from_registry</span><span class="p">,</span>
+        <span class="s2">"extra_in_registry"</span><span class="p">:</span> <span class="n">extra_in_registry</span><span class="p">,</span>
+        <span class="s2">"mismatched"</span><span class="p">:</span> <span class="n">mismatched</span><span class="p">,</span>
+        <span class="s2">"ignored"</span><span class="p">:</span> <span class="n">ignored</span><span class="p">,</span>
+        <span class="s2">"ignored_keys"</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">IGNORED_METADATA_KEYS</span><span class="p">),</span>
+        <span class="s2">"different_key_count"</span><span class="p">:</span> <span class="p">(</span>
             <span class="nb">len</span><span class="p">(</span><span class="n">missing_from_registry</span><span class="p">)</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">extra_in_registry</span><span class="p">)</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">mismatched</span><span class="p">)</span>
         <span class="p">),</span>
     <span class="p">}</span>
@@ -5653,37 +5653,37 @@
 <span class="normal">268</span>
 <span class="normal">269</span>
 <span class="normal">270</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">load_metadata_json</span><span class="p">(</span><span class="n">json_path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Load generated metadata JSON and return its metadata dictionary.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Load generated metadata JSON and return its metadata dictionary."""</span>
     <span class="k">if</span> <span class="n">json_path</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">TruthCheckError</span><span class="p">(</span><span class="s2">&quot;Expected JSON output path was not configured&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">TruthCheckError</span><span class="p">(</span><span class="s2">"Expected JSON output path was not configured"</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">json_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
         <span class="k">raise</span> <span class="n">TruthCheckError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Expected JSON output was not created: </span><span class="si">{</span><span class="n">json_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
-            <span class="p">{</span><span class="s2">&quot;json_path&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">json_path</span><span class="p">)},</span>
+            <span class="sa">f</span><span class="s2">"Expected JSON output was not created: </span><span class="si">{</span><span class="n">json_path</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+            <span class="p">{</span><span class="s2">"json_path"</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">json_path</span><span class="p">)},</span>
         <span class="p">)</span>
 
     <span class="k">try</span><span class="p">:</span>
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">json_path</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">json_path</span><span class="p">,</span> <span class="s2">"r"</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8"</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
             <span class="n">payload</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">handle</span><span class="p">)</span>
     <span class="k">except</span> <span class="n">json</span><span class="o">.</span><span class="n">JSONDecodeError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">TruthCheckError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Could not parse JSON generated by </span><span class="si">{</span><span class="n">json_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">"Could not parse JSON generated by </span><span class="si">{</span><span class="n">json_path</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
             <span class="p">{</span>
-                <span class="s2">&quot;json_path&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">json_path</span><span class="p">),</span>
-                <span class="s2">&quot;line_number&quot;</span><span class="p">:</span> <span class="n">exc</span><span class="o">.</span><span class="n">lineno</span><span class="p">,</span>
-                <span class="s2">&quot;column&quot;</span><span class="p">:</span> <span class="n">exc</span><span class="o">.</span><span class="n">colno</span><span class="p">,</span>
-                <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="n">exc</span><span class="o">.</span><span class="n">msg</span><span class="p">,</span>
+                <span class="s2">"json_path"</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">json_path</span><span class="p">),</span>
+                <span class="s2">"line_number"</span><span class="p">:</span> <span class="n">exc</span><span class="o">.</span><span class="n">lineno</span><span class="p">,</span>
+                <span class="s2">"column"</span><span class="p">:</span> <span class="n">exc</span><span class="o">.</span><span class="n">colno</span><span class="p">,</span>
+                <span class="s2">"message"</span><span class="p">:</span> <span class="n">exc</span><span class="o">.</span><span class="n">msg</span><span class="p">,</span>
             <span class="p">},</span>
         <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span>
 
-    <span class="n">metadata</span> <span class="o">=</span> <span class="n">payload</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;metadata&quot;</span><span class="p">)</span>
+    <span class="n">metadata</span> <span class="o">=</span> <span class="n">payload</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"metadata"</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">metadata</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
         <span class="k">raise</span> <span class="n">TruthCheckError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;JSON generated by </span><span class="si">{</span><span class="n">json_path</span><span class="si">}</span><span class="s2"> does not contain a metadata object&quot;</span><span class="p">,</span>
-            <span class="p">{</span><span class="s2">&quot;json_path&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">json_path</span><span class="p">)},</span>
+            <span class="sa">f</span><span class="s2">"JSON generated by </span><span class="si">{</span><span class="n">json_path</span><span class="si">}</span><span class="s2"> does not contain a metadata object"</span><span class="p">,</span>
+            <span class="p">{</span><span class="s2">"json_path"</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">json_path</span><span class="p">)},</span>
         <span class="p">)</span>
 
-    <span class="k">return</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="s2">&quot;&quot;</span> <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">metadata</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+    <span class="k">return</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="s2">""</span> <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">metadata</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -5727,25 +5727,25 @@
 <span class="normal">649</span>
 <span class="normal">650</span>
 <span class="normal">651</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Entry point with compact eHive-readable failures.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Entry point with compact eHive-readable failures."""</span>
     <span class="n">parser</span> <span class="o">=</span> <span class="n">build_arg_parser</span><span class="p">()</span>
     <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
 
     <span class="k">try</span><span class="p">:</span>
         <span class="n">report</span> <span class="o">=</span> <span class="n">run_truth_check</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
     <span class="k">except</span> <span class="n">TruthMismatchError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;TRUTH_CHECK_FAILED: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">exc</span><span class="p">),</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">"TRUTH_CHECK_FAILED: "</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">exc</span><span class="p">),</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">exc</span><span class="o">.</span><span class="n">report</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
         <span class="k">raise</span> <span class="ne">SystemExit</span><span class="p">(</span><span class="n">exc</span><span class="o">.</span><span class="n">exit_code</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="kc">None</span>
     <span class="k">except</span> <span class="n">TruthCheckError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;TRUTH_CHECK_SCRIPT_ERROR: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">exc</span><span class="p">),</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">"TRUTH_CHECK_SCRIPT_ERROR: "</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">exc</span><span class="p">),</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">exc</span><span class="o">.</span><span class="n">report</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">exc</span><span class="o">.</span><span class="n">report</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
         <span class="k">raise</span> <span class="ne">SystemExit</span><span class="p">(</span><span class="n">exc</span><span class="o">.</span><span class="n">exit_code</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="kc">None</span>
 
     <span class="nb">print</span><span class="p">(</span>
-        <span class="s2">&quot;TRUTH_CHECK_OK: old and registry metadata JSON outputs match &quot;</span>
-        <span class="sa">f</span><span class="s2">&quot;for </span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">db_name</span><span class="si">}</span><span class="s2">; compared </span><span class="si">{</span><span class="n">report</span><span class="p">[</span><span class="s1">&#39;old_metadata_count&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> metadata values&quot;</span>
+        <span class="s2">"TRUTH_CHECK_OK: old and registry metadata JSON outputs match "</span>
+        <span class="sa">f</span><span class="s2">"for </span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">db_name</span><span class="si">}</span><span class="s2">; compared </span><span class="si">{</span><span class="n">report</span><span class="p">[</span><span class="s1">'old_metadata_count'</span><span class="p">]</span><span class="si">}</span><span class="s2"> metadata values"</span>
     <span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -5772,7 +5772,7 @@
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">105</span>
 <span class="normal">106</span>
 <span class="normal">107</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">output_name</span><span class="p">(</span><span class="n">db_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">production_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the metadata script output basename.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Return the metadata script output basename."""</span>
     <span class="k">return</span> <span class="n">production_name</span> <span class="ow">or</span> <span class="n">db_name</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -5863,15 +5863,15 @@
 <span class="normal">180</span>
 <span class="normal">181</span>
 <span class="normal">182</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">parse_sql_patch</span><span class="p">(</span><span class="n">sql_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Parse generated SQL into normalized metadata actions.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Parse generated SQL into normalized metadata actions."""</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">sql_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
         <span class="k">raise</span> <span class="n">TruthCheckError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Expected SQL output was not created: </span><span class="si">{</span><span class="n">sql_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
-            <span class="p">{</span><span class="s2">&quot;sql_path&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">sql_path</span><span class="p">)},</span>
+            <span class="sa">f</span><span class="s2">"Expected SQL output was not created: </span><span class="si">{</span><span class="n">sql_path</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+            <span class="p">{</span><span class="s2">"sql_path"</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">sql_path</span><span class="p">)},</span>
         <span class="p">)</span>
 
     <span class="n">actions</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">sql_path</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">sql_path</span><span class="p">,</span> <span class="s2">"r"</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8"</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">line_number</span><span class="p">,</span> <span class="n">raw_line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">handle</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
             <span class="n">line</span> <span class="o">=</span> <span class="n">raw_line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">line</span> <span class="ow">or</span> <span class="n">USE_RE</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">line</span><span class="p">):</span>
@@ -5881,10 +5881,10 @@
             <span class="k">if</span> <span class="n">insert_match</span><span class="p">:</span>
                 <span class="n">actions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                     <span class="p">{</span>
-                        <span class="s2">&quot;action&quot;</span><span class="p">:</span> <span class="s2">&quot;insert&quot;</span><span class="p">,</span>
-                        <span class="s2">&quot;meta_key&quot;</span><span class="p">:</span> <span class="n">sql_unescape</span><span class="p">(</span><span class="n">insert_match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s2">&quot;meta_key&quot;</span><span class="p">)),</span>
-                        <span class="s2">&quot;meta_value&quot;</span><span class="p">:</span> <span class="n">sql_unescape</span><span class="p">(</span><span class="n">insert_match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s2">&quot;meta_value&quot;</span><span class="p">)),</span>
-                        <span class="s2">&quot;species_id&quot;</span><span class="p">:</span> <span class="n">insert_match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s2">&quot;species_id&quot;</span><span class="p">),</span>
+                        <span class="s2">"action"</span><span class="p">:</span> <span class="s2">"insert"</span><span class="p">,</span>
+                        <span class="s2">"meta_key"</span><span class="p">:</span> <span class="n">sql_unescape</span><span class="p">(</span><span class="n">insert_match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s2">"meta_key"</span><span class="p">)),</span>
+                        <span class="s2">"meta_value"</span><span class="p">:</span> <span class="n">sql_unescape</span><span class="p">(</span><span class="n">insert_match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s2">"meta_value"</span><span class="p">)),</span>
+                        <span class="s2">"species_id"</span><span class="p">:</span> <span class="n">insert_match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s2">"species_id"</span><span class="p">),</span>
                     <span class="p">}</span>
                 <span class="p">)</span>
                 <span class="k">continue</span>
@@ -5893,9 +5893,9 @@
             <span class="k">if</span> <span class="n">update_match</span><span class="p">:</span>
                 <span class="n">actions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                     <span class="p">{</span>
-                        <span class="s2">&quot;action&quot;</span><span class="p">:</span> <span class="s2">&quot;update&quot;</span><span class="p">,</span>
-                        <span class="s2">&quot;meta_key&quot;</span><span class="p">:</span> <span class="n">sql_unescape</span><span class="p">(</span><span class="n">update_match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s2">&quot;meta_key&quot;</span><span class="p">)),</span>
-                        <span class="s2">&quot;meta_value&quot;</span><span class="p">:</span> <span class="n">sql_unescape</span><span class="p">(</span><span class="n">update_match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s2">&quot;meta_value&quot;</span><span class="p">)),</span>
+                        <span class="s2">"action"</span><span class="p">:</span> <span class="s2">"update"</span><span class="p">,</span>
+                        <span class="s2">"meta_key"</span><span class="p">:</span> <span class="n">sql_unescape</span><span class="p">(</span><span class="n">update_match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s2">"meta_key"</span><span class="p">)),</span>
+                        <span class="s2">"meta_value"</span><span class="p">:</span> <span class="n">sql_unescape</span><span class="p">(</span><span class="n">update_match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s2">"meta_value"</span><span class="p">)),</span>
                     <span class="p">}</span>
                 <span class="p">)</span>
                 <span class="k">continue</span>
@@ -5904,29 +5904,29 @@
             <span class="k">if</span> <span class="n">delete_match</span><span class="p">:</span>
                 <span class="n">actions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                     <span class="p">{</span>
-                        <span class="s2">&quot;action&quot;</span><span class="p">:</span> <span class="s2">&quot;delete&quot;</span><span class="p">,</span>
-                        <span class="s2">&quot;meta_key&quot;</span><span class="p">:</span> <span class="n">sql_unescape</span><span class="p">(</span><span class="n">delete_match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s2">&quot;meta_key&quot;</span><span class="p">)),</span>
-                        <span class="s2">&quot;meta_value&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                        <span class="s2">"action"</span><span class="p">:</span> <span class="s2">"delete"</span><span class="p">,</span>
+                        <span class="s2">"meta_key"</span><span class="p">:</span> <span class="n">sql_unescape</span><span class="p">(</span><span class="n">delete_match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s2">"meta_key"</span><span class="p">)),</span>
+                        <span class="s2">"meta_value"</span><span class="p">:</span> <span class="s2">""</span><span class="p">,</span>
                     <span class="p">}</span>
                 <span class="p">)</span>
                 <span class="k">continue</span>
 
             <span class="k">raise</span> <span class="n">TruthCheckError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Could not parse SQL generated by </span><span class="si">{</span><span class="n">sql_path</span><span class="si">}</span><span class="s2"> at line </span><span class="si">{</span><span class="n">line_number</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s2">"Could not parse SQL generated by </span><span class="si">{</span><span class="n">sql_path</span><span class="si">}</span><span class="s2"> at line </span><span class="si">{</span><span class="n">line_number</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
                 <span class="p">{</span>
-                    <span class="s2">&quot;sql_path&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">sql_path</span><span class="p">),</span>
-                    <span class="s2">&quot;line_number&quot;</span><span class="p">:</span> <span class="n">line_number</span><span class="p">,</span>
-                    <span class="s2">&quot;line&quot;</span><span class="p">:</span> <span class="n">line</span><span class="p">,</span>
+                    <span class="s2">"sql_path"</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">sql_path</span><span class="p">),</span>
+                    <span class="s2">"line_number"</span><span class="p">:</span> <span class="n">line_number</span><span class="p">,</span>
+                    <span class="s2">"line"</span><span class="p">:</span> <span class="n">line</span><span class="p">,</span>
                 <span class="p">},</span>
             <span class="p">)</span>
 
     <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span>
         <span class="n">actions</span><span class="p">,</span>
         <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">item</span><span class="p">:</span> <span class="p">(</span>
-            <span class="n">item</span><span class="p">[</span><span class="s2">&quot;meta_key&quot;</span><span class="p">],</span>
-            <span class="n">item</span><span class="p">[</span><span class="s2">&quot;action&quot;</span><span class="p">],</span>
-            <span class="n">item</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;meta_value&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
-            <span class="n">item</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;species_id&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
+            <span class="n">item</span><span class="p">[</span><span class="s2">"meta_key"</span><span class="p">],</span>
+            <span class="n">item</span><span class="p">[</span><span class="s2">"action"</span><span class="p">],</span>
+            <span class="n">item</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"meta_value"</span><span class="p">,</span> <span class="s2">""</span><span class="p">),</span>
+            <span class="n">item</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"species_id"</span><span class="p">,</span> <span class="s2">""</span><span class="p">),</span>
         <span class="p">),</span>
     <span class="p">)</span>
 </code></pre></div></td></tr></table></div>
@@ -5970,19 +5970,19 @@
 <span class="normal">483</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">resolve_work_dir</span><span class="p">(</span>
     <span class="n">args</span><span class="p">:</span> <span class="n">argparse</span><span class="o">.</span><span class="n">Namespace</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a tempdir unless the user provided persistent output.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Create a tempdir unless the user provided persistent output."""</span>
     <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">work_dir</span><span class="p">:</span>
         <span class="n">Path</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">work_dir</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="k">return</span> <span class="kc">None</span>
     <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">keep_outputs</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">TruthCheckError</span><span class="p">(</span><span class="s2">&quot;--keep_outputs requires --work_dir&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">TruthCheckError</span><span class="p">(</span><span class="s2">"--keep_outputs requires --work_dir"</span><span class="p">)</span>
     <span class="k">try</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">(</span><span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;metadata_truth_check_&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">(</span><span class="n">prefix</span><span class="o">=</span><span class="s2">"metadata_truth_check_"</span><span class="p">)</span>
     <span class="k">except</span> <span class="ne">OSError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">TruthCheckError</span><span class="p">(</span>
-            <span class="s2">&quot;Could not create a temporary directory. Provide --work_dir pointing &quot;</span>
-            <span class="s2">&quot;to a writable location for eHive job output.&quot;</span><span class="p">,</span>
-            <span class="p">{</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">exc</span><span class="p">)},</span>
+            <span class="s2">"Could not create a temporary directory. Provide --work_dir pointing "</span>
+            <span class="s2">"to a writable location for eHive job output."</span><span class="p">,</span>
+            <span class="p">{</span><span class="s2">"error"</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">exc</span><span class="p">)},</span>
         <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -6051,7 +6051,7 @@
     <span class="n">json_path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">],</span>
     <span class="n">repo_root</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ScriptRun</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Run a metadata script and convert failures to eHive-friendly errors.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Run a metadata script and convert failures to eHive-friendly errors."""</span>
     <span class="n">process</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
         <span class="n">command</span><span class="p">,</span>
         <span class="n">cwd</span><span class="o">=</span><span class="n">repo_root</span><span class="p">,</span>
@@ -6071,13 +6071,13 @@
     <span class="p">)</span>
     <span class="k">if</span> <span class="n">process</span><span class="o">.</span><span class="n">returncode</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">TruthCheckError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> metadata script failed with exit code </span><span class="si">{</span><span class="n">process</span><span class="o">.</span><span class="n">returncode</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> metadata script failed with exit code </span><span class="si">{</span><span class="n">process</span><span class="o">.</span><span class="n">returncode</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
             <span class="p">{</span>
-                <span class="s2">&quot;script&quot;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
-                <span class="s2">&quot;exit_code&quot;</span><span class="p">:</span> <span class="n">process</span><span class="o">.</span><span class="n">returncode</span><span class="p">,</span>
-                <span class="s2">&quot;command&quot;</span><span class="p">:</span> <span class="n">command</span><span class="p">,</span>
-                <span class="s2">&quot;stdout_tail&quot;</span><span class="p">:</span> <span class="n">tail_text</span><span class="p">(</span><span class="n">process</span><span class="o">.</span><span class="n">stdout</span><span class="p">),</span>
-                <span class="s2">&quot;stderr_tail&quot;</span><span class="p">:</span> <span class="n">tail_text</span><span class="p">(</span><span class="n">process</span><span class="o">.</span><span class="n">stderr</span><span class="p">),</span>
+                <span class="s2">"script"</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
+                <span class="s2">"exit_code"</span><span class="p">:</span> <span class="n">process</span><span class="o">.</span><span class="n">returncode</span><span class="p">,</span>
+                <span class="s2">"command"</span><span class="p">:</span> <span class="n">command</span><span class="p">,</span>
+                <span class="s2">"stdout_tail"</span><span class="p">:</span> <span class="n">tail_text</span><span class="p">(</span><span class="n">process</span><span class="o">.</span><span class="n">stdout</span><span class="p">),</span>
+                <span class="s2">"stderr_tail"</span><span class="p">:</span> <span class="n">tail_text</span><span class="p">(</span><span class="n">process</span><span class="o">.</span><span class="n">stderr</span><span class="p">),</span>
             <span class="p">},</span>
         <span class="p">)</span>
     <span class="k">return</span> <span class="n">run</span>
@@ -6168,7 +6168,7 @@
 <span class="normal">548</span>
 <span class="normal">549</span>
 <span class="normal">550</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">run_truth_check</span><span class="p">(</span><span class="n">args</span><span class="p">:</span> <span class="n">argparse</span><span class="o">.</span><span class="n">Namespace</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Run both scripts, parse JSON outputs, and compare generated metadata.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Run both scripts, parse JSON outputs, and compare generated metadata."""</span>
     <span class="n">repo_root</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">repo_root</span>
     <span class="n">temp_dir</span> <span class="o">=</span> <span class="n">resolve_work_dir</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
     <span class="k">try</span><span class="p">:</span>
@@ -6176,18 +6176,18 @@
             <span class="n">base_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">work_dir</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">temp_dir</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="n">TruthCheckError</span><span class="p">(</span><span class="s2">&quot;Could not resolve a temporary work directory&quot;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="n">TruthCheckError</span><span class="p">(</span><span class="s2">"Could not resolve a temporary work directory"</span><span class="p">)</span>
             <span class="n">base_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">temp_dir</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
         <span class="n">base_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
         <span class="n">basename</span> <span class="o">=</span> <span class="n">output_name</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">db_name</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">production_name</span><span class="p">)</span>
-        <span class="n">old_sql</span> <span class="o">=</span> <span class="n">base_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">basename</span><span class="si">}</span><span class="s2">.sql&quot;</span>
-        <span class="n">old_json</span> <span class="o">=</span> <span class="n">base_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">basename</span><span class="si">}</span><span class="s2">.json&quot;</span>
-        <span class="n">registry_sql</span> <span class="o">=</span> <span class="n">base_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">basename</span><span class="si">}</span><span class="s2">_registry.sql&quot;</span>
-        <span class="n">registry_json</span> <span class="o">=</span> <span class="n">base_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">basename</span><span class="si">}</span><span class="s2">_registry.json&quot;</span>
+        <span class="n">old_sql</span> <span class="o">=</span> <span class="n">base_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">basename</span><span class="si">}</span><span class="s2">.sql"</span>
+        <span class="n">old_json</span> <span class="o">=</span> <span class="n">base_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">basename</span><span class="si">}</span><span class="s2">.json"</span>
+        <span class="n">registry_sql</span> <span class="o">=</span> <span class="n">base_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">basename</span><span class="si">}</span><span class="s2">_registry.sql"</span>
+        <span class="n">registry_json</span> <span class="o">=</span> <span class="n">base_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">basename</span><span class="si">}</span><span class="s2">_registry.json"</span>
 
         <span class="n">old_run</span> <span class="o">=</span> <span class="n">run_command</span><span class="p">(</span>
-            <span class="s2">&quot;old&quot;</span><span class="p">,</span>
+            <span class="s2">"old"</span><span class="p">,</span>
             <span class="n">build_old_command</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">base_dir</span><span class="p">,</span> <span class="n">old_json</span><span class="p">),</span>
             <span class="n">base_dir</span><span class="p">,</span>
             <span class="n">old_sql</span><span class="p">,</span>
@@ -6195,7 +6195,7 @@
             <span class="n">repo_root</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">registry_run</span> <span class="o">=</span> <span class="n">run_command</span><span class="p">(</span>
-            <span class="s2">&quot;registry&quot;</span><span class="p">,</span>
+            <span class="s2">"registry"</span><span class="p">,</span>
             <span class="n">build_registry_command</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">base_dir</span><span class="p">,</span> <span class="n">registry_json</span><span class="p">),</span>
             <span class="n">base_dir</span><span class="p">,</span>
             <span class="n">registry_sql</span><span class="p">,</span>
@@ -6208,23 +6208,23 @@
         <span class="n">differences</span> <span class="o">=</span> <span class="n">compare_metadata</span><span class="p">(</span><span class="n">old_metadata</span><span class="p">,</span> <span class="n">registry_metadata</span><span class="p">)</span>
 
         <span class="n">report</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;ok&quot;</span> <span class="k">if</span> <span class="n">differences</span><span class="p">[</span><span class="s2">&quot;different_key_count&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="s2">&quot;failed&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;database&quot;</span><span class="p">:</span> <span class="n">args</span><span class="o">.</span><span class="n">db_name</span><span class="p">,</span>
-            <span class="s2">&quot;production_name&quot;</span><span class="p">:</span> <span class="n">args</span><span class="o">.</span><span class="n">production_name</span><span class="p">,</span>
-            <span class="s2">&quot;generated_at&quot;</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">isoformat</span><span class="p">(</span><span class="n">timespec</span><span class="o">=</span><span class="s2">&quot;seconds&quot;</span><span class="p">),</span>
-            <span class="s2">&quot;old_sql&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">old_sql</span><span class="p">),</span>
-            <span class="s2">&quot;old_json&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">old_json</span><span class="p">),</span>
-            <span class="s2">&quot;registry_sql&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">registry_sql</span><span class="p">),</span>
-            <span class="s2">&quot;registry_json&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">registry_json</span><span class="p">),</span>
-            <span class="s2">&quot;old_metadata_count&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">old_metadata</span><span class="p">),</span>
-            <span class="s2">&quot;registry_metadata_count&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">registry_metadata</span><span class="p">),</span>
-            <span class="s2">&quot;differences&quot;</span><span class="p">:</span> <span class="n">differences</span><span class="p">,</span>
+            <span class="s2">"status"</span><span class="p">:</span> <span class="s2">"ok"</span> <span class="k">if</span> <span class="n">differences</span><span class="p">[</span><span class="s2">"different_key_count"</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="s2">"failed"</span><span class="p">,</span>
+            <span class="s2">"database"</span><span class="p">:</span> <span class="n">args</span><span class="o">.</span><span class="n">db_name</span><span class="p">,</span>
+            <span class="s2">"production_name"</span><span class="p">:</span> <span class="n">args</span><span class="o">.</span><span class="n">production_name</span><span class="p">,</span>
+            <span class="s2">"generated_at"</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">isoformat</span><span class="p">(</span><span class="n">timespec</span><span class="o">=</span><span class="s2">"seconds"</span><span class="p">),</span>
+            <span class="s2">"old_sql"</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">old_sql</span><span class="p">),</span>
+            <span class="s2">"old_json"</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">old_json</span><span class="p">),</span>
+            <span class="s2">"registry_sql"</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">registry_sql</span><span class="p">),</span>
+            <span class="s2">"registry_json"</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">registry_json</span><span class="p">),</span>
+            <span class="s2">"old_metadata_count"</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">old_metadata</span><span class="p">),</span>
+            <span class="s2">"registry_metadata_count"</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">registry_metadata</span><span class="p">),</span>
+            <span class="s2">"differences"</span><span class="p">:</span> <span class="n">differences</span><span class="p">,</span>
         <span class="p">}</span>
         <span class="n">write_report</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">report_json</span><span class="p">,</span> <span class="n">report</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">differences</span><span class="p">[</span><span class="s2">&quot;different_key_count&quot;</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="n">differences</span><span class="p">[</span><span class="s2">"different_key_count"</span><span class="p">]:</span>
             <span class="k">raise</span> <span class="n">TruthMismatchError</span><span class="p">(</span>
-                <span class="s2">&quot;Metadata truth check failed: old and registry JSON metadata differ&quot;</span><span class="p">,</span>
+                <span class="s2">"Metadata truth check failed: old and registry JSON metadata differ"</span><span class="p">,</span>
                 <span class="n">report</span><span class="p">,</span>
             <span class="p">)</span>
 
@@ -6265,11 +6265,11 @@
 <span class="normal">340</span>
 <span class="normal">341</span>
 <span class="normal">342</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">script_env</span><span class="p">(</span><span class="n">repo_root</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Build an environment that can import local ensembl modules.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Build an environment that can import local ensembl modules."""</span>
     <span class="n">env</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-    <span class="n">src_python</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">repo_root</span> <span class="o">/</span> <span class="s2">&quot;src&quot;</span> <span class="o">/</span> <span class="s2">&quot;python&quot;</span><span class="p">)</span>
-    <span class="n">existing_pythonpath</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;PYTHONPATH&quot;</span><span class="p">)</span>
-    <span class="n">env</span><span class="p">[</span><span class="s2">&quot;PYTHONPATH&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">src_python</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">repo_root</span> <span class="o">/</span> <span class="s2">"src"</span> <span class="o">/</span> <span class="s2">"python"</span><span class="p">)</span>
+    <span class="n">existing_pythonpath</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"PYTHONPATH"</span><span class="p">)</span>
+    <span class="n">env</span><span class="p">[</span><span class="s2">"PYTHONPATH"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
         <span class="n">src_python</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">existing_pythonpath</span>
         <span class="k">else</span> <span class="n">src_python</span> <span class="o">+</span> <span class="n">os</span><span class="o">.</span><span class="n">pathsep</span> <span class="o">+</span> <span class="n">existing_pythonpath</span>
@@ -6300,8 +6300,8 @@
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">100</span>
 <span class="normal">101</span>
 <span class="normal">102</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">sql_unescape</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Unescape SQL single-quoted string content.&quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">value</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;&#39;&#39;&quot;</span><span class="p">,</span> <span class="s2">&quot;&#39;&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="sd">"""Unescape SQL single-quoted string content."""</span>
+    <span class="k">return</span> <span class="n">value</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"''"</span><span class="p">,</span> <span class="s2">"'"</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -6328,9 +6328,9 @@
 <span class="normal">111</span>
 <span class="normal">112</span>
 <span class="normal">113</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">tail_text</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">max_lines</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">40</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a bounded process-output tail for readable error reports.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Return a bounded process-output tail for readable error reports."""</span>
     <span class="n">lines</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()</span>
-    <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">[</span><span class="o">-</span><span class="n">max_lines</span><span class="p">:])</span>
+    <span class="k">return</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">[</span><span class="o">-</span><span class="n">max_lines</span><span class="p">:])</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -6361,13 +6361,13 @@
 <span class="normal">462</span>
 <span class="normal">463</span>
 <span class="normal">464</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">write_report</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">],</span> <span class="n">report</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Write a JSON report if requested.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Write a JSON report if requested."""</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">path</span><span class="p">:</span>
         <span class="k">return</span>
     <span class="n">path</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">"w"</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8"</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
         <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">report</span><span class="p">,</span> <span class="n">handle</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="n">handle</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">handle</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>

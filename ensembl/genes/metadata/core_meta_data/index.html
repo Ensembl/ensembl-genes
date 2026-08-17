@@ -5030,7 +5030,7 @@
 
 
 <h3 id="ensembl.genes.metadata.core_meta_data.BIOSAMPLE_ID_FALLBACKS_BY_GCA_CHAIN" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">BIOSAMPLE_ID_FALLBACKS_BY_GCA_CHAIN</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;GCA_000002985&#39;</span><span class="p">:</span> <span class="s1">&#39;SAMN04256190&#39;</span><span class="p">,</span> <span class="s1">&#39;GCA_000224145&#39;</span><span class="p">:</span> <span class="s1">&#39;SAMD00414333&#39;</span><span class="p">,</span> <span class="s1">&#39;GCA_000001405&#39;</span><span class="p">:</span> <span class="s1">&#39;SAMN12121739&#39;</span><span class="p">,</span> <span class="s1">&#39;GCA_000146045&#39;</span><span class="p">:</span> <span class="s1">&#39;SAMEA3184125&#39;</span><span class="p">,</span> <span class="s1">&#39;GCA_000001635&#39;</span><span class="p">:</span> <span class="s1">&#39;SAMN26853311&#39;</span><span class="p">,</span> <span class="s1">&#39;GCA_002263795&#39;</span><span class="p">:</span> <span class="s1">&#39;SAMN03145444&#39;</span><span class="p">}</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">BIOSAMPLE_ID_FALLBACKS_BY_GCA_CHAIN</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'GCA_000002985'</span><span class="p">:</span> <span class="s1">'SAMN04256190'</span><span class="p">,</span> <span class="s1">'GCA_000224145'</span><span class="p">:</span> <span class="s1">'SAMD00414333'</span><span class="p">,</span> <span class="s1">'GCA_000001405'</span><span class="p">:</span> <span class="s1">'SAMN12121739'</span><span class="p">,</span> <span class="s1">'GCA_000146045'</span><span class="p">:</span> <span class="s1">'SAMEA3184125'</span><span class="p">,</span> <span class="s1">'GCA_000001635'</span><span class="p">:</span> <span class="s1">'SAMN26853311'</span><span class="p">,</span> <span class="s1">'GCA_002263795'</span><span class="p">:</span> <span class="s1">'SAMN03145444'</span><span class="p">}</span></code>
 
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
@@ -5070,7 +5070,7 @@
 
 
 <h3 id="ensembl.genes.metadata.core_meta_data.bioproject_names" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">bioproject_names</span> <span class="o">=</span> <span class="n">fetch_bioproject_names</span><span class="p">(</span><span class="n">gca_accession</span><span class="p">,</span> <span class="n">user</span><span class="o">=</span><span class="p">(</span><span class="n">server_info</span><span class="p">[</span><span class="s1">&#39;meta&#39;</span><span class="p">][</span><span class="s1">&#39;db_user&#39;</span><span class="p">]))</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">bioproject_names</span> <span class="o">=</span> <span class="n">fetch_bioproject_names</span><span class="p">(</span><span class="n">gca_accession</span><span class="p">,</span> <span class="n">user</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s1">'meta'</span><span class="p">][</span><span class="s1">'db_user'</span><span class="p">])</span></code>
 
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
@@ -5130,7 +5130,7 @@
 
 
 <h3 id="ensembl.genes.metadata.core_meta_data.core_meta" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">core_meta</span> <span class="o">=</span> <span class="n">mysql_fetch_data</span><span class="p">(</span><span class="n">core_query</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="p">(</span><span class="n">server_info</span><span class="p">[</span><span class="s1">&#39;staging&#39;</span><span class="p">][</span><span class="s1">&#39;db_host&#39;</span><span class="p">]),</span> <span class="n">user</span><span class="o">=</span><span class="p">(</span><span class="n">server_info</span><span class="p">[</span><span class="s1">&#39;staging&#39;</span><span class="p">][</span><span class="s1">&#39;db_user&#39;</span><span class="p">]),</span> <span class="n">port</span><span class="o">=</span><span class="p">(</span><span class="n">server_info</span><span class="p">[</span><span class="s1">&#39;staging&#39;</span><span class="p">][</span><span class="s1">&#39;db_port&#39;</span><span class="p">]),</span> <span class="n">database</span><span class="o">=</span><span class="n">db</span><span class="p">)</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">core_meta</span> <span class="o">=</span> <span class="n">mysql_fetch_data</span><span class="p">(</span><span class="n">core_query</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s1">'staging'</span><span class="p">][</span><span class="s1">'db_host'</span><span class="p">],</span> <span class="n">user</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s1">'staging'</span><span class="p">][</span><span class="s1">'db_user'</span><span class="p">],</span> <span class="n">port</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s1">'staging'</span><span class="p">][</span><span class="s1">'db_port'</span><span class="p">],</span> <span class="n">database</span><span class="o">=</span><span class="n">db</span><span class="p">)</span></code>
 
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
@@ -5150,7 +5150,7 @@
 
 
 <h3 id="ensembl.genes.metadata.core_meta_data.core_query" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">core_query</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;SELECT meta_key,meta_value FROM meta WHERE species_id = </span><span class="si">{</span><span class="n">species_id</span><span class="si">}</span><span class="s1"> AND (meta_key LIKE &#39;</span><span class="n">assembly</span><span class="o">%</span><span class="s1">&#39; OR meta_key LIKE &#39;</span><span class="n">species</span><span class="o">%</span><span class="s1">&#39; OR meta_key LIKE &#39;</span><span class="n">genebuild</span><span class="o">%</span><span class="s1">&#39; OR meta_key LIKE &#39;</span><span class="n">genome</span><span class="o">%</span><span class="s1">&#39; OR meta_key LIKE &#39;</span><span class="n">organism</span><span class="o">%</span><span class="s1">&#39; OR meta_key LIKE &#39;</span><span class="n">sample</span><span class="o">%</span><span class="s1">&#39; OR meta_key LIKE &#39;</span><span class="n">annotation</span><span class="o">%</span><span class="s1">&#39; OR meta_key LIKE &#39;</span><span class="n">gencode</span><span class="o">%</span><span class="s1">&#39;);&#39;</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">core_query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"SELECT meta_key,meta_value FROM meta WHERE species_id = </span><span class="si">{</span><span class="n">species_id</span><span class="si">}</span><span class="s2"> AND (meta_key LIKE 'assembly%' OR meta_key LIKE 'species%' OR meta_key LIKE 'genebuild%' OR meta_key LIKE 'genome%' OR meta_key LIKE 'organism%' OR meta_key LIKE 'sample%' OR meta_key LIKE 'annotation%' OR meta_key LIKE 'gencode%');"</span></code>
 
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
@@ -5170,7 +5170,7 @@
 
 
 <h3 id="ensembl.genes.metadata.core_meta_data.current_id" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">current_id</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">rank_dict</span><span class="p">[</span><span class="s1">&#39;parent_id&#39;</span><span class="p">])</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">current_id</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">rank_dict</span><span class="p">[</span><span class="s1">'parent_id'</span><span class="p">])</span></code>
 
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
@@ -5270,7 +5270,7 @@
 
 
 <h3 id="ensembl.genes.metadata.core_meta_data.gca_accession" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">gca_accession</span> <span class="o">=</span> <span class="n">core_dict</span><span class="p">[</span><span class="s1">&#39;assembly.accession&#39;</span><span class="p">]</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">gca_accession</span> <span class="o">=</span> <span class="n">core_dict</span><span class="p">[</span><span class="s1">'assembly.accession'</span><span class="p">]</span></code>
 
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
@@ -5290,7 +5290,7 @@
 
 
 <h3 id="ensembl.genes.metadata.core_meta_data.genome_group_meta_value" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">genome_group_meta_value</span> <span class="o">=</span> <span class="n">bioproject_name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;&#39;&quot;</span><span class="p">,</span> <span class="s2">&quot;&#39;&#39;&quot;</span><span class="p">)</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">genome_group_meta_value</span> <span class="o">=</span> <span class="n">bioproject_name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"'"</span><span class="p">,</span> <span class="s2">"''"</span><span class="p">)</span></code>
 
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
@@ -5310,7 +5310,7 @@
 
 
 <h3 id="ensembl.genes.metadata.core_meta_data.json_path" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">json_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">json_output</span><span class="p">)</span> <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">json_output</span> <span class="k">else</span> <span class="n">output_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">output_name</span><span class="si">}</span><span class="s1">.json&#39;</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">json_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">json_output</span><span class="p">)</span> <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">json_output</span> <span class="k">else</span> <span class="n">output_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">output_name</span><span class="si">}</span><span class="s1">.json'</span></code>
 
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
@@ -5330,7 +5330,7 @@
 
 
 <h3 id="ensembl.genes.metadata.core_meta_data.log_file_path" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">log_file_path</span> <span class="o">=</span> <span class="n">output_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">production_name</span><span class="si">}</span><span class="s1">_metadata.log&#39;</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">log_file_path</span> <span class="o">=</span> <span class="n">output_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">production_name</span><span class="si">}</span><span class="s1">_metadata.log'</span></code>
 
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
@@ -5350,7 +5350,7 @@
 
 
 <h3 id="ensembl.genes.metadata.core_meta_data.log_ini_path" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">log_ini_path</span> <span class="o">=</span> <span class="n">metadata_dir</span> <span class="o">/</span> <span class="s1">&#39;logging.conf&#39;</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">log_ini_path</span> <span class="o">=</span> <span class="n">metadata_dir</span> <span class="o">/</span> <span class="s1">'logging.conf'</span></code>
 
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
@@ -5390,7 +5390,7 @@
 
 
 <h3 id="ensembl.genes.metadata.core_meta_data.meta_keys_to_remove" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">meta_keys_to_remove</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;species.strain&#39;</span><span class="p">,</span> <span class="s1">&#39;strain.type&#39;</span><span class="p">]</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">meta_keys_to_remove</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'species.strain'</span><span class="p">,</span> <span class="s1">'strain.type'</span><span class="p">]</span></code>
 
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
@@ -5450,7 +5450,7 @@
 
 
 <h3 id="ensembl.genes.metadata.core_meta_data.name_info" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">name_info</span> <span class="o">=</span> <span class="n">mysql_fetch_data</span><span class="p">(</span><span class="n">name_query</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="p">(</span><span class="n">server_info</span><span class="p">[</span><span class="s1">&#39;meta&#39;</span><span class="p">][</span><span class="s1">&#39;db_host&#39;</span><span class="p">]),</span> <span class="n">user</span><span class="o">=</span><span class="p">(</span><span class="n">server_info</span><span class="p">[</span><span class="s1">&#39;meta&#39;</span><span class="p">][</span><span class="s1">&#39;db_user&#39;</span><span class="p">]),</span> <span class="n">port</span><span class="o">=</span><span class="p">(</span><span class="n">server_info</span><span class="p">[</span><span class="s1">&#39;meta&#39;</span><span class="p">][</span><span class="s1">&#39;db_port&#39;</span><span class="p">]),</span> <span class="n">database</span><span class="o">=</span><span class="s1">&#39;ncbi_taxonomy&#39;</span><span class="p">)</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">name_info</span> <span class="o">=</span> <span class="n">mysql_fetch_data</span><span class="p">(</span><span class="n">name_query</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s1">'meta'</span><span class="p">][</span><span class="s1">'db_host'</span><span class="p">],</span> <span class="n">user</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s1">'meta'</span><span class="p">][</span><span class="s1">'db_user'</span><span class="p">],</span> <span class="n">port</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s1">'meta'</span><span class="p">][</span><span class="s1">'db_port'</span><span class="p">],</span> <span class="n">database</span><span class="o">=</span><span class="s1">'ncbi_taxonomy'</span><span class="p">)</span></code>
 
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
@@ -5470,7 +5470,7 @@
 
 
 <h3 id="ensembl.genes.metadata.core_meta_data.name_query" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">name_query</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;SELECT name FROM ncbi_taxa_name WHERE taxon_id=</span><span class="si">{</span><span class="n">truth_dict</span><span class="p">[</span><span class="s1">&#39;organism.taxonomy_id&#39;</span><span class="p">]</span><span class="si">}</span><span class="s1"> AND name_class=&#39;</span><span class="n">genbank</span> <span class="n">common</span> <span class="n">name</span><span class="s1">&#39;;&#39;</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">name_query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"SELECT name FROM ncbi_taxa_name WHERE taxon_id=</span><span class="si">{</span><span class="n">truth_dict</span><span class="p">[</span><span class="s1">'organism.taxonomy_id'</span><span class="p">]</span><span class="si">}</span><span class="s2"> AND name_class='genbank common name';"</span></code>
 
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
@@ -5530,7 +5530,7 @@
 
 
 <h3 id="ensembl.genes.metadata.core_meta_data.parent_rank_info" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">parent_rank_info</span> <span class="o">=</span> <span class="n">mysql_fetch_data</span><span class="p">(</span><span class="n">parent_taxonomy_query</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="p">(</span><span class="n">server_info</span><span class="p">[</span><span class="s1">&#39;meta&#39;</span><span class="p">][</span><span class="s1">&#39;db_host&#39;</span><span class="p">]),</span> <span class="n">user</span><span class="o">=</span><span class="p">(</span><span class="n">server_info</span><span class="p">[</span><span class="s1">&#39;meta&#39;</span><span class="p">][</span><span class="s1">&#39;db_user&#39;</span><span class="p">]),</span> <span class="n">port</span><span class="o">=</span><span class="p">(</span><span class="n">server_info</span><span class="p">[</span><span class="s1">&#39;meta&#39;</span><span class="p">][</span><span class="s1">&#39;db_port&#39;</span><span class="p">]),</span> <span class="n">database</span><span class="o">=</span><span class="s1">&#39;ncbi_taxonomy&#39;</span><span class="p">)</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">parent_rank_info</span> <span class="o">=</span> <span class="n">mysql_fetch_data</span><span class="p">(</span><span class="n">parent_taxonomy_query</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s1">'meta'</span><span class="p">][</span><span class="s1">'db_host'</span><span class="p">],</span> <span class="n">user</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s1">'meta'</span><span class="p">][</span><span class="s1">'db_user'</span><span class="p">],</span> <span class="n">port</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s1">'meta'</span><span class="p">][</span><span class="s1">'db_port'</span><span class="p">],</span> <span class="n">database</span><span class="o">=</span><span class="s1">'ncbi_taxonomy'</span><span class="p">)</span></code>
 
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
@@ -5550,7 +5550,7 @@
 
 
 <h3 id="ensembl.genes.metadata.core_meta_data.parent_taxonomy_query" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">parent_taxonomy_query</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;SELECT rank, parent_id FROM ncbi_taxa_node WHERE taxon_id=</span><span class="si">{</span><span class="n">rank_dict</span><span class="p">[</span><span class="s1">&#39;parent_id&#39;</span><span class="p">]</span><span class="si">}</span><span class="s1">;&#39;</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">parent_taxonomy_query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"SELECT rank, parent_id FROM ncbi_taxa_node WHERE taxon_id=</span><span class="si">{</span><span class="n">rank_dict</span><span class="p">[</span><span class="s1">'parent_id'</span><span class="p">]</span><span class="si">}</span><span class="s2">;"</span></code>
 
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
@@ -5570,7 +5570,7 @@
 
 
 <h3 id="ensembl.genes.metadata.core_meta_data.parser" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s1">&#39;Prepare SQL updates for core dbs&#39;</span><span class="p">)</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s1">'Prepare SQL updates for core dbs'</span><span class="p">)</span></code>
 
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
@@ -5590,7 +5590,7 @@
 
 
 <h3 id="ensembl.genes.metadata.core_meta_data.parts" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">parts</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="p">)</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">parts</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">'</span><span class="se">\t</span><span class="s1">'</span><span class="p">)</span></code>
 
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
@@ -5630,7 +5630,7 @@
 
 
 <h3 id="ensembl.genes.metadata.core_meta_data.provider_static_file" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">provider_static_file</span> <span class="o">=</span> <span class="n">metadata_dir</span> <span class="o">/</span> <span class="s1">&#39;provider_static.txt&#39;</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">provider_static_file</span> <span class="o">=</span> <span class="n">metadata_dir</span> <span class="o">/</span> <span class="s1">'provider_static.txt'</span></code>
 
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
@@ -5670,7 +5670,7 @@
 
 
 <h3 id="ensembl.genes.metadata.core_meta_data.rank_info" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">rank_info</span> <span class="o">=</span> <span class="n">mysql_fetch_data</span><span class="p">(</span><span class="n">taxonomy_query</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="p">(</span><span class="n">server_info</span><span class="p">[</span><span class="s1">&#39;meta&#39;</span><span class="p">][</span><span class="s1">&#39;db_host&#39;</span><span class="p">]),</span> <span class="n">user</span><span class="o">=</span><span class="p">(</span><span class="n">server_info</span><span class="p">[</span><span class="s1">&#39;meta&#39;</span><span class="p">][</span><span class="s1">&#39;db_user&#39;</span><span class="p">]),</span> <span class="n">port</span><span class="o">=</span><span class="p">(</span><span class="n">server_info</span><span class="p">[</span><span class="s1">&#39;meta&#39;</span><span class="p">][</span><span class="s1">&#39;db_port&#39;</span><span class="p">]),</span> <span class="n">database</span><span class="o">=</span><span class="s1">&#39;ncbi_taxonomy&#39;</span><span class="p">)</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">rank_info</span> <span class="o">=</span> <span class="n">mysql_fetch_data</span><span class="p">(</span><span class="n">taxonomy_query</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s1">'meta'</span><span class="p">][</span><span class="s1">'db_host'</span><span class="p">],</span> <span class="n">user</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s1">'meta'</span><span class="p">][</span><span class="s1">'db_user'</span><span class="p">],</span> <span class="n">port</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s1">'meta'</span><span class="p">][</span><span class="s1">'db_port'</span><span class="p">],</span> <span class="n">database</span><span class="o">=</span><span class="s1">'ncbi_taxonomy'</span><span class="p">)</span></code>
 
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
@@ -5690,7 +5690,7 @@
 
 
 <h3 id="ensembl.genes.metadata.core_meta_data.ref_accession" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">ref_accession</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">ref_accession</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">'</span><span class="se">\t</span><span class="s1">'</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span></code>
 
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
@@ -5730,7 +5730,7 @@
 
 
 <h3 id="ensembl.genes.metadata.core_meta_data.ref_static_file" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">ref_static_file</span> <span class="o">=</span> <span class="n">metadata_dir</span> <span class="o">/</span> <span class="s1">&#39;ref_static.txt&#39;</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">ref_static_file</span> <span class="o">=</span> <span class="n">metadata_dir</span> <span class="o">/</span> <span class="s1">'ref_static.txt'</span></code>
 
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
@@ -5750,7 +5750,7 @@
 
 
 <h3 id="ensembl.genes.metadata.core_meta_data.required_meta_keys" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">required_meta_keys</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;organism.production_name&#39;</span><span class="p">,</span> <span class="s1">&#39;organism.taxonomy_id&#39;</span><span class="p">,</span> <span class="s1">&#39;organism.scientific_name&#39;</span><span class="p">,</span> <span class="s1">&#39;assembly.accession&#39;</span><span class="p">,</span> <span class="s1">&#39;assembly.name&#39;</span><span class="p">,</span> <span class="s1">&#39;genebuild.version&#39;</span><span class="p">,</span> <span class="s1">&#39;genebuild.method&#39;</span><span class="p">,</span> <span class="s1">&#39;genebuild.method_display&#39;</span><span class="p">,</span> <span class="s1">&#39;genebuild.start_date&#39;</span><span class="p">,</span> <span class="s1">&#39;genebuild.annotation_source&#39;</span><span class="p">,</span> <span class="s1">&#39;genebuild.provider_name&#39;</span><span class="p">,</span> <span class="s1">&#39;genebuild.provider_url&#39;</span><span class="p">,</span> <span class="s1">&#39;genebuild.sample_gene&#39;</span><span class="p">,</span> <span class="s1">&#39;genebuild.sample_location&#39;</span><span class="p">,</span> <span class="s1">&#39;genebuild.last_geneset_update&#39;</span><span class="p">,</span> <span class="s1">&#39;organism.biosample_id&#39;</span><span class="p">]</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">required_meta_keys</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'organism.production_name'</span><span class="p">,</span> <span class="s1">'organism.taxonomy_id'</span><span class="p">,</span> <span class="s1">'organism.scientific_name'</span><span class="p">,</span> <span class="s1">'assembly.accession'</span><span class="p">,</span> <span class="s1">'assembly.name'</span><span class="p">,</span> <span class="s1">'genebuild.version'</span><span class="p">,</span> <span class="s1">'genebuild.method'</span><span class="p">,</span> <span class="s1">'genebuild.method_display'</span><span class="p">,</span> <span class="s1">'genebuild.start_date'</span><span class="p">,</span> <span class="s1">'genebuild.annotation_source'</span><span class="p">,</span> <span class="s1">'genebuild.provider_name'</span><span class="p">,</span> <span class="s1">'genebuild.provider_url'</span><span class="p">,</span> <span class="s1">'genebuild.sample_gene'</span><span class="p">,</span> <span class="s1">'genebuild.sample_location'</span><span class="p">,</span> <span class="s1">'genebuild.last_geneset_update'</span><span class="p">,</span> <span class="s1">'organism.biosample_id'</span><span class="p">]</span></code>
 
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
@@ -5770,7 +5770,7 @@
 
 
 <h3 id="ensembl.genes.metadata.core_meta_data.s_name_info" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">s_name_info</span> <span class="o">=</span> <span class="n">mysql_fetch_data</span><span class="p">(</span><span class="n">s_name_query</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="p">(</span><span class="n">server_info</span><span class="p">[</span><span class="s1">&#39;meta&#39;</span><span class="p">][</span><span class="s1">&#39;db_host&#39;</span><span class="p">]),</span> <span class="n">user</span><span class="o">=</span><span class="p">(</span><span class="n">server_info</span><span class="p">[</span><span class="s1">&#39;meta&#39;</span><span class="p">][</span><span class="s1">&#39;db_user&#39;</span><span class="p">]),</span> <span class="n">port</span><span class="o">=</span><span class="p">(</span><span class="n">server_info</span><span class="p">[</span><span class="s1">&#39;meta&#39;</span><span class="p">][</span><span class="s1">&#39;db_port&#39;</span><span class="p">]),</span> <span class="n">database</span><span class="o">=</span><span class="s1">&#39;ncbi_taxonomy&#39;</span><span class="p">)</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">s_name_info</span> <span class="o">=</span> <span class="n">mysql_fetch_data</span><span class="p">(</span><span class="n">s_name_query</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s1">'meta'</span><span class="p">][</span><span class="s1">'db_host'</span><span class="p">],</span> <span class="n">user</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s1">'meta'</span><span class="p">][</span><span class="s1">'db_user'</span><span class="p">],</span> <span class="n">port</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s1">'meta'</span><span class="p">][</span><span class="s1">'db_port'</span><span class="p">],</span> <span class="n">database</span><span class="o">=</span><span class="s1">'ncbi_taxonomy'</span><span class="p">)</span></code>
 
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
@@ -5790,7 +5790,7 @@
 
 
 <h3 id="ensembl.genes.metadata.core_meta_data.s_name_query" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">s_name_query</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;SELECT name FROM ncbi_taxa_name WHERE taxon_id=</span><span class="si">{</span><span class="n">truth_dict</span><span class="p">[</span><span class="s1">&#39;organism.taxonomy_id&#39;</span><span class="p">]</span><span class="si">}</span><span class="s1"> AND name_class=&#39;</span><span class="n">scientific</span> <span class="n">name</span><span class="s1">&#39;;&#39;</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">s_name_query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"SELECT name FROM ncbi_taxa_name WHERE taxon_id=</span><span class="si">{</span><span class="n">truth_dict</span><span class="p">[</span><span class="s1">'organism.taxonomy_id'</span><span class="p">]</span><span class="si">}</span><span class="s2"> AND name_class='scientific name';"</span></code>
 
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
@@ -5810,7 +5810,7 @@
 
 
 <h3 id="ensembl.genes.metadata.core_meta_data.server_info" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">server_info</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;staging&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;db_host&#39;</span><span class="p">:</span> <span class="n">args</span><span class="o">.</span><span class="n">host</span><span class="p">,</span> <span class="s1">&#39;db_port&#39;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">port</span><span class="p">),</span> <span class="s1">&#39;db_user&#39;</span><span class="p">:</span> <span class="s1">&#39;ensro&#39;</span><span class="p">},</span> <span class="s1">&#39;meta&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;db_host&#39;</span><span class="p">:</span> <span class="s1">&#39;mysql-ens-meta-prod-1.ebi.ac.uk&#39;</span><span class="p">,</span> <span class="s1">&#39;db_port&#39;</span><span class="p">:</span> <span class="mi">4483</span><span class="p">,</span> <span class="s1">&#39;db_user&#39;</span><span class="p">:</span> <span class="s1">&#39;ensro&#39;</span><span class="p">,</span> <span class="s1">&#39;db_pass&#39;</span><span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">}}</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">server_info</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'staging'</span><span class="p">:</span> <span class="p">{</span><span class="s1">'db_host'</span><span class="p">:</span> <span class="n">args</span><span class="o">.</span><span class="n">host</span><span class="p">,</span> <span class="s1">'db_port'</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">port</span><span class="p">),</span> <span class="s1">'db_user'</span><span class="p">:</span> <span class="s1">'ensro'</span><span class="p">},</span> <span class="s1">'meta'</span><span class="p">:</span> <span class="p">{</span><span class="s1">'db_host'</span><span class="p">:</span> <span class="s1">'mysql-ens-meta-prod-1.ebi.ac.uk'</span><span class="p">,</span> <span class="s1">'db_port'</span><span class="p">:</span> <span class="mi">4483</span><span class="p">,</span> <span class="s1">'db_user'</span><span class="p">:</span> <span class="s1">'ensro'</span><span class="p">,</span> <span class="s1">'db_pass'</span><span class="p">:</span> <span class="s1">''</span><span class="p">}}</span></code>
 
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
@@ -5830,7 +5830,7 @@
 
 
 <h3 id="ensembl.genes.metadata.core_meta_data.snp" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">snp</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">snp</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">'</span><span class="se">\t</span><span class="s1">'</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span></code>
 
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
@@ -5870,7 +5870,7 @@
 
 
 <h3 id="ensembl.genes.metadata.core_meta_data.snp_static_file" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">snp_static_file</span> <span class="o">=</span> <span class="n">metadata_dir</span> <span class="o">/</span> <span class="s1">&#39;snp_static.txt&#39;</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">snp_static_file</span> <span class="o">=</span> <span class="n">metadata_dir</span> <span class="o">/</span> <span class="s1">'snp_static.txt'</span></code>
 
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
@@ -5910,7 +5910,7 @@
 
 
 <h3 id="ensembl.genes.metadata.core_meta_data.species_meta" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">species_meta</span> <span class="o">=</span> <span class="n">mysql_fetch_data</span><span class="p">(</span><span class="n">species_query</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="p">(</span><span class="n">server_info</span><span class="p">[</span><span class="s1">&#39;staging&#39;</span><span class="p">][</span><span class="s1">&#39;db_host&#39;</span><span class="p">]),</span> <span class="n">user</span><span class="o">=</span><span class="p">(</span><span class="n">server_info</span><span class="p">[</span><span class="s1">&#39;staging&#39;</span><span class="p">][</span><span class="s1">&#39;db_user&#39;</span><span class="p">]),</span> <span class="n">port</span><span class="o">=</span><span class="p">(</span><span class="n">server_info</span><span class="p">[</span><span class="s1">&#39;staging&#39;</span><span class="p">][</span><span class="s1">&#39;db_port&#39;</span><span class="p">]),</span> <span class="n">database</span><span class="o">=</span><span class="n">db</span><span class="p">)</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">species_meta</span> <span class="o">=</span> <span class="n">mysql_fetch_data</span><span class="p">(</span><span class="n">species_query</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s1">'staging'</span><span class="p">][</span><span class="s1">'db_host'</span><span class="p">],</span> <span class="n">user</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s1">'staging'</span><span class="p">][</span><span class="s1">'db_user'</span><span class="p">],</span> <span class="n">port</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s1">'staging'</span><span class="p">][</span><span class="s1">'db_port'</span><span class="p">],</span> <span class="n">database</span><span class="o">=</span><span class="n">db</span><span class="p">)</span></code>
 
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
@@ -5930,7 +5930,7 @@
 
 
 <h3 id="ensembl.genes.metadata.core_meta_data.species_query" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">species_query</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;SELECT species_id FROM meta WHERE meta_key=&#39;</span><span class="n">species</span><span class="o">.</span><span class="n">production_name</span><span class="s1">&#39; AND meta_value=&#39;</span><span class="p">{</span><span class="n">core_dict</span><span class="p">[</span><span class="s1">&#39;species.production_name&#39;</span><span class="p">]}</span><span class="s1">&#39;;&#39;</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">species_query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"SELECT species_id FROM meta WHERE meta_key='species.production_name' AND meta_value='</span><span class="si">{</span><span class="n">core_dict</span><span class="p">[</span><span class="s1">'species.production_name'</span><span class="p">]</span><span class="si">}</span><span class="s2">';"</span></code>
 
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
@@ -5950,7 +5950,7 @@
 
 
 <h3 id="ensembl.genes.metadata.core_meta_data.sql" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">sql</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;DELETE from meta WHERE meta_key=&#39;</span><span class="p">{</span><span class="n">remove_key</span><span class="p">}</span><span class="s1">&#39;;&#39;</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">sql</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"DELETE from meta WHERE meta_key='</span><span class="si">{</span><span class="n">remove_key</span><span class="si">}</span><span class="s2">';"</span></code>
 
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
@@ -5990,7 +5990,7 @@
 
 
 <h3 id="ensembl.genes.metadata.core_meta_data.sql_out" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">sql_out</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">output_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">output_name</span><span class="si">}</span><span class="s1">.sql&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">sql_out</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">output_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">output_name</span><span class="si">}</span><span class="s1">.sql'</span><span class="p">,</span> <span class="s1">'w'</span><span class="p">)</span></code>
 
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
@@ -6010,7 +6010,7 @@
 
 
 <h3 id="ensembl.genes.metadata.core_meta_data.taxonomy_query" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">taxonomy_query</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;SELECT rank, parent_id FROM ncbi_taxa_node WHERE taxon_id=</span><span class="si">{</span><span class="n">truth_dict</span><span class="p">[</span><span class="s1">&#39;organism.taxonomy_id&#39;</span><span class="p">]</span><span class="si">}</span><span class="s1">;&#39;</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">taxonomy_query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"SELECT rank, parent_id FROM ncbi_taxa_node WHERE taxon_id=</span><span class="si">{</span><span class="n">truth_dict</span><span class="p">[</span><span class="s1">'organism.taxonomy_id'</span><span class="p">]</span><span class="si">}</span><span class="s2">;"</span></code>
 
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
@@ -6050,7 +6050,7 @@
 
 
 <h3 id="ensembl.genes.metadata.core_meta_data.url" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">url</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">url</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">'</span><span class="se">\t</span><span class="s1">'</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span></code>
 
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
@@ -6090,7 +6090,7 @@
 
 
 <h3 id="ensembl.genes.metadata.core_meta_data.url_static_file" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">url_static_file</span> <span class="o">=</span> <span class="n">metadata_dir</span> <span class="o">/</span> <span class="s1">&#39;url_static.txt&#39;</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">url_static_file</span> <span class="o">=</span> <span class="n">metadata_dir</span> <span class="o">/</span> <span class="s1">'url_static.txt'</span></code>
 
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
@@ -6129,9 +6129,9 @@
 <span class="normal">64</span>
 <span class="normal">65</span>
 <span class="normal">66</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">fallback_biosample_id_from_gca_chain</span><span class="p">(</span><span class="n">accession</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the configured BioSample ID for an assembly&#39;s GCA chain.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Return the configured BioSample ID for an assembly's GCA chain."""</span>
     <span class="k">return</span> <span class="n">BIOSAMPLE_ID_FALLBACKS_BY_GCA_CHAIN</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
-        <span class="n">normalize_assembly_accession_chain</span><span class="p">(</span><span class="n">accession</span><span class="p">),</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">normalize_assembly_accession_chain</span><span class="p">(</span><span class="n">accession</span><span class="p">),</span> <span class="s2">""</span>
     <span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -6315,7 +6315,7 @@
 <span class="normal">288</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_biosample_metadata</span><span class="p">(</span>
     <span class="n">biosample_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">assembly_accession</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">assembly_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">scientific_name</span><span class="p">:</span> <span class="nb">str</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Fetch assembly metadata from EBI BioSample API.</span>
+<span class="w">    </span><span class="sd">"""Fetch assembly metadata from EBI BioSample API.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        biosample_id (str): BioSample accession (e.g., SAMN00000001)</span>
@@ -6325,47 +6325,47 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">        Dict[str, str]: Dictionary containing metadata from BioSample.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
-    <span class="n">biosample_url</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;https://www.ebi.ac.uk/biosamples/samples/</span><span class="si">{</span><span class="n">biosample_id</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="n">biosample_url</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"https://www.ebi.ac.uk/biosamples/samples/</span><span class="si">{</span><span class="n">biosample_id</span><span class="si">}</span><span class="s2">"</span>
     <span class="n">biosample_return</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">biosample_url</span><span class="p">)</span><span class="o">.</span><span class="n">text</span>
-    <span class="n">return_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;organism.strain&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;organism.strain_type&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">}</span>
+    <span class="n">return_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"organism.strain"</span><span class="p">:</span> <span class="s2">""</span><span class="p">,</span> <span class="s2">"organism.strain_type"</span><span class="p">:</span> <span class="s2">""</span><span class="p">}</span>
 
     <span class="k">try</span><span class="p">:</span>
         <span class="n">biosample_data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">biosample_return</span><span class="p">)</span>
 
-        <span class="n">strain_types</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;population&quot;</span><span class="p">,</span> <span class="s2">&quot;race&quot;</span><span class="p">,</span> <span class="s2">&quot;ecotype&quot;</span><span class="p">,</span> <span class="s2">&quot;breed&quot;</span><span class="p">,</span> <span class="s2">&quot;strain&quot;</span><span class="p">,</span> <span class="s2">&quot;cultivar&quot;</span><span class="p">}</span>
+        <span class="n">strain_types</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"population"</span><span class="p">,</span> <span class="s2">"race"</span><span class="p">,</span> <span class="s2">"ecotype"</span><span class="p">,</span> <span class="s2">"breed"</span><span class="p">,</span> <span class="s2">"strain"</span><span class="p">,</span> <span class="s2">"cultivar"</span><span class="p">}</span>
 
         <span class="k">for</span> <span class="n">strain_type</span> <span class="ow">in</span> <span class="n">strain_types</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
-                <span class="n">return_dict</span><span class="p">[</span><span class="s2">&quot;organism.strain&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">biosample_data</span><span class="p">[</span><span class="s2">&quot;characteristics&quot;</span><span class="p">][</span>
+                <span class="n">return_dict</span><span class="p">[</span><span class="s2">"organism.strain"</span><span class="p">]</span> <span class="o">=</span> <span class="n">biosample_data</span><span class="p">[</span><span class="s2">"characteristics"</span><span class="p">][</span>
                     <span class="n">strain_type</span>
-                <span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;text&quot;</span><span class="p">]</span>
-                <span class="n">return_dict</span><span class="p">[</span><span class="s2">&quot;organism.strain_type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">strain_type</span>
+                <span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">"text"</span><span class="p">]</span>
+                <span class="n">return_dict</span><span class="p">[</span><span class="s2">"organism.strain_type"</span><span class="p">]</span> <span class="o">=</span> <span class="n">strain_type</span>
                 <span class="k">break</span>
             <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
                 <span class="k">continue</span>
 
-        <span class="k">if</span> <span class="n">return_dict</span><span class="p">[</span><span class="s2">&quot;organism.strain&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;Caucasian&quot;</span><span class="p">:</span>
-            <span class="n">return_dict</span><span class="p">[</span><span class="s2">&quot;organism.strain&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;European&quot;</span>
+        <span class="k">if</span> <span class="n">return_dict</span><span class="p">[</span><span class="s2">"organism.strain"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"Caucasian"</span><span class="p">:</span>
+            <span class="n">return_dict</span><span class="p">[</span><span class="s2">"organism.strain"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"European"</span>
 
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">return_dict</span><span class="p">[</span><span class="s2">&quot;assembly.tol_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">biosample_data</span><span class="p">[</span><span class="s2">&quot;characteristics&quot;</span><span class="p">][</span><span class="s2">&quot;tolid&quot;</span><span class="p">][</span>
+            <span class="n">return_dict</span><span class="p">[</span><span class="s2">"assembly.tol_id"</span><span class="p">]</span> <span class="o">=</span> <span class="n">biosample_data</span><span class="p">[</span><span class="s2">"characteristics"</span><span class="p">][</span><span class="s2">"tolid"</span><span class="p">][</span>
                 <span class="mi">0</span>
-            <span class="p">][</span><span class="s2">&quot;text&quot;</span><span class="p">]</span>
+            <span class="p">][</span><span class="s2">"text"</span><span class="p">]</span>
         <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-            <span class="n">return_dict</span><span class="p">[</span><span class="s2">&quot;assembly.tol_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+            <span class="n">return_dict</span><span class="p">[</span><span class="s2">"assembly.tol_id"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">""</span>
 
     <span class="k">except</span> <span class="n">json</span><span class="o">.</span><span class="n">decoder</span><span class="o">.</span><span class="n">JSONDecodeError</span><span class="p">:</span>
         <span class="c1"># fallback to NCBI</span>
         <span class="n">biosample_dict</span> <span class="o">=</span> <span class="n">get_ncbi_metadata</span><span class="p">(</span>
-            <span class="n">assembly_accession</span><span class="p">,</span> <span class="n">assembly_name</span><span class="p">,</span> <span class="n">scientific_name</span><span class="p">,</span> <span class="s2">&quot;biosample&quot;</span>
+            <span class="n">assembly_accession</span><span class="p">,</span> <span class="n">assembly_name</span><span class="p">,</span> <span class="n">scientific_name</span><span class="p">,</span> <span class="s2">"biosample"</span>
         <span class="p">)</span>
-        <span class="n">return_dict</span><span class="p">[</span><span class="s2">&quot;organism.strain&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">biosample_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;organism.strain&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
-        <span class="n">return_dict</span><span class="p">[</span><span class="s2">&quot;organism.strain_type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">biosample_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
-            <span class="s2">&quot;organism.strain_type&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">return_dict</span><span class="p">[</span><span class="s2">"organism.strain"</span><span class="p">]</span> <span class="o">=</span> <span class="n">biosample_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"organism.strain"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span>
+        <span class="n">return_dict</span><span class="p">[</span><span class="s2">"organism.strain_type"</span><span class="p">]</span> <span class="o">=</span> <span class="n">biosample_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+            <span class="s2">"organism.strain_type"</span><span class="p">,</span> <span class="s2">""</span>
         <span class="p">)</span>
-        <span class="n">return_dict</span><span class="p">[</span><span class="s2">&quot;assembly.tol_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">return_dict</span><span class="p">[</span><span class="s2">"assembly.tol_id"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">""</span>
 
     <span class="k">return</span> <span class="n">return_dict</span>
 </code></pre></div></td></tr></table></div>
@@ -6537,7 +6537,7 @@
 <span class="normal">186</span>
 <span class="normal">187</span>
 <span class="normal">188</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_ena_metadata</span><span class="p">(</span><span class="n">accession</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">truth_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Fetch assembly metadata from ENA XML API.</span>
+<span class="w">    </span><span class="sd">"""Fetch assembly metadata from ENA XML API.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        accession (str): Assembly accession (e.g., GCA_000001405.28)</span>
@@ -6545,71 +6545,71 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">        Dict[str, str]: Dictionary containing metadata from ENA.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">return_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="n">assembly_url</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;https://www.ebi.ac.uk/ena/browser/api/xml/</span><span class="si">{</span><span class="n">accession</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="n">assembly_url</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"https://www.ebi.ac.uk/ena/browser/api/xml/</span><span class="si">{</span><span class="n">accession</span><span class="si">}</span><span class="s2">"</span>
     <span class="n">assembly_xml</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">assembly_url</span><span class="p">)</span>
     <span class="n">assembly_dict</span> <span class="o">=</span> <span class="n">xmltodict</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">assembly_xml</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
 
-    <span class="n">assembly_attribs</span> <span class="o">=</span> <span class="n">assembly_dict</span><span class="p">[</span><span class="s2">&quot;ASSEMBLY_SET&quot;</span><span class="p">][</span><span class="s2">&quot;ASSEMBLY&quot;</span><span class="p">][</span><span class="s2">&quot;ASSEMBLY_ATTRIBUTES&quot;</span><span class="p">][</span>
-        <span class="s2">&quot;ASSEMBLY_ATTRIBUTE&quot;</span>
+    <span class="n">assembly_attribs</span> <span class="o">=</span> <span class="n">assembly_dict</span><span class="p">[</span><span class="s2">"ASSEMBLY_SET"</span><span class="p">][</span><span class="s2">"ASSEMBLY"</span><span class="p">][</span><span class="s2">"ASSEMBLY_ATTRIBUTES"</span><span class="p">][</span>
+        <span class="s2">"ASSEMBLY_ATTRIBUTE"</span>
     <span class="p">]</span>
     <span class="c1"># fix if single or multiple items</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">assembly_attribs</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
         <span class="n">assembly_attribs</span> <span class="o">=</span> <span class="p">[</span><span class="n">assembly_attribs</span><span class="p">]</span>
 
     <span class="c1"># assembly metadata</span>
-    <span class="n">return_dict</span><span class="p">[</span><span class="s2">&quot;assembly.name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">return_dict</span><span class="p">[</span><span class="s2">"assembly.name"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
         <span class="p">(</span>
-            <span class="n">assembly_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ASSEMBLY_SET&quot;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ASSEMBLY&quot;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;NAME&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
-        <span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">assembly_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ASSEMBLY_SET&quot;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ASSEMBLY&quot;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;NAME&quot;</span><span class="p">)</span>
-        <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+            <span class="n">assembly_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"ASSEMBLY_SET"</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"ASSEMBLY"</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"NAME"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">" "</span><span class="p">,</span> <span class="s2">"_"</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">assembly_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"ASSEMBLY_SET"</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"ASSEMBLY"</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"NAME"</span><span class="p">)</span>
+        <span class="k">else</span> <span class="s2">""</span>
     <span class="p">)</span>
 
-    <span class="n">return_dict</span><span class="p">[</span><span class="s2">&quot;assembly.level&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">assembly_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ASSEMBLY_SET&quot;</span><span class="p">,</span> <span class="p">{})</span>
-        <span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ASSEMBLY&quot;</span><span class="p">,</span> <span class="p">{})</span>
-        <span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ASSEMBLY_LEVEL&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="n">return_dict</span><span class="p">[</span><span class="s2">"assembly.level"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">assembly_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"ASSEMBLY_SET"</span><span class="p">,</span> <span class="p">{})</span>
+        <span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"ASSEMBLY"</span><span class="p">,</span> <span class="p">{})</span>
+        <span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"ASSEMBLY_LEVEL"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span>
     <span class="p">)</span>
 
     <span class="k">for</span> <span class="n">attrib_set</span> <span class="ow">in</span> <span class="n">assembly_attribs</span><span class="p">:</span>
         <span class="c1"># assembly date</span>
-        <span class="k">if</span> <span class="n">attrib_set</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;TAG&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;ENA-LAST-UPDATED&quot;</span><span class="p">:</span>
-            <span class="n">raw_date</span> <span class="o">=</span> <span class="n">attrib_set</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;VALUE&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">attrib_set</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"TAG"</span><span class="p">)</span> <span class="o">==</span> <span class="s2">"ENA-LAST-UPDATED"</span><span class="p">:</span>
+            <span class="n">raw_date</span> <span class="o">=</span> <span class="n">attrib_set</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"VALUE"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span>
             <span class="c1"># normalise from YYYY-MM-DD to YYYY-MM (or leave shorter strings as-is)</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">raw_date</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">7</span><span class="p">:</span>
-                <span class="n">return_dict</span><span class="p">[</span><span class="s2">&quot;assembly.date&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">raw_date</span><span class="p">[:</span><span class="mi">7</span><span class="p">]</span>
+                <span class="n">return_dict</span><span class="p">[</span><span class="s2">"assembly.date"</span><span class="p">]</span> <span class="o">=</span> <span class="n">raw_date</span><span class="p">[:</span><span class="mi">7</span><span class="p">]</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">return_dict</span><span class="p">[</span><span class="s2">&quot;assembly.date&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">raw_date</span>
+                <span class="n">return_dict</span><span class="p">[</span><span class="s2">"assembly.date"</span><span class="p">]</span> <span class="o">=</span> <span class="n">raw_date</span>
 
     <span class="c1"># organism metadata: sample id</span>
-    <span class="k">if</span> <span class="s2">&quot;organism.biosample_id&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">truth_dict</span><span class="p">:</span>
+    <span class="k">if</span> <span class="s2">"organism.biosample_id"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">truth_dict</span><span class="p">:</span>
         <span class="n">biosample_id</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">assembly_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ASSEMBLY_SET&quot;</span><span class="p">,</span> <span class="p">{})</span>
-            <span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ASSEMBLY&quot;</span><span class="p">,</span> <span class="p">{})</span>
-            <span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;SAMPLE_REF&quot;</span><span class="p">,</span> <span class="p">{})</span>
-            <span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;IDENTIFIERS&quot;</span><span class="p">,</span> <span class="p">{})</span>
-            <span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;PRIMARY_ID&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+            <span class="n">assembly_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"ASSEMBLY_SET"</span><span class="p">,</span> <span class="p">{})</span>
+            <span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"ASSEMBLY"</span><span class="p">,</span> <span class="p">{})</span>
+            <span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"SAMPLE_REF"</span><span class="p">,</span> <span class="p">{})</span>
+            <span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"IDENTIFIERS"</span><span class="p">,</span> <span class="p">{})</span>
+            <span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"PRIMARY_ID"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span>
         <span class="p">)</span>
         <span class="k">if</span> <span class="n">biosample_id</span><span class="p">:</span>
-            <span class="n">return_dict</span><span class="p">[</span><span class="s2">&quot;organism.biosample_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">biosample_id</span>
+            <span class="n">return_dict</span><span class="p">[</span><span class="s2">"organism.biosample_id"</span><span class="p">]</span> <span class="o">=</span> <span class="n">biosample_id</span>
 
     <span class="c1"># taxonomy id (workaround for bad records)</span>
-    <span class="k">if</span> <span class="n">accession</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;GCA_944452655.1&quot;</span><span class="p">,</span> <span class="s2">&quot;GCA_944452715.1&quot;</span><span class="p">):</span>
-        <span class="n">return_dict</span><span class="p">[</span><span class="s2">&quot;organism.taxonomy_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;1539398&quot;</span>
+    <span class="k">if</span> <span class="n">accession</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"GCA_944452655.1"</span><span class="p">,</span> <span class="s2">"GCA_944452715.1"</span><span class="p">):</span>
+        <span class="n">return_dict</span><span class="p">[</span><span class="s2">"organism.taxonomy_id"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"1539398"</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">tax_id</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">assembly_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ASSEMBLY_SET&quot;</span><span class="p">,</span> <span class="p">{})</span>
-            <span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ASSEMBLY&quot;</span><span class="p">,</span> <span class="p">{})</span>
-            <span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;TAXON&quot;</span><span class="p">,</span> <span class="p">{})</span>
-            <span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;TAXON_ID&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+            <span class="n">assembly_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"ASSEMBLY_SET"</span><span class="p">,</span> <span class="p">{})</span>
+            <span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"ASSEMBLY"</span><span class="p">,</span> <span class="p">{})</span>
+            <span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"TAXON"</span><span class="p">,</span> <span class="p">{})</span>
+            <span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"TAXON_ID"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span>
         <span class="p">)</span>
         <span class="k">if</span> <span class="n">tax_id</span><span class="p">:</span>
-            <span class="n">return_dict</span><span class="p">[</span><span class="s2">&quot;organism.taxonomy_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tax_id</span>
+            <span class="n">return_dict</span><span class="p">[</span><span class="s2">"organism.taxonomy_id"</span><span class="p">]</span> <span class="o">=</span> <span class="n">tax_id</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                <span class="s2">&quot; | TAXONOMY_ID | organism.taxonomy_id could not be found in the ENA metadata&quot;</span>
+                <span class="s2">" | TAXONOMY_ID | organism.taxonomy_id could not be found in the ENA metadata"</span>
             <span class="p">)</span>
 
     <span class="k">return</span> <span class="n">return_dict</span>
@@ -6779,41 +6779,41 @@
 <span class="normal">230</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_ncbi_metadata</span><span class="p">(</span>
     <span class="n">accession</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">assembly_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">scientific_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">search</span><span class="p">:</span> <span class="nb">str</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Fetch assembly metadata from NCBI assembly report.</span>
+<span class="w">    </span><span class="sd">"""Fetch assembly metadata from NCBI assembly report.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        accession (str): Assembly accession (e.g., GCA_000001405.28)</span>
 <span class="sd">        assembly_name (str): Assembly name (e.g., GRCh38)</span>
 <span class="sd">        scientific_name (str): Scientific name of the organism</span>
-<span class="sd">        search (str): Type of metadata to search for (&quot;ucsc&quot; or &quot;biosample&quot;)</span>
+<span class="sd">        search (str): Type of metadata to search for ("ucsc" or "biosample")</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        Dict[str, str]: Dictionary containing metadata from NCBI.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">organism</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">accession</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">assembly_name</span><span class="si">}</span><span class="s2">&quot;</span>
-    <span class="n">ncbi_url</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;https://ftp.ncbi.nlm.nih.gov/genomes/all/</span><span class="si">{</span><span class="n">accession</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">3</span><span class="p">]</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">accession</span><span class="p">[</span><span class="mi">4</span><span class="p">:</span><span class="mi">7</span><span class="p">]</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">accession</span><span class="p">[</span><span class="mi">7</span><span class="p">:</span><span class="mi">10</span><span class="p">]</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">accession</span><span class="p">[</span><span class="mi">10</span><span class="p">:</span><span class="mi">13</span><span class="p">]</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">organism</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">organism</span><span class="si">}</span><span class="s2">_assembly_report.txt&quot;</span>
+<span class="sd">    """</span>
+    <span class="n">organism</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">accession</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">assembly_name</span><span class="si">}</span><span class="s2">"</span>
+    <span class="n">ncbi_url</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"https://ftp.ncbi.nlm.nih.gov/genomes/all/</span><span class="si">{</span><span class="n">accession</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">3</span><span class="p">]</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">accession</span><span class="p">[</span><span class="mi">4</span><span class="p">:</span><span class="mi">7</span><span class="p">]</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">accession</span><span class="p">[</span><span class="mi">7</span><span class="p">:</span><span class="mi">10</span><span class="p">]</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">accession</span><span class="p">[</span><span class="mi">10</span><span class="p">:</span><span class="mi">13</span><span class="p">]</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">organism</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">organism</span><span class="si">}</span><span class="s2">_assembly_report.txt"</span>
     <span class="n">ncbi_return</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">ncbi_url</span><span class="p">)</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()</span>
 
     <span class="n">return_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;assembly.ucsc_alias&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;organism.strain&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;organism.strain_type&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="s2">"assembly.ucsc_alias"</span><span class="p">:</span> <span class="s2">""</span><span class="p">,</span>
+        <span class="s2">"organism.strain"</span><span class="p">:</span> <span class="s2">""</span><span class="p">,</span>
+        <span class="s2">"organism.strain_type"</span><span class="p">:</span> <span class="s2">""</span><span class="p">,</span>
     <span class="p">}</span>
 
-    <span class="k">if</span> <span class="n">search</span> <span class="o">==</span> <span class="s2">&quot;ucsc&quot;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">search</span> <span class="o">==</span> <span class="s2">"ucsc"</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">ncbi_return</span><span class="p">:</span>
-            <span class="n">ucsc_match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;# Synonyms:\s*([A-Za-z0-9]+)&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span>
+            <span class="n">ucsc_match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">"# Synonyms:\s*([A-Za-z0-9]+)"</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">ucsc_match</span><span class="p">:</span>
-                <span class="n">return_dict</span><span class="p">[</span><span class="s2">&quot;assembly.ucsc_alias&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ucsc_match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+                <span class="n">return_dict</span><span class="p">[</span><span class="s2">"assembly.ucsc_alias"</span><span class="p">]</span> <span class="o">=</span> <span class="n">ucsc_match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 
-    <span class="k">elif</span> <span class="n">search</span> <span class="o">==</span> <span class="s2">&quot;biosample&quot;</span><span class="p">:</span>
+    <span class="k">elif</span> <span class="n">search</span> <span class="o">==</span> <span class="s2">"biosample"</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">ncbi_return</span><span class="p">:</span>
             <span class="n">strain_match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span>
-                <span class="sa">r</span><span class="s2">&quot;# Infraspecific name:\s*([A-Za-z]+)=([A-Za-z0-9 \-\./]+)&quot;</span><span class="p">,</span> <span class="n">line</span>
+                <span class="sa">r</span><span class="s2">"# Infraspecific name:\s*([A-Za-z]+)=([A-Za-z0-9 \-\./]+)"</span><span class="p">,</span> <span class="n">line</span>
             <span class="p">)</span>
             <span class="k">if</span> <span class="n">strain_match</span><span class="p">:</span>
-                <span class="n">return_dict</span><span class="p">[</span><span class="s2">&quot;organism.strain_type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">strain_match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-                <span class="n">return_dict</span><span class="p">[</span><span class="s2">&quot;organism.strain&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">strain_match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+                <span class="n">return_dict</span><span class="p">[</span><span class="s2">"organism.strain_type"</span><span class="p">]</span> <span class="o">=</span> <span class="n">strain_match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+                <span class="n">return_dict</span><span class="p">[</span><span class="s2">"organism.strain"</span><span class="p">]</span> <span class="o">=</span> <span class="n">strain_match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">return_dict</span>
 </code></pre></div></td></tr></table></div>
@@ -7000,7 +7000,7 @@ Returns an empty list on error.</p>
 <span class="normal">109</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">mysql_fetch_data</span><span class="p">(</span>
     <span class="n">query</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">database</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">host</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">port</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">user</span><span class="p">:</span> <span class="nb">str</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="o">...</span><span class="p">]]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Run a simple SELECT query and return fetched rows.</span>
 <span class="sd">    Returns an empty list on error.</span>
 
@@ -7013,7 +7013,7 @@ Returns an empty list on error.</p>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        List of tuples representing query results.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">conn</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">cursor</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">info</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="o">...</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
@@ -7025,18 +7025,18 @@ Returns an empty list on error.</p>
         <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
         <span class="n">info</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">cursor</span><span class="o">.</span><span class="n">fetchall</span><span class="p">())</span>
     <span class="k">except</span> <span class="n">pymysql</span><span class="o">.</span><span class="n">Error</span><span class="p">:</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="s2">&quot;MySQL error while executing query: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">query</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="s2">"MySQL error while executing query: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">query</span><span class="p">)</span>
     <span class="k">finally</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">cursor</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">cursor</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
             <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="s2">&quot;Error closing cursor&quot;</span><span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="s2">"Error closing cursor"</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">conn</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">conn</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
             <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="s2">&quot;Error closing connection&quot;</span><span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="s2">"Error closing connection"</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">info</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -7067,11 +7067,11 @@ Returns an empty list on error.</p>
 <span class="normal">295</span>
 <span class="normal">296</span>
 <span class="normal">297</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">normalise_text</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert generated metadata values to the string representation used by meta.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Convert generated metadata values to the string representation used by meta."""</span>
     <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">return</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">return</span> <span class="s2">""</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">datetime</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">value</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">value</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">"%Y-%m-</span><span class="si">%d</span><span class="s2">"</span><span class="p">)</span>
     <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -7098,8 +7098,8 @@ Returns an empty list on error.</p>
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">57</span>
 <span class="normal">58</span>
 <span class="normal">59</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">normalize_assembly_accession_chain</span><span class="p">(</span><span class="n">accession</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return an assembly accession without its version suffix.&quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">accession</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="n">maxsplit</span><span class="o">=</span><span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+<span class="w">    </span><span class="sd">"""Return an assembly accession without its version suffix."""</span>
+    <span class="k">return</span> <span class="n">accession</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"."</span><span class="p">,</span> <span class="n">maxsplit</span><span class="o">=</span><span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -7135,7 +7135,7 @@ Returns an empty list on error.</p>
 <span class="normal">310</span>
 <span class="normal">311</span>
 <span class="normal">312</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">serialise_json</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Make generated metadata safe for JSON output.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Make generated metadata safe for JSON output."""</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">datetime</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">value</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">Path</span><span class="p">):</span>
@@ -7172,8 +7172,8 @@ Returns an empty list on error.</p>
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">315</span>
 <span class="normal">316</span>
 <span class="normal">317</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">sql_escape</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Escape a value for the generated SQL patch.&quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">normalise_text</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;&#39;&quot;</span><span class="p">,</span> <span class="s2">&quot;&#39;&#39;&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="sd">"""Escape a value for the generated SQL patch."""</span>
+    <span class="k">return</span> <span class="n">normalise_text</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"'"</span><span class="p">,</span> <span class="s2">"''"</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -7227,22 +7227,22 @@ Returns an empty list on error.</p>
     <span class="n">truth_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
     <span class="n">sql_actions</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]],</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Write a JSON artifact with all metadata generated by the legacy script.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Write a JSON artifact with all metadata generated by the legacy script."""</span>
     <span class="n">payload</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;database&quot;</span><span class="p">:</span> <span class="n">db_name</span><span class="p">,</span>
-        <span class="s2">&quot;species_id&quot;</span><span class="p">:</span> <span class="n">species_id</span><span class="p">,</span>
-        <span class="s2">&quot;generated_at&quot;</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">isoformat</span><span class="p">(</span><span class="n">timespec</span><span class="o">=</span><span class="s2">&quot;seconds&quot;</span><span class="p">),</span>
-        <span class="s2">&quot;core_metadata&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"database"</span><span class="p">:</span> <span class="n">db_name</span><span class="p">,</span>
+        <span class="s2">"species_id"</span><span class="p">:</span> <span class="n">species_id</span><span class="p">,</span>
+        <span class="s2">"generated_at"</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">isoformat</span><span class="p">(</span><span class="n">timespec</span><span class="o">=</span><span class="s2">"seconds"</span><span class="p">),</span>
+        <span class="s2">"core_metadata"</span><span class="p">:</span> <span class="p">{</span>
             <span class="n">key</span><span class="p">:</span> <span class="n">normalise_text</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">core_dict</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
         <span class="p">},</span>
-        <span class="s2">&quot;metadata&quot;</span><span class="p">:</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">normalise_text</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">truth_dict</span><span class="o">.</span><span class="n">items</span><span class="p">()},</span>
-        <span class="s2">&quot;sql_actions&quot;</span><span class="p">:</span> <span class="n">sql_actions</span><span class="p">,</span>
+        <span class="s2">"metadata"</span><span class="p">:</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">normalise_text</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">truth_dict</span><span class="o">.</span><span class="n">items</span><span class="p">()},</span>
+        <span class="s2">"sql_actions"</span><span class="p">:</span> <span class="n">sql_actions</span><span class="p">,</span>
     <span class="p">}</span>
 
     <span class="n">json_path</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">json_path</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">json_out</span><span class="p">:</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">json_path</span><span class="p">,</span> <span class="s2">"w"</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8"</span><span class="p">)</span> <span class="k">as</span> <span class="n">json_out</span><span class="p">:</span>
         <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">serialise_json</span><span class="p">(</span><span class="n">payload</span><span class="p">),</span> <span class="n">json_out</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="n">json_out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">json_out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>

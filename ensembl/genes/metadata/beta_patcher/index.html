@@ -4052,7 +4052,7 @@ python beta_patcher.py patches.csv --jira-ticket EBD-1111 --core-suffix _core_11
 
 
 <h3 id="ensembl.genes.metadata.beta_patcher.NULL_SENTINEL" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">NULL_SENTINEL</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\\</span><span class="s1">N&#39;</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">NULL_SENTINEL</span> <span class="o">=</span> <span class="s1">'</span><span class="se">\\</span><span class="s1">N'</span></code>
 
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
@@ -4166,7 +4166,7 @@ python beta_patcher.py patches.csv --jira-ticket EBD-1111 --core-suffix _core_11
 <span class="normal">910</span>
 <span class="normal">911</span>
 <span class="normal">912</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">check_thoas_requirements</span><span class="p">(</span><span class="n">patches</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">],</span> <span class="n">logger</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Check if any patches require THOAS (taxonomic heritage) updates.</span>
 
 <span class="sd">    Args:</span>
@@ -4174,26 +4174,26 @@ python beta_patcher.py patches.csv --jira-ticket EBD-1111 --core-suffix _core_11
 <span class="sd">        logger: Logger instance</span>
 <span class="sd">    Returns:</span>
 <span class="sd">        True if THOAS updates are required, False otherwise</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">thoas_loaded_fields</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;assembly.accession&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;assembly.date&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;assembly.name&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;assembly.tol_id&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;organism.taxonomy_id&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;organism.species_taxonomy_id&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;organism.common_name&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;organism.scientific_name&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;organism.scientific_parlance_name&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;genome.genome_uuid&quot;</span><span class="p">,</span>
+        <span class="s2">"assembly.accession"</span><span class="p">,</span>
+        <span class="s2">"assembly.date"</span><span class="p">,</span>
+        <span class="s2">"assembly.name"</span><span class="p">,</span>
+        <span class="s2">"assembly.tol_id"</span><span class="p">,</span>
+        <span class="s2">"organism.taxonomy_id"</span><span class="p">,</span>
+        <span class="s2">"organism.species_taxonomy_id"</span><span class="p">,</span>
+        <span class="s2">"organism.common_name"</span><span class="p">,</span>
+        <span class="s2">"organism.scientific_name"</span><span class="p">,</span>
+        <span class="s2">"organism.scientific_parlance_name"</span><span class="p">,</span>
+        <span class="s2">"genome.genome_uuid"</span><span class="p">,</span>
     <span class="p">}</span>
 
     <span class="k">for</span> <span class="n">patch</span> <span class="ow">in</span> <span class="n">patches</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">patch</span><span class="p">[</span><span class="s2">&quot;meta_key&quot;</span><span class="p">]</span> <span class="ow">in</span> <span class="n">thoas_loaded_fields</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">patch</span><span class="p">[</span><span class="s2">"meta_key"</span><span class="p">]</span> <span class="ow">in</span> <span class="n">thoas_loaded_fields</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Patch for genome_uuid </span><span class="si">{</span><span class="n">patch</span><span class="p">[</span><span class="s1">&#39;genome_uuid&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> requires THOAS update&quot;</span>
+                <span class="sa">f</span><span class="s2">"Patch for genome_uuid </span><span class="si">{</span><span class="n">patch</span><span class="p">[</span><span class="s1">'genome_uuid'</span><span class="p">]</span><span class="si">}</span><span class="s2"> requires THOAS update"</span>
             <span class="p">)</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Thoas-loaded field: </span><span class="si">{</span><span class="n">patch</span><span class="p">[</span><span class="s1">&#39;meta_key&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  Thoas-loaded field: </span><span class="si">{</span><span class="n">patch</span><span class="p">[</span><span class="s1">'meta_key'</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
             <span class="k">return</span> <span class="kc">True</span>
     <span class="k">return</span> <span class="kc">False</span>
 </code></pre></div></td></tr></table></div>
@@ -4272,13 +4272,13 @@ Results are cached by production_name.</p>
 <span class="normal">401</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">find_core_db</span><span class="p">(</span>
     <span class="n">production_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">server_uris</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Find the core database for a production_name by searching server_uris.</span>
 
-<span class="sd">    Searches each server for a database matching &#39;{production_name}%_core_%&#39;,</span>
+<span class="sd">    Searches each server for a database matching '{production_name}%_core_%',</span>
 <span class="sd">    returns (server_label, db_name) for the best (latest sorted) match, or None.</span>
 <span class="sd">    Results are cached by production_name.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="n">production_name</span> <span class="ow">in</span> <span class="n">_core_db_cache</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">_core_db_cache</span><span class="p">[</span><span class="n">production_name</span><span class="p">]</span>
 
@@ -4287,8 +4287,8 @@ Results are cached by production_name.</p>
             <span class="n">engine</span> <span class="o">=</span> <span class="n">create_engine</span><span class="p">(</span><span class="n">uri</span><span class="p">)</span>
             <span class="k">with</span> <span class="n">engine</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span> <span class="k">as</span> <span class="n">conn</span><span class="p">:</span>
                 <span class="n">result</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
-                    <span class="n">text</span><span class="p">(</span><span class="s2">&quot;SHOW DATABASES LIKE :pattern&quot;</span><span class="p">),</span>
-                    <span class="p">{</span><span class="s2">&quot;pattern&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">production_name</span><span class="si">}</span><span class="s2">%</span><span class="se">\\</span><span class="s2">_core</span><span class="se">\\</span><span class="s2">_%&quot;</span><span class="p">},</span>
+                    <span class="n">text</span><span class="p">(</span><span class="s2">"SHOW DATABASES LIKE :pattern"</span><span class="p">),</span>
+                    <span class="p">{</span><span class="s2">"pattern"</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">production_name</span><span class="si">}</span><span class="s2">%</span><span class="se">\\</span><span class="s2">_core</span><span class="se">\\</span><span class="s2">_%"</span><span class="p">},</span>
                 <span class="p">)</span>
                 <span class="n">dbs</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">result</span><span class="p">)</span>
             <span class="n">engine</span><span class="o">.</span><span class="n">dispose</span><span class="p">()</span>
@@ -4296,26 +4296,26 @@ Results are cached by production_name.</p>
                 <span class="c1"># Prefer an exact match: DB starts with exactly {production_name}_core_</span>
                 <span class="c1"># (avoids picking GCA/breed variants when the production_name is a plain binomial,</span>
                 <span class="c1"># and ensures GCA production names match their own DB rather than a related one)</span>
-                <span class="n">exact</span> <span class="o">=</span> <span class="p">[</span><span class="n">db</span> <span class="k">for</span> <span class="n">db</span> <span class="ow">in</span> <span class="n">dbs</span> <span class="k">if</span> <span class="n">db</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">production_name</span><span class="si">}</span><span class="s2">_core_&quot;</span><span class="p">)]</span>
+                <span class="n">exact</span> <span class="o">=</span> <span class="p">[</span><span class="n">db</span> <span class="k">for</span> <span class="n">db</span> <span class="ow">in</span> <span class="n">dbs</span> <span class="k">if</span> <span class="n">db</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">production_name</span><span class="si">}</span><span class="s2">_core_"</span><span class="p">)]</span>
                 <span class="k">if</span> <span class="n">exact</span><span class="p">:</span>
                     <span class="n">chosen</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">exact</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
                     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">exact</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
                         <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                            <span class="sa">f</span><span class="s2">&quot;Multiple exact core DBs for </span><span class="si">{</span><span class="n">production_name</span><span class="si">}</span><span class="s2"> on </span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">: &quot;</span>
-                            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">exact</span><span class="si">}</span><span class="s2">. Using </span><span class="si">{</span><span class="n">chosen</span><span class="si">}</span><span class="s2">&quot;</span>
+                            <span class="sa">f</span><span class="s2">"Multiple exact core DBs for </span><span class="si">{</span><span class="n">production_name</span><span class="si">}</span><span class="s2"> on </span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">: "</span>
+                            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">exact</span><span class="si">}</span><span class="s2">. Using </span><span class="si">{</span><span class="n">chosen</span><span class="si">}</span><span class="s2">"</span>
                         <span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">chosen</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">dbs</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
                     <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;No exact core DB match for </span><span class="si">{</span><span class="n">production_name</span><span class="si">}</span><span class="s2"> on </span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2"> &quot;</span>
-                        <span class="sa">f</span><span class="s2">&quot;(candidates: </span><span class="si">{</span><span class="n">dbs</span><span class="si">}</span><span class="s2">). Using </span><span class="si">{</span><span class="n">chosen</span><span class="si">}</span><span class="s2">&quot;</span>
+                        <span class="sa">f</span><span class="s2">"No exact core DB match for </span><span class="si">{</span><span class="n">production_name</span><span class="si">}</span><span class="s2"> on </span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2"> "</span>
+                        <span class="sa">f</span><span class="s2">"(candidates: </span><span class="si">{</span><span class="n">dbs</span><span class="si">}</span><span class="s2">). Using </span><span class="si">{</span><span class="n">chosen</span><span class="si">}</span><span class="s2">"</span>
                     <span class="p">)</span>
                 <span class="n">_core_db_cache</span><span class="p">[</span><span class="n">production_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="n">chosen</span><span class="p">)</span>
                 <span class="k">return</span> <span class="n">_core_db_cache</span><span class="p">[</span><span class="n">production_name</span><span class="p">]</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-            <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to search </span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2"> for </span><span class="si">{</span><span class="n">production_name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Failed to search </span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2"> for </span><span class="si">{</span><span class="n">production_name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
-    <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No core DB found for </span><span class="si">{</span><span class="n">production_name</span><span class="si">}</span><span class="s2"> on any server&quot;</span><span class="p">)</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">"No core DB found for </span><span class="si">{</span><span class="n">production_name</span><span class="si">}</span><span class="s2"> on any server"</span><span class="p">)</span>
     <span class="n">_core_db_cache</span><span class="p">[</span><span class="n">production_name</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="k">return</span> <span class="kc">None</span>
 </code></pre></div></td></tr></table></div>
@@ -4328,7 +4328,7 @@ Results are cached by production_name.</p>
 
 
 <h3 id="ensembl.genes.metadata.beta_patcher.generate_all_patches" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">generate_all_patches</span><span class="p">(</span><span class="n">grouped_patches</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">,</span> <span class="n">jira_ticket</span><span class="p">,</span> <span class="n">logger</span><span class="p">,</span> <span class="n">team_filter</span><span class="o">=</span><span class="s1">&#39;Genebuild&#39;</span><span class="p">)</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">generate_all_patches</span><span class="p">(</span><span class="n">grouped_patches</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">,</span> <span class="n">jira_ticket</span><span class="p">,</span> <span class="n">logger</span><span class="p">,</span> <span class="n">team_filter</span><span class="o">=</span><span class="s1">'Genebuild'</span><span class="p">)</span></code>
 
 <a href="#ensembl.genes.metadata.beta_patcher.generate_all_patches" class="headerlink" title="Permanent link">&para;</a></h3>
 
@@ -4572,9 +4572,9 @@ Results are cached by production_name.</p>
     <span class="n">output_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
     <span class="n">jira_ticket</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">logger</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span><span class="p">,</span>
-    <span class="n">team_filter</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Genebuild&quot;</span><span class="p">,</span>
+    <span class="n">team_filter</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"Genebuild"</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Generate consolidated patch files for all genomes.</span>
 
 <span class="sd">    Args:</span>
@@ -4586,34 +4586,34 @@ Results are cached by production_name.</p>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        True if successful, False otherwise</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="c1"># Metadata DB files</span>
-    <span class="n">metadata_patch_file</span> <span class="o">=</span> <span class="n">output_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;patch_metadata_</span><span class="si">{</span><span class="n">jira_ticket</span><span class="si">}</span><span class="s2">.sql&quot;</span>
-    <span class="n">metadata_validate_file</span> <span class="o">=</span> <span class="n">output_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;validate_metadata_</span><span class="si">{</span><span class="n">jira_ticket</span><span class="si">}</span><span class="s2">.sql&quot;</span>
+    <span class="n">metadata_patch_file</span> <span class="o">=</span> <span class="n">output_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">"patch_metadata_</span><span class="si">{</span><span class="n">jira_ticket</span><span class="si">}</span><span class="s2">.sql"</span>
+    <span class="n">metadata_validate_file</span> <span class="o">=</span> <span class="n">output_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">"validate_metadata_</span><span class="si">{</span><span class="n">jira_ticket</span><span class="si">}</span><span class="s2">.sql"</span>
 
     <span class="k">try</span><span class="p">:</span>
         <span class="c1"># Write metadata patches</span>
         <span class="k">with</span> <span class="p">(</span>
-            <span class="nb">open</span><span class="p">(</span><span class="n">metadata_validate_file</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">val_f</span><span class="p">,</span>
-            <span class="nb">open</span><span class="p">(</span><span class="n">metadata_patch_file</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">patch_f</span><span class="p">,</span>
+            <span class="nb">open</span><span class="p">(</span><span class="n">metadata_validate_file</span><span class="p">,</span> <span class="s2">"w"</span><span class="p">)</span> <span class="k">as</span> <span class="n">val_f</span><span class="p">,</span>
+            <span class="nb">open</span><span class="p">(</span><span class="n">metadata_patch_file</span><span class="p">,</span> <span class="s2">"w"</span><span class="p">)</span> <span class="k">as</span> <span class="n">patch_f</span><span class="p">,</span>
         <span class="p">):</span>
             <span class="n">val_f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;-- Validation: Metadata DB | </span><span class="si">{</span><span class="n">jira_ticket</span><span class="si">}</span><span class="s2"> | </span><span class="si">{</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="sa">f</span><span class="s2">"-- Validation: Metadata DB | </span><span class="si">{</span><span class="n">jira_ticket</span><span class="si">}</span><span class="s2"> | </span><span class="si">{</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span>
             <span class="p">)</span>
-            <span class="n">val_f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;USE ensembl_genome_metadata;</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">val_f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">"USE ensembl_genome_metadata;</span><span class="se">\n\n</span><span class="s2">"</span><span class="p">)</span>
 
             <span class="n">patch_f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;-- Patch: Metadata DB | </span><span class="si">{</span><span class="n">jira_ticket</span><span class="si">}</span><span class="s2"> | </span><span class="si">{</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="sa">f</span><span class="s2">"-- Patch: Metadata DB | </span><span class="si">{</span><span class="n">jira_ticket</span><span class="si">}</span><span class="s2"> | </span><span class="si">{</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span>
             <span class="p">)</span>
-            <span class="n">patch_f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;-- Validate first: </span><span class="si">{</span><span class="n">metadata_validate_file</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="n">patch_f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;USE ensembl_genome_metadata;</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">patch_f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">"-- Validate first: </span><span class="si">{</span><span class="n">metadata_validate_file</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+            <span class="n">patch_f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">"USE ensembl_genome_metadata;</span><span class="se">\n\n</span><span class="s2">"</span><span class="p">)</span>
 
             <span class="k">for</span> <span class="n">genome_uuid</span><span class="p">,</span> <span class="n">genome_data</span> <span class="ow">in</span> <span class="n">grouped_patches</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                <span class="n">production_name</span> <span class="o">=</span> <span class="n">genome_data</span><span class="p">[</span><span class="s2">&quot;production_name&quot;</span><span class="p">]</span>
-                <span class="n">patches</span> <span class="o">=</span> <span class="n">genome_data</span><span class="p">[</span><span class="s2">&quot;patches&quot;</span><span class="p">]</span>
+                <span class="n">production_name</span> <span class="o">=</span> <span class="n">genome_data</span><span class="p">[</span><span class="s2">"production_name"</span><span class="p">]</span>
+                <span class="n">patches</span> <span class="o">=</span> <span class="n">genome_data</span><span class="p">[</span><span class="s2">"patches"</span><span class="p">]</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;  Metadata: </span><span class="si">{</span><span class="n">production_name</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">genome_uuid</span><span class="si">}</span><span class="s2">): </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">patches</span><span class="p">)</span><span class="si">}</span><span class="s2"> patches&quot;</span>
+                    <span class="sa">f</span><span class="s2">"  Metadata: </span><span class="si">{</span><span class="n">production_name</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">genome_uuid</span><span class="si">}</span><span class="s2">): </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">patches</span><span class="p">)</span><span class="si">}</span><span class="s2"> patches"</span>
                 <span class="p">)</span>
 
                 <span class="n">write_metadata_patch_for_genome</span><span class="p">(</span>
@@ -4621,61 +4621,61 @@ Results are cached by production_name.</p>
                     <span class="n">patch_f</span><span class="p">,</span>
                     <span class="n">genome_uuid</span><span class="p">,</span>
                     <span class="n">patches</span><span class="p">,</span>
-                    <span class="n">genome_data</span><span class="p">[</span><span class="s2">&quot;dataset_type&quot;</span><span class="p">],</span>
+                    <span class="n">genome_data</span><span class="p">[</span><span class="s2">"dataset_type"</span><span class="p">],</span>
                     <span class="n">logger</span><span class="p">,</span>
                     <span class="n">team_filter</span><span class="p">,</span>
                 <span class="p">)</span>
 
-        <span class="c1"># Group core patches by server label (None → &quot;core&quot; for the legacy single-file case)</span>
+        <span class="c1"># Group core patches by server label (None → "core" for the legacy single-file case)</span>
         <span class="n">by_server</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">genome_data</span> <span class="ow">in</span> <span class="n">grouped_patches</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">genome_data</span><span class="p">[</span><span class="s2">&quot;core_db_name&quot;</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">genome_data</span><span class="p">[</span><span class="s2">"core_db_name"</span><span class="p">]:</span>
                 <span class="k">continue</span>
-            <span class="n">label</span> <span class="o">=</span> <span class="n">genome_data</span><span class="p">[</span><span class="s2">&quot;core_server&quot;</span><span class="p">]</span> <span class="ow">or</span> <span class="s2">&quot;core&quot;</span>
+            <span class="n">label</span> <span class="o">=</span> <span class="n">genome_data</span><span class="p">[</span><span class="s2">"core_server"</span><span class="p">]</span> <span class="ow">or</span> <span class="s2">"core"</span>
             <span class="n">by_server</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">genome_data</span><span class="p">)</span>
 
         <span class="n">core_files_written</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">server_label</span><span class="p">,</span> <span class="n">server_genomes</span> <span class="ow">in</span> <span class="n">by_server</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="n">suffix</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;_</span><span class="si">{</span><span class="n">server_label</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">if</span> <span class="n">server_label</span> <span class="o">!=</span> <span class="s2">&quot;core&quot;</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
-            <span class="n">c_patch_file</span> <span class="o">=</span> <span class="n">output_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;patch_core_</span><span class="si">{</span><span class="n">jira_ticket</span><span class="si">}{</span><span class="n">suffix</span><span class="si">}</span><span class="s2">.sql&quot;</span>
-            <span class="n">c_validate_file</span> <span class="o">=</span> <span class="n">output_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;validate_core_</span><span class="si">{</span><span class="n">jira_ticket</span><span class="si">}{</span><span class="n">suffix</span><span class="si">}</span><span class="s2">.sql&quot;</span>
+            <span class="n">suffix</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"_</span><span class="si">{</span><span class="n">server_label</span><span class="si">}</span><span class="s2">"</span> <span class="k">if</span> <span class="n">server_label</span> <span class="o">!=</span> <span class="s2">"core"</span> <span class="k">else</span> <span class="s2">""</span>
+            <span class="n">c_patch_file</span> <span class="o">=</span> <span class="n">output_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">"patch_core_</span><span class="si">{</span><span class="n">jira_ticket</span><span class="si">}{</span><span class="n">suffix</span><span class="si">}</span><span class="s2">.sql"</span>
+            <span class="n">c_validate_file</span> <span class="o">=</span> <span class="n">output_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">"validate_core_</span><span class="si">{</span><span class="n">jira_ticket</span><span class="si">}{</span><span class="n">suffix</span><span class="si">}</span><span class="s2">.sql"</span>
 
             <span class="k">with</span> <span class="p">(</span>
-                <span class="nb">open</span><span class="p">(</span><span class="n">c_validate_file</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">val_f</span><span class="p">,</span>
-                <span class="nb">open</span><span class="p">(</span><span class="n">c_patch_file</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">patch_f</span><span class="p">,</span>
+                <span class="nb">open</span><span class="p">(</span><span class="n">c_validate_file</span><span class="p">,</span> <span class="s2">"w"</span><span class="p">)</span> <span class="k">as</span> <span class="n">val_f</span><span class="p">,</span>
+                <span class="nb">open</span><span class="p">(</span><span class="n">c_patch_file</span><span class="p">,</span> <span class="s2">"w"</span><span class="p">)</span> <span class="k">as</span> <span class="n">patch_f</span><span class="p">,</span>
             <span class="p">):</span>
                 <span class="n">val_f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;-- Validation: Core DBs (</span><span class="si">{</span><span class="n">server_label</span><span class="si">}</span><span class="s2">) | &quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">jira_ticket</span><span class="si">}</span><span class="s2"> | </span><span class="si">{</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span><span class="si">}</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+                    <span class="sa">f</span><span class="s2">"-- Validation: Core DBs (</span><span class="si">{</span><span class="n">server_label</span><span class="si">}</span><span class="s2">) | "</span>
+                    <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">jira_ticket</span><span class="si">}</span><span class="s2"> | </span><span class="si">{</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span><span class="si">}</span><span class="se">\n\n</span><span class="s2">"</span>
                 <span class="p">)</span>
                 <span class="n">patch_f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;-- Patch: Core DBs (</span><span class="si">{</span><span class="n">server_label</span><span class="si">}</span><span class="s2">) | &quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">jira_ticket</span><span class="si">}</span><span class="s2"> | </span><span class="si">{</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+                    <span class="sa">f</span><span class="s2">"-- Patch: Core DBs (</span><span class="si">{</span><span class="n">server_label</span><span class="si">}</span><span class="s2">) | "</span>
+                    <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">jira_ticket</span><span class="si">}</span><span class="s2"> | </span><span class="si">{</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span>
                 <span class="p">)</span>
-                <span class="n">patch_f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;-- Validate first: </span><span class="si">{</span><span class="n">c_validate_file</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">patch_f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">"-- Validate first: </span><span class="si">{</span><span class="n">c_validate_file</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="se">\n\n</span><span class="s2">"</span><span class="p">)</span>
 
                 <span class="k">for</span> <span class="n">genome_data</span> <span class="ow">in</span> <span class="n">server_genomes</span><span class="p">:</span>
-                    <span class="n">core_db_name</span> <span class="o">=</span> <span class="n">genome_data</span><span class="p">[</span><span class="s2">&quot;core_db_name&quot;</span><span class="p">]</span>
-                    <span class="n">patches</span> <span class="o">=</span> <span class="n">genome_data</span><span class="p">[</span><span class="s2">&quot;patches&quot;</span><span class="p">]</span>
+                    <span class="n">core_db_name</span> <span class="o">=</span> <span class="n">genome_data</span><span class="p">[</span><span class="s2">"core_db_name"</span><span class="p">]</span>
+                    <span class="n">patches</span> <span class="o">=</span> <span class="n">genome_data</span><span class="p">[</span><span class="s2">"patches"</span><span class="p">]</span>
                     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;  Core (</span><span class="si">{</span><span class="n">server_label</span><span class="si">}</span><span class="s2">): </span><span class="si">{</span><span class="n">core_db_name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">patches</span><span class="p">)</span><span class="si">}</span><span class="s2"> patches&quot;</span>
+                        <span class="sa">f</span><span class="s2">"  Core (</span><span class="si">{</span><span class="n">server_label</span><span class="si">}</span><span class="s2">): </span><span class="si">{</span><span class="n">core_db_name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">patches</span><span class="p">)</span><span class="si">}</span><span class="s2"> patches"</span>
                     <span class="p">)</span>
                     <span class="n">write_core_patch_for_genome</span><span class="p">(</span>
-                        <span class="n">val_f</span><span class="p">,</span> <span class="n">patch_f</span><span class="p">,</span> <span class="n">core_db_name</span><span class="p">,</span> <span class="n">patches</span><span class="p">,</span> <span class="n">genome_data</span><span class="p">[</span><span class="s2">&quot;species_id&quot;</span><span class="p">]</span>
+                        <span class="n">val_f</span><span class="p">,</span> <span class="n">patch_f</span><span class="p">,</span> <span class="n">core_db_name</span><span class="p">,</span> <span class="n">patches</span><span class="p">,</span> <span class="n">genome_data</span><span class="p">[</span><span class="s2">"species_id"</span><span class="p">]</span>
                     <span class="p">)</span>
 
             <span class="n">core_files_written</span> <span class="o">+=</span> <span class="p">[</span><span class="n">c_validate_file</span><span class="p">,</span> <span class="n">c_patch_file</span><span class="p">]</span>
 
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Generated files:&quot;</span><span class="p">)</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  </span><span class="si">{</span><span class="n">metadata_validate_file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  </span><span class="si">{</span><span class="n">metadata_patch_file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"Generated files:"</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  </span><span class="si">{</span><span class="n">metadata_validate_file</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  </span><span class="si">{</span><span class="n">metadata_patch_file</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">core_files_written</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  </span><span class="si">{</span><span class="n">f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  </span><span class="si">{</span><span class="n">f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="kc">True</span>
 
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to generate patches: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Failed to generate patches: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
         <span class="k">return</span> <span class="kc">False</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -4687,7 +4687,7 @@ Results are cached by production_name.</p>
 
 
 <h3 id="ensembl.genes.metadata.beta_patcher.get_affected_genomes_and_teams" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">get_affected_genomes_and_teams</span><span class="p">(</span><span class="n">genome_uuid</span><span class="p">,</span> <span class="n">table_location</span><span class="p">,</span> <span class="n">dataset_type</span><span class="o">=</span><span class="s1">&#39;genebuild&#39;</span><span class="p">)</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">get_affected_genomes_and_teams</span><span class="p">(</span><span class="n">genome_uuid</span><span class="p">,</span> <span class="n">table_location</span><span class="p">,</span> <span class="n">dataset_type</span><span class="o">=</span><span class="s1">'genebuild'</span><span class="p">)</span></code>
 
 <a href="#ensembl.genes.metadata.beta_patcher.get_affected_genomes_and_teams" class="headerlink" title="Permanent link">&para;</a></h3>
 
@@ -4846,9 +4846,9 @@ Results are cached by production_name.</p>
 <span class="normal">267</span>
 <span class="normal">268</span>
 <span class="normal">269</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_affected_genomes_and_teams</span><span class="p">(</span>
-    <span class="n">genome_uuid</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">table_location</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">dataset_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;genebuild&quot;</span>
+    <span class="n">genome_uuid</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">table_location</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">dataset_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"genebuild"</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Get all genomes that share the same organism or assembly, and their team_responsible values.</span>
 
 <span class="sd">    Args:</span>
@@ -4858,8 +4858,8 @@ Results are cached by production_name.</p>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        List of dicts with genome_uuid, production_name, and team_responsible</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">table_location</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;organism&quot;</span><span class="p">,</span> <span class="s2">&quot;assembly&quot;</span><span class="p">]:</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">table_location</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"organism"</span><span class="p">,</span> <span class="s2">"assembly"</span><span class="p">]:</span>
         <span class="k">return</span> <span class="p">[]</span>
 
     <span class="n">conn_provider</span> <span class="o">=</span> <span class="n">_get_metadata_connection</span><span class="p">()</span>
@@ -4867,44 +4867,44 @@ Results are cached by production_name.</p>
         <span class="k">return</span> <span class="p">[]</span>
 
     <span class="k">try</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">table_location</span> <span class="o">==</span> <span class="s2">&quot;organism&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">table_location</span> <span class="o">==</span> <span class="s2">"organism"</span><span class="p">:</span>
             <span class="c1"># Find all genomes sharing the same organism</span>
             <span class="n">query</span> <span class="o">=</span> <span class="n">text</span><span class="p">(</span>
-<span class="w">                </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">                </span><span class="sd">"""</span>
 <span class="sd">                SELECT g2.genome_uuid, g2.production_name</span>
 <span class="sd">                FROM genome g1</span>
 <span class="sd">                JOIN genome g2 ON g1.organism_id = g2.organism_id</span>
 <span class="sd">                WHERE g1.genome_uuid = :genome_uuid</span>
-<span class="sd">            &quot;&quot;&quot;</span>
+<span class="sd">            """</span>
             <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>  <span class="c1"># assembly</span>
             <span class="c1"># Find all genomes sharing the same assembly</span>
             <span class="n">query</span> <span class="o">=</span> <span class="n">text</span><span class="p">(</span>
-<span class="w">                </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">                </span><span class="sd">"""</span>
 <span class="sd">                SELECT g2.genome_uuid, g2.production_name</span>
 <span class="sd">                FROM genome g1</span>
 <span class="sd">                JOIN genome g2 ON g1.assembly_id = g2.assembly_id</span>
 <span class="sd">                WHERE g1.genome_uuid = :genome_uuid</span>
-<span class="sd">            &quot;&quot;&quot;</span>
+<span class="sd">            """</span>
             <span class="p">)</span>
 
         <span class="n">affected_genomes</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">with</span> <span class="n">conn_provider</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span> <span class="k">as</span> <span class="n">conn</span><span class="p">:</span>
-            <span class="n">result</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;genome_uuid&quot;</span><span class="p">:</span> <span class="n">genome_uuid</span><span class="p">})</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="p">{</span><span class="s2">"genome_uuid"</span><span class="p">:</span> <span class="n">genome_uuid</span><span class="p">})</span>
             <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">result</span><span class="p">:</span>
                 <span class="n">uuid</span><span class="p">,</span> <span class="n">prod_name</span> <span class="o">=</span> <span class="n">row</span>
                 <span class="n">team</span> <span class="o">=</span> <span class="n">get_team_responsible_for_genome</span><span class="p">(</span><span class="n">uuid</span><span class="p">,</span> <span class="n">dataset_type</span><span class="p">)</span>
                 <span class="n">affected_genomes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                     <span class="p">{</span>
-                        <span class="s2">&quot;genome_uuid&quot;</span><span class="p">:</span> <span class="n">uuid</span><span class="p">,</span>
-                        <span class="s2">&quot;production_name&quot;</span><span class="p">:</span> <span class="n">prod_name</span><span class="p">,</span>
-                        <span class="s2">&quot;team_responsible&quot;</span><span class="p">:</span> <span class="n">team</span> <span class="ow">or</span> <span class="s2">&quot;UNKNOWN&quot;</span><span class="p">,</span>
+                        <span class="s2">"genome_uuid"</span><span class="p">:</span> <span class="n">uuid</span><span class="p">,</span>
+                        <span class="s2">"production_name"</span><span class="p">:</span> <span class="n">prod_name</span><span class="p">,</span>
+                        <span class="s2">"team_responsible"</span><span class="p">:</span> <span class="n">team</span> <span class="ow">or</span> <span class="s2">"UNKNOWN"</span><span class="p">,</span>
                     <span class="p">}</span>
                 <span class="p">)</span>
 
         <span class="k">return</span> <span class="n">affected_genomes</span>
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to fetch affected genomes for </span><span class="si">{</span><span class="n">genome_uuid</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Failed to fetch affected genomes for </span><span class="si">{</span><span class="n">genome_uuid</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
         <span class="k">return</span> <span class="p">[]</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -5046,24 +5046,24 @@ Results are cached by production_name.</p>
     <span class="n">table_location</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">dataset_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Fetch the current value of a metadata field from the DB.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        _VALUE_UNKNOWN  — adaptor unavailable or query failed (skip the check)</span>
 <span class="sd">        None            — DB value is NULL</span>
 <span class="sd">        str             — current DB value</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">conn_provider</span> <span class="o">=</span> <span class="n">_get_metadata_connection</span><span class="p">()</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">conn_provider</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">_VALUE_UNKNOWN</span>
 
     <span class="k">try</span><span class="p">:</span>
         <span class="k">with</span> <span class="n">conn_provider</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span> <span class="k">as</span> <span class="n">conn</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">table_location</span> <span class="o">==</span> <span class="s2">&quot;dataset_attribute&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">table_location</span> <span class="o">==</span> <span class="s2">"dataset_attribute"</span><span class="p">:</span>
                 <span class="n">row</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
                     <span class="n">text</span><span class="p">(</span>
-<span class="w">                        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">                        </span><span class="sd">"""</span>
 <span class="sd">                        SELECT dataset_attribute.value</span>
 <span class="sd">                        FROM dataset_attribute</span>
 <span class="sd">                        JOIN attribute</span>
@@ -5078,31 +5078,31 @@ Results are cached by production_name.</p>
 <span class="sd">                          AND dataset.name = :dataset_type</span>
 <span class="sd">                          AND attribute.name = :attribute_name</span>
 <span class="sd">                        LIMIT 1</span>
-<span class="sd">                    &quot;&quot;&quot;</span>
+<span class="sd">                    """</span>
                     <span class="p">),</span>
                     <span class="p">{</span>
-                        <span class="s2">&quot;genome_uuid&quot;</span><span class="p">:</span> <span class="n">genome_uuid</span><span class="p">,</span>
-                        <span class="s2">&quot;dataset_type&quot;</span><span class="p">:</span> <span class="n">dataset_type</span><span class="p">,</span>
-                        <span class="s2">&quot;attribute_name&quot;</span><span class="p">:</span> <span class="n">attribute_name</span><span class="p">,</span>
+                        <span class="s2">"genome_uuid"</span><span class="p">:</span> <span class="n">genome_uuid</span><span class="p">,</span>
+                        <span class="s2">"dataset_type"</span><span class="p">:</span> <span class="n">dataset_type</span><span class="p">,</span>
+                        <span class="s2">"attribute_name"</span><span class="p">:</span> <span class="n">attribute_name</span><span class="p">,</span>
                     <span class="p">},</span>
                 <span class="p">)</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">column_name</span> <span class="o">=</span> <span class="n">attribute_name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">column_name</span> <span class="o">=</span> <span class="n">attribute_name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"."</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
                 <span class="n">table_from</span> <span class="o">=</span> <span class="p">{</span>
-                    <span class="s2">&quot;genome&quot;</span><span class="p">:</span> <span class="s2">&quot;genome&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;organism&quot;</span><span class="p">:</span> <span class="p">(</span>
-                        <span class="s2">&quot;organism JOIN genome ON organism.organism_id = genome.organism_id&quot;</span>
+                    <span class="s2">"genome"</span><span class="p">:</span> <span class="s2">"genome"</span><span class="p">,</span>
+                    <span class="s2">"organism"</span><span class="p">:</span> <span class="p">(</span>
+                        <span class="s2">"organism JOIN genome ON organism.organism_id = genome.organism_id"</span>
                     <span class="p">),</span>
-                    <span class="s2">&quot;assembly&quot;</span><span class="p">:</span> <span class="p">(</span>
-                        <span class="s2">&quot;assembly JOIN genome ON assembly.assembly_id = genome.assembly_id&quot;</span>
+                    <span class="s2">"assembly"</span><span class="p">:</span> <span class="p">(</span>
+                        <span class="s2">"assembly JOIN genome ON assembly.assembly_id = genome.assembly_id"</span>
                     <span class="p">),</span>
                 <span class="p">}[</span><span class="n">table_location</span><span class="p">]</span>
                 <span class="n">row</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
                     <span class="n">text</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;SELECT </span><span class="si">{</span><span class="n">table_location</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">column_name</span><span class="si">}</span><span class="s2"> FROM </span><span class="si">{</span><span class="n">table_from</span><span class="si">}</span><span class="s2"> &quot;</span>
-                        <span class="s2">&quot;WHERE genome.genome_uuid = :genome_uuid LIMIT 1&quot;</span>
+                        <span class="sa">f</span><span class="s2">"SELECT </span><span class="si">{</span><span class="n">table_location</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">column_name</span><span class="si">}</span><span class="s2"> FROM </span><span class="si">{</span><span class="n">table_from</span><span class="si">}</span><span class="s2"> "</span>
+                        <span class="s2">"WHERE genome.genome_uuid = :genome_uuid LIMIT 1"</span>
                     <span class="p">),</span>
-                    <span class="p">{</span><span class="s2">&quot;genome_uuid&quot;</span><span class="p">:</span> <span class="n">genome_uuid</span><span class="p">},</span>
+                    <span class="p">{</span><span class="s2">"genome_uuid"</span><span class="p">:</span> <span class="n">genome_uuid</span><span class="p">},</span>
                 <span class="p">)</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
 
         <span class="k">if</span> <span class="n">row</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -5110,7 +5110,7 @@ Results are cached by production_name.</p>
         <span class="k">return</span> <span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># str or None (NULL)</span>
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
         <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Could not fetch current value for </span><span class="si">{</span><span class="n">genome_uuid</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">attribute_name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">"Could not fetch current value for </span><span class="si">{</span><span class="n">genome_uuid</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">attribute_name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">_VALUE_UNKNOWN</span>
 </code></pre></div></td></tr></table></div>
@@ -5280,7 +5280,7 @@ that the DELETE+INSERT pattern would cause.</p>
 <span class="normal">596</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_existing_dataset_attribute_ids</span><span class="p">(</span>
     <span class="n">genome_uuid</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">dataset_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">attribute_name</span><span class="p">:</span> <span class="nb">str</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Fetch existing dataset_attribute_id primary keys for a genome+dataset+attribute.</span>
 
 <span class="sd">    A genome may be attached to multiple releases, resulting in multiple genome_dataset</span>
@@ -5295,14 +5295,14 @@ that the DELETE+INSERT pattern would cause.</p>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        List of dataset_attribute_id integers (one per genome_dataset entry), or []</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">conn_provider</span> <span class="o">=</span> <span class="n">_get_metadata_connection</span><span class="p">()</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">conn_provider</span><span class="p">:</span>
         <span class="k">return</span> <span class="p">[]</span>
 
     <span class="k">try</span><span class="p">:</span>
         <span class="n">query</span> <span class="o">=</span> <span class="n">text</span><span class="p">(</span>
-<span class="w">            </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">            </span><span class="sd">"""</span>
 <span class="sd">            SELECT dataset_attribute.dataset_attribute_id</span>
 <span class="sd">            FROM dataset_attribute</span>
 <span class="sd">            JOIN attribute ON dataset_attribute.attribute_id = attribute.attribute_id</span>
@@ -5312,22 +5312,22 @@ that the DELETE+INSERT pattern would cause.</p>
 <span class="sd">            WHERE genome.genome_uuid = :genome_uuid</span>
 <span class="sd">            AND dataset.name = :dataset_type</span>
 <span class="sd">            AND attribute.name = :attribute_name</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="p">)</span>
 
         <span class="k">with</span> <span class="n">conn_provider</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span> <span class="k">as</span> <span class="n">conn</span><span class="p">:</span>
             <span class="n">result</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
                 <span class="n">query</span><span class="p">,</span>
                 <span class="p">{</span>
-                    <span class="s2">&quot;genome_uuid&quot;</span><span class="p">:</span> <span class="n">genome_uuid</span><span class="p">,</span>
-                    <span class="s2">&quot;dataset_type&quot;</span><span class="p">:</span> <span class="n">dataset_type</span><span class="p">,</span>
-                    <span class="s2">&quot;attribute_name&quot;</span><span class="p">:</span> <span class="n">attribute_name</span><span class="p">,</span>
+                    <span class="s2">"genome_uuid"</span><span class="p">:</span> <span class="n">genome_uuid</span><span class="p">,</span>
+                    <span class="s2">"dataset_type"</span><span class="p">:</span> <span class="n">dataset_type</span><span class="p">,</span>
+                    <span class="s2">"attribute_name"</span><span class="p">:</span> <span class="n">attribute_name</span><span class="p">,</span>
                 <span class="p">},</span>
             <span class="p">)</span>
             <span class="k">return</span> <span class="p">[</span><span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">result</span><span class="p">]</span>
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
         <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Failed to fetch dataset_attribute_ids for </span><span class="si">{</span><span class="n">genome_uuid</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">attribute_name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">"Failed to fetch dataset_attribute_ids for </span><span class="si">{</span><span class="n">genome_uuid</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">attribute_name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="p">[]</span>
 </code></pre></div></td></tr></table></div>
@@ -5410,8 +5410,8 @@ TAXONOMY_URI: Connection string for taxonomy database</p>
 <span class="normal">89</span>
 <span class="normal">90</span>
 <span class="normal">91</span>
-<span class="normal">92</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_genome_adaptor</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">&quot;GenomeAdaptor&quot;</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="normal">92</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_genome_adaptor</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">"GenomeAdaptor"</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Create a GenomeAdaptor instance using environment variables.</span>
 
 <span class="sd">    Requires:</span>
@@ -5420,25 +5420,25 @@ TAXONOMY_URI: Connection string for taxonomy database</p>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        GenomeAdaptor instance or None if not available</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">METADATA_API_AVAILABLE</span><span class="p">:</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;ensembl-metadata-api package not available&quot;</span><span class="p">)</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">"ensembl-metadata-api package not available"</span><span class="p">)</span>
         <span class="k">return</span> <span class="kc">None</span>
 
-    <span class="n">metadata_uri</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;METADATA_URI&quot;</span><span class="p">)</span>
-    <span class="n">taxonomy_uri</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;TAXONOMY_URI&quot;</span><span class="p">)</span>
+    <span class="n">metadata_uri</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">"METADATA_URI"</span><span class="p">)</span>
+    <span class="n">taxonomy_uri</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">"TAXONOMY_URI"</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">metadata_uri</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">taxonomy_uri</span><span class="p">:</span>
         <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-            <span class="s2">&quot;METADATA_URI and TAXONOMY_URI environment variables required. &quot;</span>
-            <span class="s2">&quot;Format: mysql+pymysql://user:pass@host:port/database&quot;</span>
+            <span class="s2">"METADATA_URI and TAXONOMY_URI environment variables required. "</span>
+            <span class="s2">"Format: mysql+pymysql://user:pass@host:port/database"</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="kc">None</span>
 
     <span class="k">try</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">GenomeAdaptor</span><span class="p">(</span><span class="n">metadata_uri</span><span class="o">=</span><span class="n">metadata_uri</span><span class="p">,</span> <span class="n">taxonomy_uri</span><span class="o">=</span><span class="n">taxonomy_uri</span><span class="p">)</span>
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to create GenomeAdaptor: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Failed to create GenomeAdaptor: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
         <span class="k">return</span> <span class="kc">None</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -5545,7 +5545,7 @@ TAXONOMY_URI: Connection string for taxonomy database</p>
 <span class="normal">157</span>
 <span class="normal">158</span>
 <span class="normal">159</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_genome_by_uuid</span><span class="p">(</span><span class="n">genome_uuid</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Fetch genome details by UUID using ensembl-metadata-api.</span>
 
 <span class="sd">    Args:</span>
@@ -5553,25 +5553,25 @@ TAXONOMY_URI: Connection string for taxonomy database</p>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        Dict containing genome information or None if not found</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">conn_provider</span> <span class="o">=</span> <span class="n">_get_metadata_connection</span><span class="p">()</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">conn_provider</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">None</span>
 
     <span class="k">try</span><span class="p">:</span>
         <span class="n">query</span> <span class="o">=</span> <span class="n">text</span><span class="p">(</span>
-            <span class="s2">&quot;SELECT genome_uuid, production_name FROM genome WHERE genome_uuid = :genome_uuid&quot;</span>
+            <span class="s2">"SELECT genome_uuid, production_name FROM genome WHERE genome_uuid = :genome_uuid"</span>
         <span class="p">)</span>
         <span class="k">with</span> <span class="n">conn_provider</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span> <span class="k">as</span> <span class="n">conn</span><span class="p">:</span>
-            <span class="n">row</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;genome_uuid&quot;</span><span class="p">:</span> <span class="n">genome_uuid</span><span class="p">})</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
+            <span class="n">row</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="p">{</span><span class="s2">"genome_uuid"</span><span class="p">:</span> <span class="n">genome_uuid</span><span class="p">})</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">row</span><span class="p">:</span>
             <span class="k">return</span> <span class="p">{</span>
-                <span class="s2">&quot;genome_uuid&quot;</span><span class="p">:</span> <span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
-                <span class="s2">&quot;production_name&quot;</span><span class="p">:</span> <span class="n">row</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                <span class="s2">"genome_uuid"</span><span class="p">:</span> <span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                <span class="s2">"production_name"</span><span class="p">:</span> <span class="n">row</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
             <span class="p">}</span>
         <span class="k">return</span> <span class="kc">None</span>
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to fetch genome </span><span class="si">{</span><span class="n">genome_uuid</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Failed to fetch genome </span><span class="si">{</span><span class="n">genome_uuid</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
         <span class="k">return</span> <span class="kc">None</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -5583,7 +5583,7 @@ TAXONOMY_URI: Connection string for taxonomy database</p>
 
 
 <h3 id="ensembl.genes.metadata.beta_patcher.get_team_responsible_for_genome" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">get_team_responsible_for_genome</span><span class="p">(</span><span class="n">genome_uuid</span><span class="p">,</span> <span class="n">dataset_type</span><span class="o">=</span><span class="s1">&#39;genebuild&#39;</span><span class="p">)</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">get_team_responsible_for_genome</span><span class="p">(</span><span class="n">genome_uuid</span><span class="p">,</span> <span class="n">dataset_type</span><span class="o">=</span><span class="s1">'genebuild'</span><span class="p">)</span></code>
 
 <a href="#ensembl.genes.metadata.beta_patcher.get_team_responsible_for_genome" class="headerlink" title="Permanent link">&para;</a></h3>
 
@@ -5710,9 +5710,9 @@ TAXONOMY_URI: Connection string for taxonomy database</p>
 <span class="normal">204</span>
 <span class="normal">205</span>
 <span class="normal">206</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_team_responsible_for_genome</span><span class="p">(</span>
-    <span class="n">genome_uuid</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">dataset_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;genebuild&quot;</span>
+    <span class="n">genome_uuid</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">dataset_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"genebuild"</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Fetch genebuild.team_responsible attribute for a genome.</span>
 
 <span class="sd">    Args:</span>
@@ -5721,14 +5721,14 @@ TAXONOMY_URI: Connection string for taxonomy database</p>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        Team responsible string or None if not found</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">conn_provider</span> <span class="o">=</span> <span class="n">_get_metadata_connection</span><span class="p">()</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">conn_provider</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">None</span>
 
     <span class="k">try</span><span class="p">:</span>
         <span class="n">query</span> <span class="o">=</span> <span class="n">text</span><span class="p">(</span>
-<span class="w">            </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">            </span><span class="sd">"""</span>
 <span class="sd">            SELECT dataset_attribute.value</span>
 <span class="sd">            FROM dataset_attribute</span>
 <span class="sd">            JOIN attribute ON dataset_attribute.attribute_id = attribute.attribute_id</span>
@@ -5737,13 +5737,13 @@ TAXONOMY_URI: Connection string for taxonomy database</p>
 <span class="sd">            JOIN genome ON genome_dataset.genome_id = genome.genome_id</span>
 <span class="sd">            WHERE genome.genome_uuid = :genome_uuid</span>
 <span class="sd">            AND dataset.name = :dataset_type</span>
-<span class="sd">            AND attribute.name = &#39;genebuild.team_responsible&#39;</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">            AND attribute.name = 'genebuild.team_responsible'</span>
+<span class="sd">        """</span>
         <span class="p">)</span>
 
         <span class="k">with</span> <span class="n">conn_provider</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span> <span class="k">as</span> <span class="n">conn</span><span class="p">:</span>
             <span class="n">result</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
-                <span class="n">query</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;genome_uuid&quot;</span><span class="p">:</span> <span class="n">genome_uuid</span><span class="p">,</span> <span class="s2">&quot;dataset_type&quot;</span><span class="p">:</span> <span class="n">dataset_type</span><span class="p">}</span>
+                <span class="n">query</span><span class="p">,</span> <span class="p">{</span><span class="s2">"genome_uuid"</span><span class="p">:</span> <span class="n">genome_uuid</span><span class="p">,</span> <span class="s2">"dataset_type"</span><span class="p">:</span> <span class="n">dataset_type</span><span class="p">}</span>
             <span class="p">)</span>
             <span class="n">row</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
             <span class="k">if</span> <span class="n">row</span><span class="p">:</span>
@@ -5751,7 +5751,7 @@ TAXONOMY_URI: Connection string for taxonomy database</p>
         <span class="k">return</span> <span class="kc">None</span>
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
         <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Failed to fetch team_responsible for genome </span><span class="si">{</span><span class="n">genome_uuid</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">"Failed to fetch team_responsible for genome </span><span class="si">{</span><span class="n">genome_uuid</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="kc">None</span>
 </code></pre></div></td></tr></table></div>
@@ -5764,7 +5764,7 @@ TAXONOMY_URI: Connection string for taxonomy database</p>
 
 
 <h3 id="ensembl.genes.metadata.beta_patcher.group_patches_by_genome" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">group_patches_by_genome</span><span class="p">(</span><span class="n">patches</span><span class="p">,</span> <span class="n">logger</span><span class="p">,</span> <span class="n">jira_ticket</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">server_uris</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">group_patches_by_genome</span><span class="p">(</span><span class="n">patches</span><span class="p">,</span> <span class="n">logger</span><span class="p">,</span> <span class="n">jira_ticket</span><span class="o">=</span><span class="s1">''</span><span class="p">,</span> <span class="n">server_uris</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
 
 <a href="#ensembl.genes.metadata.beta_patcher.group_patches_by_genome" class="headerlink" title="Permanent link">&para;</a></h3>
 
@@ -5933,10 +5933,10 @@ TAXONOMY_URI: Connection string for taxonomy database</p>
 <span class="normal">1029</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">group_patches_by_genome</span><span class="p">(</span>
     <span class="n">patches</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">],</span>
     <span class="n">logger</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span><span class="p">,</span>
-    <span class="n">jira_ticket</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+    <span class="n">jira_ticket</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">""</span><span class="p">,</span>
     <span class="n">server_uris</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Group patches by genome UUID.</span>
 
 <span class="sd">    Args:</span>
@@ -5947,7 +5947,7 @@ TAXONOMY_URI: Connection string for taxonomy database</p>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        Dict mapping genome_uuid to genome info and list of patches</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">grouped</span> <span class="o">=</span> <span class="p">{}</span>
 
     <span class="k">for</span> <span class="n">patch</span> <span class="ow">in</span> <span class="n">patches</span><span class="p">:</span>
@@ -5956,31 +5956,31 @@ TAXONOMY_URI: Connection string for taxonomy database</p>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">genome_info</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Row </span><span class="si">{</span><span class="n">patch</span><span class="p">[</span><span class="s1">&#39;row_num&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">: Skipping due to resolution failure&quot;</span>
+                <span class="sa">f</span><span class="s2">"Row </span><span class="si">{</span><span class="n">patch</span><span class="p">[</span><span class="s1">'row_num'</span><span class="p">]</span><span class="si">}</span><span class="s2">: Skipping due to resolution failure"</span>
             <span class="p">)</span>
             <span class="k">continue</span>
 
-        <span class="n">genome_uuid</span> <span class="o">=</span> <span class="n">genome_info</span><span class="p">[</span><span class="s2">&quot;genome_uuid&quot;</span><span class="p">]</span>
+        <span class="n">genome_uuid</span> <span class="o">=</span> <span class="n">genome_info</span><span class="p">[</span><span class="s2">"genome_uuid"</span><span class="p">]</span>
 
         <span class="c1"># Initialize genome entry if not exists</span>
         <span class="k">if</span> <span class="n">genome_uuid</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">grouped</span><span class="p">:</span>
             <span class="n">grouped</span><span class="p">[</span><span class="n">genome_uuid</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-                <span class="s2">&quot;genome_uuid&quot;</span><span class="p">:</span> <span class="n">genome_uuid</span><span class="p">,</span>
-                <span class="s2">&quot;production_name&quot;</span><span class="p">:</span> <span class="n">genome_info</span><span class="p">[</span><span class="s2">&quot;production_name&quot;</span><span class="p">],</span>
-                <span class="s2">&quot;core_server&quot;</span><span class="p">:</span> <span class="n">genome_info</span><span class="p">[</span><span class="s2">&quot;core_server&quot;</span><span class="p">],</span>
-                <span class="s2">&quot;core_db_name&quot;</span><span class="p">:</span> <span class="n">genome_info</span><span class="p">[</span><span class="s2">&quot;core_db_name&quot;</span><span class="p">],</span>
-                <span class="s2">&quot;dataset_type&quot;</span><span class="p">:</span> <span class="n">patch</span><span class="p">[</span><span class="s2">&quot;dataset_type&quot;</span><span class="p">],</span>
-                <span class="s2">&quot;species_id&quot;</span><span class="p">:</span> <span class="n">patch</span><span class="p">[</span><span class="s2">&quot;species_id&quot;</span><span class="p">],</span>
-                <span class="s2">&quot;jira_ticket&quot;</span><span class="p">:</span> <span class="n">jira_ticket</span><span class="p">,</span>
-                <span class="s2">&quot;patches&quot;</span><span class="p">:</span> <span class="p">[],</span>
-                <span class="s2">&quot;row_nums&quot;</span><span class="p">:</span> <span class="p">[],</span>
+                <span class="s2">"genome_uuid"</span><span class="p">:</span> <span class="n">genome_uuid</span><span class="p">,</span>
+                <span class="s2">"production_name"</span><span class="p">:</span> <span class="n">genome_info</span><span class="p">[</span><span class="s2">"production_name"</span><span class="p">],</span>
+                <span class="s2">"core_server"</span><span class="p">:</span> <span class="n">genome_info</span><span class="p">[</span><span class="s2">"core_server"</span><span class="p">],</span>
+                <span class="s2">"core_db_name"</span><span class="p">:</span> <span class="n">genome_info</span><span class="p">[</span><span class="s2">"core_db_name"</span><span class="p">],</span>
+                <span class="s2">"dataset_type"</span><span class="p">:</span> <span class="n">patch</span><span class="p">[</span><span class="s2">"dataset_type"</span><span class="p">],</span>
+                <span class="s2">"species_id"</span><span class="p">:</span> <span class="n">patch</span><span class="p">[</span><span class="s2">"species_id"</span><span class="p">],</span>
+                <span class="s2">"jira_ticket"</span><span class="p">:</span> <span class="n">jira_ticket</span><span class="p">,</span>
+                <span class="s2">"patches"</span><span class="p">:</span> <span class="p">[],</span>
+                <span class="s2">"row_nums"</span><span class="p">:</span> <span class="p">[],</span>
             <span class="p">}</span>
 
-        <span class="c1"># Add patch to genome&#39;s list (include table_location)</span>
-        <span class="n">grouped</span><span class="p">[</span><span class="n">genome_uuid</span><span class="p">][</span><span class="s2">&quot;patches&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-            <span class="p">(</span><span class="n">patch</span><span class="p">[</span><span class="s2">&quot;meta_key&quot;</span><span class="p">],</span> <span class="n">patch</span><span class="p">[</span><span class="s2">&quot;desired_meta_value&quot;</span><span class="p">],</span> <span class="n">patch</span><span class="p">[</span><span class="s2">&quot;table_location&quot;</span><span class="p">])</span>
+        <span class="c1"># Add patch to genome's list (include table_location)</span>
+        <span class="n">grouped</span><span class="p">[</span><span class="n">genome_uuid</span><span class="p">][</span><span class="s2">"patches"</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="p">(</span><span class="n">patch</span><span class="p">[</span><span class="s2">"meta_key"</span><span class="p">],</span> <span class="n">patch</span><span class="p">[</span><span class="s2">"desired_meta_value"</span><span class="p">],</span> <span class="n">patch</span><span class="p">[</span><span class="s2">"table_location"</span><span class="p">])</span>
         <span class="p">)</span>
-        <span class="n">grouped</span><span class="p">[</span><span class="n">genome_uuid</span><span class="p">][</span><span class="s2">&quot;row_nums&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">patch</span><span class="p">[</span><span class="s2">&quot;row_num&quot;</span><span class="p">])</span>
+        <span class="n">grouped</span><span class="p">[</span><span class="n">genome_uuid</span><span class="p">][</span><span class="s2">"row_nums"</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">patch</span><span class="p">[</span><span class="s2">"row_num"</span><span class="p">])</span>
 
     <span class="k">return</span> <span class="n">grouped</span>
 </code></pre></div></td></tr></table></div>
@@ -6185,12 +6185,12 @@ TAXONOMY_URI: Connection string for taxonomy database</p>
 <span class="normal">1321</span>
 <span class="normal">1322</span>
 <span class="normal">1323</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Main entry point for the beta patcher script.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Main entry point for the beta patcher script."""</span>
     <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span>
-        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Generate standardized SQL patches for Ensembl</span><span class="se">\</span>
-<span class="s2">            beta metadata issues from CSV input&quot;</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">"Generate standardized SQL patches for Ensembl</span><span class="se">\</span>
+<span class="s2">            beta metadata issues from CSV input"</span><span class="p">,</span>
         <span class="n">formatter_class</span><span class="o">=</span><span class="n">argparse</span><span class="o">.</span><span class="n">RawDescriptionHelpFormatter</span><span class="p">,</span>
-        <span class="n">epilog</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;</span>
+        <span class="n">epilog</span><span class="o">=</span><span class="s2">"""</span>
 <span class="s2">Examples:</span>
 <span class="s2"># Process patches from CSV file</span>
 <span class="s2">python beta_patcher.py patches.csv --jira-ticket EBD-1111 --output-dir ./patches/</span>
@@ -6215,107 +6215,107 @@ TAXONOMY_URI: Connection string for taxonomy database</p>
 <span class="s2">    a7335667-93e7-11ec-a39d-005056b38ce3,level,chromosome,genebuild,1,assembly</span>
 
 <span class="s2">See patches_template.csv for a complete example.</span>
-<span class="s2">        &quot;&quot;&quot;</span><span class="p">,</span>
+<span class="s2">        """</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="c1"># Positional argument</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;csv_file&quot;</span><span class="p">,</span>
+        <span class="s2">"csv_file"</span><span class="p">,</span>
         <span class="nb">type</span><span class="o">=</span><span class="n">Path</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;CSV file with patches (see patches_template.csv for format)&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"CSV file with patches (see patches_template.csv for format)"</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="c1"># Jira ticket (required)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--jira-ticket&quot;</span><span class="p">,</span>
+        <span class="s2">"--jira-ticket"</span><span class="p">,</span>
         <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
         <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Jira ticket reference (e.g., EBD-1111)&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"Jira ticket reference (e.g., EBD-1111)"</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="c1"># Core database suffix (fallback when no server URIs provided)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--core-suffix&quot;</span><span class="p">,</span>
+        <span class="s2">"--core-suffix"</span><span class="p">,</span>
         <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
-        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;_core_114_1&quot;</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Suffix to append to production_name for core DB name (default: _core_114_1). &quot;</span>
-        <span class="s2">&quot;Ignored when --st5-uri / --st6-uri are provided.&quot;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">"_core_114_1"</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"Suffix to append to production_name for core DB name (default: _core_114_1). "</span>
+        <span class="s2">"Ignored when --st5-uri / --st6-uri are provided."</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="c1"># Core server URIs for auto-discovery</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--st6-uri&quot;</span><span class="p">,</span>
+        <span class="s2">"--st6-uri"</span><span class="p">,</span>
         <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
-        <span class="n">default</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;ST6_URI&quot;</span><span class="p">,</span> <span class="s2">&quot;mysql+pymysql://ensro:@mysql-ens-sta-6:4695/&quot;</span><span class="p">),</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;MySQL URI for st6 core server (default: mysql-ens-sta-6:4695, &quot;</span>
-        <span class="s2">&quot;overrides ST6_URI env var)&quot;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">"ST6_URI"</span><span class="p">,</span> <span class="s2">"mysql+pymysql://ensro:@mysql-ens-sta-6:4695/"</span><span class="p">),</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"MySQL URI for st6 core server (default: mysql-ens-sta-6:4695, "</span>
+        <span class="s2">"overrides ST6_URI env var)"</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--st5-uri&quot;</span><span class="p">,</span>
+        <span class="s2">"--st5-uri"</span><span class="p">,</span>
         <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
-        <span class="n">default</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;ST5_URI&quot;</span><span class="p">,</span> <span class="s2">&quot;mysql+pymysql://ensro:@mysql-ens-sta-5:4684/&quot;</span><span class="p">),</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;MySQL URI for st5 core server (default: mysql-ens-sta-5:4684, &quot;</span>
-        <span class="s2">&quot;overrides ST5_URI env var)&quot;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">"ST5_URI"</span><span class="p">,</span> <span class="s2">"mysql+pymysql://ensro:@mysql-ens-sta-5:4684/"</span><span class="p">),</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"MySQL URI for st5 core server (default: mysql-ens-sta-5:4684, "</span>
+        <span class="s2">"overrides ST5_URI env var)"</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="c1"># Database connection (uses environment variables METADATA_URI and TAXONOMY_URI)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--metadata-uri&quot;</span><span class="p">,</span>
+        <span class="s2">"--metadata-uri"</span><span class="p">,</span>
         <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Metadata database URI (overrides METADATA_URI env var)&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"Metadata database URI (overrides METADATA_URI env var)"</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--taxonomy-uri&quot;</span><span class="p">,</span>
+        <span class="s2">"--taxonomy-uri"</span><span class="p">,</span>
         <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Taxonomy database URI (overrides TAXONOMY_URI env var)&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"Taxonomy database URI (overrides TAXONOMY_URI env var)"</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="c1"># Output options</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;-o&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;--output-dir&quot;</span><span class="p">,</span>
+        <span class="s2">"-o"</span><span class="p">,</span>
+        <span class="s2">"--output-dir"</span><span class="p">,</span>
         <span class="nb">type</span><span class="o">=</span><span class="n">Path</span><span class="p">,</span>
         <span class="n">default</span><span class="o">=</span><span class="n">Path</span><span class="o">.</span><span class="n">cwd</span><span class="p">(),</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Output directory for patch files (default: current directory)&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"Output directory for patch files (default: current directory)"</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="c1"># Team filter option</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--team-filter&quot;</span><span class="p">,</span>
+        <span class="s2">"--team-filter"</span><span class="p">,</span>
         <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Only apply patches if affected genomes belong to this team (e.g., &quot;genebuild&quot;)&#39;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s1">'Only apply patches if affected genomes belong to this team (e.g., "genebuild")'</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
 
     <span class="c1"># Offline mode: skip API/DB lookups and core discovery</span>
     <span class="c1"># Usage: export BETA_PATCHER_OFFLINE=1 (or set via env before running)</span>
-    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;BETA_PATCHER_OFFLINE&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;1&quot;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">"BETA_PATCHER_OFFLINE"</span><span class="p">)</span> <span class="o">==</span> <span class="s2">"1"</span><span class="p">:</span>
         <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-            <span class="s2">&quot;Offline mode enabled: skipping metadata API lookups and core discovery&quot;</span>
+            <span class="s2">"Offline mode enabled: skipping metadata API lookups and core discovery"</span>
         <span class="p">)</span>
 
     <span class="c1"># Validate CSV file exists</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">csv_file</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
-        <span class="n">parser</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;CSV file not found: </span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">csv_file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">"CSV file not found: </span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">csv_file</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
     <span class="c1"># Override environment variables if provided</span>
     <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">metadata_uri</span><span class="p">:</span>
-        <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;METADATA_URI&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">metadata_uri</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">"METADATA_URI"</span><span class="p">]</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">metadata_uri</span>
     <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">taxonomy_uri</span><span class="p">:</span>
-        <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;TAXONOMY_URI&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">taxonomy_uri</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">"TAXONOMY_URI"</span><span class="p">]</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">taxonomy_uri</span>
 
     <span class="c1"># Create output directory</span>
     <span class="n">args</span><span class="o">.</span><span class="n">output_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
     <span class="c1"># Set up logging</span>
     <span class="n">log_file</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">args</span><span class="o">.</span><span class="n">output_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;patch_csv_</span><span class="si">{</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y%m</span><span class="si">%d</span><span class="s1">_%H%M%S&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">.log&quot;</span>
+        <span class="n">args</span><span class="o">.</span><span class="n">output_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">"patch_csv_</span><span class="si">{</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">'%Y%m</span><span class="si">%d</span><span class="s1">_%H%M%S'</span><span class="p">)</span><span class="si">}</span><span class="s2">.log"</span>
     <span class="p">)</span>
     <span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span>
         <span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">,</span>
-        <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">%(asctime)s</span><span class="s2"> - </span><span class="si">%(levelname)s</span><span class="s2"> - </span><span class="si">%(message)s</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="nb">format</span><span class="o">=</span><span class="s2">"</span><span class="si">%(asctime)s</span><span class="s2"> - </span><span class="si">%(levelname)s</span><span class="s2"> - </span><span class="si">%(message)s</span><span class="s2">"</span><span class="p">,</span>
         <span class="n">handlers</span><span class="o">=</span><span class="p">[</span><span class="n">logging</span><span class="o">.</span><span class="n">FileHandler</span><span class="p">(</span><span class="n">log_file</span><span class="p">),</span> <span class="n">logging</span><span class="o">.</span><span class="n">StreamHandler</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="p">)],</span>
         <span class="n">force</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span>
@@ -6323,46 +6323,46 @@ TAXONOMY_URI: Connection string for taxonomy database</p>
 
     <span class="k">try</span><span class="p">:</span>
         <span class="n">patches</span> <span class="o">=</span> <span class="n">read_csv_patches</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">csv_file</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">core_suffix</span><span class="p">)</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Processing </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">patches</span><span class="p">)</span><span class="si">}</span><span class="s2"> patches from </span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">csv_file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Processing </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">patches</span><span class="p">)</span><span class="si">}</span><span class="s2"> patches from </span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">csv_file</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to read CSV: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Failed to read CSV: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
         <span class="k">return</span> <span class="mi">1</span>
 
     <span class="k">if</span> <span class="n">check_thoas_requirements</span><span class="p">(</span><span class="n">patches</span><span class="p">,</span> <span class="n">logger</span><span class="p">):</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-            <span class="s2">&quot;One or more patches require THOAS updates. Please handle these separately.&quot;</span>
+            <span class="s2">"One or more patches require THOAS updates. Please handle these separately."</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="mi">1</span>
 
-    <span class="c1"># st6 first — it&#39;s the primary staging server for 114 cores</span>
+    <span class="c1"># st6 first — it's the primary staging server for 114 cores</span>
     <span class="n">server_uris</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">st6_uri</span><span class="p">:</span>
-        <span class="n">server_uris</span><span class="p">[</span><span class="s2">&quot;st6&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">st6_uri</span>
+        <span class="n">server_uris</span><span class="p">[</span><span class="s2">"st6"</span><span class="p">]</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">st6_uri</span>
     <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">st5_uri</span><span class="p">:</span>
-        <span class="n">server_uris</span><span class="p">[</span><span class="s2">&quot;st5&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">st5_uri</span>
+        <span class="n">server_uris</span><span class="p">[</span><span class="s2">"st5"</span><span class="p">]</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">st5_uri</span>
     <span class="k">if</span> <span class="n">server_uris</span><span class="p">:</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Core DB auto-discovery enabled on: </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">server_uris</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Core DB auto-discovery enabled on: </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">server_uris</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Core DB suffix fallback: </span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">core_suffix</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Core DB suffix fallback: </span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">core_suffix</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
     <span class="n">grouped_patches</span> <span class="o">=</span> <span class="n">group_patches_by_genome</span><span class="p">(</span>
         <span class="n">patches</span><span class="p">,</span> <span class="n">logger</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">jira_ticket</span><span class="p">,</span> <span class="n">server_uris</span> <span class="ow">or</span> <span class="kc">None</span>
     <span class="p">)</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Grouped into </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">grouped_patches</span><span class="p">)</span><span class="si">}</span><span class="s2"> genome(s)&quot;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Grouped into </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">grouped_patches</span><span class="p">)</span><span class="si">}</span><span class="s2"> genome(s)"</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">grouped_patches</span><span class="p">:</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;No valid patches to process after grouping&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">"No valid patches to process after grouping"</span><span class="p">)</span>
         <span class="k">return</span> <span class="mi">1</span>
 
     <span class="c1"># Generate consolidated patch files</span>
-    <span class="n">team_filter</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="s2">&quot;team_filter&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="n">team_filter</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="s2">"team_filter"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">generate_all_patches</span><span class="p">(</span>
         <span class="n">grouped_patches</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">output_dir</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">jira_ticket</span><span class="p">,</span> <span class="n">logger</span><span class="p">,</span> <span class="n">team_filter</span>
     <span class="p">):</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Success! Log: </span><span class="si">{</span><span class="n">log_file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Success! Log: </span><span class="si">{</span><span class="n">log_file</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
         <span class="k">return</span> <span class="mi">0</span>
 
-    <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed. Log: </span><span class="si">{</span><span class="n">log_file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Failed. Log: </span><span class="si">{</span><span class="n">log_file</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
     <span class="k">return</span> <span class="mi">1</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -6374,7 +6374,7 @@ TAXONOMY_URI: Connection string for taxonomy database</p>
 
 
 <h3 id="ensembl.genes.metadata.beta_patcher.read_csv_patches" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">read_csv_patches</span><span class="p">(</span><span class="n">csv_file</span><span class="p">,</span> <span class="n">core_suffix</span><span class="o">=</span><span class="s1">&#39;_core_114_1&#39;</span><span class="p">)</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">read_csv_patches</span><span class="p">(</span><span class="n">csv_file</span><span class="p">,</span> <span class="n">core_suffix</span><span class="o">=</span><span class="s1">'_core_114_1'</span><span class="p">)</span></code>
 
 <a href="#ensembl.genes.metadata.beta_patcher.read_csv_patches" class="headerlink" title="Permanent link">&para;</a></h3>
 
@@ -6540,15 +6540,15 @@ TAXONOMY_URI: Connection string for taxonomy database</p>
 <span class="normal">876</span>
 <span class="normal">877</span>
 <span class="normal">878</span>
-<span class="normal">879</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">read_csv_patches</span><span class="p">(</span><span class="n">csv_file</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">core_suffix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;_core_114_1&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="normal">879</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">read_csv_patches</span><span class="p">(</span><span class="n">csv_file</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">core_suffix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"_core_114_1"</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Read patches from CSV file.</span>
 
 <span class="sd">    CSV columns:</span>
 <span class="sd">    - genome_uuid (required)</span>
 <span class="sd">    - meta_key (required)</span>
 <span class="sd">    - desired_meta_value (required) — use \\N to set NULL (actual NULL in metadata DB,</span>
-<span class="sd">      string &#39;NULL&#39; in core DB)</span>
+<span class="sd">      string 'NULL' in core DB)</span>
 <span class="sd">    - dataset_type (optional, default: genebuild)</span>
 <span class="sd">    - species_id (optional, default: 1)</span>
 <span class="sd">    - table_location (optional, default: dataset_attribute)</span>
@@ -6563,54 +6563,54 @@ TAXONOMY_URI: Connection string for taxonomy database</p>
 
 <span class="sd">    Raises:</span>
 <span class="sd">        ValueError if CSV format is invalid</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">patches</span> <span class="o">=</span> <span class="p">[]</span>
 
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">csv_file</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">csv_file</span><span class="p">,</span> <span class="s2">"r"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
         <span class="n">reader</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">DictReader</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
 
         <span class="c1"># Validate required columns</span>
-        <span class="n">required_cols</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;genome_uuid&quot;</span><span class="p">,</span> <span class="s2">&quot;meta_key&quot;</span><span class="p">,</span> <span class="s2">&quot;desired_meta_value&quot;</span><span class="p">}</span>
+        <span class="n">required_cols</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"genome_uuid"</span><span class="p">,</span> <span class="s2">"meta_key"</span><span class="p">,</span> <span class="s2">"desired_meta_value"</span><span class="p">}</span>
         <span class="k">if</span> <span class="n">reader</span><span class="o">.</span><span class="n">fieldnames</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;CSV file </span><span class="si">{</span><span class="n">csv_file</span><span class="si">}</span><span class="s2"> has no header row&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"CSV file </span><span class="si">{</span><span class="n">csv_file</span><span class="si">}</span><span class="s2"> has no header row"</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">required_cols</span><span class="o">.</span><span class="n">issubset</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">reader</span><span class="o">.</span><span class="n">fieldnames</span><span class="p">)):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;CSV must contain columns: </span><span class="si">{</span><span class="n">required_cols</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"CSV must contain columns: </span><span class="si">{</span><span class="n">required_cols</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
         <span class="k">for</span> <span class="n">row_num</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">reader</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
             <span class="c1"># Check required fields</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;genome_uuid&quot;</span><span class="p">):</span>
-                <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Row </span><span class="si">{</span><span class="n">row_num</span><span class="si">}</span><span class="s2">: Missing required field genome_uuid&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"genome_uuid"</span><span class="p">):</span>
+                <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Row </span><span class="si">{</span><span class="n">row_num</span><span class="si">}</span><span class="s2">: Missing required field genome_uuid"</span><span class="p">)</span>
                 <span class="k">continue</span>
 
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;meta_key&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;desired_meta_value&quot;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"meta_key"</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"desired_meta_value"</span><span class="p">):</span>
                 <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Row </span><span class="si">{</span><span class="n">row_num</span><span class="si">}</span><span class="s2">: Missing required fields meta_key or desired_meta_value&quot;</span>
+                    <span class="sa">f</span><span class="s2">"Row </span><span class="si">{</span><span class="n">row_num</span><span class="si">}</span><span class="s2">: Missing required fields meta_key or desired_meta_value"</span>
                 <span class="p">)</span>
                 <span class="k">continue</span>
 
-            <span class="n">species_id_raw</span> <span class="o">=</span> <span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;species_id&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">&quot;1&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="n">species_id_raw</span> <span class="o">=</span> <span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"species_id"</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">"1"</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">species_id</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">species_id_raw</span><span class="p">)</span>
             <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
                 <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Row </span><span class="si">{</span><span class="n">row_num</span><span class="si">}</span><span class="s2">: Invalid species_id value </span><span class="si">{</span><span class="n">species_id_raw</span><span class="si">!r}</span><span class="s2">. &quot;</span>
-                    <span class="s2">&quot;This is usually caused by an unquoted comma in a desired_meta_value &quot;</span>
-                    <span class="s2">&quot;field — wrap the value in double quotes in the CSV.&quot;</span>
+                    <span class="sa">f</span><span class="s2">"Row </span><span class="si">{</span><span class="n">row_num</span><span class="si">}</span><span class="s2">: Invalid species_id value </span><span class="si">{</span><span class="n">species_id_raw</span><span class="si">!r}</span><span class="s2">. "</span>
+                    <span class="s2">"This is usually caused by an unquoted comma in a desired_meta_value "</span>
+                    <span class="s2">"field — wrap the value in double quotes in the CSV."</span>
                 <span class="p">)</span>
                 <span class="k">continue</span>
 
             <span class="n">patch</span> <span class="o">=</span> <span class="p">{</span>
-                <span class="s2">&quot;genome_uuid&quot;</span><span class="p">:</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;genome_uuid&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span>
-                <span class="s2">&quot;meta_key&quot;</span><span class="p">:</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;meta_key&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span>
-                <span class="s2">&quot;desired_meta_value&quot;</span><span class="p">:</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;desired_meta_value&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span>
-                <span class="s2">&quot;dataset_type&quot;</span><span class="p">:</span> <span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;dataset_type&quot;</span><span class="p">,</span> <span class="s2">&quot;genebuild&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span>
-                <span class="s2">&quot;species_id&quot;</span><span class="p">:</span> <span class="n">species_id</span><span class="p">,</span>
-                <span class="s2">&quot;table_location&quot;</span><span class="p">:</span> <span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
-                    <span class="s2">&quot;table_location&quot;</span><span class="p">,</span> <span class="s2">&quot;dataset_attribute&quot;</span>
+                <span class="s2">"genome_uuid"</span><span class="p">:</span> <span class="n">row</span><span class="p">[</span><span class="s2">"genome_uuid"</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span>
+                <span class="s2">"meta_key"</span><span class="p">:</span> <span class="n">row</span><span class="p">[</span><span class="s2">"meta_key"</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span>
+                <span class="s2">"desired_meta_value"</span><span class="p">:</span> <span class="n">row</span><span class="p">[</span><span class="s2">"desired_meta_value"</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span>
+                <span class="s2">"dataset_type"</span><span class="p">:</span> <span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"dataset_type"</span><span class="p">,</span> <span class="s2">"genebuild"</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span>
+                <span class="s2">"species_id"</span><span class="p">:</span> <span class="n">species_id</span><span class="p">,</span>
+                <span class="s2">"table_location"</span><span class="p">:</span> <span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                    <span class="s2">"table_location"</span><span class="p">,</span> <span class="s2">"dataset_attribute"</span>
                 <span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span>
-                <span class="s2">&quot;core_suffix&quot;</span><span class="p">:</span> <span class="n">core_suffix</span><span class="p">,</span>
-                <span class="s2">&quot;row_num&quot;</span><span class="p">:</span> <span class="n">row_num</span><span class="p">,</span>
+                <span class="s2">"core_suffix"</span><span class="p">:</span> <span class="n">core_suffix</span><span class="p">,</span>
+                <span class="s2">"row_num"</span><span class="p">:</span> <span class="n">row_num</span><span class="p">,</span>
             <span class="p">}</span>
 
             <span class="n">patches</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">patch</span><span class="p">)</span>
@@ -6788,11 +6788,11 @@ Otherwise falls back to appending patch['core_suffix'] to production_name.</p>
 <span class="normal">974</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">resolve_genome_info</span><span class="p">(</span>
     <span class="n">patch</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">logger</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span><span class="p">,</span> <span class="n">server_uris</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Resolve production name from genome UUID, and locate the core database.</span>
 
 <span class="sd">    If server_uris is provided, searches those servers for the core DB.</span>
-<span class="sd">    Otherwise falls back to appending patch[&#39;core_suffix&#39;] to production_name.</span>
+<span class="sd">    Otherwise falls back to appending patch['core_suffix'] to production_name.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        patch: Patch dictionary from CSV</span>
@@ -6801,13 +6801,13 @@ Otherwise falls back to appending patch['core_suffix'] to production_name.</p>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        Dict with genome_uuid, production_name, core_server, core_db_name, or None if failed</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">row_num</span> <span class="o">=</span> <span class="n">patch</span><span class="p">[</span><span class="s2">&quot;row_num&quot;</span><span class="p">]</span>
-    <span class="n">genome_uuid</span> <span class="o">=</span> <span class="n">patch</span><span class="p">[</span><span class="s2">&quot;genome_uuid&quot;</span><span class="p">]</span>
+<span class="sd">    """</span>
+    <span class="n">row_num</span> <span class="o">=</span> <span class="n">patch</span><span class="p">[</span><span class="s2">"row_num"</span><span class="p">]</span>
+    <span class="n">genome_uuid</span> <span class="o">=</span> <span class="n">patch</span><span class="p">[</span><span class="s2">"genome_uuid"</span><span class="p">]</span>
 
-    <span class="n">offline</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;BETA_PATCHER_OFFLINE&quot;</span><span class="p">,</span> <span class="s2">&quot;0&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;1&quot;</span>
+    <span class="n">offline</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">"BETA_PATCHER_OFFLINE"</span><span class="p">,</span> <span class="s2">"0"</span><span class="p">)</span> <span class="o">==</span> <span class="s2">"1"</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s2">&quot;Row </span><span class="si">{</span><span class="n">row_num</span><span class="si">}</span><span class="s2">: Fetching production_name for genome_uuid: </span><span class="si">{</span><span class="n">genome_uuid</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="sa">f</span><span class="s2">"Row </span><span class="si">{</span><span class="n">row_num</span><span class="si">}</span><span class="s2">: Fetching production_name for genome_uuid: </span><span class="si">{</span><span class="n">genome_uuid</span><span class="si">}</span><span class="s2">"</span>
     <span class="p">)</span>
     <span class="n">production_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">offline</span><span class="p">:</span>
@@ -6815,35 +6815,35 @@ Otherwise falls back to appending patch['core_suffix'] to production_name.</p>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">genome_info</span><span class="p">:</span>
             <span class="c1"># Allow offline-style fallback even if API/URIs are misconfigured</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Row </span><span class="si">{</span><span class="n">row_num</span><span class="si">}</span><span class="s2">: Could not fetch genome information for UUID: </span><span class="si">{</span><span class="n">genome_uuid</span><span class="si">}</span><span class="s2">; &quot;</span>
-                <span class="s2">&quot;continuing in offline mode (metadata-only).&quot;</span>
+                <span class="sa">f</span><span class="s2">"Row </span><span class="si">{</span><span class="n">row_num</span><span class="si">}</span><span class="s2">: Could not fetch genome information for UUID: </span><span class="si">{</span><span class="n">genome_uuid</span><span class="si">}</span><span class="s2">; "</span>
+                <span class="s2">"continuing in offline mode (metadata-only)."</span>
             <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">production_name</span> <span class="o">=</span> <span class="n">genome_info</span><span class="p">[</span><span class="s2">&quot;production_name&quot;</span><span class="p">]</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Row </span><span class="si">{</span><span class="n">row_num</span><span class="si">}</span><span class="s2">: Found production_name: </span><span class="si">{</span><span class="n">production_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">production_name</span> <span class="o">=</span> <span class="n">genome_info</span><span class="p">[</span><span class="s2">"production_name"</span><span class="p">]</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Row </span><span class="si">{</span><span class="n">row_num</span><span class="si">}</span><span class="s2">: Found production_name: </span><span class="si">{</span><span class="n">production_name</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">production_name</span> <span class="ow">and</span> <span class="n">server_uris</span><span class="p">:</span>
         <span class="n">match</span> <span class="o">=</span> <span class="n">find_core_db</span><span class="p">(</span><span class="n">production_name</span><span class="p">,</span> <span class="n">server_uris</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
             <span class="n">core_server</span><span class="p">,</span> <span class="n">core_db_name</span> <span class="o">=</span> <span class="n">match</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Row </span><span class="si">{</span><span class="n">row_num</span><span class="si">}</span><span class="s2">: Found core DB </span><span class="si">{</span><span class="n">core_db_name</span><span class="si">}</span><span class="s2"> on </span><span class="si">{</span><span class="n">core_server</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Row </span><span class="si">{</span><span class="n">row_num</span><span class="si">}</span><span class="s2">: Found core DB </span><span class="si">{</span><span class="n">core_db_name</span><span class="si">}</span><span class="s2"> on </span><span class="si">{</span><span class="n">core_server</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Row </span><span class="si">{</span><span class="n">row_num</span><span class="si">}</span><span class="s2">: No core DB found for </span><span class="si">{</span><span class="n">production_name</span><span class="si">}</span><span class="s2"> — skipping core patch&quot;</span>
+                <span class="sa">f</span><span class="s2">"Row </span><span class="si">{</span><span class="n">row_num</span><span class="si">}</span><span class="s2">: No core DB found for </span><span class="si">{</span><span class="n">production_name</span><span class="si">}</span><span class="s2"> — skipping core patch"</span>
             <span class="p">)</span>
             <span class="n">core_server</span><span class="p">,</span> <span class="n">core_db_name</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">core_server</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="c1"># Only build core DB name when production_name is known</span>
         <span class="n">core_db_name</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">production_name</span><span class="si">}{</span><span class="n">patch</span><span class="p">[</span><span class="s1">&#39;core_suffix&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">if</span> <span class="n">production_name</span> <span class="k">else</span> <span class="kc">None</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">production_name</span><span class="si">}{</span><span class="n">patch</span><span class="p">[</span><span class="s1">'core_suffix'</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span> <span class="k">if</span> <span class="n">production_name</span> <span class="k">else</span> <span class="kc">None</span>
         <span class="p">)</span>
 
     <span class="k">return</span> <span class="p">{</span>
-        <span class="s2">&quot;genome_uuid&quot;</span><span class="p">:</span> <span class="n">genome_uuid</span><span class="p">,</span>
-        <span class="s2">&quot;production_name&quot;</span><span class="p">:</span> <span class="n">production_name</span> <span class="ow">or</span> <span class="sa">f</span><span class="s2">&quot;UNKNOWN_</span><span class="si">{</span><span class="n">genome_uuid</span><span class="p">[:</span><span class="mi">8</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;core_server&quot;</span><span class="p">:</span> <span class="n">core_server</span><span class="p">,</span>
-        <span class="s2">&quot;core_db_name&quot;</span><span class="p">:</span> <span class="n">core_db_name</span><span class="p">,</span>
+        <span class="s2">"genome_uuid"</span><span class="p">:</span> <span class="n">genome_uuid</span><span class="p">,</span>
+        <span class="s2">"production_name"</span><span class="p">:</span> <span class="n">production_name</span> <span class="ow">or</span> <span class="sa">f</span><span class="s2">"UNKNOWN_</span><span class="si">{</span><span class="n">genome_uuid</span><span class="p">[:</span><span class="mi">8</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+        <span class="s2">"core_server"</span><span class="p">:</span> <span class="n">core_server</span><span class="p">,</span>
+        <span class="s2">"core_db_name"</span><span class="p">:</span> <span class="n">core_db_name</span><span class="p">,</span>
     <span class="p">}</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -6881,15 +6881,15 @@ Otherwise falls back to appending patch['core_suffix'] to production_name.</p>
 <span class="normal">58</span>
 <span class="normal">59</span>
 <span class="normal">60</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">setup_logging</span><span class="p">(</span><span class="n">output_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">genome_uuid</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Set up logging configuration.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Set up logging configuration."""</span>
     <span class="n">log_file</span> <span class="o">=</span> <span class="p">(</span>
         <span class="n">output_dir</span>
-        <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;patch_</span><span class="si">{</span><span class="n">genome_uuid</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y%m</span><span class="si">%d</span><span class="s1">_%H%M%S&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">.log&quot;</span>
+        <span class="o">/</span> <span class="sa">f</span><span class="s2">"patch_</span><span class="si">{</span><span class="n">genome_uuid</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">'%Y%m</span><span class="si">%d</span><span class="s1">_%H%M%S'</span><span class="p">)</span><span class="si">}</span><span class="s2">.log"</span>
     <span class="p">)</span>
 
     <span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span>
         <span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">,</span>
-        <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">%(asctime)s</span><span class="s2"> - </span><span class="si">%(levelname)s</span><span class="s2"> - </span><span class="si">%(message)s</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="nb">format</span><span class="o">=</span><span class="s2">"</span><span class="si">%(asctime)s</span><span class="s2"> - </span><span class="si">%(levelname)s</span><span class="s2"> - </span><span class="si">%(message)s</span><span class="s2">"</span><span class="p">,</span>
         <span class="n">handlers</span><span class="o">=</span><span class="p">[</span><span class="n">logging</span><span class="o">.</span><span class="n">FileHandler</span><span class="p">(</span><span class="n">log_file</span><span class="p">),</span> <span class="n">logging</span><span class="o">.</span><span class="n">StreamHandler</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="p">)],</span>
         <span class="n">force</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span>
@@ -7056,7 +7056,7 @@ Otherwise falls back to appending patch['core_suffix'] to production_name.</p>
     <span class="n">patches</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]],</span>
     <span class="n">species_id</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Write validation and patch SQL for a single core database to open file handles.</span>
 
 <span class="sd">    Args:</span>
@@ -7066,30 +7066,30 @@ Otherwise falls back to appending patch['core_suffix'] to production_name.</p>
 <span class="sd">        patches: List of (meta_key, new_value, table_location) \</span>
 <span class="sd">            tuples (table_location ignored for core DB)</span>
 <span class="sd">        species_id: Species ID</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">for</span> <span class="n">meta_key</span><span class="p">,</span> <span class="n">new_value</span><span class="p">,</span> <span class="n">_table_location</span> <span class="ow">in</span> <span class="n">patches</span><span class="p">:</span>
         <span class="n">sql_literal</span> <span class="o">=</span> <span class="n">_to_sql_literal</span><span class="p">(</span><span class="n">new_value</span><span class="p">,</span> <span class="n">null_as_string</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
         <span class="c1"># Write validation SQL</span>
-        <span class="n">validate_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;-- </span><span class="si">{</span><span class="n">database</span><span class="si">}</span><span class="s2"> | </span><span class="si">{</span><span class="n">meta_key</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="n">validate_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;USE </span><span class="si">{</span><span class="n">database</span><span class="si">}</span><span class="s2">;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="n">validate_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;SELECT &#39;</span><span class="si">{</span><span class="n">database</span><span class="si">}</span><span class="s2">&#39; AS database_name, &quot;</span><span class="p">)</span>
-        <span class="n">validate_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&#39;</span><span class="si">{</span><span class="n">meta_key</span><span class="si">}</span><span class="s2">&#39; AS meta_key, &quot;</span><span class="p">)</span>
-        <span class="n">validate_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;meta_value AS current_value, &quot;</span><span class="p">)</span>
-        <span class="n">validate_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">sql_literal</span><span class="si">}</span><span class="s2"> AS proposed_value</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="n">validate_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;FROM meta</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">validate_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">"-- </span><span class="si">{</span><span class="n">database</span><span class="si">}</span><span class="s2"> | </span><span class="si">{</span><span class="n">meta_key</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+        <span class="n">validate_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">"USE </span><span class="si">{</span><span class="n">database</span><span class="si">}</span><span class="s2">;</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+        <span class="n">validate_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">"SELECT '</span><span class="si">{</span><span class="n">database</span><span class="si">}</span><span class="s2">' AS database_name, "</span><span class="p">)</span>
+        <span class="n">validate_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">"'</span><span class="si">{</span><span class="n">meta_key</span><span class="si">}</span><span class="s2">' AS meta_key, "</span><span class="p">)</span>
+        <span class="n">validate_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">"meta_value AS current_value, "</span><span class="p">)</span>
+        <span class="n">validate_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">sql_literal</span><span class="si">}</span><span class="s2"> AS proposed_value</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+        <span class="n">validate_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">"FROM meta</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
         <span class="n">validate_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">_core_db_where</span><span class="p">(</span><span class="n">meta_key</span><span class="p">,</span> <span class="n">species_id</span><span class="p">))</span>
-        <span class="n">validate_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;;</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">validate_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">";</span><span class="se">\n\n</span><span class="s2">"</span><span class="p">)</span>
 
         <span class="c1"># Write patch SQL</span>
-        <span class="n">patch_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;-- </span><span class="si">{</span><span class="n">database</span><span class="si">}</span><span class="s2"> | </span><span class="si">{</span><span class="n">meta_key</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="n">patch_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;USE </span><span class="si">{</span><span class="n">database</span><span class="si">}</span><span class="s2">;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="n">patch_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;UPDATE meta</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="n">patch_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;SET meta_value = </span><span class="si">{</span><span class="n">sql_literal</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">patch_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">"-- </span><span class="si">{</span><span class="n">database</span><span class="si">}</span><span class="s2"> | </span><span class="si">{</span><span class="n">meta_key</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+        <span class="n">patch_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">"USE </span><span class="si">{</span><span class="n">database</span><span class="si">}</span><span class="s2">;</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+        <span class="n">patch_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">"UPDATE meta</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+        <span class="n">patch_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">"SET meta_value = </span><span class="si">{</span><span class="n">sql_literal</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
         <span class="n">patch_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">_core_db_where</span><span class="p">(</span><span class="n">meta_key</span><span class="p">,</span> <span class="n">species_id</span><span class="p">))</span>
-        <span class="n">patch_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;;</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="n">patch_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;INSERT IGNORE INTO meta (species_id, meta_key, meta_value)</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="n">patch_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;VALUES (</span><span class="si">{</span><span class="n">species_id</span><span class="si">}</span><span class="s2">, &#39;</span><span class="si">{</span><span class="n">meta_key</span><span class="si">}</span><span class="s2">&#39;, </span><span class="si">{</span><span class="n">sql_literal</span><span class="si">}</span><span class="s2">);</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">patch_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">";</span><span class="se">\n\n</span><span class="s2">"</span><span class="p">)</span>
+        <span class="n">patch_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">"INSERT IGNORE INTO meta (species_id, meta_key, meta_value)</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+        <span class="n">patch_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">"VALUES (</span><span class="si">{</span><span class="n">species_id</span><span class="si">}</span><span class="s2">, '</span><span class="si">{</span><span class="n">meta_key</span><span class="si">}</span><span class="s2">', </span><span class="si">{</span><span class="n">sql_literal</span><span class="si">}</span><span class="s2">);</span><span class="se">\n\n</span><span class="s2">"</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -7100,7 +7100,7 @@ Otherwise falls back to appending patch['core_suffix'] to production_name.</p>
 
 
 <h3 id="ensembl.genes.metadata.beta_patcher.write_metadata_patch_for_genome" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">write_metadata_patch_for_genome</span><span class="p">(</span><span class="n">validate_file</span><span class="p">,</span> <span class="n">patch_file</span><span class="p">,</span> <span class="n">genome_uuid</span><span class="p">,</span> <span class="n">patches</span><span class="p">,</span> <span class="n">dataset_type</span><span class="o">=</span><span class="s1">&#39;genebuild&#39;</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">team_filter</span><span class="o">=</span><span class="s1">&#39;Genebuild&#39;</span><span class="p">)</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">write_metadata_patch_for_genome</span><span class="p">(</span><span class="n">validate_file</span><span class="p">,</span> <span class="n">patch_file</span><span class="p">,</span> <span class="n">genome_uuid</span><span class="p">,</span> <span class="n">patches</span><span class="p">,</span> <span class="n">dataset_type</span><span class="o">=</span><span class="s1">'genebuild'</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">team_filter</span><span class="o">=</span><span class="s1">'Genebuild'</span><span class="p">)</span></code>
 
 <a href="#ensembl.genes.metadata.beta_patcher.write_metadata_patch_for_genome" class="headerlink" title="Permanent link">&para;</a></h3>
 
@@ -7206,13 +7206,13 @@ Otherwise falls back to appending patch['core_suffix'] to production_name.</p>
     <span class="n">patch_file</span><span class="p">,</span>
     <span class="n">genome_uuid</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">patches</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]],</span>
-    <span class="n">dataset_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;genebuild&quot;</span><span class="p">,</span>
+    <span class="n">dataset_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"genebuild"</span><span class="p">,</span>
     <span class="n">logger</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">logging</span><span class="o">.</span><span class="n">Logger</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">team_filter</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Genebuild&quot;</span><span class="p">,</span>
+    <span class="n">team_filter</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"Genebuild"</span><span class="p">,</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Write validation and patch SQL for a single genome.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">for</span> <span class="n">attribute_name</span><span class="p">,</span> <span class="n">new_value</span><span class="p">,</span> <span class="n">table_location</span> <span class="ow">in</span> <span class="n">patches</span><span class="p">:</span>
         <span class="n">sql_literal</span> <span class="o">=</span> <span class="n">_to_sql_literal</span><span class="p">(</span><span class="n">new_value</span><span class="p">)</span>
@@ -7224,31 +7224,31 @@ Otherwise falls back to appending patch['core_suffix'] to production_name.</p>
         <span class="p">)</span>
         <span class="k">if</span> <span class="n">current_value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">_VALUE_UNKNOWN</span> <span class="ow">and</span> <span class="n">current_value</span> <span class="o">==</span> <span class="n">proposed_db_value</span><span class="p">:</span>
             <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;-- SKIPPED (no change): </span><span class="si">{</span><span class="n">genome_uuid</span><span class="si">}</span><span class="s2"> | </span><span class="si">{</span><span class="n">attribute_name</span><span class="si">}</span><span class="s2"> &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;already = </span><span class="si">{</span><span class="n">sql_literal</span><span class="si">}</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+                <span class="sa">f</span><span class="s2">"-- SKIPPED (no change): </span><span class="si">{</span><span class="n">genome_uuid</span><span class="si">}</span><span class="s2"> | </span><span class="si">{</span><span class="n">attribute_name</span><span class="si">}</span><span class="s2"> "</span>
+                <span class="sa">f</span><span class="s2">"already = </span><span class="si">{</span><span class="n">sql_literal</span><span class="si">}</span><span class="se">\n\n</span><span class="s2">"</span>
             <span class="p">)</span>
             <span class="n">validate_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
             <span class="n">patch_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">logger</span><span class="p">:</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;  Skipping </span><span class="si">{</span><span class="n">genome_uuid</span><span class="si">}</span><span class="s2"> | </span><span class="si">{</span><span class="n">attribute_name</span><span class="si">}</span><span class="s2">: &quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot;already matches proposed value </span><span class="si">{</span><span class="n">sql_literal</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="sa">f</span><span class="s2">"  Skipping </span><span class="si">{</span><span class="n">genome_uuid</span><span class="si">}</span><span class="s2"> | </span><span class="si">{</span><span class="n">attribute_name</span><span class="si">}</span><span class="s2">: "</span>
+                    <span class="sa">f</span><span class="s2">"already matches proposed value </span><span class="si">{</span><span class="n">sql_literal</span><span class="si">}</span><span class="s2">"</span>
                 <span class="p">)</span>
             <span class="k">continue</span>
 
         <span class="k">if</span> <span class="n">table_location</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span>
-            <span class="s2">&quot;dataset_attribute&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;genome&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;organism&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;assembly&quot;</span><span class="p">,</span>
+            <span class="s2">"dataset_attribute"</span><span class="p">,</span>
+            <span class="s2">"genome"</span><span class="p">,</span>
+            <span class="s2">"organism"</span><span class="p">,</span>
+            <span class="s2">"assembly"</span><span class="p">,</span>
         <span class="p">]:</span>
-            <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;-- ERROR: Invalid table_location &#39;</span><span class="si">{</span><span class="n">table_location</span><span class="si">}</span><span class="s2">&#39; for </span><span class="si">{</span><span class="n">attribute_name</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"-- ERROR: Invalid table_location '</span><span class="si">{</span><span class="n">table_location</span><span class="si">}</span><span class="s2">' for </span><span class="si">{</span><span class="n">attribute_name</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span>
             <span class="n">validate_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
             <span class="n">patch_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
             <span class="k">continue</span>
 
         <span class="c1"># Organism/assembly checks</span>
-        <span class="k">if</span> <span class="n">table_location</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;organism&quot;</span><span class="p">,</span> <span class="s2">&quot;assembly&quot;</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="n">table_location</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"organism"</span><span class="p">,</span> <span class="s2">"assembly"</span><span class="p">]:</span>
             <span class="n">affected_genomes</span> <span class="o">=</span> <span class="n">get_affected_genomes_and_teams</span><span class="p">(</span>
                 <span class="n">genome_uuid</span><span class="p">,</span> <span class="n">table_location</span><span class="p">,</span> <span class="n">dataset_type</span>
             <span class="p">)</span>
@@ -7268,7 +7268,7 @@ Otherwise falls back to appending patch['core_suffix'] to production_name.</p>
         <span class="c1"># entry-specific UPDATE statements rather than DELETE+INSERT (which breaks the</span>
         <span class="c1"># UNIQUE constraint when a genome is linked to multiple releases).</span>
         <span class="n">existing_attribute_ids</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">if</span> <span class="n">table_location</span> <span class="o">==</span> <span class="s2">&quot;dataset_attribute&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">table_location</span> <span class="o">==</span> <span class="s2">"dataset_attribute"</span><span class="p">:</span>
             <span class="n">existing_attribute_ids</span> <span class="o">=</span> <span class="n">get_existing_dataset_attribute_ids</span><span class="p">(</span>
                 <span class="n">genome_uuid</span><span class="p">,</span> <span class="n">dataset_type</span><span class="p">,</span> <span class="n">attribute_name</span>
             <span class="p">)</span>

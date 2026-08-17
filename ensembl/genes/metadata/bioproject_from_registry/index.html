@@ -3732,7 +3732,7 @@
 
 
 <h3 id="ensembl.genes.metadata.bioproject_from_registry.DEFAULT_REGISTRY_DB" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">DEFAULT_REGISTRY_DB</span> <span class="o">=</span> <span class="s1">&#39;gb_assembly_metadata&#39;</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">DEFAULT_REGISTRY_DB</span> <span class="o">=</span> <span class="s1">'gb_assembly_metadata'</span></code>
 
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
@@ -3808,7 +3808,7 @@
     <span class="n">port</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">database</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">DEFAULT_REGISTRY_DB</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the first main BioProject genome group name for an assembly accession.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Return the first main BioProject genome group name for an assembly accession."""</span>
     <span class="n">bioproject_names</span> <span class="o">=</span> <span class="n">get_bioproject_names</span><span class="p">(</span>
         <span class="n">assembly_accession</span><span class="p">,</span>
         <span class="n">user</span><span class="o">=</span><span class="n">user</span><span class="p">,</span>
@@ -3816,7 +3816,7 @@
         <span class="n">port</span><span class="o">=</span><span class="n">port</span><span class="p">,</span>
         <span class="n">database</span><span class="o">=</span><span class="n">database</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="k">return</span> <span class="n">bioproject_names</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">bioproject_names</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">bioproject_names</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">bioproject_names</span> <span class="k">else</span> <span class="s2">""</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -3925,7 +3925,7 @@
               </div>
             </td>
             <td>
-                  <code><a class="autorefs autorefs-internal" title="&lt;code class=&quot;doc-symbol doc-symbol-heading doc-symbol-attribute&quot;&gt;&lt;/code&gt;            &lt;code class=&quot;highlight language-python&quot;&gt;&lt;span class=&quot;n&quot;&gt;DEFAULT_REGISTRY_DB&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;&amp;#39;gb_assembly_metadata&amp;#39;&lt;/span&gt;&lt;/code&gt;
+                  <code><a class="autorefs autorefs-internal" title="&lt;code class=&quot;doc-symbol doc-symbol-heading doc-symbol-attribute&quot;&gt;&lt;/code&gt;            &lt;code class=&quot;highlight language-python&quot;&gt;&lt;span class=&quot;n&quot;&gt;DEFAULT_REGISTRY_DB&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;&#x27;gb_assembly_metadata&#x27;&lt;/span&gt;&lt;/code&gt;
 
   &lt;span class=&quot;doc doc-labels&quot;&gt;
       &lt;small class=&quot;doc doc-label doc-label-module-attribute&quot;&gt;&lt;code&gt;module-attribute&lt;/code&gt;&lt;/small&gt;
@@ -4063,7 +4063,7 @@
     <span class="n">port</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">database</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">DEFAULT_REGISTRY_DB</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return main BioProject genome group names for an assembly accession.</span>
+<span class="w">    </span><span class="sd">"""Return main BioProject genome group names for an assembly accession.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        assembly_accession: GCA assembly accession including version.</span>
@@ -4074,17 +4074,17 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">        Main BioProject genome group names, or an empty list if they are unavailable.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">registry_host</span> <span class="o">=</span> <span class="n">host</span> <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;GBS1&quot;</span><span class="p">)</span>
-    <span class="n">registry_port</span> <span class="o">=</span> <span class="n">port</span> <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;GBP1&quot;</span><span class="p">)</span>
+<span class="sd">    """</span>
+    <span class="n">registry_host</span> <span class="o">=</span> <span class="n">host</span> <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"GBS1"</span><span class="p">)</span>
+    <span class="n">registry_port</span> <span class="o">=</span> <span class="n">port</span> <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"GBP1"</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">user</span><span class="p">:</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot; | GENOME.GENOME_GROUP | Registry user not set&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">" | GENOME.GENOME_GROUP | Registry user not set"</span><span class="p">)</span>
         <span class="k">return</span> <span class="p">[]</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">registry_host</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">registry_port</span><span class="p">:</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-            <span class="s2">&quot; | GENOME.GENOME_GROUP | Registry host/port not set; expected GBS1 and GBP1&quot;</span>
+            <span class="s2">" | GENOME.GENOME_GROUP | Registry host/port not set; expected GBS1 and GBP1"</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="p">[]</span>
 
@@ -4092,20 +4092,20 @@
         <span class="n">registry_port</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">registry_port</span><span class="p">)</span>
     <span class="k">except</span> <span class="p">(</span><span class="ne">TypeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-            <span class="s2">&quot; | GENOME.GENOME_GROUP | Invalid registry port for BioProject lookup: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="s2">" | GENOME.GENOME_GROUP | Invalid registry port for BioProject lookup: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span>
             <span class="n">registry_port</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="p">[]</span>
 
-    <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+    <span class="n">query</span> <span class="o">=</span> <span class="s2">"""</span>
 <span class="s2">        SELECT DISTINCT mb.bioproject_name AS genome_group</span>
 <span class="s2">        FROM assembly a</span>
 <span class="s2">        JOIN bioproject b ON a.assembly_id = b.assembly_id</span>
 <span class="s2">        JOIN main_bioproject mb ON b.bioproject_id = mb.bioproject_id</span>
-<span class="s2">        WHERE CONCAT(a.gca_chain, &#39;.&#39;, a.gca_version) = </span><span class="si">%s</span>
+<span class="s2">        WHERE CONCAT(a.gca_chain, '.', a.gca_version) = </span><span class="si">%s</span>
 <span class="s2">          AND mb.bioproject_name IS NOT NULL</span>
 <span class="s2">        ORDER BY genome_group</span>
-<span class="s2">    &quot;&quot;&quot;</span>
+<span class="s2">    """</span>
 
     <span class="n">conn</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="k">try</span><span class="p">:</span>
@@ -4121,7 +4121,7 @@
             <span class="n">results</span> <span class="o">=</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
     <span class="k">except</span> <span class="n">pymysql</span><span class="o">.</span><span class="n">Error</span><span class="p">:</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span>
-            <span class="s2">&quot; | GENOME.GENOME_GROUP | Could not fetch genome group names from registry for </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="s2">" | GENOME.GENOME_GROUP | Could not fetch genome group names from registry for </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span>
             <span class="n">assembly_accession</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="p">[]</span>
@@ -4130,17 +4130,17 @@
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">conn</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
             <span class="k">except</span> <span class="n">pymysql</span><span class="o">.</span><span class="n">Error</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="s2">&quot;Error closing registry connection&quot;</span><span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="s2">"Error closing registry connection"</span><span class="p">)</span>
 
     <span class="n">registry_genome_group_names</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="n">normalise_genome_group_name</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;genome_group&quot;</span><span class="p">]))</span>
+        <span class="n">normalise_genome_group_name</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="s2">"genome_group"</span><span class="p">]))</span>
         <span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">results</span>
-        <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;genome_group&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"genome_group"</span><span class="p">)</span>
     <span class="p">]</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">registry_genome_group_names</span><span class="p">:</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-            <span class="s2">&quot; | GENOME.GENOME_GROUP | No genome group name found in registry for </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="s2">" | GENOME.GENOME_GROUP | No genome group name found in registry for </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span>
             <span class="n">assembly_accession</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="p">[]</span>
@@ -4148,7 +4148,7 @@
     <span class="n">genome_group_names</span> <span class="o">=</span> <span class="p">[</span>
         <span class="n">genome_group_name</span>
         <span class="k">for</span> <span class="n">genome_group_name</span> <span class="ow">in</span> <span class="n">registry_genome_group_names</span>
-        <span class="k">if</span> <span class="n">genome_group_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">{</span><span class="s2">&quot;hprc&quot;</span><span class="p">,</span> <span class="s2">&quot;atlasea&quot;</span><span class="p">}</span>
+        <span class="k">if</span> <span class="n">genome_group_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">{</span><span class="s2">"hprc"</span><span class="p">,</span> <span class="s2">"atlasea"</span><span class="p">}</span>
     <span class="p">]</span>
 
     <span class="k">return</span> <span class="n">genome_group_names</span>
@@ -4177,8 +4177,8 @@
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">29</span>
 <span class="normal">30</span>
 <span class="normal">31</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">normalise_genome_group_name</span><span class="p">(</span><span class="n">genome_group_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the meta-safe genome group name.&quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">genome_group_name</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">,</span> <span class="s2">&quot;-&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="sd">"""Return the meta-safe genome group name."""</span>
+    <span class="k">return</span> <span class="n">genome_group_name</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"/"</span><span class="p">,</span> <span class="s2">"-"</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>

@@ -3940,17 +3940,17 @@ list.  Never invents external links.</p>
 <span class="normal">297</span>
 <span class="normal">298</span>
 <span class="normal">299</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">HaplotypeResolver</span><span class="p">:</span>  <span class="c1"># pylint: disable=too-few-public-methods</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Identifies alternate haplotype pairs within a project dataset.</span>
+<span class="w">    </span><span class="sd">"""Identifies alternate haplotype pairs within a project dataset.</span>
 
 <span class="sd">    Only pairs assemblies that are both present in the provided genome</span>
 <span class="sd">    list.  Never invents external links.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">find_alternate_haplotypes</span><span class="p">(</span>  <span class="c1"># pylint: disable=too-many-locals,too-many-branches,too-many-statements</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">genomes</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="s2">&quot;GenomeMetadata&quot;</span><span class="p">],</span>
+        <span class="n">genomes</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="s2">"GenomeMetadata"</span><span class="p">],</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Find alternate haplotype pairs among the given genomes.</span>
+<span class="w">        </span><span class="sd">"""Find alternate haplotype pairs among the given genomes.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -3963,7 +3963,7 @@ list.  Never invents external links.</p>
 <span class="sd">        Dict mapping accession → alternate accession.</span>
 <span class="sd">        The mapping is bidirectional: if A→B then B→A.</span>
 <span class="sd">        Only accessions present in *genomes* appear as values.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">genomes</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
             <span class="k">return</span> <span class="p">{}</span>
 
@@ -3978,7 +3978,7 @@ list.  Never invents external links.</p>
         <span class="c1"># Group by BioSample accession</span>
         <span class="n">biosample_groups</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">acc</span><span class="p">,</span> <span class="n">info</span> <span class="ow">in</span> <span class="n">ncbi_meta</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="n">bs</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;biosample&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+            <span class="n">bs</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"biosample"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">bs</span> <span class="ow">and</span> <span class="n">acc</span> <span class="ow">in</span> <span class="n">acc_set</span><span class="p">:</span>
                 <span class="n">biosample_groups</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">bs</span><span class="p">,</span> <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">acc</span><span class="p">)</span>
 
@@ -3988,11 +3988,11 @@ list.  Never invents external links.</p>
                 <span class="k">if</span> <span class="n">a</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">pairs</span> <span class="ow">and</span> <span class="n">b</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">pairs</span><span class="p">:</span>
                     <span class="n">pairs</span><span class="p">[</span><span class="n">a</span><span class="p">]</span> <span class="o">=</span> <span class="n">b</span>
                     <span class="n">pairs</span><span class="p">[</span><span class="n">b</span><span class="p">]</span> <span class="o">=</span> <span class="n">a</span>
-                    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Haplotype pair (biosample=</span><span class="si">%s</span><span class="s2">): </span><span class="si">%s</span><span class="s2"> &lt;-&gt; </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">bs</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"Haplotype pair (biosample=</span><span class="si">%s</span><span class="s2">): </span><span class="si">%s</span><span class="s2"> &lt;-&gt; </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">bs</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
             <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">group_accs</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                    <span class="s2">&quot;BioSample </span><span class="si">%s</span><span class="s2"> has </span><span class="si">%d</span><span class="s2"> assemblies; skipping auto-pair &quot;</span>
-                    <span class="s2">&quot;(ambiguous).&quot;</span><span class="p">,</span>
+                    <span class="s2">"BioSample </span><span class="si">%s</span><span class="s2"> has </span><span class="si">%d</span><span class="s2"> assemblies; skipping auto-pair "</span>
+                    <span class="s2">"(ambiguous)."</span><span class="p">,</span>
                     <span class="n">bs</span><span class="p">,</span>
                     <span class="nb">len</span><span class="p">(</span><span class="n">group_accs</span><span class="p">),</span>
                 <span class="p">)</span>
@@ -4000,11 +4000,11 @@ list.  Never invents external links.</p>
         <span class="c1"># ------ Source 2: Sample name / isolate ------</span>
         <span class="n">sample_groups</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">acc</span><span class="p">,</span> <span class="n">info</span> <span class="ow">in</span> <span class="n">ncbi_meta</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="n">sn</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;sample_name&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="n">sn</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"sample_name"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
             <span class="k">if</span> <span class="n">sn</span> <span class="ow">and</span> <span class="n">acc</span> <span class="ow">in</span> <span class="n">acc_set</span> <span class="ow">and</span> <span class="n">acc</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">pairs</span><span class="p">:</span>
                 <span class="c1"># Also require same taxon_id to avoid cross-species matches</span>
-                <span class="n">tid</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;taxon_id&quot;</span><span class="p">)</span>
-                <span class="n">key</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">tid</span><span class="si">}</span><span class="s2">||</span><span class="si">{</span><span class="n">sn</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">if</span> <span class="n">tid</span> <span class="k">else</span> <span class="n">sn</span>
+                <span class="n">tid</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"taxon_id"</span><span class="p">)</span>
+                <span class="n">key</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">tid</span><span class="si">}</span><span class="s2">||</span><span class="si">{</span><span class="n">sn</span><span class="si">}</span><span class="s2">"</span> <span class="k">if</span> <span class="n">tid</span> <span class="k">else</span> <span class="n">sn</span>
                 <span class="n">sample_groups</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">acc</span><span class="p">)</span>
 
         <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">group_accs</span> <span class="ow">in</span> <span class="n">sample_groups</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
@@ -4013,11 +4013,11 @@ list.  Never invents external links.</p>
                 <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="o">=</span> <span class="n">unpaired</span>
                 <span class="n">pairs</span><span class="p">[</span><span class="n">a</span><span class="p">]</span> <span class="o">=</span> <span class="n">b</span>
                 <span class="n">pairs</span><span class="p">[</span><span class="n">b</span><span class="p">]</span> <span class="o">=</span> <span class="n">a</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Haplotype pair (sample_name=</span><span class="si">%s</span><span class="s2">): </span><span class="si">%s</span><span class="s2"> &lt;-&gt; </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"Haplotype pair (sample_name=</span><span class="si">%s</span><span class="s2">): </span><span class="si">%s</span><span class="s2"> &lt;-&gt; </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
 
         <span class="c1"># ------ Source 3: Assembly name heuristics (weak fallback) ------</span>
         <span class="c1"># Group by species+taxon_id for safety, then by naming pattern</span>
-        <span class="n">species_groups</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">Tuple</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="s2">&quot;GenomeMetadata&quot;</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">species_groups</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">Tuple</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="s2">"GenomeMetadata"</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="n">genomes</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">g</span><span class="o">.</span><span class="n">accession</span> <span class="ow">in</span> <span class="n">pairs</span><span class="p">:</span>
                 <span class="k">continue</span>
@@ -4027,14 +4027,14 @@ list.  Never invents external links.</p>
         <span class="k">for</span> <span class="n">sp_key</span><span class="p">,</span> <span class="n">sp_genomes</span> <span class="ow">in</span> <span class="n">species_groups</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">sp_genomes</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
                 <span class="k">continue</span>
-            <span class="n">hap_groups</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="s2">&quot;GenomeMetadata&quot;</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="n">hap_groups</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="s2">"GenomeMetadata"</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
             <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="n">sp_genomes</span><span class="p">:</span>
                 <span class="c1"># Use NCBI assembly name if available, fall back to meta</span>
-                <span class="n">asm_name</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+                <span class="n">asm_name</span> <span class="o">=</span> <span class="s2">""</span>
                 <span class="k">if</span> <span class="n">g</span><span class="o">.</span><span class="n">accession</span> <span class="ow">in</span> <span class="n">ncbi_meta</span><span class="p">:</span>
-                    <span class="n">asm_name</span> <span class="o">=</span> <span class="n">ncbi_meta</span><span class="p">[</span><span class="n">g</span><span class="o">.</span><span class="n">accession</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;assembly_name&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+                    <span class="n">asm_name</span> <span class="o">=</span> <span class="n">ncbi_meta</span><span class="p">[</span><span class="n">g</span><span class="o">.</span><span class="n">accession</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"assembly_name"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="n">asm_name</span><span class="p">:</span>
-                    <span class="n">asm_name</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">assembly_name</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span>
+                    <span class="n">asm_name</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">assembly_name</span> <span class="ow">or</span> <span class="s2">""</span>
 
                 <span class="n">result</span> <span class="o">=</span> <span class="n">_extract_hap_group_key</span><span class="p">(</span><span class="n">asm_name</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">result</span><span class="p">:</span>
@@ -4051,14 +4051,14 @@ list.  Never invents external links.</p>
                     <span class="n">pairs</span><span class="p">[</span><span class="n">a</span><span class="p">]</span> <span class="o">=</span> <span class="n">b</span>
                     <span class="n">pairs</span><span class="p">[</span><span class="n">b</span><span class="p">]</span> <span class="o">=</span> <span class="n">a</span>
                     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                        <span class="s2">&quot;Haplotype pair (assembly_name pattern=</span><span class="si">%s</span><span class="s2">): </span><span class="si">%s</span><span class="s2"> &lt;-&gt; </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+                        <span class="s2">"Haplotype pair (assembly_name pattern=</span><span class="si">%s</span><span class="s2">): </span><span class="si">%s</span><span class="s2"> &lt;-&gt; </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span>
                         <span class="n">gk</span><span class="p">,</span>
                         <span class="n">a</span><span class="p">,</span>
                         <span class="n">b</span><span class="p">,</span>
                     <span class="p">)</span>
 
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-            <span class="s2">&quot;Haplotype resolution complete: </span><span class="si">%d</span><span class="s2"> pairs found for </span><span class="si">%d</span><span class="s2"> genomes.&quot;</span><span class="p">,</span>
+            <span class="s2">"Haplotype resolution complete: </span><span class="si">%d</span><span class="s2"> pairs found for </span><span class="si">%d</span><span class="s2"> genomes."</span><span class="p">,</span>
             <span class="nb">len</span><span class="p">(</span><span class="n">pairs</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span><span class="p">,</span>
             <span class="nb">len</span><span class="p">(</span><span class="n">genomes</span><span class="p">),</span>
         <span class="p">)</span>
@@ -4221,9 +4221,9 @@ Only accessions present in <em>genomes</em> appear as values.</p>
 <span class="normal">298</span>
 <span class="normal">299</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">find_alternate_haplotypes</span><span class="p">(</span>  <span class="c1"># pylint: disable=too-many-locals,too-many-branches,too-many-statements</span>
     <span class="bp">self</span><span class="p">,</span>
-    <span class="n">genomes</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="s2">&quot;GenomeMetadata&quot;</span><span class="p">],</span>
+    <span class="n">genomes</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="s2">"GenomeMetadata"</span><span class="p">],</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Find alternate haplotype pairs among the given genomes.</span>
+<span class="w">    </span><span class="sd">"""Find alternate haplotype pairs among the given genomes.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -4236,7 +4236,7 @@ Only accessions present in <em>genomes</em> appear as values.</p>
 <span class="sd">    Dict mapping accession → alternate accession.</span>
 <span class="sd">    The mapping is bidirectional: if A→B then B→A.</span>
 <span class="sd">    Only accessions present in *genomes* appear as values.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">genomes</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
         <span class="k">return</span> <span class="p">{}</span>
 
@@ -4251,7 +4251,7 @@ Only accessions present in <em>genomes</em> appear as values.</p>
     <span class="c1"># Group by BioSample accession</span>
     <span class="n">biosample_groups</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">for</span> <span class="n">acc</span><span class="p">,</span> <span class="n">info</span> <span class="ow">in</span> <span class="n">ncbi_meta</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-        <span class="n">bs</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;biosample&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="n">bs</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"biosample"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">bs</span> <span class="ow">and</span> <span class="n">acc</span> <span class="ow">in</span> <span class="n">acc_set</span><span class="p">:</span>
             <span class="n">biosample_groups</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">bs</span><span class="p">,</span> <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">acc</span><span class="p">)</span>
 
@@ -4261,11 +4261,11 @@ Only accessions present in <em>genomes</em> appear as values.</p>
             <span class="k">if</span> <span class="n">a</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">pairs</span> <span class="ow">and</span> <span class="n">b</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">pairs</span><span class="p">:</span>
                 <span class="n">pairs</span><span class="p">[</span><span class="n">a</span><span class="p">]</span> <span class="o">=</span> <span class="n">b</span>
                 <span class="n">pairs</span><span class="p">[</span><span class="n">b</span><span class="p">]</span> <span class="o">=</span> <span class="n">a</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Haplotype pair (biosample=</span><span class="si">%s</span><span class="s2">): </span><span class="si">%s</span><span class="s2"> &lt;-&gt; </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">bs</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"Haplotype pair (biosample=</span><span class="si">%s</span><span class="s2">): </span><span class="si">%s</span><span class="s2"> &lt;-&gt; </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">bs</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
         <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">group_accs</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                <span class="s2">&quot;BioSample </span><span class="si">%s</span><span class="s2"> has </span><span class="si">%d</span><span class="s2"> assemblies; skipping auto-pair &quot;</span>
-                <span class="s2">&quot;(ambiguous).&quot;</span><span class="p">,</span>
+                <span class="s2">"BioSample </span><span class="si">%s</span><span class="s2"> has </span><span class="si">%d</span><span class="s2"> assemblies; skipping auto-pair "</span>
+                <span class="s2">"(ambiguous)."</span><span class="p">,</span>
                 <span class="n">bs</span><span class="p">,</span>
                 <span class="nb">len</span><span class="p">(</span><span class="n">group_accs</span><span class="p">),</span>
             <span class="p">)</span>
@@ -4273,11 +4273,11 @@ Only accessions present in <em>genomes</em> appear as values.</p>
     <span class="c1"># ------ Source 2: Sample name / isolate ------</span>
     <span class="n">sample_groups</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">for</span> <span class="n">acc</span><span class="p">,</span> <span class="n">info</span> <span class="ow">in</span> <span class="n">ncbi_meta</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-        <span class="n">sn</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;sample_name&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="n">sn</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"sample_name"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">sn</span> <span class="ow">and</span> <span class="n">acc</span> <span class="ow">in</span> <span class="n">acc_set</span> <span class="ow">and</span> <span class="n">acc</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">pairs</span><span class="p">:</span>
             <span class="c1"># Also require same taxon_id to avoid cross-species matches</span>
-            <span class="n">tid</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;taxon_id&quot;</span><span class="p">)</span>
-            <span class="n">key</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">tid</span><span class="si">}</span><span class="s2">||</span><span class="si">{</span><span class="n">sn</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">if</span> <span class="n">tid</span> <span class="k">else</span> <span class="n">sn</span>
+            <span class="n">tid</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"taxon_id"</span><span class="p">)</span>
+            <span class="n">key</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">tid</span><span class="si">}</span><span class="s2">||</span><span class="si">{</span><span class="n">sn</span><span class="si">}</span><span class="s2">"</span> <span class="k">if</span> <span class="n">tid</span> <span class="k">else</span> <span class="n">sn</span>
             <span class="n">sample_groups</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">acc</span><span class="p">)</span>
 
     <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">group_accs</span> <span class="ow">in</span> <span class="n">sample_groups</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
@@ -4286,11 +4286,11 @@ Only accessions present in <em>genomes</em> appear as values.</p>
             <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="o">=</span> <span class="n">unpaired</span>
             <span class="n">pairs</span><span class="p">[</span><span class="n">a</span><span class="p">]</span> <span class="o">=</span> <span class="n">b</span>
             <span class="n">pairs</span><span class="p">[</span><span class="n">b</span><span class="p">]</span> <span class="o">=</span> <span class="n">a</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Haplotype pair (sample_name=</span><span class="si">%s</span><span class="s2">): </span><span class="si">%s</span><span class="s2"> &lt;-&gt; </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"Haplotype pair (sample_name=</span><span class="si">%s</span><span class="s2">): </span><span class="si">%s</span><span class="s2"> &lt;-&gt; </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
 
     <span class="c1"># ------ Source 3: Assembly name heuristics (weak fallback) ------</span>
     <span class="c1"># Group by species+taxon_id for safety, then by naming pattern</span>
-    <span class="n">species_groups</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">Tuple</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="s2">&quot;GenomeMetadata&quot;</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">species_groups</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">Tuple</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="s2">"GenomeMetadata"</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="n">genomes</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">g</span><span class="o">.</span><span class="n">accession</span> <span class="ow">in</span> <span class="n">pairs</span><span class="p">:</span>
             <span class="k">continue</span>
@@ -4300,14 +4300,14 @@ Only accessions present in <em>genomes</em> appear as values.</p>
     <span class="k">for</span> <span class="n">sp_key</span><span class="p">,</span> <span class="n">sp_genomes</span> <span class="ow">in</span> <span class="n">species_groups</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">sp_genomes</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
             <span class="k">continue</span>
-        <span class="n">hap_groups</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="s2">&quot;GenomeMetadata&quot;</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">hap_groups</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="s2">"GenomeMetadata"</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="n">sp_genomes</span><span class="p">:</span>
             <span class="c1"># Use NCBI assembly name if available, fall back to meta</span>
-            <span class="n">asm_name</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+            <span class="n">asm_name</span> <span class="o">=</span> <span class="s2">""</span>
             <span class="k">if</span> <span class="n">g</span><span class="o">.</span><span class="n">accession</span> <span class="ow">in</span> <span class="n">ncbi_meta</span><span class="p">:</span>
-                <span class="n">asm_name</span> <span class="o">=</span> <span class="n">ncbi_meta</span><span class="p">[</span><span class="n">g</span><span class="o">.</span><span class="n">accession</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;assembly_name&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+                <span class="n">asm_name</span> <span class="o">=</span> <span class="n">ncbi_meta</span><span class="p">[</span><span class="n">g</span><span class="o">.</span><span class="n">accession</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"assembly_name"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">asm_name</span><span class="p">:</span>
-                <span class="n">asm_name</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">assembly_name</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span>
+                <span class="n">asm_name</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">assembly_name</span> <span class="ow">or</span> <span class="s2">""</span>
 
             <span class="n">result</span> <span class="o">=</span> <span class="n">_extract_hap_group_key</span><span class="p">(</span><span class="n">asm_name</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">result</span><span class="p">:</span>
@@ -4324,14 +4324,14 @@ Only accessions present in <em>genomes</em> appear as values.</p>
                 <span class="n">pairs</span><span class="p">[</span><span class="n">a</span><span class="p">]</span> <span class="o">=</span> <span class="n">b</span>
                 <span class="n">pairs</span><span class="p">[</span><span class="n">b</span><span class="p">]</span> <span class="o">=</span> <span class="n">a</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                    <span class="s2">&quot;Haplotype pair (assembly_name pattern=</span><span class="si">%s</span><span class="s2">): </span><span class="si">%s</span><span class="s2"> &lt;-&gt; </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+                    <span class="s2">"Haplotype pair (assembly_name pattern=</span><span class="si">%s</span><span class="s2">): </span><span class="si">%s</span><span class="s2"> &lt;-&gt; </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span>
                     <span class="n">gk</span><span class="p">,</span>
                     <span class="n">a</span><span class="p">,</span>
                     <span class="n">b</span><span class="p">,</span>
                 <span class="p">)</span>
 
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-        <span class="s2">&quot;Haplotype resolution complete: </span><span class="si">%d</span><span class="s2"> pairs found for </span><span class="si">%d</span><span class="s2"> genomes.&quot;</span><span class="p">,</span>
+        <span class="s2">"Haplotype resolution complete: </span><span class="si">%d</span><span class="s2"> pairs found for </span><span class="si">%d</span><span class="s2"> genomes."</span><span class="p">,</span>
         <span class="nb">len</span><span class="p">(</span><span class="n">pairs</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span><span class="p">,</span>
         <span class="nb">len</span><span class="p">(</span><span class="n">genomes</span><span class="p">),</span>
     <span class="p">)</span>

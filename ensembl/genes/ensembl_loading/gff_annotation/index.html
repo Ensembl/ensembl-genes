@@ -4203,20 +4203,20 @@
 <span class="normal">61</span>
 <span class="normal">62</span>
 <span class="normal">63</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">DbCursor</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Small cursor protocol used by the loader and tests.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Small cursor protocol used by the loader and tests."""</span>
 
     <span class="n">lastrowid</span><span class="p">:</span> <span class="nb">int</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">operation</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">Any</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Execute one SQL statement.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Execute one SQL statement."""</span>
         <span class="o">...</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">executemany</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">operation</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">seq_params</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Execute one SQL statement for many parameter sets.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Execute one SQL statement for many parameter sets."""</span>
         <span class="o">...</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">fetchone</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Fetch one result row.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Fetch one result row."""</span>
         <span class="o">...</span>
 </code></pre></div></td></tr></table></div>
               </details>
@@ -4273,7 +4273,7 @@
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">53</span>
 <span class="normal">54</span>
 <span class="normal">55</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">operation</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">Any</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Execute one SQL statement.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Execute one SQL statement."""</span>
     <span class="o">...</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -4300,7 +4300,7 @@
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">57</span>
 <span class="normal">58</span>
 <span class="normal">59</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">executemany</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">operation</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">seq_params</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Execute one SQL statement for many parameter sets.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Execute one SQL statement for many parameter sets."""</span>
     <span class="o">...</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -4327,7 +4327,7 @@
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">61</span>
 <span class="normal">62</span>
 <span class="normal">63</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">fetchone</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Fetch one result row.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Fetch one result row."""</span>
     <span class="o">...</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -4380,7 +4380,7 @@
     <span class="n">annotation</span><span class="p">:</span> <span class="n">ParsedAnnotation</span><span class="p">,</span>
     <span class="n">source_config</span><span class="p">:</span> <span class="n">GffSourceConfig</span> <span class="o">=</span> <span class="n">REFSEQ_CONFIG</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ParsedAnnotation</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Apply final gene and transcript biotype overrides.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Apply final gene and transcript biotype overrides."""</span>
 
     <span class="k">for</span> <span class="n">gene</span> <span class="ow">in</span> <span class="n">annotation</span><span class="o">.</span><span class="n">genes</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
         <span class="k">if</span> <span class="n">gene</span><span class="o">.</span><span class="n">biotype</span> <span class="ow">in</span> <span class="n">source_config</span><span class="o">.</span><span class="n">gene_biotype_overrides</span><span class="p">:</span>
@@ -4500,7 +4500,7 @@
     <span class="n">transcript_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">transcript</span><span class="p">:</span> <span class="n">TranscriptRecord</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">CdsSegment</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Build CDS segments from anno GTF transcript translation coordinates.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Build CDS segments from anno GTF transcript translation coordinates."""</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">transcript</span><span class="o">.</span><span class="n">translation_coords</span><span class="p">:</span>
         <span class="k">return</span> <span class="p">[]</span>
@@ -4537,13 +4537,13 @@
     <span class="p">)</span>
     <span class="k">if</span> <span class="n">start_index</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">end_index</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Could not match translation_coords to exons for transcript &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">transcript_id</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">transcript</span><span class="o">.</span><span class="n">translation_coords</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">"Could not match translation_coords to exons for transcript "</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">transcript_id</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">transcript</span><span class="o">.</span><span class="n">translation_coords</span><span class="si">}</span><span class="s2">"</span>
         <span class="p">)</span>
     <span class="k">if</span> <span class="n">start_index</span> <span class="o">&gt;</span> <span class="n">end_index</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;translation_coords start exon occurs after end exon for &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;transcript </span><span class="si">{</span><span class="n">transcript_id</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">transcript</span><span class="o">.</span><span class="n">translation_coords</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">"translation_coords start exon occurs after end exon for "</span>
+            <span class="sa">f</span><span class="s2">"transcript </span><span class="si">{</span><span class="n">transcript_id</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">transcript</span><span class="o">.</span><span class="n">translation_coords</span><span class="si">}</span><span class="s2">"</span>
         <span class="p">)</span>
 
     <span class="n">cds_segments</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">CdsSegment</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
@@ -4566,15 +4566,15 @@
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">exon</span><span class="o">.</span><span class="n">start</span> <span class="o">&lt;=</span> <span class="n">cds_start</span> <span class="o">&lt;=</span> <span class="n">cds_end</span> <span class="o">&lt;=</span> <span class="n">exon</span><span class="o">.</span><span class="n">end</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;translation_coords produced CDS outside exon bounds for &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;transcript </span><span class="si">{</span><span class="n">transcript_id</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">transcript</span><span class="o">.</span><span class="n">translation_coords</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="sa">f</span><span class="s2">"translation_coords produced CDS outside exon bounds for "</span>
+                <span class="sa">f</span><span class="s2">"transcript </span><span class="si">{</span><span class="n">transcript_id</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">transcript</span><span class="o">.</span><span class="n">translation_coords</span><span class="si">}</span><span class="s2">"</span>
             <span class="p">)</span>
         <span class="n">cds_segments</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
             <span class="n">CdsSegment</span><span class="p">(</span>
                 <span class="n">start</span><span class="o">=</span><span class="n">cds_start</span><span class="p">,</span>
                 <span class="n">end</span><span class="o">=</span><span class="n">cds_end</span><span class="p">,</span>
                 <span class="n">strand</span><span class="o">=</span><span class="n">transcript</span><span class="o">.</span><span class="n">strand</span><span class="p">,</span>
-                <span class="n">phase</span><span class="o">=</span><span class="s2">&quot;0&quot;</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">cds_segments</span> <span class="k">else</span> <span class="s2">&quot;.&quot;</span><span class="p">,</span>
+                <span class="n">phase</span><span class="o">=</span><span class="s2">"0"</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">cds_segments</span> <span class="k">else</span> <span class="s2">"."</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="p">)</span>
     <span class="k">return</span> <span class="n">cds_segments</span>
@@ -4688,7 +4688,7 @@
 <span class="normal">795</span>
 <span class="normal">796</span>
 <span class="normal">797</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">compute_exon_phases</span><span class="p">(</span><span class="n">annotation</span><span class="p">:</span> <span class="n">ParsedAnnotation</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ParsedAnnotation</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute exon phase and end_phase values from CDS segments.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Compute exon phase and end_phase values from CDS segments."""</span>
 
     <span class="k">for</span> <span class="n">transcript_id</span><span class="p">,</span> <span class="n">cds_list</span> <span class="ow">in</span> <span class="n">annotation</span><span class="o">.</span><span class="n">cds_segments</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
         <span class="n">transcript</span> <span class="o">=</span> <span class="n">annotation</span><span class="o">.</span><span class="n">transcripts</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">transcript_id</span><span class="p">)</span>
@@ -4708,7 +4708,7 @@
 
         <span class="n">first_phase</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">for</span> <span class="n">cds</span> <span class="ow">in</span> <span class="n">ordered_cds</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">cds</span><span class="o">.</span><span class="n">phase</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">cds</span><span class="o">.</span><span class="n">phase</span> <span class="o">!=</span> <span class="s2">&quot;.&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">cds</span><span class="o">.</span><span class="n">phase</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">cds</span><span class="o">.</span><span class="n">phase</span> <span class="o">!=</span> <span class="s2">"."</span><span class="p">:</span>
                 <span class="k">try</span><span class="p">:</span>
                     <span class="n">first_phase</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">cds</span><span class="o">.</span><span class="n">phase</span><span class="p">)</span>
                 <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
@@ -4811,7 +4811,7 @@
     <span class="n">attributes</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span>
     <span class="n">attribute_names</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the first non-empty configured feature attribute value.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Return the first non-empty configured feature attribute value."""</span>
 
     <span class="k">for</span> <span class="n">attribute_name</span> <span class="ow">in</span> <span class="n">attribute_names</span><span class="p">:</span>
         <span class="n">value</span> <span class="o">=</span> <span class="n">attributes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">attribute_name</span><span class="p">)</span>
@@ -4853,11 +4853,11 @@
     <span class="n">raw_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">source_config</span><span class="p">:</span> <span class="n">GffSourceConfig</span> <span class="o">=</span> <span class="n">REFSEQ_CONFIG</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Strip configured source prefixes to create stable internal IDs.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Strip configured source prefixes to create stable internal IDs."""</span>
 
     <span class="n">normalized_id</span> <span class="o">=</span> <span class="n">raw_id</span>
     <span class="k">for</span> <span class="n">prefix</span> <span class="ow">in</span> <span class="n">source_config</span><span class="o">.</span><span class="n">id_prefixes_to_strip</span><span class="p">:</span>
-        <span class="n">normalized_id</span> <span class="o">=</span> <span class="n">normalized_id</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">prefix</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="n">normalized_id</span> <span class="o">=</span> <span class="n">normalized_id</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">prefix</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">normalized_id</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -4891,7 +4891,7 @@
     <span class="n">raw_parent</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">source_config</span><span class="p">:</span> <span class="n">GffSourceConfig</span> <span class="o">=</span> <span class="n">REFSEQ_CONFIG</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the normalized Parent ID using the configured source rule.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Return the normalized Parent ID using the configured source rule."""</span>
 
     <span class="k">return</span> <span class="n">normalize_id</span><span class="p">(</span><span class="n">raw_parent</span><span class="p">,</span> <span class="n">source_config</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
@@ -5173,7 +5173,7 @@
     <span class="n">logger</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">source_config</span><span class="p">:</span> <span class="n">GffSourceConfig</span> <span class="o">=</span> <span class="n">REFSEQ_CONFIG</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ParsedAnnotation</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Parse GFF3/GTF into reusable in-memory annotation records.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Parse GFF3/GTF into reusable in-memory annotation records."""</span>
 
     <span class="n">log</span> <span class="o">=</span> <span class="n">logger</span> <span class="ow">or</span> <span class="n">LOGGER</span>
     <span class="n">annotation</span> <span class="o">=</span> <span class="n">ParsedAnnotation</span><span class="p">()</span>
@@ -5181,12 +5181,12 @@
 
     <span class="k">with</span> <span class="n">open_text_maybe_gzip</span><span class="p">(</span><span class="n">gff_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">gff_handle</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">line_number</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">gff_handle</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;#&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"#"</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span>
                 <span class="k">continue</span>
 
-            <span class="n">columns</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">columns</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"</span><span class="se">\t</span><span class="s2">"</span><span class="p">)</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">columns</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">9</span><span class="p">:</span>
-                <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Skipping non-feature row </span><span class="si">%s</span><span class="s2"> in </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">line_number</span><span class="p">,</span> <span class="n">gff_path</span><span class="p">)</span>
+                <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"Skipping non-feature row </span><span class="si">%s</span><span class="s2"> in </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">line_number</span><span class="p">,</span> <span class="n">gff_path</span><span class="p">)</span>
                 <span class="k">continue</span>
 
             <span class="p">(</span>
@@ -5203,7 +5203,7 @@
             <span class="n">start</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">start_raw</span><span class="p">)</span>
             <span class="n">end</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">end_raw</span><span class="p">)</span>
 
-            <span class="n">strand_value</span> <span class="o">=</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">strand</span> <span class="o">==</span> <span class="s2">&quot;+&quot;</span> <span class="k">else</span> <span class="o">-</span><span class="mi">1</span>
+            <span class="n">strand_value</span> <span class="o">=</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">strand</span> <span class="o">==</span> <span class="s2">"+"</span> <span class="k">else</span> <span class="o">-</span><span class="mi">1</span>
             <span class="n">attributes</span> <span class="o">=</span> <span class="n">parse_feature_attributes</span><span class="p">(</span><span class="n">attrs</span><span class="p">,</span> <span class="n">source_config</span><span class="p">)</span>
 
             <span class="k">if</span> <span class="n">feature_type</span> <span class="ow">in</span> <span class="n">source_config</span><span class="o">.</span><span class="n">parsed_gene_feature_types</span><span class="p">:</span>
@@ -5219,8 +5219,8 @@
                 <span class="p">)</span>
                 <span class="n">dbxref_geneid</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span>
                     <span class="p">(</span>
-                        <span class="n">value</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
-                        <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">attributes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;Dbxref&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)</span>
+                        <span class="n">value</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">":"</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+                        <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">attributes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"Dbxref"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">","</span><span class="p">)</span>
                         <span class="k">if</span> <span class="n">value</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">source_config</span><span class="o">.</span><span class="n">gene_xref_prefix</span><span class="p">)</span>
                     <span class="p">),</span>
                     <span class="kc">None</span><span class="p">,</span>
@@ -5311,7 +5311,7 @@
                     <span class="p">)</span>
                 <span class="k">continue</span>
 
-            <span class="k">if</span> <span class="n">feature_type</span> <span class="o">==</span> <span class="s2">&quot;exon&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">feature_type</span> <span class="o">==</span> <span class="s2">"exon"</span><span class="p">:</span>
                 <span class="n">transcript_id</span> <span class="o">=</span> <span class="n">parent_id</span><span class="p">(</span>
                     <span class="n">required_attribute</span><span class="p">(</span>
                         <span class="n">attributes</span><span class="p">,</span>
@@ -5344,7 +5344,7 @@
                             <span class="n">stable_id</span><span class="o">=</span><span class="n">transcript_id</span><span class="p">,</span>
                             <span class="n">name</span><span class="o">=</span><span class="n">transcript_id</span><span class="p">,</span>
                         <span class="p">)</span>
-                    <span class="n">dummy_transcript_id</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">transcript_id</span><span class="si">}</span><span class="s2">_dTx&quot;</span>
+                    <span class="n">dummy_transcript_id</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">transcript_id</span><span class="si">}</span><span class="s2">_dTx"</span>
                     <span class="n">annotation</span><span class="o">.</span><span class="n">transcripts</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span>
                         <span class="n">dummy_transcript_id</span><span class="p">,</span>
                         <span class="n">TranscriptRecord</span><span class="p">(</span>
@@ -5379,7 +5379,7 @@
                 <span class="p">)</span>
                 <span class="k">continue</span>
 
-            <span class="k">if</span> <span class="n">feature_type</span> <span class="o">==</span> <span class="s2">&quot;CDS&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">feature_type</span> <span class="o">==</span> <span class="s2">"CDS"</span><span class="p">:</span>
                 <span class="n">transcript_id</span> <span class="o">=</span> <span class="n">parent_id</span><span class="p">(</span>
                     <span class="n">required_attribute</span><span class="p">(</span>
                         <span class="n">attributes</span><span class="p">,</span>
@@ -5414,7 +5414,7 @@
 
     <span class="n">synthesize_cds_from_translation_coords</span><span class="p">(</span><span class="n">annotation</span><span class="p">,</span> <span class="n">log</span><span class="p">)</span>
     <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-        <span class="s2">&quot;Parsed </span><span class="si">%s</span><span class="s2"> genes, </span><span class="si">%s</span><span class="s2"> transcripts, and </span><span class="si">%s</span><span class="s2"> CDS transcript groups from </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="s2">"Parsed </span><span class="si">%s</span><span class="s2"> genes, </span><span class="si">%s</span><span class="s2"> transcripts, and </span><span class="si">%s</span><span class="s2"> CDS transcript groups from </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span>
         <span class="nb">len</span><span class="p">(</span><span class="n">annotation</span><span class="o">.</span><span class="n">genes</span><span class="p">),</span>
         <span class="nb">len</span><span class="p">(</span><span class="n">annotation</span><span class="o">.</span><span class="n">transcripts</span><span class="p">),</span>
         <span class="nb">len</span><span class="p">(</span><span class="n">annotation</span><span class="o">.</span><span class="n">cds_segments</span><span class="p">),</span>
@@ -5460,15 +5460,15 @@
     <span class="n">raw_attributes</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">source_config</span><span class="p">:</span> <span class="n">GffSourceConfig</span> <span class="o">=</span> <span class="n">REFSEQ_CONFIG</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Parse a feature attribute column using the selected source syntax.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Parse a feature attribute column using the selected source syntax."""</span>
 
-    <span class="k">if</span> <span class="n">source_config</span><span class="o">.</span><span class="n">attribute_format</span> <span class="o">==</span> <span class="s2">&quot;gff3&quot;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">source_config</span><span class="o">.</span><span class="n">attribute_format</span> <span class="o">==</span> <span class="s2">"gff3"</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">parse_gff3_attributes</span><span class="p">(</span><span class="n">raw_attributes</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">source_config</span><span class="o">.</span><span class="n">attribute_format</span> <span class="o">==</span> <span class="s2">&quot;gtf&quot;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">source_config</span><span class="o">.</span><span class="n">attribute_format</span> <span class="o">==</span> <span class="s2">"gtf"</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">parse_gtf_attributes</span><span class="p">(</span><span class="n">raw_attributes</span><span class="p">)</span>
     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s2">&quot;Unsupported attribute format &#39;</span><span class="si">{</span><span class="n">source_config</span><span class="o">.</span><span class="n">attribute_format</span><span class="si">}</span><span class="s2">&#39; &quot;</span>
-        <span class="sa">f</span><span class="s2">&quot;for source config &#39;</span><span class="si">{</span><span class="n">source_config</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
+        <span class="sa">f</span><span class="s2">"Unsupported attribute format '</span><span class="si">{</span><span class="n">source_config</span><span class="o">.</span><span class="n">attribute_format</span><span class="si">}</span><span class="s2">' "</span>
+        <span class="sa">f</span><span class="s2">"for source config '</span><span class="si">{</span><span class="n">source_config</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">'"</span>
     <span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -5496,9 +5496,9 @@
 <span class="normal">101</span>
 <span class="normal">102</span>
 <span class="normal">103</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">parse_gff3_attributes</span><span class="p">(</span><span class="n">raw_attributes</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Parse a GFF3 attribute column into a key-value dictionary.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Parse a GFF3 attribute column into a key-value dictionary."""</span>
 
-    <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;=&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">raw_attributes</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;;&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="s2">&quot;=&quot;</span> <span class="ow">in</span> <span class="n">item</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"="</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">raw_attributes</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">";"</span><span class="p">)</span> <span class="k">if</span> <span class="s2">"="</span> <span class="ow">in</span> <span class="n">item</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -5539,20 +5539,20 @@
 <span class="normal">121</span>
 <span class="normal">122</span>
 <span class="normal">123</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">parse_gtf_attributes</span><span class="p">(</span><span class="n">raw_attributes</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Parse a GTF attribute column into a key-value dictionary.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Parse a GTF attribute column into a key-value dictionary."""</span>
 
     <span class="n">attributes</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">raw_attributes</span><span class="o">.</span><span class="n">rstrip</span><span class="p">()</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s2">&quot;;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;;&quot;</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">raw_attributes</span><span class="o">.</span><span class="n">rstrip</span><span class="p">()</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s2">";"</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">";"</span><span class="p">):</span>
         <span class="n">item</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">item</span><span class="p">:</span>
             <span class="k">continue</span>
-        <span class="k">if</span> <span class="s2">&quot; &quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">item</span><span class="p">:</span>
-            <span class="n">attributes</span><span class="p">[</span><span class="n">item</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;1&quot;</span>
+        <span class="k">if</span> <span class="s2">" "</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">item</span><span class="p">:</span>
+            <span class="n">attributes</span><span class="p">[</span><span class="n">item</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"1"</span>
             <span class="k">continue</span>
 
         <span class="n">key</span><span class="p">,</span> <span class="n">raw_value</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
         <span class="n">value</span> <span class="o">=</span> <span class="n">raw_value</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">2</span> <span class="ow">and</span> <span class="n">value</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;&quot;&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">value</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;&quot;&#39;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">2</span> <span class="ow">and</span> <span class="n">value</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">'"'</span><span class="p">)</span> <span class="ow">and</span> <span class="n">value</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">'"'</span><span class="p">):</span>
             <span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
         <span class="n">attributes</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
     <span class="k">return</span> <span class="n">attributes</span>
@@ -5590,15 +5590,15 @@
 <span class="normal">269</span>
 <span class="normal">270</span>
 <span class="normal">271</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">parse_translation_coords</span><span class="p">(</span><span class="n">raw_translation_coords</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Parse anno GTF translation_coords into integer components.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Parse anno GTF translation_coords into integer components."""</span>
 
     <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">fullmatch</span><span class="p">(</span>
-        <span class="sa">r</span><span class="s2">&quot;(\d+):(\d+):(\d+):(\d+):(\d+):(\d+)&quot;</span><span class="p">,</span>
+        <span class="sa">r</span><span class="s2">"(\d+):(\d+):(\d+):(\d+):(\d+):(\d+)"</span><span class="p">,</span>
         <span class="n">raw_translation_coords</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">match</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Could not parse translation_coords value: </span><span class="si">{</span><span class="n">raw_translation_coords</span><span class="si">!r}</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">"Could not parse translation_coords value: </span><span class="si">{</span><span class="n">raw_translation_coords</span><span class="si">!r}</span><span class="s2">"</span>
         <span class="p">)</span>
     <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">match</span><span class="o">.</span><span class="n">groups</span><span class="p">())</span>
 </code></pre></div></td></tr></table></div>
@@ -5643,7 +5643,7 @@
     <span class="n">logger</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">source_config</span><span class="p">:</span> <span class="n">GffSourceConfig</span> <span class="o">=</span> <span class="n">REFSEQ_CONFIG</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ParsedAnnotation</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Parse, reconcile, phase, and normalize one converted GFF3 annotation.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Parse, reconcile, phase, and normalize one converted GFF3 annotation."""</span>
 
     <span class="n">annotation</span> <span class="o">=</span> <span class="n">parse_converted_gff3</span><span class="p">(</span>
         <span class="n">converted_gff_path</span><span class="p">,</span>
@@ -5752,7 +5752,7 @@
     <span class="n">annotation</span><span class="p">:</span> <span class="n">ParsedAnnotation</span><span class="p">,</span>
     <span class="n">logger</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ParsedAnnotation</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Patch missing gene-transcript-exon links required by the core schema.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Patch missing gene-transcript-exon links required by the core schema."""</span>
 
     <span class="n">log</span> <span class="o">=</span> <span class="n">logger</span> <span class="ow">or</span> <span class="n">LOGGER</span>
     <span class="n">added_exons</span> <span class="o">=</span> <span class="mi">0</span>
@@ -5793,7 +5793,7 @@
         <span class="k">if</span> <span class="n">gene_id</span> <span class="ow">in</span> <span class="n">gene_ids_with_transcripts</span><span class="p">:</span>
             <span class="k">continue</span>
 
-        <span class="n">dummy_transcript_id</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">gene_id</span><span class="si">}</span><span class="s2">_dTx&quot;</span>
+        <span class="n">dummy_transcript_id</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">gene_id</span><span class="si">}</span><span class="s2">_dTx"</span>
         <span class="n">annotation</span><span class="o">.</span><span class="n">transcripts</span><span class="p">[</span><span class="n">dummy_transcript_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">TranscriptRecord</span><span class="p">(</span>
             <span class="n">gene_id</span><span class="o">=</span><span class="n">gene_id</span><span class="p">,</span>
             <span class="n">seq_name</span><span class="o">=</span><span class="n">gene</span><span class="o">.</span><span class="n">seq_name</span><span class="p">,</span>
@@ -5815,7 +5815,7 @@
         <span class="n">added_transcripts</span> <span class="o">+=</span> <span class="mi">1</span>
 
     <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-        <span class="s2">&quot;Reconciled annotation (</span><span class="si">%s</span><span class="s2"> genes, </span><span class="si">%s</span><span class="s2"> transcripts, </span><span class="si">%s</span><span class="s2"> synthetic exons)&quot;</span><span class="p">,</span>
+        <span class="s2">"Reconciled annotation (</span><span class="si">%s</span><span class="s2"> genes, </span><span class="si">%s</span><span class="s2"> transcripts, </span><span class="si">%s</span><span class="s2"> synthetic exons)"</span><span class="p">,</span>
         <span class="n">added_genes</span><span class="p">,</span>
         <span class="n">added_transcripts</span><span class="p">,</span>
         <span class="n">added_exons</span><span class="p">,</span>
@@ -5865,13 +5865,13 @@
     <span class="n">line_number</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a required attribute or raise a parse error with context.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Return a required attribute or raise a parse error with context."""</span>
 
     <span class="n">value</span> <span class="o">=</span> <span class="n">attributes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">attribute_name</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">value</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">line_number</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">feature_type</span><span class="si">}</span><span class="s2"> row is missing required &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;attribute &#39;</span><span class="si">{</span><span class="n">attribute_name</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">line_number</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">feature_type</span><span class="si">}</span><span class="s2"> row is missing required "</span>
+            <span class="sa">f</span><span class="s2">"attribute '</span><span class="si">{</span><span class="n">attribute_name</span><span class="si">}</span><span class="s2">'"</span>
         <span class="p">)</span>
     <span class="k">return</span> <span class="n">value</span>
 </code></pre></div></td></tr></table></div>
@@ -5957,23 +5957,23 @@
     <span class="n">logger</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">source_config</span><span class="p">:</span> <span class="n">GffSourceConfig</span> <span class="o">=</span> <span class="n">REFSEQ_CONFIG</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Resolve an Ensembl-compatible biotype from a configured GFF3 source.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Resolve an Ensembl-compatible biotype from a configured GFF3 source."""</span>
 
     <span class="n">log</span> <span class="o">=</span> <span class="n">logger</span> <span class="ow">or</span> <span class="n">LOGGER</span>
-    <span class="n">gbkey</span> <span class="o">=</span> <span class="n">attributes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">source_config</span><span class="o">.</span><span class="n">gbkey_attribute</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
-    <span class="n">pseudo_flag</span> <span class="o">=</span> <span class="n">attributes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">source_config</span><span class="o">.</span><span class="n">pseudo_attribute</span><span class="p">,</span> <span class="s2">&quot;false&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;true&quot;</span>
+    <span class="n">gbkey</span> <span class="o">=</span> <span class="n">attributes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">source_config</span><span class="o">.</span><span class="n">gbkey_attribute</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span>
+    <span class="n">pseudo_flag</span> <span class="o">=</span> <span class="n">attributes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">source_config</span><span class="o">.</span><span class="n">pseudo_attribute</span><span class="p">,</span> <span class="s2">"false"</span><span class="p">)</span> <span class="o">==</span> <span class="s2">"true"</span>
     <span class="n">transcript_biotype</span> <span class="o">=</span> <span class="n">attributes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">source_config</span><span class="o">.</span><span class="n">transcript_biotype_attribute</span><span class="p">)</span>
     <span class="n">gene_biotype</span> <span class="o">=</span> <span class="n">attributes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">source_config</span><span class="o">.</span><span class="n">gene_biotype_attribute</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">gbkey</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="n">source_config</span><span class="o">.</span><span class="n">segment_gbkey_suffix</span><span class="p">):</span>
         <span class="n">segment_type</span> <span class="o">=</span> <span class="n">gbkey</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">source_config</span><span class="o">.</span><span class="n">segment_biotype_prefix</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">segment_type</span><span class="si">}</span><span class="s2">_gene&quot;</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">source_config</span><span class="o">.</span><span class="n">segment_biotype_prefix</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">segment_type</span><span class="si">}</span><span class="s2">_gene"</span>
 
     <span class="k">if</span> <span class="n">source_config</span><span class="o">.</span><span class="n">transcribed_pseudogene_gbkey_token</span> <span class="ow">in</span> <span class="n">gbkey</span><span class="p">:</span>
-        <span class="k">return</span> <span class="s2">&quot;transcribed_pseudogene&quot;</span>
+        <span class="k">return</span> <span class="s2">"transcribed_pseudogene"</span>
 
     <span class="k">if</span> <span class="n">pseudo_flag</span><span class="p">:</span>
-        <span class="k">return</span> <span class="s2">&quot;pseudogene&quot;</span>
+        <span class="k">return</span> <span class="s2">"pseudogene"</span>
 
     <span class="k">if</span> <span class="n">transcript_biotype</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">transcript_biotype</span>
@@ -5981,7 +5981,7 @@
     <span class="k">if</span> <span class="n">source_config</span><span class="o">.</span><span class="n">translation_coords_attribute</span> <span class="ow">and</span> <span class="n">attributes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
         <span class="n">source_config</span><span class="o">.</span><span class="n">translation_coords_attribute</span>
     <span class="p">):</span>
-        <span class="k">return</span> <span class="s2">&quot;protein_coding&quot;</span>
+        <span class="k">return</span> <span class="s2">"protein_coding"</span>
 
     <span class="k">if</span> <span class="n">feature_type</span> <span class="ow">in</span> <span class="n">source_config</span><span class="o">.</span><span class="n">biotype_transcript_feature_types</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">source_config</span><span class="o">.</span><span class="n">transcript_feature_biotype_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
@@ -5989,7 +5989,7 @@
             <span class="n">feature_type</span><span class="p">,</span>
         <span class="p">)</span>
 
-    <span class="k">if</span> <span class="n">feature_type</span> <span class="o">==</span> <span class="s2">&quot;exon&quot;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">feature_type</span> <span class="o">==</span> <span class="s2">"exon"</span><span class="p">:</span>
         <span class="n">exon_biotype</span> <span class="o">=</span> <span class="n">source_config</span><span class="o">.</span><span class="n">exon_gbkey_biotype_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">gbkey</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">exon_biotype</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">exon_biotype</span>
@@ -5998,7 +5998,7 @@
         <span class="k">return</span> <span class="n">gene_biotype</span>
 
     <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-        <span class="s2">&quot;Defaulting biotype to </span><span class="si">%s</span><span class="s2"> for </span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="s2">"Defaulting biotype to </span><span class="si">%s</span><span class="s2"> for </span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span>
         <span class="n">source_config</span><span class="o">.</span><span class="n">default_biotype</span><span class="p">,</span>
         <span class="n">feature_id</span><span class="p">,</span>
         <span class="n">feature_type</span><span class="p">,</span>
@@ -6050,7 +6050,7 @@
     <span class="n">annotation</span><span class="p">:</span> <span class="n">ParsedAnnotation</span><span class="p">,</span>
     <span class="n">logger</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Populate CDS records for GTF transcripts carrying translation_coords.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Populate CDS records for GTF transcripts carrying translation_coords."""</span>
 
     <span class="n">synthesized</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="k">for</span> <span class="n">transcript_id</span><span class="p">,</span> <span class="n">transcript</span> <span class="ow">in</span> <span class="n">annotation</span><span class="o">.</span><span class="n">transcripts</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
@@ -6065,7 +6065,7 @@
             <span class="n">synthesized</span> <span class="o">+=</span> <span class="mi">1</span>
 
     <span class="k">if</span> <span class="n">synthesized</span><span class="p">:</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Synthesized CDS segments for </span><span class="si">%s</span><span class="s2"> transcripts&quot;</span><span class="p">,</span> <span class="n">synthesized</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"Synthesized CDS segments for </span><span class="si">%s</span><span class="s2"> transcripts"</span><span class="p">,</span> <span class="n">synthesized</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -6138,7 +6138,7 @@
     <span class="n">biotype</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">logger</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create or expand a gene record from transcript-level GTF data.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Create or expand a gene record from transcript-level GTF data."""</span>
 
     <span class="n">existing_gene</span> <span class="o">=</span> <span class="n">annotation</span><span class="o">.</span><span class="n">genes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">gene_id</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">existing_gene</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -6155,8 +6155,8 @@
 
     <span class="k">if</span> <span class="n">existing_gene</span><span class="o">.</span><span class="n">seq_name</span> <span class="o">!=</span> <span class="n">seq_name</span> <span class="ow">or</span> <span class="n">existing_gene</span><span class="o">.</span><span class="n">strand</span> <span class="o">!=</span> <span class="n">strand</span><span class="p">:</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-            <span class="s2">&quot;Gene </span><span class="si">%s</span><span class="s2"> has transcript rows on inconsistent seq_region/strand: &quot;</span>
-            <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">:</span><span class="si">%s</span><span class="s2"> and </span><span class="si">%s</span><span class="s2">:</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="s2">"Gene </span><span class="si">%s</span><span class="s2"> has transcript rows on inconsistent seq_region/strand: "</span>
+            <span class="s2">"</span><span class="si">%s</span><span class="s2">:</span><span class="si">%s</span><span class="s2"> and </span><span class="si">%s</span><span class="s2">:</span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span>
             <span class="n">gene_id</span><span class="p">,</span>
             <span class="n">existing_gene</span><span class="o">.</span><span class="n">seq_name</span><span class="p">,</span>
             <span class="n">existing_gene</span><span class="o">.</span><span class="n">strand</span><span class="p">,</span>
@@ -6167,7 +6167,7 @@
 
     <span class="n">existing_gene</span><span class="o">.</span><span class="n">start</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">existing_gene</span><span class="o">.</span><span class="n">start</span><span class="p">,</span> <span class="n">start</span><span class="p">)</span>
     <span class="n">existing_gene</span><span class="o">.</span><span class="n">end</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">existing_gene</span><span class="o">.</span><span class="n">end</span><span class="p">,</span> <span class="n">end</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">existing_gene</span><span class="o">.</span><span class="n">biotype</span> <span class="o">==</span> <span class="s2">&quot;not_set&quot;</span> <span class="ow">or</span> <span class="n">biotype</span> <span class="o">==</span> <span class="s2">&quot;protein_coding&quot;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">existing_gene</span><span class="o">.</span><span class="n">biotype</span> <span class="o">==</span> <span class="s2">"not_set"</span> <span class="ow">or</span> <span class="n">biotype</span> <span class="o">==</span> <span class="s2">"protein_coding"</span><span class="p">:</span>
         <span class="n">existing_gene</span><span class="o">.</span><span class="n">biotype</span> <span class="o">=</span> <span class="n">biotype</span>
 </code></pre></div></td></tr></table></div>
             </details>

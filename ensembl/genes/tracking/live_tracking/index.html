@@ -3892,7 +3892,7 @@
 <span class="normal">122</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">check_database_on_server</span><span class="p">(</span>
     <span class="n">db</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">server_key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="nb">dict</span>  <span class="c1"># pylint:disable=redefined-outer-name</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Checks if a database exists on a given server.</span>
 
 <span class="sd">    Args:</span>
@@ -3902,28 +3902,28 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">        bool: True if the database exists, False otherwise.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="n">conn</span> <span class="o">=</span> <span class="n">pymysql</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span>
-            <span class="n">host</span><span class="o">=</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;server_details&quot;</span><span class="p">][</span><span class="s2">&quot;staging&quot;</span><span class="p">][</span><span class="n">server_key</span><span class="p">][</span><span class="s2">&quot;db_host&quot;</span><span class="p">],</span>
-            <span class="n">user</span><span class="o">=</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;server_details&quot;</span><span class="p">][</span><span class="s2">&quot;staging&quot;</span><span class="p">][</span><span class="n">server_key</span><span class="p">][</span><span class="s2">&quot;db_user&quot;</span><span class="p">],</span>
-            <span class="n">passwd</span><span class="o">=</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;server_details&quot;</span><span class="p">][</span><span class="s2">&quot;staging&quot;</span><span class="p">][</span><span class="n">server_key</span><span class="p">][</span><span class="s2">&quot;db_pass&quot;</span><span class="p">],</span>
-            <span class="n">port</span><span class="o">=</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;server_details&quot;</span><span class="p">][</span><span class="s2">&quot;staging&quot;</span><span class="p">][</span><span class="n">server_key</span><span class="p">][</span><span class="s2">&quot;db_port&quot;</span><span class="p">],</span>
+            <span class="n">host</span><span class="o">=</span><span class="n">config</span><span class="p">[</span><span class="s2">"server_details"</span><span class="p">][</span><span class="s2">"staging"</span><span class="p">][</span><span class="n">server_key</span><span class="p">][</span><span class="s2">"db_host"</span><span class="p">],</span>
+            <span class="n">user</span><span class="o">=</span><span class="n">config</span><span class="p">[</span><span class="s2">"server_details"</span><span class="p">][</span><span class="s2">"staging"</span><span class="p">][</span><span class="n">server_key</span><span class="p">][</span><span class="s2">"db_user"</span><span class="p">],</span>
+            <span class="n">passwd</span><span class="o">=</span><span class="n">config</span><span class="p">[</span><span class="s2">"server_details"</span><span class="p">][</span><span class="s2">"staging"</span><span class="p">][</span><span class="n">server_key</span><span class="p">][</span><span class="s2">"db_pass"</span><span class="p">],</span>
+            <span class="n">port</span><span class="o">=</span><span class="n">config</span><span class="p">[</span><span class="s2">"server_details"</span><span class="p">][</span><span class="s2">"staging"</span><span class="p">][</span><span class="n">server_key</span><span class="p">][</span><span class="s2">"db_port"</span><span class="p">],</span>
         <span class="p">)</span>
         <span class="k">with</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span> <span class="k">as</span> <span class="n">cur</span><span class="p">:</span>
             <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
-                <span class="s2">&quot;SELECT SCHEMA_NAME FROM information_schema.SCHEMATA</span><span class="se">\</span>
-<span class="s2">                    WHERE SCHEMA_NAME = </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="s2">"SELECT SCHEMA_NAME FROM information_schema.SCHEMATA</span><span class="se">\</span>
+<span class="s2">                    WHERE SCHEMA_NAME = </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span>
                 <span class="p">(</span><span class="n">db</span><span class="p">,),</span>
             <span class="p">)</span>
             <span class="n">result</span> <span class="o">=</span> <span class="n">cur</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
             <span class="k">return</span> <span class="n">result</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
 
     <span class="k">except</span> <span class="n">pymysql</span><span class="o">.</span><span class="n">MySQLError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error connecting to </span><span class="si">{</span><span class="n">server_key</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Error connecting to </span><span class="si">{</span><span class="n">server_key</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
         <span class="k">return</span> <span class="kc">False</span>
     <span class="k">finally</span><span class="p">:</span>
-        <span class="k">if</span> <span class="s2">&quot;conn&quot;</span> <span class="ow">in</span> <span class="nb">locals</span><span class="p">()</span> <span class="ow">and</span> <span class="n">conn</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s2">"conn"</span> <span class="ow">in</span> <span class="nb">locals</span><span class="p">()</span> <span class="ow">and</span> <span class="n">conn</span><span class="p">:</span>
             <span class="n">conn</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -4111,7 +4111,7 @@
 <span class="normal">212</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">clean_server</span><span class="p">(</span>
     <span class="n">config</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">mode</span><span class="p">:</span> <span class="nb">str</span>  <span class="c1"># pylint:disable=redefined-outer-name</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Fetches a list of core databases that are both current in the \</span>
 <span class="sd">        rapid database and present on the MySQL server.</span>
 
@@ -4124,78 +4124,78 @@
 
 <span class="sd">    Args:</span>
 <span class="sd">        config (dict): Configuration dictionary containing server connection details.</span>
-<span class="sd">        mode (str): Mode of operation, either &quot;rapid&quot; or &quot;beta&quot;.    </span>
+<span class="sd">        mode (str): Mode of operation, either "rapid" or "beta".    </span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        list: A list of core databases that are current in the rapid \</span>
 <span class="sd">            database and present on the MySQL server.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">rapid_live_databases</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">beta_live_databases</span> <span class="o">=</span> <span class="p">[]</span>
 
-    <span class="n">cores_query</span> <span class="o">=</span> <span class="s2">&quot;SHOW DATABASES like &#39;</span><span class="si">%c</span><span class="s2">ore%&#39;;&quot;</span>
+    <span class="n">cores_query</span> <span class="o">=</span> <span class="s2">"SHOW DATABASES like '</span><span class="si">%c</span><span class="s2">ore%';"</span>
     <span class="n">cores_fetch</span> <span class="o">=</span> <span class="n">mysql_fetch_data</span><span class="p">(</span>
         <span class="n">cores_query</span><span class="p">,</span>
-        <span class="s2">&quot;&quot;</span><span class="p">,</span>
-        <span class="n">config</span><span class="p">[</span><span class="s2">&quot;server_details&quot;</span><span class="p">][</span><span class="s2">&quot;genebuild&quot;</span><span class="p">][</span><span class="s2">&quot;prod_1&quot;</span><span class="p">][</span><span class="s2">&quot;db_host&quot;</span><span class="p">],</span>
-        <span class="n">config</span><span class="p">[</span><span class="s2">&quot;server_details&quot;</span><span class="p">][</span><span class="s2">&quot;genebuild&quot;</span><span class="p">][</span><span class="s2">&quot;prod_1&quot;</span><span class="p">][</span><span class="s2">&quot;db_port&quot;</span><span class="p">],</span>
-        <span class="n">config</span><span class="p">[</span><span class="s2">&quot;server_details&quot;</span><span class="p">][</span><span class="s2">&quot;genebuild&quot;</span><span class="p">][</span><span class="s2">&quot;prod_1&quot;</span><span class="p">][</span><span class="s2">&quot;db_user&quot;</span><span class="p">],</span>
+        <span class="s2">""</span><span class="p">,</span>
+        <span class="n">config</span><span class="p">[</span><span class="s2">"server_details"</span><span class="p">][</span><span class="s2">"genebuild"</span><span class="p">][</span><span class="s2">"prod_1"</span><span class="p">][</span><span class="s2">"db_host"</span><span class="p">],</span>
+        <span class="n">config</span><span class="p">[</span><span class="s2">"server_details"</span><span class="p">][</span><span class="s2">"genebuild"</span><span class="p">][</span><span class="s2">"prod_1"</span><span class="p">][</span><span class="s2">"db_port"</span><span class="p">],</span>
+        <span class="n">config</span><span class="p">[</span><span class="s2">"server_details"</span><span class="p">][</span><span class="s2">"genebuild"</span><span class="p">][</span><span class="s2">"prod_1"</span><span class="p">][</span><span class="s2">"db_user"</span><span class="p">],</span>
     <span class="p">)</span>
     <span class="n">core_dbs</span> <span class="o">=</span> <span class="p">[</span><span class="n">db</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">db</span> <span class="ow">in</span> <span class="n">cores_fetch</span><span class="p">]</span>
 
-    <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;rapid&quot;</span><span class="p">:</span>  <span class="c1"># pylint:disable=no-else-return</span>
+    <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">"rapid"</span><span class="p">:</span>  <span class="c1"># pylint:disable=no-else-return</span>
         <span class="n">rapid_query</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="s2">&quot;SELECT dbname FROM genome_database JOIN genome USING(genome_id) &quot;</span>
-            <span class="s2">&quot;JOIN data_release USING(data_release_id) WHERE </span><span class="se">\</span>
-<span class="s2">                is_current = 1 and dbname like &#39;</span><span class="si">%c</span><span class="s2">ore%&#39;;&quot;</span>
+            <span class="s2">"SELECT dbname FROM genome_database JOIN genome USING(genome_id) "</span>
+            <span class="s2">"JOIN data_release USING(data_release_id) WHERE </span><span class="se">\</span>
+<span class="s2">                is_current = 1 and dbname like '</span><span class="si">%c</span><span class="s2">ore%';"</span>
         <span class="p">)</span>
         <span class="n">rapid_fetch</span> <span class="o">=</span> <span class="n">mysql_fetch_data</span><span class="p">(</span>
             <span class="n">rapid_query</span><span class="p">,</span>
-            <span class="n">config</span><span class="p">[</span><span class="s2">&quot;server_details&quot;</span><span class="p">][</span><span class="s2">&quot;meta&quot;</span><span class="p">][</span><span class="s2">&quot;rapid&quot;</span><span class="p">][</span><span class="s2">&quot;db_name&quot;</span><span class="p">],</span>
-            <span class="n">config</span><span class="p">[</span><span class="s2">&quot;server_details&quot;</span><span class="p">][</span><span class="s2">&quot;meta&quot;</span><span class="p">][</span><span class="s2">&quot;rapid&quot;</span><span class="p">][</span><span class="s2">&quot;db_host&quot;</span><span class="p">],</span>
-            <span class="n">config</span><span class="p">[</span><span class="s2">&quot;server_details&quot;</span><span class="p">][</span><span class="s2">&quot;meta&quot;</span><span class="p">][</span><span class="s2">&quot;rapid&quot;</span><span class="p">][</span><span class="s2">&quot;db_port&quot;</span><span class="p">],</span>
-            <span class="n">config</span><span class="p">[</span><span class="s2">&quot;server_details&quot;</span><span class="p">][</span><span class="s2">&quot;meta&quot;</span><span class="p">][</span><span class="s2">&quot;rapid&quot;</span><span class="p">][</span><span class="s2">&quot;db_user&quot;</span><span class="p">],</span>
+            <span class="n">config</span><span class="p">[</span><span class="s2">"server_details"</span><span class="p">][</span><span class="s2">"meta"</span><span class="p">][</span><span class="s2">"rapid"</span><span class="p">][</span><span class="s2">"db_name"</span><span class="p">],</span>
+            <span class="n">config</span><span class="p">[</span><span class="s2">"server_details"</span><span class="p">][</span><span class="s2">"meta"</span><span class="p">][</span><span class="s2">"rapid"</span><span class="p">][</span><span class="s2">"db_host"</span><span class="p">],</span>
+            <span class="n">config</span><span class="p">[</span><span class="s2">"server_details"</span><span class="p">][</span><span class="s2">"meta"</span><span class="p">][</span><span class="s2">"rapid"</span><span class="p">][</span><span class="s2">"db_port"</span><span class="p">],</span>
+            <span class="n">config</span><span class="p">[</span><span class="s2">"server_details"</span><span class="p">][</span><span class="s2">"meta"</span><span class="p">][</span><span class="s2">"rapid"</span><span class="p">][</span><span class="s2">"db_user"</span><span class="p">],</span>
         <span class="p">)</span>
         <span class="n">rapid_databases</span> <span class="o">=</span> <span class="p">[</span><span class="n">rrdb</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">rrdb</span> <span class="ow">in</span> <span class="n">rapid_fetch</span><span class="p">]</span>
 
         <span class="k">for</span> <span class="n">core_db</span> <span class="ow">in</span> <span class="n">core_dbs</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">core_db</span> <span class="ow">in</span> <span class="n">rapid_databases</span><span class="p">:</span>
-                <span class="k">for</span> <span class="n">server_key</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;st5&quot;</span><span class="p">,</span> <span class="s2">&quot;st6&quot;</span><span class="p">]:</span>
+                <span class="k">for</span> <span class="n">server_key</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"st5"</span><span class="p">,</span> <span class="s2">"st6"</span><span class="p">]:</span>
                     <span class="k">if</span> <span class="n">check_database_on_server</span><span class="p">(</span><span class="n">core_db</span><span class="p">,</span> <span class="n">server_key</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
                         <span class="n">rapid_live_databases</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">core_db</span><span class="p">)</span>
                         <span class="k">break</span>
         <span class="k">return</span> <span class="n">rapid_live_databases</span>
 
-    <span class="k">elif</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;beta&quot;</span><span class="p">:</span>
+    <span class="k">elif</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">"beta"</span><span class="p">:</span>
         <span class="n">beta_query</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="s2">&quot;SELECT DISTINCT(dataset_source.name) AS dbname FROM genome &quot;</span>
-            <span class="s2">&quot;JOIN assembly ON genome.assembly_id = assembly.assembly_id &quot;</span>
-            <span class="s2">&quot;JOIN genome_dataset ON genome.genome_id = genome_dataset.genome_id &quot;</span>
-            <span class="s2">&quot;JOIN dataset ON genome_dataset.dataset_id = dataset.dataset_id &quot;</span>
-            <span class="s2">&quot;JOIN dataset_source ON dataset.dataset_source_id = dataset_source.dataset_source_id &quot;</span>
-            <span class="s2">&quot;JOIN genome_release ON genome.genome_id = genome_release.genome_id &quot;</span>
-            <span class="s2">&quot;JOIN ensembl_release ON genome_release.release_id = ensembl_release.release_id &quot;</span>
-            <span class="s2">&quot;WHERE dataset.name=&#39;assembly&#39; AND dataset.status=&#39;Released&#39;;&quot;</span>
+            <span class="s2">"SELECT DISTINCT(dataset_source.name) AS dbname FROM genome "</span>
+            <span class="s2">"JOIN assembly ON genome.assembly_id = assembly.assembly_id "</span>
+            <span class="s2">"JOIN genome_dataset ON genome.genome_id = genome_dataset.genome_id "</span>
+            <span class="s2">"JOIN dataset ON genome_dataset.dataset_id = dataset.dataset_id "</span>
+            <span class="s2">"JOIN dataset_source ON dataset.dataset_source_id = dataset_source.dataset_source_id "</span>
+            <span class="s2">"JOIN genome_release ON genome.genome_id = genome_release.genome_id "</span>
+            <span class="s2">"JOIN ensembl_release ON genome_release.release_id = ensembl_release.release_id "</span>
+            <span class="s2">"WHERE dataset.name='assembly' AND dataset.status='Released';"</span>
         <span class="p">)</span>
         <span class="n">beta_fetch</span> <span class="o">=</span> <span class="n">mysql_fetch_data</span><span class="p">(</span>
             <span class="n">beta_query</span><span class="p">,</span>
-            <span class="n">config</span><span class="p">[</span><span class="s2">&quot;server_details&quot;</span><span class="p">][</span><span class="s2">&quot;meta&quot;</span><span class="p">][</span><span class="s2">&quot;beta&quot;</span><span class="p">][</span><span class="s2">&quot;db_name&quot;</span><span class="p">],</span>
-            <span class="n">config</span><span class="p">[</span><span class="s2">&quot;server_details&quot;</span><span class="p">][</span><span class="s2">&quot;meta&quot;</span><span class="p">][</span><span class="s2">&quot;beta&quot;</span><span class="p">][</span><span class="s2">&quot;db_host&quot;</span><span class="p">],</span>
-            <span class="n">config</span><span class="p">[</span><span class="s2">&quot;server_details&quot;</span><span class="p">][</span><span class="s2">&quot;meta&quot;</span><span class="p">][</span><span class="s2">&quot;beta&quot;</span><span class="p">][</span><span class="s2">&quot;db_port&quot;</span><span class="p">],</span>
-            <span class="n">config</span><span class="p">[</span><span class="s2">&quot;server_details&quot;</span><span class="p">][</span><span class="s2">&quot;meta&quot;</span><span class="p">][</span><span class="s2">&quot;beta&quot;</span><span class="p">][</span><span class="s2">&quot;db_user&quot;</span><span class="p">],</span>
+            <span class="n">config</span><span class="p">[</span><span class="s2">"server_details"</span><span class="p">][</span><span class="s2">"meta"</span><span class="p">][</span><span class="s2">"beta"</span><span class="p">][</span><span class="s2">"db_name"</span><span class="p">],</span>
+            <span class="n">config</span><span class="p">[</span><span class="s2">"server_details"</span><span class="p">][</span><span class="s2">"meta"</span><span class="p">][</span><span class="s2">"beta"</span><span class="p">][</span><span class="s2">"db_host"</span><span class="p">],</span>
+            <span class="n">config</span><span class="p">[</span><span class="s2">"server_details"</span><span class="p">][</span><span class="s2">"meta"</span><span class="p">][</span><span class="s2">"beta"</span><span class="p">][</span><span class="s2">"db_port"</span><span class="p">],</span>
+            <span class="n">config</span><span class="p">[</span><span class="s2">"server_details"</span><span class="p">][</span><span class="s2">"meta"</span><span class="p">][</span><span class="s2">"beta"</span><span class="p">][</span><span class="s2">"db_user"</span><span class="p">],</span>
         <span class="p">)</span>
         <span class="n">beta_databases</span> <span class="o">=</span> <span class="p">[</span><span class="n">rrdb</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">rrdb</span> <span class="ow">in</span> <span class="n">beta_fetch</span><span class="p">]</span>
 
         <span class="k">for</span> <span class="n">core_db</span> <span class="ow">in</span> <span class="n">core_dbs</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">core_db</span> <span class="ow">in</span> <span class="n">beta_databases</span><span class="p">:</span>
-                <span class="k">for</span> <span class="n">server_key</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;st5&quot;</span><span class="p">,</span> <span class="s2">&quot;st6&quot;</span><span class="p">]:</span>
+                <span class="k">for</span> <span class="n">server_key</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"st5"</span><span class="p">,</span> <span class="s2">"st6"</span><span class="p">]:</span>
                     <span class="k">if</span> <span class="n">check_database_on_server</span><span class="p">(</span><span class="n">core_db</span><span class="p">,</span> <span class="n">server_key</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
                         <span class="n">beta_live_databases</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">core_db</span><span class="p">)</span>
                         <span class="k">break</span>
         <span class="k">return</span> <span class="n">beta_live_databases</span>
 
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Mode must be either &#39;rapid&#39; or &#39;beta&#39;&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Mode must be either 'rapid' or 'beta'"</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -4239,26 +4239,26 @@
 <span class="normal">233</span>
 <span class="normal">234</span>
 <span class="normal">235</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;the main function to run the live tracking script.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""the main function to run the live tracking script."""</span>
     <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span>
-        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Check rapid or beta metadata databases.&quot;</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">"Check rapid or beta metadata databases."</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--mode&quot;</span><span class="p">,</span>
-        <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;rapid&quot;</span><span class="p">,</span> <span class="s2">&quot;beta&quot;</span><span class="p">],</span>
+        <span class="s2">"--mode"</span><span class="p">,</span>
+        <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">"rapid"</span><span class="p">,</span> <span class="s2">"beta"</span><span class="p">],</span>
         <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Choose either &#39;rapid&#39; or &#39;beta&#39;&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"Choose either 'rapid' or 'beta'"</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
 
     <span class="n">live_databases</span> <span class="o">=</span> <span class="n">clean_server</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">mode</span><span class="p">)</span>
 
     <span class="nb">print</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s2">&quot;Here is a list of databases on genebuild-prod-1 that</span><span class="se">\</span>
-<span class="s2">            can also be found in the </span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">mode</span><span class="si">}</span><span class="s2"> metadata:&quot;</span>
+        <span class="sa">f</span><span class="s2">"Here is a list of databases on genebuild-prod-1 that</span><span class="se">\</span>
+<span class="s2">            can also be found in the </span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">mode</span><span class="si">}</span><span class="s2"> metadata:"</span>
     <span class="p">)</span>
     <span class="k">for</span> <span class="n">db</span> <span class="ow">in</span> <span class="n">live_databases</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">db</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">db</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -4467,7 +4467,7 @@ from the given host.</p>
 <span class="normal">84</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">mysql_fetch_data</span><span class="p">(</span>
     <span class="n">query</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">database</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">host</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">port</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">user</span><span class="p">:</span> <span class="nb">str</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="o">...</span><span class="p">]]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Executes a given SQL query on a MySQL database and fetches the result.</span>
 
 <span class="sd">    This function establishes a connection to the MySQL database \</span>
@@ -4495,7 +4495,7 @@ from the given host.</p>
 <span class="sd">        has the necessary permissions and that the database is configured\</span>
 <span class="sd">            to allow password-less connections</span>
 <span class="sd">        from the given host.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="n">conn</span> <span class="o">=</span> <span class="n">pymysql</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span>
             <span class="n">host</span><span class="o">=</span><span class="n">host</span><span class="p">,</span> <span class="n">user</span><span class="o">=</span><span class="n">user</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="n">port</span><span class="p">,</span> <span class="n">database</span><span class="o">=</span><span class="n">database</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
@@ -4511,7 +4511,7 @@ from the given host.</p>
         <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
 
     <span class="k">except</span> <span class="n">pymysql</span><span class="o">.</span><span class="n">Error</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error: </span><span class="si">{</span><span class="n">err</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Error: </span><span class="si">{</span><span class="n">err</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
         <span class="k">try</span><span class="p">:</span>
             <span class="n">cursor</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>

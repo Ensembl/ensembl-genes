@@ -3857,7 +3857,7 @@ python -m ensembl.genes.tracking.bioproject_tracking --project_name hprc --repor
 
 
 <h3 id="ensembl.genes.tracking.bioproject_tracking.add_ftp" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">add_ftp</span><span class="p">(</span><span class="n">annotations</span><span class="p">,</span> <span class="n">release_type</span><span class="o">=</span><span class="s1">&#39;live&#39;</span><span class="p">)</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">add_ftp</span><span class="p">(</span><span class="n">annotations</span><span class="p">,</span> <span class="n">release_type</span><span class="o">=</span><span class="s1">'live'</span><span class="p">)</span></code>
 
 <a href="#ensembl.genes.tracking.bioproject_tracking.add_ftp" class="headerlink" title="Permanent link">&para;</a></h3>
 
@@ -4067,9 +4067,9 @@ python -m ensembl.genes.tracking.bioproject_tracking --project_name hprc --repor
 <span class="normal">622</span>
 <span class="normal">623</span>
 <span class="normal">624</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">add_ftp</span><span class="p">(</span>  <span class="c1"># pylint:disable=too-many-locals, too-many-branches, too-many-statements</span>
-    <span class="n">annotations</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]],</span> <span class="n">release_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;live&quot;</span>
+    <span class="n">annotations</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]],</span> <span class="n">release_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"live"</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Adds FTP links to the annotations dictionary based on the release type.</span>
 
 <span class="sd">    Args:</span>
@@ -4077,75 +4077,75 @@ python -m ensembl.genes.tracking.bioproject_tracking --project_name hprc --repor
 <span class="sd">            an assembly accession and its value contains annotation details, \</span>
 <span class="sd">            including matches with database names or genome UUIDs.</span>
 <span class="sd">        release_type (str): The type of release to determine FTP link construction.\</span>
-<span class="sd">            Can be either &quot;live&quot; or &quot;pre&quot;.</span>
+<span class="sd">            Can be either "live" or "pre".</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        Dict[str, Dict[str, Any]]: The updated annotations dictionary with FTP links \</span>
 <span class="sd">        added to each match and the top-level annotation where applicable.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">for</span> <span class="n">accession</span><span class="p">,</span> <span class="n">annotation</span> <span class="ow">in</span> <span class="n">annotations</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-        <span class="n">matches</span> <span class="o">=</span> <span class="n">annotation</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;matches&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="p">[]</span>
+        <span class="n">matches</span> <span class="o">=</span> <span class="n">annotation</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"matches"</span><span class="p">)</span> <span class="ow">or</span> <span class="p">[]</span>
 
-        <span class="k">if</span> <span class="n">release_type</span> <span class="o">==</span> <span class="s2">&quot;pre&quot;</span><span class="p">:</span>
-            <span class="n">dbnames</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;dbname&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">matches</span> <span class="k">if</span> <span class="n">m</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;dbname&quot;</span><span class="p">))</span>
-            <span class="k">if</span> <span class="n">annotation</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;dbname&quot;</span><span class="p">):</span>
-                <span class="n">dbnames</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">annotation</span><span class="p">[</span><span class="s2">&quot;dbname&quot;</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">release_type</span> <span class="o">==</span> <span class="s2">"pre"</span><span class="p">:</span>
+            <span class="n">dbnames</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"dbname"</span><span class="p">)</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">matches</span> <span class="k">if</span> <span class="n">m</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"dbname"</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">annotation</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"dbname"</span><span class="p">):</span>
+                <span class="n">dbnames</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">annotation</span><span class="p">[</span><span class="s2">"dbname"</span><span class="p">])</span>
 
             <span class="k">for</span> <span class="n">dbname</span> <span class="ow">in</span> <span class="n">dbnames</span><span class="p">:</span>
-                <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+                <span class="n">query</span> <span class="o">=</span> <span class="s2">"""</span>
 <span class="s2">                SELECT meta_value</span>
 <span class="s2">                FROM meta</span>
-<span class="s2">                WHERE meta_key = &#39;organism.scientific_name&#39;</span>
-<span class="s2">                &quot;&quot;&quot;</span>
+<span class="s2">                WHERE meta_key = 'organism.scientific_name'</span>
+<span class="s2">                """</span>
                 <span class="n">result</span> <span class="o">=</span> <span class="n">mysql_fetch_data</span><span class="p">(</span>
                     <span class="n">query</span><span class="p">,</span>
                     <span class="p">(),</span>
-                    <span class="n">server_group</span><span class="o">=</span><span class="s2">&quot;pre-release&quot;</span><span class="p">,</span>
-                    <span class="n">server_name</span><span class="o">=</span><span class="s2">&quot;gb1&quot;</span><span class="p">,</span>
+                    <span class="n">server_group</span><span class="o">=</span><span class="s2">"pre-release"</span><span class="p">,</span>
+                    <span class="n">server_name</span><span class="o">=</span><span class="s2">"gb1"</span><span class="p">,</span>
                     <span class="n">db_name</span><span class="o">=</span><span class="n">dbname</span><span class="p">,</span>
                 <span class="p">)</span>
 
                 <span class="k">if</span> <span class="ow">not</span> <span class="n">result</span><span class="p">:</span>
                     <span class="k">continue</span>  <span class="c1"># skip if no scientific name found</span>
 
-                <span class="n">scientific_name</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
-                <span class="n">ftp_link</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;https://ftp.ebi.ac.uk/pub/databases/ensembl/pre-release/</span><span class="si">{</span><span class="n">scientific_name</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">accession</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="n">scientific_name</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">" "</span><span class="p">,</span> <span class="s2">"_"</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"."</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span>
+                <span class="n">ftp_link</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"https://ftp.ebi.ac.uk/pub/databases/ensembl/pre-release/</span><span class="si">{</span><span class="n">scientific_name</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">accession</span><span class="si">}</span><span class="s2">"</span>
 
                 <span class="k">try</span><span class="p">:</span>
-                    <span class="n">res</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="n">ftp_link</span> <span class="o">+</span> <span class="s2">&quot;/&quot;</span><span class="p">,</span> <span class="n">allow_redirects</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+                    <span class="n">res</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="n">ftp_link</span> <span class="o">+</span> <span class="s2">"/"</span><span class="p">,</span> <span class="n">allow_redirects</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
                     <span class="k">if</span> <span class="n">res</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">200</span><span class="p">:</span>
-                        <span class="n">ftp_status</span> <span class="o">=</span> <span class="s2">&quot;OK&quot;</span>
+                        <span class="n">ftp_status</span> <span class="o">=</span> <span class="s2">"OK"</span>
                     <span class="k">elif</span> <span class="n">res</span><span class="o">.</span><span class="n">status_code</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">404</span><span class="p">,</span> <span class="mi">403</span><span class="p">]:</span>
-                        <span class="n">ftp_status</span> <span class="o">=</span> <span class="s2">&quot;Not Found&quot;</span>
+                        <span class="n">ftp_status</span> <span class="o">=</span> <span class="s2">"Not Found"</span>
                     <span class="k">else</span><span class="p">:</span>
                         <span class="n">res_get</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
-                            <span class="n">ftp_link</span> <span class="o">+</span> <span class="s2">&quot;/&quot;</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">allow_redirects</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">5</span>
+                            <span class="n">ftp_link</span> <span class="o">+</span> <span class="s2">"/"</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">allow_redirects</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">5</span>
                         <span class="p">)</span>
-                        <span class="n">ftp_status</span> <span class="o">=</span> <span class="s2">&quot;OK&quot;</span> <span class="k">if</span> <span class="n">res_get</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">200</span> <span class="k">else</span> <span class="s2">&quot;Not Found&quot;</span>
+                        <span class="n">ftp_status</span> <span class="o">=</span> <span class="s2">"OK"</span> <span class="k">if</span> <span class="n">res_get</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">200</span> <span class="k">else</span> <span class="s2">"Not Found"</span>
                         <span class="n">res_get</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
                 <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>  <span class="c1"># pylint: disable=broad-exception-caught</span>
-                    <span class="n">ftp_status</span> <span class="o">=</span> <span class="s2">&quot;Error&quot;</span>
+                    <span class="n">ftp_status</span> <span class="o">=</span> <span class="s2">"Error"</span>
 
                 <span class="c1"># attach to matching entries</span>
                 <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">matches</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="n">m</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;dbname&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="n">dbname</span><span class="p">:</span>
-                        <span class="n">m</span><span class="p">[</span><span class="s2">&quot;ftp&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ftp_link</span>
-                        <span class="n">m</span><span class="p">[</span><span class="s2">&quot;ftp_status&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ftp_status</span>
-                <span class="k">if</span> <span class="n">annotation</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;dbname&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="n">dbname</span><span class="p">:</span>
-                    <span class="n">annotation</span><span class="p">[</span><span class="s2">&quot;ftp&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ftp_link</span>  <span class="c1"># top-level</span>
-                    <span class="n">annotation</span><span class="p">[</span><span class="s2">&quot;ftp_status&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ftp_status</span>
+                    <span class="k">if</span> <span class="n">m</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"dbname"</span><span class="p">)</span> <span class="o">==</span> <span class="n">dbname</span><span class="p">:</span>
+                        <span class="n">m</span><span class="p">[</span><span class="s2">"ftp"</span><span class="p">]</span> <span class="o">=</span> <span class="n">ftp_link</span>
+                        <span class="n">m</span><span class="p">[</span><span class="s2">"ftp_status"</span><span class="p">]</span> <span class="o">=</span> <span class="n">ftp_status</span>
+                <span class="k">if</span> <span class="n">annotation</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"dbname"</span><span class="p">)</span> <span class="o">==</span> <span class="n">dbname</span><span class="p">:</span>
+                    <span class="n">annotation</span><span class="p">[</span><span class="s2">"ftp"</span><span class="p">]</span> <span class="o">=</span> <span class="n">ftp_link</span>  <span class="c1"># top-level</span>
+                    <span class="n">annotation</span><span class="p">[</span><span class="s2">"ftp_status"</span><span class="p">]</span> <span class="o">=</span> <span class="n">ftp_status</span>
 
-        <span class="k">elif</span> <span class="n">release_type</span> <span class="o">==</span> <span class="s2">&quot;live&quot;</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="n">release_type</span> <span class="o">==</span> <span class="s2">"live"</span><span class="p">:</span>
             <span class="c1"># Build map guuid-&gt;match for easy updates</span>
-            <span class="n">by_guuid</span> <span class="o">=</span> <span class="p">{</span><span class="n">m</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;guuid&quot;</span><span class="p">):</span> <span class="n">m</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">matches</span> <span class="k">if</span> <span class="n">m</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;guuid&quot;</span><span class="p">)}</span>
+            <span class="n">by_guuid</span> <span class="o">=</span> <span class="p">{</span><span class="n">m</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"guuid"</span><span class="p">):</span> <span class="n">m</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">matches</span> <span class="k">if</span> <span class="n">m</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"guuid"</span><span class="p">)}</span>
             <span class="n">guuids</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">by_guuid</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
-            <span class="k">if</span> <span class="n">annotation</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;guuid&quot;</span><span class="p">):</span>
-                <span class="n">guuids</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">annotation</span><span class="p">[</span><span class="s2">&quot;guuid&quot;</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">annotation</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"guuid"</span><span class="p">):</span>
+                <span class="n">guuids</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">annotation</span><span class="p">[</span><span class="s2">"guuid"</span><span class="p">])</span>
 
             <span class="k">for</span> <span class="n">guuid</span> <span class="ow">in</span> <span class="n">guuids</span><span class="p">:</span>
-                <span class="k">if</span> <span class="ow">not</span> <span class="n">guuid</span> <span class="ow">or</span> <span class="n">guuid</span> <span class="o">==</span> <span class="s2">&quot;unknown&quot;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">guuid</span> <span class="ow">or</span> <span class="n">guuid</span> <span class="o">==</span> <span class="s2">"unknown"</span><span class="p">:</span>
                     <span class="k">continue</span>
-                <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+                <span class="n">query</span> <span class="o">=</span> <span class="s2">"""</span>
 <span class="s2">                SELECT genome.genebuild_date, organism.scientific_name, dataset_attribute.value</span>
 <span class="s2">                FROM genome</span>
 <span class="s2">                JOIN organism USING(organism_id)</span>
@@ -4153,45 +4153,45 @@ python -m ensembl.genes.tracking.bioproject_tracking --project_name hprc --repor
 <span class="s2">                JOIN dataset_attribute USING(dataset_id)</span>
 <span class="s2">                WHERE genome.genome_uuid = </span><span class="si">%s</span>
 <span class="s2">                AND attribute_id=169</span>
-<span class="s2">                &quot;&quot;&quot;</span>
+<span class="s2">                """</span>
                 <span class="n">data_fetch</span> <span class="o">=</span> <span class="n">mysql_fetch_data</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="p">(</span><span class="n">guuid</span><span class="p">,))</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="n">data_fetch</span><span class="p">:</span>
                     <span class="k">continue</span>
 
                 <span class="n">date</span><span class="p">,</span> <span class="n">scientific_name</span><span class="p">,</span> <span class="n">source</span> <span class="o">=</span> <span class="n">data_fetch</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-                <span class="n">date</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">date</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">)</span>
-                <span class="n">scientific_name</span> <span class="o">=</span> <span class="n">scientific_name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+                <span class="n">date</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">date</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"-"</span><span class="p">,</span> <span class="s2">"_"</span><span class="p">)</span>
+                <span class="n">scientific_name</span> <span class="o">=</span> <span class="n">scientific_name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">" "</span><span class="p">,</span> <span class="s2">"_"</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"."</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span>
                 <span class="n">source</span> <span class="o">=</span> <span class="n">source</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
-                <span class="n">ftp_link</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;https://ftp.ebi.ac.uk/pub/ensemblorganisms/</span><span class="si">{</span><span class="n">scientific_name</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">accession</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">source</span><span class="si">}</span><span class="s2">/geneset/</span><span class="si">{</span><span class="n">date</span><span class="si">}</span><span class="s2">/&quot;</span>
+                <span class="n">ftp_link</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"https://ftp.ebi.ac.uk/pub/ensemblorganisms/</span><span class="si">{</span><span class="n">scientific_name</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">accession</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">source</span><span class="si">}</span><span class="s2">/geneset/</span><span class="si">{</span><span class="n">date</span><span class="si">}</span><span class="s2">/"</span>
 
                 <span class="k">try</span><span class="p">:</span>
                     <span class="n">res</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">head</span><span class="p">(</span>
-                        <span class="n">ftp_link</span> <span class="o">+</span> <span class="s2">&quot;genes.gtf.gz&quot;</span><span class="p">,</span> <span class="n">allow_redirects</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">5</span>
+                        <span class="n">ftp_link</span> <span class="o">+</span> <span class="s2">"genes.gtf.gz"</span><span class="p">,</span> <span class="n">allow_redirects</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">5</span>
                     <span class="p">)</span>
                     <span class="k">if</span> <span class="n">res</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">200</span><span class="p">:</span>
-                        <span class="n">ftp_status</span> <span class="o">=</span> <span class="s2">&quot;OK&quot;</span>
+                        <span class="n">ftp_status</span> <span class="o">=</span> <span class="s2">"OK"</span>
                     <span class="k">elif</span> <span class="n">res</span><span class="o">.</span><span class="n">status_code</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">404</span><span class="p">,</span> <span class="mi">403</span><span class="p">]:</span>
-                        <span class="n">ftp_status</span> <span class="o">=</span> <span class="s2">&quot;Not Found&quot;</span>
+                        <span class="n">ftp_status</span> <span class="o">=</span> <span class="s2">"Not Found"</span>
                     <span class="k">else</span><span class="p">:</span>
                         <span class="n">res_get</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
-                            <span class="n">ftp_link</span> <span class="o">+</span> <span class="s2">&quot;genes.gtf.gz&quot;</span><span class="p">,</span>
+                            <span class="n">ftp_link</span> <span class="o">+</span> <span class="s2">"genes.gtf.gz"</span><span class="p">,</span>
                             <span class="n">stream</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                             <span class="n">allow_redirects</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                             <span class="n">timeout</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
                         <span class="p">)</span>
-                        <span class="n">ftp_status</span> <span class="o">=</span> <span class="s2">&quot;OK&quot;</span> <span class="k">if</span> <span class="n">res_get</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">200</span> <span class="k">else</span> <span class="s2">&quot;Not Found&quot;</span>
+                        <span class="n">ftp_status</span> <span class="o">=</span> <span class="s2">"OK"</span> <span class="k">if</span> <span class="n">res_get</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">200</span> <span class="k">else</span> <span class="s2">"Not Found"</span>
                         <span class="n">res_get</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
                 <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>  <span class="c1"># pylint: disable=broad-exception-caught</span>
-                    <span class="n">ftp_status</span> <span class="o">=</span> <span class="s2">&quot;Error&quot;</span>
+                    <span class="n">ftp_status</span> <span class="o">=</span> <span class="s2">"Error"</span>
 
                 <span class="k">if</span> <span class="n">guuid</span> <span class="ow">in</span> <span class="n">by_guuid</span><span class="p">:</span>
-                    <span class="n">by_guuid</span><span class="p">[</span><span class="n">guuid</span><span class="p">][</span><span class="s2">&quot;ftp&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ftp_link</span>
-                    <span class="n">by_guuid</span><span class="p">[</span><span class="n">guuid</span><span class="p">][</span><span class="s2">&quot;date&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">date</span>
-                    <span class="n">by_guuid</span><span class="p">[</span><span class="n">guuid</span><span class="p">][</span><span class="s2">&quot;ftp_status&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ftp_status</span>
-                <span class="k">if</span> <span class="n">annotation</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;guuid&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="n">guuid</span><span class="p">:</span>
-                    <span class="n">annotation</span><span class="p">[</span><span class="s2">&quot;ftp&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ftp_link</span>
-                    <span class="n">annotation</span><span class="p">[</span><span class="s2">&quot;date&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">date</span>
-                    <span class="n">annotation</span><span class="p">[</span><span class="s2">&quot;ftp_status&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ftp_status</span>
+                    <span class="n">by_guuid</span><span class="p">[</span><span class="n">guuid</span><span class="p">][</span><span class="s2">"ftp"</span><span class="p">]</span> <span class="o">=</span> <span class="n">ftp_link</span>
+                    <span class="n">by_guuid</span><span class="p">[</span><span class="n">guuid</span><span class="p">][</span><span class="s2">"date"</span><span class="p">]</span> <span class="o">=</span> <span class="n">date</span>
+                    <span class="n">by_guuid</span><span class="p">[</span><span class="n">guuid</span><span class="p">][</span><span class="s2">"ftp_status"</span><span class="p">]</span> <span class="o">=</span> <span class="n">ftp_status</span>
+                <span class="k">if</span> <span class="n">annotation</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"guuid"</span><span class="p">)</span> <span class="o">==</span> <span class="n">guuid</span><span class="p">:</span>
+                    <span class="n">annotation</span><span class="p">[</span><span class="s2">"ftp"</span><span class="p">]</span> <span class="o">=</span> <span class="n">ftp_link</span>
+                    <span class="n">annotation</span><span class="p">[</span><span class="s2">"date"</span><span class="p">]</span> <span class="o">=</span> <span class="n">date</span>
+                    <span class="n">annotation</span><span class="p">[</span><span class="s2">"ftp_status"</span><span class="p">]</span> <span class="o">=</span> <span class="n">ftp_status</span>
 
     <span class="k">return</span> <span class="n">annotations</span>
 </code></pre></div></td></tr></table></div>
@@ -4309,13 +4309,13 @@ format used by <code>get_assembly_accessions</code>.</p>
 <span class="normal">309</span>
 <span class="normal">310</span>
 <span class="normal">311</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">fetch_hprc_assemblies</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Fetches HPRC release 2 assembly GCAs from the HPRC data portal catalog.</span>
+<span class="w">    </span><span class="sd">"""Fetches HPRC release 2 assembly GCAs from the HPRC data portal catalog.</span>
 
 <span class="sd">    The HPRC data explorer stores its catalog as a static JSON file in its</span>
-<span class="sd">    GitHub repository.  Each entry has a ``release`` field (&quot;1&quot; or &quot;2&quot;) and a</span>
+<span class="sd">    GitHub repository.  Each entry has a ``release`` field ("1" or "2") and a</span>
 <span class="sd">    ``genbankAccession`` field containing the GCA accession.  This function</span>
-<span class="sd">    downloads that JSON, filters to release &quot;2&quot;, extracts valid GCA accessions,</span>
-<span class="sd">    de-duplicates, and returns them in the same ``{accession: {&quot;taxon_id&quot;: …}}``</span>
+<span class="sd">    downloads that JSON, filters to release "2", extracts valid GCA accessions,</span>
+<span class="sd">    de-duplicates, and returns them in the same ``{accession: {"taxon_id": …}}``</span>
 <span class="sd">    format used by ``get_assembly_accessions``.</span>
 
 <span class="sd">    Returns:</span>
@@ -4323,31 +4323,31 @@ format used by <code>get_assembly_accessions</code>.</p>
 
 <span class="sd">    Raises:</span>
 <span class="sd">        SystemExit: If the catalog cannot be fetched or yields zero GCAs.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Fetching HPRC catalog from </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">_HPRC_CATALOG_URL</span><span class="p">)</span>
+<span class="sd">    """</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"Fetching HPRC catalog from </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">_HPRC_CATALOG_URL</span><span class="p">)</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">_HPRC_CATALOG_URL</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
         <span class="n">response</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span>
         <span class="n">catalog</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
     <span class="k">except</span> <span class="n">requests</span><span class="o">.</span><span class="n">RequestException</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Failed to fetch HPRC catalog: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">exc</span><span class="p">)</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">"Failed to fetch HPRC catalog: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">exc</span><span class="p">)</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
     <span class="k">except</span> <span class="n">json</span><span class="o">.</span><span class="n">JSONDecodeError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Failed to parse HPRC catalog JSON: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">exc</span><span class="p">)</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">"Failed to parse HPRC catalog JSON: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">exc</span><span class="p">)</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 
     <span class="n">accessions</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">catalog</span><span class="p">:</span>
-        <span class="n">release</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">entry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;release&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
-        <span class="n">gca</span> <span class="o">=</span> <span class="p">(</span><span class="n">entry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;genbankAccession&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
-        <span class="k">if</span> <span class="n">release</span> <span class="o">==</span> <span class="s2">&quot;2&quot;</span> <span class="ow">and</span> <span class="n">gca</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;GCA_&quot;</span><span class="p">):</span>
-            <span class="n">accessions</span><span class="p">[</span><span class="n">gca</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;taxon_id&quot;</span><span class="p">:</span> <span class="n">_HUMAN_TAXON_ID</span><span class="p">}</span>
+        <span class="n">release</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">entry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"release"</span><span class="p">,</span> <span class="s2">""</span><span class="p">))</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="n">gca</span> <span class="o">=</span> <span class="p">(</span><span class="n">entry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"genbankAccession"</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">""</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">release</span> <span class="o">==</span> <span class="s2">"2"</span> <span class="ow">and</span> <span class="n">gca</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"GCA_"</span><span class="p">):</span>
+            <span class="n">accessions</span><span class="p">[</span><span class="n">gca</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"taxon_id"</span><span class="p">:</span> <span class="n">_HUMAN_TAXON_ID</span><span class="p">}</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">accessions</span><span class="p">:</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;No HPRC release 2 GCA accessions found in catalog.&quot;</span><span class="p">)</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">"No HPRC release 2 GCA accessions found in catalog."</span><span class="p">)</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 
-    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Discovered </span><span class="si">%d</span><span class="s2"> unique HPRC release 2 GCA accessions.&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">accessions</span><span class="p">))</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"Discovered </span><span class="si">%d</span><span class="s2"> unique HPRC release 2 GCA accessions."</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">accessions</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">accessions</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -4467,22 +4467,22 @@ format used by <code>get_assembly_accessions</code>.</p>
 <span class="normal">330</span>
 <span class="normal">331</span>
 <span class="normal">332</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">fetch_project_assemblies</span><span class="p">(</span><span class="n">project_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Dispatcher for project-specific assembly discovery.</span>
+<span class="w">    </span><span class="sd">"""Dispatcher for project-specific assembly discovery.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        project_name: Lowercase project identifier (e.g. &quot;hprc&quot;).</span>
+<span class="sd">        project_name: Lowercase project identifier (e.g. "hprc").</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        Dict[str, Dict[str, int]]: Mapping from GCA accession to taxon info.</span>
 
 <span class="sd">    Raises:</span>
 <span class="sd">        SystemExit: If the project name is not recognised.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">name</span> <span class="o">=</span> <span class="n">project_name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
-    <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;hprc&quot;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s2">"hprc"</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">fetch_hprc_assemblies</span><span class="p">()</span>
     <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-        <span class="s2">&quot;Unsupported --project_name &#39;</span><span class="si">%s</span><span class="s2">&#39;. Currently supported: hprc&quot;</span><span class="p">,</span> <span class="n">project_name</span>
+        <span class="s2">"Unsupported --project_name '</span><span class="si">%s</span><span class="s2">'. Currently supported: hprc"</span><span class="p">,</span> <span class="n">project_name</span>
     <span class="p">)</span>
     <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
@@ -4727,17 +4727,17 @@ format used by <code>get_assembly_accessions</code>.</p>
 <span class="normal">254</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_assembly_accessions</span><span class="p">(</span>  <span class="c1"># pylint:disable=too-many-branches, too-many-statements, too-many-locals</span>
     <span class="n">query_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">query_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">only_haploid</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Fetches assembly accessions from NCBI Datasets API based on BioProject or Taxon ID.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        query_id (str): The BioProject or Taxon ID to query.</span>
-<span class="sd">        query_type (str): The type of query, either &quot;bioproject&quot; or &quot;taxon&quot;.</span>
+<span class="sd">        query_type (str): The type of query, either "bioproject" or "taxon".</span>
 <span class="sd">        only_haploid (bool): If True, only include haploid assemblies. Defaults to False.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        Dict[str, Dict[str, int]]: A dictionary mapping assembly accessions to their taxon IDs.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_parse_reports</span><span class="p">(</span><span class="n">lines</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]:</span>
         <span class="n">accs</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
@@ -4749,77 +4749,77 @@ format used by <code>get_assembly_accessions</code>.</p>
                 <span class="n">obj</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
             <span class="k">except</span> <span class="n">json</span><span class="o">.</span><span class="n">JSONDecodeError</span><span class="p">:</span>
                 <span class="k">continue</span>
-            <span class="n">report</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;report&quot;</span><span class="p">,</span> <span class="n">obj</span><span class="p">)</span>
-            <span class="n">assembly_info</span> <span class="o">=</span> <span class="n">report</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;assembly_info&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="p">{}</span>
-            <span class="k">if</span> <span class="n">only_haploid</span> <span class="ow">and</span> <span class="n">assembly_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;assembly_type&quot;</span><span class="p">)</span> <span class="o">!=</span> <span class="s2">&quot;haploid&quot;</span><span class="p">:</span>
+            <span class="n">report</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"report"</span><span class="p">,</span> <span class="n">obj</span><span class="p">)</span>
+            <span class="n">assembly_info</span> <span class="o">=</span> <span class="n">report</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"assembly_info"</span><span class="p">)</span> <span class="ow">or</span> <span class="p">{}</span>
+            <span class="k">if</span> <span class="n">only_haploid</span> <span class="ow">and</span> <span class="n">assembly_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"assembly_type"</span><span class="p">)</span> <span class="o">!=</span> <span class="s2">"haploid"</span><span class="p">:</span>
                 <span class="k">continue</span>
-            <span class="n">accession</span> <span class="o">=</span> <span class="n">report</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;accession&quot;</span><span class="p">)</span>
-            <span class="n">taxon_id</span> <span class="o">=</span> <span class="p">(</span><span class="n">report</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;organism&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;tax_id&quot;</span><span class="p">)</span>
+            <span class="n">accession</span> <span class="o">=</span> <span class="n">report</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"accession"</span><span class="p">)</span>
+            <span class="n">taxon_id</span> <span class="o">=</span> <span class="p">(</span><span class="n">report</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"organism"</span><span class="p">)</span> <span class="ow">or</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"tax_id"</span><span class="p">)</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">taxon_id</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
                 <span class="k">continue</span>
             <span class="k">if</span> <span class="n">accession</span><span class="p">:</span>
-                <span class="n">accs</span><span class="p">[</span><span class="n">accession</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;taxon_id&quot;</span><span class="p">:</span> <span class="n">taxon_id</span><span class="p">}</span>
+                <span class="n">accs</span><span class="p">[</span><span class="n">accession</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"taxon_id"</span><span class="p">:</span> <span class="n">taxon_id</span><span class="p">}</span>
         <span class="k">return</span> <span class="n">accs</span>
 
     <span class="c1"># --- 1) Try CLI (gets ALL versions) ---</span>
-    <span class="n">datasets_cli</span> <span class="o">=</span> <span class="n">shutil</span><span class="o">.</span><span class="n">which</span><span class="p">(</span><span class="s2">&quot;datasets&quot;</span><span class="p">)</span>
+    <span class="n">datasets_cli</span> <span class="o">=</span> <span class="n">shutil</span><span class="o">.</span><span class="n">which</span><span class="p">(</span><span class="s2">"datasets"</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">datasets_cli</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">query_type</span> <span class="o">==</span> <span class="s2">&quot;bioproject&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">query_type</span> <span class="o">==</span> <span class="s2">"bioproject"</span><span class="p">:</span>
                 <span class="n">cmd</span> <span class="o">=</span> <span class="p">[</span>
                     <span class="n">datasets_cli</span><span class="p">,</span>
-                    <span class="s2">&quot;summary&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;genome&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;accession&quot;</span><span class="p">,</span>
+                    <span class="s2">"summary"</span><span class="p">,</span>
+                    <span class="s2">"genome"</span><span class="p">,</span>
+                    <span class="s2">"accession"</span><span class="p">,</span>
                     <span class="nb">str</span><span class="p">(</span><span class="n">query_id</span><span class="p">),</span>
-                    <span class="s2">&quot;--assembly-version&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;all&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;--as-json-lines&quot;</span><span class="p">,</span>
+                    <span class="s2">"--assembly-version"</span><span class="p">,</span>
+                    <span class="s2">"all"</span><span class="p">,</span>
+                    <span class="s2">"--as-json-lines"</span><span class="p">,</span>
                 <span class="p">]</span>
-            <span class="k">elif</span> <span class="n">query_type</span> <span class="o">==</span> <span class="s2">&quot;taxon&quot;</span><span class="p">:</span>
+            <span class="k">elif</span> <span class="n">query_type</span> <span class="o">==</span> <span class="s2">"taxon"</span><span class="p">:</span>
                 <span class="n">cmd</span> <span class="o">=</span> <span class="p">[</span>
                     <span class="n">datasets_cli</span><span class="p">,</span>
-                    <span class="s2">&quot;summary&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;genome&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;taxon&quot;</span><span class="p">,</span>
+                    <span class="s2">"summary"</span><span class="p">,</span>
+                    <span class="s2">"genome"</span><span class="p">,</span>
+                    <span class="s2">"taxon"</span><span class="p">,</span>
                     <span class="nb">str</span><span class="p">(</span><span class="n">query_id</span><span class="p">),</span>
-                    <span class="s2">&quot;--assembly-version&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;all&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;--as-json-lines&quot;</span><span class="p">,</span>
+                    <span class="s2">"--assembly-version"</span><span class="p">,</span>
+                    <span class="s2">"all"</span><span class="p">,</span>
+                    <span class="s2">"--as-json-lines"</span><span class="p">,</span>
                 <span class="p">]</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid query_type &#39;</span><span class="si">{</span><span class="n">query_type</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+                <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Invalid query_type '</span><span class="si">{</span><span class="n">query_type</span><span class="si">}</span><span class="s2">'"</span><span class="p">)</span>
                 <span class="k">return</span> <span class="p">{}</span>
 
             <span class="n">result</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">capture_output</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">check</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
             <span class="n">parsed</span> <span class="o">=</span> <span class="n">_parse_reports</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">splitlines</span><span class="p">())</span>
             <span class="k">if</span> <span class="n">parsed</span><span class="p">:</span>  <span class="c1"># pylint:disable=no-else-return</span>
                 <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;[Datasets CLI] Retrieved </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">parsed</span><span class="p">)</span><span class="si">}</span><span class="s2"> assemblies (all versions).&quot;</span>
+                    <span class="sa">f</span><span class="s2">"[Datasets CLI] Retrieved </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">parsed</span><span class="p">)</span><span class="si">}</span><span class="s2"> assemblies (all versions)."</span>
                 <span class="p">)</span>
                 <span class="k">return</span> <span class="n">parsed</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                    <span class="s2">&quot;[Datasets CLI] Parsed zero rows from stdout; falling back to API.&quot;</span>
+                    <span class="s2">"[Datasets CLI] Parsed zero rows from stdout; falling back to API."</span>
                 <span class="p">)</span>
         <span class="k">except</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">CalledProcessError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;[Datasets CLI] Exit </span><span class="si">{</span><span class="n">e</span><span class="o">.</span><span class="n">returncode</span><span class="si">}</span><span class="s2">. STDERR:</span><span class="se">\n</span><span class="si">{</span><span class="n">e</span><span class="o">.</span><span class="n">stderr</span><span class="si">}</span><span class="se">\n</span><span class="s2">Falling back to API.&quot;</span>
+                <span class="sa">f</span><span class="s2">"[Datasets CLI] Exit </span><span class="si">{</span><span class="n">e</span><span class="o">.</span><span class="n">returncode</span><span class="si">}</span><span class="s2">. STDERR:</span><span class="se">\n</span><span class="si">{</span><span class="n">e</span><span class="o">.</span><span class="n">stderr</span><span class="si">}</span><span class="se">\n</span><span class="s2">Falling back to API."</span>
             <span class="p">)</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>  <span class="c1"># pylint:disable=broad-exception-caught</span>
             <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;[Datasets CLI] Unexpected error: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">. Falling back to API.&quot;</span>
+                <span class="sa">f</span><span class="s2">"[Datasets CLI] Unexpected error: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">. Falling back to API."</span>
             <span class="p">)</span>
 
     <span class="c1"># --- 2) Fallback: API (latest only) ---</span>
     <span class="k">try</span><span class="p">:</span>
-        <span class="n">base_url</span> <span class="o">=</span> <span class="n">_get_config</span><span class="p">()[</span><span class="s2">&quot;urls&quot;</span><span class="p">][</span><span class="s2">&quot;datasets&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">query_type</span><span class="p">)</span>
+        <span class="n">base_url</span> <span class="o">=</span> <span class="n">_get_config</span><span class="p">()[</span><span class="s2">"urls"</span><span class="p">][</span><span class="s2">"datasets"</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">query_type</span><span class="p">)</span>
     <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>  <span class="c1"># pylint:disable=broad-exception-caught</span>
         <span class="n">base_url</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">base_url</span><span class="p">:</span>
         <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-            <span class="s2">&quot;[Datasets API] Base URL not found in config; returning empty set.&quot;</span>
+            <span class="s2">"[Datasets API] Base URL not found in config; returning empty set."</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="p">{}</span>
 
@@ -4828,32 +4828,32 @@ format used by <code>get_assembly_accessions</code>.</p>
     <span class="n">next_page_token</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
-        <span class="n">url</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">base_url</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">query_id</span><span class="si">}</span><span class="s2">/dataset_report?page_size=</span><span class="si">{</span><span class="n">page_size</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">url</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">base_url</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">query_id</span><span class="si">}</span><span class="s2">/dataset_report?page_size=</span><span class="si">{</span><span class="n">page_size</span><span class="si">}</span><span class="s2">"</span>
         <span class="k">if</span> <span class="n">next_page_token</span><span class="p">:</span>
-            <span class="n">url</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;&amp;page_token=</span><span class="si">{</span><span class="n">next_page_token</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="n">url</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">"&amp;page_token=</span><span class="si">{</span><span class="n">next_page_token</span><span class="si">}</span><span class="s2">"</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>  <span class="c1"># pylint:disable=missing-timeout</span>
             <span class="n">response</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span>
             <span class="n">data</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
-            <span class="k">for</span> <span class="n">assembly</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;reports&quot;</span><span class="p">,</span> <span class="p">[]):</span>
-                <span class="n">assembly_info</span> <span class="o">=</span> <span class="n">assembly</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;assembly_info&quot;</span><span class="p">,</span> <span class="p">{})</span> <span class="ow">or</span> <span class="p">{}</span>
-                <span class="k">if</span> <span class="n">only_haploid</span> <span class="ow">and</span> <span class="n">assembly_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;assembly_type&quot;</span><span class="p">)</span> <span class="o">!=</span> <span class="s2">&quot;haploid&quot;</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">assembly</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"reports"</span><span class="p">,</span> <span class="p">[]):</span>
+                <span class="n">assembly_info</span> <span class="o">=</span> <span class="n">assembly</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"assembly_info"</span><span class="p">,</span> <span class="p">{})</span> <span class="ow">or</span> <span class="p">{}</span>
+                <span class="k">if</span> <span class="n">only_haploid</span> <span class="ow">and</span> <span class="n">assembly_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"assembly_type"</span><span class="p">)</span> <span class="o">!=</span> <span class="s2">"haploid"</span><span class="p">:</span>
                     <span class="k">continue</span>
-                <span class="n">accession</span> <span class="o">=</span> <span class="n">assembly</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;accession&quot;</span><span class="p">)</span>
-                <span class="n">taxon_id</span> <span class="o">=</span> <span class="p">(</span><span class="n">assembly</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;organism&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;tax_id&quot;</span><span class="p">)</span>
+                <span class="n">accession</span> <span class="o">=</span> <span class="n">assembly</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"accession"</span><span class="p">)</span>
+                <span class="n">taxon_id</span> <span class="o">=</span> <span class="p">(</span><span class="n">assembly</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"organism"</span><span class="p">)</span> <span class="ow">or</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"tax_id"</span><span class="p">)</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">taxon_id</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
                     <span class="k">continue</span>
                 <span class="k">if</span> <span class="n">accession</span><span class="p">:</span>
-                    <span class="n">assembly_accessions</span><span class="p">[</span><span class="n">accession</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;taxon_id&quot;</span><span class="p">:</span> <span class="n">taxon_id</span><span class="p">}</span>
-            <span class="n">next_page_token</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;next_page_token&quot;</span><span class="p">)</span>
+                    <span class="n">assembly_accessions</span><span class="p">[</span><span class="n">accession</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"taxon_id"</span><span class="p">:</span> <span class="n">taxon_id</span><span class="p">}</span>
+            <span class="n">next_page_token</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"next_page_token"</span><span class="p">)</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">next_page_token</span><span class="p">:</span>
                 <span class="k">break</span>
         <span class="k">except</span> <span class="n">requests</span><span class="o">.</span><span class="n">RequestException</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-            <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[Datasets API] Error: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">"[Datasets API] Error: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
             <span class="k">break</span>
 
     <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s2">&quot;[Datasets API] Retrieved </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">assembly_accessions</span><span class="p">)</span><span class="si">}</span><span class="s2"> assemblies (latest only).&quot;</span>
+        <span class="sa">f</span><span class="s2">"[Datasets API] Retrieved </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">assembly_accessions</span><span class="p">)</span><span class="si">}</span><span class="s2"> assemblies (latest only)."</span>
     <span class="p">)</span>
     <span class="k">return</span> <span class="n">assembly_accessions</span>
 </code></pre></div></td></tr></table></div>
@@ -5025,26 +5025,26 @@ to basic taxon information, such as {"GCA_000001405.39": {"taxon_id": 9606}}.</p
 <span class="normal">426</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_ensembl_live</span><span class="p">(</span>
     <span class="n">accessions_taxon</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]],</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]],</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Fetches Ensembl live database annotations for a list of assembly accessions.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        accessions_taxon (Dict[str, Dict[str, int]]): A dictionary mapping assembly accessions</span>
-<span class="sd">            to basic taxon information, such as {&quot;GCA_000001405.39&quot;: {&quot;taxon_id&quot;: 9606}}.</span>
+<span class="sd">            to basic taxon information, such as {"GCA_000001405.39": {"taxon_id": 9606}}.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        Tuple[Dict[str, Dict[str, Any]], List[str]]: A tuple containing:</span>
 <span class="sd">        1) A dictionary where each key is an assembly accession and its value is another dictionary with:</span>
 <span class="sd">           - taxon_id (from input)</span>
-<span class="sd">           - matches: List[{&quot;guuid&quot;,&quot;dbname&quot;}]</span>
+<span class="sd">           - matches: List[{"guuid","dbname"}]</span>
 <span class="sd">           - guuid, dbname: best match (latest core; prefer non-cm)</span>
 <span class="sd">        2) A list of accessions that were not found in the Ensembl live database.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">accessions</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">accessions_taxon</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">accessions</span><span class="p">:</span>
         <span class="k">return</span> <span class="p">{},</span> <span class="p">[]</span>
-    <span class="n">placeholders</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">accessions</span><span class="p">))</span>
-    <span class="n">query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+    <span class="n">placeholders</span> <span class="o">=</span> <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s2">"</span><span class="si">%s</span><span class="s2">"</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">accessions</span><span class="p">))</span>
+    <span class="n">query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"""</span>
 <span class="s2">    SELECT DISTINCT</span>
 <span class="s2">        assembly.accession,</span>
 <span class="s2">        genome.genome_uuid,</span>
@@ -5056,9 +5056,9 @@ to basic taxon information, such as {"GCA_000001405.39": {"taxon_id": 9606}}.</p
 <span class="s2">    JOIN dataset_source ON dataset.dataset_source_id = dataset_source.dataset_source_id</span>
 <span class="s2">    JOIN genome_release ON genome.genome_id = genome_release.genome_id</span>
 <span class="s2">    JOIN ensembl_release ON genome_release.release_id = ensembl_release.release_id</span>
-<span class="s2">    WHERE dataset.name = &#39;genebuild&#39;</span>
+<span class="s2">    WHERE dataset.name = 'genebuild'</span>
 <span class="s2">      AND assembly.accession IN (</span><span class="si">{</span><span class="n">placeholders</span><span class="si">}</span><span class="s2">)</span>
-<span class="s2">    &quot;&quot;&quot;</span>
+<span class="s2">    """</span>
 
     <span class="n">rows</span> <span class="o">=</span> <span class="n">mysql_fetch_data</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">accessions</span><span class="p">))</span>
 
@@ -5069,20 +5069,20 @@ to basic taxon information, such as {"GCA_000001405.39": {"taxon_id": 9606}}.</p
         <span class="n">entry</span> <span class="o">=</span> <span class="n">live_annotations</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span>
             <span class="n">accession</span><span class="p">,</span> <span class="nb">dict</span><span class="p">(</span><span class="n">accessions_taxon</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">accession</span><span class="p">,</span> <span class="p">{}))</span>
         <span class="p">)</span>
-        <span class="n">entry</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;matches&quot;</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="n">entry</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">"matches"</span><span class="p">,</span> <span class="p">[])</span>
         <span class="c1"># Avoid duplicates across joins if any</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span>
-            <span class="n">m</span><span class="p">[</span><span class="s2">&quot;guuid&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">guuid</span> <span class="ow">and</span> <span class="n">m</span><span class="p">[</span><span class="s2">&quot;dbname&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">dbname</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">entry</span><span class="p">[</span><span class="s2">&quot;matches&quot;</span><span class="p">]</span>
+            <span class="n">m</span><span class="p">[</span><span class="s2">"guuid"</span><span class="p">]</span> <span class="o">==</span> <span class="n">guuid</span> <span class="ow">and</span> <span class="n">m</span><span class="p">[</span><span class="s2">"dbname"</span><span class="p">]</span> <span class="o">==</span> <span class="n">dbname</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">entry</span><span class="p">[</span><span class="s2">"matches"</span><span class="p">]</span>
         <span class="p">):</span>
-            <span class="n">entry</span><span class="p">[</span><span class="s2">&quot;matches&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;guuid&quot;</span><span class="p">:</span> <span class="n">guuid</span><span class="p">,</span> <span class="s2">&quot;dbname&quot;</span><span class="p">:</span> <span class="n">dbname</span><span class="p">})</span>
+            <span class="n">entry</span><span class="p">[</span><span class="s2">"matches"</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">"guuid"</span><span class="p">:</span> <span class="n">guuid</span><span class="p">,</span> <span class="s2">"dbname"</span><span class="p">:</span> <span class="n">dbname</span><span class="p">})</span>
 
     <span class="c1"># Choose best match for backward compatibility fields</span>
     <span class="k">for</span> <span class="n">accession</span><span class="p">,</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">live_annotations</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-        <span class="n">matches</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;matches&quot;</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="n">matches</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"matches"</span><span class="p">,</span> <span class="p">[])</span>
         <span class="k">if</span> <span class="n">matches</span><span class="p">:</span>
-            <span class="n">best</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">matches</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">m</span><span class="p">:</span> <span class="n">_score_dbname</span><span class="p">(</span><span class="n">m</span><span class="p">[</span><span class="s2">&quot;dbname&quot;</span><span class="p">]))</span>
-            <span class="n">entry</span><span class="p">[</span><span class="s2">&quot;guuid&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">best</span><span class="p">[</span><span class="s2">&quot;guuid&quot;</span><span class="p">]</span>
-            <span class="n">entry</span><span class="p">[</span><span class="s2">&quot;dbname&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">best</span><span class="p">[</span><span class="s2">&quot;dbname&quot;</span><span class="p">]</span>
+            <span class="n">best</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">matches</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">m</span><span class="p">:</span> <span class="n">_score_dbname</span><span class="p">(</span><span class="n">m</span><span class="p">[</span><span class="s2">"dbname"</span><span class="p">]))</span>
+            <span class="n">entry</span><span class="p">[</span><span class="s2">"guuid"</span><span class="p">]</span> <span class="o">=</span> <span class="n">best</span><span class="p">[</span><span class="s2">"guuid"</span><span class="p">]</span>
+            <span class="n">entry</span><span class="p">[</span><span class="s2">"dbname"</span><span class="p">]</span> <span class="o">=</span> <span class="n">best</span><span class="p">[</span><span class="s2">"dbname"</span><span class="p">]</span>
 
     <span class="c1"># Compute missing (accessions with no rows at all)</span>
     <span class="n">matched_accessions</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">live_annotations</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
@@ -5254,60 +5254,60 @@ If such a schema is found, the function records the corresponding accession and 
 <span class="normal">681</span>
 <span class="normal">682</span>
 <span class="normal">683</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_pre_release</span><span class="p">(</span><span class="n">missing_annotations</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Checks for the existence of pre-release Ensembl database schemas for a \</span>
 <span class="sd">        list of missing accessions.</span>
 <span class="sd">    This function takes a list of GenBank/RefSeq assembly accessions that were not found in the \</span>
 <span class="sd">    Ensembl live database lookup (e.g., from `get_ensembl_live`). It reformats each accession \</span>
 <span class="sd">    to match the expected pre-release Ensembl database schema naming convention (e.g.,\</span>
-<span class="sd">    &#39;GCA_000001405.39&#39; → &#39;gca000001405v39&#39;) and queries the MySQL server&#39;s \</span>
+<span class="sd">    'GCA_000001405.39' → 'gca000001405v39') and queries the MySQL server's \</span>
 <span class="sd">    `information_schema.schemata` table to check if a database with that name exists.</span>
 <span class="sd">    If such a schema is found, the function records the corresponding accession and \</span>
 <span class="sd">    database name in the returned dictionary.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        missing_annotations (List[str]): A list of assembly accessions (e.g., &#39;GCA_000001405.39&#39;) \</span>
+<span class="sd">        missing_annotations (List[str]): A list of assembly accessions (e.g., 'GCA_000001405.39') \</span>
 <span class="sd">            for which no live annotation database was found.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        Dict[str, Dict[str, str]]: A dictionary mapping each accession with a found pre-release </span>
 <span class="sd">        database to a nested dictionary containing:</span>
-<span class="sd">            - &quot;dbname&quot;: The name of the pre-release schema (e.g., &#39;gca000001405v39&#39;).</span>
+<span class="sd">            - "dbname": The name of the pre-release schema (e.g., 'gca000001405v39').</span>
 <span class="sd">        Example:</span>
 <span class="sd">            {</span>
-<span class="sd">                &quot;GCA_000001405.39&quot;: {</span>
-<span class="sd">                    &quot;dbname&quot;: &quot;gca000001405v39&quot;</span>
+<span class="sd">                "GCA_000001405.39": {</span>
+<span class="sd">                    "dbname": "gca000001405v39"</span>
 <span class="sd">                },</span>
 <span class="sd">                ...</span>
 <span class="sd">            }</span>
 <span class="sd">    Notes:</span>
-<span class="sd">        - Only accessions matching the pattern &#39;GCA/GCF_XXXXXXXXX.XX&#39; are processed.</span>
+<span class="sd">        - Only accessions matching the pattern 'GCA/GCF_XXXXXXXXX.XX' are processed.</span>
 <span class="sd">        - If no matching schema is found for an accession, it is omitted from the result.</span>
-<span class="sd">        - The function uses `mysql_fetch_data` to query the MySQL server&#39;s schema metadata.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">        - The function uses `mysql_fetch_data` to query the MySQL server's schema metadata.</span>
+<span class="sd">    """</span>
     <span class="n">pre_release_annotations</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
 
     <span class="k">for</span> <span class="n">accession</span> <span class="ow">in</span> <span class="n">missing_annotations</span><span class="p">:</span>
-        <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;(GCA|GCF)_(\d+)\.(\d+)&quot;</span><span class="p">,</span> <span class="n">accession</span><span class="p">)</span>
+        <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">"(GCA|GCF)_(\d+)\.(\d+)"</span><span class="p">,</span> <span class="n">accession</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">match</span><span class="p">:</span>
             <span class="k">continue</span>  <span class="c1"># skip malformed accession</span>
 
         <span class="n">prefix</span><span class="p">,</span> <span class="n">number</span><span class="p">,</span> <span class="n">version</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">groups</span><span class="p">()</span>
-        <span class="n">lookup_string</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;%</span><span class="si">{</span><span class="n">prefix</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="si">}{</span><span class="n">number</span><span class="si">}</span><span class="s2">v</span><span class="si">{</span><span class="n">version</span><span class="si">}</span><span class="s2">%&quot;</span>
+        <span class="n">lookup_string</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"%</span><span class="si">{</span><span class="n">prefix</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="si">}{</span><span class="n">number</span><span class="si">}</span><span class="s2">v</span><span class="si">{</span><span class="n">version</span><span class="si">}</span><span class="s2">%"</span>
 
-        <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="s2">"""</span>
 <span class="s2">        SELECT SCHEMA_NAME</span>
 <span class="s2">        FROM information_schema.schemata</span>
 <span class="s2">        WHERE SCHEMA_NAME like </span><span class="si">%s</span>
-<span class="s2">        &quot;&quot;&quot;</span>
+<span class="s2">        """</span>
         <span class="n">result</span> <span class="o">=</span> <span class="n">mysql_fetch_data</span><span class="p">(</span>
-            <span class="n">query</span><span class="p">,</span> <span class="p">(</span><span class="n">lookup_string</span><span class="p">,),</span> <span class="n">server_group</span><span class="o">=</span><span class="s2">&quot;pre-release&quot;</span><span class="p">,</span> <span class="n">server_name</span><span class="o">=</span><span class="s2">&quot;gb1&quot;</span>
+            <span class="n">query</span><span class="p">,</span> <span class="p">(</span><span class="n">lookup_string</span><span class="p">,),</span> <span class="n">server_group</span><span class="o">=</span><span class="s2">"pre-release"</span><span class="p">,</span> <span class="n">server_name</span><span class="o">=</span><span class="s2">"gb1"</span>
         <span class="p">)</span>
 
         <span class="k">if</span> <span class="n">result</span><span class="p">:</span>
             <span class="n">pre_release_annotations</span><span class="p">[</span><span class="n">accession</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-                <span class="s2">&quot;guuid&quot;</span><span class="p">:</span> <span class="s2">&quot;unknown&quot;</span><span class="p">,</span>  <span class="c1"># typo fixed from guiid -&gt; guuid</span>
-                <span class="s2">&quot;dbname&quot;</span><span class="p">:</span> <span class="n">result</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span>
+                <span class="s2">"guuid"</span><span class="p">:</span> <span class="s2">"unknown"</span><span class="p">,</span>  <span class="c1"># typo fixed from guiid -&gt; guuid</span>
+                <span class="s2">"dbname"</span><span class="p">:</span> <span class="n">result</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span>
             <span class="p">}</span>
     <span class="k">return</span> <span class="n">pre_release_annotations</span>
 </code></pre></div></td></tr></table></div>
@@ -5523,7 +5523,7 @@ The retrieved rank name is then added to the corresponding annotation data.</p>
     <span class="n">accessions_taxon</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]],</span>
     <span class="n">rank</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Fetches taxonomy information for a given rank from the NCBI Datasets API.</span>
 <span class="sd">    For each accession in `live_annotations`, this function retrieves its `taxon_id`\</span>
 <span class="sd">    and queries the NCBI taxonomy endpoint to get the classification at the specified rank.</span>
@@ -5532,50 +5532,50 @@ The retrieved rank name is then added to the corresponding annotation data.</p>
 <span class="sd">    Args:</span>
 <span class="sd">        live_annotations (Dict[str, Dict[str, str]]): A dictionary where each key is \</span>
 <span class="sd">            an assembly accession and its value contains annotation details (including \</span>
-<span class="sd">            at least &quot;taxon_id&quot;).</span>
+<span class="sd">            at least "taxon_id").</span>
 <span class="sd">        accessions_taxon (Dict[str, Dict[str, int]]): A dictionary mapping accessions \</span>
-<span class="sd">            to basic taxon information, such as {&quot;GCA_000001405.39&quot;: {&quot;taxon_id&quot;: 9606}}.</span>
-<span class="sd">        rank (str): The taxonomic rank to retrieve (e.g., &quot;order&quot;, &quot;class&quot;, &quot;phylum&quot;).</span>
+<span class="sd">            to basic taxon information, such as {"GCA_000001405.39": {"taxon_id": 9606}}.</span>
+<span class="sd">        rank (str): The taxonomic rank to retrieve (e.g., "order", "class", "phylum").</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        Dict[str, Dict[str, str]]: The updated `live_annotations` dictionary with an</span>
 <span class="sd">        additional key for the requested rank. For example:</span>
 <span class="sd">            {</span>
-<span class="sd">                &quot;GCA_000001405.39&quot;: {</span>
-<span class="sd">                    &quot;taxon_id&quot;: 9606,</span>
-<span class="sd">                    &quot;guuid&quot;: &quot;some-uuid&quot;,</span>
-<span class="sd">                    &quot;dbname&quot;: &quot;ensembl_core&quot;,</span>
-<span class="sd">                    &quot;order&quot;: &quot;Primates&quot;</span>
+<span class="sd">                "GCA_000001405.39": {</span>
+<span class="sd">                    "taxon_id": 9606,</span>
+<span class="sd">                    "guuid": "some-uuid",</span>
+<span class="sd">                    "dbname": "ensembl_core",</span>
+<span class="sd">                    "order": "Primates"</span>
 <span class="sd">                },</span>
 <span class="sd">                ...</span>
 <span class="sd">            }</span>
 <span class="sd">        If the API query fails or the rank is not found, the value for that rank is not added</span>
 <span class="sd">        (or set to None/unknown).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">for</span> <span class="n">accession</span> <span class="ow">in</span> <span class="n">live_annotations</span><span class="p">:</span>
-        <span class="n">taxon_id</span> <span class="o">=</span> <span class="n">accessions_taxon</span><span class="p">[</span><span class="n">accession</span><span class="p">][</span><span class="s2">&quot;taxon_id&quot;</span><span class="p">]</span>
-        <span class="n">url</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;https://api.ncbi.nlm.nih.gov/datasets/v2alpha/taxonomy/taxon/</span><span class="si">{</span><span class="n">taxon_id</span><span class="si">}</span><span class="s2">/dataset_report&quot;</span>
+        <span class="n">taxon_id</span> <span class="o">=</span> <span class="n">accessions_taxon</span><span class="p">[</span><span class="n">accession</span><span class="p">][</span><span class="s2">"taxon_id"</span><span class="p">]</span>
+        <span class="n">url</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"https://api.ncbi.nlm.nih.gov/datasets/v2alpha/taxonomy/taxon/</span><span class="si">{</span><span class="n">taxon_id</span><span class="si">}</span><span class="s2">/dataset_report"</span>
 
         <span class="k">try</span><span class="p">:</span>
             <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>  <span class="c1"># pylint:disable=missing-timeout</span>
             <span class="n">response</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span>
             <span class="n">data</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
 
-            <span class="n">taxonomies</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;reports&quot;</span><span class="p">,</span> <span class="p">[])</span>
+            <span class="n">taxonomies</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"reports"</span><span class="p">,</span> <span class="p">[])</span>
             <span class="k">for</span> <span class="n">taxonomy</span> <span class="ow">in</span> <span class="n">taxonomies</span><span class="p">:</span>
                 <span class="n">rank_name</span> <span class="o">=</span> <span class="p">(</span>
-                    <span class="n">taxonomy</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;taxonomy&quot;</span><span class="p">,</span> <span class="p">{})</span>
-                    <span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;classification&quot;</span><span class="p">,</span> <span class="p">{})</span>
+                    <span class="n">taxonomy</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"taxonomy"</span><span class="p">,</span> <span class="p">{})</span>
+                    <span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"classification"</span><span class="p">,</span> <span class="p">{})</span>
                     <span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">rank</span><span class="p">,</span> <span class="p">{})</span>
-                    <span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">)</span>
+                    <span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"name"</span><span class="p">)</span>
                 <span class="p">)</span>
                 <span class="n">taxonomy_info</span> <span class="o">=</span> <span class="p">{</span><span class="n">rank</span><span class="p">:</span> <span class="n">rank_name</span><span class="p">}</span>
                 <span class="n">live_annotations</span><span class="p">[</span><span class="n">accession</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">taxonomy_info</span><span class="p">)</span>
 
         <span class="k">except</span> <span class="n">requests</span><span class="o">.</span><span class="n">HTTPError</span> <span class="k">as</span> <span class="n">http_err</span><span class="p">:</span>
-            <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;HTTP error occurred: </span><span class="si">{</span><span class="n">http_err</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">"HTTP error occurred: </span><span class="si">{</span><span class="n">http_err</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>  <span class="c1"># pylint:disable=broad-exception-caught</span>
-            <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;An error occurred: </span><span class="si">{</span><span class="n">err</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">"An error occurred: </span><span class="si">{</span><span class="n">err</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">live_annotations</span>
 </code></pre></div></td></tr></table></div>
@@ -5796,7 +5796,7 @@ python -m ensembl.genes.tracking.bioproject_tracking --project_name hprc --repor
 <span class="normal">916</span>
 <span class="normal">917</span>
 <span class="normal">918</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>  <span class="c1"># pylint: disable=too-many-branches, too-many-statements</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Main entry point of the script.</span>
 <span class="sd">    Parses command-line arguments to determine if a BioProject ID, Taxon ID,</span>
 <span class="sd">    or project name is provided, whether to filter only haploid assemblies,</span>
@@ -5814,43 +5814,43 @@ python -m ensembl.genes.tracking.bioproject_tracking --project_name hprc --repor
 
 <span class="sd">    Returns:</span>
 <span class="sd">        None</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span>
-        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Fetch assembly data and report annotations.&quot;</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">"Fetch assembly data and report annotations."</span><span class="p">,</span>
         <span class="n">formatter_class</span><span class="o">=</span><span class="n">argparse</span><span class="o">.</span><span class="n">RawDescriptionHelpFormatter</span><span class="p">,</span>
-        <span class="n">epilog</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;Examples:</span>
+        <span class="n">epilog</span><span class="o">=</span><span class="s2">"""Examples:</span>
 <span class="s2">  python -m ensembl.genes.tracking.bioproject_tracking --bioproject_id PRJNA12345</span>
 <span class="s2">  python -m ensembl.genes.tracking.bioproject_tracking --taxon_id 9606</span>
 <span class="s2">  python -m ensembl.genes.tracking.bioproject_tracking --project_name hprc --report_file hprc_report.tsv</span>
 
 <span class="s2">Supported --project_name values: hprc</span>
-<span class="s2">&quot;&quot;&quot;</span><span class="p">,</span>
+<span class="s2">"""</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--bioproject_id&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;NCBI BioProject ID&quot;</span><span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--taxon_id&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Taxonomy ID&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"--bioproject_id"</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">"NCBI BioProject ID"</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"--taxon_id"</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">"Taxonomy ID"</span><span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--project_name&quot;</span><span class="p">,</span>
+        <span class="s2">"--project_name"</span><span class="p">,</span>
         <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Project-specific discovery (e.g. &#39;hprc&#39;). &quot;</span>
-        <span class="s2">&quot;Mutually exclusive with --bioproject_id and --taxon_id.&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"Project-specific discovery (e.g. 'hprc'). "</span>
+        <span class="s2">"Mutually exclusive with --bioproject_id and --taxon_id."</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--haploid&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Fetch only haploid assemblies&quot;</span>
+        <span class="s2">"--haploid"</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">"store_true"</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">"Fetch only haploid assemblies"</span>
     <span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--report_file&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;./report_file.tsv&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"--report_file"</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">"./report_file.tsv"</span><span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--classification&quot;</span><span class="p">,</span>
-        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Provide breakdown of taxonomic classification&quot;</span><span class="p">,</span>
+        <span class="s2">"--classification"</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">"store_true"</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"Provide breakdown of taxonomic classification"</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--rank&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;order&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"--rank"</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">"order"</span><span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--ftp&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Include FTP links in the report&quot;</span>
+        <span class="s2">"--ftp"</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">"store_true"</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">"Include FTP links in the report"</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--pre_release&quot;</span><span class="p">,</span>
-        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Include list of pre-release databases in the report&quot;</span><span class="p">,</span>
+        <span class="s2">"--pre_release"</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">"store_true"</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"Include list of pre-release databases in the report"</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
@@ -5861,11 +5861,11 @@ python -m ensembl.genes.tracking.bioproject_tracking --project_name hprc --repor
     <span class="p">)</span>
     <span class="k">if</span> <span class="n">provided</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
         <span class="n">parser</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-            <span class="s2">&quot;You must provide exactly one of --bioproject_id, --taxon_id, or --project_name&quot;</span>
+            <span class="s2">"You must provide exactly one of --bioproject_id, --taxon_id, or --project_name"</span>
         <span class="p">)</span>
     <span class="k">if</span> <span class="n">provided</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
         <span class="n">parser</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-            <span class="s2">&quot;--bioproject_id, --taxon_id, and --project_name are mutually exclusive&quot;</span>
+            <span class="s2">"--bioproject_id, --taxon_id, and --project_name are mutually exclusive"</span>
         <span class="p">)</span>
 
     <span class="c1"># Discover assemblies</span>
@@ -5874,7 +5874,7 @@ python -m ensembl.genes.tracking.bioproject_tracking --project_name hprc --repor
     <span class="k">else</span><span class="p">:</span>
         <span class="n">accessions_taxon</span> <span class="o">=</span> <span class="n">get_assembly_accessions</span><span class="p">(</span>
             <span class="n">args</span><span class="o">.</span><span class="n">bioproject_id</span> <span class="ow">or</span> <span class="n">args</span><span class="o">.</span><span class="n">taxon_id</span><span class="p">,</span>
-            <span class="s2">&quot;bioproject&quot;</span> <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">bioproject_id</span> <span class="k">else</span> <span class="s2">&quot;taxon&quot;</span><span class="p">,</span>
+            <span class="s2">"bioproject"</span> <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">bioproject_id</span> <span class="k">else</span> <span class="s2">"taxon"</span><span class="p">,</span>
             <span class="n">args</span><span class="o">.</span><span class="n">haploid</span><span class="p">,</span>
         <span class="p">)</span>
 
@@ -5887,13 +5887,13 @@ python -m ensembl.genes.tracking.bioproject_tracking --project_name hprc --repor
 
     <span class="c1"># Optionally add FTP links</span>
     <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">ftp</span><span class="p">:</span>
-        <span class="n">live_annotations</span> <span class="o">=</span> <span class="n">add_ftp</span><span class="p">(</span><span class="n">live_annotations</span><span class="p">,</span> <span class="s2">&quot;live&quot;</span><span class="p">)</span>
+        <span class="n">live_annotations</span> <span class="o">=</span> <span class="n">add_ftp</span><span class="p">(</span><span class="n">live_annotations</span><span class="p">,</span> <span class="s2">"live"</span><span class="p">)</span>
 
     <span class="c1"># Unique species count from live annotations</span>
     <span class="n">unique_taxon_ids</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="n">details</span><span class="p">[</span><span class="s2">&quot;taxon_id&quot;</span><span class="p">]</span>
+        <span class="n">details</span><span class="p">[</span><span class="s2">"taxon_id"</span><span class="p">]</span>
         <span class="k">for</span> <span class="n">details</span> <span class="ow">in</span> <span class="n">live_annotations</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
-        <span class="k">if</span> <span class="s2">&quot;taxon_id&quot;</span> <span class="ow">in</span> <span class="n">details</span>
+        <span class="k">if</span> <span class="s2">"taxon_id"</span> <span class="ow">in</span> <span class="n">details</span>
     <span class="p">}</span>
 
     <span class="c1"># Optionally add Pre-release data</span>
@@ -5904,15 +5904,15 @@ python -m ensembl.genes.tracking.bioproject_tracking --project_name hprc --repor
             <span class="n">accession</span>
         <span class="p">)</span> <span class="ow">in</span> <span class="n">pre_release_annotations</span><span class="p">:</span>  <span class="c1"># pylint:disable=consider-using-dict-items</span>
             <span class="k">if</span> <span class="n">accession</span> <span class="ow">in</span> <span class="n">accessions_taxon</span><span class="p">:</span>
-                <span class="n">pre_release_annotations</span><span class="p">[</span><span class="n">accession</span><span class="p">][</span><span class="s2">&quot;taxon_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">accessions_taxon</span><span class="p">[</span>
+                <span class="n">pre_release_annotations</span><span class="p">[</span><span class="n">accession</span><span class="p">][</span><span class="s2">"taxon_id"</span><span class="p">]</span> <span class="o">=</span> <span class="n">accessions_taxon</span><span class="p">[</span>
                     <span class="n">accession</span>
-                <span class="p">][</span><span class="s2">&quot;taxon_id&quot;</span><span class="p">]</span>
+                <span class="p">][</span><span class="s2">"taxon_id"</span><span class="p">]</span>
 
         <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">classification</span> <span class="ow">and</span> <span class="n">pre_release_annotations</span><span class="p">:</span>
             <span class="n">get_taxonomy_info</span><span class="p">(</span><span class="n">pre_release_annotations</span><span class="p">,</span> <span class="n">accessions_taxon</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">rank</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">ftp</span> <span class="ow">and</span> <span class="n">pre_release_annotations</span><span class="p">:</span>
-            <span class="n">pre_release_annotations</span> <span class="o">=</span> <span class="n">add_ftp</span><span class="p">(</span><span class="n">pre_release_annotations</span><span class="p">,</span> <span class="s2">&quot;pre&quot;</span><span class="p">)</span>
+            <span class="n">pre_release_annotations</span> <span class="o">=</span> <span class="n">add_ftp</span><span class="p">(</span><span class="n">pre_release_annotations</span><span class="p">,</span> <span class="s2">"pre"</span><span class="p">)</span>
 
         <span class="n">all_annotations</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>  <span class="c1"># type: ignore</span>
             <span class="o">**</span><span class="n">live_annotations</span><span class="p">,</span>
@@ -5924,26 +5924,26 @@ python -m ensembl.genes.tracking.bioproject_tracking --project_name hprc --repor
     <span class="c1"># Console summary</span>
     <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">project_name</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Found </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">accessions_taxon</span><span class="p">)</span><span class="si">}</span><span class="s2"> assemblies via --project_name </span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">project_name</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">"Found </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">accessions_taxon</span><span class="p">)</span><span class="si">}</span><span class="s2"> assemblies via --project_name </span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">project_name</span><span class="si">}</span><span class="s2">"</span>
         <span class="p">)</span>
     <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">bioproject_id</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Found </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">accessions_taxon</span><span class="p">)</span><span class="si">}</span><span class="s2"> assemblies under BioProject ID </span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">bioproject_id</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">"Found </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">accessions_taxon</span><span class="p">)</span><span class="si">}</span><span class="s2"> assemblies under BioProject ID </span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">bioproject_id</span><span class="si">}</span><span class="s2">"</span>
         <span class="p">)</span>
     <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">taxon_id</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Found </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">accessions_taxon</span><span class="p">)</span><span class="si">}</span><span class="s2"> assemblies for taxon ID </span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">taxon_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Found </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">accessions_taxon</span><span class="p">)</span><span class="si">}</span><span class="s2"> assemblies for taxon ID </span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">taxon_id</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
     <span class="nb">print</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s2">&quot;Found </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">live_annotations</span><span class="p">)</span><span class="si">}</span><span class="s2"> annotations in beta.ensembl.org </span><span class="se">\</span>
-<span class="s2">            for </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">unique_taxon_ids</span><span class="p">)</span><span class="si">}</span><span class="s2"> unique species&quot;</span>
+        <span class="sa">f</span><span class="s2">"Found </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">live_annotations</span><span class="p">)</span><span class="si">}</span><span class="s2"> annotations in beta.ensembl.org </span><span class="se">\</span>
+<span class="s2">            for </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">unique_taxon_ids</span><span class="p">)</span><span class="si">}</span><span class="s2"> unique species"</span>
     <span class="p">)</span>
 
     <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">classification</span><span class="p">:</span>
         <span class="n">rank_values</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="n">details</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">rank</span><span class="p">,</span> <span class="s2">&quot;unknown&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">details</span> <span class="ow">in</span> <span class="n">live_annotations</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+            <span class="n">details</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">rank</span><span class="p">,</span> <span class="s2">"unknown"</span><span class="p">)</span> <span class="k">for</span> <span class="n">details</span> <span class="ow">in</span> <span class="n">live_annotations</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
         <span class="p">]</span>
         <span class="n">rank_counts</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">(</span><span class="n">rank_values</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Breakdown:&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">Breakdown:"</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span><span class="n">rank_counts</span><span class="p">)</span>
 
     <span class="c1"># Write final report</span>
@@ -5964,7 +5964,7 @@ python -m ensembl.genes.tracking.bioproject_tracking --project_name hprc --repor
 
 
 <h3 id="ensembl.genes.tracking.bioproject_tracking.mysql_fetch_data" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">mysql_fetch_data</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">(),</span> <span class="n">server_group</span><span class="o">=</span><span class="s1">&#39;meta&#39;</span><span class="p">,</span> <span class="n">server_name</span><span class="o">=</span><span class="s1">&#39;beta&#39;</span><span class="p">,</span> <span class="n">db_name</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">mysql_fetch_data</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">(),</span> <span class="n">server_group</span><span class="o">=</span><span class="s1">'meta'</span><span class="p">,</span> <span class="n">server_name</span><span class="o">=</span><span class="s1">'beta'</span><span class="p">,</span> <span class="n">db_name</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
 
 <a href="#ensembl.genes.tracking.bioproject_tracking.mysql_fetch_data" class="headerlink" title="Permanent link">&para;</a></h3>
 
@@ -6173,18 +6173,18 @@ python -m ensembl.genes.tracking.bioproject_tracking --project_name hprc --repor
 <span class="normal">117</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">mysql_fetch_data</span><span class="p">(</span>
     <span class="n">query</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">params</span><span class="p">:</span> <span class="n">Tuple</span> <span class="o">=</span> <span class="p">(),</span>
-    <span class="n">server_group</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;meta&quot;</span><span class="p">,</span>
-    <span class="n">server_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;beta&quot;</span><span class="p">,</span>
+    <span class="n">server_group</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"meta"</span><span class="p">,</span>
+    <span class="n">server_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"beta"</span><span class="p">,</span>
     <span class="n">db_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="o">...</span><span class="p">]]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Executes a SQL query with optional parameters to fetch results from a specified MySQL server.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        query (str): The SQL query to execute.</span>
 <span class="sd">        params (Tuple, optional): Parameters to pass to the SQL query. Defaults to ().</span>
-<span class="sd">        server_group (str, optional): The server group as defined in the config. Defaults to &quot;meta&quot;.</span>
-<span class="sd">        server_name (str, optional): The server name within the group as defined in the config. Defaults to &quot;beta&quot;.</span>
+<span class="sd">        server_group (str, optional): The server group as defined in the config. Defaults to "meta".</span>
+<span class="sd">        server_name (str, optional): The server name within the group as defined in the config. Defaults to "beta".</span>
 <span class="sd">        db_name (Optional[str], optional): The database name to connect to. If None, uses the default from config. Defaults to None.</span>
 
 <span class="sd">    Returns:</span>
@@ -6193,14 +6193,14 @@ python -m ensembl.genes.tracking.bioproject_tracking --project_name hprc --repor
 <span class="sd">    Raises:</span>
 <span class="sd">        KeyError: If the server group or name is not found in the config.</span>
 <span class="sd">        pymysql.Error: If there is an error connecting to the database or executing the query.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">try</span><span class="p">:</span>
-        <span class="n">server_config</span> <span class="o">=</span> <span class="n">_get_config</span><span class="p">()[</span><span class="s2">&quot;server_details&quot;</span><span class="p">][</span><span class="n">server_group</span><span class="p">][</span><span class="n">server_name</span><span class="p">]</span>
+        <span class="n">server_config</span> <span class="o">=</span> <span class="n">_get_config</span><span class="p">()[</span><span class="s2">"server_details"</span><span class="p">][</span><span class="n">server_group</span><span class="p">][</span><span class="n">server_name</span><span class="p">]</span>
         <span class="n">connection</span> <span class="o">=</span> <span class="n">pymysql</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span>
-            <span class="n">host</span><span class="o">=</span><span class="n">server_config</span><span class="p">[</span><span class="s2">&quot;db_host&quot;</span><span class="p">],</span>
-            <span class="n">user</span><span class="o">=</span><span class="n">server_config</span><span class="p">[</span><span class="s2">&quot;db_user&quot;</span><span class="p">],</span>
-            <span class="n">port</span><span class="o">=</span><span class="n">server_config</span><span class="p">[</span><span class="s2">&quot;db_port&quot;</span><span class="p">],</span>
-            <span class="n">database</span><span class="o">=</span><span class="n">db_name</span> <span class="ow">or</span> <span class="n">server_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;db_name&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
+            <span class="n">host</span><span class="o">=</span><span class="n">server_config</span><span class="p">[</span><span class="s2">"db_host"</span><span class="p">],</span>
+            <span class="n">user</span><span class="o">=</span><span class="n">server_config</span><span class="p">[</span><span class="s2">"db_user"</span><span class="p">],</span>
+            <span class="n">port</span><span class="o">=</span><span class="n">server_config</span><span class="p">[</span><span class="s2">"db_port"</span><span class="p">],</span>
+            <span class="n">database</span><span class="o">=</span><span class="n">db_name</span> <span class="ow">or</span> <span class="n">server_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"db_name"</span><span class="p">,</span> <span class="s2">""</span><span class="p">),</span>
         <span class="p">)</span>
         <span class="k">with</span> <span class="n">connection</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span> <span class="k">as</span> <span class="n">cursor</span><span class="p">:</span>
             <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
@@ -6209,9 +6209,9 @@ python -m ensembl.genes.tracking.bioproject_tracking --project_name hprc --repor
         <span class="k">return</span> <span class="n">result</span>
 
     <span class="k">except</span> <span class="ne">KeyError</span> <span class="k">as</span> <span class="n">key_err</span><span class="p">:</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid server group or name in config: </span><span class="si">{</span><span class="n">key_err</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Invalid server group or name in config: </span><span class="si">{</span><span class="n">key_err</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
     <span class="k">except</span> <span class="n">pymysql</span><span class="o">.</span><span class="n">Error</span> <span class="k">as</span> <span class="n">sql_err</span><span class="p">:</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;MySQL Error: </span><span class="si">{</span><span class="n">sql_err</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">"MySQL Error: </span><span class="si">{</span><span class="n">sql_err</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="p">[]</span>
 </code></pre></div></td></tr></table></div>
@@ -6429,7 +6429,7 @@ produces one line per match; otherwise one line.</p>
     <span class="n">include_class</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">include_ftp</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Writes a tab-separated report. If an accession has multiple matches,</span>
 <span class="sd">    produces one line per match; otherwise one line.</span>
 
@@ -6444,13 +6444,13 @@ produces one line per match; otherwise one line.</p>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        None</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">report_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">report_file</span><span class="p">)</span>
     <span class="n">lines_written</span> <span class="o">=</span> <span class="mi">0</span>
 
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">report_path</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">report_path</span><span class="p">,</span> <span class="s2">"w"</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8"</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">accession</span><span class="p">,</span> <span class="n">details</span> <span class="ow">in</span> <span class="n">live_annotations</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="n">matches</span> <span class="o">=</span> <span class="n">details</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;matches&quot;</span><span class="p">)</span>
+            <span class="n">matches</span> <span class="o">=</span> <span class="n">details</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"matches"</span><span class="p">)</span>
 
             <span class="c1"># If we have multiple, write one row per match</span>
             <span class="n">rows</span> <span class="o">=</span> <span class="p">(</span>
@@ -6458,10 +6458,10 @@ produces one line per match; otherwise one line.</p>
                 <span class="k">if</span> <span class="n">matches</span>
                 <span class="k">else</span> <span class="p">[</span>
                     <span class="p">{</span>
-                        <span class="s2">&quot;guuid&quot;</span><span class="p">:</span> <span class="n">details</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;guuid&quot;</span><span class="p">),</span>
-                        <span class="s2">&quot;dbname&quot;</span><span class="p">:</span> <span class="n">details</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;dbname&quot;</span><span class="p">),</span>
-                        <span class="s2">&quot;ftp&quot;</span><span class="p">:</span> <span class="n">details</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ftp&quot;</span><span class="p">),</span>
-                        <span class="s2">&quot;date&quot;</span><span class="p">:</span> <span class="n">details</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;date&quot;</span><span class="p">),</span>
+                        <span class="s2">"guuid"</span><span class="p">:</span> <span class="n">details</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"guuid"</span><span class="p">),</span>
+                        <span class="s2">"dbname"</span><span class="p">:</span> <span class="n">details</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"dbname"</span><span class="p">),</span>
+                        <span class="s2">"ftp"</span><span class="p">:</span> <span class="n">details</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"ftp"</span><span class="p">),</span>
+                        <span class="s2">"date"</span><span class="p">:</span> <span class="n">details</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"date"</span><span class="p">),</span>
                     <span class="p">}</span>
                 <span class="p">]</span>
             <span class="p">)</span>
@@ -6469,27 +6469,27 @@ produces one line per match; otherwise one line.</p>
             <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">:</span>
                 <span class="n">row</span> <span class="o">=</span> <span class="p">[</span>
                     <span class="nb">str</span><span class="p">(</span><span class="n">accession</span><span class="p">),</span>
-                    <span class="nb">str</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;guuid&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">&quot;unknown&quot;</span><span class="p">),</span>
-                    <span class="nb">str</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;dbname&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">&quot;unknown&quot;</span><span class="p">),</span>
+                    <span class="nb">str</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"guuid"</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">"unknown"</span><span class="p">),</span>
+                    <span class="nb">str</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"dbname"</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">"unknown"</span><span class="p">),</span>
                 <span class="p">]</span>
                 <span class="k">if</span> <span class="n">include_class</span><span class="p">:</span>
-                    <span class="n">row</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">details</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">rank</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">&quot;unknown&quot;</span><span class="p">))</span>
+                    <span class="n">row</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">details</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">rank</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">"unknown"</span><span class="p">))</span>
                 <span class="k">if</span> <span class="n">include_ftp</span><span class="p">:</span>
-                    <span class="n">row</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;date&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">details</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;date&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">))</span>
-                    <span class="n">row</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ftp&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">details</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ftp&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">&quot;N/A&quot;</span><span class="p">))</span>
+                    <span class="n">row</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"date"</span><span class="p">)</span> <span class="ow">or</span> <span class="n">details</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"date"</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">""</span><span class="p">))</span>
+                    <span class="n">row</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"ftp"</span><span class="p">)</span> <span class="ow">or</span> <span class="n">details</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"ftp"</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">"N/A"</span><span class="p">))</span>
                     <span class="n">row</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                         <span class="nb">str</span><span class="p">(</span>
-                            <span class="n">m</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ftp_status&quot;</span><span class="p">)</span>
-                            <span class="ow">or</span> <span class="n">details</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ftp_status&quot;</span><span class="p">)</span>
-                            <span class="ow">or</span> <span class="s2">&quot;Unknown&quot;</span>
+                            <span class="n">m</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"ftp_status"</span><span class="p">)</span>
+                            <span class="ow">or</span> <span class="n">details</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"ftp_status"</span><span class="p">)</span>
+                            <span class="ow">or</span> <span class="s2">"Unknown"</span>
                         <span class="p">)</span>
                     <span class="p">)</span>
 
-                <span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">row</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">"</span><span class="se">\t</span><span class="s2">"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">row</span><span class="p">)</span> <span class="o">+</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
                 <span class="n">lines_written</span> <span class="o">+=</span> <span class="mi">1</span>
 
     <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s2">&quot;Report written to </span><span class="si">{</span><span class="n">report_path</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="si">}</span><span class="s2"> with </span><span class="si">{</span><span class="n">lines_written</span><span class="si">}</span><span class="s2"> lines.&quot;</span>
+        <span class="sa">f</span><span class="s2">"Report written to </span><span class="si">{</span><span class="n">report_path</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="si">}</span><span class="s2"> with </span><span class="si">{</span><span class="n">lines_written</span><span class="si">}</span><span class="s2"> lines."</span>
     <span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>

@@ -4027,15 +4027,15 @@ edit_config(settings)</p>
 <span class="normal">113</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">copy_config</span><span class="p">(</span>
     <span class="n">settings</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">info_dict</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">pipeline</span><span class="p">:</span> <span class="nb">str</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Copies a configuration file from the ENSCODE environment into a local output directory.</span>
 
 <span class="sd">    Parameters:</span>
 <span class="sd">    ----------</span>
 <span class="sd">    settings : dict</span>
 <span class="sd">        Dictionary that must contain:</span>
-<span class="sd">            - &#39;config&#39;: str, filename of the config (e.g., &#39;MyConfig.pm&#39;)</span>
-<span class="sd">            - &#39;base_output_dir&#39;: str, path where the config will be copied</span>
+<span class="sd">            - 'config': str, filename of the config (e.g., 'MyConfig.pm')</span>
+<span class="sd">            - 'base_output_dir': str, path where the config will be copied</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">    -------</span>
@@ -4046,38 +4046,38 @@ edit_config(settings)</p>
 <span class="sd">    ------</span>
 <span class="sd">    RuntimeError</span>
 <span class="sd">        If the file cannot be copied for any reason (e.g., file not found, permissions).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="n">original_config</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-        <span class="nb">str</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ENSCODE&quot;</span><span class="p">)),</span>
-        <span class="s2">&quot;ensembl-analysis&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;modules&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;Bio&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;EnsEMBL&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;Analysis&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;Hive&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;Config&quot;</span><span class="p">,</span>
-        <span class="n">settings</span><span class="p">[</span><span class="s2">&quot;config&quot;</span><span class="p">],</span>
+        <span class="nb">str</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"ENSCODE"</span><span class="p">)),</span>
+        <span class="s2">"ensembl-analysis"</span><span class="p">,</span>
+        <span class="s2">"modules"</span><span class="p">,</span>
+        <span class="s2">"Bio"</span><span class="p">,</span>
+        <span class="s2">"EnsEMBL"</span><span class="p">,</span>
+        <span class="s2">"Analysis"</span><span class="p">,</span>
+        <span class="s2">"Hive"</span><span class="p">,</span>
+        <span class="s2">"Config"</span><span class="p">,</span>
+        <span class="n">settings</span><span class="p">[</span><span class="s2">"config"</span><span class="p">],</span>
     <span class="p">)</span>
 
-    <span class="k">if</span> <span class="n">pipeline</span> <span class="o">==</span> <span class="s2">&quot;anno&quot;</span><span class="p">:</span>
-        <span class="n">anno_parent</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">info_dict</span><span class="p">[</span><span class="s2">&quot;output_path&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">parent</span><span class="p">)</span>
-        <span class="n">local_config</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">anno_parent</span><span class="p">,</span> <span class="n">settings</span><span class="p">[</span><span class="s2">&quot;config&quot;</span><span class="p">])</span>
-    <span class="k">elif</span> <span class="n">pipeline</span> <span class="o">==</span> <span class="s2">&quot;main&quot;</span><span class="p">:</span>
-        <span class="n">local_config</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">info_dict</span><span class="p">[</span><span class="s2">&quot;output_path&quot;</span><span class="p">],</span> <span class="n">settings</span><span class="p">[</span><span class="s2">&quot;config&quot;</span><span class="p">])</span>
+    <span class="k">if</span> <span class="n">pipeline</span> <span class="o">==</span> <span class="s2">"anno"</span><span class="p">:</span>
+        <span class="n">anno_parent</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">info_dict</span><span class="p">[</span><span class="s2">"output_path"</span><span class="p">])</span><span class="o">.</span><span class="n">parent</span><span class="p">)</span>
+        <span class="n">local_config</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">anno_parent</span><span class="p">,</span> <span class="n">settings</span><span class="p">[</span><span class="s2">"config"</span><span class="p">])</span>
+    <span class="k">elif</span> <span class="n">pipeline</span> <span class="o">==</span> <span class="s2">"main"</span><span class="p">:</span>
+        <span class="n">local_config</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">info_dict</span><span class="p">[</span><span class="s2">"output_path"</span><span class="p">],</span> <span class="n">settings</span><span class="p">[</span><span class="s2">"config"</span><span class="p">])</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Unknown pipeline type: </span><span class="si">{</span><span class="n">pipeline</span><span class="si">}</span><span class="s2">. Can&#39;t copy config. Please check taxon ID.&quot;</span>
+            <span class="sa">f</span><span class="s2">"Unknown pipeline type: </span><span class="si">{</span><span class="n">pipeline</span><span class="si">}</span><span class="s2">. Can't copy config. Please check taxon ID."</span>
         <span class="p">)</span>
 
     <span class="k">try</span><span class="p">:</span>
         <span class="n">shutil</span><span class="o">.</span><span class="n">copy2</span><span class="p">(</span><span class="n">original_config</span><span class="p">,</span> <span class="n">local_config</span><span class="p">)</span>
         <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>  <span class="c1"># pylint: disable=logging-fstring-interpolation</span>
-            <span class="sa">f</span><span class="s2">&quot;Copied file from </span><span class="si">{</span><span class="n">original_config</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">local_config</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">"Copied file from </span><span class="si">{</span><span class="n">original_config</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">local_config</span><span class="si">}</span><span class="s2">"</span>
         <span class="p">)</span>
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>  <span class="c1"># pylint: disable=raise-missing-from</span>
-            <span class="sa">f</span><span class="s2">&quot;Error copying file: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">"Error copying file: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span>
         <span class="p">)</span>
 
     <span class="k">return</span> <span class="n">local_config</span>
@@ -4253,7 +4253,7 @@ KeyError
     <span class="n">pipeline</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">server_settings</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]],</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Edits specific parameter values in a copied Ensembl Hive config file.</span>
 
 <span class="sd">    The function performs in-place substitution of key parameters such as:</span>
@@ -4270,15 +4270,15 @@ KeyError
 <span class="sd">    anno_settings: dict</span>
 <span class="sd">    settings : dict</span>
 <span class="sd">        Dictionary with required keys:</span>
-<span class="sd">            - &#39;config&#39;: str, name of the config file (e.g., &#39;MyConfig.pm&#39;)</span>
-<span class="sd">            - &#39;base_output_dir&#39;: str, destination folder for the config</span>
-<span class="sd">            - &#39;current_genebuild&#39;: str</span>
-<span class="sd">            - &#39;dbowner&#39;: str</span>
-<span class="sd">            - &#39;pipeline_name&#39;: str</span>
-<span class="sd">            - &#39;password&#39;: str</span>
-<span class="sd">            - &#39;user&#39;: str</span>
-<span class="sd">            - &#39;user_r&#39;: str</span>
-<span class="sd">            - &#39;release_number&#39;: str or int</span>
+<span class="sd">            - 'config': str, name of the config file (e.g., 'MyConfig.pm')</span>
+<span class="sd">            - 'base_output_dir': str, destination folder for the config</span>
+<span class="sd">            - 'current_genebuild': str</span>
+<span class="sd">            - 'dbowner': str</span>
+<span class="sd">            - 'pipeline_name': str</span>
+<span class="sd">            - 'password': str</span>
+<span class="sd">            - 'user': str</span>
+<span class="sd">            - 'user_r': str</span>
+<span class="sd">            - 'release_number': str or int</span>
 <span class="sd">    info_dict : dict</span>
 <span class="sd">    pipeline : str</span>
 
@@ -4288,79 +4288,79 @@ KeyError
 <span class="sd">        If the copied file cannot be opened.</span>
 <span class="sd">    KeyError</span>
 <span class="sd">        If required settings keys are missing.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">local_config</span> <span class="o">=</span> <span class="n">copy_config</span><span class="p">(</span><span class="n">anno_settings</span><span class="p">,</span> <span class="n">info_dict</span><span class="p">,</span> <span class="n">pipeline</span><span class="p">)</span>
 
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">local_config</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>  <span class="c1"># pylint: disable=unspecified-encoding</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">local_config</span><span class="p">,</span> <span class="s2">"r"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>  <span class="c1"># pylint: disable=unspecified-encoding</span>
         <span class="n">content</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
 
     <span class="c1"># Replace the lines</span>
     <span class="n">content</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span>
-        <span class="sa">r</span><span class="s2">&quot;&#39;current_genebuild&#39;\s*=&gt;\s*[^,]+,&quot;</span><span class="p">,</span>
-        <span class="sa">f</span><span class="s2">&quot;&#39;current_genebuild&#39;            =&gt; &#39;</span><span class="si">{</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;current_genebuild&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&#39;,&quot;</span><span class="p">,</span>
+        <span class="sa">r</span><span class="s2">"'current_genebuild'\s*=&gt;\s*[^,]+,"</span><span class="p">,</span>
+        <span class="sa">f</span><span class="s2">"'current_genebuild'            =&gt; '</span><span class="si">{</span><span class="n">settings</span><span class="p">[</span><span class="s1">'current_genebuild'</span><span class="p">]</span><span class="si">}</span><span class="s2">',"</span><span class="p">,</span>
         <span class="n">content</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">content</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span>
-        <span class="sa">r</span><span class="s2">&quot;&#39;dbowner&#39;\s*=&gt;\s*[^,]+,&quot;</span><span class="p">,</span>
-        <span class="sa">f</span><span class="s2">&quot;&#39;dbowner&#39;                      =&gt; &#39;</span><span class="si">{</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;dbowner&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&#39;,&quot;</span><span class="p">,</span>
+        <span class="sa">r</span><span class="s2">"'dbowner'\s*=&gt;\s*[^,]+,"</span><span class="p">,</span>
+        <span class="sa">f</span><span class="s2">"'dbowner'                      =&gt; '</span><span class="si">{</span><span class="n">settings</span><span class="p">[</span><span class="s1">'dbowner'</span><span class="p">]</span><span class="si">}</span><span class="s2">',"</span><span class="p">,</span>
         <span class="n">content</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">content</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span>
-        <span class="sa">r</span><span class="s2">&quot;&#39;pipeline_name&#39;\s*=&gt;\s*[^,]+,&quot;</span><span class="p">,</span>
-        <span class="sa">f</span><span class="s2">&quot;&#39;pipeline_name&#39;                =&gt; &#39;</span><span class="si">{</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;pipeline_name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&#39;,&quot;</span><span class="p">,</span>
+        <span class="sa">r</span><span class="s2">"'pipeline_name'\s*=&gt;\s*[^,]+,"</span><span class="p">,</span>
+        <span class="sa">f</span><span class="s2">"'pipeline_name'                =&gt; '</span><span class="si">{</span><span class="n">settings</span><span class="p">[</span><span class="s1">'pipeline_name'</span><span class="p">]</span><span class="si">}</span><span class="s2">',"</span><span class="p">,</span>
         <span class="n">content</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">content</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span>
-        <span class="sa">r</span><span class="s2">&quot;&#39;password&#39;\s*=&gt;\s*[^,]+,&quot;</span><span class="p">,</span>
-        <span class="sa">f</span><span class="s2">&quot;&#39;password&#39;                     =&gt; &#39;</span><span class="si">{</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;password&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&#39;,&quot;</span><span class="p">,</span>
+        <span class="sa">r</span><span class="s2">"'password'\s*=&gt;\s*[^,]+,"</span><span class="p">,</span>
+        <span class="sa">f</span><span class="s2">"'password'                     =&gt; '</span><span class="si">{</span><span class="n">settings</span><span class="p">[</span><span class="s1">'password'</span><span class="p">]</span><span class="si">}</span><span class="s2">',"</span><span class="p">,</span>
         <span class="n">content</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">content</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span>
-        <span class="sa">r</span><span class="s2">&quot;&#39;user&#39;\s*=&gt;\s*[^,]+,&quot;</span><span class="p">,</span>
-        <span class="sa">f</span><span class="s2">&quot;&#39;user&#39;                     =&gt; &#39;</span><span class="si">{</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;user&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&#39;,&quot;</span><span class="p">,</span>
+        <span class="sa">r</span><span class="s2">"'user'\s*=&gt;\s*[^,]+,"</span><span class="p">,</span>
+        <span class="sa">f</span><span class="s2">"'user'                     =&gt; '</span><span class="si">{</span><span class="n">settings</span><span class="p">[</span><span class="s1">'user'</span><span class="p">]</span><span class="si">}</span><span class="s2">',"</span><span class="p">,</span>
         <span class="n">content</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">content</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span>
-        <span class="sa">r</span><span class="s2">&quot;&#39;user_r&#39;\s*=&gt;\s*[^,]+,&quot;</span><span class="p">,</span>
-        <span class="sa">f</span><span class="s2">&quot;&#39;user_r&#39;                     =&gt; &#39;</span><span class="si">{</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;user_r&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&#39;,&quot;</span><span class="p">,</span>
+        <span class="sa">r</span><span class="s2">"'user_r'\s*=&gt;\s*[^,]+,"</span><span class="p">,</span>
+        <span class="sa">f</span><span class="s2">"'user_r'                     =&gt; '</span><span class="si">{</span><span class="n">settings</span><span class="p">[</span><span class="s1">'user_r'</span><span class="p">]</span><span class="si">}</span><span class="s2">',"</span><span class="p">,</span>
         <span class="n">content</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="n">content</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span>
-        <span class="sa">r</span><span class="s2">&quot;&#39;release_number&#39;\s*=&gt;\s*[^,]+,&quot;</span><span class="p">,</span>
-        <span class="sa">f</span><span class="s2">&quot;&#39;release_number&#39;                     =&gt; &#39;</span><span class="si">{</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;release_number&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&#39;,&quot;</span><span class="p">,</span>
+        <span class="sa">r</span><span class="s2">"'release_number'\s*=&gt;\s*[^,]+,"</span><span class="p">,</span>
+        <span class="sa">f</span><span class="s2">"'release_number'                     =&gt; '</span><span class="si">{</span><span class="n">settings</span><span class="p">[</span><span class="s1">'release_number'</span><span class="p">]</span><span class="si">}</span><span class="s2">',"</span><span class="p">,</span>
         <span class="n">content</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="n">content</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span>
-        <span class="sa">r</span><span class="s2">&quot;&#39;pipe_db_server&#39;\s*=&gt;\s*[^,]+,&quot;</span><span class="p">,</span>
-        <span class="sa">f</span><span class="s2">&quot;&#39;pipe_db_server&#39;                     =&gt; &#39;</span><span class="si">{</span><span class="n">server_settings</span><span class="p">[</span><span class="s1">&#39;pipeline_db&#39;</span><span class="p">][</span><span class="s1">&#39;db_host&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&#39;,&quot;</span><span class="p">,</span>
+        <span class="sa">r</span><span class="s2">"'pipe_db_server'\s*=&gt;\s*[^,]+,"</span><span class="p">,</span>
+        <span class="sa">f</span><span class="s2">"'pipe_db_server'                     =&gt; '</span><span class="si">{</span><span class="n">server_settings</span><span class="p">[</span><span class="s1">'pipeline_db'</span><span class="p">][</span><span class="s1">'db_host'</span><span class="p">]</span><span class="si">}</span><span class="s2">',"</span><span class="p">,</span>
         <span class="n">content</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="n">content</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span>
-        <span class="sa">r</span><span class="s2">&quot;&#39;pipe_db_port&#39;\s*=&gt;\s*[^,]+,&quot;</span><span class="p">,</span>
-        <span class="sa">f</span><span class="s2">&quot;&#39;pipe_db_port&#39;                     =&gt; &#39;</span><span class="si">{</span><span class="n">server_settings</span><span class="p">[</span><span class="s1">&#39;pipeline_db&#39;</span><span class="p">][</span><span class="s1">&#39;db_port&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&#39;,&quot;</span><span class="p">,</span>
+        <span class="sa">r</span><span class="s2">"'pipe_db_port'\s*=&gt;\s*[^,]+,"</span><span class="p">,</span>
+        <span class="sa">f</span><span class="s2">"'pipe_db_port'                     =&gt; '</span><span class="si">{</span><span class="n">server_settings</span><span class="p">[</span><span class="s1">'pipeline_db'</span><span class="p">][</span><span class="s1">'db_port'</span><span class="p">]</span><span class="si">}</span><span class="s2">',"</span><span class="p">,</span>
         <span class="n">content</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">content</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span>
-        <span class="sa">r</span><span class="s2">&quot;&#39;dna_db_server&#39;\s*=&gt;\s*[^,]+,&quot;</span><span class="p">,</span>
-        <span class="sa">f</span><span class="s2">&quot;&#39;dna_db_server&#39;                     =&gt; &#39;</span><span class="si">{</span><span class="n">server_settings</span><span class="p">[</span><span class="s1">&#39;core_db&#39;</span><span class="p">][</span><span class="s1">&#39;db_host&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&#39;,&quot;</span><span class="p">,</span>
+        <span class="sa">r</span><span class="s2">"'dna_db_server'\s*=&gt;\s*[^,]+,"</span><span class="p">,</span>
+        <span class="sa">f</span><span class="s2">"'dna_db_server'                     =&gt; '</span><span class="si">{</span><span class="n">server_settings</span><span class="p">[</span><span class="s1">'core_db'</span><span class="p">][</span><span class="s1">'db_host'</span><span class="p">]</span><span class="si">}</span><span class="s2">',"</span><span class="p">,</span>
         <span class="n">content</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">content</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span>
-        <span class="sa">r</span><span class="s2">&quot;&#39;dna_db_port&#39;\s*=&gt;\s*[^,]+,&quot;</span><span class="p">,</span>
-        <span class="sa">f</span><span class="s2">&quot;&#39;dna_db_port&#39;                     =&gt; &#39;</span><span class="si">{</span><span class="n">server_settings</span><span class="p">[</span><span class="s1">&#39;core_db&#39;</span><span class="p">][</span><span class="s1">&#39;db_port&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&#39;,&quot;</span><span class="p">,</span>
+        <span class="sa">r</span><span class="s2">"'dna_db_port'\s*=&gt;\s*[^,]+,"</span><span class="p">,</span>
+        <span class="sa">f</span><span class="s2">"'dna_db_port'                     =&gt; '</span><span class="si">{</span><span class="n">server_settings</span><span class="p">[</span><span class="s1">'core_db'</span><span class="p">][</span><span class="s1">'db_port'</span><span class="p">]</span><span class="si">}</span><span class="s2">',"</span><span class="p">,</span>
         <span class="n">content</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="n">content</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span>
-        <span class="sa">r</span><span class="s2">&quot;&#39;registry_file&#39;\s*=&gt;\s*[^,]+,&quot;</span><span class="p">,</span>
-        <span class="sa">f</span><span class="s2">&quot;&#39;registry_file&#39;                     =&gt; &#39;</span><span class="si">{</span><span class="n">info_dict</span><span class="p">[</span><span class="s1">&#39;registry_file&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&#39;,&quot;</span><span class="p">,</span>
+        <span class="sa">r</span><span class="s2">"'registry_file'\s*=&gt;\s*[^,]+,"</span><span class="p">,</span>
+        <span class="sa">f</span><span class="s2">"'registry_file'                     =&gt; '</span><span class="si">{</span><span class="n">info_dict</span><span class="p">[</span><span class="s1">'registry_file'</span><span class="p">]</span><span class="si">}</span><span class="s2">',"</span><span class="p">,</span>
         <span class="n">content</span><span class="p">,</span>
     <span class="p">)</span>
 
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">local_config</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>  <span class="c1"># pylint: disable=unspecified-encoding</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">local_config</span><span class="p">,</span> <span class="s2">"w"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>  <span class="c1"># pylint: disable=unspecified-encoding</span>
         <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -4493,18 +4493,18 @@ ValueError
 <span class="normal">327</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">edit_config_main</span><span class="p">(</span>  <span class="c1"># pylint: disable=too-many-locals, too-many-branches</span>
     <span class="n">settings</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">info_dict</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">pipeline</span><span class="p">:</span> <span class="nb">str</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Edits specific parameter values in a copied Ensembl Hive config file safely,</span>
 <span class="sd">    preserving comments and avoiding Perl syntax errors.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    settings : dict</span>
-<span class="sd">        Must contain &#39;config&#39; and &#39;base_output_dir&#39;.</span>
+<span class="sd">        Must contain 'config' and 'base_output_dir'.</span>
 <span class="sd">    info_dict : dict</span>
 <span class="sd">        Keys and values to replace in the config. Keys with value None are skipped.</span>
 <span class="sd">    pipeline : str</span>
-<span class="sd">        Type of pipeline, e.g., &quot;anno&quot; or &quot;main&quot;.</span>
+<span class="sd">        Type of pipeline, e.g., "anno" or "main".</span>
 
 <span class="sd">    Raises</span>
 <span class="sd">    ------</span>
@@ -4512,13 +4512,13 @@ ValueError
 <span class="sd">        If the copied config file cannot be found.</span>
 <span class="sd">    ValueError</span>
 <span class="sd">        If pipeline type is unknown.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="n">local_config</span> <span class="o">=</span> <span class="n">copy_config</span><span class="p">(</span><span class="n">settings</span><span class="p">,</span> <span class="n">info_dict</span><span class="p">,</span> <span class="n">pipeline</span><span class="p">)</span>
 
-    <span class="n">stop_marker</span> <span class="o">=</span> <span class="s2">&quot;# No option below this mark should be modified&quot;</span>
+    <span class="n">stop_marker</span> <span class="o">=</span> <span class="s2">"# No option below this mark should be modified"</span>
 
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">local_config</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>  <span class="c1"># pylint: disable=unspecified-encoding</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">local_config</span><span class="p">,</span> <span class="s2">"r"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>  <span class="c1"># pylint: disable=unspecified-encoding</span>
         <span class="n">lines</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
 
     <span class="n">new_lines</span> <span class="o">=</span> <span class="p">[]</span>
@@ -4526,8 +4526,8 @@ ValueError
 
     <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">:</span>
         <span class="c1"># Replace the package declaration at the top</span>
-        <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;package Bio::EnsEMBL::Analysis::Hive::Config::&quot;</span><span class="p">):</span>
-            <span class="n">line</span> <span class="o">=</span> <span class="s2">&quot;package Genome_annotation_conf;</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"package Bio::EnsEMBL::Analysis::Hive::Config::"</span><span class="p">):</span>
+            <span class="n">line</span> <span class="o">=</span> <span class="s2">"package Genome_annotation_conf;</span><span class="se">\n</span><span class="s2">"</span>
 
         <span class="k">if</span> <span class="n">stop_marker</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
             <span class="n">stop_modifying</span> <span class="o">=</span> <span class="kc">True</span>
@@ -4540,32 +4540,32 @@ ValueError
                     <span class="k">continue</span>
 
                 <span class="c1"># Pattern matches key =&gt; old_value, optionally with spaces and comments</span>
-                <span class="n">pattern</span> <span class="o">=</span> <span class="sa">rf</span><span class="s2">&quot;^\s*</span><span class="si">{</span><span class="n">re</span><span class="o">.</span><span class="n">escape</span><span class="p">(</span><span class="n">key</span><span class="p">)</span><span class="si">}</span><span class="s2">\s*=&gt;\s*[^,]*,&quot;</span>
+                <span class="n">pattern</span> <span class="o">=</span> <span class="sa">rf</span><span class="s2">"^\s*</span><span class="si">{</span><span class="n">re</span><span class="o">.</span><span class="n">escape</span><span class="p">(</span><span class="n">key</span><span class="p">)</span><span class="si">}</span><span class="s2">\s*=&gt;\s*[^,]*,"</span>
 
                 <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
                     <span class="c1"># Preserve comment if present</span>
-                    <span class="k">if</span> <span class="s2">&quot;#&quot;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
-                        <span class="n">parts</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;#&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="s2">"#"</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+                        <span class="n">parts</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"#"</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
                         <span class="n">line_content</span> <span class="o">=</span> <span class="n">parts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-                        <span class="n">comment</span> <span class="o">=</span> <span class="s2">&quot;#&quot;</span> <span class="o">+</span> <span class="n">parts</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+                        <span class="n">comment</span> <span class="o">=</span> <span class="s2">"#"</span> <span class="o">+</span> <span class="n">parts</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
                     <span class="k">else</span><span class="p">:</span>
                         <span class="n">line_content</span> <span class="o">=</span> <span class="n">line</span>
-                        <span class="n">comment</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+                        <span class="n">comment</span> <span class="o">=</span> <span class="s2">""</span>
 
                     <span class="c1"># Convert Python value to Perl representation</span>
                     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-                        <span class="n">perl_value</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&#39;</span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
+                        <span class="n">perl_value</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"'</span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">'"</span>
                     <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">bool</span><span class="p">):</span>
-                        <span class="n">perl_value</span> <span class="o">=</span> <span class="s2">&quot;1&quot;</span> <span class="k">if</span> <span class="n">value</span> <span class="k">else</span> <span class="s2">&quot;0&quot;</span>
+                        <span class="n">perl_value</span> <span class="o">=</span> <span class="s2">"1"</span> <span class="k">if</span> <span class="n">value</span> <span class="k">else</span> <span class="s2">"0"</span>
                     <span class="k">else</span><span class="p">:</span>
                         <span class="n">perl_value</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 
                     <span class="c1"># Replace only the value before the comma</span>
-                    <span class="n">new_line</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;=&gt;\s*[^,]*,&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;=&gt; </span><span class="si">{</span><span class="n">perl_value</span><span class="si">}</span><span class="s2">,&quot;</span><span class="p">,</span> <span class="n">line_content</span><span class="p">)</span>
+                    <span class="n">new_line</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">"=&gt;\s*[^,]*,"</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"=&gt; </span><span class="si">{</span><span class="n">perl_value</span><span class="si">}</span><span class="s2">,"</span><span class="p">,</span> <span class="n">line_content</span><span class="p">)</span>
                     <span class="k">if</span> <span class="n">comment</span><span class="p">:</span>
-                        <span class="n">new_line</span> <span class="o">=</span> <span class="n">new_line</span><span class="o">.</span><span class="n">rstrip</span><span class="p">()</span> <span class="o">+</span> <span class="s2">&quot; &quot;</span> <span class="o">+</span> <span class="n">comment</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+                        <span class="n">new_line</span> <span class="o">=</span> <span class="n">new_line</span><span class="o">.</span><span class="n">rstrip</span><span class="p">()</span> <span class="o">+</span> <span class="s2">" "</span> <span class="o">+</span> <span class="n">comment</span> <span class="o">+</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span>
                     <span class="k">else</span><span class="p">:</span>
-                        <span class="n">new_line</span> <span class="o">=</span> <span class="n">new_line</span><span class="o">.</span><span class="n">rstrip</span><span class="p">()</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+                        <span class="n">new_line</span> <span class="o">=</span> <span class="n">new_line</span><span class="o">.</span><span class="n">rstrip</span><span class="p">()</span> <span class="o">+</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span>
 
                     <span class="n">new_lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_line</span><span class="p">)</span>
                     <span class="n">updated</span> <span class="o">=</span> <span class="kc">True</span>
@@ -4577,11 +4577,11 @@ ValueError
             <span class="n">new_lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
 
     <span class="c1"># Write back the updated config safely</span>
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">local_config</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">local_config</span><span class="p">,</span> <span class="s2">"w"</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">"utf8"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
         <span class="n">f</span><span class="o">.</span><span class="n">writelines</span><span class="p">(</span><span class="n">new_lines</span><span class="p">)</span>
 
     <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>  <span class="c1"># pylint: disable=logging-fstring-interpolation</span>
-        <span class="sa">f</span><span class="s2">&quot;Config edited successfully: </span><span class="si">{</span><span class="n">local_config</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="sa">f</span><span class="s2">"Config edited successfully: </span><span class="si">{</span><span class="n">local_config</span><span class="si">}</span><span class="s2">"</span>
     <span class="p">)</span>
     <span class="k">return</span> <span class="n">local_config</span>
 </code></pre></div></td></tr></table></div>

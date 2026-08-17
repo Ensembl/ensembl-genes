@@ -4010,100 +4010,100 @@ from a registry MySQL database and static JSON configuration.</p>
 <span class="normal">224</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">assign_clade</span><span class="p">(</span>
     <span class="n">server_info</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">registry_info</span><span class="p">:</span> <span class="nb">dict</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Assign a clade to a given taxon based on clade data and taxonomy hierarchy.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        server_info (dict): MySQL connection information under &#39;registry&#39;.</span>
-<span class="sd">        registry_info (dict): Dictionary with at least a &#39;taxon_id&#39; key.</span>
+<span class="sd">        server_info (dict): MySQL connection information under 'registry'.</span>
+<span class="sd">        registry_info (dict): Dictionary with at least a 'taxon_id' key.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        tuple:</span>
-<span class="sd">            - internal_clade (str): Name of the assigned clade (or &#39;Unassigned&#39;).</span>
+<span class="sd">            - internal_clade (str): Name of the assigned clade (or 'Unassigned').</span>
 <span class="sd">            - genus_taxon_id (int or None): Genus-level taxon ID, if found.</span>
 <span class="sd">            - clade_details (dict or None): Dictionary of clade properties excluding taxon_id.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="n">clade_data</span> <span class="o">=</span> <span class="n">load_clade_data</span><span class="p">()</span>
     <span class="n">taxonomy_dict</span> <span class="o">=</span> <span class="n">create_tax_dictionary_from_registry</span><span class="p">(</span><span class="n">server_info</span><span class="p">,</span> <span class="n">registry_info</span><span class="p">)</span>
 
     <span class="c1"># Accept both int and str keys</span>
-    <span class="n">lowest_taxon_id</span> <span class="o">=</span> <span class="n">registry_info</span><span class="p">[</span><span class="s2">&quot;taxon_id&quot;</span><span class="p">]</span>
+    <span class="n">lowest_taxon_id</span> <span class="o">=</span> <span class="n">registry_info</span><span class="p">[</span><span class="s2">"taxon_id"</span><span class="p">]</span>
     <span class="n">taxonomy_hierarchy</span> <span class="o">=</span> <span class="n">taxonomy_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">lowest_taxon_id</span><span class="p">))</span> <span class="ow">or</span> <span class="n">taxonomy_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
         <span class="n">lowest_taxon_id</span><span class="p">,</span> <span class="p">[]</span>
     <span class="p">)</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">taxonomy_hierarchy</span><span class="p">:</span>
         <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Taxonomy hierarchy not found for taxon ID </span><span class="si">{</span><span class="n">registry_info</span><span class="p">[</span><span class="s1">&#39;taxon_id&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">"Taxonomy hierarchy not found for taxon ID </span><span class="si">{</span><span class="n">registry_info</span><span class="p">[</span><span class="s1">'taxon_id'</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span>
         <span class="p">)</span>
-        <span class="k">return</span> <span class="s2">&quot;Unassigned&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="s2">"Unassigned"</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
 
-    <span class="n">internal_clade</span> <span class="o">=</span> <span class="s2">&quot;Unassigned&quot;</span>
+    <span class="n">internal_clade</span> <span class="o">=</span> <span class="s2">"Unassigned"</span>
     <span class="n">genus_taxon_id</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">clade_details</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="c1"># Get genus taxon_id</span>
     <span class="k">for</span> <span class="n">taxon</span> <span class="ow">in</span> <span class="n">taxonomy_hierarchy</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">taxon</span><span class="p">[</span><span class="s2">&quot;taxon_class&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;genus&quot;</span><span class="p">:</span>
-            <span class="n">genus_taxon_id</span> <span class="o">=</span> <span class="n">taxon</span><span class="p">[</span><span class="s2">&quot;taxon_class_id&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">taxon</span><span class="p">[</span><span class="s2">"taxon_class"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"genus"</span><span class="p">:</span>
+            <span class="n">genus_taxon_id</span> <span class="o">=</span> <span class="n">taxon</span><span class="p">[</span><span class="s2">"taxon_class_id"</span><span class="p">]</span>
 
     <span class="c1"># Step 1: try exact match on the lowest_taxon_id</span>
     <span class="k">for</span> <span class="n">clade_name</span><span class="p">,</span> <span class="n">details</span> <span class="ow">in</span> <span class="n">clade_data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-        <span class="n">clade_taxon_id</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">details</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;taxon_id&quot;</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+        <span class="n">clade_taxon_id</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">details</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"taxon_id"</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span>
         <span class="k">if</span> <span class="n">clade_taxon_id</span> <span class="o">==</span> <span class="n">lowest_taxon_id</span><span class="p">:</span>
             <span class="n">internal_clade</span> <span class="o">=</span> <span class="n">clade_name</span>
-            <span class="n">clade_details</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">details</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="o">!=</span> <span class="s2">&quot;taxon_id&quot;</span><span class="p">}</span>
-            <span class="n">clade_details</span><span class="p">[</span><span class="s2">&quot;helixer_lineage&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">clade_details</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;helixer_lineage&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+            <span class="n">clade_details</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">details</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="o">!=</span> <span class="s2">"taxon_id"</span><span class="p">}</span>
+            <span class="n">clade_details</span><span class="p">[</span><span class="s2">"helixer_lineage"</span><span class="p">]</span> <span class="o">=</span> <span class="n">clade_details</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"helixer_lineage"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span>
 
             <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Exact match: Assigned clade &#39;</span><span class="si">{</span><span class="n">internal_clade</span><span class="si">}</span><span class="s2">&#39; </span><span class="se">\</span>
-<span class="s2">                    for taxon </span><span class="si">{</span><span class="n">registry_info</span><span class="p">[</span><span class="s1">&#39;taxon_id&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="sa">f</span><span class="s2">"Exact match: Assigned clade '</span><span class="si">{</span><span class="n">internal_clade</span><span class="si">}</span><span class="s2">' </span><span class="se">\</span>
+<span class="s2">                    for taxon </span><span class="si">{</span><span class="n">registry_info</span><span class="p">[</span><span class="s1">'taxon_id'</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span>
             <span class="p">)</span>
             <span class="k">return</span> <span class="n">internal_clade</span><span class="p">,</span> <span class="n">genus_taxon_id</span><span class="p">,</span> <span class="n">clade_details</span>
 
     <span class="c1"># Step 2: Walk up the taxonomy hierarchy</span>
     <span class="n">taxon_classes_order</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="s2">&quot;species&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;genus&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;family&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;order&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;class&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;phylum&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;kingdom&quot;</span><span class="p">,</span>
+        <span class="s2">"species"</span><span class="p">,</span>
+        <span class="s2">"genus"</span><span class="p">,</span>
+        <span class="s2">"family"</span><span class="p">,</span>
+        <span class="s2">"order"</span><span class="p">,</span>
+        <span class="s2">"class"</span><span class="p">,</span>
+        <span class="s2">"phylum"</span><span class="p">,</span>
+        <span class="s2">"kingdom"</span><span class="p">,</span>
     <span class="p">]</span>
 
     <span class="k">for</span> <span class="n">taxon_class</span> <span class="ow">in</span> <span class="n">taxon_classes_order</span><span class="p">:</span>
         <span class="n">matching</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span>
-            <span class="p">(</span><span class="n">t</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">taxonomy_hierarchy</span> <span class="k">if</span> <span class="n">t</span><span class="p">[</span><span class="s2">&quot;taxon_class&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">taxon_class</span><span class="p">),</span> <span class="kc">None</span>
+            <span class="p">(</span><span class="n">t</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">taxonomy_hierarchy</span> <span class="k">if</span> <span class="n">t</span><span class="p">[</span><span class="s2">"taxon_class"</span><span class="p">]</span> <span class="o">==</span> <span class="n">taxon_class</span><span class="p">),</span> <span class="kc">None</span>
         <span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">matching</span><span class="p">:</span>
             <span class="k">continue</span>
-        <span class="n">current_taxon_id</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">matching</span><span class="p">[</span><span class="s2">&quot;taxon_class_id&quot;</span><span class="p">])</span>
+        <span class="n">current_taxon_id</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">matching</span><span class="p">[</span><span class="s2">"taxon_class_id"</span><span class="p">])</span>
 
         <span class="k">for</span> <span class="n">clade_name</span><span class="p">,</span> <span class="n">details</span> <span class="ow">in</span> <span class="n">clade_data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="n">clade_taxon_id</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">details</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;taxon_id&quot;</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+            <span class="n">clade_taxon_id</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">details</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"taxon_id"</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span>
             <span class="k">if</span> <span class="n">clade_taxon_id</span> <span class="o">==</span> <span class="n">current_taxon_id</span><span class="p">:</span>
                 <span class="n">internal_clade</span> <span class="o">=</span> <span class="n">clade_name</span>
-                <span class="n">clade_details</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">details</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="o">!=</span> <span class="s2">&quot;taxon_id&quot;</span><span class="p">}</span>
-                <span class="n">clade_details</span><span class="p">[</span><span class="s2">&quot;helixer_lineage&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">clade_details</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
-                    <span class="s2">&quot;helixer_lineage&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span>
+                <span class="n">clade_details</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">details</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="o">!=</span> <span class="s2">"taxon_id"</span><span class="p">}</span>
+                <span class="n">clade_details</span><span class="p">[</span><span class="s2">"helixer_lineage"</span><span class="p">]</span> <span class="o">=</span> <span class="n">clade_details</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                    <span class="s2">"helixer_lineage"</span><span class="p">,</span> <span class="s2">""</span>
                 <span class="p">)</span>
 
                 <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
                     <span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;Hierarchy match: Assigned clade &#39;</span><span class="si">{</span><span class="n">internal_clade</span><span class="si">}</span><span class="s2">&#39; &quot;</span>
-                        <span class="sa">f</span><span class="s2">&quot;via </span><span class="si">{</span><span class="n">taxon_class</span><span class="si">}</span><span class="s2"> taxon_id </span><span class="si">{</span><span class="n">current_taxon_id</span><span class="si">}</span><span class="s2">&quot;</span>
+                        <span class="sa">f</span><span class="s2">"Hierarchy match: Assigned clade '</span><span class="si">{</span><span class="n">internal_clade</span><span class="si">}</span><span class="s2">' "</span>
+                        <span class="sa">f</span><span class="s2">"via </span><span class="si">{</span><span class="n">taxon_class</span><span class="si">}</span><span class="s2"> taxon_id </span><span class="si">{</span><span class="n">current_taxon_id</span><span class="si">}</span><span class="s2">"</span>
                     <span class="p">)</span>
                 <span class="p">)</span>
                 <span class="k">return</span> <span class="n">internal_clade</span><span class="p">,</span> <span class="n">genus_taxon_id</span><span class="p">,</span> <span class="n">clade_details</span>
 
     <span class="c1"># No match found</span>
     <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s2">&quot;No clade found for taxon </span><span class="si">{</span><span class="n">registry_info</span><span class="p">[</span><span class="s1">&#39;taxon_id&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> in full hierarchy.&quot;</span>
+        <span class="sa">f</span><span class="s2">"No clade found for taxon </span><span class="si">{</span><span class="n">registry_info</span><span class="p">[</span><span class="s1">'taxon_id'</span><span class="p">]</span><span class="si">}</span><span class="s2"> in full hierarchy."</span>
     <span class="p">)</span>
     <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s2">&quot;No clade found for taxon </span><span class="si">{</span><span class="n">registry_info</span><span class="p">[</span><span class="s1">&#39;taxon_id&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> in full hierarchy.&quot;</span>
+        <span class="sa">f</span><span class="s2">"No clade found for taxon </span><span class="si">{</span><span class="n">registry_info</span><span class="p">[</span><span class="s1">'taxon_id'</span><span class="p">]</span><span class="si">}</span><span class="s2"> in full hierarchy."</span>
     <span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -4213,35 +4213,35 @@ from a registry MySQL database and static JSON configuration.</p>
 <span class="normal">255</span>
 <span class="normal">256</span>
 <span class="normal">257</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">assign_clade_info_custom_loading</span><span class="p">(</span><span class="n">registry_info</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Look for a specific clade in the JSON data and return all values except for taxon_id.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">            registry_info (dict): Dictionary containing clade information with &#39;clade&#39; key</span>
+<span class="sd">            registry_info (dict): Dictionary containing clade information with 'clade' key</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">            dict or None: Dictionary containing all clade details except taxon_id,</span>
 <span class="sd">                                     or None if clade not found</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">clade_data</span> <span class="o">=</span> <span class="n">load_clade_data</span><span class="p">()</span>
 
     <span class="c1"># Extract the clade name from the dictionary</span>
-    <span class="n">clade_name</span> <span class="o">=</span> <span class="n">registry_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;clade&quot;</span><span class="p">)</span>
+    <span class="n">clade_name</span> <span class="o">=</span> <span class="n">registry_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"clade"</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">clade_name</span><span class="p">:</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;No &#39;clade&#39; key found in provided dictionary&quot;</span><span class="p">)</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">"No 'clade' key found in provided dictionary"</span><span class="p">)</span>
         <span class="k">return</span> <span class="kc">None</span>
 
     <span class="c1"># Look for the specific clade in the dictionary</span>
     <span class="k">if</span> <span class="n">clade_name</span> <span class="ow">in</span> <span class="n">clade_data</span><span class="p">:</span>  <span class="c1"># pylint:disable=no-else-return</span>
         <span class="n">details</span> <span class="o">=</span> <span class="n">clade_data</span><span class="p">[</span><span class="n">clade_name</span><span class="p">]</span>
         <span class="c1"># Return all details except taxon_id</span>
-        <span class="n">clade_details</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">details</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="o">!=</span> <span class="s2">&quot;taxon_id&quot;</span><span class="p">}</span>
-        <span class="n">clade_details</span><span class="p">[</span><span class="s2">&quot;helixer_lineage&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">clade_details</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;helixer_lineage&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="n">clade_details</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">details</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="o">!=</span> <span class="s2">"taxon_id"</span><span class="p">}</span>
+        <span class="n">clade_details</span><span class="p">[</span><span class="s2">"helixer_lineage"</span><span class="p">]</span> <span class="o">=</span> <span class="n">clade_details</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"helixer_lineage"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">clade_details</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Clade &#39;</span><span class="si">{</span><span class="n">clade_name</span><span class="si">}</span><span class="s2">&#39; not found in clade data&quot;</span><span class="p">)</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Clade '</span><span class="si">{</span><span class="n">clade_name</span><span class="si">}</span><span class="s2">' not found in clade data"</span><span class="p">)</span>
         <span class="k">return</span> <span class="kc">None</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -4391,55 +4391,55 @@ from a registry MySQL database and static JSON configuration.</p>
 <span class="normal">97</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">create_tax_dictionary_from_registry</span><span class="p">(</span>
     <span class="n">server_info</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">registry_info</span><span class="p">:</span> <span class="nb">dict</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Query the registry MySQL database to construct taxonomy hierarchy for a given taxon ID.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        server_info (dict): Dictionary containing MySQL connection parameters under &#39;registry&#39; key.</span>
-<span class="sd">        registry_info (dict): Dictionary containing the &#39;taxon_id&#39; key.</span>
+<span class="sd">        server_info (dict): Dictionary containing MySQL connection parameters under 'registry' key.</span>
+<span class="sd">        registry_info (dict): Dictionary containing the 'taxon_id' key.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        dict: A dictionary mapping taxon IDs to a list of taxonomy class information,</span>
 <span class="sd">              or an empty dictionary if query fails.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
-    <span class="n">taxon_id</span> <span class="o">=</span> <span class="n">registry_info</span><span class="p">[</span><span class="s2">&quot;taxon_id&quot;</span><span class="p">]</span>
+    <span class="n">taxon_id</span> <span class="o">=</span> <span class="n">registry_info</span><span class="p">[</span><span class="s2">"taxon_id"</span><span class="p">]</span>
 
-    <span class="n">taxonomy_query</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+    <span class="n">taxonomy_query</span> <span class="o">=</span> <span class="s2">"""</span>
 <span class="s2">        SELECT lowest_taxon_id, taxon_class_id, taxon_class</span>
 <span class="s2">        FROM taxonomy</span>
 <span class="s2">        WHERE lowest_taxon_id = </span><span class="si">%s</span>
-<span class="s2">        ORDER BY FIELD(taxon_class, &#39;species&#39;, &#39;genus&#39;, &#39;family&#39;, &#39;order&#39;, &#39;class&#39;, &#39;phylum&#39;, &#39;kingdom&#39;);</span>
-<span class="s2">    &quot;&quot;&quot;</span>
+<span class="s2">        ORDER BY FIELD(taxon_class, 'species', 'genus', 'family', 'order', 'class', 'phylum', 'kingdom');</span>
+<span class="s2">    """</span>
 
     <span class="k">try</span><span class="p">:</span>
         <span class="n">taxonomy_info</span> <span class="o">=</span> <span class="n">mysql_fetch_data</span><span class="p">(</span>
             <span class="n">taxonomy_query</span><span class="p">,</span>
-            <span class="n">host</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">&quot;registry&quot;</span><span class="p">][</span><span class="s2">&quot;db_host&quot;</span><span class="p">],</span>
-            <span class="n">user</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">&quot;registry&quot;</span><span class="p">][</span><span class="s2">&quot;db_user&quot;</span><span class="p">],</span>
-            <span class="n">port</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">&quot;registry&quot;</span><span class="p">][</span><span class="s2">&quot;db_port&quot;</span><span class="p">],</span>
-            <span class="n">database</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">&quot;registry&quot;</span><span class="p">][</span><span class="s2">&quot;db_name&quot;</span><span class="p">],</span>
-            <span class="n">password</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+            <span class="n">host</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">"registry"</span><span class="p">][</span><span class="s2">"db_host"</span><span class="p">],</span>
+            <span class="n">user</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">"registry"</span><span class="p">][</span><span class="s2">"db_user"</span><span class="p">],</span>
+            <span class="n">port</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">"registry"</span><span class="p">][</span><span class="s2">"db_port"</span><span class="p">],</span>
+            <span class="n">database</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">"registry"</span><span class="p">][</span><span class="s2">"db_name"</span><span class="p">],</span>
+            <span class="n">password</span><span class="o">=</span><span class="s2">""</span><span class="p">,</span>
             <span class="n">params</span><span class="o">=</span><span class="n">taxon_id</span><span class="p">,</span>
         <span class="p">)</span>
 
         <span class="n">taxonomy_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">taxonomy_info</span><span class="p">:</span>
-            <span class="n">lowest_taxon_id</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;lowest_taxon_id&quot;</span><span class="p">]</span>
+            <span class="n">lowest_taxon_id</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="s2">"lowest_taxon_id"</span><span class="p">]</span>
             <span class="k">if</span> <span class="n">lowest_taxon_id</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">taxonomy_dict</span><span class="p">:</span>
                 <span class="n">taxonomy_dict</span><span class="p">[</span><span class="n">lowest_taxon_id</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="n">taxonomy_dict</span><span class="p">[</span><span class="n">lowest_taxon_id</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                 <span class="p">{</span>
-                    <span class="s2">&quot;taxon_class_id&quot;</span><span class="p">:</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;taxon_class_id&quot;</span><span class="p">],</span>
-                    <span class="s2">&quot;taxon_class&quot;</span><span class="p">:</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;taxon_class&quot;</span><span class="p">],</span>
+                    <span class="s2">"taxon_class_id"</span><span class="p">:</span> <span class="n">row</span><span class="p">[</span><span class="s2">"taxon_class_id"</span><span class="p">],</span>
+                    <span class="s2">"taxon_class"</span><span class="p">:</span> <span class="n">row</span><span class="p">[</span><span class="s2">"taxon_class"</span><span class="p">],</span>
                 <span class="p">}</span>
             <span class="p">)</span>
 
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Found taxonomy for </span><span class="si">{</span><span class="n">taxon_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Found taxonomy for </span><span class="si">{</span><span class="n">taxon_id</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">taxonomy_dict</span>
 
     <span class="k">except</span> <span class="n">pymysql</span><span class="o">.</span><span class="n">Error</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Error while fetching taxonomy info: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">err</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">"Error while fetching taxonomy info: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">err</span><span class="p">)</span>
         <span class="k">return</span> <span class="p">{}</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -4598,12 +4598,12 @@ from a registry MySQL database and static JSON configuration.</p>
 <span class="normal">299</span>
 <span class="normal">300</span>
 <span class="normal">301</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_parent_taxon</span><span class="p">(</span><span class="n">server_info</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">species_taxon_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Fetch the parent taxon name from the taxonomy table for a given taxon ID.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        server_info (dict): Server connection info with keys &#39;db_host&#39;, \</span>
-<span class="sd">            &#39;db_user&#39;, &#39;db_port&#39;, &#39;db_name&#39;.</span>
+<span class="sd">        server_info (dict): Server connection info with keys 'db_host', \</span>
+<span class="sd">            'db_user', 'db_port', 'db_name'.</span>
 <span class="sd">        species_taxon_id (int): The taxon ID for which to find the parent taxon.</span>
 
 <span class="sd">    Returns:</span>
@@ -4611,33 +4611,33 @@ from a registry MySQL database and static JSON configuration.</p>
 
 <span class="sd">    Raises:</span>
 <span class="sd">        ValueError: If the taxon is not found.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">parent_query</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="sd">    """</span>
+    <span class="n">parent_query</span> <span class="o">=</span> <span class="s2">"""</span>
 <span class="s2">        SELECT taxon_class_name</span>
 <span class="s2">        FROM taxonomy_name</span>
 <span class="s2">        WHERE taxon_class_id = </span><span class="si">%s</span><span class="s2">;</span>
-<span class="s2">    &quot;&quot;&quot;</span>
+<span class="s2">    """</span>
 
     <span class="k">try</span><span class="p">:</span>
         <span class="n">result</span> <span class="o">=</span> <span class="n">mysql_fetch_data</span><span class="p">(</span>
             <span class="n">parent_query</span><span class="p">,</span>
-            <span class="n">host</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">&quot;registry&quot;</span><span class="p">][</span><span class="s2">&quot;db_host&quot;</span><span class="p">],</span>
-            <span class="n">user</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">&quot;registry&quot;</span><span class="p">][</span><span class="s2">&quot;db_user&quot;</span><span class="p">],</span>
-            <span class="n">port</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">&quot;registry&quot;</span><span class="p">][</span><span class="s2">&quot;db_port&quot;</span><span class="p">],</span>
-            <span class="n">database</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">&quot;registry&quot;</span><span class="p">][</span><span class="s2">&quot;db_name&quot;</span><span class="p">],</span>
-            <span class="n">password</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+            <span class="n">host</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">"registry"</span><span class="p">][</span><span class="s2">"db_host"</span><span class="p">],</span>
+            <span class="n">user</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">"registry"</span><span class="p">][</span><span class="s2">"db_user"</span><span class="p">],</span>
+            <span class="n">port</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">"registry"</span><span class="p">][</span><span class="s2">"db_port"</span><span class="p">],</span>
+            <span class="n">database</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">"registry"</span><span class="p">][</span><span class="s2">"db_name"</span><span class="p">],</span>
+            <span class="n">password</span><span class="o">=</span><span class="s2">""</span><span class="p">,</span>
             <span class="n">params</span><span class="o">=</span><span class="p">(</span><span class="n">species_taxon_id</span><span class="p">,),</span>  <span class="c1"># must be a tuple</span>
         <span class="p">)</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">result</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No parent taxon found for taxon ID </span><span class="si">{</span><span class="n">species_taxon_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"No parent taxon found for taxon ID </span><span class="si">{</span><span class="n">species_taxon_id</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
         <span class="c1"># Return as a single string</span>
-        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;taxon_class_name&quot;</span><span class="p">])</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">"taxon_class_name"</span><span class="p">])</span>
 
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>  <span class="c1"># pylint:disable=raise-missing-from</span>
-            <span class="sa">f</span><span class="s2">&quot;Error fetching parent taxon: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">"Error fetching parent taxon: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span>
         <span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -4742,7 +4742,7 @@ from a registry MySQL database and static JSON configuration.</p>
 <span class="normal">122</span>
 <span class="normal">123</span>
 <span class="normal">124</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">load_clade_data</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Load clade definitions from a static JSON file.</span>
 
 <span class="sd">    Returns:</span>
@@ -4751,20 +4751,20 @@ from a registry MySQL database and static JSON configuration.</p>
 <span class="sd">    Raises:</span>
 <span class="sd">        FileNotFoundError: If the JSON file cannot be located.</span>
 <span class="sd">        json.JSONDecodeError: If the JSON is malformed.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">json_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-        <span class="nb">str</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ENSCODE&quot;</span><span class="p">)),</span>
-        <span class="s2">&quot;ensembl-genes&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;src&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;python&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;ensembl&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;genes&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;info_from_registry&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;clade_settings.json&quot;</span><span class="p">,</span>
+        <span class="nb">str</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"ENSCODE"</span><span class="p">)),</span>
+        <span class="s2">"ensembl-genes"</span><span class="p">,</span>
+        <span class="s2">"src"</span><span class="p">,</span>
+        <span class="s2">"python"</span><span class="p">,</span>
+        <span class="s2">"ensembl"</span><span class="p">,</span>
+        <span class="s2">"genes"</span><span class="p">,</span>
+        <span class="s2">"info_from_registry"</span><span class="p">,</span>
+        <span class="s2">"clade_settings.json"</span><span class="p">,</span>
     <span class="p">)</span>
 
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">json_file</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Loading clade settings json file.&quot;</span><span class="p">)</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">json_file</span><span class="p">,</span> <span class="s2">"r"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"Loading clade settings json file."</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>

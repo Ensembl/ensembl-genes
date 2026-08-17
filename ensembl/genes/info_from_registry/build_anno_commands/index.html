@@ -3843,7 +3843,7 @@ diamond validation DB path.</p>
 <span class="normal">89</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">build_annotation_commands</span><span class="p">(</span>
     <span class="n">core_adaptor</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">output_params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">anno_settings</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">settings</span><span class="p">:</span> <span class="nb">dict</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Construct and store command-line strings for genome annotation and repeat analysis.</span>
 
 <span class="sd">    This function builds two command-line strings based on the provided configuration:</span>
@@ -3851,11 +3851,11 @@ diamond validation DB path.</p>
 <span class="sd">    - `anno_red_commandline`: repeat and masking pipeline</span>
 
 <span class="sd">    The resulting command strings are stored in the `output_params` dictionary under</span>
-<span class="sd">    the keys &quot;anno_commandline&quot; and &quot;anno_red_commandline&quot;.</span>
+<span class="sd">    the keys "anno_commandline" and "anno_red_commandline".</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        core_adaptor (dict): Contains database connection info with keys:</span>
-<span class="sd">            &#39;dbname&#39;, &#39;host&#39;, &#39;port&#39;, &#39;user&#39;, &#39;pass&#39;.</span>
+<span class="sd">            'dbname', 'host', 'port', 'user', 'pass'.</span>
 <span class="sd">        output_params (dict): Dictionary where input/output file paths and</span>
 <span class="sd">            directories are specified. The final command strings are added here.</span>
 <span class="sd">        anno_settings (dict): Annotation settings such as number of threads and</span>
@@ -3864,53 +3864,53 @@ diamond validation DB path.</p>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        None: Modifies `output_params` in place by adding two command strings.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="n">get</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">k</span><span class="p">:</span> <span class="n">output_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>  <span class="c1"># pylint: disable=unnecessary-lambda-assignment</span>
-        <span class="n">k</span><span class="p">,</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">k</span><span class="p">,</span> <span class="s2">""</span>
     <span class="p">)</span>
 
     <span class="n">anno_commandline</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="sa">f</span><span class="s2">&quot; --genome_file </span><span class="si">{</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;reheadered_toplevel_genome_file&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
-        <span class="sa">f</span><span class="s2">&quot; --db_details </span><span class="si">{</span><span class="n">core_adaptor</span><span class="p">[</span><span class="s1">&#39;dbname&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="n">core_adaptor</span><span class="p">[</span><span class="s1">&#39;host&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">,&quot;</span>
-        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">core_adaptor</span><span class="p">[</span><span class="s1">&#39;port&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="n">core_adaptor</span><span class="p">[</span><span class="s1">&#39;user&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="n">core_adaptor</span><span class="p">[</span><span class="s1">&#39;pass&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
-        <span class="sa">f</span><span class="s2">&quot; --output_dir </span><span class="si">{</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;output_path&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
-        <span class="sa">f</span><span class="s2">&quot; --short_read_fastq_dir </span><span class="si">{</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;short_read_dir&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
-        <span class="sa">f</span><span class="s2">&quot; --long_read_fastq_dir </span><span class="si">{</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;long_read_dir&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
-        <span class="sa">f</span><span class="s2">&quot; --max_intron_length </span><span class="si">{</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;max_intron_length&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
-        <span class="sa">f</span><span class="s2">&quot; --protein_file </span><span class="si">{</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;protein_file&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
-        <span class="sa">f</span><span class="s2">&quot; --busco_protein_file </span><span class="si">{</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;busco_protein_file&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
-        <span class="sa">f</span><span class="s2">&quot; --rfam_accessions_file </span><span class="si">{</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;rfam_accessions_file&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
-        <span class="sa">f</span><span class="s2">&quot; --num_threads </span><span class="si">{</span><span class="n">anno_settings</span><span class="p">[</span><span class="s1">&#39;num_threads&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="sa">f</span><span class="s2">" --genome_file </span><span class="si">{</span><span class="n">get</span><span class="p">(</span><span class="s1">'reheadered_toplevel_genome_file'</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span>
+        <span class="sa">f</span><span class="s2">" --db_details </span><span class="si">{</span><span class="n">core_adaptor</span><span class="p">[</span><span class="s1">'dbname'</span><span class="p">]</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="n">core_adaptor</span><span class="p">[</span><span class="s1">'host'</span><span class="p">]</span><span class="si">}</span><span class="s2">,"</span>
+        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">core_adaptor</span><span class="p">[</span><span class="s1">'port'</span><span class="p">]</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="n">core_adaptor</span><span class="p">[</span><span class="s1">'user'</span><span class="p">]</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="n">core_adaptor</span><span class="p">[</span><span class="s1">'pass'</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span>
+        <span class="sa">f</span><span class="s2">" --output_dir </span><span class="si">{</span><span class="n">get</span><span class="p">(</span><span class="s1">'output_path'</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span>
+        <span class="sa">f</span><span class="s2">" --short_read_fastq_dir </span><span class="si">{</span><span class="n">get</span><span class="p">(</span><span class="s1">'short_read_dir'</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span>
+        <span class="sa">f</span><span class="s2">" --long_read_fastq_dir </span><span class="si">{</span><span class="n">get</span><span class="p">(</span><span class="s1">'long_read_dir'</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span>
+        <span class="sa">f</span><span class="s2">" --max_intron_length </span><span class="si">{</span><span class="n">get</span><span class="p">(</span><span class="s1">'max_intron_length'</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span>
+        <span class="sa">f</span><span class="s2">" --protein_file </span><span class="si">{</span><span class="n">get</span><span class="p">(</span><span class="s1">'protein_file'</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span>
+        <span class="sa">f</span><span class="s2">" --busco_protein_file </span><span class="si">{</span><span class="n">get</span><span class="p">(</span><span class="s1">'busco_protein_file'</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span>
+        <span class="sa">f</span><span class="s2">" --rfam_accessions_file </span><span class="si">{</span><span class="n">get</span><span class="p">(</span><span class="s1">'rfam_accessions_file'</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span>
+        <span class="sa">f</span><span class="s2">" --num_threads </span><span class="si">{</span><span class="n">anno_settings</span><span class="p">[</span><span class="s1">'num_threads'</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span>
     <span class="p">)</span>
 
-    <span class="k">if</span> <span class="n">settings</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;use_existing_repeatmodeler_library&quot;</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">settings</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"use_existing_repeatmodeler_library"</span><span class="p">):</span>
         <span class="n">anno_commandline</span> <span class="o">+=</span> <span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot; --repeatmasker_library </span><span class="si">{</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;use_existing_repeatmodeler_library&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">" --repeatmasker_library </span><span class="si">{</span><span class="n">settings</span><span class="p">[</span><span class="s1">'use_existing_repeatmodeler_library'</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span>
         <span class="p">)</span>
 
-    <span class="k">if</span> <span class="n">anno_settings</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;diamond_validation_db&quot;</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">anno_settings</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"diamond_validation_db"</span><span class="p">):</span>
         <span class="n">anno_commandline</span> <span class="o">+=</span> <span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot; --diamond_validation_db </span><span class="si">{</span><span class="n">anno_settings</span><span class="p">[</span><span class="s1">&#39;diamond_validation_db&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">" --diamond_validation_db </span><span class="si">{</span><span class="n">anno_settings</span><span class="p">[</span><span class="s1">'diamond_validation_db'</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span>
         <span class="p">)</span>
 
-    <span class="k">if</span> <span class="n">anno_settings</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;validation_type&quot;</span><span class="p">):</span>
-        <span class="n">anno_commandline</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot; --validation_type </span><span class="si">{</span><span class="n">anno_settings</span><span class="p">[</span><span class="s1">&#39;validation_type&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="k">if</span> <span class="n">anno_settings</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"validation_type"</span><span class="p">):</span>
+        <span class="n">anno_commandline</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">" --validation_type </span><span class="si">{</span><span class="n">anno_settings</span><span class="p">[</span><span class="s1">'validation_type'</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span>
 
-    <span class="n">anno_commandline</span> <span class="o">+=</span> <span class="s2">&quot; --run_full_annotation --load_to_ensembl_db&quot;</span>
+    <span class="n">anno_commandline</span> <span class="o">+=</span> <span class="s2">" --run_full_annotation --load_to_ensembl_db"</span>
 
     <span class="n">anno_red_commandline</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="sa">f</span><span class="s2">&quot; --genome_file </span><span class="si">{</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;reheadered_toplevel_genome_file&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
-        <span class="sa">f</span><span class="s2">&quot; --db_details </span><span class="si">{</span><span class="n">core_adaptor</span><span class="p">[</span><span class="s1">&#39;dbname&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="n">core_adaptor</span><span class="p">[</span><span class="s1">&#39;host&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">,&quot;</span>
-        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">core_adaptor</span><span class="p">[</span><span class="s1">&#39;port&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="n">core_adaptor</span><span class="p">[</span><span class="s1">&#39;user&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="n">core_adaptor</span><span class="p">[</span><span class="s1">&#39;pass&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
-        <span class="sa">f</span><span class="s2">&quot; --output_dir </span><span class="si">{</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;output_path&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
-        <span class="sa">f</span><span class="s2">&quot; --num_threads </span><span class="si">{</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;num_threads&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
-        <span class="s2">&quot; --run_masking --run_repeats --run_simple_features --load_to_ensembl_db&quot;</span>
+        <span class="sa">f</span><span class="s2">" --genome_file </span><span class="si">{</span><span class="n">get</span><span class="p">(</span><span class="s1">'reheadered_toplevel_genome_file'</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span>
+        <span class="sa">f</span><span class="s2">" --db_details </span><span class="si">{</span><span class="n">core_adaptor</span><span class="p">[</span><span class="s1">'dbname'</span><span class="p">]</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="n">core_adaptor</span><span class="p">[</span><span class="s1">'host'</span><span class="p">]</span><span class="si">}</span><span class="s2">,"</span>
+        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">core_adaptor</span><span class="p">[</span><span class="s1">'port'</span><span class="p">]</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="n">core_adaptor</span><span class="p">[</span><span class="s1">'user'</span><span class="p">]</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="n">core_adaptor</span><span class="p">[</span><span class="s1">'pass'</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span>
+        <span class="sa">f</span><span class="s2">" --output_dir </span><span class="si">{</span><span class="n">get</span><span class="p">(</span><span class="s1">'output_path'</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span>
+        <span class="sa">f</span><span class="s2">" --num_threads </span><span class="si">{</span><span class="n">get</span><span class="p">(</span><span class="s1">'num_threads'</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span>
+        <span class="s2">" --run_masking --run_repeats --run_simple_features --load_to_ensembl_db"</span>
     <span class="p">)</span>
 
     <span class="c1"># Add both commands back into the params dict</span>
-    <span class="n">output_params</span><span class="p">[</span><span class="s2">&quot;anno_commandline&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">anno_commandline</span>
-    <span class="n">output_params</span><span class="p">[</span><span class="s2">&quot;anno_red_commandline&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">anno_red_commandline</span>
+    <span class="n">output_params</span><span class="p">[</span><span class="s2">"anno_commandline"</span><span class="p">]</span> <span class="o">=</span> <span class="n">anno_commandline</span>
+    <span class="n">output_params</span><span class="p">[</span><span class="s2">"anno_red_commandline"</span><span class="p">]</span> <span class="o">=</span> <span class="n">anno_red_commandline</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>

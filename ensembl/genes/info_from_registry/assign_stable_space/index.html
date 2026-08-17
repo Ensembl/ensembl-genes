@@ -3951,7 +3951,7 @@
 <span class="normal">280</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">assign_stable_id</span><span class="p">(</span>
     <span class="n">taxon_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">gca_accession</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">assembly_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">server_info</span><span class="p">:</span> <span class="nb">dict</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Assign a stable space ID for a given taxon and GCA accession.</span>
+<span class="w">    </span><span class="sd">"""Assign a stable space ID for a given taxon and GCA accession.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        taxon_id (int): The taxon identifier for which to assign a stable space ID.</span>
@@ -3962,47 +3962,47 @@
 <span class="sd">    Returns:</span>
 <span class="sd">        tuple[bool, int|None, int|None]: A tuple containing a success flag and \</span>
 <span class="sd">            the assigned stable space ID or None if failed.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="n">stable_space_id</span> <span class="o">=</span> <span class="n">stable_space_per_taxon</span><span class="p">(</span><span class="n">taxon_id</span><span class="p">,</span> <span class="n">server_info</span><span class="p">)</span>
     <span class="c1"># Check if stable space range exists</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Check if stable space range exists </span><span class="si">{</span><span class="n">stable_space_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Check if stable space range exists </span><span class="si">{</span><span class="n">stable_space_id</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
     <span class="n">stable_space_start</span> <span class="o">=</span> <span class="n">stable_space_range</span><span class="p">(</span><span class="n">stable_space_id</span><span class="p">,</span> <span class="n">server_info</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">stable_space_start</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">False</span><span class="p">:</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Assigned stable space ID </span><span class="si">{</span><span class="n">stable_space_id</span><span class="si">}</span><span class="s2"> for </span><span class="si">{</span><span class="n">gca_accession</span><span class="si">}</span><span class="se">\</span>
-<span class="s2">                and taxon ID </span><span class="si">{</span><span class="n">taxon_id</span><span class="si">}</span><span class="s2">.&quot;</span>
+            <span class="sa">f</span><span class="s2">"Assigned stable space ID </span><span class="si">{</span><span class="n">stable_space_id</span><span class="si">}</span><span class="s2"> for </span><span class="si">{</span><span class="n">gca_accession</span><span class="si">}</span><span class="se">\</span>
+<span class="s2">                and taxon ID </span><span class="si">{</span><span class="n">taxon_id</span><span class="si">}</span><span class="s2">."</span>
         <span class="p">)</span>
 
-        <span class="n">insert_query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;INSERT INTO stable_space_species_log (stable_space_id, </span><span class="se">\</span>
+        <span class="n">insert_query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"""INSERT INTO stable_space_species_log (stable_space_id, </span><span class="se">\</span>
 <span class="s2">            lowest_taxon_id, gca_accession, assembly_id) </span>
-<span class="s2">            VALUES (</span><span class="si">{</span><span class="n">stable_space_id</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">taxon_id</span><span class="si">}</span><span class="s2">, &#39;</span><span class="si">{</span><span class="n">gca_accession</span><span class="si">}</span><span class="s2">&#39;, </span><span class="si">{</span><span class="n">assembly_id</span><span class="si">}</span><span class="s2">);</span>
-<span class="s2">            &quot;&quot;&quot;</span>
+<span class="s2">            VALUES (</span><span class="si">{</span><span class="n">stable_space_id</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">taxon_id</span><span class="si">}</span><span class="s2">, '</span><span class="si">{</span><span class="n">gca_accession</span><span class="si">}</span><span class="s2">', </span><span class="si">{</span><span class="n">assembly_id</span><span class="si">}</span><span class="s2">);</span>
+<span class="s2">            """</span>
         <span class="n">conn</span> <span class="o">=</span> <span class="n">pymysql</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span>
-            <span class="n">host</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">&quot;registry&quot;</span><span class="p">][</span><span class="s2">&quot;db_host&quot;</span><span class="p">],</span>
-            <span class="n">user</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">&quot;registry&quot;</span><span class="p">][</span><span class="s2">&quot;db_user_w&quot;</span><span class="p">],</span>
-            <span class="n">port</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">server_info</span><span class="p">[</span><span class="s2">&quot;registry&quot;</span><span class="p">][</span><span class="s2">&quot;db_port&quot;</span><span class="p">]),</span>
-            <span class="n">password</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">&quot;registry&quot;</span><span class="p">][</span><span class="s2">&quot;password&quot;</span><span class="p">],</span>
-            <span class="n">database</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">&quot;registry&quot;</span><span class="p">][</span><span class="s2">&quot;db_name&quot;</span><span class="p">],</span>
+            <span class="n">host</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">"registry"</span><span class="p">][</span><span class="s2">"db_host"</span><span class="p">],</span>
+            <span class="n">user</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">"registry"</span><span class="p">][</span><span class="s2">"db_user_w"</span><span class="p">],</span>
+            <span class="n">port</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">server_info</span><span class="p">[</span><span class="s2">"registry"</span><span class="p">][</span><span class="s2">"db_port"</span><span class="p">]),</span>
+            <span class="n">password</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">"registry"</span><span class="p">][</span><span class="s2">"password"</span><span class="p">],</span>
+            <span class="n">database</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">"registry"</span><span class="p">][</span><span class="s2">"db_name"</span><span class="p">],</span>
         <span class="p">)</span>
 
         <span class="k">if</span> <span class="n">insert_to_db</span><span class="p">(</span>  <span class="c1"># pylint: disable=no-else-return</span>
             <span class="n">insert_query</span><span class="p">,</span> <span class="n">conn</span><span class="p">,</span> <span class="n">store_new_registry</span><span class="o">=</span><span class="kc">True</span>
         <span class="p">):</span>  <span class="c1"># pylint: disable=no-else-return</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Successfully inserted stable space ID </span><span class="si">{</span><span class="n">stable_space_id</span><span class="si">}</span><span class="s2"> for GCA </span><span class="si">{</span><span class="n">gca_accession</span><span class="si">}</span><span class="s2">.&quot;</span>
+                <span class="sa">f</span><span class="s2">"Successfully inserted stable space ID </span><span class="si">{</span><span class="n">stable_space_id</span><span class="si">}</span><span class="s2"> for GCA </span><span class="si">{</span><span class="n">gca_accession</span><span class="si">}</span><span class="s2">."</span>
             <span class="p">)</span>
             <span class="n">conn</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
             <span class="k">return</span> <span class="kc">True</span><span class="p">,</span> <span class="n">stable_space_id</span><span class="p">,</span> <span class="n">stable_space_start</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Failed to insert stable space ID </span><span class="si">{</span><span class="n">stable_space_id</span><span class="si">}</span><span class="s2"> for GCA </span><span class="si">{</span><span class="n">gca_accession</span><span class="si">}</span><span class="s2">.&quot;</span>
+                <span class="sa">f</span><span class="s2">"Failed to insert stable space ID </span><span class="si">{</span><span class="n">stable_space_id</span><span class="si">}</span><span class="s2"> for GCA </span><span class="si">{</span><span class="n">gca_accession</span><span class="si">}</span><span class="s2">."</span>
             <span class="p">)</span>
             <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Failed to assign stable space ID </span><span class="si">{</span><span class="n">stable_space_id</span><span class="si">}</span><span class="s2"> for GCA </span><span class="si">{</span><span class="n">gca_accession</span><span class="si">}</span><span class="s2">.&quot;</span>
+            <span class="sa">f</span><span class="s2">"Failed to assign stable space ID </span><span class="si">{</span><span class="n">stable_space_id</span><span class="si">}</span><span class="s2"> for GCA </span><span class="si">{</span><span class="n">gca_accession</span><span class="si">}</span><span class="s2">."</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
 </code></pre></div></td></tr></table></div>
@@ -4189,7 +4189,7 @@
 <span class="normal">340</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_stable_space</span><span class="p">(</span>
     <span class="n">taxon_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">gca_accession</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">assembly_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">server_info</span><span class="p">:</span> <span class="nb">dict</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get the stable space ID for a given taxon and GCA accession.</span>
+<span class="w">    </span><span class="sd">"""Get the stable space ID for a given taxon and GCA accession.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        taxon_id (int): The taxon identifier for which to find the stable space ID.</span>
@@ -4199,50 +4199,50 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">        int: assigned stable space ID or existing one if already assigned.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="c1"># Check if GCA already has assigned a stable space</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Check if </span><span class="si">{</span><span class="n">gca_accession</span><span class="si">}</span><span class="s2"> already has assigned a stable space&quot;</span><span class="p">)</span>
-    <span class="n">space_gca_query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;SELECT stable_space_species_log.stable_space_id, </span><span class="se">\</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Check if </span><span class="si">{</span><span class="n">gca_accession</span><span class="si">}</span><span class="s2"> already has assigned a stable space"</span><span class="p">)</span>
+    <span class="n">space_gca_query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"SELECT stable_space_species_log.stable_space_id, </span><span class="se">\</span>
 <span class="s2">        stable_space.stable_space_start FROM stable_space_species_log JOIN stable_space </span><span class="se">\</span>
 <span class="s2">            ON stable_space.stable_space_id = stable_space_species_log.stable_space_id  </span><span class="se">\</span>
-<span class="s2">                WHERE stable_space_species_log.gca_accession = &#39;</span><span class="si">{</span><span class="n">gca_accession</span><span class="si">}</span><span class="s2">&#39;;&quot;</span>
+<span class="s2">                WHERE stable_space_species_log.gca_accession = '</span><span class="si">{</span><span class="n">gca_accession</span><span class="si">}</span><span class="s2">';"</span>
     <span class="n">output_query</span> <span class="o">=</span> <span class="n">mysql_fetch_data</span><span class="p">(</span>
         <span class="n">space_gca_query</span><span class="p">,</span>
-        <span class="n">host</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">&quot;registry&quot;</span><span class="p">][</span><span class="s2">&quot;db_host&quot;</span><span class="p">],</span>
-        <span class="n">user</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">&quot;registry&quot;</span><span class="p">][</span><span class="s2">&quot;db_user&quot;</span><span class="p">],</span>
-        <span class="n">port</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">server_info</span><span class="p">[</span><span class="s2">&quot;registry&quot;</span><span class="p">][</span><span class="s2">&quot;db_port&quot;</span><span class="p">]),</span>
-        <span class="n">database</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">&quot;registry&quot;</span><span class="p">][</span><span class="s2">&quot;db_name&quot;</span><span class="p">],</span>
-        <span class="n">password</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="n">host</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">"registry"</span><span class="p">][</span><span class="s2">"db_host"</span><span class="p">],</span>
+        <span class="n">user</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">"registry"</span><span class="p">][</span><span class="s2">"db_user"</span><span class="p">],</span>
+        <span class="n">port</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">server_info</span><span class="p">[</span><span class="s2">"registry"</span><span class="p">][</span><span class="s2">"db_port"</span><span class="p">]),</span>
+        <span class="n">database</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">"registry"</span><span class="p">][</span><span class="s2">"db_name"</span><span class="p">],</span>
+        <span class="n">password</span><span class="o">=</span><span class="s2">""</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="k">if</span> <span class="n">output_query</span><span class="p">:</span>  <span class="c1"># pylint: disable=no-else-return</span>
-        <span class="n">stable_space_id</span> <span class="o">=</span> <span class="n">output_query</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;stable_space_id&quot;</span><span class="p">)</span>
-        <span class="n">stable_space_start</span> <span class="o">=</span> <span class="n">output_query</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;stable_space_start&quot;</span><span class="p">)</span>
+        <span class="n">stable_space_id</span> <span class="o">=</span> <span class="n">output_query</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"stable_space_id"</span><span class="p">)</span>
+        <span class="n">stable_space_start</span> <span class="o">=</span> <span class="n">output_query</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"stable_space_start"</span><span class="p">)</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Stable space </span><span class="si">{</span><span class="n">stable_space_id</span><span class="si">}</span><span class="s2"> already assigned for GCA </span><span class="si">{</span><span class="n">gca_accession</span><span class="si">}</span><span class="s2">.&quot;</span>
+            <span class="sa">f</span><span class="s2">"Stable space </span><span class="si">{</span><span class="n">stable_space_id</span><span class="si">}</span><span class="s2"> already assigned for GCA </span><span class="si">{</span><span class="n">gca_accession</span><span class="si">}</span><span class="s2">."</span>
         <span class="p">)</span>
         <span class="k">if</span> <span class="n">stable_space_start</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No stable space start found for GCA </span><span class="si">{</span><span class="n">gca_accession</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"No stable space start found for GCA </span><span class="si">{</span><span class="n">gca_accession</span><span class="si">}</span><span class="s2">."</span><span class="p">)</span>
         <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">stable_space_start</span><span class="p">)</span>
 
     <span class="k">else</span><span class="p">:</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;No stable space found for assembly </span><span class="si">{</span><span class="n">gca_accession</span><span class="si">}</span><span class="s2">. Checking taxon ID </span><span class="se">\</span>
-<span class="s2">                </span><span class="si">{</span><span class="n">taxon_id</span><span class="si">}</span><span class="s2"> for existing stable space.&quot;</span>
+            <span class="sa">f</span><span class="s2">"No stable space found for assembly </span><span class="si">{</span><span class="n">gca_accession</span><span class="si">}</span><span class="s2">. Checking taxon ID </span><span class="se">\</span>
+<span class="s2">                </span><span class="si">{</span><span class="n">taxon_id</span><span class="si">}</span><span class="s2"> for existing stable space."</span>
         <span class="p">)</span>
 
         <span class="n">success</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="k">while</span> <span class="ow">not</span> <span class="n">success</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Assigning stable space for taxon ID </span><span class="si">{</span><span class="n">taxon_id</span><span class="si">}</span><span class="s2"> and </span><span class="si">{</span><span class="n">gca_accession</span><span class="si">}</span><span class="s2">.&quot;</span>
+                <span class="sa">f</span><span class="s2">"Assigning stable space for taxon ID </span><span class="si">{</span><span class="n">taxon_id</span><span class="si">}</span><span class="s2"> and </span><span class="si">{</span><span class="n">gca_accession</span><span class="si">}</span><span class="s2">."</span>
             <span class="p">)</span>
             <span class="n">success</span><span class="p">,</span> <span class="n">stable_space_id</span><span class="p">,</span> <span class="n">stable_space_start</span> <span class="o">=</span> <span class="n">assign_stable_id</span><span class="p">(</span>
                 <span class="n">taxon_id</span><span class="p">,</span> <span class="n">gca_accession</span><span class="p">,</span> <span class="n">assembly_id</span><span class="p">,</span> <span class="n">server_info</span>
             <span class="p">)</span>
 
         <span class="k">if</span> <span class="n">stable_space_start</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No stable space start assigned for GCA </span><span class="si">{</span><span class="n">gca_accession</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"No stable space start assigned for GCA </span><span class="si">{</span><span class="n">gca_accession</span><span class="si">}</span><span class="s2">."</span><span class="p">)</span>
         <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">stable_space_start</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -4382,7 +4382,7 @@
 <span class="normal">62</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">insert_to_db</span><span class="p">(</span>
     <span class="n">insert_query</span><span class="p">,</span> <span class="n">conn</span><span class="p">:</span> <span class="n">pymysql</span><span class="o">.</span><span class="n">connections</span><span class="o">.</span><span class="n">Connection</span><span class="p">,</span> <span class="n">store_new_registry</span><span class="p">:</span> <span class="nb">bool</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Insert data into the database and handle duplicate entries.</span>
+<span class="w">    </span><span class="sd">"""Insert data into the database and handle duplicate entries.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        insert_query (_type_): SQL insert query string.</span>
@@ -4391,8 +4391,8 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">        bool: _True_ if insertion is successful or duplicate is allowed, _False_ otherwise.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Inserting data: </span><span class="si">{</span><span class="n">insert_query</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="sd">    """</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Inserting data: </span><span class="si">{</span><span class="n">insert_query</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="k">with</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span> <span class="k">as</span> <span class="n">cursor</span><span class="p">:</span>
             <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">insert_query</span><span class="p">)</span>
@@ -4401,7 +4401,7 @@
         <span class="k">if</span> <span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1062</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">store_new_registry</span><span class="p">:</span>  <span class="c1"># pylint: disable=no-else-return</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                    <span class="s2">&quot;Duplicate entry found, but store_new_registry is True. Report as success.&quot;</span>
+                    <span class="s2">"Duplicate entry found, but store_new_registry is True. Report as success."</span>
                 <span class="p">)</span>
                 <span class="k">return</span> <span class="kc">True</span>
             <span class="k">else</span><span class="p">:</span>
@@ -4564,7 +4564,7 @@
 <span class="normal">127</span>
 <span class="normal">128</span>
 <span class="normal">129</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">stable_space_per_taxon</span><span class="p">(</span><span class="n">taxon_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">server_info</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get the next stable space ID for a given taxon.</span>
+<span class="w">    </span><span class="sd">"""Get the next stable space ID for a given taxon.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        taxon_id (int): The taxon identifier for which to find the stable space ID.</span>
@@ -4572,20 +4572,20 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">        int: The next available stable space ID.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Get the next stable space ID for taxon ID </span><span class="si">{</span><span class="n">taxon_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="n">space_query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;SELECT MAX(stable_space_id) as max_stable_id </span><span class="se">\</span>
-<span class="s2">        FROM stable_space_species_log WHERE lowest_taxon_id = </span><span class="si">{</span><span class="n">taxon_id</span><span class="si">}</span><span class="s2">;&quot;</span>
+<span class="sd">    """</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Get the next stable space ID for taxon ID </span><span class="si">{</span><span class="n">taxon_id</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="n">space_query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"SELECT MAX(stable_space_id) as max_stable_id </span><span class="se">\</span>
+<span class="s2">        FROM stable_space_species_log WHERE lowest_taxon_id = </span><span class="si">{</span><span class="n">taxon_id</span><span class="si">}</span><span class="s2">;"</span>
     <span class="n">output_query</span> <span class="o">=</span> <span class="n">mysql_fetch_data</span><span class="p">(</span>
         <span class="n">space_query</span><span class="p">,</span>
-        <span class="n">host</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">&quot;registry&quot;</span><span class="p">][</span><span class="s2">&quot;db_host&quot;</span><span class="p">],</span>
-        <span class="n">user</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">&quot;registry&quot;</span><span class="p">][</span><span class="s2">&quot;db_user&quot;</span><span class="p">],</span>
-        <span class="n">port</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">server_info</span><span class="p">[</span><span class="s2">&quot;registry&quot;</span><span class="p">][</span><span class="s2">&quot;db_port&quot;</span><span class="p">]),</span>
-        <span class="n">database</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">&quot;registry&quot;</span><span class="p">][</span><span class="s2">&quot;db_name&quot;</span><span class="p">],</span>
-        <span class="n">password</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="n">host</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">"registry"</span><span class="p">][</span><span class="s2">"db_host"</span><span class="p">],</span>
+        <span class="n">user</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">"registry"</span><span class="p">][</span><span class="s2">"db_user"</span><span class="p">],</span>
+        <span class="n">port</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">server_info</span><span class="p">[</span><span class="s2">"registry"</span><span class="p">][</span><span class="s2">"db_port"</span><span class="p">]),</span>
+        <span class="n">database</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">"registry"</span><span class="p">][</span><span class="s2">"db_name"</span><span class="p">],</span>
+        <span class="n">password</span><span class="o">=</span><span class="s2">""</span><span class="p">,</span>
     <span class="p">)</span>
 
-    <span class="n">stable_space_tmp</span> <span class="o">=</span> <span class="n">output_query</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;max_stable_id&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="n">stable_space_tmp</span> <span class="o">=</span> <span class="n">output_query</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"max_stable_id"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
 
     <span class="c1">####################</span>
     <span class="c1"># remove when all pipelines have moved to the new registry:</span>
@@ -4596,33 +4596,33 @@
         <span class="k">if</span> <span class="n">stable_space_tmp</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">stable_space_id</span> <span class="o">=</span> <span class="mi">1</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;No stable space found for taxon ID </span><span class="si">{</span><span class="n">taxon_id</span><span class="si">}</span><span class="s2">. &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;Assigning new stable space ID </span><span class="si">{</span><span class="n">stable_space_id</span><span class="si">}</span><span class="s2">.&quot;</span>
+                <span class="sa">f</span><span class="s2">"No stable space found for taxon ID </span><span class="si">{</span><span class="n">taxon_id</span><span class="si">}</span><span class="s2">. "</span>
+                <span class="sa">f</span><span class="s2">"Assigning new stable space ID </span><span class="si">{</span><span class="n">stable_space_id</span><span class="si">}</span><span class="s2">."</span>
             <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">stable_space_id</span> <span class="o">=</span> <span class="n">stable_space_tmp</span> <span class="o">+</span> <span class="mi">1</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;No old stable space for taxon ID </span><span class="si">{</span><span class="n">taxon_id</span><span class="si">}</span><span class="s2">. &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;Using tmp value </span><span class="si">{</span><span class="n">stable_space_tmp</span><span class="si">}</span><span class="s2">, assigning new ID </span><span class="si">{</span><span class="n">stable_space_id</span><span class="si">}</span><span class="s2">.&quot;</span>
+                <span class="sa">f</span><span class="s2">"No old stable space for taxon ID </span><span class="si">{</span><span class="n">taxon_id</span><span class="si">}</span><span class="s2">. "</span>
+                <span class="sa">f</span><span class="s2">"Using tmp value </span><span class="si">{</span><span class="n">stable_space_tmp</span><span class="si">}</span><span class="s2">, assigning new ID </span><span class="si">{</span><span class="n">stable_space_id</span><span class="si">}</span><span class="s2">."</span>
             <span class="p">)</span>
 
     <span class="k">else</span><span class="p">:</span>  <span class="c1"># old_stable_space_info is not None</span>
         <span class="k">if</span> <span class="n">stable_space_tmp</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">stable_space_id</span> <span class="o">=</span> <span class="n">old_stable_space_info</span> <span class="o">+</span> <span class="mi">1</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Found old stable space </span><span class="si">{</span><span class="n">old_stable_space_info</span><span class="si">}</span><span class="s2"> for taxon ID </span><span class="si">{</span><span class="n">taxon_id</span><span class="si">}</span><span class="s2">. &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;Assigning new ID </span><span class="si">{</span><span class="n">stable_space_id</span><span class="si">}</span><span class="s2">.&quot;</span>
+                <span class="sa">f</span><span class="s2">"Found old stable space </span><span class="si">{</span><span class="n">old_stable_space_info</span><span class="si">}</span><span class="s2"> for taxon ID </span><span class="si">{</span><span class="n">taxon_id</span><span class="si">}</span><span class="s2">. "</span>
+                <span class="sa">f</span><span class="s2">"Assigning new ID </span><span class="si">{</span><span class="n">stable_space_id</span><span class="si">}</span><span class="s2">."</span>
             <span class="p">)</span>
         <span class="k">elif</span> <span class="n">stable_space_tmp</span> <span class="o">==</span> <span class="n">old_stable_space_info</span><span class="p">:</span>
             <span class="n">stable_space_id</span> <span class="o">=</span> <span class="n">stable_space_tmp</span> <span class="o">+</span> <span class="mi">1</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Stable space </span><span class="si">{</span><span class="n">stable_space_tmp</span><span class="si">}</span><span class="s2"> matches old record for taxon ID </span><span class="si">{</span><span class="n">taxon_id</span><span class="si">}</span><span class="s2">. &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;Assigning new ID </span><span class="si">{</span><span class="n">stable_space_id</span><span class="si">}</span><span class="s2">.&quot;</span>
+                <span class="sa">f</span><span class="s2">"Stable space </span><span class="si">{</span><span class="n">stable_space_tmp</span><span class="si">}</span><span class="s2"> matches old record for taxon ID </span><span class="si">{</span><span class="n">taxon_id</span><span class="si">}</span><span class="s2">. "</span>
+                <span class="sa">f</span><span class="s2">"Assigning new ID </span><span class="si">{</span><span class="n">stable_space_id</span><span class="si">}</span><span class="s2">."</span>
             <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Conflicting stable space for taxon ID </span><span class="si">{</span><span class="n">taxon_id</span><span class="si">}</span><span class="s2">: &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">old_stable_space_info</span><span class="si">}</span><span class="s2"> != </span><span class="si">{</span><span class="n">stable_space_tmp</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="sa">f</span><span class="s2">"Conflicting stable space for taxon ID </span><span class="si">{</span><span class="n">taxon_id</span><span class="si">}</span><span class="s2">: "</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">old_stable_space_info</span><span class="si">}</span><span class="s2"> != </span><span class="si">{</span><span class="n">stable_space_tmp</span><span class="si">}</span><span class="s2">"</span>
             <span class="p">)</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>  <span class="c1"># pylint: disable=broad-exception-raised</span>
@@ -4810,7 +4810,7 @@
 <span class="normal">219</span>
 <span class="normal">220</span>
 <span class="normal">221</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">stable_space_range</span><span class="p">(</span><span class="n">stable_space_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">server_info</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Check if a stable space range exists for the given stable space ID.</span>
+<span class="w">    </span><span class="sd">"""Check if a stable space range exists for the given stable space ID.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        stable_space_id (int): The stable space ID to check.</span>
@@ -4818,85 +4818,85 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">        bool: True if the stable space range exists, False otherwise.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Get stable space renage for </span><span class="si">{</span><span class="n">stable_space_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="n">query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;SELECT * FROM stable_space WHERE stable_space_id = &#39;</span><span class="si">{</span><span class="n">stable_space_id</span><span class="si">}</span><span class="s2">&#39;;&quot;</span>
+<span class="sd">    """</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Get stable space renage for </span><span class="si">{</span><span class="n">stable_space_id</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="n">query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"SELECT * FROM stable_space WHERE stable_space_id = '</span><span class="si">{</span><span class="n">stable_space_id</span><span class="si">}</span><span class="s2">';"</span>
     <span class="n">output_query</span> <span class="o">=</span> <span class="n">mysql_fetch_data</span><span class="p">(</span>
         <span class="n">query</span><span class="p">,</span>
-        <span class="n">host</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">&quot;registry&quot;</span><span class="p">][</span><span class="s2">&quot;db_host&quot;</span><span class="p">],</span>
-        <span class="n">user</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">&quot;registry&quot;</span><span class="p">][</span><span class="s2">&quot;db_user&quot;</span><span class="p">],</span>
-        <span class="n">port</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">server_info</span><span class="p">[</span><span class="s2">&quot;registry&quot;</span><span class="p">][</span><span class="s2">&quot;db_port&quot;</span><span class="p">]),</span>
-        <span class="n">database</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">&quot;registry&quot;</span><span class="p">][</span><span class="s2">&quot;db_name&quot;</span><span class="p">],</span>
-        <span class="n">password</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="n">host</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">"registry"</span><span class="p">][</span><span class="s2">"db_host"</span><span class="p">],</span>
+        <span class="n">user</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">"registry"</span><span class="p">][</span><span class="s2">"db_user"</span><span class="p">],</span>
+        <span class="n">port</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">server_info</span><span class="p">[</span><span class="s2">"registry"</span><span class="p">][</span><span class="s2">"db_port"</span><span class="p">]),</span>
+        <span class="n">database</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">"registry"</span><span class="p">][</span><span class="s2">"db_name"</span><span class="p">],</span>
+        <span class="n">password</span><span class="o">=</span><span class="s2">""</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="k">if</span> <span class="n">output_query</span><span class="p">:</span>  <span class="c1"># pylint: disable=no-else-return</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Stable space ID </span><span class="si">{</span><span class="n">stable_space_id</span><span class="si">}</span><span class="s2"> already exists with range: </span><span class="si">{</span><span class="n">output_query</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">.&quot;</span>
+            <span class="sa">f</span><span class="s2">"Stable space ID </span><span class="si">{</span><span class="n">stable_space_id</span><span class="si">}</span><span class="s2"> already exists with range: </span><span class="si">{</span><span class="n">output_query</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">."</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="kc">True</span>
 
     <span class="k">else</span><span class="p">:</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;No existing stable space range found for ID </span><span class="si">{</span><span class="n">stable_space_id</span><span class="si">}</span><span class="s2">. </span><span class="se">\</span>
-<span class="s2">                Creating a new range space.&quot;</span>
+            <span class="sa">f</span><span class="s2">"No existing stable space range found for ID </span><span class="si">{</span><span class="n">stable_space_id</span><span class="si">}</span><span class="s2">. </span><span class="se">\</span>
+<span class="s2">                Creating a new range space."</span>
         <span class="p">)</span>
         <span class="n">previous_space_id</span> <span class="o">=</span> <span class="n">stable_space_id</span> <span class="o">-</span> <span class="mi">1</span>
-        <span class="n">query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;SELECT * FROM stable_space WHERE stable_space_id = &#39;</span><span class="si">{</span><span class="n">previous_space_id</span><span class="si">}</span><span class="s2">&#39;;&quot;&quot;&quot;</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"""SELECT * FROM stable_space WHERE stable_space_id = '</span><span class="si">{</span><span class="n">previous_space_id</span><span class="si">}</span><span class="s2">';"""</span>
         <span class="n">output_query</span> <span class="o">=</span> <span class="n">mysql_fetch_data</span><span class="p">(</span>
             <span class="n">query</span><span class="p">,</span>
-            <span class="n">host</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">&quot;registry&quot;</span><span class="p">][</span><span class="s2">&quot;db_host&quot;</span><span class="p">],</span>
-            <span class="n">user</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">&quot;registry&quot;</span><span class="p">][</span><span class="s2">&quot;db_user&quot;</span><span class="p">],</span>
-            <span class="n">port</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">server_info</span><span class="p">[</span><span class="s2">&quot;registry&quot;</span><span class="p">][</span><span class="s2">&quot;db_port&quot;</span><span class="p">]),</span>
-            <span class="n">database</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">&quot;registry&quot;</span><span class="p">][</span><span class="s2">&quot;db_name&quot;</span><span class="p">],</span>
-            <span class="n">password</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+            <span class="n">host</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">"registry"</span><span class="p">][</span><span class="s2">"db_host"</span><span class="p">],</span>
+            <span class="n">user</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">"registry"</span><span class="p">][</span><span class="s2">"db_user"</span><span class="p">],</span>
+            <span class="n">port</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">server_info</span><span class="p">[</span><span class="s2">"registry"</span><span class="p">][</span><span class="s2">"db_port"</span><span class="p">]),</span>
+            <span class="n">database</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">"registry"</span><span class="p">][</span><span class="s2">"db_name"</span><span class="p">],</span>
+            <span class="n">password</span><span class="o">=</span><span class="s2">""</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Output query for previous stable space ID </span><span class="si">{</span><span class="n">previous_space_id</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">output_query</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">"Output query for previous stable space ID </span><span class="si">{</span><span class="n">previous_space_id</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">output_query</span><span class="si">}</span><span class="s2">"</span>
         <span class="p">)</span>
 
         <span class="k">if</span> <span class="n">output_query</span><span class="p">:</span>
-            <span class="n">previous_end</span> <span class="o">=</span> <span class="n">output_query</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;stable_space_end&quot;</span><span class="p">)</span>
+            <span class="n">previous_end</span> <span class="o">=</span> <span class="n">output_query</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"stable_space_end"</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">previous_end</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Previous stable space ID </span><span class="si">{</span><span class="n">previous_space_id</span><span class="si">}</span><span class="s2"> has no end value.&quot;</span>
+                    <span class="sa">f</span><span class="s2">"Previous stable space ID </span><span class="si">{</span><span class="n">previous_space_id</span><span class="si">}</span><span class="s2"> has no end value."</span>
                 <span class="p">)</span>
                 <span class="k">return</span> <span class="kc">False</span>
             <span class="n">new_start</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">previous_end</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
             <span class="n">new_end</span> <span class="o">=</span> <span class="n">new_start</span> <span class="o">+</span> <span class="mi">4999999</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;New stable space range for ID </span><span class="si">{</span><span class="n">stable_space_id</span><span class="si">}</span><span class="s2"> will be </span><span class="se">\</span>
-<span class="s2">                    from </span><span class="si">{</span><span class="n">new_start</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">new_end</span><span class="si">}</span><span class="s2">.&quot;</span>
+                <span class="sa">f</span><span class="s2">"New stable space range for ID </span><span class="si">{</span><span class="n">stable_space_id</span><span class="si">}</span><span class="s2"> will be </span><span class="se">\</span>
+<span class="s2">                    from </span><span class="si">{</span><span class="n">new_start</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">new_end</span><span class="si">}</span><span class="s2">."</span>
             <span class="p">)</span>
 
-            <span class="n">insert_query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;INSERT INTO stable_space (stable_space_id, </span><span class="se">\</span>
+            <span class="n">insert_query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"INSERT INTO stable_space (stable_space_id, </span><span class="se">\</span>
 <span class="s2">                stable_space_start, stable_space_end) VALUES (</span><span class="si">{</span><span class="n">stable_space_id</span><span class="si">}</span><span class="s2">,</span><span class="se">\</span>
-<span class="s2">                    </span><span class="si">{</span><span class="n">new_start</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">new_end</span><span class="si">}</span><span class="s2">);&quot;</span>
+<span class="s2">                    </span><span class="si">{</span><span class="n">new_start</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">new_end</span><span class="si">}</span><span class="s2">);"</span>
             <span class="n">conn</span> <span class="o">=</span> <span class="n">pymysql</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span>
-                <span class="n">host</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">&quot;registry&quot;</span><span class="p">][</span><span class="s2">&quot;db_host&quot;</span><span class="p">],</span>
-                <span class="n">user</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">&quot;registry&quot;</span><span class="p">][</span><span class="s2">&quot;db_user_w&quot;</span><span class="p">],</span>
-                <span class="n">port</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">server_info</span><span class="p">[</span><span class="s2">&quot;registry&quot;</span><span class="p">][</span><span class="s2">&quot;db_port&quot;</span><span class="p">]),</span>
-                <span class="n">password</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">&quot;registry&quot;</span><span class="p">][</span><span class="s2">&quot;password&quot;</span><span class="p">],</span>
-                <span class="n">database</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">&quot;registry&quot;</span><span class="p">][</span><span class="s2">&quot;db_name&quot;</span><span class="p">],</span>
+                <span class="n">host</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">"registry"</span><span class="p">][</span><span class="s2">"db_host"</span><span class="p">],</span>
+                <span class="n">user</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">"registry"</span><span class="p">][</span><span class="s2">"db_user_w"</span><span class="p">],</span>
+                <span class="n">port</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">server_info</span><span class="p">[</span><span class="s2">"registry"</span><span class="p">][</span><span class="s2">"db_port"</span><span class="p">]),</span>
+                <span class="n">password</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">"registry"</span><span class="p">][</span><span class="s2">"password"</span><span class="p">],</span>
+                <span class="n">database</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">"registry"</span><span class="p">][</span><span class="s2">"db_name"</span><span class="p">],</span>
             <span class="p">)</span>
 
             <span class="k">if</span> <span class="n">insert_to_db</span><span class="p">(</span>  <span class="c1"># pylint: disable=no-else-return</span>
                 <span class="n">insert_query</span><span class="p">,</span> <span class="n">conn</span><span class="p">,</span> <span class="n">store_new_registry</span><span class="o">=</span><span class="kc">True</span>
             <span class="p">):</span>  <span class="c1"># pylint: disable=no-else-return</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Successfully created stable space range for ID </span><span class="si">{</span><span class="n">stable_space_id</span><span class="si">}</span><span class="s2">.&quot;</span>
+                    <span class="sa">f</span><span class="s2">"Successfully created stable space range for ID </span><span class="si">{</span><span class="n">stable_space_id</span><span class="si">}</span><span class="s2">."</span>
                 <span class="p">)</span>
                 <span class="n">conn</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
                 <span class="k">return</span> <span class="n">new_start</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Failed to insert stable space range for ID </span><span class="si">{</span><span class="n">stable_space_id</span><span class="si">}</span><span class="s2">.&quot;</span>
+                    <span class="sa">f</span><span class="s2">"Failed to insert stable space range for ID </span><span class="si">{</span><span class="n">stable_space_id</span><span class="si">}</span><span class="s2">."</span>
                 <span class="p">)</span>
                 <span class="k">return</span> <span class="kc">False</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Failed to create stable space range for ID </span><span class="si">{</span><span class="n">stable_space_id</span><span class="si">}</span><span class="s2">. </span><span class="se">\</span>
-<span class="s2">                    Previous space ID </span><span class="si">{</span><span class="n">previous_space_id</span><span class="si">}</span><span class="s2"> not found.&quot;</span>
+                <span class="sa">f</span><span class="s2">"Failed to create stable space range for ID </span><span class="si">{</span><span class="n">stable_space_id</span><span class="si">}</span><span class="s2">. </span><span class="se">\</span>
+<span class="s2">                    Previous space ID </span><span class="si">{</span><span class="n">previous_space_id</span><span class="si">}</span><span class="s2"> not found."</span>
             <span class="p">)</span>
             <span class="k">return</span> <span class="kc">False</span>
 </code></pre></div></td></tr></table></div>

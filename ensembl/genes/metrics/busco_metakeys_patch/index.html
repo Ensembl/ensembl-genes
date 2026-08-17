@@ -3901,7 +3901,7 @@
     <span class="n">password</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">port</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># pylint: disable=line-too-long</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create SQL patch for database and execute it</span>
+<span class="w">    </span><span class="sd">"""Create SQL patch for database and execute it</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        db_name (str): Database name</span>
@@ -3911,8 +3911,8 @@
 <span class="sd">        password (str, optional): MySQL password.</span>
 <span class="sd">        port (int, optional): MySQL port.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">statements</span> <span class="o">=</span> <span class="n">sql_statements</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="sd">    """</span>
+    <span class="n">statements</span> <span class="o">=</span> <span class="n">sql_statements</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">";</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
     <span class="n">connection</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Initialize connection variable</span>
     <span class="c1"># Connect to the database and execute the SQL statements</span>
     <span class="k">try</span><span class="p">:</span>
@@ -3926,7 +3926,7 @@
                 <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">statement</span><span class="p">)</span>  <span class="c1"># Execute each SQL statement</span>
             <span class="n">connection</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>  <span class="c1"># Commit the changes</span>
     <span class="k">except</span> <span class="n">pymysql</span><span class="o">.</span><span class="n">MySQLError</span> <span class="k">as</span> <span class="n">err_msg</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error while executing SQL: </span><span class="si">{</span><span class="n">err_msg</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Error while executing SQL: </span><span class="si">{</span><span class="n">err_msg</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
     <span class="k">finally</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">connection</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">connection</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>  <span class="c1"># Close the database connection</span>
@@ -3940,7 +3940,7 @@
 
 
 <h3 id="ensembl.genes.metrics.busco_metakeys_patch.generate_sql_patches" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">generate_sql_patches</span><span class="p">(</span><span class="n">db_name</span><span class="p">,</span> <span class="n">json_data</span><span class="p">,</span> <span class="n">species_id</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">table_name</span><span class="o">=</span><span class="s1">&#39;meta&#39;</span><span class="p">)</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">generate_sql_patches</span><span class="p">(</span><span class="n">db_name</span><span class="p">,</span> <span class="n">json_data</span><span class="p">,</span> <span class="n">species_id</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">table_name</span><span class="o">=</span><span class="s1">'meta'</span><span class="p">)</span></code>
 
 <a href="#ensembl.genes.metrics.busco_metakeys_patch.generate_sql_patches" class="headerlink" title="Permanent link">&para;</a></h3>
 
@@ -4090,21 +4090,21 @@
     <span class="n">db_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">json_data</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]],</span>
     <span class="n">species_id</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
-    <span class="n">table_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;meta&quot;</span><span class="p">,</span>
+    <span class="n">table_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"meta"</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>  <span class="c1"># pylint: disable=line-too-long</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Creat Sql patch for database</span>
+<span class="w">    </span><span class="sd">"""Creat Sql patch for database</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        db_name (str): db name</span>
 <span class="sd">        json_data (Dict[str, Union[str, float]]): Dict of metakeys</span>
 <span class="sd">        species_id (int, optional): species_id Defaults to 1.</span>
-<span class="sd">        table_name (str, optional): Table name where to store data Defaults to &quot;meta&quot;.</span>
+<span class="sd">        table_name (str, optional): Table name where to store data Defaults to "meta".</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        str: list of Mysql patches</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">sql_statements</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">sql_statements</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;USE </span><span class="si">{</span><span class="n">db_name</span><span class="si">}</span><span class="s2">;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>  <span class="c1"># Replace with your actual DB name</span>
+    <span class="n">sql_statements</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"USE </span><span class="si">{</span><span class="n">db_name</span><span class="si">}</span><span class="s2">;</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>  <span class="c1"># Replace with your actual DB name</span>
 
     <span class="c1"># Iterate through the JSON key-value pairs</span>
     <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">json_data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
@@ -4112,13 +4112,13 @@
             <span class="c1"># Skip if the value is None (or can handle it differently if needed)</span>
             <span class="k">continue</span>
         <span class="c1"># Convert value to string and escape single quotes if necessary</span>
-        <span class="n">value_str</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;&#39;&quot;</span><span class="p">,</span> <span class="s2">&quot;&#39;&#39;&quot;</span><span class="p">)</span>
+        <span class="n">value_str</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"'"</span><span class="p">,</span> <span class="s2">"''"</span><span class="p">)</span>
         <span class="c1"># Create the SQL INSERT statement</span>
         <span class="n">sql_statements</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;INSERT IGNORE INTO </span><span class="si">{</span><span class="n">table_name</span><span class="si">}</span><span class="s2"> (species_id, meta_key, meta_value) VALUES (</span><span class="si">{</span><span class="n">species_id</span><span class="si">}</span><span class="s2">, &#39;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">&#39;, &#39;</span><span class="si">{</span><span class="n">value_str</span><span class="si">}</span><span class="s2">&#39;);&quot;</span>  <span class="c1"># pylint: disable=line-too-long</span>
+            <span class="sa">f</span><span class="s2">"INSERT IGNORE INTO </span><span class="si">{</span><span class="n">table_name</span><span class="si">}</span><span class="s2"> (species_id, meta_key, meta_value) VALUES (</span><span class="si">{</span><span class="n">species_id</span><span class="si">}</span><span class="s2">, '</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">', '</span><span class="si">{</span><span class="n">value_str</span><span class="si">}</span><span class="s2">');"</span>  <span class="c1"># pylint: disable=line-too-long</span>
         <span class="p">)</span>
 
-    <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">sql_statements</span><span class="p">)</span>
+    <span class="k">return</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">sql_statements</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -4208,41 +4208,41 @@
 <span class="normal">349</span>
 <span class="normal">350</span>
 <span class="normal">351</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Main function to parse a BUSCO result file and output the parsed data in JSON format.</span>
 
 <span class="sd">    It expects the file path to the BUSCO result as a command-line argument.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="c1"># Set up argument parser</span>
     <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span>
-        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Parse a BUSCO result file and generate JSON output.&quot;</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">"Parse a BUSCO result file and generate JSON output."</span>
     <span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-file&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Path to the BUSCO result file&quot;</span><span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-db&quot;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Core db&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"-file"</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">"Path to the BUSCO result file"</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"-db"</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">"Core db"</span><span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;-input_dir&quot;</span><span class="p">,</span>
+        <span class="s2">"-input_dir"</span><span class="p">,</span>
         <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Path for directory containing the busco output files&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"Path for directory containing the busco output files"</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;-output_dir&quot;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Path for output directory&quot;</span>
+        <span class="s2">"-output_dir"</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">"Path for output directory"</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;-run_query&quot;</span><span class="p">,</span>
+        <span class="s2">"-run_query"</span><span class="p">,</span>
         <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
-        <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;true&quot;</span><span class="p">,</span> <span class="s2">&quot;false&quot;</span><span class="p">],</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Add busco metakeys to the db&quot;</span><span class="p">,</span>
+        <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">"true"</span><span class="p">,</span> <span class="s2">"false"</span><span class="p">],</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"Add busco metakeys to the db"</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-host&quot;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Server host&quot;</span><span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-port&quot;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Server port&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"-host"</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">"Server host"</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"-port"</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">"Server port"</span><span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;-user&quot;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Db user with writable permission&quot;</span>
+        <span class="s2">"-user"</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">"Db user with writable permission"</span>
     <span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-password&quot;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Server password&quot;</span><span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-assembly_id&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Registry assembly id&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"-password"</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">"Server password"</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"-assembly_id"</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">"Registry assembly id"</span><span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;-species_id&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Species id to use in the meta table&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;1&quot;</span>
+        <span class="s2">"-species_id"</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">"Species id to use in the meta table"</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">"1"</span>
     <span class="p">)</span>
     <span class="c1"># Parse arguments</span>
     <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
@@ -4252,24 +4252,24 @@
             <span class="n">args</span><span class="o">.</span><span class="n">file</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">db</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">output_dir</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">assembly_id</span>
         <span class="p">)</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span>  <span class="c1"># pylint: disable =unspecified-encoding</span>
-            <span class="n">Path</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">output_dir</span><span class="p">)</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">db</span><span class="si">}</span><span class="s2">.sql&quot;</span><span class="p">,</span> <span class="s2">&quot;a&quot;</span>
+            <span class="n">Path</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">output_dir</span><span class="p">)</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">db</span><span class="si">}</span><span class="s2">.sql"</span><span class="p">,</span> <span class="s2">"a"</span>
         <span class="p">)</span> <span class="k">as</span> <span class="n">f_in</span><span class="p">:</span>
             <span class="n">f_in</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">sql_patches</span><span class="p">)</span>
 
     <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">input_dir</span><span class="p">:</span>
-        <span class="c1"># Process all files that end with &#39;busco_short_summary&#39;</span>
-        <span class="n">busco_files</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">input_dir</span><span class="p">)</span><span class="o">.</span><span class="n">rglob</span><span class="p">(</span><span class="s2">&quot;*busco_short_summary.txt&quot;</span><span class="p">))</span>
+        <span class="c1"># Process all files that end with 'busco_short_summary'</span>
+        <span class="n">busco_files</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">input_dir</span><span class="p">)</span><span class="o">.</span><span class="n">rglob</span><span class="p">(</span><span class="s2">"*busco_short_summary.txt"</span><span class="p">))</span>
 
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span>  <span class="c1"># pylint: disable =unspecified-encoding</span>
-            <span class="n">Path</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">output_dir</span><span class="p">)</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">db</span><span class="si">}</span><span class="s2">.sql&quot;</span><span class="p">,</span> <span class="s2">&quot;a&quot;</span>
+            <span class="n">Path</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">output_dir</span><span class="p">)</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">db</span><span class="si">}</span><span class="s2">.sql"</span><span class="p">,</span> <span class="s2">"a"</span>
         <span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">busco_files</span><span class="p">:</span>
-                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Processing file: </span><span class="si">{</span><span class="n">file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Processing file: </span><span class="si">{</span><span class="n">file</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
                 <span class="n">sql_patches</span> <span class="o">=</span> <span class="n">process_busco_file</span><span class="p">(</span>
                     <span class="n">file</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">db</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">output_dir</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">assembly_id</span>
                 <span class="p">)</span>
                 <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">sql_patches</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">run_query</span> <span class="o">==</span> <span class="s2">&quot;true&quot;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">run_query</span> <span class="o">==</span> <span class="s2">"true"</span><span class="p">:</span>
         <span class="n">execute_sql_patches</span><span class="p">(</span>
             <span class="n">args</span><span class="o">.</span><span class="n">db</span><span class="p">,</span> <span class="n">sql_patches</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">host</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">user</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">password</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">port</span><span class="p">)</span>
         <span class="p">)</span>
@@ -4509,7 +4509,7 @@
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span>
     <span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span>
 <span class="p">]:</span>  <span class="c1"># pylint: disable =too-many-locals, too-many-statements</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Parses a BUSCO result file and extracts relevant data into a dictionary.</span>
 
 <span class="sd">    Args:</span>
@@ -4519,39 +4519,39 @@
 <span class="sd">    Returns:</span>
 <span class="sd">        Dict[str, Union[str, int]]: A dictionary containing parsed BUSCO data,</span>
 <span class="sd">        including the dataset, completeness values, and mode (proteins or genome).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="c1"># Declare the dictionary to accept str as keys and str or float as values</span>
     <span class="n">data</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="c1"># data[&quot;core_db&quot;] = db</span>
+    <span class="c1"># data["core_db"] = db</span>
     <span class="c1"># Open and read the file</span>
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>  <span class="c1"># pylint: disable =unspecified-encoding</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="s2">"r"</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>  <span class="c1"># pylint: disable =unspecified-encoding</span>
         <span class="n">content</span> <span class="o">=</span> <span class="n">file</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
 
     <span class="c1"># Define regular expressions to match the relevant numbers</span>
     <span class="n">version_pattern</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">re</span><span class="o">.</span><span class="n">Match</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span>
-        <span class="sa">r</span><span class="s2">&quot;BUSCO version is: ((\d+\.\d+.\d+))&quot;</span><span class="p">,</span> <span class="n">content</span>
+        <span class="sa">r</span><span class="s2">"BUSCO version is: ((\d+\.\d+.\d+))"</span><span class="p">,</span> <span class="n">content</span>
     <span class="p">)</span>
     <span class="n">dataset_pattern</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">re</span><span class="o">.</span><span class="n">Match</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span>
-        <span class="sa">r</span><span class="s2">&quot;The lineage dataset is: ([\w_]+)&quot;</span><span class="p">,</span> <span class="n">content</span>
+        <span class="sa">r</span><span class="s2">"The lineage dataset is: ([\w_]+)"</span><span class="p">,</span> <span class="n">content</span>
     <span class="p">)</span>
     <span class="n">mode_pattern</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">re</span><span class="o">.</span><span class="n">Match</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span>
-        <span class="sa">r</span><span class="s2">&quot;BUSCO was run in mode: ([\w_]+)&quot;</span><span class="p">,</span> <span class="n">content</span>
+        <span class="sa">r</span><span class="s2">"BUSCO was run in mode: ([\w_]+)"</span><span class="p">,</span> <span class="n">content</span>
     <span class="p">)</span>
     <span class="n">completeness_pattern</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">re</span><span class="o">.</span><span class="n">Match</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span>
-        <span class="sa">r</span><span class="s2">&quot;(\d+)\s+Complete BUSCOs \(C\)&quot;</span><span class="p">,</span> <span class="n">content</span>
+        <span class="sa">r</span><span class="s2">"(\d+)\s+Complete BUSCOs \(C\)"</span><span class="p">,</span> <span class="n">content</span>
     <span class="p">)</span>
     <span class="n">single_copy_pattern</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">re</span><span class="o">.</span><span class="n">Match</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span>
-        <span class="sa">r</span><span class="s2">&quot;(\d+)\s+Complete and single-copy BUSCOs \(S\)&quot;</span><span class="p">,</span> <span class="n">content</span>
+        <span class="sa">r</span><span class="s2">"(\d+)\s+Complete and single-copy BUSCOs \(S\)"</span><span class="p">,</span> <span class="n">content</span>
     <span class="p">)</span>
     <span class="n">duplicates_pattern</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">re</span><span class="o">.</span><span class="n">Match</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span>
-        <span class="sa">r</span><span class="s2">&quot;(\d+)\s+Complete and duplicated BUSCOs \(D\)&quot;</span><span class="p">,</span> <span class="n">content</span>
+        <span class="sa">r</span><span class="s2">"(\d+)\s+Complete and duplicated BUSCOs \(D\)"</span><span class="p">,</span> <span class="n">content</span>
     <span class="p">)</span>
     <span class="n">fragmented_pattern</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">re</span><span class="o">.</span><span class="n">Match</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span>
-        <span class="sa">r</span><span class="s2">&quot;(\d+)\s+Fragmented BUSCOs \(F\)&quot;</span><span class="p">,</span> <span class="n">content</span>
+        <span class="sa">r</span><span class="s2">"(\d+)\s+Fragmented BUSCOs \(F\)"</span><span class="p">,</span> <span class="n">content</span>
     <span class="p">)</span>
     <span class="n">missing_pattern</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">re</span><span class="o">.</span><span class="n">Match</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span>
-        <span class="sa">r</span><span class="s2">&quot;(\d+)\s+Missing BUSCOs \(M\)&quot;</span><span class="p">,</span> <span class="n">content</span>
+        <span class="sa">r</span><span class="s2">"(\d+)\s+Missing BUSCOs \(M\)"</span><span class="p">,</span> <span class="n">content</span>
     <span class="p">)</span>
 
     <span class="c1"># Initialize mode_match as None or str</span>
@@ -4560,10 +4560,10 @@
     <span class="c1"># If match is not None, extract the group and assign it to mode_match</span>
     <span class="k">if</span> <span class="n">mode_pattern</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">mode_match</span> <span class="o">=</span> <span class="n">mode_pattern</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">mode_match</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;genome&quot;</span><span class="p">,</span> <span class="s2">&quot;euk_genome_met&quot;</span><span class="p">,</span> <span class="s2">&quot;euk_genome_min&quot;</span><span class="p">,</span> <span class="s2">&quot;prok_genome_prod&quot;</span><span class="p">):</span>
-        <span class="n">busco_mode</span> <span class="o">=</span> <span class="s2">&quot;genome&quot;</span>
-    <span class="k">elif</span> <span class="n">mode_match</span> <span class="o">==</span> <span class="s2">&quot;proteins&quot;</span><span class="p">:</span>
-        <span class="n">busco_mode</span> <span class="o">=</span> <span class="s2">&quot;protein&quot;</span>
+    <span class="k">if</span> <span class="n">mode_match</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"genome"</span><span class="p">,</span> <span class="s2">"euk_genome_met"</span><span class="p">,</span> <span class="s2">"euk_genome_min"</span><span class="p">,</span> <span class="s2">"prok_genome_prod"</span><span class="p">):</span>
+        <span class="n">busco_mode</span> <span class="o">=</span> <span class="s2">"genome"</span>
+    <span class="k">elif</span> <span class="n">mode_match</span> <span class="o">==</span> <span class="s2">"proteins"</span><span class="p">:</span>
+        <span class="n">busco_mode</span> <span class="o">=</span> <span class="s2">"protein"</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">mode_match</span> <span class="o">=</span> <span class="kc">None</span>
 
@@ -4576,63 +4576,63 @@
     <span class="n">missing</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">missing_pattern</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span> <span class="k">if</span> <span class="n">missing_pattern</span> <span class="k">else</span> <span class="kc">None</span>
 
     <span class="c1"># Extract the BUSCO summary line with completeness values</span>
-    <span class="k">if</span> <span class="n">mode_match</span> <span class="o">==</span> <span class="s2">&quot;euk_genome_min&quot;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">mode_match</span> <span class="o">==</span> <span class="s2">"euk_genome_min"</span><span class="p">:</span>
         <span class="n">score_match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span>
-            <span class="sa">r</span><span class="s2">&quot;C:(\d+\.\d+)%\[S:(\d+\.\d+)%.*,D:(\d+\.\d+)%\],F:(\d+\.\d+)%.*,M:(\d+\.\d+)%,n:(\d+),E:(\d+\.\d+)%&quot;</span><span class="p">,</span>  <span class="c1"># pylint: disable=line-too-long</span>
+            <span class="sa">r</span><span class="s2">"C:(\d+\.\d+)%\[S:(\d+\.\d+)%.*,D:(\d+\.\d+)%\],F:(\d+\.\d+)%.*,M:(\d+\.\d+)%,n:(\d+),E:(\d+\.\d+)%"</span><span class="p">,</span>  <span class="c1"># pylint: disable=line-too-long</span>
             <span class="n">content</span><span class="p">,</span>  <span class="c1"># pylint: disable=line-too-long</span>
         <span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">score_match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span>
-            <span class="sa">r</span><span class="s2">&quot;C:(\d+\.\d+)%\[S:(\d+\.\d+)%.*,D:(\d+\.\d+)%\],F:(\d+\.\d+)%.*,M:(\d+\.\d+)%,n:(\d+)&quot;</span><span class="p">,</span>
+            <span class="sa">r</span><span class="s2">"C:(\d+\.\d+)%\[S:(\d+\.\d+)%.*,D:(\d+\.\d+)%\],F:(\d+\.\d+)%.*,M:(\d+\.\d+)%,n:(\d+)"</span><span class="p">,</span>
             <span class="n">content</span><span class="p">,</span>
         <span class="p">)</span>
 
     <span class="k">if</span> <span class="n">score_match</span><span class="p">:</span>
         <span class="n">score</span> <span class="o">=</span> <span class="n">score_match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
         <span class="n">total_buscos</span> <span class="o">=</span> <span class="n">score_match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">mode_match</span> <span class="o">==</span> <span class="s2">&quot;euk_genome_min&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">mode_match</span> <span class="o">==</span> <span class="s2">"euk_genome_min"</span><span class="p">:</span>
             <span class="n">erroneus</span> <span class="o">=</span> <span class="n">score_match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">7</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">mode_match</span> <span class="ow">in</span> <span class="p">(</span>
-            <span class="s2">&quot;genome&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;euk_genome_met&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;euk_genome_min&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;prok_genome_prod&quot;</span><span class="p">,</span>
+            <span class="s2">"genome"</span><span class="p">,</span>
+            <span class="s2">"euk_genome_met"</span><span class="p">,</span>
+            <span class="s2">"euk_genome_min"</span><span class="p">,</span>
+            <span class="s2">"prok_genome_prod"</span><span class="p">,</span>
         <span class="p">):</span>
             <span class="c1"># Extract the BUSCO version</span>
-            <span class="n">data</span><span class="p">[</span><span class="s2">&quot;assembly.busco_version&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">version</span><span class="p">)</span>
+            <span class="n">data</span><span class="p">[</span><span class="s2">"assembly.busco_version"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">version</span><span class="p">)</span>
             <span class="c1"># Extract the BUSCO dataset</span>
-            <span class="n">data</span><span class="p">[</span><span class="s2">&quot;assembly.busco_dataset&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
+            <span class="n">data</span><span class="p">[</span><span class="s2">"assembly.busco_dataset"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
             <span class="c1"># Store the BUSCO completeness summary with erroneous</span>
-            <span class="n">data</span><span class="p">[</span><span class="s2">&quot;assembly.busco&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">score</span><span class="p">)</span>
-            <span class="n">data</span><span class="p">[</span><span class="s2">&quot;assembly.busco_mode&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">busco_mode</span>
+            <span class="n">data</span><span class="p">[</span><span class="s2">"assembly.busco"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">score</span><span class="p">)</span>
+            <span class="n">data</span><span class="p">[</span><span class="s2">"assembly.busco_mode"</span><span class="p">]</span> <span class="o">=</span> <span class="n">busco_mode</span>
             <span class="c1"># Store the BUSCO values into individual fields</span>
-            <span class="n">data</span><span class="p">[</span><span class="s2">&quot;assembly.busco_completeness&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">completeness</span><span class="p">)</span>
-            <span class="n">data</span><span class="p">[</span><span class="s2">&quot;assembly.busco_single_copy&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">single_copy</span><span class="p">)</span>
-            <span class="n">data</span><span class="p">[</span><span class="s2">&quot;assembly.busco_duplicated&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">duplicated</span><span class="p">)</span>
-            <span class="n">data</span><span class="p">[</span><span class="s2">&quot;assembly.busco_fragmented&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">fragmented</span><span class="p">)</span>
-            <span class="n">data</span><span class="p">[</span><span class="s2">&quot;assembly.busco_missing&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">missing</span><span class="p">)</span>
-            <span class="n">data</span><span class="p">[</span><span class="s2">&quot;assembly.busco_total&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">total_buscos</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">mode_match</span> <span class="o">==</span> <span class="s2">&quot;euk_genome_min&quot;</span><span class="p">:</span>
-                <span class="n">data</span><span class="p">[</span><span class="s2">&quot;assembly.busco_erroneus&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">erroneus</span><span class="p">)</span>
+            <span class="n">data</span><span class="p">[</span><span class="s2">"assembly.busco_completeness"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">completeness</span><span class="p">)</span>
+            <span class="n">data</span><span class="p">[</span><span class="s2">"assembly.busco_single_copy"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">single_copy</span><span class="p">)</span>
+            <span class="n">data</span><span class="p">[</span><span class="s2">"assembly.busco_duplicated"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">duplicated</span><span class="p">)</span>
+            <span class="n">data</span><span class="p">[</span><span class="s2">"assembly.busco_fragmented"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">fragmented</span><span class="p">)</span>
+            <span class="n">data</span><span class="p">[</span><span class="s2">"assembly.busco_missing"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">missing</span><span class="p">)</span>
+            <span class="n">data</span><span class="p">[</span><span class="s2">"assembly.busco_total"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">total_buscos</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">mode_match</span> <span class="o">==</span> <span class="s2">"euk_genome_min"</span><span class="p">:</span>
+                <span class="n">data</span><span class="p">[</span><span class="s2">"assembly.busco_erroneus"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">erroneus</span><span class="p">)</span>
 
-            <span class="n">data</span><span class="p">[</span><span class="s2">&quot;assembly.busco&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">score</span><span class="p">)</span>  <span class="c1"># pylint: disable=line-too-long</span>
+            <span class="n">data</span><span class="p">[</span><span class="s2">"assembly.busco"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">score</span><span class="p">)</span>  <span class="c1"># pylint: disable=line-too-long</span>
 
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># Extract the BUSCO version</span>
-            <span class="n">data</span><span class="p">[</span><span class="s2">&quot;genebuild.busco_version&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">version</span><span class="p">)</span>
+            <span class="n">data</span><span class="p">[</span><span class="s2">"genebuild.busco_version"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">version</span><span class="p">)</span>
             <span class="c1"># Extract the BUSCO dataset</span>
-            <span class="n">data</span><span class="p">[</span><span class="s2">&quot;genebuild.busco_dataset&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
+            <span class="n">data</span><span class="p">[</span><span class="s2">"genebuild.busco_dataset"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
             <span class="c1"># Store the BUSCO completeness summary</span>
-            <span class="n">data</span><span class="p">[</span><span class="s2">&quot;genebuild.busco&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">score</span><span class="p">)</span>
-            <span class="n">data</span><span class="p">[</span><span class="s2">&quot;genebuild.busco_mode&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">busco_mode</span>
+            <span class="n">data</span><span class="p">[</span><span class="s2">"genebuild.busco"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">score</span><span class="p">)</span>
+            <span class="n">data</span><span class="p">[</span><span class="s2">"genebuild.busco_mode"</span><span class="p">]</span> <span class="o">=</span> <span class="n">busco_mode</span>
             <span class="c1"># Store the BUSCO values into individual fields</span>
-            <span class="n">data</span><span class="p">[</span><span class="s2">&quot;genebuild.busco_completeness&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">completeness</span><span class="p">)</span>
-            <span class="n">data</span><span class="p">[</span><span class="s2">&quot;genebuild.busco_single_copy&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">single_copy</span><span class="p">)</span>
-            <span class="n">data</span><span class="p">[</span><span class="s2">&quot;genebuild.busco_duplicated&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">duplicated</span><span class="p">)</span>
-            <span class="n">data</span><span class="p">[</span><span class="s2">&quot;genebuild.busco_fragmented&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">fragmented</span><span class="p">)</span>
-            <span class="n">data</span><span class="p">[</span><span class="s2">&quot;genebuild.busco_missing&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">missing</span><span class="p">)</span>
-            <span class="n">data</span><span class="p">[</span><span class="s2">&quot;genebuild.busco_total&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">total_buscos</span><span class="p">)</span>
+            <span class="n">data</span><span class="p">[</span><span class="s2">"genebuild.busco_completeness"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">completeness</span><span class="p">)</span>
+            <span class="n">data</span><span class="p">[</span><span class="s2">"genebuild.busco_single_copy"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">single_copy</span><span class="p">)</span>
+            <span class="n">data</span><span class="p">[</span><span class="s2">"genebuild.busco_duplicated"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">duplicated</span><span class="p">)</span>
+            <span class="n">data</span><span class="p">[</span><span class="s2">"genebuild.busco_fragmented"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">fragmented</span><span class="p">)</span>
+            <span class="n">data</span><span class="p">[</span><span class="s2">"genebuild.busco_missing"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">missing</span><span class="p">)</span>
+            <span class="n">data</span><span class="p">[</span><span class="s2">"genebuild.busco_total"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">total_buscos</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">data</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -4644,7 +4644,7 @@
 
 
 <h3 id="ensembl.genes.metrics.busco_metakeys_patch.process_busco_file" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">process_busco_file</span><span class="p">(</span><span class="n">busco_file</span><span class="p">,</span> <span class="n">dbname</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">,</span> <span class="n">assembly_id</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">species_id</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">process_busco_file</span><span class="p">(</span><span class="n">busco_file</span><span class="p">,</span> <span class="n">dbname</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">,</span> <span class="n">assembly_id</span><span class="o">=</span><span class="s1">''</span><span class="p">,</span> <span class="n">species_id</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span></code>
 
 <a href="#ensembl.genes.metrics.busco_metakeys_patch.process_busco_file" class="headerlink" title="Permanent link">&para;</a></h3>
 
@@ -4829,10 +4829,10 @@ and generates SQL patches.</p>
     <span class="n">busco_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">dbname</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">output_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-    <span class="n">assembly_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+    <span class="n">assembly_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">""</span><span class="p">,</span>
     <span class="n">species_id</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Parses the BUSCO file, generates a JSON, writes it to an output file,</span>
 <span class="sd">    and generates SQL patches.</span>
 
@@ -4845,27 +4845,27 @@ and generates SQL patches.</p>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        str: list of Mysql patches</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="c1"># Parse the BUSCO file and generate the JSON</span>
     <span class="n">busco_data</span> <span class="o">=</span> <span class="n">parse_busco_file</span><span class="p">(</span><span class="n">busco_file</span><span class="p">)</span>
 
     <span class="c1"># Determine the file name based on the mode (protein or genome)</span>
     <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">busco_data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-        <span class="k">if</span> <span class="n">key</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.busco_mode&quot;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">key</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">".busco_mode"</span><span class="p">):</span>
             <span class="n">busco_mode</span> <span class="o">=</span> <span class="n">value</span>
             <span class="k">break</span>  <span class="c1"># Exit the loop once we find the first match</span>
 
-    <span class="n">output_file_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">dbname</span><span class="si">}</span><span class="s2">_busco_</span><span class="si">{</span><span class="n">busco_mode</span><span class="si">}</span><span class="s2">_metakey.json&quot;</span>
+    <span class="n">output_file_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">dbname</span><span class="si">}</span><span class="s2">_busco_</span><span class="si">{</span><span class="n">busco_mode</span><span class="si">}</span><span class="s2">_metakey.json"</span>
     <span class="n">busco_data_json</span> <span class="o">=</span> <span class="n">busco_data</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-    <span class="n">busco_data_json</span><span class="p">[</span><span class="s2">&quot;core_db&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dbname</span>
-    <span class="n">busco_data_json</span><span class="p">[</span><span class="s2">&quot;assembly_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">assembly_id</span>
+    <span class="n">busco_data_json</span><span class="p">[</span><span class="s2">"core_db"</span><span class="p">]</span> <span class="o">=</span> <span class="n">dbname</span>
+    <span class="n">busco_data_json</span><span class="p">[</span><span class="s2">"assembly_id"</span><span class="p">]</span> <span class="o">=</span> <span class="n">assembly_id</span>
     <span class="c1"># Convert the dictionary to a JSON object</span>
     <span class="n">busco_json</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">busco_data_json</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
 
     <span class="c1"># Write the JSON output to the dynamically named file</span>
     <span class="n">output_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">output_dir</span><span class="p">)</span> <span class="o">/</span> <span class="n">output_file_name</span>
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span>
-        <span class="n">output_path</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span>
+        <span class="n">output_path</span><span class="p">,</span> <span class="s2">"w"</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8"</span>
     <span class="p">)</span> <span class="k">as</span> <span class="n">outfile</span><span class="p">:</span>  <span class="c1"># pylint: disable =unspecified-encoding</span>
         <span class="n">outfile</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">busco_json</span><span class="p">)</span>
 

@@ -3746,7 +3746,7 @@
 
 
 <h3 id="ensembl.genes.ensembl_loading.gff_core_loader.load_gff_features_to_core" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">load_gff_features_to_core</span><span class="p">(</span><span class="n">gff_path</span><span class="p">,</span> <span class="n">db_name</span><span class="p">,</span> <span class="n">db_host</span><span class="p">,</span> <span class="n">db_user</span><span class="p">,</span> <span class="n">db_password</span><span class="p">,</span> <span class="n">db_port</span><span class="p">,</span> <span class="n">coord_system_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">coord_system_name</span><span class="o">=</span><span class="s1">&#39;primary_assembly&#39;</span><span class="p">,</span> <span class="n">coord_system_version</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">source_config</span><span class="o">=</span><span class="n">GENERIC_GFF_CONFIG</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">deduplicate_exons</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">load_gff_features_to_core</span><span class="p">(</span><span class="n">gff_path</span><span class="p">,</span> <span class="n">db_name</span><span class="p">,</span> <span class="n">db_host</span><span class="p">,</span> <span class="n">db_user</span><span class="p">,</span> <span class="n">db_password</span><span class="p">,</span> <span class="n">db_port</span><span class="p">,</span> <span class="n">coord_system_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">coord_system_name</span><span class="o">=</span><span class="s1">'primary_assembly'</span><span class="p">,</span> <span class="n">coord_system_version</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">source_config</span><span class="o">=</span><span class="n">GENERIC_GFF_CONFIG</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">deduplicate_exons</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></code>
 
 <a href="#ensembl.genes.ensembl_loading.gff_core_loader.load_gff_features_to_core" class="headerlink" title="Permanent link">&para;</a></h3>
 
@@ -3883,19 +3883,19 @@ the GFF seqids.</p>
     <span class="n">db_password</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">db_port</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">coord_system_id</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">coord_system_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;primary_assembly&quot;</span><span class="p">,</span>
+    <span class="n">coord_system_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"primary_assembly"</span><span class="p">,</span>
     <span class="n">coord_system_version</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">source_config</span><span class="p">:</span> <span class="n">GffSourceConfig</span> <span class="o">=</span> <span class="n">GENERIC_GFF_CONFIG</span><span class="p">,</span>
     <span class="n">logger</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">deduplicate_exons</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Load GFF3/GTF features into an existing Ensembl core database.</span>
+<span class="w">    </span><span class="sd">"""Load GFF3/GTF features into an existing Ensembl core database.</span>
 
 <span class="sd">    This path is for generic GFF loading. It does not create the database, load</span>
 <span class="sd">    schema SQL, insert assembly metadata, or load DNA. The target core database</span>
 <span class="sd">    must already contain matching ``coord_system`` and ``seq_region`` rows for</span>
 <span class="sd">    the GFF seqids.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="n">log</span> <span class="o">=</span> <span class="n">logger</span> <span class="ow">or</span> <span class="n">LOGGER</span>
     <span class="n">annotation</span> <span class="o">=</span> <span class="n">prepare_annotation_for_load</span><span class="p">(</span>
@@ -3904,7 +3904,7 @@ the GFF seqids.</p>
         <span class="n">source_config</span><span class="o">=</span><span class="n">source_config</span><span class="p">,</span>
     <span class="p">)</span>
 
-    <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Connecting to MySQL core database </span><span class="si">%s</span><span class="s2"> on </span><span class="si">%s</span><span class="s2">:</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">db_name</span><span class="p">,</span> <span class="n">db_host</span><span class="p">,</span> <span class="n">db_port</span><span class="p">)</span>
+    <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"Connecting to MySQL core database </span><span class="si">%s</span><span class="s2"> on </span><span class="si">%s</span><span class="s2">:</span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">db_name</span><span class="p">,</span> <span class="n">db_host</span><span class="p">,</span> <span class="n">db_port</span><span class="p">)</span>
     <span class="n">connection</span> <span class="o">=</span> <span class="n">connect_mysql</span><span class="p">(</span>
         <span class="n">db_host</span><span class="o">=</span><span class="n">db_host</span><span class="p">,</span>
         <span class="n">db_user</span><span class="o">=</span><span class="n">db_user</span><span class="p">,</span>
@@ -3962,27 +3962,27 @@ the GFF seqids.</p>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">quality_report</span><span class="o">.</span><span class="n">passed</span><span class="p">:</span>
             <span class="n">emit_quality_report</span><span class="p">(</span><span class="n">quality_report</span><span class="p">,</span> <span class="n">log</span><span class="p">)</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s2">&quot;Post-load GFF core quality check failed: &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">quality_report</span><span class="o">.</span><span class="n">failure_summary</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="s2">"Post-load GFF core quality check failed: "</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">quality_report</span><span class="o">.</span><span class="n">failure_summary</span><span class="p">()</span><span class="si">}</span><span class="s2">"</span>
             <span class="p">)</span>
         <span class="n">connection</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
         <span class="n">emit_quality_report</span><span class="p">(</span><span class="n">quality_report</span><span class="p">,</span> <span class="n">log</span><span class="p">)</span>
         <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-            <span class="s2">&quot;Loaded </span><span class="si">%s</span><span class="s2"> GFF features into </span><span class="si">%s</span><span class="s2">: </span><span class="si">%s</span><span class="s2"> genes, </span><span class="si">%s</span><span class="s2"> transcripts&quot;</span><span class="p">,</span>
+            <span class="s2">"Loaded </span><span class="si">%s</span><span class="s2"> GFF features into </span><span class="si">%s</span><span class="s2">: </span><span class="si">%s</span><span class="s2"> genes, </span><span class="si">%s</span><span class="s2"> transcripts"</span><span class="p">,</span>
             <span class="n">source_config</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
             <span class="n">db_name</span><span class="p">,</span>
             <span class="nb">len</span><span class="p">(</span><span class="n">annotation</span><span class="o">.</span><span class="n">genes</span><span class="p">),</span>
             <span class="nb">len</span><span class="p">(</span><span class="n">annotation</span><span class="o">.</span><span class="n">transcripts</span><span class="p">),</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="p">{</span>
-            <span class="s2">&quot;genes&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">annotation</span><span class="o">.</span><span class="n">genes</span><span class="p">),</span>
-            <span class="s2">&quot;transcripts&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">annotation</span><span class="o">.</span><span class="n">transcripts</span><span class="p">),</span>
-            <span class="s2">&quot;cds_transcript_groups&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">annotation</span><span class="o">.</span><span class="n">cds_segments</span><span class="p">),</span>
+            <span class="s2">"genes"</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">annotation</span><span class="o">.</span><span class="n">genes</span><span class="p">),</span>
+            <span class="s2">"transcripts"</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">annotation</span><span class="o">.</span><span class="n">transcripts</span><span class="p">),</span>
+            <span class="s2">"cds_transcript_groups"</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">annotation</span><span class="o">.</span><span class="n">cds_segments</span><span class="p">),</span>
         <span class="p">}</span>
     <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
         <span class="n">connection</span><span class="o">.</span><span class="n">rollback</span><span class="p">()</span>
         <span class="n">log</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span>
-            <span class="s2">&quot;Failed loading </span><span class="si">%s</span><span class="s2"> GFF features into </span><span class="si">%s</span><span class="s2">; transaction rolled back&quot;</span><span class="p">,</span>
+            <span class="s2">"Failed loading </span><span class="si">%s</span><span class="s2"> GFF features into </span><span class="si">%s</span><span class="s2">; transaction rolled back"</span><span class="p">,</span>
             <span class="n">source_config</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
             <span class="n">db_name</span><span class="p">,</span>
         <span class="p">)</span>
@@ -4150,7 +4150,7 @@ together. Sequence names must already be converted in the GFF3 and FASTA.</p>
     <span class="n">source_config</span><span class="p">:</span> <span class="n">GffSourceConfig</span> <span class="o">=</span> <span class="n">REFSEQ_CONFIG</span><span class="p">,</span>
     <span class="n">deduplicate_exons</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Load converted GFF3/GTF and FASTA files into an Ensembl-style core database.</span>
+<span class="w">    </span><span class="sd">"""Load converted GFF3/GTF and FASTA files into an Ensembl-style core database.</span>
 
 <span class="sd">    The ``assembly_report_path`` argument is retained for API symmetry with the</span>
 <span class="sd">    original script and for callers that pass the three canonical source files</span>
@@ -4160,7 +4160,7 @@ together. Sequence names must already be converted in the GFF3 and FASTA.</p>
 <span class="sd">    -------</span>
 <span class="sd">    str</span>
 <span class="sd">        The database name that was created or reused.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">log</span> <span class="o">=</span> <span class="n">logger</span> <span class="ow">or</span> <span class="n">LOGGER</span>
     <span class="n">db_name</span> <span class="o">=</span> <span class="n">derive_core_db_name</span><span class="p">(</span>
         <span class="n">species_name</span><span class="p">,</span>
@@ -4168,7 +4168,7 @@ together. Sequence names must already be converted in the GFF3 and FASTA.</p>
         <span class="n">source_config</span><span class="o">=</span><span class="n">source_config</span><span class="p">,</span>
     <span class="p">)</span>
 
-    <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Connecting to MySQL server </span><span class="si">%s</span><span class="s2">:</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">db_host</span><span class="p">,</span> <span class="n">db_port</span><span class="p">)</span>
+    <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"Connecting to MySQL server </span><span class="si">%s</span><span class="s2">:</span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">db_host</span><span class="p">,</span> <span class="n">db_port</span><span class="p">)</span>
     <span class="n">connection</span> <span class="o">=</span> <span class="n">connect_mysql</span><span class="p">(</span>
         <span class="n">db_host</span><span class="o">=</span><span class="n">db_host</span><span class="p">,</span>
         <span class="n">db_user</span><span class="o">=</span><span class="n">db_user</span><span class="p">,</span>
@@ -4177,14 +4177,14 @@ together. Sequence names must already be converted in the GFF3 and FASTA.</p>
     <span class="p">)</span>
     <span class="n">cursor</span> <span class="o">=</span> <span class="n">connection</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
     <span class="k">try</span><span class="p">:</span>
-        <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;CREATE DATABASE IF NOT EXISTS </span><span class="si">{</span><span class="n">db_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;USE </span><span class="si">{</span><span class="n">db_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="sa">f</span><span class="s2">"CREATE DATABASE IF NOT EXISTS </span><span class="si">{</span><span class="n">db_name</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="sa">f</span><span class="s2">"USE </span><span class="si">{</span><span class="n">db_name</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
         <span class="n">resolved_schema_sql_path</span> <span class="o">=</span> <span class="n">resolve_schema_sql_path</span><span class="p">(</span><span class="n">schema_sql_path</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">resolved_schema_sql_path</span><span class="p">:</span>
-            <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Loading schema SQL from </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">resolved_schema_sql_path</span><span class="p">)</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"Loading schema SQL from </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">resolved_schema_sql_path</span><span class="p">)</span>
             <span class="n">load_schema_sql</span><span class="p">(</span><span class="n">cursor</span><span class="p">,</span> <span class="n">resolved_schema_sql_path</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Skipping schema SQL loading&quot;</span><span class="p">)</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"Skipping schema SQL loading"</span><span class="p">)</span>
 
         <span class="n">coord_system_id</span><span class="p">,</span> <span class="n">analysis_id</span> <span class="o">=</span> <span class="n">initialise_core_tables</span><span class="p">(</span>
             <span class="n">cursor</span><span class="p">,</span>
@@ -4237,17 +4237,17 @@ together. Sequence names must already be converted in the GFF3 and FASTA.</p>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">quality_report</span><span class="o">.</span><span class="n">passed</span><span class="p">:</span>
             <span class="n">emit_quality_report</span><span class="p">(</span><span class="n">quality_report</span><span class="p">,</span> <span class="n">log</span><span class="p">)</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s2">&quot;Post-load GFF core quality check failed: &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">quality_report</span><span class="o">.</span><span class="n">failure_summary</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="s2">"Post-load GFF core quality check failed: "</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">quality_report</span><span class="o">.</span><span class="n">failure_summary</span><span class="p">()</span><span class="si">}</span><span class="s2">"</span>
             <span class="p">)</span>
         <span class="n">connection</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
         <span class="n">emit_quality_report</span><span class="p">(</span><span class="n">quality_report</span><span class="p">,</span> <span class="n">log</span><span class="p">)</span>
-        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Loaded </span><span class="si">%s</span><span class="s2"> annotation into </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">source_config</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">db_name</span><span class="p">)</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"Loaded </span><span class="si">%s</span><span class="s2"> annotation into </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">source_config</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">db_name</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">db_name</span>
     <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
         <span class="n">connection</span><span class="o">.</span><span class="n">rollback</span><span class="p">()</span>
         <span class="n">log</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span>
-            <span class="s2">&quot;Failed loading </span><span class="si">%s</span><span class="s2"> annotation into </span><span class="si">%s</span><span class="s2">; transaction rolled back&quot;</span><span class="p">,</span>
+            <span class="s2">"Failed loading </span><span class="si">%s</span><span class="s2"> annotation into </span><span class="si">%s</span><span class="s2">; transaction rolled back"</span><span class="p">,</span>
             <span class="n">source_config</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
             <span class="n">db_name</span><span class="p">,</span>
         <span class="p">)</span>

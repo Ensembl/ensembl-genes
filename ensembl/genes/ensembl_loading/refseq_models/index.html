@@ -4196,7 +4196,7 @@
 <span class="normal">23</span>
 <span class="normal">24</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">AssemblyPaths</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;FTP and local paths for one RefSeq assembly.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""FTP and local paths for one RefSeq assembly."""</span>
 
     <span class="n">assembly_accession</span><span class="p">:</span> <span class="nb">str</span>
     <span class="n">ftp_path</span><span class="p">:</span> <span class="nb">str</span>
@@ -4501,7 +4501,7 @@
 <span class="normal">63</span>
 <span class="normal">64</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">AssemblySummaryRecord</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Parsed row from an NCBI RefSeq assembly summary file.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Parsed row from an NCBI RefSeq assembly summary file."""</span>
 
     <span class="n">group</span><span class="p">:</span> <span class="nb">str</span>
     <span class="n">assembly_accession</span><span class="p">:</span> <span class="nb">str</span>
@@ -4515,27 +4515,27 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">downloaded</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return True when the expected local assembly directory exists.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return True when the expected local assembly directory exists."""</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">paths</span><span class="o">.</span><span class="n">assembly_dir</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">to_metadata_row</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a TSV-ready metadata row compatible with the old script.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return a TSV-ready metadata row compatible with the old script."""</span>
 
         <span class="k">return</span> <span class="p">{</span>
-            <span class="s2">&quot;group&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">group</span><span class="p">,</span>
-            <span class="s2">&quot;species_name&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">species_name</span><span class="p">,</span>
-            <span class="s2">&quot;taxon_id&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">taxon_id</span><span class="p">,</span>
-            <span class="s2">&quot;assembly_accession&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">assembly_accession</span><span class="p">,</span>
-            <span class="s2">&quot;assembly_name&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">assembly_name</span><span class="p">,</span>
-            <span class="s2">&quot;ftp_path&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">ftp_path</span><span class="p">,</span>
-            <span class="s2">&quot;gff3_ftp&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">paths</span><span class="o">.</span><span class="n">gff_url</span><span class="p">,</span>
-            <span class="s2">&quot;fasta_ftp&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">paths</span><span class="o">.</span><span class="n">fasta_url</span><span class="p">,</span>
-            <span class="s2">&quot;assembly_report_ftp&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">paths</span><span class="o">.</span><span class="n">assembly_report_url</span><span class="p">,</span>
-            <span class="s2">&quot;gff3_local&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">paths</span><span class="o">.</span><span class="n">gff_local</span><span class="p">),</span>
-            <span class="s2">&quot;fasta_local&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">paths</span><span class="o">.</span><span class="n">fasta_local</span><span class="p">),</span>
-            <span class="s2">&quot;assembly_report_local&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">paths</span><span class="o">.</span><span class="n">assembly_report_local</span><span class="p">),</span>
-            <span class="s2">&quot;downloaded&quot;</span><span class="p">:</span> <span class="s2">&quot;Downloaded&quot;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">downloaded</span> <span class="k">else</span> <span class="s2">&quot;Not downloaded&quot;</span><span class="p">,</span>
+            <span class="s2">"group"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">group</span><span class="p">,</span>
+            <span class="s2">"species_name"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">species_name</span><span class="p">,</span>
+            <span class="s2">"taxon_id"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">taxon_id</span><span class="p">,</span>
+            <span class="s2">"assembly_accession"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">assembly_accession</span><span class="p">,</span>
+            <span class="s2">"assembly_name"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">assembly_name</span><span class="p">,</span>
+            <span class="s2">"ftp_path"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">ftp_path</span><span class="p">,</span>
+            <span class="s2">"gff3_ftp"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">paths</span><span class="o">.</span><span class="n">gff_url</span><span class="p">,</span>
+            <span class="s2">"fasta_ftp"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">paths</span><span class="o">.</span><span class="n">fasta_url</span><span class="p">,</span>
+            <span class="s2">"assembly_report_ftp"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">paths</span><span class="o">.</span><span class="n">assembly_report_url</span><span class="p">,</span>
+            <span class="s2">"gff3_local"</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">paths</span><span class="o">.</span><span class="n">gff_local</span><span class="p">),</span>
+            <span class="s2">"fasta_local"</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">paths</span><span class="o">.</span><span class="n">fasta_local</span><span class="p">),</span>
+            <span class="s2">"assembly_report_local"</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">paths</span><span class="o">.</span><span class="n">assembly_report_local</span><span class="p">),</span>
+            <span class="s2">"downloaded"</span><span class="p">:</span> <span class="s2">"Downloaded"</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">downloaded</span> <span class="k">else</span> <span class="s2">"Not downloaded"</span><span class="p">,</span>
         <span class="p">}</span>
 </code></pre></div></td></tr></table></div>
               </details>
@@ -4789,22 +4789,22 @@
 <span class="normal">62</span>
 <span class="normal">63</span>
 <span class="normal">64</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">to_metadata_row</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a TSV-ready metadata row compatible with the old script.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Return a TSV-ready metadata row compatible with the old script."""</span>
 
     <span class="k">return</span> <span class="p">{</span>
-        <span class="s2">&quot;group&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">group</span><span class="p">,</span>
-        <span class="s2">&quot;species_name&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">species_name</span><span class="p">,</span>
-        <span class="s2">&quot;taxon_id&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">taxon_id</span><span class="p">,</span>
-        <span class="s2">&quot;assembly_accession&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">assembly_accession</span><span class="p">,</span>
-        <span class="s2">&quot;assembly_name&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">assembly_name</span><span class="p">,</span>
-        <span class="s2">&quot;ftp_path&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">ftp_path</span><span class="p">,</span>
-        <span class="s2">&quot;gff3_ftp&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">paths</span><span class="o">.</span><span class="n">gff_url</span><span class="p">,</span>
-        <span class="s2">&quot;fasta_ftp&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">paths</span><span class="o">.</span><span class="n">fasta_url</span><span class="p">,</span>
-        <span class="s2">&quot;assembly_report_ftp&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">paths</span><span class="o">.</span><span class="n">assembly_report_url</span><span class="p">,</span>
-        <span class="s2">&quot;gff3_local&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">paths</span><span class="o">.</span><span class="n">gff_local</span><span class="p">),</span>
-        <span class="s2">&quot;fasta_local&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">paths</span><span class="o">.</span><span class="n">fasta_local</span><span class="p">),</span>
-        <span class="s2">&quot;assembly_report_local&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">paths</span><span class="o">.</span><span class="n">assembly_report_local</span><span class="p">),</span>
-        <span class="s2">&quot;downloaded&quot;</span><span class="p">:</span> <span class="s2">&quot;Downloaded&quot;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">downloaded</span> <span class="k">else</span> <span class="s2">&quot;Not downloaded&quot;</span><span class="p">,</span>
+        <span class="s2">"group"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">group</span><span class="p">,</span>
+        <span class="s2">"species_name"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">species_name</span><span class="p">,</span>
+        <span class="s2">"taxon_id"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">taxon_id</span><span class="p">,</span>
+        <span class="s2">"assembly_accession"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">assembly_accession</span><span class="p">,</span>
+        <span class="s2">"assembly_name"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">assembly_name</span><span class="p">,</span>
+        <span class="s2">"ftp_path"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">ftp_path</span><span class="p">,</span>
+        <span class="s2">"gff3_ftp"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">paths</span><span class="o">.</span><span class="n">gff_url</span><span class="p">,</span>
+        <span class="s2">"fasta_ftp"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">paths</span><span class="o">.</span><span class="n">fasta_url</span><span class="p">,</span>
+        <span class="s2">"assembly_report_ftp"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">paths</span><span class="o">.</span><span class="n">assembly_report_url</span><span class="p">,</span>
+        <span class="s2">"gff3_local"</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">paths</span><span class="o">.</span><span class="n">gff_local</span><span class="p">),</span>
+        <span class="s2">"fasta_local"</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">paths</span><span class="o">.</span><span class="n">fasta_local</span><span class="p">),</span>
+        <span class="s2">"assembly_report_local"</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">paths</span><span class="o">.</span><span class="n">assembly_report_local</span><span class="p">),</span>
+        <span class="s2">"downloaded"</span><span class="p">:</span> <span class="s2">"Downloaded"</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">downloaded</span> <span class="k">else</span> <span class="s2">"Not downloaded"</span><span class="p">,</span>
     <span class="p">}</span>
 </code></pre></div></td></tr></table></div>
             </details>

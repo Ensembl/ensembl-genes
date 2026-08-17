@@ -3768,16 +3768,16 @@ Performs web scraping for submitters and HPRC population data.</p>
 <span class="normal">113</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">patch_ncbi_data</span><span class="p">(</span>  <span class="c1"># pylint: disable=too-many-branches</span>
     <span class="n">meta</span><span class="p">:</span> <span class="n">GenomeMetadata</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">ProjectConfig</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Modifies the GenomeMetadata inline with NCBI scraped data.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Modifies the GenomeMetadata inline with NCBI scraped data."""</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">scrape_ncbi_submitter</span> <span class="ow">or</span> <span class="n">config</span><span class="o">.</span><span class="n">scrape_ncbi_population</span><span class="p">):</span>
         <span class="k">return</span>
 
     <span class="c1"># First, always get the assembly page to find submitters and the biosample ID</span>
-    <span class="n">assembly_url</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;https://www.ncbi.nlm.nih.gov/assembly/</span><span class="si">{</span><span class="n">meta</span><span class="o">.</span><span class="n">accession</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="n">assembly_url</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"https://www.ncbi.nlm.nih.gov/assembly/</span><span class="si">{</span><span class="n">meta</span><span class="o">.</span><span class="n">accession</span><span class="si">}</span><span class="s2">"</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="n">assembly_html</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">assembly_url</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()</span>
     <span class="k">except</span> <span class="n">requests</span><span class="o">.</span><span class="n">RequestException</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Failed to fetch assembly page for </span><span class="si">%s</span><span class="s2">: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">meta</span><span class="o">.</span><span class="n">accession</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">"Failed to fetch assembly page for </span><span class="si">%s</span><span class="s2">: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">meta</span><span class="o">.</span><span class="n">accession</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
         <span class="k">return</span>
 
     <span class="n">biosample_id</span> <span class="o">=</span> <span class="kc">None</span>
@@ -3786,13 +3786,13 @@ Performs web scraping for submitters and HPRC population data.</p>
         <span class="c1"># Find Submitter for standard projects</span>
         <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">scrape_ncbi_submitter</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">meta</span><span class="o">.</span><span class="n">assembly_submitter</span><span class="p">:</span>
             <span class="c1"># Parse the submitter from the NCBI assembly page HTML</span>
-            <span class="n">sub_regex</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;Submitter&lt;\/dt&gt;&lt;dd&gt;([^&lt;]+)&lt;\/dd&gt;&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span>
+            <span class="n">sub_regex</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">"Submitter&lt;\/dt&gt;&lt;dd&gt;([^&lt;]+)&lt;\/dd&gt;"</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">sub_regex</span><span class="p">:</span>
                 <span class="n">meta</span><span class="o">.</span><span class="n">assembly_submitter</span> <span class="o">=</span> <span class="n">sub_regex</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">title</span><span class="p">()</span>
 
         <span class="c1"># Find BioSample link</span>
         <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">scrape_ncbi_population</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">biosample_id</span><span class="p">:</span>
-            <span class="n">bio_regex</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\/biosample\/([A-Z0-9]+)\/</span><span class="se">\&quot;</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span>
+            <span class="n">bio_regex</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">"\/biosample\/([A-Z0-9]+)\/</span><span class="se">\"</span><span class="s2">"</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">bio_regex</span><span class="p">:</span>
                 <span class="n">biosample_id</span> <span class="o">=</span> <span class="n">bio_regex</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 
@@ -3805,25 +3805,25 @@ Performs web scraping for submitters and HPRC population data.</p>
     <span class="c1"># Fallback heuristic for parent_of_origin if authoritative metadata is missing</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">meta</span><span class="o">.</span><span class="n">parent_of_origin</span> <span class="ow">and</span> <span class="n">meta</span><span class="o">.</span><span class="n">assembly_name</span><span class="p">:</span>
         <span class="n">asm_lower</span> <span class="o">=</span> <span class="n">meta</span><span class="o">.</span><span class="n">assembly_name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
-        <span class="k">if</span> <span class="s2">&quot;_mat&quot;</span> <span class="ow">in</span> <span class="n">asm_lower</span> <span class="ow">or</span> <span class="s2">&quot;maternal&quot;</span> <span class="ow">in</span> <span class="n">asm_lower</span><span class="p">:</span>
-            <span class="n">meta</span><span class="o">.</span><span class="n">parent_of_origin</span> <span class="o">=</span> <span class="s2">&quot;maternal&quot;</span>
+        <span class="k">if</span> <span class="s2">"_mat"</span> <span class="ow">in</span> <span class="n">asm_lower</span> <span class="ow">or</span> <span class="s2">"maternal"</span> <span class="ow">in</span> <span class="n">asm_lower</span><span class="p">:</span>
+            <span class="n">meta</span><span class="o">.</span><span class="n">parent_of_origin</span> <span class="o">=</span> <span class="s2">"maternal"</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                <span class="s2">&quot;Fallback heuristic used for </span><span class="si">%s</span><span class="s2">: inferred maternal parent_of_origin.&quot;</span><span class="p">,</span>
+                <span class="s2">"Fallback heuristic used for </span><span class="si">%s</span><span class="s2">: inferred maternal parent_of_origin."</span><span class="p">,</span>
                 <span class="n">meta</span><span class="o">.</span><span class="n">accession</span><span class="p">,</span>
             <span class="p">)</span>
-        <span class="k">elif</span> <span class="s2">&quot;_pat&quot;</span> <span class="ow">in</span> <span class="n">asm_lower</span> <span class="ow">or</span> <span class="s2">&quot;paternal&quot;</span> <span class="ow">in</span> <span class="n">asm_lower</span><span class="p">:</span>
-            <span class="n">meta</span><span class="o">.</span><span class="n">parent_of_origin</span> <span class="o">=</span> <span class="s2">&quot;paternal&quot;</span>
+        <span class="k">elif</span> <span class="s2">"_pat"</span> <span class="ow">in</span> <span class="n">asm_lower</span> <span class="ow">or</span> <span class="s2">"paternal"</span> <span class="ow">in</span> <span class="n">asm_lower</span><span class="p">:</span>
+            <span class="n">meta</span><span class="o">.</span><span class="n">parent_of_origin</span> <span class="o">=</span> <span class="s2">"paternal"</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                <span class="s2">&quot;Fallback heuristic used for </span><span class="si">%s</span><span class="s2">: inferred paternal parent_of_origin.&quot;</span><span class="p">,</span>
+                <span class="s2">"Fallback heuristic used for </span><span class="si">%s</span><span class="s2">: inferred paternal parent_of_origin."</span><span class="p">,</span>
                 <span class="n">meta</span><span class="o">.</span><span class="n">accession</span><span class="p">,</span>
             <span class="p">)</span>
 
     <span class="c1"># Hardcoded override for HPRC project</span>
-    <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">schema_type</span> <span class="o">==</span> <span class="s2">&quot;hprc&quot;</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">meta</span><span class="o">.</span><span class="n">accession</span> <span class="o">==</span> <span class="s2">&quot;GCA_009914755.4&quot;</span><span class="p">:</span>
-            <span class="n">meta</span><span class="o">.</span><span class="n">assembly_submitter</span> <span class="o">=</span> <span class="s2">&quot;T2T Consortium&quot;</span>
+    <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">schema_type</span> <span class="o">==</span> <span class="s2">"hprc"</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">meta</span><span class="o">.</span><span class="n">accession</span> <span class="o">==</span> <span class="s2">"GCA_009914755.4"</span><span class="p">:</span>
+            <span class="n">meta</span><span class="o">.</span><span class="n">assembly_submitter</span> <span class="o">=</span> <span class="s2">"T2T Consortium"</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">meta</span><span class="o">.</span><span class="n">assembly_submitter</span> <span class="o">=</span> <span class="s2">&quot;UCSC Genomics Institute&quot;</span>
+            <span class="n">meta</span><span class="o">.</span><span class="n">assembly_submitter</span> <span class="o">=</span> <span class="s2">"UCSC Genomics Institute"</span>
 
     <span class="c1"># Scrape BioSample page if needed</span>
     <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">scrape_ncbi_population</span> <span class="ow">and</span> <span class="n">biosample_id</span><span class="p">:</span>

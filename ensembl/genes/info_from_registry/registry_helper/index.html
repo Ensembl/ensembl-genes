@@ -3890,7 +3890,7 @@ that are shared across multiple scripts.</p>
 <span class="normal">56</span>
 <span class="normal">57</span>
 <span class="normal">58</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">fetch_assembly_id</span><span class="p">(</span><span class="n">connection</span><span class="p">:</span> <span class="n">RegistryConnection</span><span class="p">,</span> <span class="n">assembly</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Fetch the assembly ID for a given assembly accession.</span>
 
 <span class="sd">    Args:</span>
@@ -3898,11 +3898,11 @@ that are shared across multiple scripts.</p>
 <span class="sd">        assembly (str): Assembly Accession (GCA format like GCA_123456789.1)</span>
 <span class="sd">    Returns:</span>
 <span class="sd">        int: Assembly ID if found, else None</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="sd">    """</span>
+    <span class="n">query</span> <span class="o">=</span> <span class="s2">"""</span>
 <span class="s2">    SELECT assembly_id FROM assembly</span>
-<span class="s2">    WHERE CONCAT(gca_chain, &#39;.&#39;, gca_version) = </span><span class="si">%s</span>
-<span class="s2">    &quot;&quot;&quot;</span>
+<span class="s2">    WHERE CONCAT(gca_chain, '.', gca_version) = </span><span class="si">%s</span>
+<span class="s2">    """</span>
 
     <span class="k">with</span> <span class="n">connection</span><span class="o">.</span><span class="n">cursor</span><span class="p">(</span><span class="n">pymysql</span><span class="o">.</span><span class="n">cursors</span><span class="o">.</span><span class="n">DictCursor</span><span class="p">)</span> <span class="k">as</span> <span class="n">cursor</span><span class="p">:</span>
         <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="p">(</span><span class="n">assembly</span><span class="p">,))</span>
@@ -3911,7 +3911,7 @@ that are shared across multiple scripts.</p>
     <span class="k">if</span> <span class="n">result</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">None</span>
     <span class="n">result_dict</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="n">result</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">result_dict</span><span class="p">[</span><span class="s2">&quot;assembly_id&quot;</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">result_dict</span><span class="p">[</span><span class="s2">"assembly_id"</span><span class="p">]</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -4047,7 +4047,7 @@ that are shared across multiple scripts.</p>
     <span class="n">assembly</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">genebuilder</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Fetch the full current genebuild record for a given assembly.</span>
 
 <span class="sd">    Args:</span>
@@ -4058,21 +4058,21 @@ that are shared across multiple scripts.</p>
 <span class="sd">    Returns:</span>
 <span class="sd">        dict: Record with genebuild_status_id, gb_status, genebuilder,\</span>
 <span class="sd">            annotation_method, genebuild_version, and other fields if found, else None</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">params</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">()</span>
     <span class="k">if</span> <span class="n">genebuilder</span><span class="p">:</span>
-        <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="s2">"""</span>
 <span class="s2">        SELECT genebuild_status_id, gb_status, genebuilder, annotation_method, genebuild_version</span>
 <span class="s2">        FROM genebuild_status</span>
 <span class="s2">        WHERE gca_accession = </span><span class="si">%s</span><span class="s2"> AND genebuilder = </span><span class="si">%s</span><span class="s2"> AND last_attempt = 1</span>
-<span class="s2">        &quot;&quot;&quot;</span>
+<span class="s2">        """</span>
         <span class="n">params</span> <span class="o">=</span> <span class="p">(</span><span class="n">assembly</span><span class="p">,</span> <span class="n">genebuilder</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="s2">"""</span>
 <span class="s2">        SELECT genebuild_status_id, gb_status, genebuilder, annotation_method, genebuild_version</span>
 <span class="s2">        FROM genebuild_status</span>
 <span class="s2">        WHERE gca_accession = </span><span class="si">%s</span><span class="s2"> AND last_attempt = 1</span>
-<span class="s2">        &quot;&quot;&quot;</span>
+<span class="s2">        """</span>
         <span class="n">params</span> <span class="o">=</span> <span class="p">(</span><span class="n">assembly</span><span class="p">,)</span>
 
     <span class="k">with</span> <span class="n">connection</span><span class="o">.</span><span class="n">cursor</span><span class="p">(</span><span class="n">pymysql</span><span class="o">.</span><span class="n">cursors</span><span class="o">.</span><span class="n">DictCursor</span><span class="p">)</span> <span class="k">as</span> <span class="n">cursor</span><span class="p">:</span>
@@ -4173,7 +4173,7 @@ that are shared across multiple scripts.</p>
 <span class="normal">116</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">fetch_genebuild_status_id</span><span class="p">(</span>
     <span class="n">connection</span><span class="p">:</span> <span class="n">RegistryConnection</span><span class="p">,</span> <span class="n">assembly</span><span class="p">:</span> <span class="nb">str</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Fetch the current genebuild status ID for a given assembly.</span>
 
 <span class="sd">    Args:</span>
@@ -4181,9 +4181,9 @@ that are shared across multiple scripts.</p>
 <span class="sd">        assembly (str): Assembly Accession (GCA format)</span>
 <span class="sd">    Returns:</span>
 <span class="sd">        int: genebuild_status_id if found (where last_attempt=1), else None</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">record</span> <span class="o">=</span> <span class="n">fetch_current_genebuild_record</span><span class="p">(</span><span class="n">connection</span><span class="p">,</span> <span class="n">assembly</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">record</span><span class="p">[</span><span class="s2">&quot;genebuild_status_id&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="n">record</span> <span class="k">else</span> <span class="kc">None</span>
+    <span class="k">return</span> <span class="n">record</span><span class="p">[</span><span class="s2">"genebuild_status_id"</span><span class="p">]</span> <span class="k">if</span> <span class="n">record</span> <span class="k">else</span> <span class="kc">None</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -4239,28 +4239,28 @@ Returns:
 <span class="normal">143</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">fetch_highest_genebuild_version</span><span class="p">(</span>
     <span class="n">connection</span><span class="p">:</span> <span class="n">RegistryConnection</span><span class="p">,</span> <span class="n">assembly</span><span class="p">:</span> <span class="nb">str</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Fetch the highest genebuild version for a given assembly across all genebuilders.</span>
 <span class="sd">    This ensures version uniqueness per assembly, regardless of who owns the genebuild.</span>
 <span class="sd">    Args:</span>
 <span class="sd">        connection: MySQL connection object</span>
 <span class="sd">        assembly (str): Assembly Accession (GCA format)</span>
 <span class="sd">    Returns:</span>
-<span class="sd">        str: Highest genebuild version (e.g., &quot;ENS02&quot;) if any exists, else None</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="sd">        str: Highest genebuild version (e.g., "ENS02") if any exists, else None</span>
+<span class="sd">    """</span>
+    <span class="n">query</span> <span class="o">=</span> <span class="s2">"""</span>
 <span class="s2">    SELECT genebuild_version</span>
 <span class="s2">    FROM genebuild_status</span>
 <span class="s2">    WHERE gca_accession = </span><span class="si">%s</span>
 <span class="s2">    ORDER BY genebuild_version DESC</span>
 <span class="s2">    LIMIT 1</span>
-<span class="s2">    &quot;&quot;&quot;</span>
+<span class="s2">    """</span>
 
     <span class="k">with</span> <span class="n">connection</span><span class="o">.</span><span class="n">cursor</span><span class="p">(</span><span class="n">pymysql</span><span class="o">.</span><span class="n">cursors</span><span class="o">.</span><span class="n">DictCursor</span><span class="p">)</span> <span class="k">as</span> <span class="n">cursor</span><span class="p">:</span>
         <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="p">(</span><span class="n">assembly</span><span class="p">,))</span>
         <span class="n">result</span> <span class="o">=</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
 
-    <span class="k">return</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;genebuild_version&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="n">result</span> <span class="k">else</span> <span class="kc">None</span>
+    <span class="k">return</span> <span class="n">result</span><span class="p">[</span><span class="s2">"genebuild_version"</span><span class="p">]</span> <span class="k">if</span> <span class="n">result</span> <span class="k">else</span> <span class="kc">None</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -4385,7 +4385,7 @@ Raises:
     <span class="n">assembly</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">genebuilder</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Fetch both assembly_id and genebuild_status_id for a given assembly.</span>
 
 <span class="sd">    Args:</span>
@@ -4397,13 +4397,13 @@ Raises:
 <span class="sd">        tuple: (assembly_id, genebuild_status_id) where genebuild_status_id may be None</span>
 <span class="sd">    Raises:</span>
 <span class="sd">        ValueError: If assembly is not found in registry</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">assembly_id</span> <span class="o">=</span> <span class="n">fetch_assembly_id</span><span class="p">(</span><span class="n">connection</span><span class="p">,</span> <span class="n">assembly</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">assembly_id</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Assembly not found in registry: </span><span class="si">{</span><span class="n">assembly</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Assembly not found in registry: </span><span class="si">{</span><span class="n">assembly</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
     <span class="n">record</span> <span class="o">=</span> <span class="n">fetch_current_genebuild_record</span><span class="p">(</span><span class="n">connection</span><span class="p">,</span> <span class="n">assembly</span><span class="p">,</span> <span class="n">genebuilder</span><span class="p">)</span>
-    <span class="n">genebuild_status_id</span> <span class="o">=</span> <span class="n">record</span><span class="p">[</span><span class="s2">&quot;genebuild_status_id&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="n">record</span> <span class="k">else</span> <span class="kc">None</span>
+    <span class="n">genebuild_status_id</span> <span class="o">=</span> <span class="n">record</span><span class="p">[</span><span class="s2">"genebuild_status_id"</span><span class="p">]</span> <span class="k">if</span> <span class="n">record</span> <span class="k">else</span> <span class="kc">None</span>
 
     <span class="k">return</span> <span class="n">assembly_id</span><span class="p">,</span> <span class="n">genebuild_status_id</span>
 </code></pre></div></td></tr></table></div>
@@ -4465,7 +4465,7 @@ Returns:
 <span class="normal">171</span>
 <span class="normal">172</span>
 <span class="normal">173</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">increment_genebuild_version</span><span class="p">(</span><span class="n">version</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Increment a genebuild version string.</span>
 <span class="sd">    Examples:</span>
 <span class="sd">        ENS01 -&gt; ENS02</span>
@@ -4473,15 +4473,15 @@ Returns:
 <span class="sd">        BRK01 -&gt; BRK02</span>
 <span class="sd">        HLX99 -&gt; HLX100</span>
 <span class="sd">    Args:</span>
-<span class="sd">        version (str): Current version (e.g., &quot;ENS01&quot;)</span>
+<span class="sd">        version (str): Current version (e.g., "ENS01")</span>
 <span class="sd">    Returns:</span>
-<span class="sd">        str: Incremented version (e.g., &quot;ENS02&quot;)</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">        str: Incremented version (e.g., "ENS02")</span>
+<span class="sd">    """</span>
 
     <span class="c1"># Extract prefix and numeric suffix</span>
-    <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^([A-Z]+)(\d+)$&quot;</span><span class="p">,</span> <span class="n">version</span><span class="p">)</span>
+    <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">"^([A-Z]+)(\d+)$"</span><span class="p">,</span> <span class="n">version</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">match</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid genebuild version format: </span><span class="si">{</span><span class="n">version</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Invalid genebuild version format: </span><span class="si">{</span><span class="n">version</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
     <span class="n">prefix</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
     <span class="n">number</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
@@ -4491,7 +4491,7 @@ Returns:
     <span class="c1"># Preserve the original zero-padding width</span>
     <span class="n">width</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
 
-    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}{</span><span class="n">new_number</span><span class="si">:</span><span class="s2">0</span><span class="si">{</span><span class="n">width</span><span class="si">}</span><span class="s2">d</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">prefix</span><span class="si">}{</span><span class="n">new_number</span><span class="si">:</span><span class="s2">0</span><span class="si">{</span><span class="n">width</span><span class="si">}</span><span class="s2">d</span><span class="si">}</span><span class="s2">"</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>

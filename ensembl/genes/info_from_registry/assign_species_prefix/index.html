@@ -3962,7 +3962,7 @@ It will retry up to 10,000 times to ensure uniqueness.</p>
 <span class="normal">200</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">create_prefix</span><span class="p">(</span>
     <span class="n">existing_prefix_list</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">taxon_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">server_info</span><span class="p">:</span> <span class="nb">dict</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a new species prefix for a given taxon ID and insert it into the database.</span>
+<span class="w">    </span><span class="sd">"""Create a new species prefix for a given taxon ID and insert it into the database.</span>
 <span class="sd">    It will retry up to 10,000 times to ensure uniqueness.</span>
 
 <span class="sd">    Args:</span>
@@ -3975,26 +3975,26 @@ It will retry up to 10,000 times to ensure uniqueness.</p>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        str: The newly created species prefix.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Creating new prefix for taxon ID: </span><span class="si">{</span><span class="n">taxon_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="sd">    """</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Creating new prefix for taxon ID: </span><span class="si">{</span><span class="n">taxon_id</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
     <span class="n">conn</span> <span class="o">=</span> <span class="n">pymysql</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span>
-        <span class="n">host</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">&quot;registry&quot;</span><span class="p">][</span><span class="s2">&quot;db_host&quot;</span><span class="p">],</span>
-        <span class="n">user</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">&quot;registry&quot;</span><span class="p">][</span><span class="s2">&quot;db_user_w&quot;</span><span class="p">],</span>
-        <span class="n">port</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">server_info</span><span class="p">[</span><span class="s2">&quot;registry&quot;</span><span class="p">][</span><span class="s2">&quot;db_port&quot;</span><span class="p">]),</span>
-        <span class="n">password</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">&quot;registry&quot;</span><span class="p">][</span><span class="s2">&quot;password&quot;</span><span class="p">],</span>
-        <span class="n">database</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">&quot;registry&quot;</span><span class="p">][</span><span class="s2">&quot;db_name&quot;</span><span class="p">],</span>
+        <span class="n">host</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">"registry"</span><span class="p">][</span><span class="s2">"db_host"</span><span class="p">],</span>
+        <span class="n">user</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">"registry"</span><span class="p">][</span><span class="s2">"db_user_w"</span><span class="p">],</span>
+        <span class="n">port</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">server_info</span><span class="p">[</span><span class="s2">"registry"</span><span class="p">][</span><span class="s2">"db_port"</span><span class="p">]),</span>
+        <span class="n">password</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">"registry"</span><span class="p">][</span><span class="s2">"password"</span><span class="p">],</span>
+        <span class="n">database</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">"registry"</span><span class="p">][</span><span class="s2">"db_name"</span><span class="p">],</span>
     <span class="p">)</span>
 
     <span class="k">with</span> <span class="n">conn</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">):</span>  <span class="c1"># max attempts</span>
             <span class="n">prefix</span> <span class="o">=</span> <span class="n">generate_random_prefix</span><span class="p">(</span><span class="n">existing_prefix_list</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">insert_prefix_into_db</span><span class="p">(</span><span class="n">prefix</span><span class="p">,</span> <span class="n">taxon_id</span><span class="p">,</span> <span class="n">conn</span><span class="p">):</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Successfully inserted: </span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Successfully inserted: </span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
                 <span class="k">return</span> <span class="n">prefix</span>
             <span class="n">existing_prefix_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                 <span class="n">prefix</span>
-            <span class="p">)</span>  <span class="c1"># optimize by adding to &quot;existing prefixes&quot;</span>
-    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Failed to generate unique prefix after many attempts.&quot;</span><span class="p">)</span>
+            <span class="p">)</span>  <span class="c1"># optimize by adding to "existing prefixes"</span>
+    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">"Failed to generate unique prefix after many attempts."</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -4106,39 +4106,39 @@ It will retry up to 10,000 times to ensure uniqueness.</p>
 <span class="normal">100</span>
 <span class="normal">101</span>
 <span class="normal">102</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">existing_prefix</span><span class="p">(</span><span class="n">server_info</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get a list of existing species prefixes from the gb assembly registry and metadata databases.</span>
+<span class="w">    </span><span class="sd">"""Get a list of existing species prefixes from the gb assembly registry and metadata databases.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        server_info (dict): Information about the database server.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        list[str]: A list of existing species prefixes.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="c1"># Getting existing prefix from registry db. To be removed when the registry is updated.</span>
-    <span class="n">prefix_registry_query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;SELECT DISTINCT species_prefix FROM assembly ;&quot;</span>  <span class="c1"># pylint: disable=f-string-without-interpolation</span>
+    <span class="n">prefix_registry_query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"SELECT DISTINCT species_prefix FROM assembly ;"</span>  <span class="c1"># pylint: disable=f-string-without-interpolation</span>
     <span class="n">output_registry</span> <span class="o">=</span> <span class="n">mysql_fetch_data</span><span class="p">(</span>
         <span class="n">prefix_registry_query</span><span class="p">,</span>
-        <span class="n">host</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">&quot;registry&quot;</span><span class="p">][</span><span class="s2">&quot;db_host&quot;</span><span class="p">],</span>
-        <span class="n">user</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">&quot;registry&quot;</span><span class="p">][</span><span class="s2">&quot;db_user&quot;</span><span class="p">],</span>
-        <span class="n">port</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">&quot;registry&quot;</span><span class="p">][</span><span class="s2">&quot;db_port&quot;</span><span class="p">],</span>
-        <span class="n">database</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">&quot;registry&quot;</span><span class="p">][</span><span class="s2">&quot;db_name&quot;</span><span class="p">],</span>
-        <span class="n">password</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="n">host</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">"registry"</span><span class="p">][</span><span class="s2">"db_host"</span><span class="p">],</span>
+        <span class="n">user</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">"registry"</span><span class="p">][</span><span class="s2">"db_user"</span><span class="p">],</span>
+        <span class="n">port</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">"registry"</span><span class="p">][</span><span class="s2">"db_port"</span><span class="p">],</span>
+        <span class="n">database</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">"registry"</span><span class="p">][</span><span class="s2">"db_name"</span><span class="p">],</span>
+        <span class="n">password</span><span class="o">=</span><span class="s2">""</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="c1"># Getting existing prefix from metadata db</span>
-    <span class="n">prefix_metadata_query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;SELECT DISTINCT prefix FROM species_prefix ;&quot;</span>  <span class="c1"># pylint: disable=f-string-without-interpolation</span>
+    <span class="n">prefix_metadata_query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"SELECT DISTINCT prefix FROM species_prefix ;"</span>  <span class="c1"># pylint: disable=f-string-without-interpolation</span>
     <span class="n">output_metadata</span> <span class="o">=</span> <span class="n">mysql_fetch_data</span><span class="p">(</span>
         <span class="n">prefix_metadata_query</span><span class="p">,</span>
-        <span class="n">host</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">&quot;registry&quot;</span><span class="p">][</span><span class="s2">&quot;db_host&quot;</span><span class="p">],</span>
-        <span class="n">user</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">&quot;registry&quot;</span><span class="p">][</span><span class="s2">&quot;db_user&quot;</span><span class="p">],</span>
-        <span class="n">port</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">&quot;registry&quot;</span><span class="p">][</span><span class="s2">&quot;db_port&quot;</span><span class="p">],</span>
-        <span class="n">database</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">&quot;registry&quot;</span><span class="p">][</span><span class="s2">&quot;db_name&quot;</span><span class="p">],</span>
-        <span class="n">password</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="n">host</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">"registry"</span><span class="p">][</span><span class="s2">"db_host"</span><span class="p">],</span>
+        <span class="n">user</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">"registry"</span><span class="p">][</span><span class="s2">"db_user"</span><span class="p">],</span>
+        <span class="n">port</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">"registry"</span><span class="p">][</span><span class="s2">"db_port"</span><span class="p">],</span>
+        <span class="n">database</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">"registry"</span><span class="p">][</span><span class="s2">"db_name"</span><span class="p">],</span>
+        <span class="n">password</span><span class="o">=</span><span class="s2">""</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">prefix_list</span> <span class="o">=</span> <span class="p">[</span>
         <span class="nb">list</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">values</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">output_registry</span><span class="p">)</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">output_metadata</span><span class="p">)</span>
     <span class="p">]</span>
     <span class="n">existing_prefix_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">prefix_list</span><span class="p">))</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Num Existing prefix: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">existing_prefix_list</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Num Existing prefix: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">existing_prefix_list</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">existing_prefix_list</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -4236,23 +4236,23 @@ It will retry up to 10,000 times to ensure uniqueness.</p>
 <span class="normal">122</span>
 <span class="normal">123</span>
 <span class="normal">124</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">generate_random_prefix</span><span class="p">(</span><span class="n">existing_prefix_list</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Generate a random species prefix that does not already exist in the provided list.</span>
+<span class="w">    </span><span class="sd">"""Generate a random species prefix that does not already exist in the provided list.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        existing_prefix_list (list[str]): A list of existing species prefixes.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        str: A random three/four letter prefix.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">letters</span> <span class="o">=</span> <span class="n">string</span><span class="o">.</span><span class="n">ascii_uppercase</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">existing_prefix_list</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">26</span><span class="o">**</span><span class="mi">3</span><span class="p">:</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Creating prefix: four random letters&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"Creating prefix: four random letters"</span><span class="p">)</span>
         <span class="n">length</span> <span class="o">=</span> <span class="mi">4</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Creating prefix: three random letters&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"Creating prefix: three random letters"</span><span class="p">)</span>
         <span class="n">length</span> <span class="o">=</span> <span class="mi">3</span>
     <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
-        <span class="n">candidate</span> <span class="o">=</span> <span class="s2">&quot;ENS&quot;</span> <span class="o">+</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">random</span><span class="o">.</span><span class="n">choices</span><span class="p">(</span><span class="n">letters</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="n">length</span><span class="p">))</span>
+        <span class="n">candidate</span> <span class="o">=</span> <span class="s2">"ENS"</span> <span class="o">+</span> <span class="s2">""</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">random</span><span class="o">.</span><span class="n">choices</span><span class="p">(</span><span class="n">letters</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="n">length</span><span class="p">))</span>
         <span class="k">if</span> <span class="n">candidate</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">existing_prefix_list</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">candidate</span>
 </code></pre></div></td></tr></table></div>
@@ -4304,28 +4304,28 @@ Returns:
 <span class="normal">63</span>
 <span class="normal">64</span>
 <span class="normal">65</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_special_cases</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Retrieve special cases for species prefixes from a JSON file.</span>
+<span class="w">    </span><span class="sd">"""Retrieve special cases for species prefixes from a JSON file.</span>
 <span class="sd">    Returns:</span>
 <span class="sd">        dict: A dictionary mapping taxon IDs to their special species prefixes.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">enscode</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ENSCODE&quot;</span><span class="p">)</span>
+<span class="sd">    """</span>
+    <span class="n">enscode</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"ENSCODE"</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">enscode</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">EnvironmentError</span><span class="p">(</span><span class="s2">&quot;Environment variable ENSCODE is not set&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">EnvironmentError</span><span class="p">(</span><span class="s2">"Environment variable ENSCODE is not set"</span><span class="p">)</span>
     <span class="n">json_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
         <span class="n">enscode</span><span class="p">,</span>
-        <span class="s2">&quot;ensembl-genes&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;src&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;python&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;ensembl&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;genes&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;info_from_registry&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;stable_id_special_cases.json&quot;</span><span class="p">,</span>
+        <span class="s2">"ensembl-genes"</span><span class="p">,</span>
+        <span class="s2">"src"</span><span class="p">,</span>
+        <span class="s2">"python"</span><span class="p">,</span>
+        <span class="s2">"ensembl"</span><span class="p">,</span>
+        <span class="s2">"genes"</span><span class="p">,</span>
+        <span class="s2">"info_from_registry"</span><span class="p">,</span>
+        <span class="s2">"stable_id_special_cases.json"</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s2">&quot;Loading special-cases from: </span><span class="si">{</span><span class="n">json_path</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="sa">f</span><span class="s2">"Loading special-cases from: </span><span class="si">{</span><span class="n">json_path</span><span class="si">}</span><span class="s2">"</span>
     <span class="p">)</span>  <span class="c1"># pylint: disable=f-string-without-interpolation</span>
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">json_path</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>  <span class="c1"># pylint: disable=unspecified-encoding</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">json_path</span><span class="p">,</span> <span class="s2">"r"</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>  <span class="c1"># pylint: disable=unspecified-encoding</span>
         <span class="n">special_cases</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">special_cases</span>
 </code></pre></div></td></tr></table></div>
@@ -4534,7 +4534,7 @@ where the prefix is predefined.
 <span class="normal">301</span>
 <span class="normal">302</span>
 <span class="normal">303</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_species_prefix</span><span class="p">(</span><span class="n">taxon_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">server_info</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    This function retrieves the species prefix from the assembly registry</span>
 <span class="sd">    and metadata databases.</span>
 <span class="sd">    If the prefix is not found, it creates a new one. There are special cases</span>
@@ -4551,48 +4551,48 @@ where the prefix is predefined.
 
 <span class="sd">    Returns:</span>
 <span class="sd">        str: unique species prefix that already exist or a new one when no prefix is found.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="c1"># Special cases</span>
     <span class="n">special_cases</span> <span class="o">=</span> <span class="n">get_special_cases</span><span class="p">()</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">special_cases</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Loaded </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">special_cases</span><span class="p">)</span><span class="si">}</span><span class="s2"> special-cases&quot;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">special_cases</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Loaded </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">special_cases</span><span class="p">)</span><span class="si">}</span><span class="s2"> special-cases"</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">taxon_id</span><span class="p">)</span> <span class="ow">in</span> <span class="n">special_cases</span><span class="p">:</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The prefix is a special case for taxon ID: </span><span class="si">{</span><span class="n">taxon_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"The prefix is a special case for taxon ID: </span><span class="si">{</span><span class="n">taxon_id</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
         <span class="n">species_prefix</span> <span class="o">=</span> <span class="n">special_cases</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">taxon_id</span><span class="p">))</span>
     <span class="k">else</span><span class="p">:</span>
 
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Searching for prefix for taxon ID: </span><span class="si">{</span><span class="n">taxon_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Searching for prefix for taxon ID: </span><span class="si">{</span><span class="n">taxon_id</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
         <span class="n">prefix_registry_query</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;SELECT DISTINCT species_prefix FROM assembly WHERE taxonomy = </span><span class="si">{</span><span class="n">taxon_id</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">"SELECT DISTINCT species_prefix FROM assembly WHERE taxonomy = </span><span class="si">{</span><span class="n">taxon_id</span><span class="si">}</span><span class="s2">"</span>
         <span class="p">)</span>
         <span class="n">output_registry</span> <span class="o">=</span> <span class="n">mysql_fetch_data</span><span class="p">(</span>
             <span class="n">prefix_registry_query</span><span class="p">,</span>
-            <span class="n">host</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">&quot;registry&quot;</span><span class="p">][</span><span class="s2">&quot;db_host&quot;</span><span class="p">],</span>
-            <span class="n">user</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">&quot;registry&quot;</span><span class="p">][</span><span class="s2">&quot;db_user&quot;</span><span class="p">],</span>
-            <span class="n">port</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">server_info</span><span class="p">[</span><span class="s2">&quot;registry&quot;</span><span class="p">][</span><span class="s2">&quot;db_port&quot;</span><span class="p">]),</span>
-            <span class="n">database</span><span class="o">=</span><span class="s2">&quot;gb_assembly_registry&quot;</span><span class="p">,</span>
-            <span class="n">password</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+            <span class="n">host</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">"registry"</span><span class="p">][</span><span class="s2">"db_host"</span><span class="p">],</span>
+            <span class="n">user</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">"registry"</span><span class="p">][</span><span class="s2">"db_user"</span><span class="p">],</span>
+            <span class="n">port</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">server_info</span><span class="p">[</span><span class="s2">"registry"</span><span class="p">][</span><span class="s2">"db_port"</span><span class="p">]),</span>
+            <span class="n">database</span><span class="o">=</span><span class="s2">"gb_assembly_registry"</span><span class="p">,</span>
+            <span class="n">password</span><span class="o">=</span><span class="s2">""</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="k">if</span> <span class="n">output_registry</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Prefix found in old registry: </span><span class="si">{</span><span class="n">output_registry</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Prefix found in old registry: </span><span class="si">{</span><span class="n">output_registry</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
         <span class="n">prefix_metadata_query</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="s2">&quot;SELECT DISTINCT prefix FROM species_prefix &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;WHERE lowest_taxon_id = </span><span class="si">{</span><span class="n">taxon_id</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="s2">"SELECT DISTINCT prefix FROM species_prefix "</span>
+            <span class="sa">f</span><span class="s2">"WHERE lowest_taxon_id = </span><span class="si">{</span><span class="n">taxon_id</span><span class="si">}</span><span class="s2">"</span>
         <span class="p">)</span>
         <span class="n">output_metadata</span> <span class="o">=</span> <span class="n">mysql_fetch_data</span><span class="p">(</span>
             <span class="n">prefix_metadata_query</span><span class="p">,</span>
-            <span class="n">host</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">&quot;registry&quot;</span><span class="p">][</span><span class="s2">&quot;db_host&quot;</span><span class="p">],</span>
-            <span class="n">user</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">&quot;registry&quot;</span><span class="p">][</span><span class="s2">&quot;db_user&quot;</span><span class="p">],</span>
-            <span class="n">port</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">server_info</span><span class="p">[</span><span class="s2">&quot;registry&quot;</span><span class="p">][</span><span class="s2">&quot;db_port&quot;</span><span class="p">]),</span>
-            <span class="n">database</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">&quot;registry&quot;</span><span class="p">][</span><span class="s2">&quot;db_name&quot;</span><span class="p">],</span>
-            <span class="n">password</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+            <span class="n">host</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">"registry"</span><span class="p">][</span><span class="s2">"db_host"</span><span class="p">],</span>
+            <span class="n">user</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">"registry"</span><span class="p">][</span><span class="s2">"db_user"</span><span class="p">],</span>
+            <span class="n">port</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">server_info</span><span class="p">[</span><span class="s2">"registry"</span><span class="p">][</span><span class="s2">"db_port"</span><span class="p">]),</span>
+            <span class="n">database</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">"registry"</span><span class="p">][</span><span class="s2">"db_name"</span><span class="p">],</span>
+            <span class="n">password</span><span class="o">=</span><span class="s2">""</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="k">if</span> <span class="n">output_metadata</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Prefix found in new metadata registry: </span><span class="si">{</span><span class="n">output_metadata</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Prefix found in new metadata registry: </span><span class="si">{</span><span class="n">output_metadata</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
         <span class="c1"># Combine output and get list of unique values</span>
         <span class="n">output</span> <span class="o">=</span> <span class="p">[</span>
@@ -4603,34 +4603,34 @@ where the prefix is predefined.
 
         <span class="c1"># no prefix, create new prefix</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">prefix_list</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Creating a new prefix for taxon ID: </span><span class="si">{</span><span class="n">taxon_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Creating a new prefix for taxon ID: </span><span class="si">{</span><span class="n">taxon_id</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
             <span class="n">existing_prefix_list</span> <span class="o">=</span> <span class="n">existing_prefix</span><span class="p">(</span><span class="n">server_info</span><span class="p">)</span>
             <span class="n">species_prefix</span> <span class="o">=</span> <span class="n">create_prefix</span><span class="p">(</span><span class="n">existing_prefix_list</span><span class="p">,</span> <span class="n">taxon_id</span><span class="p">,</span> <span class="n">server_info</span><span class="p">)</span>
 
         <span class="c1"># unique prefix detected</span>
         <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">prefix_list</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unique prefix detected for taxon ID: </span><span class="si">{</span><span class="n">taxon_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Unique prefix detected for taxon ID: </span><span class="si">{</span><span class="n">taxon_id</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
             <span class="n">species_prefix</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">prefix_list</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Saving exting prefix </span><span class="si">{</span><span class="n">species_prefix</span><span class="si">}</span><span class="s2"> in new registry&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Saving exting prefix </span><span class="si">{</span><span class="n">species_prefix</span><span class="si">}</span><span class="s2"> in new registry"</span><span class="p">)</span>
             <span class="c1"># Open a new connection</span>
             <span class="n">conn</span> <span class="o">=</span> <span class="n">pymysql</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span>
-                <span class="n">host</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">&quot;registry&quot;</span><span class="p">][</span><span class="s2">&quot;db_host&quot;</span><span class="p">],</span>
-                <span class="n">user</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">&quot;registry&quot;</span><span class="p">][</span><span class="s2">&quot;db_user_w&quot;</span><span class="p">],</span>
-                <span class="n">port</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">server_info</span><span class="p">[</span><span class="s2">&quot;registry&quot;</span><span class="p">][</span><span class="s2">&quot;db_port&quot;</span><span class="p">]),</span>
-                <span class="n">password</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">&quot;registry&quot;</span><span class="p">][</span><span class="s2">&quot;password&quot;</span><span class="p">],</span>
-                <span class="n">database</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">&quot;registry&quot;</span><span class="p">][</span><span class="s2">&quot;db_name&quot;</span><span class="p">],</span>
+                <span class="n">host</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">"registry"</span><span class="p">][</span><span class="s2">"db_host"</span><span class="p">],</span>
+                <span class="n">user</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">"registry"</span><span class="p">][</span><span class="s2">"db_user_w"</span><span class="p">],</span>
+                <span class="n">port</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">server_info</span><span class="p">[</span><span class="s2">"registry"</span><span class="p">][</span><span class="s2">"db_port"</span><span class="p">]),</span>
+                <span class="n">password</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">"registry"</span><span class="p">][</span><span class="s2">"password"</span><span class="p">],</span>
+                <span class="n">database</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">"registry"</span><span class="p">][</span><span class="s2">"db_name"</span><span class="p">],</span>
             <span class="p">)</span>
 
             <span class="k">if</span> <span class="n">insert_prefix_into_db</span><span class="p">(</span>
                 <span class="n">species_prefix</span><span class="p">,</span> <span class="n">taxon_id</span><span class="p">,</span> <span class="n">conn</span><span class="p">,</span> <span class="n">store_new_registry</span><span class="o">=</span><span class="kc">True</span>
             <span class="p">):</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Successfully inserted: </span><span class="si">{</span><span class="n">species_prefix</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Successfully inserted: </span><span class="si">{</span><span class="n">species_prefix</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
                 <span class="n">conn</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;The taxon </span><span class="si">{</span><span class="n">taxon_id</span><span class="si">}</span><span class="s2"> is already registered and multiple prefix </span><span class="se">\</span>
-<span class="s2">                    were detected: </span><span class="si">{</span><span class="n">prefix_list</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="sa">f</span><span class="s2">"The taxon </span><span class="si">{</span><span class="n">taxon_id</span><span class="si">}</span><span class="s2"> is already registered and multiple prefix </span><span class="se">\</span>
+<span class="s2">                    were detected: </span><span class="si">{</span><span class="n">prefix_list</span><span class="si">}</span><span class="s2">"</span>
             <span class="p">)</span>
 
     <span class="k">return</span> <span class="n">species_prefix</span>
@@ -4707,7 +4707,7 @@ Raises:
     <span class="n">conn</span><span class="p">:</span> <span class="n">pymysql</span><span class="o">.</span><span class="n">connections</span><span class="o">.</span><span class="n">Connection</span><span class="p">,</span>
     <span class="n">store_new_registry</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Insert a new species prefix into the database.</span>
+<span class="w">    </span><span class="sd">"""Insert a new species prefix into the database.</span>
 <span class="sd">    Args:</span>
 <span class="sd">        prefix (str): The species prefix to insert.</span>
 <span class="sd">        taxon_id (int): The lowest taxon ID associated with the prefix.</span>
@@ -4718,13 +4718,13 @@ Raises:
 <span class="sd">        bool: True if the prefix was successfully inserted, False if it already exists.</span>
 <span class="sd">    Raises:</span>
 <span class="sd">        pymysql.err.IntegrityError: If there is a duplicate entry for the prefix.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Inserting prefix </span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2"> for taxon id </span><span class="si">{</span><span class="n">taxon_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="sd">    """</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Inserting prefix </span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2"> for taxon id </span><span class="si">{</span><span class="n">taxon_id</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="k">with</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span> <span class="k">as</span> <span class="n">cursor</span><span class="p">:</span>
             <span class="n">query</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="s2">&quot;INSERT INTO species_prefix (lowest_taxon_id, prefix) &quot;</span>
-                <span class="s2">&quot;VALUES (</span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">);&quot;</span>
+                <span class="s2">"INSERT INTO species_prefix (lowest_taxon_id, prefix) "</span>
+                <span class="s2">"VALUES (</span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">);"</span>
             <span class="p">)</span>
             <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="p">(</span><span class="n">taxon_id</span><span class="p">,</span> <span class="n">prefix</span><span class="p">))</span>
         <span class="k">return</span> <span class="kc">True</span>
@@ -4732,7 +4732,7 @@ Raises:
         <span class="k">if</span> <span class="n">err</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1062</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">store_new_registry</span><span class="p">:</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Existing prefix </span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2"> already stored in the new registry. Allow exception&quot;</span>
+                    <span class="sa">f</span><span class="s2">"Existing prefix </span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2"> already stored in the new registry. Allow exception"</span>
                 <span class="p">)</span>
                 <span class="k">return</span> <span class="kc">True</span>
             <span class="k">return</span> <span class="kc">False</span>

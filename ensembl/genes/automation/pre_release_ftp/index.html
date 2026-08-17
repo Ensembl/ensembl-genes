@@ -4022,7 +4022,7 @@ structure with standardized naming and MD5 checksums.</p>
 <span class="normal">255</span>
 <span class="normal">256</span>
 <span class="normal">257</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">calculate_md5</span><span class="p">(</span><span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Calculate MD5 checksum of a file.</span>
 
 <span class="sd">    Args:</span>
@@ -4033,10 +4033,10 @@ structure with standardized naming and MD5 checksums.</p>
 
 <span class="sd">    Raises:</span>
 <span class="sd">        IOError: If file cannot be read</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">hash_md5</span> <span class="o">=</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">md5</span><span class="p">()</span>
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
-        <span class="k">for</span> <span class="n">chunk</span> <span class="ow">in</span> <span class="nb">iter</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="n">file</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">4096</span><span class="p">),</span> <span class="sa">b</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="s2">"rb"</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">chunk</span> <span class="ow">in</span> <span class="nb">iter</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="n">file</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">4096</span><span class="p">),</span> <span class="sa">b</span><span class="s2">""</span><span class="p">):</span>
             <span class="n">hash_md5</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">chunk</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">hash_md5</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span>
 </code></pre></div></td></tr></table></div>
@@ -4336,7 +4336,7 @@ and copies files with standardized names.</p>
     <span class="n">two_bit_file</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
     <span class="n">logger</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Create FTP directory structure and copy files with standardized naming.</span>
 
 <span class="sd">    Creates directory structure: {output_path}/ftp_release/{Species_Name}/{GCA_ID}/</span>
@@ -4345,7 +4345,7 @@ and copies files with standardized names.</p>
 <span class="sd">    Args:</span>
 <span class="sd">        output_path: Base output directory</span>
 <span class="sd">        species_name: Species name for directory creation</span>
-<span class="sd">        gca_string: Full GCA identifier (e.g., &#39;GCA_030222105.1&#39;)</span>
+<span class="sd">        gca_string: Full GCA identifier (e.g., 'GCA_030222105.1')</span>
 <span class="sd">        annotation_files: Dictionary of annotation file paths</span>
 <span class="sd">        fasta_file: Path to reheadered FASTA file</span>
 <span class="sd">        two_bit_file: Path to 2bit file</span>
@@ -4356,20 +4356,20 @@ and copies files with standardized names.</p>
 
 <span class="sd">    Raises:</span>
 <span class="sd">        OSError: If directory creation or file copying fails</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="c1"># Parse GCA information</span>
     <span class="n">gca_number</span><span class="p">,</span> <span class="n">version</span> <span class="o">=</span> <span class="n">parse_gca_id</span><span class="p">(</span><span class="n">gca_string</span><span class="p">)</span>
 
     <span class="c1"># Create FTP directory structure: species_name/GCA_ID/</span>
     <span class="n">species_title</span> <span class="o">=</span> <span class="n">format_species_name</span><span class="p">(</span><span class="n">species_name</span><span class="p">)</span>
 
-    <span class="n">ftp_base</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_path</span><span class="p">,</span> <span class="s2">&quot;ftp_release&quot;</span><span class="p">)</span>
+    <span class="n">ftp_base</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_path</span><span class="p">,</span> <span class="s2">"ftp_release"</span><span class="p">)</span>
     <span class="n">ftp_species_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ftp_base</span><span class="p">,</span> <span class="n">species_title</span><span class="p">)</span>
     <span class="n">ftp_final_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ftp_species_dir</span><span class="p">,</span> <span class="n">gca_string</span><span class="p">)</span>
 
     <span class="c1"># Create directories</span>
     <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">ftp_final_dir</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Created FTP directory: </span><span class="si">{</span><span class="n">ftp_final_dir</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Created FTP directory: </span><span class="si">{</span><span class="n">ftp_final_dir</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
     <span class="n">copied_files</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
 
@@ -4382,42 +4382,42 @@ and copies files with standardized names.</p>
             <span class="n">dest_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ftp_final_dir</span><span class="p">,</span> <span class="n">new_filename</span><span class="p">)</span>
 
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Copying </span><span class="si">{</span><span class="n">file_type</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">source_file</span><span class="p">)</span><span class="si">}</span><span class="s2"> -&gt; </span><span class="si">{</span><span class="n">new_filename</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="sa">f</span><span class="s2">"Copying </span><span class="si">{</span><span class="n">file_type</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">source_file</span><span class="p">)</span><span class="si">}</span><span class="s2"> -&gt; </span><span class="si">{</span><span class="n">new_filename</span><span class="si">}</span><span class="s2">"</span>
             <span class="p">)</span>
             <span class="n">shutil</span><span class="o">.</span><span class="n">copy2</span><span class="p">(</span><span class="n">source_file</span><span class="p">,</span> <span class="n">dest_file</span><span class="p">)</span>
             <span class="n">copied_files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dest_file</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No </span><span class="si">{</span><span class="n">file_type</span><span class="si">}</span><span class="s2"> file found to copy&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">"No </span><span class="si">{</span><span class="n">file_type</span><span class="si">}</span><span class="s2"> file found to copy"</span><span class="p">)</span>
 
     <span class="c1"># Copy and rename FASTA file</span>
     <span class="k">if</span> <span class="n">fasta_file</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">fasta_file</span><span class="p">):</span>
         <span class="n">new_fasta_name</span> <span class="o">=</span> <span class="n">generate_new_filename</span><span class="p">(</span>
-            <span class="n">fasta_file</span><span class="p">,</span> <span class="n">species_name</span><span class="p">,</span> <span class="n">gca_number</span><span class="p">,</span> <span class="n">version</span><span class="p">,</span> <span class="s2">&quot;dna.softmasked.fa&quot;</span>
+            <span class="n">fasta_file</span><span class="p">,</span> <span class="n">species_name</span><span class="p">,</span> <span class="n">gca_number</span><span class="p">,</span> <span class="n">version</span><span class="p">,</span> <span class="s2">"dna.softmasked.fa"</span>
         <span class="p">)</span>
         <span class="n">dest_fasta</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ftp_final_dir</span><span class="p">,</span> <span class="n">new_fasta_name</span><span class="p">)</span>
 
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Copying FASTA: </span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">fasta_file</span><span class="p">)</span><span class="si">}</span><span class="s2"> -&gt; </span><span class="si">{</span><span class="n">new_fasta_name</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">"Copying FASTA: </span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">fasta_file</span><span class="p">)</span><span class="si">}</span><span class="s2"> -&gt; </span><span class="si">{</span><span class="n">new_fasta_name</span><span class="si">}</span><span class="s2">"</span>
         <span class="p">)</span>
         <span class="n">shutil</span><span class="o">.</span><span class="n">copy2</span><span class="p">(</span><span class="n">fasta_file</span><span class="p">,</span> <span class="n">dest_fasta</span><span class="p">)</span>
         <span class="n">copied_files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dest_fasta</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;No reheadered FASTA file found to copy&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">"No reheadered FASTA file found to copy"</span><span class="p">)</span>
 
     <span class="c1"># Copy 2bit file if it exists</span>
     <span class="k">if</span> <span class="n">two_bit_file</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">two_bit_file</span><span class="p">):</span>
         <span class="n">new_2bit_name</span> <span class="o">=</span> <span class="n">generate_new_filename</span><span class="p">(</span>
-            <span class="n">two_bit_file</span><span class="p">,</span> <span class="n">species_name</span><span class="p">,</span> <span class="n">gca_number</span><span class="p">,</span> <span class="n">version</span><span class="p">,</span> <span class="s2">&quot;dna.toplevel.2bit&quot;</span>
+            <span class="n">two_bit_file</span><span class="p">,</span> <span class="n">species_name</span><span class="p">,</span> <span class="n">gca_number</span><span class="p">,</span> <span class="n">version</span><span class="p">,</span> <span class="s2">"dna.toplevel.2bit"</span>
         <span class="p">)</span>
         <span class="n">dest_2bit</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ftp_final_dir</span><span class="p">,</span> <span class="n">new_2bit_name</span><span class="p">)</span>
 
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Copying 2bit file: </span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">two_bit_file</span><span class="p">)</span><span class="si">}</span><span class="s2"> -&gt; </span><span class="si">{</span><span class="n">new_2bit_name</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">"Copying 2bit file: </span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">two_bit_file</span><span class="p">)</span><span class="si">}</span><span class="s2"> -&gt; </span><span class="si">{</span><span class="n">new_2bit_name</span><span class="si">}</span><span class="s2">"</span>
         <span class="p">)</span>
         <span class="n">shutil</span><span class="o">.</span><span class="n">copy2</span><span class="p">(</span><span class="n">two_bit_file</span><span class="p">,</span> <span class="n">dest_2bit</span><span class="p">)</span>
         <span class="n">copied_files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dest_2bit</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;No 2bit file found to copy&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">"No 2bit file found to copy"</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">ftp_final_dir</span><span class="p">,</span> <span class="n">copied_files</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -4520,7 +4520,7 @@ and copies files with standardized names.</p>
 <span class="normal">209</span>
 <span class="normal">210</span>
 <span class="normal">211</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">extract_species_from_filename</span><span class="p">(</span><span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Extract species name from Ensembl filename format.</span>
 
 <span class="sd">    Parses filenames like:</span>
@@ -4531,16 +4531,16 @@ and copies files with standardized names.</p>
 <span class="sd">        filename: Full filename or path to parse</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        str: Species name (e.g., &#39;Bos_taurus&#39;, &#39;macaca_mulatta&#39;)</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">        str: Species name (e.g., 'Bos_taurus', 'macaca_mulatta')</span>
+<span class="sd">    """</span>
     <span class="n">basename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
     <span class="c1"># Split on first occurrence of version pattern (gca followed by numbers)</span>
-    <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;([a-zA-Z_]+)_gca\d+&quot;</span><span class="p">,</span> <span class="n">basename</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span><span class="p">)</span>
+    <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">"([a-zA-Z_]+)_gca\d+"</span><span class="p">,</span> <span class="n">basename</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 
     <span class="c1"># Fallback: take everything before the first dot</span>
-    <span class="k">return</span> <span class="n">basename</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">basename</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"."</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -4610,15 +4610,15 @@ and copies files with standardized names.</p>
 <span class="normal">114</span>
 <span class="normal">115</span>
 <span class="normal">116</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">find_2bit</span><span class="p">(</span><span class="n">output_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Find the 2bit file in the output directory.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        output_path: Path to the base output directory</span>
 <span class="sd">    Returns:</span>
 <span class="sd">        Optional[str]: Path to the 2bit file or None if not found</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">two_bit_pattern</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_path</span><span class="p">,</span> <span class="s2">&quot;*_softmasked_toplevel.2bit&quot;</span><span class="p">)</span>
+<span class="sd">    """</span>
+    <span class="n">two_bit_pattern</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_path</span><span class="p">,</span> <span class="s2">"*_softmasked_toplevel.2bit"</span><span class="p">)</span>
     <span class="n">two_bit_matches</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">two_bit_pattern</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">two_bit_matches</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">two_bit_matches</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># Return first match</span>
@@ -4745,7 +4745,7 @@ and chr-only toplevel files. Fails loudly if the result is ambiguous.</p>
 <span class="normal">159</span>
 <span class="normal">160</span>
 <span class="normal">161</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">find_annotation_files</span><span class="p">(</span><span class="n">output_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Find GFF3 and GTF annotation files in the clade directory structure.</span>
 <span class="sd">    Prefers sorted files over unsorted. Excludes abinitio, primary_assembly,</span>
 <span class="sd">    and chr-only toplevel files. Fails loudly if the result is ambiguous.</span>
@@ -4754,34 +4754,34 @@ and chr-only toplevel files. Fails loudly if the result is ambiguous.</p>
 <span class="sd">        output_path: Path to the base output directory</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        Dict[str, Optional[str]]: Dictionary with &#39;gff3&#39; and &#39;gtf&#39; keys mapping</span>
+<span class="sd">        Dict[str, Optional[str]]: Dictionary with 'gff3' and 'gtf' keys mapping</span>
 <span class="sd">                                  to file paths or None if not found</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">annotation_files</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;gff3&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;gtf&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">}</span>
+<span class="sd">    """</span>
+    <span class="n">annotation_files</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"gff3"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">"gtf"</span><span class="p">:</span> <span class="kc">None</span><span class="p">}</span>
 
-    <span class="k">for</span> <span class="n">file_type</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;gff3&quot;</span><span class="p">,</span> <span class="s2">&quot;gtf&quot;</span><span class="p">):</span>
-        <span class="n">pattern</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_path</span><span class="p">,</span> <span class="s2">&quot;*&quot;</span><span class="p">,</span> <span class="n">file_type</span><span class="p">,</span> <span class="s2">&quot;**&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;*.</span><span class="si">{</span><span class="n">file_type</span><span class="si">}</span><span class="s2">.gz*&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">file_type</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"gff3"</span><span class="p">,</span> <span class="s2">"gtf"</span><span class="p">):</span>
+        <span class="n">pattern</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_path</span><span class="p">,</span> <span class="s2">"*"</span><span class="p">,</span> <span class="n">file_type</span><span class="p">,</span> <span class="s2">"**"</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"*.</span><span class="si">{</span><span class="n">file_type</span><span class="si">}</span><span class="s2">.gz*"</span><span class="p">)</span>
         <span class="n">matches</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="n">recursive</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
         <span class="n">candidates</span> <span class="o">=</span> <span class="p">[</span>
             <span class="n">f</span>
             <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">matches</span>
-            <span class="k">if</span> <span class="s2">&quot;abinitio&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">f</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
-            <span class="ow">and</span> <span class="s2">&quot;primary_assembly&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
-            <span class="ow">and</span> <span class="sa">f</span><span class="s2">&quot;.chr.</span><span class="si">{</span><span class="n">file_type</span><span class="si">}</span><span class="s2">&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+            <span class="k">if</span> <span class="s2">"abinitio"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">f</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+            <span class="ow">and</span> <span class="s2">"primary_assembly"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="sa">f</span><span class="s2">".chr.</span><span class="si">{</span><span class="n">file_type</span><span class="si">}</span><span class="s2">"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
         <span class="p">]</span>
 
         <span class="c1"># Prefer sorted over unsorted</span>
-        <span class="n">sorted_candidates</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">candidates</span> <span class="k">if</span> <span class="n">f</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.sorted.gz&quot;</span><span class="p">)]</span>
+        <span class="n">sorted_candidates</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">candidates</span> <span class="k">if</span> <span class="n">f</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">".sorted.gz"</span><span class="p">)]</span>
         <span class="n">candidates</span> <span class="o">=</span> <span class="n">sorted_candidates</span> <span class="k">if</span> <span class="n">sorted_candidates</span> <span class="k">else</span> <span class="n">candidates</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">candidates</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;No main </span><span class="si">{</span><span class="n">file_type</span><span class="si">}</span><span class="s2"> annotation file found in </span><span class="si">{</span><span class="n">output_path</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="sa">f</span><span class="s2">"No main </span><span class="si">{</span><span class="n">file_type</span><span class="si">}</span><span class="s2"> annotation file found in </span><span class="si">{</span><span class="n">output_path</span><span class="si">}</span><span class="s2">"</span>
             <span class="p">)</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">candidates</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Multiple main </span><span class="si">{</span><span class="n">file_type</span><span class="si">}</span><span class="s2"> candidates found: </span><span class="si">{</span><span class="n">candidates</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="sa">f</span><span class="s2">"Multiple main </span><span class="si">{</span><span class="n">file_type</span><span class="si">}</span><span class="s2"> candidates found: </span><span class="si">{</span><span class="n">candidates</span><span class="si">}</span><span class="s2">"</span>
             <span class="p">)</span>
 
         <span class="n">annotation_files</span><span class="p">[</span><span class="n">file_type</span><span class="p">]</span> <span class="o">=</span> <span class="n">candidates</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
@@ -4908,7 +4908,7 @@ and chr-only toplevel files. Fails loudly if the result is ambiguous.</p>
 <span class="normal"> 98</span>
 <span class="normal"> 99</span>
 <span class="normal">100</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">find_reheadered_fasta</span><span class="p">(</span><span class="n">output_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Find the reheadered toplevel FASTA file and its corresponding FAI index file.</span>
 
 <span class="sd">    Args:</span>
@@ -4919,13 +4919,13 @@ and chr-only toplevel files. Fails loudly if the result is ambiguous.</p>
 
 <span class="sd">    Raises:</span>
 <span class="sd">        FileNotFoundError: If reheadered FASTA file or its FAI index is not found</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="c1"># Find FASTA file</span>
-    <span class="n">fasta_pattern</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_path</span><span class="p">,</span> <span class="s2">&quot;*_softmasked_toplevel.fa.gz&quot;</span><span class="p">)</span>
+    <span class="n">fasta_pattern</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_path</span><span class="p">,</span> <span class="s2">"*_softmasked_toplevel.fa.gz"</span><span class="p">)</span>
     <span class="n">fasta_matches</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">fasta_pattern</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">fasta_matches</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;No reheadered toplevel FASTA file found in </span><span class="si">{</span><span class="n">output_path</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">"No reheadered toplevel FASTA file found in </span><span class="si">{</span><span class="n">output_path</span><span class="si">}</span><span class="s2">"</span>
         <span class="p">)</span>
 
     <span class="k">return</span> <span class="n">fasta_matches</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
@@ -5033,7 +5033,7 @@ underscores.</p>
 <span class="normal">281</span>
 <span class="normal">282</span>
 <span class="normal">283</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">format_species_name</span><span class="p">(</span><span class="n">species_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Reformat species name into typical binomial nomenclature format.</span>
 
 <span class="sd">    Converts species names to the standard scientific naming convention where</span>
@@ -5042,20 +5042,20 @@ underscores.</p>
 <span class="sd">    underscores.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        species_name: Species name to format (e.g., &#39;homo sapiens&#39;, &#39;canis_lupus&#39;)</span>
+<span class="sd">        species_name: Species name to format (e.g., 'homo sapiens', 'canis_lupus')</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        str: Formatted species name (e.g., &#39;Homo_sapiens&#39;, &#39;Canis_lupus&#39;)</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">parts</span> <span class="o">=</span> <span class="n">species_name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+<span class="sd">        str: Formatted species name (e.g., 'Homo_sapiens', 'Canis_lupus')</span>
+<span class="sd">    """</span>
+    <span class="n">parts</span> <span class="o">=</span> <span class="n">species_name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"_"</span><span class="p">,</span> <span class="s2">" "</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">:</span>
-        <span class="n">species_title</span> <span class="o">=</span> <span class="n">parts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">capitalize</span><span class="p">()</span> <span class="o">+</span> <span class="s2">&quot;_&quot;</span> <span class="o">+</span> <span class="n">parts</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="n">species_title</span> <span class="o">=</span> <span class="n">parts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">capitalize</span><span class="p">()</span> <span class="o">+</span> <span class="s2">"_"</span> <span class="o">+</span> <span class="n">parts</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
         <span class="c1"># Add any additional parts if they exist</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
-            <span class="n">species_title</span> <span class="o">+=</span> <span class="s2">&quot;_&quot;</span> <span class="o">+</span> <span class="s2">&quot;_&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">part</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">parts</span><span class="p">[</span><span class="mi">2</span><span class="p">:])</span>
+            <span class="n">species_title</span> <span class="o">+=</span> <span class="s2">"_"</span> <span class="o">+</span> <span class="s2">"_"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">part</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">parts</span><span class="p">[</span><span class="mi">2</span><span class="p">:])</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">species_title</span> <span class="o">=</span> <span class="n">species_name</span><span class="o">.</span><span class="n">capitalize</span><span class="p">()</span>
-    <span class="k">return</span> <span class="n">species_title</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">species_title</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">" "</span><span class="p">,</span> <span class="s2">"_"</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"-"</span><span class="p">,</span> <span class="s2">"_"</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"."</span><span class="p">,</span> <span class="s2">"_"</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -5224,7 +5224,7 @@ for all provided files in the format: {hash}  {filename}</p>
 <span class="normal">412</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">generate_md5_checksums</span><span class="p">(</span>
     <span class="n">directory</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">files</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">logger</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Generate MD5 checksums for files and write to CHECKSUMS file.</span>
 
 <span class="sd">    Creates a CHECKSUMS file in the specified directory with MD5 hashes</span>
@@ -5240,18 +5240,18 @@ for all provided files in the format: {hash}  {filename}</p>
 
 <span class="sd">    Raises:</span>
 <span class="sd">        IOError: If CHECKSUMS file cannot be written</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">md5_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="s2">&quot;CHECKSUMS&quot;</span><span class="p">)</span>
+<span class="sd">    """</span>
+    <span class="n">md5_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="s2">"CHECKSUMS"</span><span class="p">)</span>
 
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Generating MD5 checksums in: </span><span class="si">{</span><span class="n">md5_file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Generating MD5 checksums in: </span><span class="si">{</span><span class="n">md5_file</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">md5_file</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>  <span class="c1"># pylint: disable=unspecified-encoding</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">md5_file</span><span class="p">,</span> <span class="s2">"w"</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>  <span class="c1"># pylint: disable=unspecified-encoding</span>
         <span class="k">for</span> <span class="n">filepath</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">files</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">filepath</span><span class="p">):</span>
                 <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
                 <span class="n">md5_hash</span> <span class="o">=</span> <span class="n">calculate_md5</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
-                <span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">md5_hash</span><span class="si">}</span><span class="s2">  </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">md5_hash</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">md5_hash</span><span class="si">}</span><span class="s2">  </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">md5_hash</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">md5_file</span>
 </code></pre></div></td></tr></table></div>
@@ -5421,26 +5421,26 @@ for all provided files in the format: {hash}  {filename}</p>
 <span class="normal">237</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">generate_new_filename</span><span class="p">(</span>
     <span class="n">original_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">species_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">gca_number</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">version</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">file_type</span><span class="p">:</span> <span class="nb">str</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Generate standardized filename for FTP release.</span>
 
 <span class="sd">    Creates filenames in the format: species_gca{number}v{version}.{type}.gz</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        original_file: Original file path (used for reference)</span>
-<span class="sd">        species_name: Species name (e.g., &#39;Macaca_mulatta&#39;)</span>
-<span class="sd">        gca_number: GCA accession number (e.g., &#39;030222105&#39;)</span>
-<span class="sd">        version: Version number (e.g., &#39;1&#39;)</span>
-<span class="sd">        file_type: File type (e.g., &#39;gff3&#39;, &#39;gtf&#39;, &#39;dna.toplevel.fa&#39;)</span>
+<span class="sd">        species_name: Species name (e.g., 'Macaca_mulatta')</span>
+<span class="sd">        gca_number: GCA accession number (e.g., '030222105')</span>
+<span class="sd">        version: Version number (e.g., '1')</span>
+<span class="sd">        file_type: File type (e.g., 'gff3', 'gtf', 'dna.toplevel.fa')</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        str: Standardized filename</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">species_lower</span> <span class="o">=</span> <span class="n">species_name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
-    <span class="n">new_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">species_lower</span><span class="si">}</span><span class="s2">_gca</span><span class="si">{</span><span class="n">gca_number</span><span class="si">}</span><span class="s2">v</span><span class="si">{</span><span class="n">version</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">file_type</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="n">new_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">species_lower</span><span class="si">}</span><span class="s2">_gca</span><span class="si">{</span><span class="n">gca_number</span><span class="si">}</span><span class="s2">v</span><span class="si">{</span><span class="n">version</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">file_type</span><span class="si">}</span><span class="s2">"</span>
 
-    <span class="k">if</span> <span class="n">is_compressed_file</span><span class="p">(</span><span class="n">original_file</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">new_name</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.gz&quot;</span><span class="p">):</span>
-        <span class="n">new_name</span> <span class="o">+=</span> <span class="s2">&quot;.gz&quot;</span>
+    <span class="k">if</span> <span class="n">is_compressed_file</span><span class="p">(</span><span class="n">original_file</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">new_name</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">".gz"</span><span class="p">):</span>
+        <span class="n">new_name</span> <span class="o">+=</span> <span class="s2">".gz"</span>
     <span class="k">return</span> <span class="n">new_name</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -5543,7 +5543,7 @@ for all provided files in the format: {hash}  {filename}</p>
 <span class="normal">185</span>
 <span class="normal">186</span>
 <span class="normal">187</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">is_compressed_file</span><span class="p">(</span><span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Check if a file is actually compressed by examining its magic bytes.</span>
 
 <span class="sd">    Checks for gzip magic bytes (0x1f, 0x8b) at the beginning of the file.</span>
@@ -5553,9 +5553,9 @@ for all provided files in the format: {hash}  {filename}</p>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        bool: True if file is actually gzip compressed</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">try</span><span class="p">:</span>
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="s2">"rb"</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
             <span class="n">magic_bytes</span> <span class="o">=</span> <span class="n">file</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
             <span class="c1"># Check for gzip magic bytes (0x1f, 0x8b)</span>
             <span class="k">return</span> <span class="p">(</span>
@@ -5564,7 +5564,7 @@ for all provided files in the format: {hash}  {filename}</p>
                 <span class="ow">and</span> <span class="n">magic_bytes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mh">0x8B</span>
             <span class="p">)</span>
     <span class="k">except</span> <span class="p">(</span><span class="ne">IOError</span><span class="p">,</span> <span class="ne">OSError</span><span class="p">):</span>
-        <span class="c1"># If we can&#39;t read the file, assume it&#39;s not compressed</span>
+        <span class="c1"># If we can't read the file, assume it's not compressed</span>
         <span class="k">return</span> <span class="kc">False</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -5728,7 +5728,7 @@ file gathering and FTP structure creation process.</p>
 <span class="normal">527</span>
 <span class="normal">528</span>
 <span class="normal">529</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Main function to process pre-release FTP data.</span>
 
 <span class="sd">    Parses command line arguments, validates inputs, and orchestrates the</span>
@@ -5736,32 +5736,32 @@ file gathering and FTP structure creation process.</p>
 
 <span class="sd">    Raises:</span>
 <span class="sd">        SystemExit: On validation errors or processing failures</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span>
-        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Gather GTF, GFF3, and FASTA files into FTP directory structure&quot;</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">"Gather GTF, GFF3, and FASTA files into FTP directory structure"</span><span class="p">,</span>
         <span class="n">formatter_class</span><span class="o">=</span><span class="n">argparse</span><span class="o">.</span><span class="n">RawDescriptionHelpFormatter</span><span class="p">,</span>
-        <span class="n">epilog</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;</span>
+        <span class="n">epilog</span><span class="o">=</span><span class="s2">"""</span>
 <span class="s2">Examples:</span>
 <span class="s2">    </span><span class="si">%(prog)s</span><span class="s2"> -p /path/to/GCA_030222105.1/ -g GCA_030222105.1 -s Macaca_mulatta</span>
 <span class="s2">    </span><span class="si">%(prog)s</span><span class="s2"> -p /path/to/data/ -g GCA_002263795.4</span>
-<span class="s2">        &quot;&quot;&quot;</span><span class="p">,</span>
+<span class="s2">        """</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;-p&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;--path&quot;</span><span class="p">,</span>
+        <span class="s2">"-p"</span><span class="p">,</span>
+        <span class="s2">"--path"</span><span class="p">,</span>
         <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Output path containing the genome data directory structure&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"Output path containing the genome data directory structure"</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;-g&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;--gca&quot;</span><span class="p">,</span>
+        <span class="s2">"-g"</span><span class="p">,</span>
+        <span class="s2">"--gca"</span><span class="p">,</span>
         <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;GCA identifier in format GCA_NNNNNNNN.N (e.g., GCA_030222105.1)&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"GCA identifier in format GCA_NNNNNNNN.N (e.g., GCA_030222105.1)"</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;-s&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;--species&quot;</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Species name (e.g., Macaca_mulatta). If not provided, will extract from filenames&quot;</span><span class="p">,</span>
+        <span class="s2">"-s"</span><span class="p">,</span>
+        <span class="s2">"--species"</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"Species name (e.g., Macaca_mulatta). If not provided, will extract from filenames"</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
@@ -5773,35 +5773,35 @@ file gathering and FTP structure creation process.</p>
 
     <span class="c1"># Validate input path</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">output_path</span><span class="p">):</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Output path does not exist: </span><span class="si">{</span><span class="n">output_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Output path does not exist: </span><span class="si">{</span><span class="n">output_path</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">output_path</span><span class="p">):</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Output path is not a directory: </span><span class="si">{</span><span class="n">output_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Output path is not a directory: </span><span class="si">{</span><span class="n">output_path</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Processing pre-release FTP data in: </span><span class="si">{</span><span class="n">output_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;GCA identifier: </span><span class="si">{</span><span class="n">gca_string</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Processing pre-release FTP data in: </span><span class="si">{</span><span class="n">output_path</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"GCA identifier: </span><span class="si">{</span><span class="n">gca_string</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
     <span class="k">try</span><span class="p">:</span>
         <span class="c1"># Find reheadered FASTA file</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">fasta_file</span> <span class="o">=</span> <span class="n">find_reheadered_fasta</span><span class="p">(</span><span class="n">output_path</span><span class="p">)</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Found reheadered FASTA file: </span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">fasta_file</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Found reheadered FASTA file: </span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">fasta_file</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
         <span class="k">except</span> <span class="ne">FileNotFoundError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">err</span><span class="p">))</span>
             <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 
         <span class="n">annotation_files</span> <span class="o">=</span> <span class="n">find_annotation_files</span><span class="p">(</span><span class="n">output_path</span><span class="p">)</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Found annotation files: </span><span class="si">{</span><span class="n">annotation_files</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Found annotation files: </span><span class="si">{</span><span class="n">annotation_files</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
         <span class="c1"># Find 2bit file if it exists</span>
         <span class="n">two_bit_file</span> <span class="o">=</span> <span class="n">find_2bit</span><span class="p">(</span><span class="n">output_path</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">two_bit_file</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Found 2bit file: </span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">two_bit_file</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Found 2bit file: </span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">two_bit_file</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;No 2bit file found in the output directory&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">"No 2bit file found in the output directory"</span><span class="p">)</span>
 
         <span class="c1"># Extract species name if not provided</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">species_name</span><span class="p">:</span>
@@ -5810,13 +5810,13 @@ file gathering and FTP structure creation process.</p>
                 <span class="k">if</span> <span class="n">filepath</span><span class="p">:</span>
                     <span class="n">species_name</span> <span class="o">=</span> <span class="n">extract_species_from_filename</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
                     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;Extracted species name from </span><span class="si">{</span><span class="n">file_type</span><span class="si">}</span><span class="s2"> file: </span><span class="si">{</span><span class="n">species_name</span><span class="si">}</span><span class="s2">&quot;</span>
+                        <span class="sa">f</span><span class="s2">"Extracted species name from </span><span class="si">{</span><span class="n">file_type</span><span class="si">}</span><span class="s2"> file: </span><span class="si">{</span><span class="n">species_name</span><span class="si">}</span><span class="s2">"</span>
                     <span class="p">)</span>
                     <span class="k">break</span>
 
             <span class="k">if</span> <span class="ow">not</span> <span class="n">species_name</span><span class="p">:</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-                    <span class="s2">&quot;Could not determine species name. Please provide with -s option&quot;</span>
+                    <span class="s2">"Could not determine species name. Please provide with -s option"</span>
                 <span class="p">)</span>
                 <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 
@@ -5834,13 +5834,13 @@ file gathering and FTP structure creation process.</p>
         <span class="c1"># Generate MD5 checksums</span>
         <span class="k">if</span> <span class="n">copied_files</span><span class="p">:</span>
             <span class="n">checksum_file</span> <span class="o">=</span> <span class="n">generate_md5_checksums</span><span class="p">(</span><span class="n">ftp_dir</span><span class="p">,</span> <span class="n">copied_files</span><span class="p">,</span> <span class="n">logger</span><span class="p">)</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;MD5 checksums written to: </span><span class="si">{</span><span class="n">checksum_file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"MD5 checksums written to: </span><span class="si">{</span><span class="n">checksum_file</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;FTP structure created successfully in: </span><span class="si">{</span><span class="n">ftp_dir</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Pre-release FTP processing completed successfully&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"FTP structure created successfully in: </span><span class="si">{</span><span class="n">ftp_dir</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"Pre-release FTP processing completed successfully"</span><span class="p">)</span>
 
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>  <span class="c1"># pylint: disable=broad-exception-caught</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error during processing: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">err</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Error during processing: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">err</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -5965,23 +5965,23 @@ file gathering and FTP structure creation process.</p>
 <span class="normal">74</span>
 <span class="normal">75</span>
 <span class="normal">76</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">parse_gca_id</span><span class="p">(</span><span class="n">gca_string</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Parse GCA ID to extract accession number and version information.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        gca_string: GCA identifier in format GCA_030222105.1</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        Tuple[str, str]: GCA number and version (e.g., (&#39;030222105&#39;, &#39;1&#39;))</span>
+<span class="sd">        Tuple[str, str]: GCA number and version (e.g., ('030222105', '1'))</span>
 
 <span class="sd">    Raises:</span>
 <span class="sd">        ValueError: If GCA format is invalid</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="c1"># Extract GCA number and version from format like GCA_030222105.1</span>
-    <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;GCA_(\d+)\.(\d+)&quot;</span><span class="p">,</span> <span class="n">gca_string</span><span class="p">)</span>
+    <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">"GCA_(\d+)\.(\d+)"</span><span class="p">,</span> <span class="n">gca_string</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">match</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Invalid GCA format: </span><span class="si">{</span><span class="n">gca_string</span><span class="si">}</span><span class="s2">. Expected format: GCA_NNNNNNNN.N&quot;</span>
+            <span class="sa">f</span><span class="s2">"Invalid GCA format: </span><span class="si">{</span><span class="n">gca_string</span><span class="si">}</span><span class="s2">. Expected format: GCA_NNNNNNNN.N"</span>
         <span class="p">)</span>
 
     <span class="n">gca_number</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
@@ -6046,16 +6046,16 @@ file gathering and FTP structure creation process.</p>
 <span class="normal">48</span>
 <span class="normal">49</span>
 <span class="normal">50</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">setup_logging</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Set up logging configuration with timestamps and appropriate formatting.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        logging.Logger: Configured logger instance</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span>
         <span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">,</span>
-        <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">%(asctime)s</span><span class="s2"> - </span><span class="si">%(levelname)s</span><span class="s2"> - </span><span class="si">%(message)s</span><span class="s2">&quot;</span><span class="p">,</span>
-        <span class="n">datefmt</span><span class="o">=</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2"> %H:%M:%S&quot;</span><span class="p">,</span>
+        <span class="nb">format</span><span class="o">=</span><span class="s2">"</span><span class="si">%(asctime)s</span><span class="s2"> - </span><span class="si">%(levelname)s</span><span class="s2"> - </span><span class="si">%(message)s</span><span class="s2">"</span><span class="p">,</span>
+        <span class="n">datefmt</span><span class="o">=</span><span class="s2">"%Y-%m-</span><span class="si">%d</span><span class="s2"> %H:%M:%S"</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="k">return</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>

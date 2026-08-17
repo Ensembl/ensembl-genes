@@ -4337,7 +4337,7 @@
 <span class="normal">545</span>
 <span class="normal">546</span>
 <span class="normal">547</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">YamlRenderer</span><span class="p">:</span>  <span class="c1"># pylint: disable=too-few-public-methods</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Renders GenomeMetadata into validated dictionary structures for YAML output.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Renders GenomeMetadata into validated dictionary structures for YAML output."""</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">ProjectConfig</span><span class="p">,</span> <span class="n">ftp_client</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">config</span>
@@ -4349,7 +4349,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_ftp_species_cache</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_check_beta_status</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">genome_uuid</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Cached wrapper around ``check_beta_species_status``.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Cached wrapper around ``check_beta_species_status``."""</span>
         <span class="k">if</span> <span class="n">genome_uuid</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_beta_status_cache</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_beta_status_cache</span><span class="p">[</span><span class="n">genome_uuid</span><span class="p">]</span>
         <span class="n">status</span> <span class="o">=</span> <span class="n">check_beta_species_status</span><span class="p">(</span><span class="n">genome_uuid</span><span class="p">)</span>
@@ -4357,35 +4357,35 @@
         <span class="k">return</span> <span class="n">status</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_resolve_beta_link</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">meta</span><span class="p">:</span> <span class="n">GenomeMetadata</span><span class="p">,</span> <span class="n">target_released</span><span class="p">:</span> <span class="nb">bool</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Decide the ``beta_link`` value and its audit status.</span>
+<span class="w">        </span><span class="sd">"""Decide the ``beta_link`` value and its audit status.</span>
 
 <span class="sd">        Only released genomes with a confirmed-usable beta species page get a</span>
-<span class="sd">        real beta URL; everything else gets &quot;Coming soon!&quot;. This avoids</span>
-<span class="sd">        emitting links that resolve to the beta &quot;species not recognised&quot; page.</span>
+<span class="sd">        real beta URL; everything else gets "Coming soon!". This avoids</span>
+<span class="sd">        emitting links that resolve to the beta "species not recognised" page.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            Tuple[str, str]: (beta_link_value, beta_link_status) where status</span>
 <span class="sd">            is one of: available, unavailable, error, skipped_prerelease,</span>
 <span class="sd">            skipped_no_uuid.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">target_released</span><span class="p">:</span>
-            <span class="k">return</span> <span class="s2">&quot;Coming soon!&quot;</span><span class="p">,</span> <span class="s2">&quot;skipped_prerelease&quot;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">meta</span><span class="o">.</span><span class="n">genome_uuid</span> <span class="ow">or</span> <span class="n">meta</span><span class="o">.</span><span class="n">genome_uuid</span> <span class="o">==</span> <span class="s2">&quot;unknown&quot;</span><span class="p">:</span>
-            <span class="k">return</span> <span class="s2">&quot;Coming soon!&quot;</span><span class="p">,</span> <span class="s2">&quot;skipped_no_uuid&quot;</span>
+            <span class="k">return</span> <span class="s2">"Coming soon!"</span><span class="p">,</span> <span class="s2">"skipped_prerelease"</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">meta</span><span class="o">.</span><span class="n">genome_uuid</span> <span class="ow">or</span> <span class="n">meta</span><span class="o">.</span><span class="n">genome_uuid</span> <span class="o">==</span> <span class="s2">"unknown"</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">"Coming soon!"</span><span class="p">,</span> <span class="s2">"skipped_no_uuid"</span>
         <span class="n">status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_beta_status</span><span class="p">(</span><span class="n">meta</span><span class="o">.</span><span class="n">genome_uuid</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">status</span> <span class="o">==</span> <span class="s2">&quot;available&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">status</span> <span class="o">==</span> <span class="s2">"available"</span><span class="p">:</span>
             <span class="k">return</span> <span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;https://beta.ensembl.org/species/</span><span class="si">{</span><span class="n">meta</span><span class="o">.</span><span class="n">genome_uuid</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;available&quot;</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s2">"https://beta.ensembl.org/species/</span><span class="si">{</span><span class="n">meta</span><span class="o">.</span><span class="n">genome_uuid</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+                <span class="s2">"available"</span><span class="p">,</span>
             <span class="p">)</span>
-        <span class="c1"># &quot;unavailable&quot; or &quot;error&quot; — do not emit a possibly-broken link.</span>
-        <span class="k">return</span> <span class="s2">&quot;Coming soon!&quot;</span><span class="p">,</span> <span class="n">status</span>
+        <span class="c1"># "unavailable" or "error" — do not emit a possibly-broken link.</span>
+        <span class="k">return</span> <span class="s2">"Coming soon!"</span><span class="p">,</span> <span class="n">status</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">render</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">meta</span><span class="p">:</span> <span class="n">GenomeMetadata</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Dispatches to the correct schema renderer based on project config.&quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">schema_type</span> <span class="o">==</span> <span class="s2">&quot;hprc&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Dispatches to the correct schema renderer based on project config."""</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">schema_type</span> <span class="o">==</span> <span class="s2">"hprc"</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_render_hprc</span><span class="p">(</span><span class="n">meta</span><span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">schema_type</span> <span class="o">==</span> <span class="s2">&quot;mouse&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">schema_type</span> <span class="o">==</span> <span class="s2">"mouse"</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_render_mouse</span><span class="p">(</span><span class="n">meta</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_render_standard</span><span class="p">(</span><span class="n">meta</span><span class="p">)</span>
 
@@ -4398,18 +4398,18 @@
         <span class="n">capitalized_species</span> <span class="o">=</span> <span class="n">species_name</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="o">+</span> <span class="n">species_name</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
 
         <span class="c1"># A. Canonical Ensembl-style: replace spaces, hyphens, dots with underscores</span>
-        <span class="n">canonical</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;[ \-\.]&quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="n">capitalized_species</span><span class="p">)</span>
+        <span class="n">canonical</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">"[ \-\.]"</span><span class="p">,</span> <span class="s2">"_"</span><span class="p">,</span> <span class="n">capitalized_species</span><span class="p">)</span>
         <span class="c1"># C. Collapse multiple underscores</span>
-        <span class="n">canonical</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;_+&quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="n">canonical</span><span class="p">)</span>
+        <span class="n">canonical</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">"_+"</span><span class="p">,</span> <span class="s2">"_"</span><span class="p">,</span> <span class="n">canonical</span><span class="p">)</span>
         <span class="n">variants</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">canonical</span><span class="p">)</span>
 
         <span class="c1"># B. Minimal normalisation (current behavior fallback): replace spaces with underscores only</span>
-        <span class="n">minimal</span> <span class="o">=</span> <span class="n">capitalized_species</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">)</span>
+        <span class="n">minimal</span> <span class="o">=</span> <span class="n">capitalized_species</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">" "</span><span class="p">,</span> <span class="s2">"_"</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">minimal</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">variants</span><span class="p">:</span>
             <span class="n">variants</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">minimal</span><span class="p">)</span>
 
         <span class="c1"># C. Collapse multiple underscores for minimal</span>
-        <span class="n">minimal_collapsed</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;_+&quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="n">minimal</span><span class="p">)</span>
+        <span class="n">minimal_collapsed</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">"_+"</span><span class="p">,</span> <span class="s2">"_"</span><span class="p">,</span> <span class="n">minimal</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">minimal_collapsed</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">variants</span><span class="p">:</span>
             <span class="n">variants</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">minimal_collapsed</span><span class="p">)</span>
 
@@ -4420,21 +4420,21 @@
                 <span class="n">variants</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">lv</span><span class="p">)</span>
 
         <span class="c1"># Preserve legacy fallbacks just in case</span>
-        <span class="n">legacy_v2</span> <span class="o">=</span> <span class="n">minimal</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="n">legacy_v2</span> <span class="o">=</span> <span class="n">minimal</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"."</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">legacy_v2</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">variants</span><span class="p">:</span>
             <span class="n">variants</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">legacy_v2</span><span class="p">)</span>
 
-        <span class="n">legacy_v3</span> <span class="o">=</span> <span class="n">minimal</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">)</span>
+        <span class="n">legacy_v3</span> <span class="o">=</span> <span class="n">minimal</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"."</span><span class="p">,</span> <span class="s2">"_"</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">legacy_v3</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">variants</span><span class="p">:</span>
             <span class="n">variants</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">legacy_v3</span><span class="p">)</span>
 
-        <span class="n">legacy_v4</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;_+&quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="n">legacy_v3</span><span class="p">)</span>
+        <span class="n">legacy_v4</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">"_+"</span><span class="p">,</span> <span class="s2">"_"</span><span class="p">,</span> <span class="n">legacy_v3</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">legacy_v4</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">variants</span><span class="p">:</span>
             <span class="n">variants</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">legacy_v4</span><span class="p">)</span>
 
         <span class="c1"># Reorder if we have a cached success for this species</span>
         <span class="k">if</span> <span class="p">(</span>
-            <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;_ftp_species_cache&quot;</span><span class="p">)</span>
+            <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">"_ftp_species_cache"</span><span class="p">)</span>
             <span class="ow">and</span> <span class="n">species_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ftp_species_cache</span>
         <span class="p">):</span>
             <span class="n">known_good</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ftp_species_cache</span><span class="p">[</span><span class="n">species_name</span><span class="p">]</span>
@@ -4446,62 +4446,62 @@
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_scan_ftp_directory_for_date</span><span class="p">(</span><span class="n">base_url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">metadata_date</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;List an FTP geneset directory and return the newest date with valid GTF/GFF3.</span>
+<span class="w">        </span><span class="sd">"""List an FTP geneset directory and return the newest date with valid GTF/GFF3.</span>
 
 <span class="sd">        Returns the date string (``YYYY_MM``) if found, or an empty string.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">base_url</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">!=</span> <span class="mi">200</span><span class="p">:</span>
-                <span class="k">return</span> <span class="s2">&quot;&quot;</span>
-            <span class="n">matches</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;href=&quot;(\d</span><span class="si">{4}</span><span class="s1">_\d</span><span class="si">{2}</span><span class="s1">)/?&#39;</span><span class="p">,</span> <span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+                <span class="k">return</span> <span class="s2">""</span>
+            <span class="n">matches</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="sa">r</span><span class="s1">'href="(\d</span><span class="si">{4}</span><span class="s1">_\d</span><span class="si">{2}</span><span class="s1">)/?'</span><span class="p">,</span> <span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
             <span class="n">dates</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">matches</span><span class="p">),</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">dates</span><span class="p">:</span>
-                <span class="n">gtf_d</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">base_url</span><span class="si">}{</span><span class="n">d</span><span class="si">}</span><span class="s2">/genes.gtf.gz&quot;</span>
-                <span class="n">gff3_d</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">base_url</span><span class="si">}{</span><span class="n">d</span><span class="si">}</span><span class="s2">/genes.gff3.gz&quot;</span>
+                <span class="n">gtf_d</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">base_url</span><span class="si">}{</span><span class="n">d</span><span class="si">}</span><span class="s2">/genes.gtf.gz"</span>
+                <span class="n">gff3_d</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">base_url</span><span class="si">}{</span><span class="n">d</span><span class="si">}</span><span class="s2">/genes.gff3.gz"</span>
                 <span class="k">if</span> <span class="n">check_url_status</span><span class="p">(</span><span class="n">gtf_d</span><span class="p">)</span> <span class="ow">and</span> <span class="n">check_url_status</span><span class="p">(</span><span class="n">gff3_d</span><span class="p">):</span>
                     <span class="k">if</span> <span class="n">d</span> <span class="o">!=</span> <span class="n">metadata_date</span><span class="p">:</span>
                         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                            <span class="s2">&quot;Resolved FTP date </span><span class="si">%s</span><span class="s2"> differs from metadata </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+                            <span class="s2">"Resolved FTP date </span><span class="si">%s</span><span class="s2"> differs from metadata </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span>
                             <span class="n">d</span><span class="p">,</span>
                             <span class="n">metadata_date</span><span class="p">,</span>
                         <span class="p">)</span>
                     <span class="k">return</span> <span class="n">d</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>  <span class="c1"># pylint: disable=broad-exception-caught</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Error fetching directory </span><span class="si">%s</span><span class="s2">: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">base_url</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
-        <span class="k">return</span> <span class="s2">&quot;&quot;</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"Error fetching directory </span><span class="si">%s</span><span class="s2">: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">base_url</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+        <span class="k">return</span> <span class="s2">""</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_resolve_ftp_assets</span><span class="p">(</span>  <span class="c1"># pylint: disable=too-many-locals,too-many-branches,too-many-statements</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">meta</span><span class="p">:</span> <span class="n">GenomeMetadata</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
         <span class="c1"># Original old base logic for checking if we used a fallback</span>
-        <span class="n">ftp_species_name_base</span> <span class="o">=</span> <span class="n">meta</span><span class="o">.</span><span class="n">species_name</span><span class="o">.</span><span class="n">capitalize</span><span class="p">()</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">)</span>
+        <span class="n">ftp_species_name_base</span> <span class="o">=</span> <span class="n">meta</span><span class="o">.</span><span class="n">species_name</span><span class="o">.</span><span class="n">capitalize</span><span class="p">()</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">" "</span><span class="p">,</span> <span class="s2">"_"</span><span class="p">)</span>
         <span class="n">variants</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_normalise_species_for_ftp</span><span class="p">(</span><span class="n">meta</span><span class="o">.</span><span class="n">species_name</span><span class="p">)</span>
 
         <span class="n">metadata_date</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">meta</span><span class="o">.</span><span class="n">annotation_date</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">)</span>
+            <span class="n">meta</span><span class="o">.</span><span class="n">annotation_date</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"-"</span><span class="p">,</span> <span class="s2">"_"</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">meta</span><span class="o">.</span><span class="n">annotation_date</span>
-            <span class="k">else</span> <span class="s2">&quot;unknown_date&quot;</span>
+            <span class="k">else</span> <span class="s2">"unknown_date"</span>
         <span class="p">)</span>
-        <span class="n">source</span> <span class="o">=</span> <span class="p">(</span><span class="n">meta</span><span class="o">.</span><span class="n">annotation_source</span> <span class="ow">or</span> <span class="s2">&quot;ensembl&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="n">source</span> <span class="o">=</span> <span class="p">(</span><span class="n">meta</span><span class="o">.</span><span class="n">annotation_source</span> <span class="ow">or</span> <span class="s2">"ensembl"</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
 
         <span class="n">target_released</span> <span class="o">=</span> <span class="n">meta</span><span class="o">.</span><span class="n">is_released</span>
         <span class="n">resolved_rel_variant</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="n">resolved_date</span> <span class="o">=</span> <span class="n">metadata_date</span>
-        <span class="n">audit_decision</span> <span class="o">=</span> <span class="s2">&quot;excluded&quot;</span>
-        <span class="n">audit_reason</span> <span class="o">=</span> <span class="s2">&quot;No released or pre-release FTP assets found.&quot;</span>
+        <span class="n">audit_decision</span> <span class="o">=</span> <span class="s2">"excluded"</span>
+        <span class="n">audit_reason</span> <span class="o">=</span> <span class="s2">"No released or pre-release FTP assets found."</span>
 
         <span class="c1"># 1. Try Released logic</span>
         <span class="k">if</span> <span class="n">target_released</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">variant</span> <span class="ow">in</span> <span class="n">variants</span><span class="p">:</span>
                 <span class="n">base_url</span> <span class="o">=</span> <span class="p">(</span>
-                    <span class="s2">&quot;https://ftp.ebi.ac.uk/pub/ensemblorganisms/&quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">variant</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">meta</span><span class="o">.</span><span class="n">accession</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">source</span><span class="si">}</span><span class="s2">/geneset/&quot;</span>
+                    <span class="s2">"https://ftp.ebi.ac.uk/pub/ensemblorganisms/"</span>
+                    <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">variant</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">meta</span><span class="o">.</span><span class="n">accession</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">source</span><span class="si">}</span><span class="s2">/geneset/"</span>
                 <span class="p">)</span>
 
                 <span class="c1"># 1a. Try metadata date first</span>
-                <span class="n">gtf_test</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">base_url</span><span class="si">}{</span><span class="n">metadata_date</span><span class="si">}</span><span class="s2">/genes.gtf.gz&quot;</span>
-                <span class="n">gff3_test</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">base_url</span><span class="si">}{</span><span class="n">metadata_date</span><span class="si">}</span><span class="s2">/genes.gff3.gz&quot;</span>
+                <span class="n">gtf_test</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">base_url</span><span class="si">}{</span><span class="n">metadata_date</span><span class="si">}</span><span class="s2">/genes.gtf.gz"</span>
+                <span class="n">gff3_test</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">base_url</span><span class="si">}{</span><span class="n">metadata_date</span><span class="si">}</span><span class="s2">/genes.gff3.gz"</span>
                 <span class="k">if</span> <span class="n">check_url_status</span><span class="p">(</span><span class="n">gtf_test</span><span class="p">)</span> <span class="ow">and</span> <span class="n">check_url_status</span><span class="p">(</span><span class="n">gff3_test</span><span class="p">):</span>
                     <span class="n">resolved_rel_variant</span> <span class="o">=</span> <span class="n">variant</span>
                     <span class="n">resolved_date</span> <span class="o">=</span> <span class="n">metadata_date</span>
@@ -4521,19 +4521,19 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">_ftp_species_cache</span><span class="p">[</span><span class="n">meta</span><span class="o">.</span><span class="n">species_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">resolved_rel_variant</span>
                 <span class="k">if</span> <span class="n">resolved_rel_variant</span> <span class="o">!=</span> <span class="n">ftp_species_name_base</span><span class="p">:</span>
                     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                        <span class="s2">&quot;Resolved FTP species name: input=</span><span class="si">%r</span><span class="s2"> used=</span><span class="si">%r</span><span class="s2">&quot;</span><span class="p">,</span>
+                        <span class="s2">"Resolved FTP species name: input=</span><span class="si">%r</span><span class="s2"> used=</span><span class="si">%r</span><span class="s2">"</span><span class="p">,</span>
                         <span class="n">meta</span><span class="o">.</span><span class="n">species_name</span><span class="p">,</span>
                         <span class="n">resolved_rel_variant</span><span class="p">,</span>
                     <span class="p">)</span>
 
-                <span class="n">audit_decision</span> <span class="o">=</span> <span class="s2">&quot;included_released&quot;</span>
-                <span class="n">audit_reason</span> <span class="o">=</span> <span class="s2">&quot;Found released FTP assets.&quot;</span>
+                <span class="n">audit_decision</span> <span class="o">=</span> <span class="s2">"included_released"</span>
+                <span class="n">audit_reason</span> <span class="o">=</span> <span class="s2">"Found released FTP assets."</span>
                 <span class="k">return</span> <span class="p">{</span>
-                    <span class="s2">&quot;is_released&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
-                    <span class="s2">&quot;ftp_species_name&quot;</span><span class="p">:</span> <span class="n">resolved_rel_variant</span><span class="p">,</span>
-                    <span class="s2">&quot;resolved_date&quot;</span><span class="p">:</span> <span class="n">resolved_date</span><span class="p">,</span>
-                    <span class="s2">&quot;audit_decision&quot;</span><span class="p">:</span> <span class="n">audit_decision</span><span class="p">,</span>
-                    <span class="s2">&quot;audit_reason&quot;</span><span class="p">:</span> <span class="n">audit_reason</span><span class="p">,</span>
+                    <span class="s2">"is_released"</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+                    <span class="s2">"ftp_species_name"</span><span class="p">:</span> <span class="n">resolved_rel_variant</span><span class="p">,</span>
+                    <span class="s2">"resolved_date"</span><span class="p">:</span> <span class="n">resolved_date</span><span class="p">,</span>
+                    <span class="s2">"audit_decision"</span><span class="p">:</span> <span class="n">audit_decision</span><span class="p">,</span>
+                    <span class="s2">"audit_reason"</span><span class="p">:</span> <span class="n">audit_reason</span><span class="p">,</span>
                 <span class="p">}</span>
 
         <span class="c1"># 2. Try Pre-release Fallback</span>
@@ -4542,300 +4542,300 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ftp_client</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">variant</span> <span class="ow">in</span> <span class="n">variants</span><span class="p">:</span>
                 <span class="n">fb_gtf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ftp_client</span><span class="o">.</span><span class="n">check_pre_release_file</span><span class="p">(</span>
-                    <span class="n">variant</span><span class="p">,</span> <span class="n">meta</span><span class="o">.</span><span class="n">accession</span><span class="p">,</span> <span class="s2">&quot;.gtf.gz&quot;</span>
+                    <span class="n">variant</span><span class="p">,</span> <span class="n">meta</span><span class="o">.</span><span class="n">accession</span><span class="p">,</span> <span class="s2">".gtf.gz"</span>
                 <span class="p">)</span>
                 <span class="k">if</span> <span class="n">fb_gtf</span><span class="p">:</span>
                     <span class="n">resolved_pre_variant</span> <span class="o">=</span> <span class="n">variant</span>
-                    <span class="n">pre_release_urls</span><span class="p">[</span><span class="s2">&quot;annotation_gtf&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">fb_gtf</span>
+                    <span class="n">pre_release_urls</span><span class="p">[</span><span class="s2">"annotation_gtf"</span><span class="p">]</span> <span class="o">=</span> <span class="n">fb_gtf</span>
 
                     <span class="n">fb_gff</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ftp_client</span><span class="o">.</span><span class="n">check_pre_release_file</span><span class="p">(</span>
-                        <span class="n">variant</span><span class="p">,</span> <span class="n">meta</span><span class="o">.</span><span class="n">accession</span><span class="p">,</span> <span class="s2">&quot;.gff3.gz&quot;</span>
+                        <span class="n">variant</span><span class="p">,</span> <span class="n">meta</span><span class="o">.</span><span class="n">accession</span><span class="p">,</span> <span class="s2">".gff3.gz"</span>
                     <span class="p">)</span>
                     <span class="k">if</span> <span class="ow">not</span> <span class="n">fb_gff</span><span class="p">:</span>
                         <span class="n">fb_gff</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ftp_client</span><span class="o">.</span><span class="n">check_pre_release_file</span><span class="p">(</span>
-                            <span class="n">variant</span><span class="p">,</span> <span class="n">meta</span><span class="o">.</span><span class="n">accession</span><span class="p">,</span> <span class="s2">&quot;.gff3&quot;</span>
+                            <span class="n">variant</span><span class="p">,</span> <span class="n">meta</span><span class="o">.</span><span class="n">accession</span><span class="p">,</span> <span class="s2">".gff3"</span>
                         <span class="p">)</span>
                     <span class="k">if</span> <span class="n">fb_gff</span><span class="p">:</span>
-                        <span class="n">pre_release_urls</span><span class="p">[</span><span class="s2">&quot;annotation_gff3&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">fb_gff</span>
+                        <span class="n">pre_release_urls</span><span class="p">[</span><span class="s2">"annotation_gff3"</span><span class="p">]</span> <span class="o">=</span> <span class="n">fb_gff</span>
 
                     <span class="n">fb_pep</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ftp_client</span><span class="o">.</span><span class="n">check_pre_release_file</span><span class="p">(</span>
-                        <span class="n">variant</span><span class="p">,</span> <span class="n">meta</span><span class="o">.</span><span class="n">accession</span><span class="p">,</span> <span class="s2">&quot;.pep.fa.gz&quot;</span>
+                        <span class="n">variant</span><span class="p">,</span> <span class="n">meta</span><span class="o">.</span><span class="n">accession</span><span class="p">,</span> <span class="s2">".pep.fa.gz"</span>
                     <span class="p">)</span>
                     <span class="k">if</span> <span class="n">fb_pep</span><span class="p">:</span>
-                        <span class="n">pre_release_urls</span><span class="p">[</span><span class="s2">&quot;proteins&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">fb_pep</span>
+                        <span class="n">pre_release_urls</span><span class="p">[</span><span class="s2">"proteins"</span><span class="p">]</span> <span class="o">=</span> <span class="n">fb_pep</span>
 
                     <span class="n">fb_cdna</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ftp_client</span><span class="o">.</span><span class="n">check_pre_release_file</span><span class="p">(</span>
-                        <span class="n">variant</span><span class="p">,</span> <span class="n">meta</span><span class="o">.</span><span class="n">accession</span><span class="p">,</span> <span class="s2">&quot;.cdna.fa.gz&quot;</span>
+                        <span class="n">variant</span><span class="p">,</span> <span class="n">meta</span><span class="o">.</span><span class="n">accession</span><span class="p">,</span> <span class="s2">".cdna.fa.gz"</span>
                     <span class="p">)</span>
                     <span class="k">if</span> <span class="n">fb_cdna</span><span class="p">:</span>
-                        <span class="n">pre_release_urls</span><span class="p">[</span><span class="s2">&quot;transcripts&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">fb_cdna</span>
+                        <span class="n">pre_release_urls</span><span class="p">[</span><span class="s2">"transcripts"</span><span class="p">]</span> <span class="o">=</span> <span class="n">fb_cdna</span>
 
                     <span class="n">fb_soft</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ftp_client</span><span class="o">.</span><span class="n">check_pre_release_file</span><span class="p">(</span>
-                        <span class="n">variant</span><span class="p">,</span> <span class="n">meta</span><span class="o">.</span><span class="n">accession</span><span class="p">,</span> <span class="s2">&quot;.dna.softmasked.fa.gz&quot;</span>
+                        <span class="n">variant</span><span class="p">,</span> <span class="n">meta</span><span class="o">.</span><span class="n">accession</span><span class="p">,</span> <span class="s2">".dna.softmasked.fa.gz"</span>
                     <span class="p">)</span>
                     <span class="k">if</span> <span class="n">fb_soft</span><span class="p">:</span>
-                        <span class="n">pre_release_urls</span><span class="p">[</span><span class="s2">&quot;softmasked_genome&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">fb_soft</span>
+                        <span class="n">pre_release_urls</span><span class="p">[</span><span class="s2">"softmasked_genome"</span><span class="p">]</span> <span class="o">=</span> <span class="n">fb_soft</span>
                     <span class="k">break</span>
 
         <span class="k">if</span> <span class="n">resolved_pre_variant</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_ftp_species_cache</span><span class="p">[</span><span class="n">meta</span><span class="o">.</span><span class="n">species_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">resolved_pre_variant</span>
             <span class="k">if</span> <span class="n">resolved_pre_variant</span> <span class="o">!=</span> <span class="n">ftp_species_name_base</span><span class="p">:</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                    <span class="s2">&quot;Resolved FTP species name: input=</span><span class="si">%r</span><span class="s2"> used=</span><span class="si">%r</span><span class="s2">&quot;</span><span class="p">,</span>
+                    <span class="s2">"Resolved FTP species name: input=</span><span class="si">%r</span><span class="s2"> used=</span><span class="si">%r</span><span class="s2">"</span><span class="p">,</span>
                     <span class="n">meta</span><span class="o">.</span><span class="n">species_name</span><span class="p">,</span>
                     <span class="n">resolved_pre_variant</span><span class="p">,</span>
                 <span class="p">)</span>
 
-            <span class="n">audit_decision</span> <span class="o">=</span> <span class="s2">&quot;included_prerelease&quot;</span>
-            <span class="n">audit_reason</span> <span class="o">=</span> <span class="s2">&quot;Found pre-release FTP assets.&quot;</span>
+            <span class="n">audit_decision</span> <span class="o">=</span> <span class="s2">"included_prerelease"</span>
+            <span class="n">audit_reason</span> <span class="o">=</span> <span class="s2">"Found pre-release FTP assets."</span>
             <span class="k">return</span> <span class="p">{</span>
-                <span class="s2">&quot;is_released&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
-                <span class="s2">&quot;ftp_species_name&quot;</span><span class="p">:</span> <span class="n">resolved_pre_variant</span><span class="p">,</span>
-                <span class="s2">&quot;resolved_date&quot;</span><span class="p">:</span> <span class="n">metadata_date</span><span class="p">,</span>
-                <span class="s2">&quot;audit_decision&quot;</span><span class="p">:</span> <span class="n">audit_decision</span><span class="p">,</span>
-                <span class="s2">&quot;audit_reason&quot;</span><span class="p">:</span> <span class="n">audit_reason</span><span class="p">,</span>
-                <span class="s2">&quot;pre_release_urls&quot;</span><span class="p">:</span> <span class="n">pre_release_urls</span><span class="p">,</span>
+                <span class="s2">"is_released"</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+                <span class="s2">"ftp_species_name"</span><span class="p">:</span> <span class="n">resolved_pre_variant</span><span class="p">,</span>
+                <span class="s2">"resolved_date"</span><span class="p">:</span> <span class="n">metadata_date</span><span class="p">,</span>
+                <span class="s2">"audit_decision"</span><span class="p">:</span> <span class="n">audit_decision</span><span class="p">,</span>
+                <span class="s2">"audit_reason"</span><span class="p">:</span> <span class="n">audit_reason</span><span class="p">,</span>
+                <span class="s2">"pre_release_urls"</span><span class="p">:</span> <span class="n">pre_release_urls</span><span class="p">,</span>
             <span class="p">}</span>
 
         <span class="k">return</span> <span class="p">{</span>
-            <span class="s2">&quot;is_released&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
-            <span class="s2">&quot;ftp_species_name&quot;</span><span class="p">:</span> <span class="n">ftp_species_name_base</span><span class="p">,</span>
-            <span class="s2">&quot;resolved_date&quot;</span><span class="p">:</span> <span class="n">metadata_date</span><span class="p">,</span>
-            <span class="s2">&quot;audit_decision&quot;</span><span class="p">:</span> <span class="s2">&quot;excluded&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;audit_reason&quot;</span><span class="p">:</span> <span class="n">audit_reason</span><span class="p">,</span>
+            <span class="s2">"is_released"</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="s2">"ftp_species_name"</span><span class="p">:</span> <span class="n">ftp_species_name_base</span><span class="p">,</span>
+            <span class="s2">"resolved_date"</span><span class="p">:</span> <span class="n">metadata_date</span><span class="p">,</span>
+            <span class="s2">"audit_decision"</span><span class="p">:</span> <span class="s2">"excluded"</span><span class="p">,</span>
+            <span class="s2">"audit_reason"</span><span class="p">:</span> <span class="n">audit_reason</span><span class="p">,</span>
         <span class="p">}</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_render_standard</span><span class="p">(</span>  <span class="c1"># pylint: disable=too-many-locals,too-many-branches,too-many-statements</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">meta</span><span class="p">:</span> <span class="n">GenomeMetadata</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Renders Schema A: Standard Projects (VGP, DToL, ERGA)&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Renders Schema A: Standard Projects (VGP, DToL, ERGA)"""</span>
         <span class="n">doc</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
 
         <span class="c1"># species display name must only come from the scientific name -- never from strain,</span>
         <span class="c1"># sample description, habitat text, or any other free-text metadata field.</span>
         <span class="c1"># (strain is displayed separately in _render_mouse; it must never appear here.)</span>
-        <span class="n">doc</span><span class="p">[</span><span class="s2">&quot;species&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">meta</span><span class="o">.</span><span class="n">species_name</span>
+        <span class="n">doc</span><span class="p">[</span><span class="s2">"species"</span><span class="p">]</span> <span class="o">=</span> <span class="n">meta</span><span class="o">.</span><span class="n">species_name</span>
 
         <span class="c1"># Icon resolution via taxonomy lineage (see icon_resolver.py).</span>
         <span class="c1"># The resolver tries: metadata DB lineage → NCBI Entrez → BUSCO hint.</span>
         <span class="c1"># Results are cached per taxon_id for the run.</span>
         <span class="n">icon</span><span class="p">,</span> <span class="n">icon_matched_term</span><span class="p">,</span> <span class="n">icon_source</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">icon_resolver</span><span class="o">.</span><span class="n">resolve_icon</span><span class="p">(</span><span class="n">meta</span><span class="p">)</span>
-        <span class="n">doc</span><span class="p">[</span><span class="s2">&quot;image&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">icon</span>
-        <span class="n">doc</span><span class="p">[</span><span class="s2">&quot;__audit_image_source__&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">icon_source</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">icon_matched_term</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">doc</span><span class="p">[</span><span class="s2">"image"</span><span class="p">]</span> <span class="o">=</span> <span class="n">icon</span>
+        <span class="n">doc</span><span class="p">[</span><span class="s2">"__audit_image_source__"</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">icon_source</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">icon_matched_term</span><span class="si">}</span><span class="s2">"</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">scrape_ncbi_submitter</span> <span class="ow">and</span> <span class="n">meta</span><span class="o">.</span><span class="n">assembly_submitter</span><span class="p">:</span>
-            <span class="n">doc</span><span class="p">[</span><span class="s2">&quot;submitted_by&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">meta</span><span class="o">.</span><span class="n">assembly_submitter</span>
+            <span class="n">doc</span><span class="p">[</span><span class="s2">"submitted_by"</span><span class="p">]</span> <span class="o">=</span> <span class="n">meta</span><span class="o">.</span><span class="n">assembly_submitter</span>
 
-        <span class="n">doc</span><span class="p">[</span><span class="s2">&quot;accession&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">meta</span><span class="o">.</span><span class="n">accession</span>
-        <span class="n">doc</span><span class="p">[</span><span class="s2">&quot;annotation_method&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">meta</span><span class="o">.</span><span class="n">annotation_method</span> <span class="ow">or</span> <span class="s2">&quot;BRAKER2&quot;</span>
+        <span class="n">doc</span><span class="p">[</span><span class="s2">"accession"</span><span class="p">]</span> <span class="o">=</span> <span class="n">meta</span><span class="o">.</span><span class="n">accession</span>
+        <span class="n">doc</span><span class="p">[</span><span class="s2">"annotation_method"</span><span class="p">]</span> <span class="o">=</span> <span class="n">meta</span><span class="o">.</span><span class="n">annotation_method</span> <span class="ow">or</span> <span class="s2">"BRAKER2"</span>
 
         <span class="n">ftp_resolution</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resolve_ftp_assets</span><span class="p">(</span><span class="n">meta</span><span class="p">)</span>
-        <span class="n">target_released</span> <span class="o">=</span> <span class="n">ftp_resolution</span><span class="p">[</span><span class="s2">&quot;is_released&quot;</span><span class="p">]</span>
-        <span class="n">ftp_species_name</span> <span class="o">=</span> <span class="n">ftp_resolution</span><span class="p">[</span><span class="s2">&quot;ftp_species_name&quot;</span><span class="p">]</span>
+        <span class="n">target_released</span> <span class="o">=</span> <span class="n">ftp_resolution</span><span class="p">[</span><span class="s2">"is_released"</span><span class="p">]</span>
+        <span class="n">ftp_species_name</span> <span class="o">=</span> <span class="n">ftp_resolution</span><span class="p">[</span><span class="s2">"ftp_species_name"</span><span class="p">]</span>
 
-        <span class="n">doc</span><span class="p">[</span><span class="s2">&quot;__audit_decision__&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ftp_resolution</span><span class="p">[</span><span class="s2">&quot;audit_decision&quot;</span><span class="p">]</span>
-        <span class="n">doc</span><span class="p">[</span><span class="s2">&quot;__audit_reason__&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ftp_resolution</span><span class="p">[</span><span class="s2">&quot;audit_reason&quot;</span><span class="p">]</span>
-        <span class="n">doc</span><span class="p">[</span><span class="s2">&quot;__audit_resolved_date__&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ftp_resolution</span><span class="p">[</span><span class="s2">&quot;resolved_date&quot;</span><span class="p">]</span>
+        <span class="n">doc</span><span class="p">[</span><span class="s2">"__audit_decision__"</span><span class="p">]</span> <span class="o">=</span> <span class="n">ftp_resolution</span><span class="p">[</span><span class="s2">"audit_decision"</span><span class="p">]</span>
+        <span class="n">doc</span><span class="p">[</span><span class="s2">"__audit_reason__"</span><span class="p">]</span> <span class="o">=</span> <span class="n">ftp_resolution</span><span class="p">[</span><span class="s2">"audit_reason"</span><span class="p">]</span>
+        <span class="n">doc</span><span class="p">[</span><span class="s2">"__audit_resolved_date__"</span><span class="p">]</span> <span class="o">=</span> <span class="n">ftp_resolution</span><span class="p">[</span><span class="s2">"resolved_date"</span><span class="p">]</span>
 
-        <span class="k">if</span> <span class="n">ftp_resolution</span><span class="p">[</span><span class="s2">&quot;audit_decision&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;excluded&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">ftp_resolution</span><span class="p">[</span><span class="s2">"audit_decision"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"excluded"</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">doc</span>  <span class="c1"># Returns only audit keys</span>
 
         <span class="k">if</span> <span class="n">target_released</span><span class="p">:</span>
-            <span class="n">meta</span><span class="o">.</span><span class="n">annotation_date</span> <span class="o">=</span> <span class="n">ftp_resolution</span><span class="p">[</span><span class="s2">&quot;resolved_date&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="s2">&quot;-&quot;</span><span class="p">)</span>
-            <span class="n">doc</span><span class="p">[</span><span class="s2">&quot;annotation_gtf&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_ftp_url</span><span class="p">(</span>
-                <span class="n">meta</span><span class="p">,</span> <span class="s2">&quot;geneset&quot;</span><span class="p">,</span> <span class="s2">&quot;genes.gtf.gz&quot;</span><span class="p">,</span> <span class="n">ftp_species_name</span>
+            <span class="n">meta</span><span class="o">.</span><span class="n">annotation_date</span> <span class="o">=</span> <span class="n">ftp_resolution</span><span class="p">[</span><span class="s2">"resolved_date"</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"_"</span><span class="p">,</span> <span class="s2">"-"</span><span class="p">)</span>
+            <span class="n">doc</span><span class="p">[</span><span class="s2">"annotation_gtf"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_ftp_url</span><span class="p">(</span>
+                <span class="n">meta</span><span class="p">,</span> <span class="s2">"geneset"</span><span class="p">,</span> <span class="s2">"genes.gtf.gz"</span><span class="p">,</span> <span class="n">ftp_species_name</span>
             <span class="p">)</span>
-            <span class="n">doc</span><span class="p">[</span><span class="s2">&quot;annotation_gff3&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_ftp_url</span><span class="p">(</span>
-                <span class="n">meta</span><span class="p">,</span> <span class="s2">&quot;geneset&quot;</span><span class="p">,</span> <span class="s2">&quot;genes.gff3.gz&quot;</span><span class="p">,</span> <span class="n">ftp_species_name</span>
+            <span class="n">doc</span><span class="p">[</span><span class="s2">"annotation_gff3"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_ftp_url</span><span class="p">(</span>
+                <span class="n">meta</span><span class="p">,</span> <span class="s2">"geneset"</span><span class="p">,</span> <span class="s2">"genes.gff3.gz"</span><span class="p">,</span> <span class="n">ftp_species_name</span>
             <span class="p">)</span>
-            <span class="n">doc</span><span class="p">[</span><span class="s2">&quot;proteins&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_ftp_url</span><span class="p">(</span>
-                <span class="n">meta</span><span class="p">,</span> <span class="s2">&quot;geneset&quot;</span><span class="p">,</span> <span class="s2">&quot;pep.fa.gz&quot;</span><span class="p">,</span> <span class="n">ftp_species_name</span>
+            <span class="n">doc</span><span class="p">[</span><span class="s2">"proteins"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_ftp_url</span><span class="p">(</span>
+                <span class="n">meta</span><span class="p">,</span> <span class="s2">"geneset"</span><span class="p">,</span> <span class="s2">"pep.fa.gz"</span><span class="p">,</span> <span class="n">ftp_species_name</span>
             <span class="p">)</span>
-            <span class="n">doc</span><span class="p">[</span><span class="s2">&quot;transcripts&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_ftp_url</span><span class="p">(</span>
-                <span class="n">meta</span><span class="p">,</span> <span class="s2">&quot;geneset&quot;</span><span class="p">,</span> <span class="s2">&quot;cdna.fa.gz&quot;</span><span class="p">,</span> <span class="n">ftp_species_name</span>
+            <span class="n">doc</span><span class="p">[</span><span class="s2">"transcripts"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_ftp_url</span><span class="p">(</span>
+                <span class="n">meta</span><span class="p">,</span> <span class="s2">"geneset"</span><span class="p">,</span> <span class="s2">"cdna.fa.gz"</span><span class="p">,</span> <span class="n">ftp_species_name</span>
             <span class="p">)</span>
-            <span class="n">doc</span><span class="p">[</span><span class="s2">&quot;softmasked_genome&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="s2">&quot;https://ftp.ebi.ac.uk/pub/ensemblorganisms/&quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">ftp_species_name</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">meta</span><span class="o">.</span><span class="n">accession</span><span class="si">}</span><span class="s2">/genome/softmasked.fa.gz&quot;</span>
+            <span class="n">doc</span><span class="p">[</span><span class="s2">"softmasked_genome"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="s2">"https://ftp.ebi.ac.uk/pub/ensemblorganisms/"</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">ftp_species_name</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">meta</span><span class="o">.</span><span class="n">accession</span><span class="si">}</span><span class="s2">/genome/softmasked.fa.gz"</span>
             <span class="p">)</span>
 
             <span class="c1"># repeat_library — checked before emitting; omitted if file does not exist</span>
             <span class="n">repeat_species</span> <span class="o">=</span> <span class="n">ftp_species_name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
             <span class="n">repeat_url</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="s2">&quot;https://ftp.ebi.ac.uk/pub/databases/ensembl/&quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;repeats/unfiltered_repeatmodeler/species/&quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">repeat_species</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">meta</span><span class="o">.</span><span class="n">accession</span><span class="si">}</span><span class="s2">.repeatmodeler.fa&quot;</span>
+                <span class="s2">"https://ftp.ebi.ac.uk/pub/databases/ensembl/"</span>
+                <span class="sa">f</span><span class="s2">"repeats/unfiltered_repeatmodeler/species/"</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">repeat_species</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">meta</span><span class="o">.</span><span class="n">accession</span><span class="si">}</span><span class="s2">.repeatmodeler.fa"</span>
             <span class="p">)</span>
             <span class="k">if</span> <span class="n">check_url_status</span><span class="p">(</span><span class="n">repeat_url</span><span class="p">):</span>
-                <span class="n">doc</span><span class="p">[</span><span class="s2">&quot;repeat_library&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">repeat_url</span>
+                <span class="n">doc</span><span class="p">[</span><span class="s2">"repeat_library"</span><span class="p">]</span> <span class="o">=</span> <span class="n">repeat_url</span>
 
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">check_url_status</span><span class="p">(</span><span class="n">doc</span><span class="p">[</span><span class="s2">&quot;annotation_gff3&quot;</span><span class="p">]):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">check_url_status</span><span class="p">(</span><span class="n">doc</span><span class="p">[</span><span class="s2">"annotation_gff3"</span><span class="p">]):</span>
                 <span class="n">uncompressed_gff</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_ftp_url</span><span class="p">(</span>
-                    <span class="n">meta</span><span class="p">,</span> <span class="s2">&quot;geneset&quot;</span><span class="p">,</span> <span class="s2">&quot;genes.gff3&quot;</span><span class="p">,</span> <span class="n">ftp_species_name</span>
+                    <span class="n">meta</span><span class="p">,</span> <span class="s2">"geneset"</span><span class="p">,</span> <span class="s2">"genes.gff3"</span><span class="p">,</span> <span class="n">ftp_species_name</span>
                 <span class="p">)</span>
                 <span class="k">if</span> <span class="n">check_url_status</span><span class="p">(</span><span class="n">uncompressed_gff</span><span class="p">):</span>
-                    <span class="n">doc</span><span class="p">[</span><span class="s2">&quot;annotation_gff3&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">uncompressed_gff</span>
+                    <span class="n">doc</span><span class="p">[</span><span class="s2">"annotation_gff3"</span><span class="p">]</span> <span class="o">=</span> <span class="n">uncompressed_gff</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">pre_urls</span> <span class="o">=</span> <span class="n">ftp_resolution</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;pre_release_urls&quot;</span><span class="p">,</span> <span class="p">{})</span>
+            <span class="n">pre_urls</span> <span class="o">=</span> <span class="n">ftp_resolution</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"pre_release_urls"</span><span class="p">,</span> <span class="p">{})</span>
             <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">pre_urls</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                 <span class="n">doc</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
 
         <span class="k">if</span> <span class="n">target_released</span><span class="p">:</span>
-            <span class="n">doc</span><span class="p">[</span><span class="s2">&quot;ftp_dumps&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="s2">&quot;https://ftp.ebi.ac.uk/pub/ensemblorganisms/&quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">ftp_species_name</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">meta</span><span class="o">.</span><span class="n">accession</span><span class="si">}</span><span class="s2">/&quot;</span>
+            <span class="n">doc</span><span class="p">[</span><span class="s2">"ftp_dumps"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="s2">"https://ftp.ebi.ac.uk/pub/ensemblorganisms/"</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">ftp_species_name</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">meta</span><span class="o">.</span><span class="n">accession</span><span class="si">}</span><span class="s2">/"</span>
             <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">doc</span><span class="p">[</span><span class="s2">&quot;ftp_dumps&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="s2">&quot;https://ftp.ebi.ac.uk/pub/databases/ensembl/pre-release/&quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">ftp_species_name</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">meta</span><span class="o">.</span><span class="n">accession</span><span class="si">}</span><span class="s2">/&quot;</span>
+            <span class="n">doc</span><span class="p">[</span><span class="s2">"ftp_dumps"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="s2">"https://ftp.ebi.ac.uk/pub/databases/ensembl/pre-release/"</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">ftp_species_name</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">meta</span><span class="o">.</span><span class="n">accession</span><span class="si">}</span><span class="s2">/"</span>
             <span class="p">)</span>
 
         <span class="c1"># Linkages</span>
         <span class="k">if</span> <span class="n">meta</span><span class="o">.</span><span class="n">is_on_rapid</span><span class="p">:</span>
-            <span class="n">doc</span><span class="p">[</span><span class="s2">&quot;ensembl_link&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;https://rapid.ensembl.org/</span><span class="si">{</span><span class="n">meta</span><span class="o">.</span><span class="n">species_name</span><span class="si">}</span><span class="s2">&quot;</span>
-            <span class="n">doc</span><span class="p">[</span><span class="s2">&quot;__audit_beta_status__&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;skipped_rapid&quot;</span>
+            <span class="n">doc</span><span class="p">[</span><span class="s2">"ensembl_link"</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"https://rapid.ensembl.org/</span><span class="si">{</span><span class="n">meta</span><span class="o">.</span><span class="n">species_name</span><span class="si">}</span><span class="s2">"</span>
+            <span class="n">doc</span><span class="p">[</span><span class="s2">"__audit_beta_status__"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"skipped_rapid"</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">allow_beta_urls</span><span class="p">:</span>
             <span class="n">beta_link</span><span class="p">,</span> <span class="n">beta_status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resolve_beta_link</span><span class="p">(</span><span class="n">meta</span><span class="p">,</span> <span class="n">target_released</span><span class="p">)</span>
-            <span class="n">doc</span><span class="p">[</span><span class="s2">&quot;beta_link&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">beta_link</span>
-            <span class="n">doc</span><span class="p">[</span><span class="s2">&quot;__audit_beta_status__&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">beta_status</span>
+            <span class="n">doc</span><span class="p">[</span><span class="s2">"beta_link"</span><span class="p">]</span> <span class="o">=</span> <span class="n">beta_link</span>
+            <span class="n">doc</span><span class="p">[</span><span class="s2">"__audit_beta_status__"</span><span class="p">]</span> <span class="o">=</span> <span class="n">beta_status</span>
 
         <span class="c1"># Quality</span>
         <span class="k">if</span> <span class="n">meta</span><span class="o">.</span><span class="n">busco_score</span><span class="p">:</span>
-            <span class="n">doc</span><span class="p">[</span><span class="s2">&quot;busco_score&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">meta</span><span class="o">.</span><span class="n">busco_score</span>
+            <span class="n">doc</span><span class="p">[</span><span class="s2">"busco_score"</span><span class="p">]</span> <span class="o">=</span> <span class="n">meta</span><span class="o">.</span><span class="n">busco_score</span>
         <span class="k">if</span> <span class="n">meta</span><span class="o">.</span><span class="n">busco_lineage</span><span class="p">:</span>
-            <span class="n">doc</span><span class="p">[</span><span class="s2">&quot;busco_lineage&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">meta</span><span class="o">.</span><span class="n">busco_lineage</span>
+            <span class="n">doc</span><span class="p">[</span><span class="s2">"busco_lineage"</span><span class="p">]</span> <span class="o">=</span> <span class="n">meta</span><span class="o">.</span><span class="n">busco_lineage</span>
 
         <span class="c1"># Relationships</span>
         <span class="k">if</span> <span class="n">meta</span><span class="o">.</span><span class="n">alternate_of</span><span class="p">:</span>
-            <span class="n">doc</span><span class="p">[</span><span class="s2">&quot;alternate&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">meta</span><span class="o">.</span><span class="n">alternate_of</span>
+            <span class="n">doc</span><span class="p">[</span><span class="s2">"alternate"</span><span class="p">]</span> <span class="o">=</span> <span class="n">meta</span><span class="o">.</span><span class="n">alternate_of</span>
 
         <span class="k">return</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">doc</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">}</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_render_hprc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">meta</span><span class="p">:</span> <span class="n">GenomeMetadata</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Renders Schema B: HPRC&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Renders Schema B: HPRC"""</span>
         <span class="n">doc</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
 
-        <span class="n">doc</span><span class="p">[</span><span class="s2">&quot;assembly&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">meta</span><span class="o">.</span><span class="n">assembly_name</span>
+        <span class="n">doc</span><span class="p">[</span><span class="s2">"assembly"</span><span class="p">]</span> <span class="o">=</span> <span class="n">meta</span><span class="o">.</span><span class="n">assembly_name</span>
         <span class="k">if</span> <span class="n">meta</span><span class="o">.</span><span class="n">parent_of_origin</span><span class="p">:</span>
-            <span class="n">doc</span><span class="p">[</span><span class="s2">&quot;parent_of_origin&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">meta</span><span class="o">.</span><span class="n">parent_of_origin</span>
+            <span class="n">doc</span><span class="p">[</span><span class="s2">"parent_of_origin"</span><span class="p">]</span> <span class="o">=</span> <span class="n">meta</span><span class="o">.</span><span class="n">parent_of_origin</span>
 
-        <span class="n">doc</span><span class="p">[</span><span class="s2">&quot;assembly_accession&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">meta</span><span class="o">.</span><span class="n">accession</span>
-        <span class="n">doc</span><span class="p">[</span><span class="s2">&quot;assembly_link&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;https://www.ebi.ac.uk/ena/browser/view/</span><span class="si">{</span><span class="n">meta</span><span class="o">.</span><span class="n">accession</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">doc</span><span class="p">[</span><span class="s2">"assembly_accession"</span><span class="p">]</span> <span class="o">=</span> <span class="n">meta</span><span class="o">.</span><span class="n">accession</span>
+        <span class="n">doc</span><span class="p">[</span><span class="s2">"assembly_link"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"https://www.ebi.ac.uk/ena/browser/view/</span><span class="si">{</span><span class="n">meta</span><span class="o">.</span><span class="n">accession</span><span class="si">}</span><span class="s2">"</span>
         <span class="p">)</span>
 
         <span class="k">if</span> <span class="n">meta</span><span class="o">.</span><span class="n">assembly_submitter</span><span class="p">:</span>
-            <span class="n">doc</span><span class="p">[</span><span class="s2">&quot;assembly_submitter&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">meta</span><span class="o">.</span><span class="n">assembly_submitter</span>
+            <span class="n">doc</span><span class="p">[</span><span class="s2">"assembly_submitter"</span><span class="p">]</span> <span class="o">=</span> <span class="n">meta</span><span class="o">.</span><span class="n">assembly_submitter</span>
 
         <span class="n">ftp_resolution</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resolve_ftp_assets</span><span class="p">(</span><span class="n">meta</span><span class="p">)</span>
-        <span class="n">target_released</span> <span class="o">=</span> <span class="n">ftp_resolution</span><span class="p">[</span><span class="s2">&quot;is_released&quot;</span><span class="p">]</span>
-        <span class="n">ftp_species_name</span> <span class="o">=</span> <span class="n">ftp_resolution</span><span class="p">[</span><span class="s2">&quot;ftp_species_name&quot;</span><span class="p">]</span>
+        <span class="n">target_released</span> <span class="o">=</span> <span class="n">ftp_resolution</span><span class="p">[</span><span class="s2">"is_released"</span><span class="p">]</span>
+        <span class="n">ftp_species_name</span> <span class="o">=</span> <span class="n">ftp_resolution</span><span class="p">[</span><span class="s2">"ftp_species_name"</span><span class="p">]</span>
 
-        <span class="n">doc</span><span class="p">[</span><span class="s2">&quot;__audit_decision__&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ftp_resolution</span><span class="p">[</span><span class="s2">&quot;audit_decision&quot;</span><span class="p">]</span>
-        <span class="n">doc</span><span class="p">[</span><span class="s2">&quot;__audit_reason__&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ftp_resolution</span><span class="p">[</span><span class="s2">&quot;audit_reason&quot;</span><span class="p">]</span>
-        <span class="n">doc</span><span class="p">[</span><span class="s2">&quot;__audit_resolved_date__&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ftp_resolution</span><span class="p">[</span><span class="s2">&quot;resolved_date&quot;</span><span class="p">]</span>
+        <span class="n">doc</span><span class="p">[</span><span class="s2">"__audit_decision__"</span><span class="p">]</span> <span class="o">=</span> <span class="n">ftp_resolution</span><span class="p">[</span><span class="s2">"audit_decision"</span><span class="p">]</span>
+        <span class="n">doc</span><span class="p">[</span><span class="s2">"__audit_reason__"</span><span class="p">]</span> <span class="o">=</span> <span class="n">ftp_resolution</span><span class="p">[</span><span class="s2">"audit_reason"</span><span class="p">]</span>
+        <span class="n">doc</span><span class="p">[</span><span class="s2">"__audit_resolved_date__"</span><span class="p">]</span> <span class="o">=</span> <span class="n">ftp_resolution</span><span class="p">[</span><span class="s2">"resolved_date"</span><span class="p">]</span>
 
-        <span class="k">if</span> <span class="n">ftp_resolution</span><span class="p">[</span><span class="s2">&quot;audit_decision&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;excluded&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">ftp_resolution</span><span class="p">[</span><span class="s2">"audit_decision"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"excluded"</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">doc</span>  <span class="c1"># Returns only audit keys</span>
 
         <span class="k">if</span> <span class="n">target_released</span><span class="p">:</span>
-            <span class="n">meta</span><span class="o">.</span><span class="n">annotation_date</span> <span class="o">=</span> <span class="n">ftp_resolution</span><span class="p">[</span><span class="s2">&quot;resolved_date&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="s2">&quot;-&quot;</span><span class="p">)</span>
-            <span class="n">doc</span><span class="p">[</span><span class="s2">&quot;annotation_gtf&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_ftp_url</span><span class="p">(</span>
-                <span class="n">meta</span><span class="p">,</span> <span class="s2">&quot;geneset&quot;</span><span class="p">,</span> <span class="s2">&quot;genes.gtf.gz&quot;</span><span class="p">,</span> <span class="n">ftp_species_name</span>
+            <span class="n">meta</span><span class="o">.</span><span class="n">annotation_date</span> <span class="o">=</span> <span class="n">ftp_resolution</span><span class="p">[</span><span class="s2">"resolved_date"</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"_"</span><span class="p">,</span> <span class="s2">"-"</span><span class="p">)</span>
+            <span class="n">doc</span><span class="p">[</span><span class="s2">"annotation_gtf"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_ftp_url</span><span class="p">(</span>
+                <span class="n">meta</span><span class="p">,</span> <span class="s2">"geneset"</span><span class="p">,</span> <span class="s2">"genes.gtf.gz"</span><span class="p">,</span> <span class="n">ftp_species_name</span>
             <span class="p">)</span>
-            <span class="n">doc</span><span class="p">[</span><span class="s2">&quot;annotation_gff3&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_ftp_url</span><span class="p">(</span>
-                <span class="n">meta</span><span class="p">,</span> <span class="s2">&quot;geneset&quot;</span><span class="p">,</span> <span class="s2">&quot;genes.gff3.gz&quot;</span><span class="p">,</span> <span class="n">ftp_species_name</span>
+            <span class="n">doc</span><span class="p">[</span><span class="s2">"annotation_gff3"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_ftp_url</span><span class="p">(</span>
+                <span class="n">meta</span><span class="p">,</span> <span class="s2">"geneset"</span><span class="p">,</span> <span class="s2">"genes.gff3.gz"</span><span class="p">,</span> <span class="n">ftp_species_name</span>
             <span class="p">)</span>
-            <span class="n">doc</span><span class="p">[</span><span class="s2">&quot;proteins&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_ftp_url</span><span class="p">(</span>
-                <span class="n">meta</span><span class="p">,</span> <span class="s2">&quot;geneset&quot;</span><span class="p">,</span> <span class="s2">&quot;pep.fa.gz&quot;</span><span class="p">,</span> <span class="n">ftp_species_name</span>
+            <span class="n">doc</span><span class="p">[</span><span class="s2">"proteins"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_ftp_url</span><span class="p">(</span>
+                <span class="n">meta</span><span class="p">,</span> <span class="s2">"geneset"</span><span class="p">,</span> <span class="s2">"pep.fa.gz"</span><span class="p">,</span> <span class="n">ftp_species_name</span>
             <span class="p">)</span>
-            <span class="n">doc</span><span class="p">[</span><span class="s2">&quot;transcripts&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_ftp_url</span><span class="p">(</span>
-                <span class="n">meta</span><span class="p">,</span> <span class="s2">&quot;geneset&quot;</span><span class="p">,</span> <span class="s2">&quot;cdna.fa.gz&quot;</span><span class="p">,</span> <span class="n">ftp_species_name</span>
+            <span class="n">doc</span><span class="p">[</span><span class="s2">"transcripts"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_ftp_url</span><span class="p">(</span>
+                <span class="n">meta</span><span class="p">,</span> <span class="s2">"geneset"</span><span class="p">,</span> <span class="s2">"cdna.fa.gz"</span><span class="p">,</span> <span class="n">ftp_species_name</span>
             <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">pre_urls</span> <span class="o">=</span> <span class="n">ftp_resolution</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;pre_release_urls&quot;</span><span class="p">,</span> <span class="p">{})</span>
+            <span class="n">pre_urls</span> <span class="o">=</span> <span class="n">ftp_resolution</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"pre_release_urls"</span><span class="p">,</span> <span class="p">{})</span>
             <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">pre_urls</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                 <span class="n">doc</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
 
         <span class="n">vep_url</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="s2">&quot;https://ftp.ebi.ac.uk/pub/ensemblorganisms/&quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">ftp_species_name</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">meta</span><span class="o">.</span><span class="n">accession</span><span class="si">}</span><span class="s2">/vep/ensembl/geneset/&quot;</span>
+            <span class="s2">"https://ftp.ebi.ac.uk/pub/ensemblorganisms/"</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">ftp_species_name</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">meta</span><span class="o">.</span><span class="n">accession</span><span class="si">}</span><span class="s2">/vep/ensembl/geneset/"</span>
         <span class="p">)</span>
         <span class="k">if</span> <span class="n">check_url_status</span><span class="p">(</span><span class="n">vep_url</span><span class="p">):</span>
-            <span class="n">doc</span><span class="p">[</span><span class="s2">&quot;variants_vep&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">vep_url</span>
+            <span class="n">doc</span><span class="p">[</span><span class="s2">"variants_vep"</span><span class="p">]</span> <span class="o">=</span> <span class="n">vep_url</span>
 
-        <span class="n">doc</span><span class="p">[</span><span class="s2">&quot;ftp_dumps&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="s2">&quot;https://ftp.ebi.ac.uk/pub/ensemblorganisms/&quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">ftp_species_name</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">meta</span><span class="o">.</span><span class="n">accession</span><span class="si">}</span><span class="s2">/&quot;</span>
+        <span class="n">doc</span><span class="p">[</span><span class="s2">"ftp_dumps"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">"https://ftp.ebi.ac.uk/pub/ensemblorganisms/"</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">ftp_species_name</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">meta</span><span class="o">.</span><span class="n">accession</span><span class="si">}</span><span class="s2">/"</span>
         <span class="p">)</span>
         <span class="n">beta_link</span><span class="p">,</span> <span class="n">beta_status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resolve_beta_link</span><span class="p">(</span><span class="n">meta</span><span class="p">,</span> <span class="n">target_released</span><span class="p">)</span>
-        <span class="n">doc</span><span class="p">[</span><span class="s2">&quot;beta_link&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">beta_link</span>
-        <span class="n">doc</span><span class="p">[</span><span class="s2">&quot;__audit_beta_status__&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">beta_status</span>
+        <span class="n">doc</span><span class="p">[</span><span class="s2">"beta_link"</span><span class="p">]</span> <span class="o">=</span> <span class="n">beta_link</span>
+        <span class="n">doc</span><span class="p">[</span><span class="s2">"__audit_beta_status__"</span><span class="p">]</span> <span class="o">=</span> <span class="n">beta_status</span>
 
         <span class="k">return</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">doc</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">}</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_render_mouse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">meta</span><span class="p">:</span> <span class="n">GenomeMetadata</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Renders Schema C: Mouse Genomes&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Renders Schema C: Mouse Genomes"""</span>
         <span class="n">doc</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
 
-        <span class="n">doc</span><span class="p">[</span><span class="s2">&quot;species&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">meta</span><span class="o">.</span><span class="n">species_name</span>
+        <span class="n">doc</span><span class="p">[</span><span class="s2">"species"</span><span class="p">]</span> <span class="o">=</span> <span class="n">meta</span><span class="o">.</span><span class="n">species_name</span>
         <span class="k">if</span> <span class="n">meta</span><span class="o">.</span><span class="n">strain</span><span class="p">:</span>
-            <span class="n">doc</span><span class="p">[</span><span class="s2">&quot;strain&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">meta</span><span class="o">.</span><span class="n">strain</span>
+            <span class="n">doc</span><span class="p">[</span><span class="s2">"strain"</span><span class="p">]</span> <span class="o">=</span> <span class="n">meta</span><span class="o">.</span><span class="n">strain</span>
 
-        <span class="n">doc</span><span class="p">[</span><span class="s2">&quot;accession&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">meta</span><span class="o">.</span><span class="n">accession</span>
+        <span class="n">doc</span><span class="p">[</span><span class="s2">"accession"</span><span class="p">]</span> <span class="o">=</span> <span class="n">meta</span><span class="o">.</span><span class="n">accession</span>
 
         <span class="n">ftp_resolution</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resolve_ftp_assets</span><span class="p">(</span><span class="n">meta</span><span class="p">)</span>
-        <span class="n">target_released</span> <span class="o">=</span> <span class="n">ftp_resolution</span><span class="p">[</span><span class="s2">&quot;is_released&quot;</span><span class="p">]</span>
-        <span class="n">ftp_species_name</span> <span class="o">=</span> <span class="n">ftp_resolution</span><span class="p">[</span><span class="s2">&quot;ftp_species_name&quot;</span><span class="p">]</span>
+        <span class="n">target_released</span> <span class="o">=</span> <span class="n">ftp_resolution</span><span class="p">[</span><span class="s2">"is_released"</span><span class="p">]</span>
+        <span class="n">ftp_species_name</span> <span class="o">=</span> <span class="n">ftp_resolution</span><span class="p">[</span><span class="s2">"ftp_species_name"</span><span class="p">]</span>
 
-        <span class="n">doc</span><span class="p">[</span><span class="s2">&quot;__audit_decision__&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ftp_resolution</span><span class="p">[</span><span class="s2">&quot;audit_decision&quot;</span><span class="p">]</span>
-        <span class="n">doc</span><span class="p">[</span><span class="s2">&quot;__audit_reason__&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ftp_resolution</span><span class="p">[</span><span class="s2">&quot;audit_reason&quot;</span><span class="p">]</span>
-        <span class="n">doc</span><span class="p">[</span><span class="s2">&quot;__audit_resolved_date__&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ftp_resolution</span><span class="p">[</span><span class="s2">&quot;resolved_date&quot;</span><span class="p">]</span>
+        <span class="n">doc</span><span class="p">[</span><span class="s2">"__audit_decision__"</span><span class="p">]</span> <span class="o">=</span> <span class="n">ftp_resolution</span><span class="p">[</span><span class="s2">"audit_decision"</span><span class="p">]</span>
+        <span class="n">doc</span><span class="p">[</span><span class="s2">"__audit_reason__"</span><span class="p">]</span> <span class="o">=</span> <span class="n">ftp_resolution</span><span class="p">[</span><span class="s2">"audit_reason"</span><span class="p">]</span>
+        <span class="n">doc</span><span class="p">[</span><span class="s2">"__audit_resolved_date__"</span><span class="p">]</span> <span class="o">=</span> <span class="n">ftp_resolution</span><span class="p">[</span><span class="s2">"resolved_date"</span><span class="p">]</span>
 
-        <span class="k">if</span> <span class="n">ftp_resolution</span><span class="p">[</span><span class="s2">&quot;audit_decision&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;excluded&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">ftp_resolution</span><span class="p">[</span><span class="s2">"audit_decision"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"excluded"</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">doc</span>  <span class="c1"># Returns only audit keys</span>
 
         <span class="k">if</span> <span class="n">target_released</span><span class="p">:</span>
-            <span class="n">meta</span><span class="o">.</span><span class="n">annotation_date</span> <span class="o">=</span> <span class="n">ftp_resolution</span><span class="p">[</span><span class="s2">&quot;resolved_date&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="s2">&quot;-&quot;</span><span class="p">)</span>
-            <span class="n">doc</span><span class="p">[</span><span class="s2">&quot;annotation_gtf&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_ftp_url</span><span class="p">(</span>
-                <span class="n">meta</span><span class="p">,</span> <span class="s2">&quot;geneset&quot;</span><span class="p">,</span> <span class="s2">&quot;genes.gtf.gz&quot;</span><span class="p">,</span> <span class="n">ftp_species_name</span>
+            <span class="n">meta</span><span class="o">.</span><span class="n">annotation_date</span> <span class="o">=</span> <span class="n">ftp_resolution</span><span class="p">[</span><span class="s2">"resolved_date"</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"_"</span><span class="p">,</span> <span class="s2">"-"</span><span class="p">)</span>
+            <span class="n">doc</span><span class="p">[</span><span class="s2">"annotation_gtf"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_ftp_url</span><span class="p">(</span>
+                <span class="n">meta</span><span class="p">,</span> <span class="s2">"geneset"</span><span class="p">,</span> <span class="s2">"genes.gtf.gz"</span><span class="p">,</span> <span class="n">ftp_species_name</span>
             <span class="p">)</span>
-            <span class="n">doc</span><span class="p">[</span><span class="s2">&quot;annotation_gff3&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_ftp_url</span><span class="p">(</span>
-                <span class="n">meta</span><span class="p">,</span> <span class="s2">&quot;geneset&quot;</span><span class="p">,</span> <span class="s2">&quot;genes.gff3.gz&quot;</span><span class="p">,</span> <span class="n">ftp_species_name</span>
+            <span class="n">doc</span><span class="p">[</span><span class="s2">"annotation_gff3"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_ftp_url</span><span class="p">(</span>
+                <span class="n">meta</span><span class="p">,</span> <span class="s2">"geneset"</span><span class="p">,</span> <span class="s2">"genes.gff3.gz"</span><span class="p">,</span> <span class="n">ftp_species_name</span>
             <span class="p">)</span>
-            <span class="n">doc</span><span class="p">[</span><span class="s2">&quot;proteins&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_ftp_url</span><span class="p">(</span>
-                <span class="n">meta</span><span class="p">,</span> <span class="s2">&quot;geneset&quot;</span><span class="p">,</span> <span class="s2">&quot;pep.fa.gz&quot;</span><span class="p">,</span> <span class="n">ftp_species_name</span>
+            <span class="n">doc</span><span class="p">[</span><span class="s2">"proteins"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_ftp_url</span><span class="p">(</span>
+                <span class="n">meta</span><span class="p">,</span> <span class="s2">"geneset"</span><span class="p">,</span> <span class="s2">"pep.fa.gz"</span><span class="p">,</span> <span class="n">ftp_species_name</span>
             <span class="p">)</span>
-            <span class="n">doc</span><span class="p">[</span><span class="s2">&quot;transcripts&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_ftp_url</span><span class="p">(</span>
-                <span class="n">meta</span><span class="p">,</span> <span class="s2">&quot;geneset&quot;</span><span class="p">,</span> <span class="s2">&quot;cdna.fa.gz&quot;</span><span class="p">,</span> <span class="n">ftp_species_name</span>
+            <span class="n">doc</span><span class="p">[</span><span class="s2">"transcripts"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_ftp_url</span><span class="p">(</span>
+                <span class="n">meta</span><span class="p">,</span> <span class="s2">"geneset"</span><span class="p">,</span> <span class="s2">"cdna.fa.gz"</span><span class="p">,</span> <span class="n">ftp_species_name</span>
             <span class="p">)</span>
-            <span class="n">doc</span><span class="p">[</span><span class="s2">&quot;softmasked_genome&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_ftp_url</span><span class="p">(</span>
-                <span class="n">meta</span><span class="p">,</span> <span class="s2">&quot;genome&quot;</span><span class="p">,</span> <span class="s2">&quot;softmasked.fa.gz&quot;</span><span class="p">,</span> <span class="n">ftp_species_name</span>
+            <span class="n">doc</span><span class="p">[</span><span class="s2">"softmasked_genome"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_ftp_url</span><span class="p">(</span>
+                <span class="n">meta</span><span class="p">,</span> <span class="s2">"genome"</span><span class="p">,</span> <span class="s2">"softmasked.fa.gz"</span><span class="p">,</span> <span class="n">ftp_species_name</span>
             <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">pre_urls</span> <span class="o">=</span> <span class="n">ftp_resolution</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;pre_release_urls&quot;</span><span class="p">,</span> <span class="p">{})</span>
+            <span class="n">pre_urls</span> <span class="o">=</span> <span class="n">ftp_resolution</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"pre_release_urls"</span><span class="p">,</span> <span class="p">{})</span>
             <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">pre_urls</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                 <span class="n">doc</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
 
         <span class="k">if</span> <span class="n">target_released</span><span class="p">:</span>
-            <span class="n">doc</span><span class="p">[</span><span class="s2">&quot;ftp_dumps&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="s2">&quot;https://ftp.ebi.ac.uk/pub/ensemblorganisms/&quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">ftp_species_name</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">meta</span><span class="o">.</span><span class="n">accession</span><span class="si">}</span><span class="s2">/&quot;</span>
+            <span class="n">doc</span><span class="p">[</span><span class="s2">"ftp_dumps"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="s2">"https://ftp.ebi.ac.uk/pub/ensemblorganisms/"</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">ftp_species_name</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">meta</span><span class="o">.</span><span class="n">accession</span><span class="si">}</span><span class="s2">/"</span>
             <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">doc</span><span class="p">[</span><span class="s2">&quot;ftp_dumps&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="s2">&quot;https://ftp.ebi.ac.uk/pub/databases/ensembl/pre-release/&quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">ftp_species_name</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">meta</span><span class="o">.</span><span class="n">accession</span><span class="si">}</span><span class="s2">/&quot;</span>
+            <span class="n">doc</span><span class="p">[</span><span class="s2">"ftp_dumps"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="s2">"https://ftp.ebi.ac.uk/pub/databases/ensembl/pre-release/"</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">ftp_species_name</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">meta</span><span class="o">.</span><span class="n">accession</span><span class="si">}</span><span class="s2">/"</span>
             <span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">allow_beta_urls</span><span class="p">:</span>
             <span class="n">beta_link</span><span class="p">,</span> <span class="n">beta_status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resolve_beta_link</span><span class="p">(</span><span class="n">meta</span><span class="p">,</span> <span class="n">target_released</span><span class="p">)</span>
-            <span class="n">doc</span><span class="p">[</span><span class="s2">&quot;beta_link&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">beta_link</span>
-            <span class="n">doc</span><span class="p">[</span><span class="s2">&quot;__audit_beta_status__&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">beta_status</span>
+            <span class="n">doc</span><span class="p">[</span><span class="s2">"beta_link"</span><span class="p">]</span> <span class="o">=</span> <span class="n">beta_link</span>
+            <span class="n">doc</span><span class="p">[</span><span class="s2">"__audit_beta_status__"</span><span class="p">]</span> <span class="o">=</span> <span class="n">beta_status</span>
 
         <span class="k">if</span> <span class="n">meta</span><span class="o">.</span><span class="n">alternate_of</span><span class="p">:</span>
-            <span class="n">doc</span><span class="p">[</span><span class="s2">&quot;alternate&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">meta</span><span class="o">.</span><span class="n">alternate_of</span>
+            <span class="n">doc</span><span class="p">[</span><span class="s2">"alternate"</span><span class="p">]</span> <span class="o">=</span> <span class="n">meta</span><span class="o">.</span><span class="n">alternate_of</span>
 
         <span class="k">return</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">doc</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">}</span>
 
@@ -4846,22 +4846,22 @@
         <span class="n">file_suffix</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">ftp_species_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Helper to build standard FTP URLs for standard/mouse schemas.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Helper to build standard FTP URLs for standard/mouse schemas."""</span>
         <span class="n">date</span> <span class="o">=</span> <span class="n">meta</span><span class="o">.</span><span class="n">annotation_date</span>
         <span class="k">if</span> <span class="n">date</span><span class="p">:</span>
-            <span class="n">date</span> <span class="o">=</span> <span class="n">date</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">)</span>
+            <span class="n">date</span> <span class="o">=</span> <span class="n">date</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"-"</span><span class="p">,</span> <span class="s2">"_"</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">date</span><span class="p">:</span>
-            <span class="n">date</span> <span class="o">=</span> <span class="s2">&quot;unknown_date&quot;</span>
-        <span class="n">source</span> <span class="o">=</span> <span class="p">(</span><span class="n">meta</span><span class="o">.</span><span class="n">annotation_source</span> <span class="ow">or</span> <span class="s2">&quot;ensembl&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="n">date</span> <span class="o">=</span> <span class="s2">"unknown_date"</span>
+        <span class="n">source</span> <span class="o">=</span> <span class="p">(</span><span class="n">meta</span><span class="o">.</span><span class="n">annotation_source</span> <span class="ow">or</span> <span class="s2">"ensembl"</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
         <span class="k">return</span> <span class="p">(</span>
-            <span class="s2">&quot;https://ftp.ebi.ac.uk/pub/ensemblorganisms/&quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">ftp_species_name</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">meta</span><span class="o">.</span><span class="n">accession</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">source</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">category</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">date</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">file_suffix</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="s2">"https://ftp.ebi.ac.uk/pub/ensemblorganisms/"</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">ftp_species_name</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">meta</span><span class="o">.</span><span class="n">accession</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">source</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">category</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">date</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">file_suffix</span><span class="si">}</span><span class="s2">"</span>
         <span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_build_rapid_ftp_url</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">meta</span><span class="p">:</span> <span class="n">GenomeMetadata</span><span class="p">,</span> <span class="n">resource_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Helper to build Rapid Release FTP URLs&quot;&quot;&quot;</span>
-        <span class="n">base</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;https://ftp.ensembl.org/pub/rapid-release/species/</span><span class="si">{</span><span class="n">meta</span><span class="o">.</span><span class="n">species_name</span><span class="si">}</span><span class="s2">&quot;</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">base</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">resource_type</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="w">        </span><span class="sd">"""Helper to build Rapid Release FTP URLs"""</span>
+        <span class="n">base</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"https://ftp.ensembl.org/pub/rapid-release/species/</span><span class="si">{</span><span class="n">meta</span><span class="o">.</span><span class="n">species_name</span><span class="si">}</span><span class="s2">"</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">base</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">resource_type</span><span class="si">}</span><span class="s2">"</span>
 </code></pre></div></td></tr></table></div>
               </details>
 
@@ -4961,10 +4961,10 @@
 <span class="normal">71</span>
 <span class="normal">72</span>
 <span class="normal">73</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">render</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">meta</span><span class="p">:</span> <span class="n">GenomeMetadata</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Dispatches to the correct schema renderer based on project config.&quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">schema_type</span> <span class="o">==</span> <span class="s2">&quot;hprc&quot;</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Dispatches to the correct schema renderer based on project config."""</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">schema_type</span> <span class="o">==</span> <span class="s2">"hprc"</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_render_hprc</span><span class="p">(</span><span class="n">meta</span><span class="p">)</span>
-    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">schema_type</span> <span class="o">==</span> <span class="s2">&quot;mouse&quot;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">schema_type</span> <span class="o">==</span> <span class="s2">"mouse"</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_render_mouse</span><span class="p">(</span><span class="n">meta</span><span class="p">)</span>
     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_render_standard</span><span class="p">(</span><span class="n">meta</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>

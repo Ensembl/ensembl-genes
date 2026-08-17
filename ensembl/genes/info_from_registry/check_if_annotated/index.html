@@ -3865,16 +3865,16 @@ pointing to another dict with the following keys:
 <span class="normal">99</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">check_if_annotated</span><span class="p">(</span>
     <span class="n">assembly_accession</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">server_info</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Check if a genome assembly is already annotated in the genebuild registry.</span>
 
 <span class="sd">    Parameters:</span>
 <span class="sd">    ----------</span>
 <span class="sd">    assembly_accession : str</span>
-<span class="sd">        The GCA accession of the assembly to check (e.g., &quot;GCA_000001405.28&quot;).</span>
+<span class="sd">        The GCA accession of the assembly to check (e.g., "GCA_000001405.28").</span>
 
 <span class="sd">    server_info : Dict[str, Dict[str, Any]]</span>
-<span class="sd">        Dictionary containing server connection details, with a &#39;registry&#39; key</span>
+<span class="sd">        Dictionary containing server connection details, with a 'registry' key</span>
 <span class="sd">        pointing to another dict with the following keys:</span>
 <span class="sd">            - db_host : str</span>
 <span class="sd">            - db_user : str</span>
@@ -3889,41 +3889,41 @@ pointing to another dict with the following keys:
 <span class="sd">    Returns:</span>
 <span class="sd">    -------</span>
 <span class="sd">    None</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
-    <span class="n">registry_query</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+    <span class="n">registry_query</span> <span class="o">=</span> <span class="s2">"""</span>
 <span class="s2">        SELECT </span>
 <span class="s2">            gca_accession, </span>
 <span class="s2">            gb_status, </span>
 <span class="s2">            genebuilder</span>
 <span class="s2">        FROM genebuild_status </span>
 <span class="s2">        WHERE gca_accession =  </span><span class="si">%s</span>
-<span class="s2">    &quot;&quot;&quot;</span>  <span class="c1"># pylint: disable=f-string-without-interpolation</span>
+<span class="s2">    """</span>  <span class="c1"># pylint: disable=f-string-without-interpolation</span>
 
     <span class="n">registry_rows</span> <span class="o">=</span> <span class="n">mysql_fetch_data</span><span class="p">(</span>
         <span class="n">registry_query</span><span class="p">,</span>
-        <span class="n">host</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">&quot;registry&quot;</span><span class="p">][</span><span class="s2">&quot;db_host&quot;</span><span class="p">],</span>
-        <span class="n">user</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">&quot;registry&quot;</span><span class="p">][</span><span class="s2">&quot;db_user&quot;</span><span class="p">],</span>
-        <span class="n">port</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">&quot;registry&quot;</span><span class="p">][</span><span class="s2">&quot;db_port&quot;</span><span class="p">],</span>
-        <span class="n">database</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">&quot;registry&quot;</span><span class="p">][</span><span class="s2">&quot;db_name&quot;</span><span class="p">],</span>
-        <span class="n">password</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="n">host</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">"registry"</span><span class="p">][</span><span class="s2">"db_host"</span><span class="p">],</span>
+        <span class="n">user</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">"registry"</span><span class="p">][</span><span class="s2">"db_user"</span><span class="p">],</span>
+        <span class="n">port</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">"registry"</span><span class="p">][</span><span class="s2">"db_port"</span><span class="p">],</span>
+        <span class="n">database</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">"registry"</span><span class="p">][</span><span class="s2">"db_name"</span><span class="p">],</span>
+        <span class="n">password</span><span class="o">=</span><span class="s2">""</span><span class="p">,</span>
         <span class="n">params</span><span class="o">=</span><span class="p">(</span><span class="n">assembly_accession</span><span class="p">,),</span>
     <span class="p">)</span>
 
     <span class="k">if</span> <span class="n">registry_rows</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">registry_rows</span><span class="p">:</span>
-            <span class="n">gca</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;gca_accession&quot;</span><span class="p">)</span>
-            <span class="n">gb_status</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;gb_status&quot;</span><span class="p">)</span>
-            <span class="n">genebuilder</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;genebuilder&quot;</span><span class="p">)</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2"> Annotation already exists for GCA: </span><span class="si">{</span><span class="n">gca</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;   Status     : </span><span class="si">{</span><span class="n">gb_status</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;   Genebuilder: </span><span class="si">{</span><span class="n">genebuilder</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">gca</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"gca_accession"</span><span class="p">)</span>
+            <span class="n">gb_status</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"gb_status"</span><span class="p">)</span>
+            <span class="n">genebuilder</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"genebuilder"</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="se">\n</span><span class="s2"> Annotation already exists for GCA: </span><span class="si">{</span><span class="n">gca</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">"   Status     : </span><span class="si">{</span><span class="n">gb_status</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">"   Genebuilder: </span><span class="si">{</span><span class="n">genebuilder</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
         <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
-            <span class="s2">&quot;Terminating: One or more assemblies are already annotated.</span><span class="se">\</span>
-<span class="s2">                Please set current_genebuild to 1 in user_settings.json if you wish to proceed.&quot;</span>
+            <span class="s2">"Terminating: One or more assemblies are already annotated.</span><span class="se">\</span>
+<span class="s2">                Please set current_genebuild to 1 in user_settings.json if you wish to proceed."</span>
         <span class="p">)</span>
 
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Start check complete: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">assembly_accession</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"Start check complete: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">assembly_accession</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>

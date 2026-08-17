@@ -3758,26 +3758,26 @@
 <span class="normal">138</span>
 <span class="normal">139</span>
 <span class="normal">140</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">InputSchema</span><span class="p">(</span><span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Input arguments&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Input arguments"""</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-t&quot;</span><span class="p">,</span> <span class="s2">&quot;--taxon_id&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Taxon id&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"-t"</span><span class="p">,</span> <span class="s2">"--taxon_id"</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">"Taxon id"</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-            <span class="s2">&quot;--tree&quot;</span><span class="p">,</span>
-            <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+            <span class="s2">"--tree"</span><span class="p">,</span>
+            <span class="n">action</span><span class="o">=</span><span class="s2">"store_true"</span><span class="p">,</span>
             <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Turn on the &#39;Include subordinate taxa&#39; option in your query to ENA&quot;</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">"Turn on the 'Include subordinate taxa' option in your query to ENA"</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-            <span class="s2">&quot;--file&quot;</span><span class="p">,</span>
+            <span class="s2">"--file"</span><span class="p">,</span>
             <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
             <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Path to the file containing a list of taxon ids&quot;</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">"Path to the file containing a list of taxon ids"</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--output_dir&quot;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Output directory path&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"--output_dir"</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">"Output directory path"</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
               </details>
 
@@ -3971,7 +3971,7 @@
     <span class="n">taxon_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">tree</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Query ENA API to get short or long read data</span>
 
 <span class="sd">    Args:</span>
@@ -3980,34 +3980,34 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">        dict: number of runs found for each data type</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="n">TEXT_FORMAT</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>  <span class="c1"># pylint:disable=invalid-name</span>
-        <span class="s2">&quot;BOLD&quot;</span><span class="p">:</span> <span class="s2">&quot;</span><span class="se">\033</span><span class="s2">[1m&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;UNDERLINE&quot;</span><span class="p">:</span> <span class="s2">&quot;</span><span class="se">\033</span><span class="s2">[4m&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;END&quot;</span><span class="p">:</span> <span class="s2">&quot;</span><span class="se">\033</span><span class="s2">[0m&quot;</span><span class="p">,</span>
+        <span class="s2">"BOLD"</span><span class="p">:</span> <span class="s2">"</span><span class="se">\033</span><span class="s2">[1m"</span><span class="p">,</span>
+        <span class="s2">"UNDERLINE"</span><span class="p">:</span> <span class="s2">"</span><span class="se">\033</span><span class="s2">[4m"</span><span class="p">,</span>
+        <span class="s2">"END"</span><span class="p">:</span> <span class="s2">"</span><span class="se">\033</span><span class="s2">[0m"</span><span class="p">,</span>
     <span class="p">}</span>
     <span class="k">if</span> <span class="n">tree</span><span class="p">:</span>
-        <span class="n">query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;tax_tree(</span><span class="si">{</span><span class="n">taxon_id</span><span class="si">}</span><span class="s2">)&quot;</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"tax_tree(</span><span class="si">{</span><span class="n">taxon_id</span><span class="si">}</span><span class="s2">)"</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;tax_eq(</span><span class="si">{</span><span class="n">taxon_id</span><span class="si">}</span><span class="s2">)&quot;</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"tax_eq(</span><span class="si">{</span><span class="n">taxon_id</span><span class="si">}</span><span class="s2">)"</span>
 
     <span class="n">query_short_paired</span> <span class="o">=</span> <span class="p">(</span>
         <span class="n">query</span>
-        <span class="o">+</span> <span class="s2">&quot; AND instrument_platform=ILLUMINA AND library_layout=PAIRED&quot;</span>
-        <span class="o">+</span> <span class="s2">&quot; AND library_source=TRANSCRIPTOMIC&quot;</span>
+        <span class="o">+</span> <span class="s2">" AND instrument_platform=ILLUMINA AND library_layout=PAIRED"</span>
+        <span class="o">+</span> <span class="s2">" AND library_source=TRANSCRIPTOMIC"</span>
     <span class="p">)</span>
     <span class="n">query_short_single</span> <span class="o">=</span> <span class="p">(</span>
         <span class="n">query</span>
-        <span class="o">+</span> <span class="s2">&quot; AND instrument_platform=ILLUMINA AND library_layout=SINGLE&quot;</span>
-        <span class="o">+</span> <span class="s2">&quot; AND library_source=TRANSCRIPTOMIC&quot;</span>
+        <span class="o">+</span> <span class="s2">" AND instrument_platform=ILLUMINA AND library_layout=SINGLE"</span>
+        <span class="o">+</span> <span class="s2">" AND library_source=TRANSCRIPTOMIC"</span>
     <span class="p">)</span>
     <span class="n">query_pacbio</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">query</span> <span class="o">+</span> <span class="s2">&quot; AND instrument_platform=PACBIO_SMRT AND library_source=TRANSCRIPTOMIC&quot;</span>
+        <span class="n">query</span> <span class="o">+</span> <span class="s2">" AND instrument_platform=PACBIO_SMRT AND library_source=TRANSCRIPTOMIC"</span>
     <span class="p">)</span>
     <span class="n">query_onp</span> <span class="o">=</span> <span class="p">(</span>
         <span class="n">query</span>
-        <span class="o">+</span> <span class="s2">&quot; AND instrument_platform=OXFORD_NANOPORE AND library_source=TRANSCRIPTOMIC&quot;</span>
+        <span class="o">+</span> <span class="s2">" AND instrument_platform=OXFORD_NANOPORE AND library_source=TRANSCRIPTOMIC"</span>
     <span class="p">)</span>
 
     <span class="n">short_paired_runs</span> <span class="o">=</span> <span class="n">ena_rest_api</span><span class="p">(</span><span class="n">query_short_paired</span><span class="p">)</span>
@@ -4016,35 +4016,35 @@
     <span class="n">onp_read_runs</span> <span class="o">=</span> <span class="n">ena_rest_api</span><span class="p">(</span><span class="n">query_onp</span><span class="p">)</span>
 
     <span class="nb">print</span><span class="p">(</span>
-        <span class="n">TEXT_FORMAT</span><span class="p">[</span><span class="s2">&quot;BOLD&quot;</span><span class="p">]</span>
-        <span class="o">+</span> <span class="s2">&quot;Short-read paired-end illumina data available! &quot;</span>
-        <span class="o">+</span> <span class="n">TEXT_FORMAT</span><span class="p">[</span><span class="s2">&quot;END&quot;</span><span class="p">]</span>
-        <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;Found </span><span class="si">{</span><span class="n">short_paired_runs</span><span class="si">}</span><span class="s2"> runs.&quot;</span>
+        <span class="n">TEXT_FORMAT</span><span class="p">[</span><span class="s2">"BOLD"</span><span class="p">]</span>
+        <span class="o">+</span> <span class="s2">"Short-read paired-end illumina data available! "</span>
+        <span class="o">+</span> <span class="n">TEXT_FORMAT</span><span class="p">[</span><span class="s2">"END"</span><span class="p">]</span>
+        <span class="o">+</span> <span class="sa">f</span><span class="s2">"Found </span><span class="si">{</span><span class="n">short_paired_runs</span><span class="si">}</span><span class="s2"> runs."</span>
     <span class="p">)</span>
     <span class="nb">print</span><span class="p">(</span>
-        <span class="n">TEXT_FORMAT</span><span class="p">[</span><span class="s2">&quot;BOLD&quot;</span><span class="p">]</span>
-        <span class="o">+</span> <span class="s2">&quot;Short-read single-end illumina data available! &quot;</span>
-        <span class="o">+</span> <span class="n">TEXT_FORMAT</span><span class="p">[</span><span class="s2">&quot;END&quot;</span><span class="p">]</span>
-        <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;Found </span><span class="si">{</span><span class="n">short_single_runs</span><span class="si">}</span><span class="s2"> runs.&quot;</span>
+        <span class="n">TEXT_FORMAT</span><span class="p">[</span><span class="s2">"BOLD"</span><span class="p">]</span>
+        <span class="o">+</span> <span class="s2">"Short-read single-end illumina data available! "</span>
+        <span class="o">+</span> <span class="n">TEXT_FORMAT</span><span class="p">[</span><span class="s2">"END"</span><span class="p">]</span>
+        <span class="o">+</span> <span class="sa">f</span><span class="s2">"Found </span><span class="si">{</span><span class="n">short_single_runs</span><span class="si">}</span><span class="s2"> runs."</span>
     <span class="p">)</span>
     <span class="nb">print</span><span class="p">(</span>
-        <span class="n">TEXT_FORMAT</span><span class="p">[</span><span class="s2">&quot;BOLD&quot;</span><span class="p">]</span>
-        <span class="o">+</span> <span class="s2">&quot;Long-read PacBio data available! &quot;</span>
-        <span class="o">+</span> <span class="n">TEXT_FORMAT</span><span class="p">[</span><span class="s2">&quot;END&quot;</span><span class="p">]</span>
-        <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;Found </span><span class="si">{</span><span class="n">pacbio_read_runs</span><span class="si">}</span><span class="s2"> runs.&quot;</span>
+        <span class="n">TEXT_FORMAT</span><span class="p">[</span><span class="s2">"BOLD"</span><span class="p">]</span>
+        <span class="o">+</span> <span class="s2">"Long-read PacBio data available! "</span>
+        <span class="o">+</span> <span class="n">TEXT_FORMAT</span><span class="p">[</span><span class="s2">"END"</span><span class="p">]</span>
+        <span class="o">+</span> <span class="sa">f</span><span class="s2">"Found </span><span class="si">{</span><span class="n">pacbio_read_runs</span><span class="si">}</span><span class="s2"> runs."</span>
     <span class="p">)</span>
     <span class="nb">print</span><span class="p">(</span>
-        <span class="n">TEXT_FORMAT</span><span class="p">[</span><span class="s2">&quot;BOLD&quot;</span><span class="p">]</span>
-        <span class="o">+</span> <span class="s2">&quot;Long_read ONP data available! &quot;</span>
-        <span class="o">+</span> <span class="n">TEXT_FORMAT</span><span class="p">[</span><span class="s2">&quot;END&quot;</span><span class="p">]</span>
-        <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;Found </span><span class="si">{</span><span class="n">onp_read_runs</span><span class="si">}</span><span class="s2"> runs.&quot;</span>
+        <span class="n">TEXT_FORMAT</span><span class="p">[</span><span class="s2">"BOLD"</span><span class="p">]</span>
+        <span class="o">+</span> <span class="s2">"Long_read ONP data available! "</span>
+        <span class="o">+</span> <span class="n">TEXT_FORMAT</span><span class="p">[</span><span class="s2">"END"</span><span class="p">]</span>
+        <span class="o">+</span> <span class="sa">f</span><span class="s2">"Found </span><span class="si">{</span><span class="n">onp_read_runs</span><span class="si">}</span><span class="s2"> runs."</span>
     <span class="p">)</span>
 
     <span class="k">return</span> <span class="p">{</span>
-        <span class="s2">&quot;Short-read paired-end illumina&quot;</span><span class="p">:</span> <span class="n">short_paired_runs</span><span class="p">,</span>
-        <span class="s2">&quot;Short-read single-end illumina&quot;</span><span class="p">:</span> <span class="n">short_single_runs</span><span class="p">,</span>
-        <span class="s2">&quot;Long-read PacBio&quot;</span><span class="p">:</span> <span class="n">pacbio_read_runs</span><span class="p">,</span>
-        <span class="s2">&quot;Long-read ONP&quot;</span><span class="p">:</span> <span class="n">onp_read_runs</span><span class="p">,</span>
+        <span class="s2">"Short-read paired-end illumina"</span><span class="p">:</span> <span class="n">short_paired_runs</span><span class="p">,</span>
+        <span class="s2">"Short-read single-end illumina"</span><span class="p">:</span> <span class="n">short_single_runs</span><span class="p">,</span>
+        <span class="s2">"Long-read PacBio"</span><span class="p">:</span> <span class="n">pacbio_read_runs</span><span class="p">,</span>
+        <span class="s2">"Long-read ONP"</span><span class="p">:</span> <span class="n">onp_read_runs</span><span class="p">,</span>
     <span class="p">}</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -4135,17 +4135,17 @@
 <span class="normal">34</span>
 <span class="normal">35</span>
 <span class="normal">36</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">ena_rest_api</span><span class="p">(</span><span class="n">query</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Call to ENA API</span>
+<span class="w">    </span><span class="sd">"""Call to ENA API</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        query (str): query string to search ENA database</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        int: number of runs found</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">search_url</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;https://www.ebi.ac.uk/ena/portal/api/search?display=report&amp;query=</span><span class="si">{</span><span class="n">query</span><span class="si">}</span><span class="s2">&amp;domain=read&amp;result=read_run&amp;fields=sample_accession,run_accession,fastq_ftp,read_count,instrument_platform&quot;</span>  <span class="c1"># pylint: disable=line-too-long</span>
+<span class="sd">    """</span>
+    <span class="n">search_url</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"https://www.ebi.ac.uk/ena/portal/api/search?display=report&amp;query=</span><span class="si">{</span><span class="n">query</span><span class="si">}</span><span class="s2">&amp;domain=read&amp;result=read_run&amp;fields=sample_accession,run_accession,fastq_ftp,read_count,instrument_platform"</span>  <span class="c1"># pylint: disable=line-too-long</span>
     <span class="n">search_result</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">search_url</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">60</span><span class="p">)</span>
-    <span class="n">results</span> <span class="o">=</span> <span class="n">search_result</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">:]</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="n">search_result</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">)[</span><span class="mi">1</span><span class="p">:]</span>
     <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -4209,7 +4209,7 @@
 <span class="normal">180</span>
 <span class="normal">181</span>
 <span class="normal">182</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Entrypoint&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Entrypoint"""</span>
     <span class="n">parser</span> <span class="o">=</span> <span class="n">InputSchema</span><span class="p">()</span>
     <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
     <span class="n">output_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">output_dir</span><span class="p">)</span>
@@ -4218,22 +4218,22 @@
     <span class="n">taxon_ids</span> <span class="o">=</span> <span class="p">[</span><span class="n">args</span><span class="o">.</span><span class="n">taxon_id</span><span class="p">]</span>  <span class="c1"># Start with the single taxon_id</span>
 
     <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">file</span><span class="p">:</span>
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">file</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">input_file</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">file</span><span class="p">,</span> <span class="s2">"r"</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8"</span><span class="p">)</span> <span class="k">as</span> <span class="n">input_file</span><span class="p">:</span>
             <span class="n">taxon_ids</span> <span class="o">=</span> <span class="n">input_file</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()</span>
 
     <span class="c1"># Prepare CSV file</span>
-    <span class="n">csv_file</span> <span class="o">=</span> <span class="n">output_dir</span> <span class="o">/</span> <span class="s2">&quot;taxon_summary.csv&quot;</span>
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">csv_file</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">newline</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+    <span class="n">csv_file</span> <span class="o">=</span> <span class="n">output_dir</span> <span class="o">/</span> <span class="s2">"taxon_summary.csv"</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">csv_file</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">"w"</span><span class="p">,</span> <span class="n">newline</span><span class="o">=</span><span class="s2">""</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8"</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
         <span class="n">writer</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">writer</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
 
         <span class="c1"># Write the header row</span>
         <span class="n">writer</span><span class="o">.</span><span class="n">writerow</span><span class="p">(</span>
             <span class="p">[</span>
-                <span class="s2">&quot;Taxon ID&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;Short-read paired-end illumina&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;Short-read single-end illumina&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;Long-read PacBio&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;Long-read ONP&quot;</span><span class="p">,</span>
+                <span class="s2">"Taxon ID"</span><span class="p">,</span>
+                <span class="s2">"Short-read paired-end illumina"</span><span class="p">,</span>
+                <span class="s2">"Short-read single-end illumina"</span><span class="p">,</span>
+                <span class="s2">"Long-read PacBio"</span><span class="p">,</span>
+                <span class="s2">"Long-read ONP"</span><span class="p">,</span>
             <span class="p">]</span>
         <span class="p">)</span>
 
@@ -4242,10 +4242,10 @@
             <span class="n">writer</span><span class="o">.</span><span class="n">writerow</span><span class="p">(</span>
                 <span class="p">[</span>
                     <span class="n">taxon_id</span><span class="p">,</span>
-                    <span class="n">results</span><span class="p">[</span><span class="s2">&quot;Short-read paired-end illumina&quot;</span><span class="p">],</span>
-                    <span class="n">results</span><span class="p">[</span><span class="s2">&quot;Short-read single-end illumina&quot;</span><span class="p">],</span>
-                    <span class="n">results</span><span class="p">[</span><span class="s2">&quot;Long-read PacBio&quot;</span><span class="p">],</span>
-                    <span class="n">results</span><span class="p">[</span><span class="s2">&quot;Long-read ONP&quot;</span><span class="p">],</span>
+                    <span class="n">results</span><span class="p">[</span><span class="s2">"Short-read paired-end illumina"</span><span class="p">],</span>
+                    <span class="n">results</span><span class="p">[</span><span class="s2">"Short-read single-end illumina"</span><span class="p">],</span>
+                    <span class="n">results</span><span class="p">[</span><span class="s2">"Long-read PacBio"</span><span class="p">],</span>
+                    <span class="n">results</span><span class="p">[</span><span class="s2">"Long-read ONP"</span><span class="p">],</span>
                 <span class="p">]</span>
             <span class="p">)</span>
 </code></pre></div></td></tr></table></div>

@@ -4192,14 +4192,14 @@
 <span class="normal">234</span>
 <span class="normal">235</span>
 <span class="normal">236</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">EnsemblFTP</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Robust FTP client for Ensembl/EBI with reconnect + tolerant shutdown.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">timeout</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">30</span><span class="p">,</span> <span class="n">max_retries</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span> <span class="n">retry_sleep</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">3.0</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Initialize EnsemblFTP client and connect to Ensembl and EBI FTP servers.</span>
 
 <span class="sd">        Args:</span>
@@ -4208,7 +4208,7 @@
 <span class="sd">                operations. Defaults to 2.</span>
 <span class="sd">            retry_sleep (float, optional): Sleep duration between retries.</span>
 <span class="sd">                Defaults to 3.0.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">timeout</span> <span class="o">=</span> <span class="n">timeout</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">max_retries</span> <span class="o">=</span> <span class="n">max_retries</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">retry_sleep</span> <span class="o">=</span> <span class="n">retry_sleep</span>
@@ -4219,14 +4219,14 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_connect_ensembl</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_connect_ebi</span><span class="p">()</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">ensembl_ftp_path</span> <span class="o">=</span> <span class="s2">&quot;https://ftp.ensembl.org/&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">ebi_ftp_path</span> <span class="o">=</span> <span class="s2">&quot;https://ftp.ebi.ac.uk/&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ensembl_ftp_path</span> <span class="o">=</span> <span class="s2">"https://ftp.ensembl.org/"</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ebi_ftp_path</span> <span class="o">=</span> <span class="s2">"https://ftp.ebi.ac.uk/"</span>
 
     <span class="c1"># ---- connections ----</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_connect_ensembl</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Connect to Ensembl FTP server.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Connect to Ensembl FTP server."""</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">ensembl_ftp</span> <span class="o">=</span> <span class="n">FTP</span><span class="p">(</span><span class="s2">&quot;ftp.ensembl.org&quot;</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">timeout</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ensembl_ftp</span> <span class="o">=</span> <span class="n">FTP</span><span class="p">(</span><span class="s2">"ftp.ensembl.org"</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">timeout</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">ensembl_ftp</span><span class="o">.</span><span class="n">set_pasv</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">ensembl_ftp</span><span class="o">.</span><span class="n">login</span><span class="p">()</span>
         <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
@@ -4234,9 +4234,9 @@
             <span class="k">raise</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_connect_ebi</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Connect to EBI FTP server.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Connect to EBI FTP server."""</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">ebi_ftp</span> <span class="o">=</span> <span class="n">FTP</span><span class="p">(</span><span class="s2">&quot;ftp.ebi.ac.uk&quot;</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">timeout</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ebi_ftp</span> <span class="o">=</span> <span class="n">FTP</span><span class="p">(</span><span class="s2">"ftp.ebi.ac.uk"</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">timeout</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">ebi_ftp</span><span class="o">.</span><span class="n">set_pasv</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">ebi_ftp</span><span class="o">.</span><span class="n">login</span><span class="p">()</span>
         <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
@@ -4244,9 +4244,9 @@
             <span class="k">raise</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_retry</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fn</span><span class="p">,</span> <span class="n">which</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Retry FTP operation; on failure, reconnect that endpoint and try again.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">last_exc</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="ne">BaseException</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">max_retries</span><span class="p">):</span>
             <span class="k">try</span><span class="p">:</span>
@@ -4260,7 +4260,7 @@
             <span class="p">)</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
                 <span class="n">last_exc</span> <span class="o">=</span> <span class="n">e</span>
                 <span class="k">try</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="n">which</span> <span class="o">==</span> <span class="s2">&quot;ensembl&quot;</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">which</span> <span class="o">==</span> <span class="s2">"ensembl"</span><span class="p">:</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">_connect_ensembl</span><span class="p">()</span>
                     <span class="k">else</span><span class="p">:</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">_connect_ebi</span><span class="p">()</span>
@@ -4273,17 +4273,17 @@
     <span class="c1"># ---- utils ----</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_require_ftp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ftp</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">FTP</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">FTP</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">ftp</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;FTP connection is not available&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">"FTP connection is not available"</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">ftp</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">return_to_root</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ftp_connection</span><span class="p">:</span> <span class="n">FTP</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return to root</span>
+<span class="w">        </span><span class="sd">"""Return to root</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            ftp_connection (FTP): Ftp path</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">which</span> <span class="o">=</span> <span class="s2">&quot;ensembl&quot;</span> <span class="k">if</span> <span class="n">ftp_connection</span> <span class="ow">is</span> <span class="bp">self</span><span class="o">.</span><span class="n">ensembl_ftp</span> <span class="k">else</span> <span class="s2">&quot;ebi&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_retry</span><span class="p">(</span><span class="n">ftp_connection</span><span class="o">.</span><span class="n">cwd</span><span class="p">,</span> <span class="n">which</span><span class="p">,</span> <span class="s2">&quot;/&quot;</span><span class="p">)</span>
+<span class="sd">        """</span>
+        <span class="n">which</span> <span class="o">=</span> <span class="s2">"ensembl"</span> <span class="k">if</span> <span class="n">ftp_connection</span> <span class="ow">is</span> <span class="bp">self</span><span class="o">.</span><span class="n">ensembl_ftp</span> <span class="k">else</span> <span class="s2">"ebi"</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_retry</span><span class="p">(</span><span class="n">ftp_connection</span><span class="o">.</span><span class="n">cwd</span><span class="p">,</span> <span class="n">which</span><span class="p">,</span> <span class="s2">"/"</span><span class="p">)</span>
 
     <span class="c1"># ---- lookups ----</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">check_for_file</span><span class="p">(</span>  <span class="c1"># pylint: disable=too-many-locals, too-many-arguments, too-many-return-statements</span>
@@ -4294,7 +4294,7 @@
         <span class="n">source</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">file_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Check for existence of specific file types on FTP servers.</span>
 
 <span class="sd">        Args:</span>
@@ -4302,43 +4302,43 @@
 <span class="sd">            prod_name (str): _prod_name_</span>
 <span class="sd">            accession (str): GCA accession</span>
 <span class="sd">            source (str): _source_</span>
-<span class="sd">            file_type (str): type of file to check for: &quot;repeatmodeler&quot; or &quot;busco&quot;</span>
+<span class="sd">            file_type (str): type of file to check for: "repeatmodeler" or "busco"</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            str: URL to the file if found, else empty string</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="c1"># Initialize all file names upfront to avoid possibly-used-before-assignment</span>
         <span class="n">file_name_protein</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="n">file_name_alternative</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="n">file_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 
-        <span class="k">if</span> <span class="n">file_type</span> <span class="o">==</span> <span class="s2">&quot;repeatmodeler&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">file_type</span> <span class="o">==</span> <span class="s2">"repeatmodeler"</span><span class="p">:</span>
             <span class="n">ftp_connection</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ebi_ftp</span>
-            <span class="n">which</span> <span class="o">=</span> <span class="s2">&quot;ebi&quot;</span>
+            <span class="n">which</span> <span class="o">=</span> <span class="s2">"ebi"</span>
             <span class="n">ftp_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ebi_ftp_path</span>
             <span class="n">path</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="s2">&quot;pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/&quot;</span>
+                <span class="s2">"pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/"</span>
                 <span class="o">+</span> <span class="n">species_name</span>
-                <span class="o">+</span> <span class="s2">&quot;/&quot;</span>
+                <span class="o">+</span> <span class="s2">"/"</span>
             <span class="p">)</span>
-            <span class="n">file_name</span> <span class="o">=</span> <span class="n">accession</span> <span class="o">+</span> <span class="s2">&quot;.repeatmodeler.fa&quot;</span>
-        <span class="k">elif</span> <span class="n">file_type</span> <span class="o">==</span> <span class="s2">&quot;busco&quot;</span><span class="p">:</span>
+            <span class="n">file_name</span> <span class="o">=</span> <span class="n">accession</span> <span class="o">+</span> <span class="s2">".repeatmodeler.fa"</span>
+        <span class="k">elif</span> <span class="n">file_type</span> <span class="o">==</span> <span class="s2">"busco"</span><span class="p">:</span>
             <span class="n">ftp_connection</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ensembl_ftp</span>
-            <span class="n">which</span> <span class="o">=</span> <span class="s2">&quot;ensembl&quot;</span>
+            <span class="n">which</span> <span class="o">=</span> <span class="s2">"ensembl"</span>
             <span class="n">ftp_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ensembl_ftp_path</span>
             <span class="n">path</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="s2">&quot;pub/rapid-release/species/&quot;</span>
+                <span class="s2">"pub/rapid-release/species/"</span>
                 <span class="o">+</span> <span class="n">species_name</span>
-                <span class="o">+</span> <span class="s2">&quot;/&quot;</span>
+                <span class="o">+</span> <span class="s2">"/"</span>
                 <span class="o">+</span> <span class="n">accession</span>
-                <span class="o">+</span> <span class="s2">&quot;/&quot;</span>
+                <span class="o">+</span> <span class="s2">"/"</span>
                 <span class="o">+</span> <span class="n">source</span>
-                <span class="o">+</span> <span class="s2">&quot;/statistics/&quot;</span>
+                <span class="o">+</span> <span class="s2">"/statistics/"</span>
             <span class="p">)</span>
-            <span class="n">file_name_protein</span> <span class="o">=</span> <span class="n">prod_name</span> <span class="o">+</span> <span class="s2">&quot;_protein_busco_short_summary.txt&quot;</span>
-            <span class="n">file_name_alternative</span> <span class="o">=</span> <span class="n">prod_name</span> <span class="o">+</span> <span class="s2">&quot;_busco_short_summary.txt&quot;</span>
+            <span class="n">file_name_protein</span> <span class="o">=</span> <span class="n">prod_name</span> <span class="o">+</span> <span class="s2">"_protein_busco_short_summary.txt"</span>
+            <span class="n">file_name_alternative</span> <span class="o">=</span> <span class="n">prod_name</span> <span class="o">+</span> <span class="s2">"_busco_short_summary.txt"</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="s2">&quot;&quot;</span>
+            <span class="k">return</span> <span class="s2">""</span>
 
         <span class="k">try</span><span class="p">:</span>
             <span class="n">ftp_connection</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_require_ftp</span><span class="p">(</span><span class="n">ftp_connection</span><span class="p">)</span>
@@ -4346,47 +4346,47 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_retry</span><span class="p">(</span><span class="n">ftp_connection</span><span class="o">.</span><span class="n">cwd</span><span class="p">,</span> <span class="n">which</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
             <span class="n">files_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_retry</span><span class="p">(</span><span class="n">ftp_connection</span><span class="o">.</span><span class="n">nlst</span><span class="p">,</span> <span class="n">which</span><span class="p">)</span>
 
-            <span class="k">if</span> <span class="n">file_type</span> <span class="o">==</span> <span class="s2">&quot;busco&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">file_type</span> <span class="o">==</span> <span class="s2">"busco"</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">file_name_protein</span> <span class="ow">and</span> <span class="n">file_name_protein</span> <span class="ow">in</span> <span class="n">files_list</span><span class="p">:</span>
                     <span class="k">return</span> <span class="n">ftp_path</span> <span class="o">+</span> <span class="n">path</span> <span class="o">+</span> <span class="n">file_name_protein</span>
                 <span class="k">if</span> <span class="n">file_name_alternative</span> <span class="ow">and</span> <span class="n">file_name_alternative</span> <span class="ow">in</span> <span class="n">files_list</span><span class="p">:</span>
                     <span class="k">return</span> <span class="n">ftp_path</span> <span class="o">+</span> <span class="n">path</span> <span class="o">+</span> <span class="n">file_name_alternative</span>
-                <span class="k">return</span> <span class="s2">&quot;&quot;</span>
+                <span class="k">return</span> <span class="s2">""</span>
             <span class="k">return</span> <span class="p">(</span>
                 <span class="n">ftp_path</span> <span class="o">+</span> <span class="n">path</span> <span class="o">+</span> <span class="n">file_name</span>
                 <span class="k">if</span> <span class="n">file_name</span> <span class="ow">and</span> <span class="n">file_name</span> <span class="ow">in</span> <span class="n">files_list</span>
-                <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+                <span class="k">else</span> <span class="s2">""</span>
             <span class="p">)</span>
         <span class="k">except</span> <span class="n">error_perm</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-            <span class="k">if</span> <span class="s2">&quot;550&quot;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
-                <span class="k">return</span> <span class="s2">&quot;&quot;</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;FTP permission error: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
-            <span class="k">return</span> <span class="s2">&quot;&quot;</span>
+            <span class="k">if</span> <span class="s2">"550"</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
+                <span class="k">return</span> <span class="s2">""</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"FTP permission error: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
+            <span class="k">return</span> <span class="s2">""</span>
         <span class="k">except</span> <span class="n">error_temp</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;FTP temporary error: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
-            <span class="k">return</span> <span class="s2">&quot;&quot;</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"FTP temporary error: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
+            <span class="k">return</span> <span class="s2">""</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>  <span class="c1"># pylint: disable=broad-exception-caught</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error while checking FTP file: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
-            <span class="k">return</span> <span class="s2">&quot;&quot;</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Error while checking FTP file: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
+            <span class="k">return</span> <span class="s2">""</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">check_pre_release_file</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">species_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">accession</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">extension</span><span class="p">:</span> <span class="nb">str</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Check for pre-release files on EBI FTP server.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            species_name (str): _species_name_</span>
 <span class="sd">            accession (str): GCA accession</span>
-<span class="sd">            extension (str): File extension to look for (e.g., &quot;.gtf.gz&quot;)</span>
+<span class="sd">            extension (str): File extension to look for (e.g., ".gtf.gz")</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            str: URL to the pre-release file if found, else empty string</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">ftp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ebi_ftp</span>
-        <span class="n">which</span> <span class="o">=</span> <span class="s2">&quot;ebi&quot;</span>
+        <span class="n">which</span> <span class="o">=</span> <span class="s2">"ebi"</span>
         <span class="n">base</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ebi_ftp_path</span>
-        <span class="n">path</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;pub/databases/ensembl/pre-release/</span><span class="si">{</span><span class="n">species_name</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">accession</span><span class="si">}</span><span class="s2">/&quot;</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"pub/databases/ensembl/pre-release/</span><span class="si">{</span><span class="n">species_name</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">accession</span><span class="si">}</span><span class="s2">/"</span>
         <span class="k">try</span><span class="p">:</span>
 
             <span class="n">ftp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_require_ftp</span><span class="p">(</span><span class="n">ftp</span><span class="p">)</span>
@@ -4396,16 +4396,16 @@
                 <span class="k">if</span> <span class="n">fname</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="n">extension</span><span class="p">):</span>
                     <span class="k">return</span> <span class="n">base</span> <span class="o">+</span> <span class="n">path</span> <span class="o">+</span> <span class="n">fname</span>
         <span class="k">except</span> <span class="n">error_perm</span><span class="p">:</span>
-            <span class="k">return</span> <span class="s2">&quot;&quot;</span>
+            <span class="k">return</span> <span class="s2">""</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>  <span class="c1"># pylint: disable=broad-exception-caught</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error while checking pre-release file: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
-        <span class="k">return</span> <span class="s2">&quot;&quot;</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Error while checking pre-release file: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
+        <span class="k">return</span> <span class="s2">""</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">close_connections</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Best-effort shutdown: if QUIT fails because the server dropped us,</span>
 <span class="sd">        fall back to close() and never raise.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">for</span> <span class="n">conn</span> <span class="ow">in</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ensembl_ftp</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ebi_ftp</span><span class="p">):</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">conn</span><span class="p">:</span>
                 <span class="k">continue</span>
@@ -4454,7 +4454,7 @@
 
 
 <h4 id="ensembl.genes.projects.ftp_client.EnsemblFTP.ebi_ftp_path" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">ebi_ftp_path</span> <span class="o">=</span> <span class="s1">&#39;https://ftp.ebi.ac.uk/&#39;</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">ebi_ftp_path</span> <span class="o">=</span> <span class="s1">'https://ftp.ebi.ac.uk/'</span></code>
 
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
@@ -4494,7 +4494,7 @@
 
 
 <h4 id="ensembl.genes.projects.ftp_client.EnsemblFTP.ensembl_ftp_path" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">ensembl_ftp_path</span> <span class="o">=</span> <span class="s1">&#39;https://ftp.ensembl.org/&#39;</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">ensembl_ftp_path</span> <span class="o">=</span> <span class="s1">'https://ftp.ensembl.org/'</span></code>
 
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
@@ -4795,7 +4795,7 @@
     <span class="n">source</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">file_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Check for existence of specific file types on FTP servers.</span>
 
 <span class="sd">    Args:</span>
@@ -4803,43 +4803,43 @@
 <span class="sd">        prod_name (str): _prod_name_</span>
 <span class="sd">        accession (str): GCA accession</span>
 <span class="sd">        source (str): _source_</span>
-<span class="sd">        file_type (str): type of file to check for: &quot;repeatmodeler&quot; or &quot;busco&quot;</span>
+<span class="sd">        file_type (str): type of file to check for: "repeatmodeler" or "busco"</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        str: URL to the file if found, else empty string</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="c1"># Initialize all file names upfront to avoid possibly-used-before-assignment</span>
     <span class="n">file_name_protein</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">file_name_alternative</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">file_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 
-    <span class="k">if</span> <span class="n">file_type</span> <span class="o">==</span> <span class="s2">&quot;repeatmodeler&quot;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">file_type</span> <span class="o">==</span> <span class="s2">"repeatmodeler"</span><span class="p">:</span>
         <span class="n">ftp_connection</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ebi_ftp</span>
-        <span class="n">which</span> <span class="o">=</span> <span class="s2">&quot;ebi&quot;</span>
+        <span class="n">which</span> <span class="o">=</span> <span class="s2">"ebi"</span>
         <span class="n">ftp_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ebi_ftp_path</span>
         <span class="n">path</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="s2">&quot;pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/&quot;</span>
+            <span class="s2">"pub/databases/ensembl/repeats/unfiltered_repeatmodeler/species/"</span>
             <span class="o">+</span> <span class="n">species_name</span>
-            <span class="o">+</span> <span class="s2">&quot;/&quot;</span>
+            <span class="o">+</span> <span class="s2">"/"</span>
         <span class="p">)</span>
-        <span class="n">file_name</span> <span class="o">=</span> <span class="n">accession</span> <span class="o">+</span> <span class="s2">&quot;.repeatmodeler.fa&quot;</span>
-    <span class="k">elif</span> <span class="n">file_type</span> <span class="o">==</span> <span class="s2">&quot;busco&quot;</span><span class="p">:</span>
+        <span class="n">file_name</span> <span class="o">=</span> <span class="n">accession</span> <span class="o">+</span> <span class="s2">".repeatmodeler.fa"</span>
+    <span class="k">elif</span> <span class="n">file_type</span> <span class="o">==</span> <span class="s2">"busco"</span><span class="p">:</span>
         <span class="n">ftp_connection</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ensembl_ftp</span>
-        <span class="n">which</span> <span class="o">=</span> <span class="s2">&quot;ensembl&quot;</span>
+        <span class="n">which</span> <span class="o">=</span> <span class="s2">"ensembl"</span>
         <span class="n">ftp_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ensembl_ftp_path</span>
         <span class="n">path</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="s2">&quot;pub/rapid-release/species/&quot;</span>
+            <span class="s2">"pub/rapid-release/species/"</span>
             <span class="o">+</span> <span class="n">species_name</span>
-            <span class="o">+</span> <span class="s2">&quot;/&quot;</span>
+            <span class="o">+</span> <span class="s2">"/"</span>
             <span class="o">+</span> <span class="n">accession</span>
-            <span class="o">+</span> <span class="s2">&quot;/&quot;</span>
+            <span class="o">+</span> <span class="s2">"/"</span>
             <span class="o">+</span> <span class="n">source</span>
-            <span class="o">+</span> <span class="s2">&quot;/statistics/&quot;</span>
+            <span class="o">+</span> <span class="s2">"/statistics/"</span>
         <span class="p">)</span>
-        <span class="n">file_name_protein</span> <span class="o">=</span> <span class="n">prod_name</span> <span class="o">+</span> <span class="s2">&quot;_protein_busco_short_summary.txt&quot;</span>
-        <span class="n">file_name_alternative</span> <span class="o">=</span> <span class="n">prod_name</span> <span class="o">+</span> <span class="s2">&quot;_busco_short_summary.txt&quot;</span>
+        <span class="n">file_name_protein</span> <span class="o">=</span> <span class="n">prod_name</span> <span class="o">+</span> <span class="s2">"_protein_busco_short_summary.txt"</span>
+        <span class="n">file_name_alternative</span> <span class="o">=</span> <span class="n">prod_name</span> <span class="o">+</span> <span class="s2">"_busco_short_summary.txt"</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">return</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">return</span> <span class="s2">""</span>
 
     <span class="k">try</span><span class="p">:</span>
         <span class="n">ftp_connection</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_require_ftp</span><span class="p">(</span><span class="n">ftp_connection</span><span class="p">)</span>
@@ -4847,28 +4847,28 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_retry</span><span class="p">(</span><span class="n">ftp_connection</span><span class="o">.</span><span class="n">cwd</span><span class="p">,</span> <span class="n">which</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
         <span class="n">files_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_retry</span><span class="p">(</span><span class="n">ftp_connection</span><span class="o">.</span><span class="n">nlst</span><span class="p">,</span> <span class="n">which</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">file_type</span> <span class="o">==</span> <span class="s2">&quot;busco&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">file_type</span> <span class="o">==</span> <span class="s2">"busco"</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">file_name_protein</span> <span class="ow">and</span> <span class="n">file_name_protein</span> <span class="ow">in</span> <span class="n">files_list</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">ftp_path</span> <span class="o">+</span> <span class="n">path</span> <span class="o">+</span> <span class="n">file_name_protein</span>
             <span class="k">if</span> <span class="n">file_name_alternative</span> <span class="ow">and</span> <span class="n">file_name_alternative</span> <span class="ow">in</span> <span class="n">files_list</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">ftp_path</span> <span class="o">+</span> <span class="n">path</span> <span class="o">+</span> <span class="n">file_name_alternative</span>
-            <span class="k">return</span> <span class="s2">&quot;&quot;</span>
+            <span class="k">return</span> <span class="s2">""</span>
         <span class="k">return</span> <span class="p">(</span>
             <span class="n">ftp_path</span> <span class="o">+</span> <span class="n">path</span> <span class="o">+</span> <span class="n">file_name</span>
             <span class="k">if</span> <span class="n">file_name</span> <span class="ow">and</span> <span class="n">file_name</span> <span class="ow">in</span> <span class="n">files_list</span>
-            <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+            <span class="k">else</span> <span class="s2">""</span>
         <span class="p">)</span>
     <span class="k">except</span> <span class="n">error_perm</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="k">if</span> <span class="s2">&quot;550&quot;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
-            <span class="k">return</span> <span class="s2">&quot;&quot;</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;FTP permission error: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
-        <span class="k">return</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">if</span> <span class="s2">"550"</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
+            <span class="k">return</span> <span class="s2">""</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"FTP permission error: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
+        <span class="k">return</span> <span class="s2">""</span>
     <span class="k">except</span> <span class="n">error_temp</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;FTP temporary error: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
-        <span class="k">return</span> <span class="s2">&quot;&quot;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"FTP temporary error: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
+        <span class="k">return</span> <span class="s2">""</span>
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>  <span class="c1"># pylint: disable=broad-exception-caught</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error while checking FTP file: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
-        <span class="k">return</span> <span class="s2">&quot;&quot;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Error while checking FTP file: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
+        <span class="k">return</span> <span class="s2">""</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -5010,21 +5010,21 @@
 <span class="normal">220</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">check_pre_release_file</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span> <span class="n">species_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">accession</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">extension</span><span class="p">:</span> <span class="nb">str</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Check for pre-release files on EBI FTP server.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        species_name (str): _species_name_</span>
 <span class="sd">        accession (str): GCA accession</span>
-<span class="sd">        extension (str): File extension to look for (e.g., &quot;.gtf.gz&quot;)</span>
+<span class="sd">        extension (str): File extension to look for (e.g., ".gtf.gz")</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        str: URL to the pre-release file if found, else empty string</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">ftp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ebi_ftp</span>
-    <span class="n">which</span> <span class="o">=</span> <span class="s2">&quot;ebi&quot;</span>
+    <span class="n">which</span> <span class="o">=</span> <span class="s2">"ebi"</span>
     <span class="n">base</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ebi_ftp_path</span>
-    <span class="n">path</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;pub/databases/ensembl/pre-release/</span><span class="si">{</span><span class="n">species_name</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">accession</span><span class="si">}</span><span class="s2">/&quot;</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"pub/databases/ensembl/pre-release/</span><span class="si">{</span><span class="n">species_name</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">accession</span><span class="si">}</span><span class="s2">/"</span>
     <span class="k">try</span><span class="p">:</span>
 
         <span class="n">ftp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_require_ftp</span><span class="p">(</span><span class="n">ftp</span><span class="p">)</span>
@@ -5034,10 +5034,10 @@
             <span class="k">if</span> <span class="n">fname</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="n">extension</span><span class="p">):</span>
                 <span class="k">return</span> <span class="n">base</span> <span class="o">+</span> <span class="n">path</span> <span class="o">+</span> <span class="n">fname</span>
     <span class="k">except</span> <span class="n">error_perm</span><span class="p">:</span>
-        <span class="k">return</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">return</span> <span class="s2">""</span>
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>  <span class="c1"># pylint: disable=broad-exception-caught</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error while checking pre-release file: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
-    <span class="k">return</span> <span class="s2">&quot;&quot;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Error while checking pre-release file: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
+    <span class="k">return</span> <span class="s2">""</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -5076,10 +5076,10 @@ fall back to close() and never raise.</p>
 <span class="normal">234</span>
 <span class="normal">235</span>
 <span class="normal">236</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">close_connections</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Best-effort shutdown: if QUIT fails because the server dropped us,</span>
 <span class="sd">    fall back to close() and never raise.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">for</span> <span class="n">conn</span> <span class="ow">in</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ensembl_ftp</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ebi_ftp</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">conn</span><span class="p">:</span>
             <span class="k">continue</span>
@@ -5151,13 +5151,13 @@ fall back to close() and never raise.</p>
 <span class="normal">102</span>
 <span class="normal">103</span>
 <span class="normal">104</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">return_to_root</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ftp_connection</span><span class="p">:</span> <span class="n">FTP</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return to root</span>
+<span class="w">    </span><span class="sd">"""Return to root</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        ftp_connection (FTP): Ftp path</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">which</span> <span class="o">=</span> <span class="s2">&quot;ensembl&quot;</span> <span class="k">if</span> <span class="n">ftp_connection</span> <span class="ow">is</span> <span class="bp">self</span><span class="o">.</span><span class="n">ensembl_ftp</span> <span class="k">else</span> <span class="s2">&quot;ebi&quot;</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">_retry</span><span class="p">(</span><span class="n">ftp_connection</span><span class="o">.</span><span class="n">cwd</span><span class="p">,</span> <span class="n">which</span><span class="p">,</span> <span class="s2">&quot;/&quot;</span><span class="p">)</span>
+<span class="sd">    """</span>
+    <span class="n">which</span> <span class="o">=</span> <span class="s2">"ensembl"</span> <span class="k">if</span> <span class="n">ftp_connection</span> <span class="ow">is</span> <span class="bp">self</span><span class="o">.</span><span class="n">ensembl_ftp</span> <span class="k">else</span> <span class="s2">"ebi"</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_retry</span><span class="p">(</span><span class="n">ftp_connection</span><span class="o">.</span><span class="n">cwd</span><span class="p">,</span> <span class="n">which</span><span class="p">,</span> <span class="s2">"/"</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -5281,37 +5281,37 @@ body must be inspected for known "not available" markers.</p>
 <span class="normal">303</span>
 <span class="normal">304</span>
 <span class="normal">305</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">check_beta_species_status</span><span class="p">(</span><span class="n">genome_uuid</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Check whether a beta.ensembl.org species page is actually usable.</span>
 
 <span class="sd">    The beta site returns HTTP 200 even for unrecognised species (showing an</span>
 <span class="sd">    error page), so a status-code check alone is insufficient — the response</span>
-<span class="sd">    body must be inspected for known &quot;not available&quot; markers.</span>
+<span class="sd">    body must be inspected for known "not available" markers.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        genome_uuid (str): The genome UUID to check.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        str: One of:</span>
-<span class="sd">            - &quot;available&quot;   : a normal, usable beta species page</span>
-<span class="sd">            - &quot;unavailable&quot; : page loads (or non-200) but species not recognised</span>
-<span class="sd">            - &quot;error&quot;       : network/HTTP error, or missing/unknown UUID</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">genome_uuid</span> <span class="ow">or</span> <span class="n">genome_uuid</span> <span class="o">==</span> <span class="s2">&quot;unknown&quot;</span><span class="p">:</span>
-        <span class="k">return</span> <span class="s2">&quot;error&quot;</span>
-    <span class="n">url</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;https://beta.ensembl.org/species/</span><span class="si">{</span><span class="n">genome_uuid</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="sd">            - "available"   : a normal, usable beta species page</span>
+<span class="sd">            - "unavailable" : page loads (or non-200) but species not recognised</span>
+<span class="sd">            - "error"       : network/HTTP error, or missing/unknown UUID</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">genome_uuid</span> <span class="ow">or</span> <span class="n">genome_uuid</span> <span class="o">==</span> <span class="s2">"unknown"</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">"error"</span>
+    <span class="n">url</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"https://beta.ensembl.org/species/</span><span class="si">{</span><span class="n">genome_uuid</span><span class="si">}</span><span class="s2">"</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">allow_redirects</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
         <span class="c1"># Non-200 responses are treated as unavailable (page not served).</span>
         <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">!=</span> <span class="mi">200</span><span class="p">:</span>
-            <span class="k">return</span> <span class="s2">&quot;unavailable&quot;</span>
-        <span class="n">body</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">text</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span>
+            <span class="k">return</span> <span class="s2">"unavailable"</span>
+        <span class="n">body</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">text</span> <span class="ow">or</span> <span class="s2">""</span>
         <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">marker</span> <span class="ow">in</span> <span class="n">body</span> <span class="k">for</span> <span class="n">marker</span> <span class="ow">in</span> <span class="n">_BETA_UNAVAILABLE_MARKERS</span><span class="p">):</span>
-            <span class="k">return</span> <span class="s2">&quot;unavailable&quot;</span>
-        <span class="k">return</span> <span class="s2">&quot;available&quot;</span>
+            <span class="k">return</span> <span class="s2">"unavailable"</span>
+        <span class="k">return</span> <span class="s2">"available"</span>
     <span class="k">except</span> <span class="n">requests</span><span class="o">.</span><span class="n">RequestException</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error checking beta species </span><span class="si">{</span><span class="n">genome_uuid</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
-        <span class="k">return</span> <span class="s2">&quot;error&quot;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Error checking beta species </span><span class="si">{</span><span class="n">genome_uuid</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
+        <span class="k">return</span> <span class="s2">"error"</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -5413,7 +5413,7 @@ body must be inspected for known "not available" markers.</p>
 <span class="normal">261</span>
 <span class="normal">262</span>
 <span class="normal">263</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">check_url_status</span><span class="p">(</span><span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Checks if a given URL is reachable.</span>
 
 <span class="sd">    Args:</span>
@@ -5421,7 +5421,7 @@ body must be inspected for known "not available" markers.</p>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        bool: True if the URL returns a 200 status code, False otherwise.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">head</span><span class="p">(</span>
             <span class="n">url</span><span class="p">,</span> <span class="n">allow_redirects</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">5</span>
@@ -5435,7 +5435,7 @@ body must be inspected for known "not available" markers.</p>
         <span class="n">response</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">200</span>
     <span class="k">except</span> <span class="n">requests</span><span class="o">.</span><span class="n">RequestException</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error checking URL </span><span class="si">{</span><span class="n">url</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Error checking URL </span><span class="si">{</span><span class="n">url</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
         <span class="k">return</span> <span class="kc">False</span>
 </code></pre></div></td></tr></table></div>
             </details>

@@ -4108,7 +4108,7 @@
 
 
 <h3 id="ensembl.genes.ensembl_loading.gff_core_database.DEFAULT_CORE_SCHEMA_SQL_PATH" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">DEFAULT_CORE_SCHEMA_SQL_PATH</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="s1">&#39;config&#39;</span> <span class="o">/</span> <span class="s1">&#39;core_schema.sql&#39;</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">DEFAULT_CORE_SCHEMA_SQL_PATH</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="s1">'config'</span> <span class="o">/</span> <span class="s1">'core_schema.sql'</span></code>
 
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
@@ -4128,7 +4128,7 @@
 
 
 <h3 id="ensembl.genes.ensembl_loading.gff_core_database.DEFAULT_ENSEMBL_RELEASE" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">DEFAULT_ENSEMBL_RELEASE</span> <span class="o">=</span> <span class="s1">&#39;114&#39;</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">DEFAULT_ENSEMBL_RELEASE</span> <span class="o">=</span> <span class="s1">'114'</span></code>
 
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
@@ -4198,7 +4198,7 @@
 <span class="normal">419</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">allocate_numeric_ids</span><span class="p">(</span>
     <span class="n">annotation</span><span class="p">:</span> <span class="n">ParsedAnnotation</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Allocate deterministic numeric gene and transcript IDs.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Allocate deterministic numeric gene and transcript IDs."""</span>
 
     <span class="n">gene_id_map</span> <span class="o">=</span> <span class="p">{</span>
         <span class="n">gene_id</span><span class="p">:</span> <span class="n">index</span>
@@ -4255,11 +4255,11 @@
     <span class="n">cursor</span><span class="p">:</span> <span class="n">DbCursor</span><span class="p">,</span>
     <span class="n">annotation</span><span class="p">:</span> <span class="n">ParsedAnnotation</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="nb">int</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Allocate non-conflicting IDs for loading into an existing core DB.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Allocate non-conflicting IDs for loading into an existing core DB."""</span>
 
-    <span class="n">next_gene_id</span> <span class="o">=</span> <span class="n">next_table_id</span><span class="p">(</span><span class="n">cursor</span><span class="p">,</span> <span class="s2">&quot;gene&quot;</span><span class="p">,</span> <span class="s2">&quot;gene_id&quot;</span><span class="p">)</span>
-    <span class="n">next_transcript_id</span> <span class="o">=</span> <span class="n">next_table_id</span><span class="p">(</span><span class="n">cursor</span><span class="p">,</span> <span class="s2">&quot;transcript&quot;</span><span class="p">,</span> <span class="s2">&quot;transcript_id&quot;</span><span class="p">)</span>
-    <span class="n">first_exon_id</span> <span class="o">=</span> <span class="n">next_table_id</span><span class="p">(</span><span class="n">cursor</span><span class="p">,</span> <span class="s2">&quot;exon&quot;</span><span class="p">,</span> <span class="s2">&quot;exon_id&quot;</span><span class="p">)</span>
+    <span class="n">next_gene_id</span> <span class="o">=</span> <span class="n">next_table_id</span><span class="p">(</span><span class="n">cursor</span><span class="p">,</span> <span class="s2">"gene"</span><span class="p">,</span> <span class="s2">"gene_id"</span><span class="p">)</span>
+    <span class="n">next_transcript_id</span> <span class="o">=</span> <span class="n">next_table_id</span><span class="p">(</span><span class="n">cursor</span><span class="p">,</span> <span class="s2">"transcript"</span><span class="p">,</span> <span class="s2">"transcript_id"</span><span class="p">)</span>
+    <span class="n">first_exon_id</span> <span class="o">=</span> <span class="n">next_table_id</span><span class="p">(</span><span class="n">cursor</span><span class="p">,</span> <span class="s2">"exon"</span><span class="p">,</span> <span class="s2">"exon_id"</span><span class="p">)</span>
     <span class="n">gene_id_map</span> <span class="o">=</span> <span class="p">{</span>
         <span class="n">gene_id</span><span class="p">:</span> <span class="n">index</span>
         <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">gene_id</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">annotation</span><span class="o">.</span><span class="n">genes</span><span class="p">),</span> <span class="n">start</span><span class="o">=</span><span class="n">next_gene_id</span><span class="p">)</span>
@@ -4304,14 +4304,14 @@
 <span class="normal">136</span>
 <span class="normal">137</span>
 <span class="normal">138</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">assembly_version_db_token</span><span class="p">(</span><span class="n">assembly_accession</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the assembly version suffix used after the release number.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Return the assembly version suffix used after the release number."""</span>
 
-    <span class="k">if</span> <span class="s2">&quot;.&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">assembly_accession</span><span class="p">:</span>
-        <span class="k">return</span> <span class="s2">&quot;1&quot;</span>
+    <span class="k">if</span> <span class="s2">"."</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">assembly_accession</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">"1"</span>
     <span class="k">return</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span>
-        <span class="sa">r</span><span class="s2">&quot;[^a-z0-9]+&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;_&quot;</span><span class="p">,</span>
-        <span class="n">assembly_accession</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span>
+        <span class="sa">r</span><span class="s2">"[^a-z0-9]+"</span><span class="p">,</span>
+        <span class="s2">"_"</span><span class="p">,</span>
+        <span class="n">assembly_accession</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s2">"."</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span>
     <span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -4381,17 +4381,17 @@
     <span class="n">db_port</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">db_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Connect to MySQL using the package-declared client dependency.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Connect to MySQL using the package-declared client dependency."""</span>
 
     <span class="n">connection_args</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;host&quot;</span><span class="p">:</span> <span class="n">db_host</span><span class="p">,</span>
-        <span class="s2">&quot;user&quot;</span><span class="p">:</span> <span class="n">db_user</span><span class="p">,</span>
-        <span class="s2">&quot;password&quot;</span><span class="p">:</span> <span class="n">db_password</span><span class="p">,</span>
-        <span class="s2">&quot;port&quot;</span><span class="p">:</span> <span class="n">db_port</span><span class="p">,</span>
-        <span class="s2">&quot;autocommit&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">"host"</span><span class="p">:</span> <span class="n">db_host</span><span class="p">,</span>
+        <span class="s2">"user"</span><span class="p">:</span> <span class="n">db_user</span><span class="p">,</span>
+        <span class="s2">"password"</span><span class="p">:</span> <span class="n">db_password</span><span class="p">,</span>
+        <span class="s2">"port"</span><span class="p">:</span> <span class="n">db_port</span><span class="p">,</span>
+        <span class="s2">"autocommit"</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">}</span>
     <span class="k">if</span> <span class="n">db_name</span><span class="p">:</span>
-        <span class="n">connection_args</span><span class="p">[</span><span class="s2">&quot;database&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">db_name</span>
+        <span class="n">connection_args</span><span class="p">[</span><span class="s2">"database"</span><span class="p">]</span> <span class="o">=</span> <span class="n">db_name</span>
 
     <span class="k">try</span><span class="p">:</span>
         <span class="kn">import</span><span class="w"> </span><span class="nn">pymysql</span>  <span class="c1"># pylint: disable=import-outside-toplevel</span>
@@ -4402,15 +4402,15 @@
             <span class="kn">import</span><span class="w"> </span><span class="nn">mysql.connector</span>  <span class="c1"># pylint: disable=import-outside-toplevel</span>
         <span class="k">except</span> <span class="ne">ImportError</span> <span class="k">as</span> <span class="n">mysql_connector_error</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
             <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span>
-                <span class="s2">&quot;A MySQL client is required for core loading. The package &quot;</span>
-                <span class="s2">&quot;declares pymysql; reinstall the package in this environment &quot;</span>
-                <span class="s2">&quot;or install pymysql. mysql-connector-python is also supported &quot;</span>
-                <span class="s2">&quot;as a fallback.&quot;</span>
+                <span class="s2">"A MySQL client is required for core loading. The package "</span>
+                <span class="s2">"declares pymysql; reinstall the package in this environment "</span>
+                <span class="s2">"or install pymysql. mysql-connector-python is also supported "</span>
+                <span class="s2">"as a fallback."</span>
             <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">mysql_connector_error</span>
 
         <span class="n">LOGGER</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-            <span class="s2">&quot;pymysql is not installed; falling back to mysql.connector. &quot;</span>
-            <span class="s2">&quot;Consider reinstalling the package dependencies.&quot;</span>
+            <span class="s2">"pymysql is not installed; falling back to mysql.connector. "</span>
+            <span class="s2">"Consider reinstalling the package dependencies."</span>
         <span class="p">)</span>
         <span class="k">del</span> <span class="n">pymysql_error</span>
         <span class="k">return</span> <span class="n">mysql</span><span class="o">.</span><span class="n">connector</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="o">**</span><span class="n">connection_args</span><span class="p">)</span>
@@ -4452,16 +4452,16 @@
 <span class="normal">124</span>
 <span class="normal">125</span>
 <span class="normal">126</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">core_schema_version</span><span class="p">(</span><span class="n">schema_sql_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the bundled core schema version used in derived DB names.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Return the bundled core schema version used in derived DB names."""</span>
 
     <span class="n">schema_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">schema_sql_path</span> <span class="ow">or</span> <span class="n">DEFAULT_CORE_SCHEMA_SQL_PATH</span><span class="p">)</span>
     <span class="k">try</span><span class="p">:</span>
-        <span class="n">schema_sql</span> <span class="o">=</span> <span class="n">schema_path</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+        <span class="n">schema_sql</span> <span class="o">=</span> <span class="n">schema_path</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8"</span><span class="p">)</span>
     <span class="k">except</span> <span class="ne">OSError</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">DEFAULT_ENSEMBL_RELEASE</span>
 
     <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span>
-        <span class="sa">r</span><span class="s2">&quot;[&#39;</span><span class="se">\&quot;</span><span class="s2">]schema_version[&#39;</span><span class="se">\&quot;</span><span class="s2">]\s*,\s*[&#39;</span><span class="se">\&quot;</span><span class="s2">]([^&#39;</span><span class="se">\&quot;</span><span class="s2">]+)[&#39;</span><span class="se">\&quot;</span><span class="s2">]&quot;</span><span class="p">,</span>
+        <span class="sa">r</span><span class="s2">"['</span><span class="se">\"</span><span class="s2">]schema_version['</span><span class="se">\"</span><span class="s2">]\s*,\s*['</span><span class="se">\"</span><span class="s2">]([^'</span><span class="se">\"</span><span class="s2">]+)['</span><span class="se">\"</span><span class="s2">]"</span><span class="p">,</span>
         <span class="n">schema_sql</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
@@ -4506,14 +4506,14 @@
     <span class="n">assembly_accession</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">source_config</span><span class="p">:</span> <span class="n">GffSourceConfig</span> <span class="o">=</span> <span class="n">GENERIC_GFF_CONFIG</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the core DB name for the selected loading source.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Return the core DB name for the selected loading source."""</span>
 
     <span class="k">if</span> <span class="n">source_config</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">REFSEQ_CONFIG</span><span class="o">.</span><span class="n">name</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">derive_refseq_core_db_name</span><span class="p">(</span><span class="n">species_name</span><span class="p">,</span> <span class="n">assembly_accession</span><span class="p">)</span>
 
     <span class="n">species_token</span> <span class="o">=</span> <span class="n">species_db_name_token</span><span class="p">(</span><span class="n">species_name</span><span class="p">)</span>
-    <span class="n">assembly_token</span> <span class="o">=</span> <span class="n">assembly_accession</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">)</span>
-    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">species_token</span><span class="si">}</span><span class="s2">_core_</span><span class="si">{</span><span class="n">assembly_token</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="n">assembly_token</span> <span class="o">=</span> <span class="n">assembly_accession</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"_"</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"."</span><span class="p">,</span> <span class="s2">"_"</span><span class="p">)</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">species_token</span><span class="si">}</span><span class="s2">_core_</span><span class="si">{</span><span class="n">assembly_token</span><span class="si">}</span><span class="s2">"</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -4551,12 +4551,12 @@
     <span class="n">assembly_accession</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">ensembl_release</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the core DB name used for RefSeq core creation.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Return the core DB name used for RefSeq core creation."""</span>
 
     <span class="n">species_token</span> <span class="o">=</span> <span class="n">species_db_name_token</span><span class="p">(</span><span class="n">species_name</span><span class="p">)</span>
     <span class="n">accession_token</span> <span class="o">=</span> <span class="n">refseq_accession_db_token</span><span class="p">(</span><span class="n">assembly_accession</span><span class="p">)</span>
     <span class="n">release</span> <span class="o">=</span> <span class="n">ensembl_release</span> <span class="ow">or</span> <span class="n">core_schema_version</span><span class="p">()</span>
-    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">species_token</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">accession_token</span><span class="si">}</span><span class="s2">_rs_core_</span><span class="si">{</span><span class="n">release</span><span class="si">}</span><span class="s2">_1&quot;</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">species_token</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">accession_token</span><span class="si">}</span><span class="s2">_rs_core_</span><span class="si">{</span><span class="n">release</span><span class="si">}</span><span class="s2">_1"</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -4567,7 +4567,7 @@
 
 
 <h3 id="ensembl.genes.ensembl_loading.gff_core_database.get_coord_system_id" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">get_coord_system_id</span><span class="p">(</span><span class="n">cursor</span><span class="p">,</span> <span class="n">coord_system_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">coord_system_name</span><span class="o">=</span><span class="s1">&#39;primary_assembly&#39;</span><span class="p">,</span> <span class="n">coord_system_version</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">get_coord_system_id</span><span class="p">(</span><span class="n">cursor</span><span class="p">,</span> <span class="n">coord_system_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">coord_system_name</span><span class="o">=</span><span class="s1">'primary_assembly'</span><span class="p">,</span> <span class="n">coord_system_version</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
 
 <a href="#ensembl.genes.ensembl_loading.gff_core_database.get_coord_system_id" class="headerlink" title="Permanent link">&para;</a></h3>
 
@@ -4615,35 +4615,35 @@
 <span class="normal">267</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_coord_system_id</span><span class="p">(</span>
     <span class="n">cursor</span><span class="p">:</span> <span class="n">DbCursor</span><span class="p">,</span>
     <span class="n">coord_system_id</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">coord_system_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;primary_assembly&quot;</span><span class="p">,</span>
+    <span class="n">coord_system_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"primary_assembly"</span><span class="p">,</span>
     <span class="n">coord_system_version</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Resolve a coord_system_id from an explicit ID or name/version.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Resolve a coord_system_id from an explicit ID or name/version."""</span>
 
     <span class="k">if</span> <span class="n">coord_system_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">coord_system_id</span>
 
     <span class="k">if</span> <span class="n">coord_system_version</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
-            <span class="s2">&quot;SELECT coord_system_id FROM coord_system WHERE name = </span><span class="si">%s</span><span class="s2"> &quot;</span>
-            <span class="s2">&quot;ORDER BY rank LIMIT 1&quot;</span><span class="p">,</span>
+            <span class="s2">"SELECT coord_system_id FROM coord_system WHERE name = </span><span class="si">%s</span><span class="s2"> "</span>
+            <span class="s2">"ORDER BY rank LIMIT 1"</span><span class="p">,</span>
             <span class="p">(</span><span class="n">coord_system_name</span><span class="p">,),</span>
         <span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
-            <span class="s2">&quot;SELECT coord_system_id FROM coord_system WHERE name = </span><span class="si">%s</span><span class="s2"> &quot;</span>
-            <span class="s2">&quot;AND version = </span><span class="si">%s</span><span class="s2"> ORDER BY rank LIMIT 1&quot;</span><span class="p">,</span>
+            <span class="s2">"SELECT coord_system_id FROM coord_system WHERE name = </span><span class="si">%s</span><span class="s2"> "</span>
+            <span class="s2">"AND version = </span><span class="si">%s</span><span class="s2"> ORDER BY rank LIMIT 1"</span><span class="p">,</span>
             <span class="p">(</span><span class="n">coord_system_name</span><span class="p">,</span> <span class="n">coord_system_version</span><span class="p">),</span>
         <span class="p">)</span>
     <span class="n">row</span> <span class="o">=</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
     <span class="k">if</span> <span class="n">row</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">version_msg</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="s2">&quot;&quot;</span>
+            <span class="s2">""</span>
             <span class="k">if</span> <span class="n">coord_system_version</span> <span class="ow">is</span> <span class="kc">None</span>
-            <span class="k">else</span> <span class="sa">f</span><span class="s2">&quot; with version &#39;</span><span class="si">{</span><span class="n">coord_system_version</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
+            <span class="k">else</span> <span class="sa">f</span><span class="s2">" with version '</span><span class="si">{</span><span class="n">coord_system_version</span><span class="si">}</span><span class="s2">'"</span>
         <span class="p">)</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Could not find coord_system &#39;</span><span class="si">{</span><span class="n">coord_system_name</span><span class="si">}</span><span class="s2">&#39;</span><span class="si">{</span><span class="n">version_msg</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">"Could not find coord_system '</span><span class="si">{</span><span class="n">coord_system_name</span><span class="si">}</span><span class="s2">'</span><span class="si">{</span><span class="n">version_msg</span><span class="si">}</span><span class="s2">"</span>
         <span class="p">)</span>
     <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
 </code></pre></div></td></tr></table></div>
@@ -4690,10 +4690,10 @@
     <span class="n">cursor</span><span class="p">:</span> <span class="n">DbCursor</span><span class="p">,</span>
     <span class="n">source_config</span><span class="p">:</span> <span class="n">GffSourceConfig</span> <span class="o">=</span> <span class="n">REFSEQ_CONFIG</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return an existing analysis_id or create one for the selected source.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Return an existing analysis_id or create one for the selected source."""</span>
 
     <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
-        <span class="s2">&quot;SELECT analysis_id FROM analysis WHERE logic_name = </span><span class="si">%s</span><span class="s2"> LIMIT 1&quot;</span><span class="p">,</span>
+        <span class="s2">"SELECT analysis_id FROM analysis WHERE logic_name = </span><span class="si">%s</span><span class="s2"> LIMIT 1"</span><span class="p">,</span>
         <span class="p">(</span><span class="n">source_config</span><span class="o">.</span><span class="n">analysis_logic_name</span><span class="p">,),</span>
     <span class="p">)</span>
     <span class="n">row</span> <span class="o">=</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
@@ -4701,7 +4701,7 @@
         <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
 
     <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
-        <span class="s2">&quot;INSERT INTO analysis (logic_name,created,program) VALUES (</span><span class="si">%s</span><span class="s2">,NOW(),</span><span class="si">%s</span><span class="s2">)&quot;</span><span class="p">,</span>
+        <span class="s2">"INSERT INTO analysis (logic_name,created,program) VALUES (</span><span class="si">%s</span><span class="s2">,NOW(),</span><span class="si">%s</span><span class="s2">)"</span><span class="p">,</span>
         <span class="p">(</span><span class="n">source_config</span><span class="o">.</span><span class="n">analysis_logic_name</span><span class="p">,</span> <span class="n">source_config</span><span class="o">.</span><span class="n">analysis_program</span><span class="p">),</span>
     <span class="p">)</span>
     <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">cursor</span><span class="o">.</span><span class="n">lastrowid</span><span class="p">)</span>
@@ -4715,7 +4715,7 @@
 
 
 <h3 id="ensembl.genes.ensembl_loading.gff_core_database.initialise_core_tables" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">initialise_core_tables</span><span class="p">(</span><span class="n">cursor</span><span class="p">,</span> <span class="n">species_name</span><span class="p">,</span> <span class="n">assembly_accession</span><span class="p">,</span> <span class="n">assembly_report_path</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">source_config</span><span class="o">=</span><span class="n">REFSEQ_CONFIG</span><span class="p">)</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">initialise_core_tables</span><span class="p">(</span><span class="n">cursor</span><span class="p">,</span> <span class="n">species_name</span><span class="p">,</span> <span class="n">assembly_accession</span><span class="p">,</span> <span class="n">assembly_report_path</span><span class="o">=</span><span class="s1">''</span><span class="p">,</span> <span class="n">source_config</span><span class="o">=</span><span class="n">REFSEQ_CONFIG</span><span class="p">)</span></code>
 
 <a href="#ensembl.genes.ensembl_loading.gff_core_database.initialise_core_tables" class="headerlink" title="Permanent link">&para;</a></h3>
 
@@ -4768,10 +4768,10 @@
     <span class="n">cursor</span><span class="p">:</span> <span class="n">DbCursor</span><span class="p">,</span>
     <span class="n">species_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">assembly_accession</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-    <span class="n">assembly_report_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+    <span class="n">assembly_report_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">=</span> <span class="s2">""</span><span class="p">,</span>
     <span class="n">source_config</span><span class="p">:</span> <span class="n">GffSourceConfig</span> <span class="o">=</span> <span class="n">REFSEQ_CONFIG</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Insert coord_system, meta, and analysis bootstrap rows.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Insert coord_system, meta, and analysis bootstrap rows."""</span>
 
     <span class="n">assembly_metadata</span> <span class="o">=</span> <span class="n">parse_assembly_report_metadata</span><span class="p">(</span>
         <span class="n">assembly_report_path</span><span class="p">,</span>
@@ -4779,25 +4779,25 @@
         <span class="n">assembly_accession</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
-        <span class="s2">&quot;INSERT INTO coord_system (name,version,rank,attrib) &quot;</span>
-        <span class="s2">&quot;VALUES (&#39;primary_assembly&#39;,&#39;&#39;,1,&#39;default_version,sequence_level&#39;)&quot;</span>
+        <span class="s2">"INSERT INTO coord_system (name,version,rank,attrib) "</span>
+        <span class="s2">"VALUES ('primary_assembly','',1,'default_version,sequence_level')"</span>
     <span class="p">)</span>
     <span class="n">coord_system_id</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">cursor</span><span class="o">.</span><span class="n">lastrowid</span><span class="p">)</span>
     <span class="n">cursor</span><span class="o">.</span><span class="n">executemany</span><span class="p">(</span>
-        <span class="s2">&quot;INSERT INTO meta (species_id,meta_key,meta_value) VALUES (1,</span><span class="si">%s</span><span class="s2">,</span><span class="si">%s</span><span class="s2">)&quot;</span><span class="p">,</span>
+        <span class="s2">"INSERT INTO meta (species_id,meta_key,meta_value) VALUES (1,</span><span class="si">%s</span><span class="s2">,</span><span class="si">%s</span><span class="s2">)"</span><span class="p">,</span>
         <span class="p">[</span>
             <span class="p">(</span><span class="n">meta_key</span><span class="p">,</span> <span class="n">meta_value</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">meta_key</span><span class="p">,</span> <span class="n">meta_value</span> <span class="ow">in</span> <span class="n">assembly_metadata</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
-            <span class="k">if</span> <span class="n">meta_value</span> <span class="o">!=</span> <span class="s2">&quot;&quot;</span>
+            <span class="k">if</span> <span class="n">meta_value</span> <span class="o">!=</span> <span class="s2">""</span>
         <span class="p">]</span>
         <span class="o">+</span> <span class="p">[</span>
-            <span class="p">(</span><span class="s2">&quot;genebuild.level&quot;</span><span class="p">,</span> <span class="s2">&quot;toplevel&quot;</span><span class="p">),</span>
-            <span class="p">(</span><span class="s2">&quot;transcriptbuild.level&quot;</span><span class="p">,</span> <span class="s2">&quot;toplevel&quot;</span><span class="p">),</span>
-            <span class="p">(</span><span class="s2">&quot;exonbuild.level&quot;</span><span class="p">,</span> <span class="s2">&quot;toplevel&quot;</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">"genebuild.level"</span><span class="p">,</span> <span class="s2">"toplevel"</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">"transcriptbuild.level"</span><span class="p">,</span> <span class="s2">"toplevel"</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">"exonbuild.level"</span><span class="p">,</span> <span class="s2">"toplevel"</span><span class="p">),</span>
         <span class="p">],</span>
     <span class="p">)</span>
     <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
-        <span class="s2">&quot;INSERT INTO analysis (logic_name,created,program) VALUES (</span><span class="si">%s</span><span class="s2">,NOW(),</span><span class="si">%s</span><span class="s2">)&quot;</span><span class="p">,</span>
+        <span class="s2">"INSERT INTO analysis (logic_name,created,program) VALUES (</span><span class="si">%s</span><span class="s2">,NOW(),</span><span class="si">%s</span><span class="s2">)"</span><span class="p">,</span>
         <span class="p">(</span><span class="n">source_config</span><span class="o">.</span><span class="n">analysis_logic_name</span><span class="p">,</span> <span class="n">source_config</span><span class="o">.</span><span class="n">analysis_program</span><span class="p">),</span>
     <span class="p">)</span>
     <span class="n">analysis_id</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">cursor</span><span class="o">.</span><span class="n">lastrowid</span><span class="p">)</span>
@@ -4872,7 +4872,7 @@
     <span class="n">analysis_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">source_config</span><span class="p">:</span> <span class="n">GffSourceConfig</span> <span class="o">=</span> <span class="n">REFSEQ_CONFIG</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Insert gene rows into the core database.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Insert gene rows into the core database."""</span>
 
     <span class="n">first_transcript_by_gene</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">for</span> <span class="n">transcript_id</span><span class="p">,</span> <span class="n">transcript</span> <span class="ow">in</span> <span class="n">annotation</span><span class="o">.</span><span class="n">transcripts</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
@@ -4885,11 +4885,11 @@
             <span class="n">transcript_id_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">first_transcript</span><span class="p">)</span> <span class="k">if</span> <span class="n">first_transcript</span> <span class="k">else</span> <span class="kc">None</span>
         <span class="p">)</span>
         <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
-<span class="w">            </span><span class="sd">&quot;&quot;&quot;INSERT INTO gene</span>
+<span class="w">            </span><span class="sd">"""INSERT INTO gene</span>
 <span class="sd">               (gene_id, seq_region_id, seq_region_start, seq_region_end,</span>
 <span class="sd">                seq_region_strand, biotype, analysis_id, stable_id,</span>
 <span class="sd">                display_xref_id, source, canonical_transcript_id)</span>
-<span class="sd">               VALUES (%s,%s,%s,%s,%s,%s,%s,%s,NULL,%s,%s)&quot;&quot;&quot;</span><span class="p">,</span>
+<span class="sd">               VALUES (%s,%s,%s,%s,%s,%s,%s,%s,NULL,%s,%s)"""</span><span class="p">,</span>
             <span class="p">(</span>
                 <span class="n">gene_id_map</span><span class="p">[</span><span class="n">gene_id</span><span class="p">],</span>
                 <span class="n">seq_region_id</span><span class="p">,</span>
@@ -5032,7 +5032,7 @@
     <span class="n">first_exon_id</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
     <span class="n">deduplicate_exons</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="nb">int</span><span class="p">],</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="nb">int</span><span class="p">]]]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Insert transcripts, exons, and exon_transcript links.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Insert transcripts, exons, and exon_transcript links."""</span>
 
     <span class="n">exon_id_map</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="n">per_transcript_coord_to_exon_id</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
@@ -5044,10 +5044,10 @@
     <span class="k">for</span> <span class="n">transcript_id</span><span class="p">,</span> <span class="n">transcript</span> <span class="ow">in</span> <span class="n">annotation</span><span class="o">.</span><span class="n">transcripts</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
         <span class="n">seq_region_id</span> <span class="o">=</span> <span class="n">seq_region_ids</span><span class="p">[</span><span class="n">transcript</span><span class="o">.</span><span class="n">seq_name</span><span class="p">]</span>
         <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
-<span class="w">            </span><span class="sd">&quot;&quot;&quot;INSERT INTO transcript</span>
+<span class="w">            </span><span class="sd">"""INSERT INTO transcript</span>
 <span class="sd">               (transcript_id, gene_id, seq_region_id, seq_region_start, seq_region_end,</span>
 <span class="sd">                seq_region_strand, biotype, analysis_id, stable_id, display_xref_id, source)</span>
-<span class="sd">               VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,NULL,%s)&quot;&quot;&quot;</span><span class="p">,</span>
+<span class="sd">               VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,NULL,%s)"""</span><span class="p">,</span>
             <span class="p">(</span>
                 <span class="n">transcript_id_map</span><span class="p">[</span><span class="n">transcript_id</span><span class="p">],</span>
                 <span class="n">gene_id_map</span><span class="p">[</span><span class="n">transcript</span><span class="o">.</span><span class="n">gene_id</span><span class="p">],</span>
@@ -5086,10 +5086,10 @@
                 <span class="n">exon_id</span> <span class="o">=</span> <span class="n">next_exon_id</span>
                 <span class="n">next_exon_id</span> <span class="o">+=</span> <span class="mi">1</span>
                 <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
-<span class="w">                    </span><span class="sd">&quot;&quot;&quot;INSERT INTO exon</span>
+<span class="w">                    </span><span class="sd">"""INSERT INTO exon</span>
 <span class="sd">                       (exon_id, seq_region_id, seq_region_start, seq_region_end,</span>
 <span class="sd">                        seq_region_strand, phase, end_phase, stable_id)</span>
-<span class="sd">                       VALUES (%s,%s,%s,%s,%s,%s,%s,%s)&quot;&quot;&quot;</span><span class="p">,</span>
+<span class="sd">                       VALUES (%s,%s,%s,%s,%s,%s,%s,%s)"""</span><span class="p">,</span>
                     <span class="p">(</span>
                         <span class="n">exon_id</span><span class="p">,</span>
                         <span class="n">seq_region_id</span><span class="p">,</span>
@@ -5106,8 +5106,8 @@
             <span class="n">exon_id_map</span><span class="p">[(</span><span class="n">transcript_id</span><span class="p">,</span> <span class="n">rank</span><span class="p">)]</span> <span class="o">=</span> <span class="n">exon_id</span>
             <span class="n">coord_to_exon_id</span><span class="p">[</span><span class="n">exon</span><span class="o">.</span><span class="n">coordinate_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">exon_id</span>
             <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
-                <span class="s2">&quot;INSERT INTO exon_transcript (exon_id, transcript_id, rank) &quot;</span>
-                <span class="s2">&quot;VALUES (</span><span class="si">%s</span><span class="s2">,</span><span class="si">%s</span><span class="s2">,</span><span class="si">%s</span><span class="s2">)&quot;</span><span class="p">,</span>
+                <span class="s2">"INSERT INTO exon_transcript (exon_id, transcript_id, rank) "</span>
+                <span class="s2">"VALUES (</span><span class="si">%s</span><span class="s2">,</span><span class="si">%s</span><span class="s2">,</span><span class="si">%s</span><span class="s2">)"</span><span class="p">,</span>
                 <span class="p">(</span>
                     <span class="n">exon_id</span><span class="p">,</span>
                     <span class="n">transcript_id_map</span><span class="p">[</span><span class="n">transcript_id</span><span class="p">],</span>
@@ -5221,7 +5221,7 @@
     <span class="n">transcript_id_map</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
     <span class="n">exon_id_map</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="nb">int</span><span class="p">],</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Insert translation rows and canonical translation links.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Insert translation rows and canonical translation links."""</span>
 
     <span class="k">for</span> <span class="n">transcript_id</span><span class="p">,</span> <span class="n">cds_list</span> <span class="ow">in</span> <span class="n">annotation</span><span class="o">.</span><span class="n">cds_segments</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
         <span class="n">db_transcript_id</span> <span class="o">=</span> <span class="n">transcript_id_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">transcript_id</span><span class="p">)</span>
@@ -5271,12 +5271,12 @@
                 <span class="n">end_rank</span> <span class="o">=</span> <span class="n">rank_map</span><span class="p">[</span><span class="n">exon</span><span class="o">.</span><span class="n">coordinate_key</span><span class="p">]</span>
 
         <span class="k">if</span> <span class="n">start_rank</span> <span class="ow">and</span> <span class="n">end_rank</span> <span class="ow">and</span> <span class="n">start_offset</span> <span class="ow">and</span> <span class="n">end_offset</span><span class="p">:</span>
-            <span class="n">protein_id</span> <span class="o">=</span> <span class="n">transcript</span><span class="o">.</span><span class="n">protein_id</span> <span class="ow">or</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">transcript_id</span><span class="si">}</span><span class="s2">_prot&quot;</span>
+            <span class="n">protein_id</span> <span class="o">=</span> <span class="n">transcript</span><span class="o">.</span><span class="n">protein_id</span> <span class="ow">or</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">transcript_id</span><span class="si">}</span><span class="s2">_prot"</span>
             <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
-<span class="w">                </span><span class="sd">&quot;&quot;&quot;INSERT INTO translation</span>
+<span class="w">                </span><span class="sd">"""INSERT INTO translation</span>
 <span class="sd">                     (transcript_id, start_exon_id, end_exon_id,</span>
 <span class="sd">                      seq_start, seq_end, stable_id)</span>
-<span class="sd">                   VALUES (%s,%s,%s,%s,%s,%s)&quot;&quot;&quot;</span><span class="p">,</span>
+<span class="sd">                   VALUES (%s,%s,%s,%s,%s,%s)"""</span><span class="p">,</span>
                 <span class="p">(</span>
                     <span class="n">db_transcript_id</span><span class="p">,</span>
                     <span class="n">exon_id_map</span><span class="p">[(</span><span class="n">transcript_id</span><span class="p">,</span> <span class="n">start_rank</span><span class="p">)],</span>
@@ -5288,7 +5288,7 @@
             <span class="p">)</span>
             <span class="n">translation_id</span> <span class="o">=</span> <span class="n">cursor</span><span class="o">.</span><span class="n">lastrowid</span>
             <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
-                <span class="s2">&quot;UPDATE transcript SET canonical_translation_id = </span><span class="si">%s</span><span class="s2"> WHERE transcript_id = </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="s2">"UPDATE transcript SET canonical_translation_id = </span><span class="si">%s</span><span class="s2"> WHERE transcript_id = </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span>
                 <span class="p">(</span><span class="n">translation_id</span><span class="p">,</span> <span class="n">db_transcript_id</span><span class="p">),</span>
             <span class="p">)</span>
 </code></pre></div></td></tr></table></div>
@@ -5349,14 +5349,14 @@
     <span class="n">annotation</span><span class="p">:</span> <span class="n">ParsedAnnotation</span><span class="p">,</span>
     <span class="n">coord_system_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Load seq_region IDs for all annotation seqids from an existing core DB.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Load seq_region IDs for all annotation seqids from an existing core DB."""</span>
 
     <span class="n">seq_region_ids</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="n">missing_names</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
 
     <span class="k">for</span> <span class="n">seq_region_name</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">required_seq_region_names</span><span class="p">(</span><span class="n">annotation</span><span class="p">)):</span>
         <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
-            <span class="s2">&quot;SELECT seq_region_id FROM seq_region WHERE name = </span><span class="si">%s</span><span class="s2"> AND coord_system_id = </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="s2">"SELECT seq_region_id FROM seq_region WHERE name = </span><span class="si">%s</span><span class="s2"> AND coord_system_id = </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span>
             <span class="p">(</span><span class="n">seq_region_name</span><span class="p">,</span> <span class="n">coord_system_id</span><span class="p">),</span>
         <span class="p">)</span>
         <span class="n">row</span> <span class="o">=</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
@@ -5366,13 +5366,13 @@
         <span class="n">seq_region_ids</span><span class="p">[</span><span class="n">seq_region_name</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
 
     <span class="k">if</span> <span class="n">missing_names</span><span class="p">:</span>
-        <span class="n">preview</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">missing_names</span><span class="p">[:</span><span class="mi">10</span><span class="p">])</span>
+        <span class="n">preview</span> <span class="o">=</span> <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">missing_names</span><span class="p">[:</span><span class="mi">10</span><span class="p">])</span>
         <span class="n">suffix</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="s2">&quot;&quot;</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">missing_names</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">10</span> <span class="k">else</span> <span class="sa">f</span><span class="s2">&quot;, ... (</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">missing_names</span><span class="p">)</span><span class="si">}</span><span class="s2"> total)&quot;</span>
+            <span class="s2">""</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">missing_names</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">10</span> <span class="k">else</span> <span class="sa">f</span><span class="s2">", ... (</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">missing_names</span><span class="p">)</span><span class="si">}</span><span class="s2"> total)"</span>
         <span class="p">)</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="s2">&quot;GFF references seq_region names missing from the target core DB: &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">preview</span><span class="si">}{</span><span class="n">suffix</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="s2">"GFF references seq_region names missing from the target core DB: "</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">preview</span><span class="si">}{</span><span class="n">suffix</span><span class="si">}</span><span class="s2">"</span>
         <span class="p">)</span>
 
     <span class="k">return</span> <span class="n">seq_region_ids</span>
@@ -5405,11 +5405,11 @@
 <span class="normal">173</span>
 <span class="normal">174</span>
 <span class="normal">175</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">load_schema_sql</span><span class="p">(</span><span class="n">cursor</span><span class="p">:</span> <span class="n">DbCursor</span><span class="p">,</span> <span class="n">schema_sql_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Load a semicolon-delimited Ensembl schema SQL file.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Load a semicolon-delimited Ensembl schema SQL file."""</span>
 
-    <span class="n">raw_schema</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">schema_sql_path</span><span class="p">)</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
-    <span class="n">clean_schema</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;/\*\*.*?\*/&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">raw_schema</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="n">re</span><span class="o">.</span><span class="n">DOTALL</span><span class="p">)</span>
-    <span class="k">for</span> <span class="n">statement</span> <span class="ow">in</span> <span class="nb">filter</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="o">.</span><span class="n">strip</span><span class="p">,</span> <span class="n">clean_schema</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;;&quot;</span><span class="p">))):</span>
+    <span class="n">raw_schema</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">schema_sql_path</span><span class="p">)</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8"</span><span class="p">)</span>
+    <span class="n">clean_schema</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">"/\*\*.*?\*/"</span><span class="p">,</span> <span class="s2">""</span><span class="p">,</span> <span class="n">raw_schema</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="n">re</span><span class="o">.</span><span class="n">DOTALL</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">statement</span> <span class="ow">in</span> <span class="nb">filter</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="o">.</span><span class="n">strip</span><span class="p">,</span> <span class="n">clean_schema</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">";"</span><span class="p">))):</span>
         <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">statement</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -5501,7 +5501,7 @@
     <span class="n">logger</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">source_config</span><span class="p">:</span> <span class="n">GffSourceConfig</span> <span class="o">=</span> <span class="n">REFSEQ_CONFIG</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Load seq_region and dna rows from a converted FASTA file.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Load seq_region and dna rows from a converted FASTA file."""</span>
 
     <span class="n">log</span> <span class="o">=</span> <span class="n">logger</span> <span class="ow">or</span> <span class="n">LOGGER</span>
     <span class="n">seq_region_ids</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
@@ -5510,7 +5510,7 @@
 
     <span class="k">def</span><span class="w"> </span><span class="nf">store_sequence</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">sequence</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
-            <span class="s2">&quot;SELECT seq_region_id FROM seq_region WHERE name = </span><span class="si">%s</span><span class="s2"> AND coord_system_id = </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="s2">"SELECT seq_region_id FROM seq_region WHERE name = </span><span class="si">%s</span><span class="s2"> AND coord_system_id = </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span>
             <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">coord_system_id</span><span class="p">),</span>
         <span class="p">)</span>
         <span class="n">row</span> <span class="o">=</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
@@ -5519,7 +5519,7 @@
             <span class="n">already_exists</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
-                <span class="s2">&quot;INSERT INTO seq_region (name, coord_system_id, length) VALUES (</span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">)&quot;</span><span class="p">,</span>
+                <span class="s2">"INSERT INTO seq_region (name, coord_system_id, length) VALUES (</span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">)"</span><span class="p">,</span>
                 <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">coord_system_id</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">sequence</span><span class="p">)),</span>
             <span class="p">)</span>
             <span class="n">seq_region_id</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">cursor</span><span class="o">.</span><span class="n">lastrowid</span><span class="p">)</span>
@@ -5527,34 +5527,34 @@
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">already_exists</span><span class="p">:</span>
             <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
-                <span class="s2">&quot;INSERT INTO dna (seq_region_id, sequence) VALUES (</span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">)&quot;</span><span class="p">,</span>
+                <span class="s2">"INSERT INTO dna (seq_region_id, sequence) VALUES (</span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">)"</span><span class="p">,</span>
                 <span class="p">(</span><span class="n">seq_region_id</span><span class="p">,</span> <span class="n">sequence</span><span class="p">),</span>
             <span class="p">)</span>
             <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
-                <span class="s2">&quot;INSERT INTO seq_region_attrib (seq_region_id, attrib_type_id, value) &quot;</span>
-                <span class="s2">&quot;VALUES (</span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, &#39;&#39;)&quot;</span><span class="p">,</span>
+                <span class="s2">"INSERT INTO seq_region_attrib (seq_region_id, attrib_type_id, value) "</span>
+                <span class="s2">"VALUES (</span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, '')"</span><span class="p">,</span>
                 <span class="p">(</span><span class="n">seq_region_id</span><span class="p">,</span> <span class="n">source_config</span><span class="o">.</span><span class="n">toplevel_attrib_type_id</span><span class="p">),</span>
             <span class="p">)</span>
 
         <span class="n">seq_region_ids</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">seq_region_id</span>
 
-    <span class="k">with</span> <span class="n">Path</span><span class="p">(</span><span class="n">fna_path</span><span class="p">)</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fasta_handle</span><span class="p">:</span>
+    <span class="k">with</span> <span class="n">Path</span><span class="p">(</span><span class="n">fna_path</span><span class="p">)</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">"r"</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8"</span><span class="p">)</span> <span class="k">as</span> <span class="n">fasta_handle</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">fasta_handle</span><span class="p">:</span>
             <span class="n">line</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">line</span><span class="p">:</span>
                 <span class="k">continue</span>
-            <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;&gt;&quot;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"&gt;"</span><span class="p">):</span>
                 <span class="k">if</span> <span class="n">current_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="n">store_sequence</span><span class="p">(</span><span class="n">current_name</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">sequence_lines</span><span class="p">))</span>
+                    <span class="n">store_sequence</span><span class="p">(</span><span class="n">current_name</span><span class="p">,</span> <span class="s2">""</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">sequence_lines</span><span class="p">))</span>
                 <span class="n">current_name</span> <span class="o">=</span> <span class="n">line</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
                 <span class="n">sequence_lines</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">sequence_lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">upper</span><span class="p">())</span>
 
         <span class="k">if</span> <span class="n">current_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">store_sequence</span><span class="p">(</span><span class="n">current_name</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">sequence_lines</span><span class="p">))</span>
+            <span class="n">store_sequence</span><span class="p">(</span><span class="n">current_name</span><span class="p">,</span> <span class="s2">""</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">sequence_lines</span><span class="p">))</span>
 
-    <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Loaded </span><span class="si">%s</span><span class="s2"> seq_regions from </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">seq_region_ids</span><span class="p">),</span> <span class="n">fna_path</span><span class="p">)</span>
+    <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"Loaded </span><span class="si">%s</span><span class="s2"> seq_regions from </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">seq_region_ids</span><span class="p">),</span> <span class="n">fna_path</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">seq_region_ids</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -5586,9 +5586,9 @@
 <span class="normal">338</span>
 <span class="normal">339</span>
 <span class="normal">340</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">next_table_id</span><span class="p">(</span><span class="n">cursor</span><span class="p">:</span> <span class="n">DbCursor</span><span class="p">,</span> <span class="n">table_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">id_column</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return max(table.id)+1 for tables that require explicit IDs.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Return max(table.id)+1 for tables that require explicit IDs."""</span>
 
-    <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;SELECT COALESCE(MAX(</span><span class="si">{</span><span class="n">id_column</span><span class="si">}</span><span class="s2">), 0) + 1 FROM </span><span class="si">{</span><span class="n">table_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="sa">f</span><span class="s2">"SELECT COALESCE(MAX(</span><span class="si">{</span><span class="n">id_column</span><span class="si">}</span><span class="s2">), 0) + 1 FROM </span><span class="si">{</span><span class="n">table_name</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
     <span class="n">row</span> <span class="o">=</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
     <span class="k">if</span> <span class="n">row</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span> <span class="mi">1</span>
@@ -5621,7 +5621,7 @@
 <span class="normal">294</span>
 <span class="normal">295</span>
 <span class="normal">296</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">required_seq_region_names</span><span class="p">(</span><span class="n">annotation</span><span class="p">:</span> <span class="n">ParsedAnnotation</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return all seq_region names referenced by parsed annotation records.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Return all seq_region names referenced by parsed annotation records."""</span>
 
     <span class="n">names</span> <span class="o">=</span> <span class="p">{</span><span class="n">gene</span><span class="o">.</span><span class="n">seq_name</span> <span class="k">for</span> <span class="n">gene</span> <span class="ow">in</span> <span class="n">annotation</span><span class="o">.</span><span class="n">genes</span><span class="o">.</span><span class="n">values</span><span class="p">()}</span>
     <span class="n">names</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">transcript</span><span class="o">.</span><span class="n">seq_name</span> <span class="k">for</span> <span class="n">transcript</span> <span class="ow">in</span> <span class="n">annotation</span><span class="o">.</span><span class="n">transcripts</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
@@ -5662,13 +5662,13 @@ schema loading explicitly.</p>
 <span class="normal">187</span>
 <span class="normal">188</span>
 <span class="normal">189</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">resolve_schema_sql_path</span><span class="p">(</span><span class="n">schema_sql_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the schema SQL path to use for core creation.</span>
+<span class="w">    </span><span class="sd">"""Return the schema SQL path to use for core creation.</span>
 
 <span class="sd">    ``None`` means use the bundled default schema. An empty string disables</span>
 <span class="sd">    schema loading explicitly.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
-    <span class="k">if</span> <span class="n">schema_sql_path</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">schema_sql_path</span> <span class="o">==</span> <span class="s2">""</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">None</span>
     <span class="k">if</span> <span class="n">schema_sql_path</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">DEFAULT_CORE_SCHEMA_SQL_PATH</span>

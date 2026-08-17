@@ -3852,7 +3852,7 @@ and seed the pipeline with jobs based on a generated JSON file.</p>
 
 
 <h3 id="ensembl.genes.info_from_registry.genebuild_start_pipeline.parser" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s1">&#39;Extract metadata, initialize and seed annotation pipelines.&#39;</span><span class="p">)</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s1">'Extract metadata, initialize and seed annotation pipelines.'</span><span class="p">)</span></code>
 
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
@@ -4021,7 +4021,7 @@ and seed the pipeline with jobs based on a generated JSON file.</p>
 <span class="normal">81</span>
 <span class="normal">82</span>
 <span class="normal">83</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">init_pipeline_anno</span><span class="p">(</span><span class="n">config_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">hive_force_init</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Initialize an eHive pipeline using a given config file.</span>
 
 <span class="sd">    Args:</span>
@@ -4034,23 +4034,23 @@ and seed the pipeline with jobs based on a generated JSON file.</p>
 <span class="sd">    Raises:</span>
 <span class="sd">        subprocess.CalledProcessError: If the `init_pipeline.pl` command fails.</span>
 <span class="sd">        RuntimeError: If the expected MySQL URL is not found in the output.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Innitialising anno pipeline&quot;</span><span class="p">)</span>
-    <span class="n">cmd</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;init_pipeline.pl&quot;</span><span class="p">,</span> <span class="n">config_file</span><span class="p">,</span> <span class="s2">&quot;--hive_force_init&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">hive_force_init</span><span class="p">)]</span>
+<span class="sd">    """</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"Innitialising anno pipeline"</span><span class="p">)</span>
+    <span class="n">cmd</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"init_pipeline.pl"</span><span class="p">,</span> <span class="n">config_file</span><span class="p">,</span> <span class="s2">"--hive_force_init"</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">hive_force_init</span><span class="p">)]</span>
 
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Running: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">cmd</span><span class="p">))</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"Running: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="s2">" "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">cmd</span><span class="p">))</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="n">result</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
             <span class="n">cmd</span><span class="p">,</span> <span class="n">check</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">STDOUT</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="kc">True</span>
         <span class="p">)</span>
         <span class="n">output</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">stdout</span>
         <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">output</span><span class="o">.</span><span class="n">splitlines</span><span class="p">():</span>
-            <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;(mysql://[^\s]+)&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span>
+            <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">"(mysql://[^\s]+)"</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># Just the URL part</span>
         <span class="k">return</span> <span class="kc">None</span>
     <span class="k">except</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">CalledProcessError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error running init_pipeline.pl: </span><span class="si">{</span><span class="n">e</span><span class="o">.</span><span class="n">stdout</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Error running init_pipeline.pl: </span><span class="si">{</span><span class="n">e</span><span class="o">.</span><span class="n">stdout</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
         <span class="k">raise</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -4224,7 +4224,7 @@ and seed the pipeline with jobs based on a generated JSON file.</p>
 <span class="normal">130</span>
 <span class="normal">131</span>
 <span class="normal">132</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">init_pipeline_main</span><span class="p">(</span><span class="n">config_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">hive_force_init</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Initialize an eHive pipeline using a given config file.</span>
 
 <span class="sd">    Args:</span>
@@ -4237,20 +4237,20 @@ and seed the pipeline with jobs based on a generated JSON file.</p>
 <span class="sd">    Raises:</span>
 <span class="sd">        subprocess.CalledProcessError: If the `init_pipeline.pl` command fails.</span>
 <span class="sd">        RuntimeError: If the expected MySQL URL is not found in the output.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">config_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">config_file</span><span class="p">)</span>
     <span class="n">config_dir</span> <span class="o">=</span> <span class="n">config_path</span><span class="o">.</span><span class="n">parent</span>
     <span class="n">config_name</span> <span class="o">=</span> <span class="n">config_path</span><span class="o">.</span><span class="n">stem</span>  <span class="c1"># Gets filename without .pm extension</span>
 
     <span class="n">cmd</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="s2">&quot;init_pipeline.pl&quot;</span><span class="p">,</span>
+        <span class="s2">"init_pipeline.pl"</span><span class="p">,</span>
         <span class="n">config_name</span><span class="p">,</span>  <span class="c1"># Just the module name, not the full path</span>
-        <span class="s2">&quot;--hive_force_init&quot;</span><span class="p">,</span>
+        <span class="s2">"--hive_force_init"</span><span class="p">,</span>
         <span class="nb">str</span><span class="p">(</span><span class="n">hive_force_init</span><span class="p">),</span>
     <span class="p">]</span>
 
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Running: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">cmd</span><span class="p">))</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Working directory: </span><span class="si">{</span><span class="n">config_dir</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"Running: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="s2">" "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">cmd</span><span class="p">))</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Working directory: </span><span class="si">{</span><span class="n">config_dir</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
     <span class="k">try</span><span class="p">:</span>
         <span class="n">result</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
@@ -4263,12 +4263,12 @@ and seed the pipeline with jobs based on a generated JSON file.</p>
         <span class="p">)</span>
         <span class="n">output</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">stdout</span>
         <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">output</span><span class="o">.</span><span class="n">splitlines</span><span class="p">():</span>
-            <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;(mysql://[^\s]+)&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span>
+            <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">"(mysql://[^\s]+)"</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
         <span class="k">return</span> <span class="kc">None</span>
     <span class="k">except</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">CalledProcessError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error running init_pipeline.pl: </span><span class="si">{</span><span class="n">e</span><span class="o">.</span><span class="n">stdout</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Error running init_pipeline.pl: </span><span class="si">{</span><span class="n">e</span><span class="o">.</span><span class="n">stdout</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
         <span class="k">raise</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -4495,7 +4495,7 @@ and seed the pipeline with jobs based on a generated JSON file.</p>
 <span class="normal">239</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span>  <span class="c1"># pylint:disable=too-many-statements, too-many-locals</span>
     <span class="n">gcas</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">settings_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">seed_url</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Main execution logic: extract metadata, initialize the pipeline, and seed jobs.</span>
 
 <span class="sd">    Args:</span>
@@ -4507,7 +4507,7 @@ and seed the pipeline with jobs based on a generated JSON file.</p>
 <span class="sd">    Raises:</span>
 <span class="sd">        FileNotFoundError: If no config file is found.</span>
 <span class="sd">        RuntimeError: If multiple config files are found.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="c1"># Get info and create input JSON</span>
     <span class="n">server_info</span><span class="p">,</span> <span class="n">all_output_params</span><span class="p">,</span> <span class="n">saved_paths</span> <span class="o">=</span> <span class="n">info</span><span class="p">(</span><span class="n">gcas</span><span class="p">,</span> <span class="n">settings_file</span><span class="p">)</span>
@@ -4516,63 +4516,63 @@ and seed the pipeline with jobs based on a generated JSON file.</p>
     <span class="n">ehive_urls</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c1"># pylint:disable=redefined-outer-name</span>
 
     <span class="c1"># Anno</span>
-    <span class="k">if</span> <span class="n">saved_paths</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;anno&quot;</span><span class="p">):</span>
-        <span class="n">json_file</span> <span class="o">=</span> <span class="n">saved_paths</span><span class="p">[</span><span class="s2">&quot;anno&quot;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">saved_paths</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"anno"</span><span class="p">):</span>
+        <span class="n">json_file</span> <span class="o">=</span> <span class="n">saved_paths</span><span class="p">[</span><span class="s2">"anno"</span><span class="p">]</span>
 
         <span class="k">if</span> <span class="n">seed_url</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Skipping pipeline initialisation.&quot;</span><span class="p">)</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Using provided seed URL: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">seed_url</span><span class="p">)</span>
-            <span class="n">ehive_urls</span><span class="p">[</span><span class="s2">&quot;anno&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">seed_url</span>  <span class="c1"># type: ignore[assignment]</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"Skipping pipeline initialisation."</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"Using provided seed URL: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">seed_url</span><span class="p">)</span>
+            <span class="n">ehive_urls</span><span class="p">[</span><span class="s2">"anno"</span><span class="p">]</span> <span class="o">=</span> <span class="n">seed_url</span>  <span class="c1"># type: ignore[assignment]</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;No seed URL provided. Initialising new pipeline.&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"No seed URL provided. Initialising new pipeline."</span><span class="p">)</span>
             <span class="n">first_key</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">all_output_params</span><span class="p">))</span>
-            <span class="n">output_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">all_output_params</span><span class="p">[</span><span class="n">first_key</span><span class="p">][</span><span class="s2">&quot;output_path&quot;</span><span class="p">])</span>
+            <span class="n">output_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">all_output_params</span><span class="p">[</span><span class="n">first_key</span><span class="p">][</span><span class="s2">"output_path"</span><span class="p">])</span>
             <span class="n">parent_dir</span> <span class="o">=</span> <span class="n">output_path</span><span class="o">.</span><span class="n">parent</span>
-            <span class="n">conf_files</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">parent_dir</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s2">&quot;*_conf.pm&quot;</span><span class="p">))</span>
+            <span class="n">conf_files</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">parent_dir</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s2">"*_conf.pm"</span><span class="p">))</span>
 
             <span class="k">if</span> <span class="ow">not</span> <span class="n">conf_files</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No .conf file found in </span><span class="si">{</span><span class="n">parent_dir</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"No .conf file found in </span><span class="si">{</span><span class="n">parent_dir</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">conf_files</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Multiple .conf files found in </span><span class="si">{</span><span class="n">parent_dir</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">conf_files</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="sa">f</span><span class="s2">"Multiple .conf files found in </span><span class="si">{</span><span class="n">parent_dir</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">conf_files</span><span class="si">}</span><span class="s2">"</span>
                 <span class="p">)</span>
 
             <span class="n">conf_path</span> <span class="o">=</span> <span class="n">conf_files</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Config found at </span><span class="si">{</span><span class="n">conf_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Config found at </span><span class="si">{</span><span class="n">conf_path</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
             <span class="n">ehive_url</span> <span class="o">=</span> <span class="n">init_pipeline_anno</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">conf_path</span><span class="p">))</span>
             <span class="k">if</span> <span class="n">ehive_url</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
-                    <span class="s2">&quot;Failed to retrieve eHive URL for annotation pipeline&quot;</span>
+                    <span class="s2">"Failed to retrieve eHive URL for annotation pipeline"</span>
                 <span class="p">)</span>
 
-            <span class="n">ehive_urls</span><span class="p">[</span><span class="s2">&quot;anno&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ehive_url</span>  <span class="c1"># type: ignore[assignment]</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Extracted EHIVE_URL: </span><span class="si">{</span><span class="n">ehive_url</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">ehive_urls</span><span class="p">[</span><span class="s2">"anno"</span><span class="p">]</span> <span class="o">=</span> <span class="n">ehive_url</span>  <span class="c1"># type: ignore[assignment]</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Extracted EHIVE_URL: </span><span class="si">{</span><span class="n">ehive_url</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
             <span class="n">update_registry_path_in_pipedb</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">parent_dir</span><span class="p">),</span> <span class="n">server_info</span><span class="p">)</span>
             <span class="n">seed_url</span> <span class="o">=</span> <span class="n">ehive_url</span>  <span class="c1"># unify below</span>
 
         <span class="c1"># Common seeding step</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Seeding non-vertebrate pipeline from </span><span class="si">{</span><span class="n">json_file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Seeding non-vertebrate pipeline from </span><span class="si">{</span><span class="n">json_file</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">json_file</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>  <span class="c1"># pylint:disable=unspecified-encoding</span>
             <span class="n">params</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
 
         <span class="n">seed_jobs_from_json</span><span class="p">(</span><span class="n">json_file</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="n">analysis_id</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">ehive_url</span><span class="o">=</span><span class="n">seed_url</span><span class="p">)</span>
 
     <span class="c1"># --- Handle main (one JSON per GCA) ---</span>
-    <span class="k">if</span> <span class="n">saved_paths</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;main&quot;</span><span class="p">):</span>
-        <span class="n">ehive_urls</span><span class="p">[</span><span class="s2">&quot;main&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="k">for</span> <span class="n">gca</span><span class="p">,</span> <span class="n">json_path</span> <span class="ow">in</span> <span class="n">saved_paths</span><span class="p">[</span><span class="s2">&quot;main&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Initialising vertebrate pipeline for </span><span class="si">{</span><span class="n">gca</span><span class="si">}</span><span class="s2"> from </span><span class="si">{</span><span class="n">json_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">saved_paths</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"main"</span><span class="p">):</span>
+        <span class="n">ehive_urls</span><span class="p">[</span><span class="s2">"main"</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">gca</span><span class="p">,</span> <span class="n">json_path</span> <span class="ow">in</span> <span class="n">saved_paths</span><span class="p">[</span><span class="s2">"main"</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Initialising vertebrate pipeline for </span><span class="si">{</span><span class="n">gca</span><span class="si">}</span><span class="s2"> from </span><span class="si">{</span><span class="n">json_path</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
-            <span class="n">output_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">all_output_params</span><span class="p">[</span><span class="n">gca</span><span class="p">][</span><span class="s2">&quot;output_path&quot;</span><span class="p">])</span>
-            <span class="n">conf_files</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">output_path</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s2">&quot;*_conf.pm&quot;</span><span class="p">))</span>
+            <span class="n">output_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">all_output_params</span><span class="p">[</span><span class="n">gca</span><span class="p">][</span><span class="s2">"output_path"</span><span class="p">])</span>
+            <span class="n">conf_files</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">output_path</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s2">"*_conf.pm"</span><span class="p">))</span>
 
             <span class="k">if</span> <span class="ow">not</span> <span class="n">conf_files</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No .conf file found in </span><span class="si">{</span><span class="n">parent_dir</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"No .conf file found in </span><span class="si">{</span><span class="n">parent_dir</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">conf_files</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Multiple .conf files found in </span><span class="si">{</span><span class="n">parent_dir</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">conf_files</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="sa">f</span><span class="s2">"Multiple .conf files found in </span><span class="si">{</span><span class="n">parent_dir</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">conf_files</span><span class="si">}</span><span class="s2">"</span>
                 <span class="p">)</span>
 
             <span class="n">conf_path</span> <span class="o">=</span> <span class="n">conf_files</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
@@ -4580,21 +4580,21 @@ and seed the pipeline with jobs based on a generated JSON file.</p>
             <span class="n">ehive_url</span> <span class="o">=</span> <span class="n">init_pipeline_main</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">conf_path</span><span class="p">))</span>
             <span class="k">if</span> <span class="n">ehive_url</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
-                    <span class="s2">&quot;Failed to retrieve eHive URL for annotation pipeline&quot;</span>
+                    <span class="s2">"Failed to retrieve eHive URL for annotation pipeline"</span>
                 <span class="p">)</span>
 
-            <span class="n">ehive_urls</span><span class="p">[</span><span class="s2">&quot;main&quot;</span><span class="p">][</span><span class="n">gca</span><span class="p">]</span> <span class="o">=</span> <span class="n">ehive_url</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Extracted EHIVE_URL for </span><span class="si">{</span><span class="n">gca</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">ehive_url</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">ehive_urls</span><span class="p">[</span><span class="s2">"main"</span><span class="p">][</span><span class="n">gca</span><span class="p">]</span> <span class="o">=</span> <span class="n">ehive_url</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Extracted EHIVE_URL for </span><span class="si">{</span><span class="n">gca</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">ehive_url</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Initalised pipelines. EHIVE_URL(s): </span><span class="si">{</span><span class="n">ehive_urls</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Initalised pipelines. EHIVE_URL(s): </span><span class="si">{</span><span class="n">ehive_urls</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
     <span class="n">output_dir_current</span> <span class="o">=</span> <span class="n">Path</span><span class="o">.</span><span class="n">cwd</span><span class="p">()</span>
-    <span class="n">ehive_url_file</span> <span class="o">=</span> <span class="n">output_dir_current</span> <span class="o">/</span> <span class="s2">&quot;ehive_urls.json&quot;</span>
+    <span class="n">ehive_url_file</span> <span class="o">=</span> <span class="n">output_dir_current</span> <span class="o">/</span> <span class="s2">"ehive_urls.json"</span>
 
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">ehive_url_file</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>  <span class="c1"># pylint:disable=unspecified-encoding</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">ehive_url_file</span><span class="p">,</span> <span class="s2">"w"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>  <span class="c1"># pylint:disable=unspecified-encoding</span>
         <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">ehive_urls</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Saved EHIVE URLs to </span><span class="si">{</span><span class="n">ehive_url_file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Saved EHIVE URLs to </span><span class="si">{</span><span class="n">ehive_url_file</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">ehive_urls</span>
 </code></pre></div></td></tr></table></div>

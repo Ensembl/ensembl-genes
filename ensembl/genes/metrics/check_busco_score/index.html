@@ -3929,7 +3929,7 @@ and the function returns False.</p>
     <span class="n">max_range_protein_score</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">diff_prot_gen_mode</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Evaluate BUSCO scores from genome and protein JSON files.</span>
+<span class="w">    </span><span class="sd">"""Evaluate BUSCO scores from genome and protein JSON files.</span>
 <span class="sd">    This function loads the BUSCO JSON files for genome and protein,</span>
 <span class="sd">    extracts the completeness scores, and compares them to determine</span>
 <span class="sd">    if the protein BUSCO score is significantly higher than the genome BUSCO score.</span>
@@ -3948,50 +3948,50 @@ and the function returns False.</p>
 <span class="sd">        diff_prot_gen_mode (int): Max difference between Busco in protein and in genome mode</span>
 
 <span class="sd">    Raises:</span>
-<span class="sd">        KeyError: If the expected &#39;.busco&#39; key is not found in either JSON file.</span>
+<span class="sd">        KeyError: If the expected '.busco' key is not found in either JSON file.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        exit 0 if the protein BUSCO score soddisfy criteria, otherwise exit 42</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">genome_json_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">g_file</span><span class="p">:</span>  <span class="c1"># pylint:disable=unspecified-encoding</span>
             <span class="n">genome_data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">g_file</span><span class="p">)</span>
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">err_msg</span><span class="p">:</span>  <span class="c1"># pylint: disable=broad-except</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to load genome BUSCO JSON: </span><span class="si">{</span><span class="n">err_msg</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Failed to load genome BUSCO JSON: </span><span class="si">{</span><span class="n">err_msg</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
 
     <span class="k">try</span><span class="p">:</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">protein_json_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">p_file</span><span class="p">:</span>  <span class="c1"># pylint:disable=unspecified-encoding</span>
             <span class="n">protein_data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">p_file</span><span class="p">)</span>
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">err_msg</span><span class="p">:</span>  <span class="c1"># pylint: disable=broad-except</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to load protein BUSCO JSON: </span><span class="si">{</span><span class="n">err_msg</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Failed to load protein BUSCO JSON: </span><span class="si">{</span><span class="n">err_msg</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
 
-    <span class="n">genome_busco_key</span> <span class="o">=</span> <span class="nb">next</span><span class="p">((</span><span class="n">k</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">genome_data</span> <span class="k">if</span> <span class="n">k</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.busco&quot;</span><span class="p">)),</span> <span class="kc">None</span><span class="p">)</span>
-    <span class="n">protein_busco_key</span> <span class="o">=</span> <span class="nb">next</span><span class="p">((</span><span class="n">k</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">protein_data</span> <span class="k">if</span> <span class="n">k</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.busco&quot;</span><span class="p">)),</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="n">genome_busco_key</span> <span class="o">=</span> <span class="nb">next</span><span class="p">((</span><span class="n">k</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">genome_data</span> <span class="k">if</span> <span class="n">k</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">".busco"</span><span class="p">)),</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="n">protein_busco_key</span> <span class="o">=</span> <span class="nb">next</span><span class="p">((</span><span class="n">k</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">protein_data</span> <span class="k">if</span> <span class="n">k</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">".busco"</span><span class="p">)),</span> <span class="kc">None</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">genome_busco_key</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">protein_busco_key</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s2">&quot;Missing &#39;.busco&#39; key in one of the JSON files&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s2">"Missing '.busco' key in one of the JSON files"</span><span class="p">)</span>
 
     <span class="n">genome_busco_score</span> <span class="o">=</span> <span class="n">extract_completeness</span><span class="p">(</span><span class="n">genome_data</span><span class="p">[</span><span class="n">genome_busco_key</span><span class="p">])</span>
     <span class="n">protein_busco_score</span> <span class="o">=</span> <span class="n">extract_completeness</span><span class="p">(</span><span class="n">protein_data</span><span class="p">[</span><span class="n">protein_busco_key</span><span class="p">])</span>
 
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Genome BUSCO completeness: </span><span class="si">{</span><span class="n">genome_busco_score</span><span class="si">}</span><span class="s2">%&quot;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Protein BUSCO completeness: </span><span class="si">{</span><span class="n">protein_busco_score</span><span class="si">}</span><span class="s2">%&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Genome BUSCO completeness: </span><span class="si">{</span><span class="n">genome_busco_score</span><span class="si">}</span><span class="s2">%"</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Protein BUSCO completeness: </span><span class="si">{</span><span class="n">protein_busco_score</span><span class="si">}</span><span class="s2">%"</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">protein_busco_score</span> <span class="o">&gt;=</span> <span class="n">max_range_protein_score</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Protein BUSCO completeness </span><span class="si">{</span><span class="n">protein_busco_score</span><span class="si">}</span><span class="s2">% is above threshold (70%)&quot;</span>
+            <span class="sa">f</span><span class="s2">"Protein BUSCO completeness </span><span class="si">{</span><span class="n">protein_busco_score</span><span class="si">}</span><span class="s2">% is above threshold (70%)"</span>
         <span class="p">)</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">min_range_protein_score</span> <span class="o">&lt;</span> <span class="n">protein_busco_score</span> <span class="o">&lt;</span> <span class="n">max_range_protein_score</span><span class="p">:</span>
         <span class="n">difference</span> <span class="o">=</span> <span class="n">protein_busco_score</span> <span class="o">-</span> <span class="n">genome_busco_score</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Difference (protein - genome): </span><span class="si">{</span><span class="n">difference</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">%&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Difference (protein - genome): </span><span class="si">{</span><span class="n">difference</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">%"</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">difference</span> <span class="o">&lt;=</span> <span class="n">diff_prot_gen_mode</span><span class="p">:</span>
             <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Protein BUSCO completeness </span><span class="si">{</span><span class="n">protein_busco_score</span><span class="si">}</span><span class="s2">% is too low&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Protein BUSCO completeness </span><span class="si">{</span><span class="n">protein_busco_score</span><span class="si">}</span><span class="s2">% is too low"</span><span class="p">)</span>
     <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -4065,20 +4065,20 @@ If the format is invalid, raise a ValueError.</p>
 <span class="normal">36</span>
 <span class="normal">37</span>
 <span class="normal">38</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">extract_completeness</span><span class="p">(</span><span class="n">busco_str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Extract the BUSCO completeness value from a string like:</span>
-<span class="sd">    &quot;C:99.2%[S:98.4%,D:0.8%],F:0.6%,M:0.2%,n:3640&quot;</span>
+<span class="sd">    "C:99.2%[S:98.4%,D:0.8%],F:0.6%,M:0.2%,n:3640"</span>
 <span class="sd">    and return it as a float.</span>
 <span class="sd">    If the format is invalid, raise a ValueError.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        busco_str (str): The BUSCO string to parse.</span>
 <span class="sd">    Return: The completeness percentage as a float.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;C:([\d.]+)%&quot;</span><span class="p">,</span> <span class="n">busco_str</span><span class="p">)</span>
+<span class="sd">    """</span>
+    <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">"C:([\d.]+)%"</span><span class="p">,</span> <span class="n">busco_str</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
         <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
-    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid BUSCO format: </span><span class="si">{</span><span class="n">busco_str</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Invalid BUSCO format: </span><span class="si">{</span><span class="n">busco_str</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -4147,36 +4147,36 @@ If the format is invalid, raise a ValueError.</p>
 <span class="normal">157</span>
 <span class="normal">158</span>
 <span class="normal">159</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Main function to parse command line arguments and evaluate BUSCO scores.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Main function to parse command line arguments and evaluate BUSCO scores."""</span>
     <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span>
-        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Evaluate BUSCO scores from genome and protein JSON files.&quot;</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">"Evaluate BUSCO scores from genome and protein JSON files."</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--genome&quot;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Path to genome BUSCO JSON file&quot;</span>
+        <span class="s2">"--genome"</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">"Path to genome BUSCO JSON file"</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--protein&quot;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Path to protein BUSCO JSON file&quot;</span>
+        <span class="s2">"--protein"</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">"Path to protein BUSCO JSON file"</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--min_range_protein_score&quot;</span><span class="p">,</span>
+        <span class="s2">"--min_range_protein_score"</span><span class="p">,</span>
         <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
         <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="n">default</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Lowest threshold to analyse busco score in protein mode&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"Lowest threshold to analyse busco score in protein mode"</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--max_range_protein_score&quot;</span><span class="p">,</span>
+        <span class="s2">"--max_range_protein_score"</span><span class="p">,</span>
         <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
         <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="n">default</span><span class="o">=</span><span class="mi">70</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Highest threshold to analyse busco score in protein mode&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"Highest threshold to analyse busco score in protein mode"</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--diff_prot_gen_mode&quot;</span><span class="p">,</span>
+        <span class="s2">"--diff_prot_gen_mode"</span><span class="p">,</span>
         <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
         <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="n">default</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Max difference between Busco in protein and in genome mode&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"Max difference between Busco in protein and in genome mode"</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
 
@@ -4190,7 +4190,7 @@ If the format is invalid, raise a ValueError.</p>
         <span class="p">)</span>
 
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">err_msg</span><span class="p">:</span>  <span class="c1"># pylint: disable=broad-except</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;ERROR: </span><span class="si">{</span><span class="n">err_msg</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"ERROR: </span><span class="si">{</span><span class="n">err_msg</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>

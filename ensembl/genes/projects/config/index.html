@@ -4000,10 +4000,10 @@ GenomeMetadata to the final YAML schema format.</p>
 <span class="normal">34</span>
 <span class="normal">35</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">ProjectConfig</span><span class="p">:</span>  <span class="c1"># pylint: disable=too-many-instance-attributes</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Directs the pipeline on what data sources are allowed and how to map</span>
 <span class="sd">    GenomeMetadata to the final YAML schema format.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="n">project_name</span><span class="p">:</span> <span class="nb">str</span>
 
@@ -4016,15 +4016,15 @@ GenomeMetadata to the final YAML schema format.</p>
     <span class="n">check_ftp_variants</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
 
     <span class="c1"># Formatting Directives</span>
-    <span class="n">schema_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;standard&quot;</span>  <span class="c1"># &quot;standard&quot;, &quot;hprc&quot;, &quot;mouse&quot;</span>
+    <span class="n">schema_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"standard"</span>  <span class="c1"># "standard", "hprc", "mouse"</span>
 
     <span class="c1"># Pre-release Registry Scoping</span>
     <span class="n">bioproject_scoping</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">custom_group_scoping</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="c1"># Base URL prefixes (if customized for project)</span>
-    <span class="n">ftp_base_url</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;https://ftp.ensembl.org/pub&quot;</span>
-    <span class="n">rapid_base_url</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;https://rapid.ensembl.org&quot;</span>
+    <span class="n">ftp_base_url</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"https://ftp.ensembl.org/pub"</span>
+    <span class="n">rapid_base_url</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"https://rapid.ensembl.org"</span>
 </code></pre></div></td></tr></table></div>
               </details>
 
@@ -4169,7 +4169,7 @@ GenomeMetadata to the final YAML schema format.</p>
 
 
 <h4 id="ensembl.genes.projects.config.ProjectConfig.ftp_base_url" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">ftp_base_url</span> <span class="o">=</span> <span class="s1">&#39;https://ftp.ensembl.org/pub&#39;</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">ftp_base_url</span> <span class="o">=</span> <span class="s1">'https://ftp.ensembl.org/pub'</span></code>
 
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
@@ -4210,7 +4210,7 @@ GenomeMetadata to the final YAML schema format.</p>
 
 
 <h4 id="ensembl.genes.projects.config.ProjectConfig.rapid_base_url" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">rapid_base_url</span> <span class="o">=</span> <span class="s1">&#39;https://rapid.ensembl.org&#39;</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">rapid_base_url</span> <span class="o">=</span> <span class="s1">'https://rapid.ensembl.org'</span></code>
 
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
@@ -4231,7 +4231,7 @@ GenomeMetadata to the final YAML schema format.</p>
 
 
 <h4 id="ensembl.genes.projects.config.ProjectConfig.schema_type" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">schema_type</span> <span class="o">=</span> <span class="s1">&#39;standard&#39;</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">schema_type</span> <span class="o">=</span> <span class="s1">'standard'</span></code>
 
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
@@ -4365,50 +4365,50 @@ GenomeMetadata to the final YAML schema format.</p>
 <span class="normal">83</span>
 <span class="normal">84</span>
 <span class="normal">85</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_project_config</span><span class="p">(</span><span class="n">project_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ProjectConfig</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Factory to retrieve configuration for a specific project.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Factory to retrieve configuration for a specific project."""</span>
     <span class="n">name_lower</span> <span class="o">=</span> <span class="n">project_name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
 
-    <span class="k">if</span> <span class="n">name_lower</span> <span class="o">==</span> <span class="s2">&quot;hprc&quot;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">name_lower</span> <span class="o">==</span> <span class="s2">"hprc"</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">ProjectConfig</span><span class="p">(</span>
-            <span class="n">project_name</span><span class="o">=</span><span class="s2">&quot;hprc&quot;</span><span class="p">,</span>
+            <span class="n">project_name</span><span class="o">=</span><span class="s2">"hprc"</span><span class="p">,</span>
             <span class="n">allow_core_db_fallback</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
             <span class="n">allow_beta_urls</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
             <span class="n">scrape_ncbi_submitter</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
             <span class="n">scrape_ncbi_population</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
             <span class="n">check_ftp_variants</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-            <span class="n">schema_type</span><span class="o">=</span><span class="s2">&quot;hprc&quot;</span><span class="p">,</span>
-            <span class="n">bioproject_scoping</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;HPRC&quot;</span><span class="p">],</span>
+            <span class="n">schema_type</span><span class="o">=</span><span class="s2">"hprc"</span><span class="p">,</span>
+            <span class="n">bioproject_scoping</span><span class="o">=</span><span class="p">[</span><span class="s2">"HPRC"</span><span class="p">],</span>
         <span class="p">)</span>
-    <span class="k">if</span> <span class="n">name_lower</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;mouse_genomes&quot;</span><span class="p">,</span> <span class="s2">&quot;mouse&quot;</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">name_lower</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"mouse_genomes"</span><span class="p">,</span> <span class="s2">"mouse"</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">ProjectConfig</span><span class="p">(</span>
-            <span class="n">project_name</span><span class="o">=</span><span class="s2">&quot;mouse_genomes&quot;</span><span class="p">,</span>
-            <span class="n">schema_type</span><span class="o">=</span><span class="s2">&quot;mouse&quot;</span><span class="p">,</span>
+            <span class="n">project_name</span><span class="o">=</span><span class="s2">"mouse_genomes"</span><span class="p">,</span>
+            <span class="n">schema_type</span><span class="o">=</span><span class="s2">"mouse"</span><span class="p">,</span>
             <span class="n">allow_beta_urls</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-            <span class="c1"># mouse genomes generally don&#39;t have bioproject scoping in gb_schema</span>
+            <span class="c1"># mouse genomes generally don't have bioproject scoping in gb_schema</span>
         <span class="p">)</span>
-    <span class="k">if</span> <span class="n">name_lower</span> <span class="o">==</span> <span class="s2">&quot;aquafaang&quot;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">name_lower</span> <span class="o">==</span> <span class="s2">"aquafaang"</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">ProjectConfig</span><span class="p">(</span>
             <span class="n">project_name</span><span class="o">=</span><span class="n">name_lower</span><span class="p">,</span>
-            <span class="n">schema_type</span><span class="o">=</span><span class="s2">&quot;standard&quot;</span><span class="p">,</span>
-            <span class="n">custom_group_scoping</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;AQUA-FAANG&quot;</span><span class="p">],</span>
+            <span class="n">schema_type</span><span class="o">=</span><span class="s2">"standard"</span><span class="p">,</span>
+            <span class="n">custom_group_scoping</span><span class="o">=</span><span class="p">[</span><span class="s2">"AQUA-FAANG"</span><span class="p">],</span>
         <span class="p">)</span>
-    <span class="k">if</span> <span class="n">name_lower</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;vgp&quot;</span><span class="p">,</span> <span class="s2">&quot;darwin_tree_of_life&quot;</span><span class="p">,</span> <span class="s2">&quot;erga&quot;</span><span class="p">,</span> <span class="s2">&quot;cbp&quot;</span><span class="p">,</span> <span class="s2">&quot;bge&quot;</span><span class="p">,</span> <span class="s2">&quot;asg&quot;</span><span class="p">]:</span>
+    <span class="k">if</span> <span class="n">name_lower</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"vgp"</span><span class="p">,</span> <span class="s2">"darwin_tree_of_life"</span><span class="p">,</span> <span class="s2">"erga"</span><span class="p">,</span> <span class="s2">"cbp"</span><span class="p">,</span> <span class="s2">"bge"</span><span class="p">,</span> <span class="s2">"asg"</span><span class="p">]:</span>
         <span class="n">bp_scope</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="p">[</span><span class="s2">&quot;DToL&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="n">name_lower</span> <span class="o">==</span> <span class="s2">&quot;darwin_tree_of_life&quot;</span> <span class="k">else</span> <span class="p">[</span><span class="n">name_lower</span><span class="o">.</span><span class="n">upper</span><span class="p">()]</span>
+            <span class="p">[</span><span class="s2">"DToL"</span><span class="p">]</span> <span class="k">if</span> <span class="n">name_lower</span> <span class="o">==</span> <span class="s2">"darwin_tree_of_life"</span> <span class="k">else</span> <span class="p">[</span><span class="n">name_lower</span><span class="o">.</span><span class="n">upper</span><span class="p">()]</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">ProjectConfig</span><span class="p">(</span>
             <span class="n">project_name</span><span class="o">=</span><span class="n">name_lower</span><span class="p">,</span>
-            <span class="n">schema_type</span><span class="o">=</span><span class="s2">&quot;standard&quot;</span><span class="p">,</span>
-            <span class="n">check_ftp_repeats</span><span class="o">=</span><span class="p">(</span><span class="n">name_lower</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;vgp&quot;</span><span class="p">,</span> <span class="s2">&quot;darwin_tree_of_life&quot;</span><span class="p">,</span> <span class="s2">&quot;erga&quot;</span><span class="p">]),</span>
+            <span class="n">schema_type</span><span class="o">=</span><span class="s2">"standard"</span><span class="p">,</span>
+            <span class="n">check_ftp_repeats</span><span class="o">=</span><span class="p">(</span><span class="n">name_lower</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"vgp"</span><span class="p">,</span> <span class="s2">"darwin_tree_of_life"</span><span class="p">,</span> <span class="s2">"erga"</span><span class="p">]),</span>
             <span class="n">scrape_ncbi_submitter</span><span class="o">=</span><span class="p">(</span>
-                <span class="n">name_lower</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;vgp&quot;</span><span class="p">,</span> <span class="s2">&quot;darwin_tree_of_life&quot;</span><span class="p">,</span> <span class="s2">&quot;erga&quot;</span><span class="p">]</span>
+                <span class="n">name_lower</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"vgp"</span><span class="p">,</span> <span class="s2">"darwin_tree_of_life"</span><span class="p">,</span> <span class="s2">"erga"</span><span class="p">]</span>
             <span class="p">),</span>
             <span class="n">bioproject_scoping</span><span class="o">=</span><span class="n">bp_scope</span><span class="p">,</span>
         <span class="p">)</span>
     <span class="c1"># Default behavior for unknown standard projects</span>
     <span class="k">return</span> <span class="n">ProjectConfig</span><span class="p">(</span>
         <span class="n">project_name</span><span class="o">=</span><span class="n">name_lower</span><span class="p">,</span>
-        <span class="n">schema_type</span><span class="o">=</span><span class="s2">&quot;standard&quot;</span><span class="p">,</span>
+        <span class="n">schema_type</span><span class="o">=</span><span class="s2">"standard"</span><span class="p">,</span>
         <span class="n">scrape_ncbi_submitter</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">bioproject_scoping</span><span class="o">=</span><span class="p">[</span><span class="n">name_lower</span><span class="o">.</span><span class="n">upper</span><span class="p">()],</span>
     <span class="p">)</span>

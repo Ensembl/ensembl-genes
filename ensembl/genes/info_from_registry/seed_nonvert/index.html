@@ -3910,7 +3910,7 @@ Automatically converts database connection parameters to Ensembl format.</p>
 <span class="normal">110</span>
 <span class="normal">111</span>
 <span class="normal">112</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">dict_to_perl_hash</span><span class="p">(</span><span class="n">d</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Recursively convert a Python dictionary to a Perl hash string.</span>
 <span class="sd">    Automatically converts database connection parameters to Ensembl format.</span>
 
@@ -3919,23 +3919,23 @@ Automatically converts database connection parameters to Ensembl format.</p>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        str: A string representing the dictionary in Perl hash format.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">convert_db_keys</span><span class="p">(</span><span class="n">dictionary</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert db_* keys to Ensembl format if this looks like a DB connection.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Convert db_* keys to Ensembl format if this looks like a DB connection."""</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dictionary</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
             <span class="k">return</span> <span class="n">dictionary</span>
 
         <span class="c1"># Check if this looks like a database connection dictionary</span>
-        <span class="n">db_keys</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;db_host&quot;</span><span class="p">,</span> <span class="s2">&quot;db_user&quot;</span><span class="p">,</span> <span class="s2">&quot;db_port&quot;</span><span class="p">,</span> <span class="s2">&quot;db_password&quot;</span><span class="p">,</span> <span class="s2">&quot;db_name&quot;</span><span class="p">}</span>
+        <span class="n">db_keys</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"db_host"</span><span class="p">,</span> <span class="s2">"db_user"</span><span class="p">,</span> <span class="s2">"db_port"</span><span class="p">,</span> <span class="s2">"db_password"</span><span class="p">,</span> <span class="s2">"db_name"</span><span class="p">}</span>
         <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">key</span> <span class="ow">in</span> <span class="n">dictionary</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">db_keys</span><span class="p">):</span>
             <span class="n">converted</span> <span class="o">=</span> <span class="p">{}</span>
             <span class="n">key_mapping</span> <span class="o">=</span> <span class="p">{</span>
-                <span class="s2">&quot;db_host&quot;</span><span class="p">:</span> <span class="s2">&quot;-host&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;db_user&quot;</span><span class="p">:</span> <span class="s2">&quot;-user&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;db_port&quot;</span><span class="p">:</span> <span class="s2">&quot;-port&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;db_password&quot;</span><span class="p">:</span> <span class="s2">&quot;-pass&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;db_name&quot;</span><span class="p">:</span> <span class="s2">&quot;-dbname&quot;</span><span class="p">,</span>
+                <span class="s2">"db_host"</span><span class="p">:</span> <span class="s2">"-host"</span><span class="p">,</span>
+                <span class="s2">"db_user"</span><span class="p">:</span> <span class="s2">"-user"</span><span class="p">,</span>
+                <span class="s2">"db_port"</span><span class="p">:</span> <span class="s2">"-port"</span><span class="p">,</span>
+                <span class="s2">"db_password"</span><span class="p">:</span> <span class="s2">"-pass"</span><span class="p">,</span>
+                <span class="s2">"db_name"</span><span class="p">:</span> <span class="s2">"-dbname"</span><span class="p">,</span>
             <span class="p">}</span>
 
             <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">dictionary</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
@@ -3945,11 +3945,11 @@ Automatically converts database connection parameters to Ensembl format.</p>
                     <span class="n">converted</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
 
             <span class="c1"># Add driver if not present</span>
-            <span class="k">if</span> <span class="s2">&quot;-driver&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">converted</span> <span class="ow">and</span> <span class="nb">any</span><span class="p">(</span>
-                <span class="n">k</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="s2">"-driver"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">converted</span> <span class="ow">and</span> <span class="nb">any</span><span class="p">(</span>
+                <span class="n">k</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"-"</span><span class="p">)</span>
                 <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">converted</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>  <span class="c1"># pylint:disable=consider-iterating-dictionary</span>
             <span class="p">):</span>
-                <span class="n">converted</span><span class="p">[</span><span class="s2">&quot;-driver&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;mysql&quot;</span>
+                <span class="n">converted</span><span class="p">[</span><span class="s2">"-driver"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"mysql"</span>
 
             <span class="k">return</span> <span class="n">converted</span>
 
@@ -3960,19 +3960,19 @@ Automatically converts database connection parameters to Ensembl format.</p>
 
     <span class="n">items</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-        <span class="n">key_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&#39;</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
+        <span class="n">key_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"'</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">'"</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
             <span class="c1"># Recursively convert nested dictionaries and check for DB format</span>
             <span class="n">converted_v</span> <span class="o">=</span> <span class="n">convert_db_keys</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
             <span class="n">val_str</span> <span class="o">=</span> <span class="n">dict_to_perl_hash</span><span class="p">(</span><span class="n">converted_v</span><span class="p">)</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-            <span class="n">val_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&#39;</span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
+            <span class="n">val_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"'</span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="s2">'"</span>
         <span class="k">elif</span> <span class="n">v</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">val_str</span> <span class="o">=</span> <span class="s2">&quot;undef&quot;</span>
+            <span class="n">val_str</span> <span class="o">=</span> <span class="s2">"undef"</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">val_str</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
-        <span class="n">items</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">key_str</span><span class="si">}</span><span class="s2"> =&gt; </span><span class="si">{</span><span class="n">val_str</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="k">return</span> <span class="s2">&quot;{{</span><span class="si">{}</span><span class="s2">}}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">items</span><span class="p">))</span>  <span class="c1"># pylint:disable=consider-using-f-string</span>
+        <span class="n">items</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">key_str</span><span class="si">}</span><span class="s2"> =&gt; </span><span class="si">{</span><span class="n">val_str</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="k">return</span> <span class="s2">"{{</span><span class="si">{}</span><span class="s2">}}"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">items</span><span class="p">))</span>  <span class="c1"># pylint:disable=consider-using-f-string</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -4019,24 +4019,24 @@ Automatically converts database connection parameters to Ensembl format.</p>
 <span class="normal">176</span>
 <span class="normal">177</span>
 <span class="normal">178</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Main&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Main"""</span>
     <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span>
-        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Seed eHive pipeline jobs from a JSON file&quot;</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">"Seed eHive pipeline jobs from a JSON file"</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;-j&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;--json_file&quot;</span><span class="p">,</span>
+        <span class="s2">"-j"</span><span class="p">,</span>
+        <span class="s2">"--json_file"</span><span class="p">,</span>
         <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Path to the JSON file with job parameters&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"Path to the JSON file with job parameters"</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;-a&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;--analysis_id&quot;</span><span class="p">,</span>
+        <span class="s2">"-a"</span><span class="p">,</span>
+        <span class="s2">"--analysis_id"</span><span class="p">,</span>
         <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
         <span class="n">default</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Analysis ID to seed (default: 1)&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"Analysis ID to seed (default: 1)"</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-u&quot;</span><span class="p">,</span> <span class="s2">&quot;--url&quot;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;EHIVE URL&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"-u"</span><span class="p">,</span> <span class="s2">"--url"</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">"EHIVE URL"</span><span class="p">)</span>
     <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
 
     <span class="n">seed_jobs_from_json</span><span class="p">(</span>
@@ -4193,7 +4193,7 @@ file or dictionary.</p>
     <span class="n">analysis_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">ehive_url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Seed jobs in an eHive pipeline using job parameters from a JSON</span>
 <span class="sd">    file or dictionary.</span>
 
@@ -4205,7 +4205,7 @@ file or dictionary.</p>
 
 <span class="sd">    Raises:</span>
 <span class="sd">        subprocess.CalledProcessError: If the seeding script fails.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">json_file</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">json_file</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>  <span class="c1"># pylint:disable=unspecified-encoding</span>
@@ -4216,16 +4216,16 @@ file or dictionary.</p>
     <span class="k">for</span> <span class="n">input_id</span><span class="p">,</span> <span class="n">param_dict</span> <span class="ow">in</span> <span class="n">params</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>  <span class="c1"># pylint:disable=unused-variable</span>
         <span class="n">perl_hash</span> <span class="o">=</span> <span class="n">dict_to_perl_hash</span><span class="p">(</span><span class="n">param_dict</span><span class="p">)</span>
         <span class="n">cmd</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="s2">&quot;seed_pipeline.pl&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;-analysis_id&quot;</span><span class="p">,</span>
+            <span class="s2">"seed_pipeline.pl"</span><span class="p">,</span>
+            <span class="s2">"-analysis_id"</span><span class="p">,</span>
             <span class="nb">str</span><span class="p">(</span><span class="n">analysis_id</span><span class="p">),</span>
-            <span class="s2">&quot;-input_id&quot;</span><span class="p">,</span>
+            <span class="s2">"-input_id"</span><span class="p">,</span>
             <span class="n">perl_hash</span><span class="p">,</span>
-            <span class="s2">&quot;-url&quot;</span><span class="p">,</span>
+            <span class="s2">"-url"</span><span class="p">,</span>
             <span class="n">ehive_url</span><span class="p">,</span>
         <span class="p">]</span>
         <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">check</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Seeding complete&quot;</span><span class="p">)</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"Seeding complete"</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>

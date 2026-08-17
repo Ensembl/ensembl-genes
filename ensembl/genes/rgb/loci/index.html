@@ -3972,10 +3972,10 @@
     <span class="n">start</span><span class="p">:</span> <span class="nb">int</span>
     <span class="n">end</span><span class="p">:</span> <span class="nb">int</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">overlaps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="s2">&quot;Interval&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">overlaps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="s2">"Interval"</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="ow">not</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">end</span> <span class="o">&lt;</span> <span class="n">other</span><span class="o">.</span><span class="n">start</span> <span class="ow">or</span> <span class="n">other</span><span class="o">.</span><span class="n">end</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">start</span><span class="p">)</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">gap_to</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="s2">&quot;Interval&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">gap_to</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="s2">"Interval"</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
         <span class="c1"># distance between inclusive intervals; if overlapping, negative/zero</span>
         <span class="k">return</span> <span class="n">other</span><span class="o">.</span><span class="n">start</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">end</span> <span class="o">-</span> <span class="mi">1</span>
 </code></pre></div></td></tr></table></div>
@@ -4050,7 +4050,7 @@
               <summary>Source code in <code>src/python/ensembl/genes/rgb/loci.py</code></summary>
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">18</span>
 <span class="normal">19</span>
-<span class="normal">20</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">gap_to</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="s2">&quot;Interval&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="normal">20</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">gap_to</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="s2">"Interval"</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
     <span class="c1"># distance between inclusive intervals; if overlapping, negative/zero</span>
     <span class="k">return</span> <span class="n">other</span><span class="o">.</span><span class="n">start</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">end</span> <span class="o">-</span> <span class="mi">1</span>
 </code></pre></div></td></tr></table></div>
@@ -4074,7 +4074,7 @@
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/python/ensembl/genes/rgb/loci.py</code></summary>
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">15</span>
-<span class="normal">16</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">overlaps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="s2">&quot;Interval&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="normal">16</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">overlaps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="s2">"Interval"</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
     <span class="k">return</span> <span class="ow">not</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">end</span> <span class="o">&lt;</span> <span class="n">other</span><span class="o">.</span><span class="n">start</span> <span class="ow">or</span> <span class="n">other</span><span class="o">.</span><span class="n">end</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">start</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -4138,7 +4138,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">locus_id</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">seq</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">strand</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">start</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">end</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">seq</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">strand</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">start</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">end</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="si">}</span><span class="s2">"</span>
 </code></pre></div></td></tr></table></div>
               </details>
 
@@ -4472,28 +4472,28 @@
     <span class="n">layer_df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
     <span class="n">gap_bp</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5000</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Build strict and expanded loci from union of core/layer genes.</span>
+<span class="w">    </span><span class="sd">"""Build strict and expanded loci from union of core/layer genes.</span>
 
 <span class="sd">    Returns (loci_strict_df, loci_expanded_df, gene_to_locus_df).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">needed_cols</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="s2">&quot;gene_id&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;seq_region_name&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;seq_region_start&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;seq_region_end&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;seq_region_strand&quot;</span><span class="p">,</span>
+        <span class="s2">"gene_id"</span><span class="p">,</span>
+        <span class="s2">"seq_region_name"</span><span class="p">,</span>
+        <span class="s2">"seq_region_start"</span><span class="p">,</span>
+        <span class="s2">"seq_region_end"</span><span class="p">,</span>
+        <span class="s2">"seq_region_strand"</span><span class="p">,</span>
     <span class="p">]</span>
-    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">df</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;core&quot;</span><span class="p">,</span> <span class="n">core_df</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;layer&quot;</span><span class="p">,</span> <span class="n">layer_df</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">df</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"core"</span><span class="p">,</span> <span class="n">core_df</span><span class="p">),</span> <span class="p">(</span><span class="s2">"layer"</span><span class="p">,</span> <span class="n">layer_df</span><span class="p">):</span>
         <span class="n">missing</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">needed_cols</span> <span class="k">if</span> <span class="n">c</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">missing</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> genes missing columns: </span><span class="si">{</span><span class="n">missing</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> genes missing columns: </span><span class="si">{</span><span class="n">missing</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
     <span class="c1"># normalize dtypes</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">norm</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
         <span class="n">out</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-        <span class="n">out</span><span class="p">[</span><span class="s2">&quot;seq_region_strand&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">out</span><span class="p">[</span><span class="s2">&quot;seq_region_strand&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
-        <span class="n">out</span><span class="p">[</span><span class="s2">&quot;seq_region_start&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">out</span><span class="p">[</span><span class="s2">&quot;seq_region_start&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
-        <span class="n">out</span><span class="p">[</span><span class="s2">&quot;seq_region_end&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">out</span><span class="p">[</span><span class="s2">&quot;seq_region_end&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+        <span class="n">out</span><span class="p">[</span><span class="s2">"seq_region_strand"</span><span class="p">]</span> <span class="o">=</span> <span class="n">out</span><span class="p">[</span><span class="s2">"seq_region_strand"</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+        <span class="n">out</span><span class="p">[</span><span class="s2">"seq_region_start"</span><span class="p">]</span> <span class="o">=</span> <span class="n">out</span><span class="p">[</span><span class="s2">"seq_region_start"</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+        <span class="n">out</span><span class="p">[</span><span class="s2">"seq_region_end"</span><span class="p">]</span> <span class="o">=</span> <span class="n">out</span><span class="p">[</span><span class="s2">"seq_region_end"</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">out</span>
 
     <span class="n">core</span> <span class="o">=</span> <span class="n">norm</span><span class="p">(</span><span class="n">core_df</span><span class="p">)</span>
@@ -4502,7 +4502,7 @@
     <span class="c1"># Prepare union intervals by (seq, strand)</span>
     <span class="n">union_key_to_intervals</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="n">Interval</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">for</span> <span class="n">df</span> <span class="ow">in</span> <span class="p">(</span><span class="n">core</span><span class="p">,</span> <span class="n">layer</span><span class="p">):</span>
-        <span class="k">for</span> <span class="p">(</span><span class="n">seq</span><span class="p">,</span> <span class="n">strand</span><span class="p">),</span> <span class="n">g</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s2">&quot;seq_region_name&quot;</span><span class="p">,</span> <span class="s2">&quot;seq_region_strand&quot;</span><span class="p">]):</span>
+        <span class="k">for</span> <span class="p">(</span><span class="n">seq</span><span class="p">,</span> <span class="n">strand</span><span class="p">),</span> <span class="n">g</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s2">"seq_region_name"</span><span class="p">,</span> <span class="s2">"seq_region_strand"</span><span class="p">]):</span>
             <span class="n">lst</span> <span class="o">=</span> <span class="n">union_key_to_intervals</span><span class="o">.</span><span class="n">setdefault</span><span class="p">((</span><span class="n">seq</span><span class="p">,</span> <span class="n">strand</span><span class="p">),</span> <span class="p">[])</span>
             <span class="n">lst</span> <span class="o">+=</span> <span class="p">[</span>
                 <span class="n">Interval</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">s</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
@@ -4584,7 +4584,7 @@
 
         <span class="c1"># Map each gene to its strict and expanded locus</span>
         <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
-            <span class="p">[</span><span class="n">core_key</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">db_kind</span><span class="o">=</span><span class="s2">&quot;core&quot;</span><span class="p">),</span> <span class="n">layer_key</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">db_kind</span><span class="o">=</span><span class="s2">&quot;layer&quot;</span><span class="p">)]</span>
+            <span class="p">[</span><span class="n">core_key</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">db_kind</span><span class="o">=</span><span class="s2">"core"</span><span class="p">),</span> <span class="n">layer_key</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">db_kind</span><span class="o">=</span><span class="s2">"layer"</span><span class="p">)]</span>
         <span class="p">)</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
             <span class="n">iv</span> <span class="o">=</span> <span class="n">Interval</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">seq_region_start</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">seq_region_end</span><span class="p">))</span>
 
@@ -4592,7 +4592,7 @@
                 <span class="k">for</span> <span class="n">loc</span> <span class="ow">in</span> <span class="n">loci</span><span class="p">:</span>
                     <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">iv_to_find</span><span class="o">.</span><span class="n">end</span> <span class="o">&lt;</span> <span class="n">loc</span><span class="o">.</span><span class="n">start</span> <span class="ow">or</span> <span class="n">iv_to_find</span><span class="o">.</span><span class="n">start</span> <span class="o">&gt;</span> <span class="n">loc</span><span class="o">.</span><span class="n">end</span><span class="p">):</span>
                         <span class="k">return</span> <span class="n">loc</span><span class="o">.</span><span class="n">locus_id</span>
-                <span class="k">return</span> <span class="s2">&quot;&quot;</span>
+                <span class="k">return</span> <span class="s2">""</span>
 
             <span class="n">strict_id</span> <span class="o">=</span> <span class="n">find_locus</span><span class="p">(</span><span class="n">iv</span><span class="p">,</span> <span class="n">strict_ids</span><span class="p">)</span>
             <span class="n">expanded_id</span> <span class="o">=</span> <span class="n">find_locus</span><span class="p">(</span><span class="n">iv</span><span class="p">,</span> <span class="n">expanded_ids</span><span class="p">)</span>
@@ -4609,14 +4609,14 @@
             <span class="p">)</span>
 
     <span class="n">loci_cols</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="s2">&quot;seq_region_name&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;seq_region_strand&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;locus_start&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;locus_end&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;locus_length&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;core_gene_count&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;layer_gene_count&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;locus_id&quot;</span><span class="p">,</span>
+        <span class="s2">"seq_region_name"</span><span class="p">,</span>
+        <span class="s2">"seq_region_strand"</span><span class="p">,</span>
+        <span class="s2">"locus_start"</span><span class="p">,</span>
+        <span class="s2">"locus_end"</span><span class="p">,</span>
+        <span class="s2">"locus_length"</span><span class="p">,</span>
+        <span class="s2">"core_gene_count"</span><span class="p">,</span>
+        <span class="s2">"layer_gene_count"</span><span class="p">,</span>
+        <span class="s2">"locus_id"</span><span class="p">,</span>
     <span class="p">]</span>
     <span class="n">strict_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">strict_records</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">loci_cols</span><span class="p">)</span>
     <span class="n">expanded_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">expanded_records</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">loci_cols</span><span class="p">)</span>
@@ -4624,13 +4624,13 @@
     <span class="n">map_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
         <span class="n">gene_map_records</span><span class="p">,</span>
         <span class="n">columns</span><span class="o">=</span><span class="p">[</span>
-            <span class="s2">&quot;db_kind&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gene_id&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;seq_region_name&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;seq_region_strand&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gene_start&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;locus_id_strict&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;locus_id_expanded&quot;</span><span class="p">,</span>
+            <span class="s2">"db_kind"</span><span class="p">,</span>
+            <span class="s2">"gene_id"</span><span class="p">,</span>
+            <span class="s2">"seq_region_name"</span><span class="p">,</span>
+            <span class="s2">"seq_region_strand"</span><span class="p">,</span>
+            <span class="s2">"gene_start"</span><span class="p">,</span>
+            <span class="s2">"locus_id_strict"</span><span class="p">,</span>
+            <span class="s2">"locus_id_expanded"</span><span class="p">,</span>
         <span class="p">],</span>
     <span class="p">)</span>
     <span class="k">return</span> <span class="n">strict_df</span><span class="p">,</span> <span class="n">expanded_df</span><span class="p">,</span> <span class="n">map_df</span>

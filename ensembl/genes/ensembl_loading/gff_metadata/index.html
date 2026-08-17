@@ -3844,7 +3844,7 @@
 
 
 <h3 id="ensembl.genes.ensembl_loading.gff_metadata.DEFAULT_ASSEMBLY_WEB_ACCESSION_SOURCE" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">DEFAULT_ASSEMBLY_WEB_ACCESSION_SOURCE</span> <span class="o">=</span> <span class="s1">&#39;NCBI&#39;</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">DEFAULT_ASSEMBLY_WEB_ACCESSION_SOURCE</span> <span class="o">=</span> <span class="s1">'NCBI'</span></code>
 
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
@@ -3864,7 +3864,7 @@
 
 
 <h3 id="ensembl.genes.ensembl_loading.gff_metadata.DEFAULT_ASSEMBLY_WEB_ACCESSION_TYPE" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">DEFAULT_ASSEMBLY_WEB_ACCESSION_TYPE</span> <span class="o">=</span> <span class="s1">&#39;INSDC Assembly ID&#39;</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">DEFAULT_ASSEMBLY_WEB_ACCESSION_TYPE</span> <span class="o">=</span> <span class="s1">'INSDC Assembly ID'</span></code>
 
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
@@ -3924,11 +3924,11 @@
 <span class="normal">62</span>
 <span class="normal">63</span>
 <span class="normal">64</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">ncbi_assembly_url</span><span class="p">(</span><span class="n">assembly_accession</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the NCBI assembly page for a GenBank or RefSeq accession.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Return the NCBI assembly page for a GenBank or RefSeq accession."""</span>
 
-    <span class="k">if</span> <span class="n">assembly_accession</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="o">.</span><span class="n">startswith</span><span class="p">((</span><span class="s2">&quot;GCA_&quot;</span><span class="p">,</span> <span class="s2">&quot;GCF_&quot;</span><span class="p">)):</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;https://www.ncbi.nlm.nih.gov/assembly/</span><span class="si">{</span><span class="n">assembly_accession</span><span class="si">}</span><span class="s2">/&quot;</span>
-    <span class="k">return</span> <span class="s2">&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">assembly_accession</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="o">.</span><span class="n">startswith</span><span class="p">((</span><span class="s2">"GCA_"</span><span class="p">,</span> <span class="s2">"GCF_"</span><span class="p">)):</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">"https://www.ncbi.nlm.nih.gov/assembly/</span><span class="si">{</span><span class="n">assembly_accession</span><span class="si">}</span><span class="s2">/"</span>
+    <span class="k">return</span> <span class="s2">""</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -3961,12 +3961,12 @@
 <span class="normal">87</span>
 <span class="normal">88</span>
 <span class="normal">89</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">normalize_assembly_report_date</span><span class="p">(</span><span class="n">raw_date</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Normalize a header date from the NCBI assembly report.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Normalize a header date from the NCBI assembly report."""</span>
 
     <span class="n">value</span> <span class="o">=</span> <span class="n">raw_date</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">value</span><span class="p">:</span>
-        <span class="k">return</span> <span class="s2">&quot;&quot;</span>
-    <span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">,</span> <span class="s2">&quot;-&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="s2">""</span>
+    <span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"/"</span><span class="p">,</span> <span class="s2">"-"</span><span class="p">)</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">10</span><span class="p">:</span>
         <span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="p">[:</span><span class="mi">10</span><span class="p">]</span>
     <span class="k">return</span> <span class="n">value</span>
@@ -4004,14 +4004,14 @@
 <span class="normal">76</span>
 <span class="normal">77</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@contextmanager</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">open_text_maybe_gzip</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">TextIO</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Open plain-text or gzip-compressed GFF3 files for text reading.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Open plain-text or gzip-compressed GFF3 files for text reading."""</span>
 
     <span class="n">input_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">input_path</span><span class="o">.</span><span class="n">suffix</span> <span class="o">==</span> <span class="s2">&quot;.gz&quot;</span><span class="p">:</span>
-        <span class="k">with</span> <span class="n">gzip</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">input_path</span><span class="p">,</span> <span class="s2">&quot;rt&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">input_path</span><span class="o">.</span><span class="n">suffix</span> <span class="o">==</span> <span class="s2">".gz"</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">gzip</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">input_path</span><span class="p">,</span> <span class="s2">"rt"</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8"</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
             <span class="k">yield</span> <span class="n">handle</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">with</span> <span class="n">input_path</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">input_path</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">"r"</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8"</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
             <span class="k">yield</span> <span class="n">handle</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -4148,44 +4148,44 @@
     <span class="n">species_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">assembly_accession</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Read assembly-report header metadata needed for core DB bootstrapping.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Read assembly-report header metadata needed for core DB bootstrapping."""</span>
 
     <span class="n">metadata</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;species.scientific_name&quot;</span><span class="p">:</span> <span class="n">species_name</span><span class="p">,</span>
-        <span class="s2">&quot;species.common_name&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;species.display_name&quot;</span><span class="p">:</span> <span class="n">species_name</span><span class="p">,</span>
-        <span class="s2">&quot;species.production_name&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;species.url&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;species.taxonomy_id&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;assembly.accession&quot;</span><span class="p">:</span> <span class="n">assembly_accession</span><span class="p">,</span>
-        <span class="s2">&quot;assembly.alt_accession&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;assembly.name&quot;</span><span class="p">:</span> <span class="n">assembly_accession</span><span class="p">,</span>
-        <span class="s2">&quot;assembly.date&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;assembly.provider_url&quot;</span><span class="p">:</span> <span class="n">ncbi_assembly_url</span><span class="p">(</span><span class="n">assembly_accession</span><span class="p">),</span>
-        <span class="s2">&quot;assembly.provider&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;genebuild.provider_url&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;annotation.provider_url&quot;</span><span class="p">:</span> <span class="p">(</span>
-            <span class="s2">&quot;https://www.ncbi.nlm.nih.gov/refseq/&quot;</span>
-            <span class="k">if</span> <span class="n">assembly_accession</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;GCF_&quot;</span><span class="p">)</span>
-            <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+        <span class="s2">"species.scientific_name"</span><span class="p">:</span> <span class="n">species_name</span><span class="p">,</span>
+        <span class="s2">"species.common_name"</span><span class="p">:</span> <span class="s2">""</span><span class="p">,</span>
+        <span class="s2">"species.display_name"</span><span class="p">:</span> <span class="n">species_name</span><span class="p">,</span>
+        <span class="s2">"species.production_name"</span><span class="p">:</span> <span class="s2">""</span><span class="p">,</span>
+        <span class="s2">"species.url"</span><span class="p">:</span> <span class="s2">""</span><span class="p">,</span>
+        <span class="s2">"species.taxonomy_id"</span><span class="p">:</span> <span class="s2">""</span><span class="p">,</span>
+        <span class="s2">"assembly.accession"</span><span class="p">:</span> <span class="n">assembly_accession</span><span class="p">,</span>
+        <span class="s2">"assembly.alt_accession"</span><span class="p">:</span> <span class="s2">""</span><span class="p">,</span>
+        <span class="s2">"assembly.name"</span><span class="p">:</span> <span class="n">assembly_accession</span><span class="p">,</span>
+        <span class="s2">"assembly.date"</span><span class="p">:</span> <span class="s2">""</span><span class="p">,</span>
+        <span class="s2">"assembly.provider_url"</span><span class="p">:</span> <span class="n">ncbi_assembly_url</span><span class="p">(</span><span class="n">assembly_accession</span><span class="p">),</span>
+        <span class="s2">"assembly.provider"</span><span class="p">:</span> <span class="s2">""</span><span class="p">,</span>
+        <span class="s2">"genebuild.provider_url"</span><span class="p">:</span> <span class="s2">""</span><span class="p">,</span>
+        <span class="s2">"annotation.provider_url"</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">"https://www.ncbi.nlm.nih.gov/refseq/"</span>
+            <span class="k">if</span> <span class="n">assembly_accession</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"GCF_"</span><span class="p">)</span>
+            <span class="k">else</span> <span class="s2">""</span>
         <span class="p">),</span>
-        <span class="s2">&quot;genebuild.start_date&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;assembly.default&quot;</span><span class="p">:</span> <span class="s2">&quot;1&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;assembly.web_accession_source&quot;</span><span class="p">:</span> <span class="n">DEFAULT_ASSEMBLY_WEB_ACCESSION_SOURCE</span><span class="p">,</span>
-        <span class="s2">&quot;assembly.web_accession_type&quot;</span><span class="p">:</span> <span class="n">DEFAULT_ASSEMBLY_WEB_ACCESSION_TYPE</span><span class="p">,</span>
+        <span class="s2">"genebuild.start_date"</span><span class="p">:</span> <span class="s2">""</span><span class="p">,</span>
+        <span class="s2">"assembly.default"</span><span class="p">:</span> <span class="s2">"1"</span><span class="p">,</span>
+        <span class="s2">"assembly.web_accession_source"</span><span class="p">:</span> <span class="n">DEFAULT_ASSEMBLY_WEB_ACCESSION_SOURCE</span><span class="p">,</span>
+        <span class="s2">"assembly.web_accession_type"</span><span class="p">:</span> <span class="n">DEFAULT_ASSEMBLY_WEB_ACCESSION_TYPE</span><span class="p">,</span>
     <span class="p">}</span>
 
-    <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;species.production_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">species_db_name_token</span><span class="p">(</span><span class="n">species_name</span><span class="p">)</span><span class="si">}</span><span class="s2">_&quot;</span>
-        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">refseq_accession_db_token</span><span class="p">(</span><span class="n">assembly_accession</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="n">metadata</span><span class="p">[</span><span class="s2">"species.production_name"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">species_db_name_token</span><span class="p">(</span><span class="n">species_name</span><span class="p">)</span><span class="si">}</span><span class="s2">_"</span>
+        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">refseq_accession_db_token</span><span class="p">(</span><span class="n">assembly_accession</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span>
     <span class="p">)</span>
-    <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;species.url&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">species_url_token</span><span class="p">(</span><span class="n">species_name</span><span class="p">)</span><span class="si">}</span><span class="s2">_&quot;</span>
-        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">refseq_accession_db_token</span><span class="p">(</span><span class="n">assembly_accession</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="n">metadata</span><span class="p">[</span><span class="s2">"species.url"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">species_url_token</span><span class="p">(</span><span class="n">species_name</span><span class="p">)</span><span class="si">}</span><span class="s2">_"</span>
+        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">refseq_accession_db_token</span><span class="p">(</span><span class="n">assembly_accession</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span>
     <span class="p">)</span>
 
-    <span class="k">if</span> <span class="n">assembly_accession</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;GCF_&quot;</span><span class="p">):</span>
-        <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;genebuild.provider_url&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">get_annotation_report_url</span><span class="p">(</span>
+    <span class="k">if</span> <span class="n">assembly_accession</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"GCF_"</span><span class="p">):</span>
+        <span class="n">metadata</span><span class="p">[</span><span class="s2">"genebuild.provider_url"</span><span class="p">]</span> <span class="o">=</span> <span class="n">get_annotation_report_url</span><span class="p">(</span>
             <span class="n">assembly_accession</span>
         <span class="p">)</span>
 
@@ -4193,63 +4193,63 @@
         <span class="k">return</span> <span class="n">metadata</span>
     <span class="n">report_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">assembly_report_path</span><span class="p">)</span>
 
-    <span class="n">common_name_pattern</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^(?P&lt;scientific&gt;.+?)\s*\((?P&lt;common&gt;[^()]+)\)$&quot;</span><span class="p">)</span>
+    <span class="n">common_name_pattern</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">"^(?P&lt;scientific&gt;.+?)\s*\((?P&lt;common&gt;[^()]+)\)$"</span><span class="p">)</span>
     <span class="k">with</span> <span class="n">open_text_maybe_gzip</span><span class="p">(</span><span class="n">report_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">raw_line</span> <span class="ow">in</span> <span class="n">handle</span><span class="p">:</span>
             <span class="n">line</span> <span class="o">=</span> <span class="n">raw_line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;#&quot;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"#"</span><span class="p">):</span>
                 <span class="k">break</span>
-            <span class="k">if</span> <span class="s2">&quot;:&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s2">":"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
                 <span class="k">continue</span>
-            <span class="n">header_key</span><span class="p">,</span> <span class="n">header_value</span> <span class="o">=</span> <span class="n">line</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">header_key</span><span class="p">,</span> <span class="n">header_value</span> <span class="o">=</span> <span class="n">line</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">":"</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
             <span class="n">header_key</span> <span class="o">=</span> <span class="n">header_key</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
             <span class="n">header_value</span> <span class="o">=</span> <span class="n">header_value</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
 
-            <span class="k">if</span> <span class="n">header_key</span> <span class="o">==</span> <span class="s2">&quot;assembly name&quot;</span> <span class="ow">and</span> <span class="n">header_value</span><span class="p">:</span>
-                <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;assembly.name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">header_value</span>
+            <span class="k">if</span> <span class="n">header_key</span> <span class="o">==</span> <span class="s2">"assembly name"</span> <span class="ow">and</span> <span class="n">header_value</span><span class="p">:</span>
+                <span class="n">metadata</span><span class="p">[</span><span class="s2">"assembly.name"</span><span class="p">]</span> <span class="o">=</span> <span class="n">header_value</span>
             <span class="k">elif</span> <span class="p">(</span>
-                <span class="n">header_key</span> <span class="o">==</span> <span class="s2">&quot;genbank assembly accession&quot;</span>
+                <span class="n">header_key</span> <span class="o">==</span> <span class="s2">"genbank assembly accession"</span>
                 <span class="ow">and</span> <span class="n">header_value</span>
-                <span class="ow">and</span> <span class="n">assembly_accession</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;GCF&quot;</span><span class="p">)</span>
+                <span class="ow">and</span> <span class="n">assembly_accession</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"GCF"</span><span class="p">)</span>
             <span class="p">):</span>
-                <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;assembly.alt_accession&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">header_value</span>
-                <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;annotation.provider_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;NCBI RefSeq&quot;</span>
-            <span class="k">elif</span> <span class="n">header_key</span> <span class="o">==</span> <span class="s2">&quot;date&quot;</span> <span class="ow">and</span> <span class="n">header_value</span><span class="p">:</span>
+                <span class="n">metadata</span><span class="p">[</span><span class="s2">"assembly.alt_accession"</span><span class="p">]</span> <span class="o">=</span> <span class="n">header_value</span>
+                <span class="n">metadata</span><span class="p">[</span><span class="s2">"annotation.provider_name"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"NCBI RefSeq"</span>
+            <span class="k">elif</span> <span class="n">header_key</span> <span class="o">==</span> <span class="s2">"date"</span> <span class="ow">and</span> <span class="n">header_value</span><span class="p">:</span>
                 <span class="n">normalized_date</span> <span class="o">=</span> <span class="n">normalize_assembly_report_date</span><span class="p">(</span><span class="n">header_value</span><span class="p">)</span>
-                <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;assembly.date&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">normalized_date</span>
-                <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;genebuild.start_date&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">normalized_date</span>
-            <span class="k">elif</span> <span class="n">header_key</span> <span class="o">==</span> <span class="s2">&quot;taxid&quot;</span> <span class="ow">and</span> <span class="n">header_value</span><span class="p">:</span>
-                <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;species.taxonomy_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">header_value</span>
-            <span class="k">elif</span> <span class="n">header_key</span> <span class="o">==</span> <span class="s2">&quot;submitter&quot;</span> <span class="ow">and</span> <span class="n">header_value</span><span class="p">:</span>
-                <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;assembly.provider_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">header_value</span>
-            <span class="k">elif</span> <span class="n">header_key</span> <span class="o">==</span> <span class="s2">&quot;organism name&quot;</span> <span class="ow">and</span> <span class="n">header_value</span><span class="p">:</span>
+                <span class="n">metadata</span><span class="p">[</span><span class="s2">"assembly.date"</span><span class="p">]</span> <span class="o">=</span> <span class="n">normalized_date</span>
+                <span class="n">metadata</span><span class="p">[</span><span class="s2">"genebuild.start_date"</span><span class="p">]</span> <span class="o">=</span> <span class="n">normalized_date</span>
+            <span class="k">elif</span> <span class="n">header_key</span> <span class="o">==</span> <span class="s2">"taxid"</span> <span class="ow">and</span> <span class="n">header_value</span><span class="p">:</span>
+                <span class="n">metadata</span><span class="p">[</span><span class="s2">"species.taxonomy_id"</span><span class="p">]</span> <span class="o">=</span> <span class="n">header_value</span>
+            <span class="k">elif</span> <span class="n">header_key</span> <span class="o">==</span> <span class="s2">"submitter"</span> <span class="ow">and</span> <span class="n">header_value</span><span class="p">:</span>
+                <span class="n">metadata</span><span class="p">[</span><span class="s2">"assembly.provider_name"</span><span class="p">]</span> <span class="o">=</span> <span class="n">header_value</span>
+            <span class="k">elif</span> <span class="n">header_key</span> <span class="o">==</span> <span class="s2">"organism name"</span> <span class="ow">and</span> <span class="n">header_value</span><span class="p">:</span>
                 <span class="n">match</span> <span class="o">=</span> <span class="n">common_name_pattern</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">header_value</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
-                    <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;species.scientific_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span>
-                        <span class="s2">&quot;scientific&quot;</span>
+                    <span class="n">metadata</span><span class="p">[</span><span class="s2">"species.scientific_name"</span><span class="p">]</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span>
+                        <span class="s2">"scientific"</span>
                     <span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
-                    <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;species.common_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s2">&quot;common&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+                    <span class="n">metadata</span><span class="p">[</span><span class="s2">"species.common_name"</span><span class="p">]</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s2">"common"</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
                 <span class="k">else</span><span class="p">:</span>
-                    <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;species.scientific_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">header_value</span>
-            <span class="k">elif</span> <span class="n">header_key</span> <span class="o">==</span> <span class="s2">&quot;common name&quot;</span> <span class="ow">and</span> <span class="n">header_value</span><span class="p">:</span>
-                <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;species.common_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">header_value</span>
+                    <span class="n">metadata</span><span class="p">[</span><span class="s2">"species.scientific_name"</span><span class="p">]</span> <span class="o">=</span> <span class="n">header_value</span>
+            <span class="k">elif</span> <span class="n">header_key</span> <span class="o">==</span> <span class="s2">"common name"</span> <span class="ow">and</span> <span class="n">header_value</span><span class="p">:</span>
+                <span class="n">metadata</span><span class="p">[</span><span class="s2">"species.common_name"</span><span class="p">]</span> <span class="o">=</span> <span class="n">header_value</span>
 
-    <span class="k">if</span> <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;species.common_name&quot;</span><span class="p">]:</span>
-        <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;species.display_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;species.common_name&quot;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">metadata</span><span class="p">[</span><span class="s2">"species.common_name"</span><span class="p">]:</span>
+        <span class="n">metadata</span><span class="p">[</span><span class="s2">"species.display_name"</span><span class="p">]</span> <span class="o">=</span> <span class="n">metadata</span><span class="p">[</span><span class="s2">"species.common_name"</span><span class="p">]</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;species.display_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;species.scientific_name&quot;</span><span class="p">]</span>
+        <span class="n">metadata</span><span class="p">[</span><span class="s2">"species.display_name"</span><span class="p">]</span> <span class="o">=</span> <span class="n">metadata</span><span class="p">[</span><span class="s2">"species.scientific_name"</span><span class="p">]</span>
     <span class="c1"># add species.production_name</span>
-    <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;species.production_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">species_db_name_token</span><span class="p">(</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;species.scientific_name&#39;</span><span class="p">])</span><span class="si">}</span><span class="s2">_&quot;</span>
-        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">refseq_accession_db_token</span><span class="p">(</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;assembly.accession&#39;</span><span class="p">])</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="n">metadata</span><span class="p">[</span><span class="s2">"species.production_name"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">species_db_name_token</span><span class="p">(</span><span class="n">metadata</span><span class="p">[</span><span class="s1">'species.scientific_name'</span><span class="p">])</span><span class="si">}</span><span class="s2">_"</span>
+        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">refseq_accession_db_token</span><span class="p">(</span><span class="n">metadata</span><span class="p">[</span><span class="s1">'assembly.accession'</span><span class="p">])</span><span class="si">}</span><span class="s2">"</span>
     <span class="p">)</span>
-    <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;species.url&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">species_url_token</span><span class="p">(</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;species.scientific_name&#39;</span><span class="p">])</span><span class="si">}</span><span class="s2">_&quot;</span>
-        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">refseq_accession_db_token</span><span class="p">(</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;assembly.accession&#39;</span><span class="p">])</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="n">metadata</span><span class="p">[</span><span class="s2">"species.url"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">species_url_token</span><span class="p">(</span><span class="n">metadata</span><span class="p">[</span><span class="s1">'species.scientific_name'</span><span class="p">])</span><span class="si">}</span><span class="s2">_"</span>
+        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">refseq_accession_db_token</span><span class="p">(</span><span class="n">metadata</span><span class="p">[</span><span class="s1">'assembly.accession'</span><span class="p">])</span><span class="si">}</span><span class="s2">"</span>
     <span class="p">)</span>
 
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;genebuild.start_date&quot;</span><span class="p">]:</span>
-        <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;genebuild.start_date&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">metadata</span><span class="p">[</span><span class="s2">"genebuild.start_date"</span><span class="p">]:</span>
+        <span class="n">metadata</span><span class="p">[</span><span class="s2">"genebuild.start_date"</span><span class="p">]</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">"%Y-%m-</span><span class="si">%d</span><span class="s2">"</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">metadata</span>
 </code></pre></div></td></tr></table></div>
@@ -4280,11 +4280,11 @@
 <span class="normal">54</span>
 <span class="normal">55</span>
 <span class="normal">56</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">refseq_accession_db_token</span><span class="p">(</span><span class="n">assembly_accession</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a compact DB-safe token for a RefSeq assembly accession.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Return a compact DB-safe token for a RefSeq assembly accession."""</span>
 
-    <span class="n">token</span> <span class="o">=</span> <span class="n">assembly_accession</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
-    <span class="n">token</span> <span class="o">=</span> <span class="n">token</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="s2">&quot;v&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;[^a-z0-9]+&quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="n">token</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">)</span>
+    <span class="n">token</span> <span class="o">=</span> <span class="n">assembly_accession</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"_"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span>
+    <span class="n">token</span> <span class="o">=</span> <span class="n">token</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"."</span><span class="p">,</span> <span class="s2">"v"</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">"[^a-z0-9]+"</span><span class="p">,</span> <span class="s2">"_"</span><span class="p">,</span> <span class="n">token</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s2">"_"</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -4318,14 +4318,14 @@
 <span class="normal">36</span>
 <span class="normal">37</span>
 <span class="normal">38</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">species_db_name_token</span><span class="p">(</span><span class="n">species_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the species token used in derived Ensembl core DB names.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Return the species token used in derived Ensembl core DB names."""</span>
 
     <span class="n">species_parts</span> <span class="o">=</span> <span class="n">species_name</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">species_parts</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;species_name must contain at least genus and species&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"species_name must contain at least genus and species"</span><span class="p">)</span>
     <span class="n">genus</span><span class="p">,</span> <span class="n">species</span> <span class="o">=</span> <span class="n">species_parts</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span>
-    <span class="k">return</span> <span class="s2">&quot;_&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-        <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;[^a-z0-9]+&quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="n">token</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="s2">"_"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+        <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">"[^a-z0-9]+"</span><span class="p">,</span> <span class="s2">"_"</span><span class="p">,</span> <span class="n">token</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s2">"_"</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">token</span> <span class="ow">in</span> <span class="p">(</span><span class="n">genus</span><span class="p">,</span> <span class="n">species</span><span class="p">)</span>
     <span class="p">)</span>
 </code></pre></div></td></tr></table></div>
@@ -4358,13 +4358,13 @@
 <span class="normal">46</span>
 <span class="normal">47</span>
 <span class="normal">48</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">species_url_token</span><span class="p">(</span><span class="n">species_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the species token used in the core ``species.url`` metadata.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Return the species token used in the core ``species.url`` metadata."""</span>
 
     <span class="n">species_parts</span> <span class="o">=</span> <span class="n">species_name</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">species_parts</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;species_name must contain at least genus and species&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"species_name must contain at least genus and species"</span><span class="p">)</span>
     <span class="n">genus</span><span class="p">,</span> <span class="n">species</span> <span class="o">=</span> <span class="n">species_parts</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span>
-    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">genus</span><span class="o">.</span><span class="n">capitalize</span><span class="p">()</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">species</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">genus</span><span class="o">.</span><span class="n">capitalize</span><span class="p">()</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">species</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="si">}</span><span class="s2">"</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>

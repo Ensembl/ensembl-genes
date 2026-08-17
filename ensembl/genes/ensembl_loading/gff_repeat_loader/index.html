@@ -4052,7 +4052,7 @@
 
 
 <h3 id="ensembl.genes.ensembl_loading.gff_repeat_loader.REPEAT_TYPES" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">REPEAT_TYPES</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;dust&#39;</span><span class="p">:</span> <span class="s1">&#39;Dust&#39;</span><span class="p">,</span> <span class="s1">&#39;repeatdetector&#39;</span><span class="p">:</span> <span class="s1">&#39;repeatdetector&#39;</span><span class="p">,</span> <span class="s1">&#39;repeatmasker&#39;</span><span class="p">:</span> <span class="s1">&#39;repeatmasker&#39;</span><span class="p">,</span> <span class="s1">&#39;trf&#39;</span><span class="p">:</span> <span class="s1">&#39;Tandem repeats&#39;</span><span class="p">}</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">REPEAT_TYPES</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'dust'</span><span class="p">:</span> <span class="s1">'Dust'</span><span class="p">,</span> <span class="s1">'repeatdetector'</span><span class="p">:</span> <span class="s1">'repeatdetector'</span><span class="p">,</span> <span class="s1">'repeatmasker'</span><span class="p">:</span> <span class="s1">'repeatmasker'</span><span class="p">,</span> <span class="s1">'trf'</span><span class="p">:</span> <span class="s1">'Tandem repeats'</span><span class="p">}</span></code>
 
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
@@ -4072,7 +4072,7 @@
 
 
 <h3 id="ensembl.genes.ensembl_loading.gff_repeat_loader.SIMPLE_FEATURE_ANALYSES" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">SIMPLE_FEATURE_ANALYSES</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">({</span><span class="s1">&#39;cpg&#39;</span><span class="p">,</span> <span class="s1">&#39;eponine&#39;</span><span class="p">})</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">SIMPLE_FEATURE_ANALYSES</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">({</span><span class="s1">'cpg'</span><span class="p">,</span> <span class="s1">'eponine'</span><span class="p">})</span></code>
 
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
@@ -4129,7 +4129,7 @@
 <span class="normal">39</span>
 <span class="normal">40</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">SingleLineFeatureRecord</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;One single-line feature row from an anno pipeline GTF.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""One single-line feature row from an anno pipeline GTF."""</span>
 
     <span class="n">seq_name</span><span class="p">:</span> <span class="nb">str</span>
     <span class="n">start</span><span class="p">:</span> <span class="nb">int</span>
@@ -4281,7 +4281,7 @@
 <span class="normal">44</span>
 <span class="normal">45</span>
 <span class="normal">46</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">available_single_line_feature_analyses</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return analysis names supported by the old single_line_feature loader.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Return analysis names supported by the old single_line_feature loader."""</span>
 
     <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">sorted</span><span class="p">((</span><span class="o">*</span><span class="n">REPEAT_TYPES</span><span class="p">,</span> <span class="o">*</span><span class="n">SIMPLE_FEATURE_ANALYSES</span><span class="p">)))</span>
 </code></pre></div></td></tr></table></div>
@@ -4338,12 +4338,12 @@
     <span class="n">repeat_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">repeat_consensus</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return or create a repeat_consensus row.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Return or create a repeat_consensus row."""</span>
 
     <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
-        <span class="s2">&quot;SELECT repeat_consensus_id FROM repeat_consensus &quot;</span>
-        <span class="s2">&quot;WHERE repeat_name = </span><span class="si">%s</span><span class="s2"> AND repeat_class = </span><span class="si">%s</span><span class="s2"> &quot;</span>
-        <span class="s2">&quot;AND repeat_type = </span><span class="si">%s</span><span class="s2"> AND repeat_consensus = </span><span class="si">%s</span><span class="s2"> LIMIT 1&quot;</span><span class="p">,</span>
+        <span class="s2">"SELECT repeat_consensus_id FROM repeat_consensus "</span>
+        <span class="s2">"WHERE repeat_name = </span><span class="si">%s</span><span class="s2"> AND repeat_class = </span><span class="si">%s</span><span class="s2"> "</span>
+        <span class="s2">"AND repeat_type = </span><span class="si">%s</span><span class="s2"> AND repeat_consensus = </span><span class="si">%s</span><span class="s2"> LIMIT 1"</span><span class="p">,</span>
         <span class="p">(</span><span class="n">repeat_name</span><span class="p">,</span> <span class="n">repeat_class</span><span class="p">,</span> <span class="n">repeat_type</span><span class="p">,</span> <span class="n">repeat_consensus</span><span class="p">),</span>
     <span class="p">)</span>
     <span class="n">row</span> <span class="o">=</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
@@ -4351,9 +4351,9 @@
         <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
 
     <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
-        <span class="s2">&quot;INSERT INTO repeat_consensus &quot;</span>
-        <span class="s2">&quot;(repeat_name, repeat_class, repeat_type, repeat_consensus) &quot;</span>
-        <span class="s2">&quot;VALUES (</span><span class="si">%s</span><span class="s2">,</span><span class="si">%s</span><span class="s2">,</span><span class="si">%s</span><span class="s2">,</span><span class="si">%s</span><span class="s2">)&quot;</span><span class="p">,</span>
+        <span class="s2">"INSERT INTO repeat_consensus "</span>
+        <span class="s2">"(repeat_name, repeat_class, repeat_type, repeat_consensus) "</span>
+        <span class="s2">"VALUES (</span><span class="si">%s</span><span class="s2">,</span><span class="si">%s</span><span class="s2">,</span><span class="si">%s</span><span class="s2">,</span><span class="si">%s</span><span class="s2">)"</span><span class="p">,</span>
         <span class="p">(</span><span class="n">repeat_name</span><span class="p">,</span> <span class="n">repeat_class</span><span class="p">,</span> <span class="n">repeat_type</span><span class="p">,</span> <span class="n">repeat_consensus</span><span class="p">),</span>
     <span class="p">)</span>
     <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">cursor</span><span class="o">.</span><span class="n">lastrowid</span><span class="p">)</span>
@@ -4395,10 +4395,10 @@
 <span class="normal">148</span>
 <span class="normal">149</span>
 <span class="normal">150</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_or_create_single_line_analysis</span><span class="p">(</span><span class="n">cursor</span><span class="p">:</span> <span class="n">DbCursor</span><span class="p">,</span> <span class="n">analysis_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return or create the analysis row used by repeat/simple feature loads.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Return or create the analysis row used by repeat/simple feature loads."""</span>
 
     <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
-        <span class="s2">&quot;SELECT analysis_id FROM analysis WHERE logic_name = </span><span class="si">%s</span><span class="s2"> LIMIT 1&quot;</span><span class="p">,</span>
+        <span class="s2">"SELECT analysis_id FROM analysis WHERE logic_name = </span><span class="si">%s</span><span class="s2"> LIMIT 1"</span><span class="p">,</span>
         <span class="p">(</span><span class="n">analysis_name</span><span class="p">,),</span>
     <span class="p">)</span>
     <span class="n">row</span> <span class="o">=</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
@@ -4406,8 +4406,8 @@
         <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
 
     <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
-        <span class="s2">&quot;INSERT INTO analysis (logic_name,created,module) VALUES (</span><span class="si">%s</span><span class="s2">,NOW(),</span><span class="si">%s</span><span class="s2">)&quot;</span><span class="p">,</span>
-        <span class="p">(</span><span class="n">analysis_name</span><span class="p">,</span> <span class="s2">&quot;Anno&quot;</span><span class="p">),</span>
+        <span class="s2">"INSERT INTO analysis (logic_name,created,module) VALUES (</span><span class="si">%s</span><span class="s2">,NOW(),</span><span class="si">%s</span><span class="s2">)"</span><span class="p">,</span>
+        <span class="p">(</span><span class="n">analysis_name</span><span class="p">,</span> <span class="s2">"Anno"</span><span class="p">),</span>
     <span class="p">)</span>
     <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">cursor</span><span class="o">.</span><span class="n">lastrowid</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
@@ -4488,18 +4488,18 @@
     <span class="n">analysis_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">analysis_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Insert repeat_consensus and repeat_feature rows.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Insert repeat_consensus and repeat_feature rows."""</span>
 
     <span class="n">consensus_ids</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">for</span> <span class="n">record</span> <span class="ow">in</span> <span class="n">records</span><span class="p">:</span>
-        <span class="n">repeat_name</span> <span class="o">=</span> <span class="n">record</span><span class="o">.</span><span class="n">attributes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;repeat_name&quot;</span><span class="p">,</span> <span class="n">analysis_name</span><span class="p">)</span>
-        <span class="n">repeat_class</span> <span class="o">=</span> <span class="n">record</span><span class="o">.</span><span class="n">attributes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;repeat_class&quot;</span><span class="p">,</span> <span class="n">analysis_name</span><span class="p">)</span>
+        <span class="n">repeat_name</span> <span class="o">=</span> <span class="n">record</span><span class="o">.</span><span class="n">attributes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"repeat_name"</span><span class="p">,</span> <span class="n">analysis_name</span><span class="p">)</span>
+        <span class="n">repeat_class</span> <span class="o">=</span> <span class="n">record</span><span class="o">.</span><span class="n">attributes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"repeat_class"</span><span class="p">,</span> <span class="n">analysis_name</span><span class="p">)</span>
         <span class="n">repeat_type</span> <span class="o">=</span> <span class="n">record</span><span class="o">.</span><span class="n">attributes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
-            <span class="s2">&quot;repeat_type&quot;</span><span class="p">,</span>
+            <span class="s2">"repeat_type"</span><span class="p">,</span>
             <span class="n">REPEAT_TYPES</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">analysis_name</span><span class="p">,</span> <span class="n">analysis_name</span><span class="p">),</span>
         <span class="p">)</span>
-        <span class="n">repeat_consensus</span> <span class="o">=</span> <span class="n">record</span><span class="o">.</span><span class="n">attributes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;repeat_consensus&quot;</span><span class="p">,</span> <span class="s2">&quot;N&quot;</span><span class="p">)</span>
-        <span class="n">repeat_score</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">record</span><span class="o">.</span><span class="n">attributes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;score&quot;</span><span class="p">,</span> <span class="s2">&quot;0&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">repeat_consensus</span> <span class="o">=</span> <span class="n">record</span><span class="o">.</span><span class="n">attributes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"repeat_consensus"</span><span class="p">,</span> <span class="s2">"N"</span><span class="p">)</span>
+        <span class="n">repeat_score</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">record</span><span class="o">.</span><span class="n">attributes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"score"</span><span class="p">,</span> <span class="s2">"0"</span><span class="p">)</span> <span class="ow">or</span> <span class="mi">0</span><span class="p">)</span>
         <span class="n">consensus_key</span> <span class="o">=</span> <span class="p">(</span><span class="n">repeat_name</span><span class="p">,</span> <span class="n">repeat_class</span><span class="p">,</span> <span class="n">repeat_type</span><span class="p">,</span> <span class="n">repeat_consensus</span><span class="p">)</span>
         <span class="n">repeat_consensus_id</span> <span class="o">=</span> <span class="n">consensus_ids</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">consensus_key</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">repeat_consensus_id</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -4513,11 +4513,11 @@
             <span class="n">consensus_ids</span><span class="p">[</span><span class="n">consensus_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">repeat_consensus_id</span>
 
         <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
-            <span class="s2">&quot;INSERT INTO repeat_feature &quot;</span>
-            <span class="s2">&quot;(seq_region_id, seq_region_start, seq_region_end, &quot;</span>
-            <span class="s2">&quot;seq_region_strand, repeat_start, repeat_end, &quot;</span>
-            <span class="s2">&quot;repeat_consensus_id, analysis_id, score) &quot;</span>
-            <span class="s2">&quot;VALUES (</span><span class="si">%s</span><span class="s2">,</span><span class="si">%s</span><span class="s2">,</span><span class="si">%s</span><span class="s2">,</span><span class="si">%s</span><span class="s2">,</span><span class="si">%s</span><span class="s2">,</span><span class="si">%s</span><span class="s2">,</span><span class="si">%s</span><span class="s2">,</span><span class="si">%s</span><span class="s2">,</span><span class="si">%s</span><span class="s2">)&quot;</span><span class="p">,</span>
+            <span class="s2">"INSERT INTO repeat_feature "</span>
+            <span class="s2">"(seq_region_id, seq_region_start, seq_region_end, "</span>
+            <span class="s2">"seq_region_strand, repeat_start, repeat_end, "</span>
+            <span class="s2">"repeat_consensus_id, analysis_id, score) "</span>
+            <span class="s2">"VALUES (</span><span class="si">%s</span><span class="s2">,</span><span class="si">%s</span><span class="s2">,</span><span class="si">%s</span><span class="s2">,</span><span class="si">%s</span><span class="s2">,</span><span class="si">%s</span><span class="s2">,</span><span class="si">%s</span><span class="s2">,</span><span class="si">%s</span><span class="s2">,</span><span class="si">%s</span><span class="s2">,</span><span class="si">%s</span><span class="s2">)"</span><span class="p">,</span>
             <span class="p">(</span>
                 <span class="n">seq_region_ids</span><span class="p">[</span><span class="n">record</span><span class="o">.</span><span class="n">seq_name</span><span class="p">],</span>
                 <span class="n">record</span><span class="o">.</span><span class="n">start</span><span class="p">,</span>
@@ -4579,20 +4579,20 @@
     <span class="n">records</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">SingleLineFeatureRecord</span><span class="p">],</span>
     <span class="n">coord_system_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Resolve seq_region IDs for all feature seq_names.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Resolve seq_region IDs for all feature seq_names."""</span>
 
     <span class="n">seq_region_ids</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">for</span> <span class="n">seq_name</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">({</span><span class="n">record</span><span class="o">.</span><span class="n">seq_name</span> <span class="k">for</span> <span class="n">record</span> <span class="ow">in</span> <span class="n">records</span><span class="p">}):</span>
         <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
-            <span class="s2">&quot;SELECT seq_region_id FROM seq_region WHERE name = </span><span class="si">%s</span><span class="s2"> &quot;</span>
-            <span class="s2">&quot;AND coord_system_id = </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="s2">"SELECT seq_region_id FROM seq_region WHERE name = </span><span class="si">%s</span><span class="s2"> "</span>
+            <span class="s2">"AND coord_system_id = </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span>
             <span class="p">(</span><span class="n">seq_name</span><span class="p">,</span> <span class="n">coord_system_id</span><span class="p">),</span>
         <span class="p">)</span>
         <span class="n">row</span> <span class="o">=</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">row</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Could not find seq_region &#39;</span><span class="si">{</span><span class="n">seq_name</span><span class="si">}</span><span class="s2">&#39; &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;in coord_system_id </span><span class="si">{</span><span class="n">coord_system_id</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="sa">f</span><span class="s2">"Could not find seq_region '</span><span class="si">{</span><span class="n">seq_name</span><span class="si">}</span><span class="s2">' "</span>
+                <span class="sa">f</span><span class="s2">"in coord_system_id </span><span class="si">{</span><span class="n">coord_system_id</span><span class="si">}</span><span class="s2">"</span>
             <span class="p">)</span>
         <span class="n">seq_region_ids</span><span class="p">[</span><span class="n">seq_name</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
     <span class="k">return</span> <span class="n">seq_region_ids</span>
@@ -4648,20 +4648,20 @@
     <span class="n">seq_region_ids</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
     <span class="n">analysis_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Insert simple_feature rows.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Insert simple_feature rows."""</span>
 
     <span class="k">for</span> <span class="n">record</span> <span class="ow">in</span> <span class="n">records</span><span class="p">:</span>
         <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
-            <span class="s2">&quot;INSERT INTO simple_feature &quot;</span>
-            <span class="s2">&quot;(seq_region_id, seq_region_start, seq_region_end, &quot;</span>
-            <span class="s2">&quot;seq_region_strand, display_label, analysis_id, score) &quot;</span>
-            <span class="s2">&quot;VALUES (</span><span class="si">%s</span><span class="s2">,</span><span class="si">%s</span><span class="s2">,</span><span class="si">%s</span><span class="s2">,</span><span class="si">%s</span><span class="s2">,</span><span class="si">%s</span><span class="s2">,</span><span class="si">%s</span><span class="s2">,</span><span class="si">%s</span><span class="s2">)&quot;</span><span class="p">,</span>
+            <span class="s2">"INSERT INTO simple_feature "</span>
+            <span class="s2">"(seq_region_id, seq_region_start, seq_region_end, "</span>
+            <span class="s2">"seq_region_strand, display_label, analysis_id, score) "</span>
+            <span class="s2">"VALUES (</span><span class="si">%s</span><span class="s2">,</span><span class="si">%s</span><span class="s2">,</span><span class="si">%s</span><span class="s2">,</span><span class="si">%s</span><span class="s2">,</span><span class="si">%s</span><span class="s2">,</span><span class="si">%s</span><span class="s2">,</span><span class="si">%s</span><span class="s2">)"</span><span class="p">,</span>
             <span class="p">(</span>
                 <span class="n">seq_region_ids</span><span class="p">[</span><span class="n">record</span><span class="o">.</span><span class="n">seq_name</span><span class="p">],</span>
                 <span class="n">record</span><span class="o">.</span><span class="n">start</span><span class="p">,</span>
                 <span class="n">record</span><span class="o">.</span><span class="n">end</span><span class="p">,</span>
                 <span class="n">record</span><span class="o">.</span><span class="n">strand</span><span class="p">,</span>
-                <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                <span class="s2">""</span><span class="p">,</span>
                 <span class="n">analysis_id</span><span class="p">,</span>
                 <span class="mf">0.0</span><span class="p">,</span>
             <span class="p">),</span>
@@ -4677,7 +4677,7 @@
 
 
 <h3 id="ensembl.genes.ensembl_loading.gff_repeat_loader.load_single_line_features_to_core" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">load_single_line_features_to_core</span><span class="p">(</span><span class="n">gtf_path</span><span class="p">,</span> <span class="n">analysis_name</span><span class="p">,</span> <span class="n">db_name</span><span class="p">,</span> <span class="n">db_host</span><span class="p">,</span> <span class="n">db_user</span><span class="p">,</span> <span class="n">db_password</span><span class="p">,</span> <span class="n">db_port</span><span class="p">,</span> <span class="n">coord_system_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">coord_system_name</span><span class="o">=</span><span class="s1">&#39;primary_assembly&#39;</span><span class="p">,</span> <span class="n">coord_system_version</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">load_single_line_features_to_core</span><span class="p">(</span><span class="n">gtf_path</span><span class="p">,</span> <span class="n">analysis_name</span><span class="p">,</span> <span class="n">db_name</span><span class="p">,</span> <span class="n">db_host</span><span class="p">,</span> <span class="n">db_user</span><span class="p">,</span> <span class="n">db_password</span><span class="p">,</span> <span class="n">db_port</span><span class="p">,</span> <span class="n">coord_system_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">coord_system_name</span><span class="o">=</span><span class="s1">'primary_assembly'</span><span class="p">,</span> <span class="n">coord_system_version</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
 
 <a href="#ensembl.genes.ensembl_loading.gff_repeat_loader.load_single_line_features_to_core" class="headerlink" title="Permanent link">&para;</a></h3>
 
@@ -4786,22 +4786,22 @@
     <span class="n">db_password</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">db_port</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">coord_system_id</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">coord_system_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;primary_assembly&quot;</span><span class="p">,</span>
+    <span class="n">coord_system_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"primary_assembly"</span><span class="p">,</span>
     <span class="n">coord_system_version</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">logger</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Load repeat/simple single-line GTF features into an existing core DB.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Load repeat/simple single-line GTF features into an existing core DB."""</span>
 
     <span class="n">log</span> <span class="o">=</span> <span class="n">logger</span> <span class="ow">or</span> <span class="n">LOGGER</span>
     <span class="k">if</span> <span class="n">analysis_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">available_single_line_feature_analyses</span><span class="p">():</span>
-        <span class="n">available</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">available_single_line_feature_analyses</span><span class="p">())</span>
+        <span class="n">available</span> <span class="o">=</span> <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">available_single_line_feature_analyses</span><span class="p">())</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Unsupported single-line analysis &#39;</span><span class="si">{</span><span class="n">analysis_name</span><span class="si">}</span><span class="s2">&#39;. &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;Available analyses: </span><span class="si">{</span><span class="n">available</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">"Unsupported single-line analysis '</span><span class="si">{</span><span class="n">analysis_name</span><span class="si">}</span><span class="s2">'. "</span>
+            <span class="sa">f</span><span class="s2">"Available analyses: </span><span class="si">{</span><span class="n">available</span><span class="si">}</span><span class="s2">"</span>
         <span class="p">)</span>
 
     <span class="n">records</span> <span class="o">=</span> <span class="n">parse_single_line_gtf</span><span class="p">(</span><span class="n">gtf_path</span><span class="p">)</span>
-    <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Connecting to MySQL core database </span><span class="si">%s</span><span class="s2"> on </span><span class="si">%s</span><span class="s2">:</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">db_name</span><span class="p">,</span> <span class="n">db_host</span><span class="p">,</span> <span class="n">db_port</span><span class="p">)</span>
+    <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"Connecting to MySQL core database </span><span class="si">%s</span><span class="s2"> on </span><span class="si">%s</span><span class="s2">:</span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">db_name</span><span class="p">,</span> <span class="n">db_host</span><span class="p">,</span> <span class="n">db_port</span><span class="p">)</span>
     <span class="n">connection</span> <span class="o">=</span> <span class="n">connect_mysql</span><span class="p">(</span>
         <span class="n">db_host</span><span class="o">=</span><span class="n">db_host</span><span class="p">,</span>
         <span class="n">db_user</span><span class="o">=</span><span class="n">db_user</span><span class="p">,</span>
@@ -4844,22 +4844,22 @@
 
         <span class="n">connection</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
         <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-            <span class="s2">&quot;Loaded </span><span class="si">%s</span><span class="s2"> single-line features into </span><span class="si">%s</span><span class="s2">: &quot;</span>
-            <span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> repeat features, </span><span class="si">%s</span><span class="s2"> simple features&quot;</span><span class="p">,</span>
+            <span class="s2">"Loaded </span><span class="si">%s</span><span class="s2"> single-line features into </span><span class="si">%s</span><span class="s2">: "</span>
+            <span class="s2">"</span><span class="si">%s</span><span class="s2"> repeat features, </span><span class="si">%s</span><span class="s2"> simple features"</span><span class="p">,</span>
             <span class="n">analysis_name</span><span class="p">,</span>
             <span class="n">db_name</span><span class="p">,</span>
             <span class="n">repeat_features</span><span class="p">,</span>
             <span class="n">simple_features</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="p">{</span>
-            <span class="s2">&quot;repeat_features&quot;</span><span class="p">:</span> <span class="n">repeat_features</span><span class="p">,</span>
-            <span class="s2">&quot;repeat_consensus&quot;</span><span class="p">:</span> <span class="n">repeat_consensus</span><span class="p">,</span>
-            <span class="s2">&quot;simple_features&quot;</span><span class="p">:</span> <span class="n">simple_features</span><span class="p">,</span>
+            <span class="s2">"repeat_features"</span><span class="p">:</span> <span class="n">repeat_features</span><span class="p">,</span>
+            <span class="s2">"repeat_consensus"</span><span class="p">:</span> <span class="n">repeat_consensus</span><span class="p">,</span>
+            <span class="s2">"simple_features"</span><span class="p">:</span> <span class="n">simple_features</span><span class="p">,</span>
         <span class="p">}</span>
     <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
         <span class="n">connection</span><span class="o">.</span><span class="n">rollback</span><span class="p">()</span>
         <span class="n">log</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span>
-            <span class="s2">&quot;Failed loading </span><span class="si">%s</span><span class="s2"> single-line features into </span><span class="si">%s</span><span class="s2">; transaction rolled back&quot;</span><span class="p">,</span>
+            <span class="s2">"Failed loading </span><span class="si">%s</span><span class="s2"> single-line features into </span><span class="si">%s</span><span class="s2">; transaction rolled back"</span><span class="p">,</span>
             <span class="n">analysis_name</span><span class="p">,</span>
             <span class="n">db_name</span><span class="p">,</span>
         <span class="p">)</span>
@@ -4913,28 +4913,28 @@
 <span class="normal">71</span>
 <span class="normal">72</span>
 <span class="normal">73</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">parse_gtf_attributes_perl_style</span><span class="p">(</span><span class="n">attr_str</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Parse GTF attributes in Perl-style key-value pairs.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Parse GTF attributes in Perl-style key-value pairs."""</span>
     <span class="n">attrs</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="c1"># Strip outer whitespace and trailing semicolons</span>
-    <span class="n">attr_str</span> <span class="o">=</span> <span class="n">attr_str</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s2">&quot;;&quot;</span><span class="p">)</span>
+    <span class="n">attr_str</span> <span class="o">=</span> <span class="n">attr_str</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s2">";"</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">attr_str</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">attrs</span>
 
-    <span class="k">for</span> <span class="n">raw_attr</span> <span class="ow">in</span> <span class="n">attr_str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;;&quot;</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">raw_attr</span> <span class="ow">in</span> <span class="n">attr_str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">";"</span><span class="p">):</span>
         <span class="n">raw_attr</span> <span class="o">=</span> <span class="n">raw_attr</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">raw_attr</span><span class="p">:</span>
             <span class="k">continue</span>
 
-        <span class="n">parts</span> <span class="o">=</span> <span class="n">raw_attr</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">)</span>
+        <span class="n">parts</span> <span class="o">=</span> <span class="n">raw_attr</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">" "</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
             <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="n">parts</span>
             <span class="c1"># strip all double quotes</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;&quot;&#39;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">'"'</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span>
             <span class="n">attrs</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="c1"># emulate Perl: remove all spaces, treat as flag with value &quot;1&quot;</span>
-            <span class="n">key</span> <span class="o">=</span> <span class="n">raw_attr</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
-            <span class="n">attrs</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;1&quot;</span>
+            <span class="c1"># emulate Perl: remove all spaces, treat as flag with value "1"</span>
+            <span class="n">key</span> <span class="o">=</span> <span class="n">raw_attr</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">" "</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span>
+            <span class="n">attrs</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"1"</span>
 
     <span class="k">return</span> <span class="n">attrs</span>
 </code></pre></div></td></tr></table></div>
@@ -4992,26 +4992,26 @@
 <span class="normal">106</span>
 <span class="normal">107</span>
 <span class="normal">108</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">parse_single_line_gtf</span><span class="p">(</span><span class="n">gtf_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">SingleLineFeatureRecord</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Parse single-line repeat/simple features from an anno pipeline GTF.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Parse single-line repeat/simple features from an anno pipeline GTF."""</span>
 
     <span class="n">records</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">SingleLineFeatureRecord</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">with</span> <span class="n">open_text_maybe_gzip</span><span class="p">(</span><span class="n">gtf_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">line_number</span><span class="p">,</span> <span class="n">raw_line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">handle</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
-            <span class="n">line</span> <span class="o">=</span> <span class="n">raw_line</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">line</span> <span class="ow">or</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;#&quot;</span><span class="p">):</span>
+            <span class="n">line</span> <span class="o">=</span> <span class="n">raw_line</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">line</span> <span class="ow">or</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"#"</span><span class="p">):</span>
                 <span class="k">continue</span>
-            <span class="n">columns</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">columns</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"</span><span class="se">\t</span><span class="s2">"</span><span class="p">)</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">columns</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">9</span><span class="p">:</span>
                 <span class="k">continue</span>
 
             <span class="n">strand</span> <span class="o">=</span> <span class="n">columns</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span>
-            <span class="k">if</span> <span class="n">strand</span> <span class="o">==</span> <span class="s2">&quot;+&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">strand</span> <span class="o">==</span> <span class="s2">"+"</span><span class="p">:</span>
                 <span class="n">strand_value</span> <span class="o">=</span> <span class="mi">1</span>
-            <span class="k">elif</span> <span class="n">strand</span> <span class="o">==</span> <span class="s2">&quot;-&quot;</span><span class="p">:</span>
+            <span class="k">elif</span> <span class="n">strand</span> <span class="o">==</span> <span class="s2">"-"</span><span class="p">:</span>
                 <span class="n">strand_value</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">gtf_path</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">line_number</span><span class="si">}</span><span class="s2">: unsupported strand &#39;</span><span class="si">{</span><span class="n">strand</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
+                    <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">gtf_path</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">line_number</span><span class="si">}</span><span class="s2">: unsupported strand '</span><span class="si">{</span><span class="n">strand</span><span class="si">}</span><span class="s2">'"</span>
                 <span class="p">)</span>
 
             <span class="n">records</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>

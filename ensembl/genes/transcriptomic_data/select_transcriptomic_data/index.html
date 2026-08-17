@@ -3916,7 +3916,7 @@ applies quality checks using FastQC and STAR, and generates a report summarizing
 <span class="normal">119</span>
 <span class="normal">120</span>
 <span class="normal">121</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">check_fastqc_star_quality</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Apply FastQC and STAR quality to each row</span>
 
 <span class="sd">    Args:</span>
@@ -3924,21 +3924,21 @@ applies quality checks using FastQC and STAR, and generates a report summarizing
 
 <span class="sd">    Returns:</span>
 <span class="sd">        pd.DataFrame: DataFrame with additional columns for FastQC and STAR quality.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="c1"># Apply FastQC and STAR quality to each row</span>
-    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;fastqc_pass&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">fastqc_quality</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;star_quality&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">star_quality</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">df</span><span class="p">[</span><span class="s2">"fastqc_pass"</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">fastqc_quality</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">df</span><span class="p">[</span><span class="s2">"star_quality"</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">star_quality</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 
     <span class="c1"># Assign final quality labels</span>
 
-    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;final_fastqc_status&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;run_accession&quot;</span><span class="p">)[</span><span class="s2">&quot;fastqc_pass&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span>
-        <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="s2">&quot;Failed&quot;</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">else</span> <span class="s2">&quot;Passed&quot;</span>
+    <span class="n">df</span><span class="p">[</span><span class="s2">"final_fastqc_status"</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">"run_accession"</span><span class="p">)[</span><span class="s2">"fastqc_pass"</span><span class="p">]</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span>
+        <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="s2">"Failed"</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">else</span> <span class="s2">"Passed"</span>
     <span class="p">)</span>
-    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;final_star_status&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;run_accession&quot;</span><span class="p">)[</span><span class="s2">&quot;star_quality&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span>
-        <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="s2">&quot;Failed&quot;</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">else</span> <span class="s2">&quot;Passed&quot;</span>
+    <span class="n">df</span><span class="p">[</span><span class="s2">"final_star_status"</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">"run_accession"</span><span class="p">)[</span><span class="s2">"star_quality"</span><span class="p">]</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span>
+        <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="s2">"Failed"</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">else</span> <span class="s2">"Passed"</span>
     <span class="p">)</span>
-    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;passed_both&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;final_fastqc_status&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;Passed&quot;</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span>
-        <span class="n">df</span><span class="p">[</span><span class="s2">&quot;final_star_status&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;Passed&quot;</span>
+    <span class="n">df</span><span class="p">[</span><span class="s2">"passed_both"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">"final_fastqc_status"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"Passed"</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span>
+        <span class="n">df</span><span class="p">[</span><span class="s2">"final_star_status"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"Passed"</span>
     <span class="p">)</span>
     <span class="k">return</span> <span class="n">df</span>
 </code></pre></div></td></tr></table></div>
@@ -4047,7 +4047,7 @@ applies quality checks using FastQC and STAR, and generates a report summarizing
 <span class="normal">377</span>
 <span class="normal">378</span>
 <span class="normal">379</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">clean_repeated_words</span><span class="p">(</span><span class="n">input_text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Remove consecutive duplicate words from a string.</span>
+<span class="w">    </span><span class="sd">"""Remove consecutive duplicate words from a string.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        input_text (str): The input string from which to remove</span>
@@ -4056,16 +4056,16 @@ applies quality checks using FastQC and STAR, and generates a report summarizing
 <span class="sd">    Returns:</span>
 <span class="sd">        str: A string with consecutive duplicate words removed,</span>
 <span class="sd">        preserving the first occurrence of each word.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">words</span> <span class="o">=</span> <span class="n">input_text</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">words</span><span class="p">:</span>
-        <span class="k">return</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">return</span> <span class="s2">""</span>
     <span class="c1"># Keep only the first occurrence, skip consecutive duplicates</span>
     <span class="n">cleaned_words</span> <span class="o">=</span> <span class="p">[</span><span class="n">words</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
     <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="n">words</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
         <span class="k">if</span> <span class="n">w</span> <span class="o">!=</span> <span class="n">cleaned_words</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
             <span class="n">cleaned_words</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">w</span><span class="p">)</span>
-    <span class="k">return</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cleaned_words</span><span class="p">)</span>
+    <span class="k">return</span> <span class="s2">" "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cleaned_words</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -4230,7 +4230,7 @@ applies quality checks using FastQC and STAR, and generates a report summarizing
 <span class="normal">54</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">connect_to_db</span><span class="p">(</span>
     <span class="n">host</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">user</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">password</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">database</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="mi">3306</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">pymysql</span><span class="o">.</span><span class="n">connections</span><span class="o">.</span><span class="n">Connection</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Establishes a connection to the MySQL database.</span>
 
 <span class="sd">    Args:</span>
@@ -4242,14 +4242,14 @@ applies quality checks using FastQC and STAR, and generates a report summarizing
 
 <span class="sd">    Returns:</span>
 <span class="sd">        A pymysql connection object.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="n">connection</span> <span class="o">=</span> <span class="n">pymysql</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span>
             <span class="n">host</span><span class="o">=</span><span class="n">host</span><span class="p">,</span> <span class="n">user</span><span class="o">=</span><span class="n">user</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="n">password</span><span class="p">,</span> <span class="n">database</span><span class="o">=</span><span class="n">database</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="n">port</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">connection</span>
     <span class="k">except</span> <span class="n">pymysql</span><span class="o">.</span><span class="n">MySQLError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error connecting to MySQL: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Error connecting to MySQL: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
         <span class="k">return</span> <span class="kc">None</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -4475,7 +4475,7 @@ The report is printed to the console.
 <span class="normal">250</span>
 <span class="normal">251</span>
 <span class="normal">252</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">create_report</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">tissue_report_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Create a report based on the DataFrame.</span>
 <span class="sd">    This function summarizes the FastQC and STAR quality results for</span>
 <span class="sd">    each taxon_id and run_accession.</span>
@@ -4502,104 +4502,104 @@ The report is printed to the console.
 
 <span class="sd">    Returns:</span>
 <span class="sd">        pd.DataFrame: DataFrame with the summarized report.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="c1"># Collapse to one row per run_accession</span>
     <span class="n">run_summary</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s2">&quot;taxon_id&quot;</span><span class="p">,</span> <span class="s2">&quot;run_accession&quot;</span><span class="p">])</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s2">"taxon_id"</span><span class="p">,</span> <span class="s2">"run_accession"</span><span class="p">])</span>
         <span class="o">.</span><span class="n">agg</span><span class="p">(</span>
-            <span class="n">final_fastqc_status</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;final_fastqc_status&quot;</span><span class="p">,</span> <span class="s2">&quot;first&quot;</span><span class="p">),</span>
-            <span class="n">final_star_status</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;final_star_status&quot;</span><span class="p">,</span> <span class="s2">&quot;first&quot;</span><span class="p">),</span>
+            <span class="n">final_fastqc_status</span><span class="o">=</span><span class="p">(</span><span class="s2">"final_fastqc_status"</span><span class="p">,</span> <span class="s2">"first"</span><span class="p">),</span>
+            <span class="n">final_star_status</span><span class="o">=</span><span class="p">(</span><span class="s2">"final_star_status"</span><span class="p">,</span> <span class="s2">"first"</span><span class="p">),</span>
         <span class="p">)</span>
         <span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
     <span class="p">)</span>
-    <span class="n">run_summary</span><span class="p">[</span><span class="s2">&quot;passed_both&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">run_summary</span><span class="p">[</span><span class="s2">&quot;final_fastqc_status&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;Passed&quot;</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span>
-        <span class="n">run_summary</span><span class="p">[</span><span class="s2">&quot;final_star_status&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;Passed&quot;</span>
+    <span class="n">run_summary</span><span class="p">[</span><span class="s2">"passed_both"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">run_summary</span><span class="p">[</span><span class="s2">"final_fastqc_status"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"Passed"</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span>
+        <span class="n">run_summary</span><span class="p">[</span><span class="s2">"final_star_status"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"Passed"</span>
     <span class="p">)</span>
     <span class="c1"># REPORT</span>
     <span class="n">taxon_pass_summary</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">run_summary</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;taxon_id&quot;</span><span class="p">)</span>
+        <span class="n">run_summary</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">"taxon_id"</span><span class="p">)</span>
         <span class="o">.</span><span class="n">agg</span><span class="p">(</span>
-            <span class="n">passed_fastqc</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;final_fastqc_status&quot;</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;Passed&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()),</span>
-            <span class="n">passed_star</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;final_star_status&quot;</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;Passed&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()),</span>
-            <span class="n">passed_both</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;passed_both&quot;</span><span class="p">,</span> <span class="s2">&quot;sum&quot;</span><span class="p">),</span>
-            <span class="n">total_runs</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;run_accession&quot;</span><span class="p">,</span> <span class="s2">&quot;nunique&quot;</span><span class="p">),</span>
+            <span class="n">passed_fastqc</span><span class="o">=</span><span class="p">(</span><span class="s2">"final_fastqc_status"</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">"Passed"</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()),</span>
+            <span class="n">passed_star</span><span class="o">=</span><span class="p">(</span><span class="s2">"final_star_status"</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">"Passed"</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()),</span>
+            <span class="n">passed_both</span><span class="o">=</span><span class="p">(</span><span class="s2">"passed_both"</span><span class="p">,</span> <span class="s2">"sum"</span><span class="p">),</span>
+            <span class="n">total_runs</span><span class="o">=</span><span class="p">(</span><span class="s2">"run_accession"</span><span class="p">,</span> <span class="s2">"nunique"</span><span class="p">),</span>
         <span class="p">)</span>
         <span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
     <span class="p">)</span>
 
     <span class="c1"># Compute percentage outside of .agg()</span>
-    <span class="n">taxon_pass_summary</span><span class="p">[</span><span class="s2">&quot;percentage_passed_both&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">taxon_pass_summary</span><span class="p">[</span><span class="s2">&quot;passed_both&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="n">taxon_pass_summary</span><span class="p">[</span><span class="s2">&quot;total_runs&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="mi">100</span>
+    <span class="n">taxon_pass_summary</span><span class="p">[</span><span class="s2">"percentage_passed_both"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">taxon_pass_summary</span><span class="p">[</span><span class="s2">"passed_both"</span><span class="p">]</span> <span class="o">/</span> <span class="n">taxon_pass_summary</span><span class="p">[</span><span class="s2">"total_runs"</span><span class="p">]</span> <span class="o">*</span> <span class="mi">100</span>
     <span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
-    <span class="n">taxon_pass_summary</span><span class="p">[</span><span class="s2">&quot;passed_fastqc_only&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">taxon_pass_summary</span><span class="p">[</span><span class="s2">&quot;passed_fastqc&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">taxon_pass_summary</span><span class="p">[</span><span class="s2">&quot;passed_both&quot;</span><span class="p">]</span>
+    <span class="n">taxon_pass_summary</span><span class="p">[</span><span class="s2">"passed_fastqc_only"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">taxon_pass_summary</span><span class="p">[</span><span class="s2">"passed_fastqc"</span><span class="p">]</span> <span class="o">-</span> <span class="n">taxon_pass_summary</span><span class="p">[</span><span class="s2">"passed_both"</span><span class="p">]</span>
     <span class="p">)</span>
-    <span class="n">taxon_pass_summary</span><span class="p">[</span><span class="s2">&quot;passed_star_only&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">taxon_pass_summary</span><span class="p">[</span><span class="s2">&quot;passed_star&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">taxon_pass_summary</span><span class="p">[</span><span class="s2">&quot;passed_both&quot;</span><span class="p">]</span>
+    <span class="n">taxon_pass_summary</span><span class="p">[</span><span class="s2">"passed_star_only"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">taxon_pass_summary</span><span class="p">[</span><span class="s2">"passed_star"</span><span class="p">]</span> <span class="o">-</span> <span class="n">taxon_pass_summary</span><span class="p">[</span><span class="s2">"passed_both"</span><span class="p">]</span>
     <span class="p">)</span>
 
-    <span class="c1"># print(&quot;\n=== Run Quality Summary by Taxon ===&quot;)</span>
+    <span class="c1"># print("\n=== Run Quality Summary by Taxon ===")</span>
     <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">taxon_pass_summary</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
         <span class="nb">print</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Taxon ID: </span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;taxon_id&#39;</span><span class="p">])</span><span class="si">}</span><span class="s2"> | &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;Total Runs: </span><span class="si">{</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;total_runs&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> | &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;Passed BOTH: </span><span class="si">{</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;passed_both&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> | &quot;</span>
-            <span class="c1"># f&quot;FastQC Passed: {row[&#39;passed_fastqc&#39;]} | &quot;</span>
-            <span class="c1"># f&quot;STAR Passed: {row[&#39;passed_star&#39;]} | &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;🧪 FastQC Only: </span><span class="si">{</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;passed_fastqc_only&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> | &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;🚀 STAR Only: </span><span class="si">{</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;passed_star_only&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> | &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;✔️ Both %: </span><span class="si">{</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;percentage_passed_both&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">%&quot;</span>
+            <span class="sa">f</span><span class="s2">"Taxon ID: </span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s1">'taxon_id'</span><span class="p">])</span><span class="si">}</span><span class="s2"> | "</span>
+            <span class="sa">f</span><span class="s2">"Total Runs: </span><span class="si">{</span><span class="n">row</span><span class="p">[</span><span class="s1">'total_runs'</span><span class="p">]</span><span class="si">}</span><span class="s2"> | "</span>
+            <span class="sa">f</span><span class="s2">"Passed BOTH: </span><span class="si">{</span><span class="n">row</span><span class="p">[</span><span class="s1">'passed_both'</span><span class="p">]</span><span class="si">}</span><span class="s2"> | "</span>
+            <span class="c1"># f"FastQC Passed: {row['passed_fastqc']} | "</span>
+            <span class="c1"># f"STAR Passed: {row['passed_star']} | "</span>
+            <span class="sa">f</span><span class="s2">"🧪 FastQC Only: </span><span class="si">{</span><span class="n">row</span><span class="p">[</span><span class="s1">'passed_fastqc_only'</span><span class="p">]</span><span class="si">}</span><span class="s2"> | "</span>
+            <span class="sa">f</span><span class="s2">"🚀 STAR Only: </span><span class="si">{</span><span class="n">row</span><span class="p">[</span><span class="s1">'passed_star_only'</span><span class="p">]</span><span class="si">}</span><span class="s2"> | "</span>
+            <span class="sa">f</span><span class="s2">"✔️ Both %: </span><span class="si">{</span><span class="n">row</span><span class="p">[</span><span class="s1">'percentage_passed_both'</span><span class="p">]</span><span class="si">}</span><span class="s2">%"</span>
         <span class="p">)</span>
         <span class="c1"># Prepare tissue-level summary</span>
-    <span class="k">if</span> <span class="s2">&quot;tissue_prediction&quot;</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+    <span class="k">if</span> <span class="s2">"tissue_prediction"</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
         <span class="n">run_tissue_summary</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s2">&quot;taxon_id&quot;</span><span class="p">,</span> <span class="s2">&quot;tissue_prediction&quot;</span><span class="p">,</span> <span class="s2">&quot;run_accession&quot;</span><span class="p">])</span>
+            <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s2">"taxon_id"</span><span class="p">,</span> <span class="s2">"tissue_prediction"</span><span class="p">,</span> <span class="s2">"run_accession"</span><span class="p">])</span>
             <span class="o">.</span><span class="n">agg</span><span class="p">(</span>
-                <span class="n">final_fastqc_status</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;final_fastqc_status&quot;</span><span class="p">,</span> <span class="s2">&quot;first&quot;</span><span class="p">),</span>
-                <span class="n">final_star_status</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;final_star_status&quot;</span><span class="p">,</span> <span class="s2">&quot;first&quot;</span><span class="p">),</span>
+                <span class="n">final_fastqc_status</span><span class="o">=</span><span class="p">(</span><span class="s2">"final_fastqc_status"</span><span class="p">,</span> <span class="s2">"first"</span><span class="p">),</span>
+                <span class="n">final_star_status</span><span class="o">=</span><span class="p">(</span><span class="s2">"final_star_status"</span><span class="p">,</span> <span class="s2">"first"</span><span class="p">),</span>
             <span class="p">)</span>
             <span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
         <span class="p">)</span>
 
-        <span class="n">run_tissue_summary</span><span class="p">[</span><span class="s2">&quot;passed_both&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">run_tissue_summary</span><span class="p">[</span><span class="s2">&quot;final_fastqc_status&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;Passed&quot;</span>
-        <span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">run_tissue_summary</span><span class="p">[</span><span class="s2">&quot;final_star_status&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;Passed&quot;</span><span class="p">)</span>
+        <span class="n">run_tissue_summary</span><span class="p">[</span><span class="s2">"passed_both"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">run_tissue_summary</span><span class="p">[</span><span class="s2">"final_fastqc_status"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"Passed"</span>
+        <span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">run_tissue_summary</span><span class="p">[</span><span class="s2">"final_star_status"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"Passed"</span><span class="p">)</span>
 
         <span class="n">tissue_pass_summary</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">run_tissue_summary</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s2">&quot;taxon_id&quot;</span><span class="p">,</span> <span class="s2">&quot;tissue_prediction&quot;</span><span class="p">])</span>
+            <span class="n">run_tissue_summary</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s2">"taxon_id"</span><span class="p">,</span> <span class="s2">"tissue_prediction"</span><span class="p">])</span>
             <span class="o">.</span><span class="n">agg</span><span class="p">(</span>
-                <span class="n">passed_fastqc</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;final_fastqc_status&quot;</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;Passed&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()),</span>
-                <span class="n">passed_star</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;final_star_status&quot;</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;Passed&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()),</span>
-                <span class="n">passed_both</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;passed_both&quot;</span><span class="p">,</span> <span class="s2">&quot;sum&quot;</span><span class="p">),</span>
-                <span class="n">total_runs</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;run_accession&quot;</span><span class="p">,</span> <span class="s2">&quot;nunique&quot;</span><span class="p">),</span>
+                <span class="n">passed_fastqc</span><span class="o">=</span><span class="p">(</span><span class="s2">"final_fastqc_status"</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">"Passed"</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()),</span>
+                <span class="n">passed_star</span><span class="o">=</span><span class="p">(</span><span class="s2">"final_star_status"</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">"Passed"</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()),</span>
+                <span class="n">passed_both</span><span class="o">=</span><span class="p">(</span><span class="s2">"passed_both"</span><span class="p">,</span> <span class="s2">"sum"</span><span class="p">),</span>
+                <span class="n">total_runs</span><span class="o">=</span><span class="p">(</span><span class="s2">"run_accession"</span><span class="p">,</span> <span class="s2">"nunique"</span><span class="p">),</span>
             <span class="p">)</span>
             <span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
         <span class="p">)</span>
 
-        <span class="n">tissue_pass_summary</span><span class="p">[</span><span class="s2">&quot;percentage_passed_both&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">tissue_pass_summary</span><span class="p">[</span><span class="s2">&quot;passed_both&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="n">tissue_pass_summary</span><span class="p">[</span><span class="s2">&quot;total_runs&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="mi">100</span>
+        <span class="n">tissue_pass_summary</span><span class="p">[</span><span class="s2">"percentage_passed_both"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">tissue_pass_summary</span><span class="p">[</span><span class="s2">"passed_both"</span><span class="p">]</span> <span class="o">/</span> <span class="n">tissue_pass_summary</span><span class="p">[</span><span class="s2">"total_runs"</span><span class="p">]</span> <span class="o">*</span> <span class="mi">100</span>
         <span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
 
-        <span class="n">tissue_pass_summary</span><span class="p">[</span><span class="s2">&quot;passed_fastqc_only&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">tissue_pass_summary</span><span class="p">[</span><span class="s2">&quot;passed_fastqc&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">tissue_pass_summary</span><span class="p">[</span><span class="s2">&quot;passed_both&quot;</span><span class="p">]</span>
+        <span class="n">tissue_pass_summary</span><span class="p">[</span><span class="s2">"passed_fastqc_only"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">tissue_pass_summary</span><span class="p">[</span><span class="s2">"passed_fastqc"</span><span class="p">]</span> <span class="o">-</span> <span class="n">tissue_pass_summary</span><span class="p">[</span><span class="s2">"passed_both"</span><span class="p">]</span>
         <span class="p">)</span>
-        <span class="n">tissue_pass_summary</span><span class="p">[</span><span class="s2">&quot;passed_star_only&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">tissue_pass_summary</span><span class="p">[</span><span class="s2">&quot;passed_star&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">tissue_pass_summary</span><span class="p">[</span><span class="s2">&quot;passed_both&quot;</span><span class="p">]</span>
+        <span class="n">tissue_pass_summary</span><span class="p">[</span><span class="s2">"passed_star_only"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">tissue_pass_summary</span><span class="p">[</span><span class="s2">"passed_star"</span><span class="p">]</span> <span class="o">-</span> <span class="n">tissue_pass_summary</span><span class="p">[</span><span class="s2">"passed_both"</span><span class="p">]</span>
         <span class="p">)</span>
 
         <span class="c1"># Save to text file</span>
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">tissue_report_file</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">tissue_report_file</span><span class="p">,</span> <span class="s2">"w"</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">tissue_pass_summary</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
                 <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Taxon ID: </span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;taxon_id&#39;</span><span class="p">])</span><span class="si">}</span><span class="s2"> | &quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot;Tissue: </span><span class="si">{</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;tissue_prediction&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> | &quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot;Total Runs: </span><span class="si">{</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;total_runs&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> | &quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot;Passed BOTH: </span><span class="si">{</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;passed_both&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> | &quot;</span>
-                    <span class="c1"># f&quot;FastQC Passed: {row[&#39;passed_fastqc&#39;]} | &quot;</span>
-                    <span class="c1"># f&quot;STAR Passed: {row[&#39;passed_star&#39;]} | &quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot;FastQC Only: </span><span class="si">{</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;passed_fastqc_only&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> | &quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot;STAR Only: </span><span class="si">{</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;passed_star_only&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> | &quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot;BOTH %: </span><span class="si">{</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;percentage_passed_both&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">%</span><span class="se">\n</span><span class="s2">&quot;</span>
+                    <span class="sa">f</span><span class="s2">"Taxon ID: </span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s1">'taxon_id'</span><span class="p">])</span><span class="si">}</span><span class="s2"> | "</span>
+                    <span class="sa">f</span><span class="s2">"Tissue: </span><span class="si">{</span><span class="n">row</span><span class="p">[</span><span class="s1">'tissue_prediction'</span><span class="p">]</span><span class="si">}</span><span class="s2"> | "</span>
+                    <span class="sa">f</span><span class="s2">"Total Runs: </span><span class="si">{</span><span class="n">row</span><span class="p">[</span><span class="s1">'total_runs'</span><span class="p">]</span><span class="si">}</span><span class="s2"> | "</span>
+                    <span class="sa">f</span><span class="s2">"Passed BOTH: </span><span class="si">{</span><span class="n">row</span><span class="p">[</span><span class="s1">'passed_both'</span><span class="p">]</span><span class="si">}</span><span class="s2"> | "</span>
+                    <span class="c1"># f"FastQC Passed: {row['passed_fastqc']} | "</span>
+                    <span class="c1"># f"STAR Passed: {row['passed_star']} | "</span>
+                    <span class="sa">f</span><span class="s2">"FastQC Only: </span><span class="si">{</span><span class="n">row</span><span class="p">[</span><span class="s1">'passed_fastqc_only'</span><span class="p">]</span><span class="si">}</span><span class="s2"> | "</span>
+                    <span class="sa">f</span><span class="s2">"STAR Only: </span><span class="si">{</span><span class="n">row</span><span class="p">[</span><span class="s1">'passed_star_only'</span><span class="p">]</span><span class="si">}</span><span class="s2"> | "</span>
+                    <span class="sa">f</span><span class="s2">"BOTH %: </span><span class="si">{</span><span class="n">row</span><span class="p">[</span><span class="s1">'percentage_passed_both'</span><span class="p">]</span><span class="si">}</span><span class="s2">%</span><span class="se">\n</span><span class="s2">"</span>
                 <span class="p">)</span>
 
     <span class="k">return</span> <span class="n">df</span>
@@ -4698,7 +4698,7 @@ The function checks the FastQC quality criteria for         each row and returns
 <span class="normal">72</span>
 <span class="normal">73</span>
 <span class="normal">74</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">fastqc_quality</span><span class="p">(</span><span class="n">row</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Calculate FastQC quality based on the criteria.</span>
+<span class="w">    </span><span class="sd">"""Calculate FastQC quality based on the criteria.</span>
 <span class="sd">    The function checks the FastQC quality criteria for \</span>
 <span class="sd">        each row and returns True if the criteria are met.</span>
 
@@ -4707,12 +4707,12 @@ The function checks the FastQC quality criteria for         each row and returns
 
 <span class="sd">    Returns:</span>
 <span class="sd">        bool: True if the criteria are met, False otherwise.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">fastqc_criteria</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="n">row</span><span class="p">[</span><span class="s2">&quot;per_base_sequence_quality&quot;</span><span class="p">]</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;PASS&quot;</span><span class="p">,</span> <span class="s2">&quot;WARN&quot;</span><span class="p">],</span>
-        <span class="n">row</span><span class="p">[</span><span class="s2">&quot;overrepresented_sequences&quot;</span><span class="p">]</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;PASS&quot;</span><span class="p">,</span> <span class="s2">&quot;WARN&quot;</span><span class="p">],</span>
-        <span class="n">row</span><span class="p">[</span><span class="s2">&quot;per_base_n_content&quot;</span><span class="p">]</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;PASS&quot;</span><span class="p">,</span> <span class="s2">&quot;WARN&quot;</span><span class="p">],</span>
-        <span class="n">row</span><span class="p">[</span><span class="s2">&quot;per_sequence_quality_scores&quot;</span><span class="p">]</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;PASS&quot;</span><span class="p">,</span> <span class="s2">&quot;WARN&quot;</span><span class="p">],</span>
+        <span class="n">row</span><span class="p">[</span><span class="s2">"per_base_sequence_quality"</span><span class="p">]</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"PASS"</span><span class="p">,</span> <span class="s2">"WARN"</span><span class="p">],</span>
+        <span class="n">row</span><span class="p">[</span><span class="s2">"overrepresented_sequences"</span><span class="p">]</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"PASS"</span><span class="p">,</span> <span class="s2">"WARN"</span><span class="p">],</span>
+        <span class="n">row</span><span class="p">[</span><span class="s2">"per_base_n_content"</span><span class="p">]</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"PASS"</span><span class="p">,</span> <span class="s2">"WARN"</span><span class="p">],</span>
+        <span class="n">row</span><span class="p">[</span><span class="s2">"per_sequence_quality_scores"</span><span class="p">]</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"PASS"</span><span class="p">,</span> <span class="s2">"WARN"</span><span class="p">],</span>
     <span class="p">]</span>
     <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="n">fastqc_criteria</span><span class="p">)</span> <span class="o">==</span> <span class="mi">4</span>
 </code></pre></div></td></tr></table></div>
@@ -4889,7 +4889,7 @@ The function checks the FastQC quality criteria for         each row and returns
 <span class="normal">355</span>
 <span class="normal">356</span>
 <span class="normal">357</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">filter_data</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Filter the DataFrame to select tissue-annotated samples based on quality criteria.</span>
 
 <span class="sd">    Steps:</span>
@@ -4906,61 +4906,61 @@ The function checks the FastQC quality criteria for         each row and returns
 
 <span class="sd">    Returns:</span>
 <span class="sd">        List[str]: List of selected run_accessions.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="s2">&quot;run_accession&quot;</span><span class="p">,</span> <span class="n">keep</span><span class="o">=</span><span class="s2">&quot;first&quot;</span><span class="p">)</span>
-    <span class="n">df_tissue</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;tissue_prediction&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">notnull</span><span class="p">()]</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="sd">    """</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="s2">"run_accession"</span><span class="p">,</span> <span class="n">keep</span><span class="o">=</span><span class="s2">"first"</span><span class="p">)</span>
+    <span class="n">df_tissue</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s2">"tissue_prediction"</span><span class="p">]</span><span class="o">.</span><span class="n">notnull</span><span class="p">()]</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">df_tissue</span> <span class="o">=</span> <span class="n">df_tissue</span><span class="p">[</span>
-        <span class="o">~</span><span class="n">df_tissue</span><span class="p">[</span><span class="s2">&quot;tissue_prediction&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span>
-            <span class="sa">r</span><span class="s2">&quot;tumor|cancer|melanoma|cancer/disease&quot;</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span><span class="p">,</span> <span class="n">regex</span><span class="o">=</span><span class="kc">True</span>
+        <span class="o">~</span><span class="n">df_tissue</span><span class="p">[</span><span class="s2">"tissue_prediction"</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span>
+            <span class="sa">r</span><span class="s2">"tumor|cancer|melanoma|cancer/disease"</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span><span class="p">,</span> <span class="n">regex</span><span class="o">=</span><span class="kc">True</span>
         <span class="p">)</span>
     <span class="p">]</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="c1"># Prioritise tissue types</span>
     <span class="n">priority_tissues</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="s2">&quot;heart&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;lung&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;brain&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;ovary&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;ovaries&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;testes&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;testis&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;gonad&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;gonads&quot;</span><span class="p">,</span>
+        <span class="s2">"heart"</span><span class="p">,</span>
+        <span class="s2">"lung"</span><span class="p">,</span>
+        <span class="s2">"brain"</span><span class="p">,</span>
+        <span class="s2">"ovary"</span><span class="p">,</span>
+        <span class="s2">"ovaries"</span><span class="p">,</span>
+        <span class="s2">"testes"</span><span class="p">,</span>
+        <span class="s2">"testis"</span><span class="p">,</span>
+        <span class="s2">"gonad"</span><span class="p">,</span>
+        <span class="s2">"gonads"</span><span class="p">,</span>
     <span class="p">]</span>
     <span class="n">df_tissue</span> <span class="o">=</span> <span class="n">prioritise_tissues</span><span class="p">(</span><span class="n">df_tissue</span><span class="p">,</span> <span class="n">priority_tissues</span><span class="p">)</span>
-    <span class="n">df_tissue</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="s2">&quot;tissueall.csv&quot;</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">df_tissue</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="s2">"tissueall.csv"</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
     <span class="n">df_tissue</span> <span class="o">=</span> <span class="n">df_tissue</span><span class="p">[</span>
         <span class="o">~</span><span class="p">(</span>
-            <span class="p">(</span><span class="o">~</span><span class="n">df_tissue</span><span class="p">[</span><span class="s2">&quot;passed_both&quot;</span><span class="p">])</span>
-            <span class="o">&amp;</span> <span class="p">(</span><span class="n">df_tissue</span><span class="p">[</span><span class="s2">&quot;final_fastqc_status&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;Failed&quot;</span><span class="p">)</span>
-            <span class="o">&amp;</span> <span class="p">(</span><span class="n">df_tissue</span><span class="p">[</span><span class="s2">&quot;final_star_status&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;Failed&quot;</span><span class="p">)</span>
+            <span class="p">(</span><span class="o">~</span><span class="n">df_tissue</span><span class="p">[</span><span class="s2">"passed_both"</span><span class="p">])</span>
+            <span class="o">&amp;</span> <span class="p">(</span><span class="n">df_tissue</span><span class="p">[</span><span class="s2">"final_fastqc_status"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"Failed"</span><span class="p">)</span>
+            <span class="o">&amp;</span> <span class="p">(</span><span class="n">df_tissue</span><span class="p">[</span><span class="s2">"final_star_status"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"Failed"</span><span class="p">)</span>
         <span class="p">)</span>
     <span class="p">]</span>
-    <span class="n">df_tissue</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="s2">&quot;tissueless.csv&quot;</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-    <span class="n">df_no_tissue</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;tissue_prediction&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isna</span><span class="p">()]</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">df_tissue</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="s2">"tissueless.csv"</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">df_no_tissue</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s2">"tissue_prediction"</span><span class="p">]</span><span class="o">.</span><span class="n">isna</span><span class="p">()]</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">run_accessions</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="c1"># Filter tissue-annotated samples</span>
-    <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">group</span> <span class="ow">in</span> <span class="n">df_tissue</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;tissue_prediction&quot;</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">group</span> <span class="ow">in</span> <span class="n">df_tissue</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">"tissue_prediction"</span><span class="p">):</span>
         <span class="n">group</span> <span class="o">=</span> <span class="n">group</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span>
-            <span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;priority&quot;</span><span class="p">,</span> <span class="s2">&quot;passed_both&quot;</span><span class="p">,</span> <span class="s2">&quot;final_fastqc_status&quot;</span><span class="p">,</span> <span class="s2">&quot;final_star_status&quot;</span><span class="p">],</span>
+            <span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="s2">"priority"</span><span class="p">,</span> <span class="s2">"passed_both"</span><span class="p">,</span> <span class="s2">"final_fastqc_status"</span><span class="p">,</span> <span class="s2">"final_star_status"</span><span class="p">],</span>
             <span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="n">group</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="s2">&quot;group.csv&quot;</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">group</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="s2">"group.csv"</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
         <span class="n">total_length</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">group</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
-            <span class="k">if</span> <span class="n">total_length</span> <span class="o">+</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;total_sequences&quot;</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">250</span> <span class="o">*</span> <span class="mi">10</span><span class="o">**</span><span class="mi">6</span><span class="p">:</span>
-                <span class="n">run_accessions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;run_accession&quot;</span><span class="p">])</span>
-                <span class="n">total_length</span> <span class="o">+=</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;total_sequences&quot;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">total_length</span> <span class="o">+</span> <span class="n">row</span><span class="p">[</span><span class="s2">"total_sequences"</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">250</span> <span class="o">*</span> <span class="mi">10</span><span class="o">**</span><span class="mi">6</span><span class="p">:</span>
+                <span class="n">run_accessions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">"run_accession"</span><span class="p">])</span>
+                <span class="n">total_length</span> <span class="o">+=</span> <span class="n">row</span><span class="p">[</span><span class="s2">"total_sequences"</span><span class="p">]</span>
 
-    <span class="n">df_tissue</span><span class="p">[</span><span class="n">df_tissue</span><span class="p">[</span><span class="s2">&quot;run_accession&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">run_accessions</span><span class="p">)]</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span>
-        <span class="s2">&quot;tissuedanio.csv&quot;</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span>
+    <span class="n">df_tissue</span><span class="p">[</span><span class="n">df_tissue</span><span class="p">[</span><span class="s2">"run_accession"</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">run_accessions</span><span class="p">)]</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span>
+        <span class="s2">"tissuedanio.csv"</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span>
     <span class="p">)</span>
 
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">run_accessions</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">500</span><span class="p">:</span>
-        <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">group</span> <span class="ow">in</span> <span class="n">df_no_tissue</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;run_accession&quot;</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">group</span> <span class="ow">in</span> <span class="n">df_no_tissue</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">"run_accession"</span><span class="p">):</span>
             <span class="n">total_length</span> <span class="o">=</span> <span class="mi">0</span>
-            <span class="k">if</span> <span class="n">group</span><span class="p">[</span><span class="s2">&quot;passed_both&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
-                <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">group</span><span class="p">[</span><span class="n">group</span><span class="p">[</span><span class="s2">&quot;passed_both&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
-                    <span class="n">run_accessions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;run_accession&quot;</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">group</span><span class="p">[</span><span class="s2">"passed_both"</span><span class="p">]</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+                <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">group</span><span class="p">[</span><span class="n">group</span><span class="p">[</span><span class="s2">"passed_both"</span><span class="p">]]</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
+                    <span class="n">run_accessions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">"run_accession"</span><span class="p">])</span>
 
     <span class="k">return</span> <span class="n">run_accessions</span>
 </code></pre></div></td></tr></table></div>
@@ -5254,70 +5254,70 @@ The function checks the FastQC quality criteria for         each row and returns
 <span class="normal">648</span>
 <span class="normal">649</span>
 <span class="normal">650</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># pylint: disable=too-many-statements</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Module&#39;s entry-point.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Module's entry-point."""</span>
     <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span>
-        <span class="n">prog</span><span class="o">=</span><span class="s2">&quot;select_transcriptomic_data.py&quot;</span><span class="p">,</span>
-        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Select transcriptomic data from the registry for annotation&quot;</span><span class="p">,</span>
+        <span class="n">prog</span><span class="o">=</span><span class="s2">"select_transcriptomic_data.py"</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">"Select transcriptomic data from the registry for annotation"</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--taxon_id&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;10116&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Taxonomy ID&quot;</span>
+        <span class="s2">"--taxon_id"</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">"10116"</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">"Taxonomy ID"</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--host&quot;</span><span class="p">,</span>
+        <span class="s2">"--host"</span><span class="p">,</span>
         <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
-        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;mysql-ens-genebuild-prod-1&quot;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">"mysql-ens-genebuild-prod-1"</span><span class="p">,</span>
         <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Host&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"Host"</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--user&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;ensro&quot;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;User&quot;</span>
+        <span class="s2">"--user"</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">"ensro"</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">"User"</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--password&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Password&quot;</span>
+        <span class="s2">"--password"</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">""</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">"Password"</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--database&quot;</span><span class="p">,</span>
-        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;gb_transcriptomic_registry&quot;</span><span class="p">,</span>
+        <span class="s2">"--database"</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">"gb_transcriptomic_registry"</span><span class="p">,</span>
         <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
         <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Database&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"Database"</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--port&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">4527</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Port&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"--port"</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">4527</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">"Port"</span><span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--file_name&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Output file name&quot;</span>
+        <span class="s2">"--file_name"</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">"Output file name"</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--read_type&quot;</span><span class="p">,</span>
+        <span class="s2">"--read_type"</span><span class="p">,</span>
         <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
-        <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;short&quot;</span><span class="p">,</span> <span class="s2">&quot;long&quot;</span><span class="p">],</span>
-        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;short&quot;</span><span class="p">,</span>
+        <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">"short"</span><span class="p">,</span> <span class="s2">"long"</span><span class="p">],</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">"short"</span><span class="p">,</span>
         <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Read type short/long&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"Read type short/long"</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--csv_for_main&quot;</span><span class="p">,</span>
-        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+        <span class="s2">"--csv_for_main"</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">"store_true"</span><span class="p">,</span>
         <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;if true will produce the csv we need for main pipeline otherwise </span><span class="se">\</span>
-<span class="s2">            the one for the full alignment pipeline&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"if true will produce the csv we need for main pipeline otherwise </span><span class="se">\</span>
+<span class="s2">            the one for the full alignment pipeline"</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--limit&quot;</span><span class="p">,</span>
+        <span class="s2">"--limit"</span><span class="p">,</span>
         <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
         <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;max number of run accessions present in the output&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"max number of run accessions present in the output"</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
     <span class="n">engine</span> <span class="o">=</span> <span class="n">create_engine</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s2">&quot;mysql+pymysql://</span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">user</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">password</span><span class="si">}</span><span class="s2">@</span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">host</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">port</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">database</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="sa">f</span><span class="s2">"mysql+pymysql://</span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">user</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">password</span><span class="si">}</span><span class="s2">@</span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">host</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">port</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">database</span><span class="si">}</span><span class="s2">"</span>
     <span class="p">)</span>
 
     <span class="c1"># Load the rows to fix (e.g., 150k rows)</span>
-    <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">read_type</span> <span class="o">==</span> <span class="s2">&quot;short&quot;</span><span class="p">:</span>
+    <span class="n">query</span> <span class="o">=</span> <span class="s2">""</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">read_type</span> <span class="o">==</span> <span class="s2">"short"</span><span class="p">:</span>
         <span class="n">query</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="s2">&quot;SELECT r.taxon_id, r.run_accession, r.sample_accession, r.platform, r.paired, </span><span class="se">\</span>
+            <span class="s2">"SELECT r.taxon_id, r.run_accession, r.sample_accession, r.platform, r.paired, </span><span class="se">\</span>
 <span class="s2">            r.tissue_prediction, d.file_name, d.file_url,d.md5,d.per_base_sequence_quality, </span><span class="se">\</span>
 <span class="s2">            d.per_sequence_quality_scores, d.per_base_n_content, d.overrepresented_sequences,</span><span class="se">\</span>
 <span class="s2">            d.total_sequences, a.uniquely_mapped_reads_percentage, </span><span class="se">\</span>
@@ -5325,20 +5325,20 @@ The function checks the FastQC quality criteria for         each row and returns
 <span class="s2">            a.assembly_accession </span><span class="se">\</span>
 <span class="s2">            FROM run r INNER JOIN data_files d ON r.run_id=d.run_id INNER JOIN align a </span><span class="se">\</span>
 <span class="s2">                ON r.run_id=a.run_id </span><span class="se">\</span>
-<span class="s2">            WHERE  r.qc_status=&#39;ALIGNED&#39; AND r.paired=1 AND r.platform=&#39;ILLUMINA&#39; AND r.taxon_id = &quot;</span>
+<span class="s2">            WHERE  r.qc_status='ALIGNED' AND r.paired=1 AND r.platform='ILLUMINA' AND r.taxon_id = "</span>
             <span class="o">+</span> <span class="n">args</span><span class="o">.</span><span class="n">taxon_id</span>
         <span class="p">)</span>
-    <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">read_type</span> <span class="o">==</span> <span class="s2">&quot;long&quot;</span><span class="p">:</span>
+    <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">read_type</span> <span class="o">==</span> <span class="s2">"long"</span><span class="p">:</span>
         <span class="n">query</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="s2">&quot;SELECT r.taxon_id, r.run_accession, r.sample_accession, r.platform, r.paired, </span><span class="se">\</span>
+            <span class="s2">"SELECT r.taxon_id, r.run_accession, r.sample_accession, r.platform, r.paired, </span><span class="se">\</span>
 <span class="s2">            r.tissue_prediction, d.file_name, d.file_url,d.md5,d.per_base_sequence_quality, </span><span class="se">\</span>
 <span class="s2">            d.per_sequence_quality_scores, d.per_base_n_content, d.overrepresented_sequences, </span><span class="se">\</span>
 <span class="s2">            d.total_sequences, a.uniquely_mapped_reads_percentage, </span><span class="se">\</span>
 <span class="s2">            a.percentage_reads_mapped_to_multiple_loci,a.percentage_reads_unmapped_too_short </span><span class="se">\</span>
 <span class="s2">            FROM run r INNER JOIN data_files d ON r.run_id=d.run_id INNER JOIN align a </span><span class="se">\</span>
 <span class="s2">                ON r.run_id=a.run_id </span><span class="se">\</span>
-<span class="s2">            WHERE  r.qc_status=&#39;ALIGNED&#39; AND r.paired=0 AND </span><span class="se">\</span>
-<span class="s2">                r.platform=&#39;PACBIO_SMRT&#39; AND r.taxon_id = &quot;</span>
+<span class="s2">            WHERE  r.qc_status='ALIGNED' AND r.paired=0 AND </span><span class="se">\</span>
+<span class="s2">                r.platform='PACBIO_SMRT' AND r.taxon_id = "</span>
             <span class="o">+</span> <span class="n">args</span><span class="o">.</span><span class="n">taxon_id</span>
         <span class="p">)</span>
     <span class="c1"># Connect to the database</span>
@@ -5350,80 +5350,80 @@ The function checks the FastQC quality criteria for         each row and returns
         <span class="k">with</span> <span class="n">engine</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span> <span class="k">as</span> <span class="n">conn</span><span class="p">:</span>
             <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="n">text</span><span class="p">(</span><span class="n">query</span><span class="p">),</span> <span class="n">conn</span><span class="p">)</span>
     <span class="k">except</span> <span class="n">pymysql</span><span class="o">.</span><span class="n">MySQLError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error connecting to MySQL: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Error connecting to MySQL: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">df</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
         <span class="n">df</span> <span class="o">=</span> <span class="n">check_fastqc_star_quality</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
 
-        <span class="n">df</span><span class="p">[</span><span class="s2">&quot;tissue_prediction&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;tissue_prediction&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+        <span class="n">df</span><span class="p">[</span><span class="s2">"tissue_prediction"</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">"tissue_prediction"</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
             <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">if</span> <span class="n">pd</span><span class="o">.</span><span class="n">notnull</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">else</span> <span class="n">x</span>
         <span class="p">)</span>
-        <span class="n">df</span><span class="p">[</span><span class="s2">&quot;tissue_prediction&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;tissue_prediction&quot;</span><span class="p">]</span>
+        <span class="n">df</span><span class="p">[</span><span class="s2">"tissue_prediction"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">df</span><span class="p">[</span><span class="s2">"tissue_prediction"</span><span class="p">]</span>
             <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
-            <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;&quot;&#39;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">regex</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-            <span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;Answer: &quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">regex</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-            <span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">regex</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-            <span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;Output: &quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">regex</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">'"'</span><span class="p">,</span> <span class="s2">""</span><span class="p">,</span> <span class="n">regex</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"Answer: "</span><span class="p">,</span> <span class="s2">""</span><span class="p">,</span> <span class="n">regex</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">,</span> <span class="s2">""</span><span class="p">,</span> <span class="n">regex</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"Output: "</span><span class="p">,</span> <span class="s2">""</span><span class="p">,</span> <span class="n">regex</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="p">)</span>
-        <span class="n">df</span><span class="p">[</span><span class="s2">&quot;tissue_prediction&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;tissue_prediction&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+        <span class="n">df</span><span class="p">[</span><span class="s2">"tissue_prediction"</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">"tissue_prediction"</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
             <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span>
-                <span class="sa">r</span><span class="s2">&quot;[, ]+&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;_&quot;</span><span class="p">,</span>  <span class="c1"># replace space/comma with underscore</span>
+                <span class="sa">r</span><span class="s2">"[, ]+"</span><span class="p">,</span>
+                <span class="s2">"_"</span><span class="p">,</span>  <span class="c1"># replace space/comma with underscore</span>
                 <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span>
-                    <span class="sa">r</span><span class="s2">&quot;\b\d+\b|\bday\b|\b[a-zA-Z]\b&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;&quot;</span><span class="p">,</span>  <span class="c1"># remove numbers, &quot;day&quot;, and single letters</span>
+                    <span class="sa">r</span><span class="s2">"\b\d+\b|\bday\b|\b[a-zA-Z]\b"</span><span class="p">,</span>
+                    <span class="s2">""</span><span class="p">,</span>  <span class="c1"># remove numbers, "day", and single letters</span>
                     <span class="n">clean_repeated_words</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)),</span>
                 <span class="p">),</span>
             <span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span>
-                <span class="s2">&quot;_&quot;</span>
+                <span class="s2">"_"</span>
             <span class="p">)</span>  <span class="c1"># remove leading/trailing underscores</span>
         <span class="p">)</span>
-        <span class="n">df</span><span class="p">[</span><span class="s2">&quot;tissue_prediction&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;tissue_prediction&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="n">df</span><span class="p">[</span><span class="s2">"tissue_prediction"</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">"tissue_prediction"</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
 
         <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
-            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;tissue_prediction&quot;</span><span class="p">]</span>
+            <span class="n">df</span><span class="p">[</span><span class="s2">"tissue_prediction"</span><span class="p">]</span>
             <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
-            <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="s2">&quot;NONE&quot;</span><span class="p">,</span> <span class="n">case</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">na</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
-            <span class="s2">&quot;tissue_prediction&quot;</span><span class="p">,</span>
+            <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="s2">"NONE"</span><span class="p">,</span> <span class="n">case</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">na</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+            <span class="s2">"tissue_prediction"</span><span class="p">,</span>
         <span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
-            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;tissue_prediction&quot;</span><span class="p">]</span>
+            <span class="n">df</span><span class="p">[</span><span class="s2">"tissue_prediction"</span><span class="p">]</span>
             <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
-            <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="s2">&quot;nan&quot;</span><span class="p">,</span> <span class="n">case</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">na</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
-            <span class="s2">&quot;tissue_prediction&quot;</span><span class="p">,</span>
+            <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="s2">"nan"</span><span class="p">,</span> <span class="n">case</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">na</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+            <span class="s2">"tissue_prediction"</span><span class="p">,</span>
         <span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="n">create_report</span><span class="p">(</span>
-            <span class="n">df</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">Path</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">file_name</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">taxon_id</span><span class="si">}</span><span class="s2">_tissue_summary.txt&quot;</span>
+            <span class="n">df</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">Path</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">file_name</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">taxon_id</span><span class="si">}</span><span class="s2">_tissue_summary.txt"</span>
         <span class="p">)</span>
-        <span class="c1"># Remove duplicates based on &#39;run_accession&#39; while keeping the first row for each</span>
+        <span class="c1"># Remove duplicates based on 'run_accession' while keeping the first row for each</span>
         <span class="n">df_original</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="n">run_accessions</span> <span class="o">=</span> <span class="n">filter_data</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
         <span class="c1"># Early exit if empty after filtering</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">run_accessions</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;No suitable run_accessions found for this taxon_id.&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">"No suitable run_accessions found for this taxon_id."</span><span class="p">)</span>
             <span class="k">return</span>
 
         <span class="c1"># Build a regex pattern from run_accession list</span>
         <span class="n">selected_accessions</span> <span class="o">=</span> <span class="n">run_accessions</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">25000</span><span class="p">]</span>
-        <span class="c1"># df_final = df_original[df_original[&quot;run_accession&quot;].isin(run_accessions[0:250])].copy()</span>
+        <span class="c1"># df_final = df_original[df_original["run_accession"].isin(run_accessions[0:250])].copy()</span>
         <span class="n">df_final</span> <span class="o">=</span> <span class="n">df_original</span><span class="p">[</span>
-            <span class="n">df_original</span><span class="p">[</span><span class="s2">&quot;run_accession&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">selected_accessions</span><span class="p">)</span>
+            <span class="n">df_original</span><span class="p">[</span><span class="s2">"run_accession"</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">selected_accessions</span><span class="p">)</span>
         <span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-        <span class="n">df_final</span><span class="p">[</span><span class="s2">&quot;run_accession&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Categorical</span><span class="p">(</span>
-            <span class="n">df_final</span><span class="p">[</span><span class="s2">&quot;run_accession&quot;</span><span class="p">],</span> <span class="n">categories</span><span class="o">=</span><span class="n">selected_accessions</span><span class="p">,</span> <span class="n">ordered</span><span class="o">=</span><span class="kc">True</span>
+        <span class="n">df_final</span><span class="p">[</span><span class="s2">"run_accession"</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Categorical</span><span class="p">(</span>
+            <span class="n">df_final</span><span class="p">[</span><span class="s2">"run_accession"</span><span class="p">],</span> <span class="n">categories</span><span class="o">=</span><span class="n">selected_accessions</span><span class="p">,</span> <span class="n">ordered</span><span class="o">=</span><span class="kc">True</span>
         <span class="p">)</span>
         <span class="n">df_final</span> <span class="o">=</span> <span class="n">df_final</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span>
-            <span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;run_accession&quot;</span><span class="p">,</span> <span class="s2">&quot;file_name&quot;</span><span class="p">]</span>
-        <span class="p">)</span>  <span class="c1"># &quot;run_accession&quot;)</span>
+            <span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="s2">"run_accession"</span><span class="p">,</span> <span class="s2">"file_name"</span><span class="p">]</span>
+        <span class="p">)</span>  <span class="c1"># "run_accession")</span>
 
         <span class="n">df_final</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span><span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="n">df_final</span><span class="p">[</span><span class="s2">&quot;predicted_tissue&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_final</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+        <span class="n">df_final</span><span class="p">[</span><span class="s2">"predicted_tissue"</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_final</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
             <span class="k">lambda</span> <span class="n">row</span><span class="p">:</span> <span class="p">(</span>
-                <span class="n">row</span><span class="p">[</span><span class="s2">&quot;sample_accession&quot;</span><span class="p">]</span>
-                <span class="k">if</span> <span class="n">pd</span><span class="o">.</span><span class="n">isnull</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;tissue_prediction&quot;</span><span class="p">])</span>
-                <span class="k">else</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;tissue_prediction&quot;</span><span class="p">]</span>
+                <span class="n">row</span><span class="p">[</span><span class="s2">"sample_accession"</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">pd</span><span class="o">.</span><span class="n">isnull</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">"tissue_prediction"</span><span class="p">])</span>
+                <span class="k">else</span> <span class="n">row</span><span class="p">[</span><span class="s2">"tissue_prediction"</span><span class="p">]</span>
             <span class="p">),</span>
             <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
         <span class="p">)</span>
@@ -5435,90 +5435,90 @@ The function checks the FastQC quality criteria for         each row and returns
                         <span class="n">n</span><span class="o">=</span><span class="nb">min</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">limit</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">df_final</span><span class="p">)),</span>
                         <span class="n">random_state</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>  <span class="c1"># or set an int for reproducibility</span>
                     <span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-                <span class="n">df_final</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s2">&quot;file_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-                    <span class="n">df_final</span><span class="p">[</span><span class="s2">&quot;file_name&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;.fastq.gz&quot;</span>
+                <span class="n">df_final</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s2">"file_name"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">df_final</span><span class="p">[</span><span class="s2">"file_name"</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span> <span class="o">+</span> <span class="s2">".fastq.gz"</span>
                 <span class="p">)</span>
 
-                <span class="n">df_final</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s2">&quot;col1&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
-                <span class="n">df_final</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s2">&quot;col_1&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
-                <span class="n">df_final</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s2">&quot;col0&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
-                <span class="n">df_final</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s2">&quot;ENA&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;ENA&quot;</span>
+                <span class="n">df_final</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s2">"col1"</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+                <span class="n">df_final</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s2">"col_1"</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+                <span class="n">df_final</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s2">"col0"</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="n">df_final</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s2">"ENA"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"ENA"</span>
 
-                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">file_name</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">file_name</span><span class="p">,</span> <span class="s2">"w"</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
                     <span class="n">df_final</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span>
                         <span class="n">f</span><span class="p">,</span>
-                        <span class="n">sep</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="p">,</span>
+                        <span class="n">sep</span><span class="o">=</span><span class="s2">"</span><span class="se">\t</span><span class="s2">"</span><span class="p">,</span>
                         <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                         <span class="n">columns</span><span class="o">=</span><span class="p">[</span>
-                            <span class="s2">&quot;predicted_tissue&quot;</span><span class="p">,</span>
-                            <span class="s2">&quot;run_accession&quot;</span><span class="p">,</span>
-                            <span class="s2">&quot;col1&quot;</span><span class="p">,</span>
-                            <span class="s2">&quot;file_name&quot;</span><span class="p">,</span>
-                            <span class="s2">&quot;col_1&quot;</span><span class="p">,</span>
-                            <span class="s2">&quot;col1&quot;</span><span class="p">,</span>
-                            <span class="s2">&quot;col0&quot;</span><span class="p">,</span>
-                            <span class="s2">&quot;ENA&quot;</span><span class="p">,</span>
-                            <span class="s2">&quot;platform&quot;</span><span class="p">,</span>
-                            <span class="s2">&quot;sample_accession&quot;</span><span class="p">,</span>
-                            <span class="s2">&quot;file_url&quot;</span><span class="p">,</span>
-                            <span class="s2">&quot;md5&quot;</span><span class="p">,</span>
+                            <span class="s2">"predicted_tissue"</span><span class="p">,</span>
+                            <span class="s2">"run_accession"</span><span class="p">,</span>
+                            <span class="s2">"col1"</span><span class="p">,</span>
+                            <span class="s2">"file_name"</span><span class="p">,</span>
+                            <span class="s2">"col_1"</span><span class="p">,</span>
+                            <span class="s2">"col1"</span><span class="p">,</span>
+                            <span class="s2">"col0"</span><span class="p">,</span>
+                            <span class="s2">"ENA"</span><span class="p">,</span>
+                            <span class="s2">"platform"</span><span class="p">,</span>
+                            <span class="s2">"sample_accession"</span><span class="p">,</span>
+                            <span class="s2">"file_url"</span><span class="p">,</span>
+                            <span class="s2">"md5"</span><span class="p">,</span>
                         <span class="p">],</span>
                         <span class="n">header</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                     <span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="c1"># taxon_id,gca,platform,paired,tissue,run_accession,pair1,md5_1,pair2,md5_2</span>
                 <span class="n">output_df</span> <span class="o">=</span> <span class="p">(</span>
-                    <span class="n">df_final</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;run_accession&quot;</span><span class="p">)</span>
+                    <span class="n">df_final</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">"run_accession"</span><span class="p">)</span>
                     <span class="o">.</span><span class="n">apply</span><span class="p">(</span>
                         <span class="k">lambda</span> <span class="n">g</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span>
                             <span class="p">{</span>
-                                <span class="s2">&quot;taxon_id&quot;</span><span class="p">:</span> <span class="n">g</span><span class="p">[</span><span class="s2">&quot;taxon_id&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
-                                <span class="s2">&quot;assembly_accession&quot;</span><span class="p">:</span> <span class="n">g</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
-                                    <span class="s2">&quot;assembly_accession&quot;</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="s2">&quot;NA&quot;</span><span class="p">])</span>
+                                <span class="s2">"taxon_id"</span><span class="p">:</span> <span class="n">g</span><span class="p">[</span><span class="s2">"taxon_id"</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                                <span class="s2">"assembly_accession"</span><span class="p">:</span> <span class="n">g</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                                    <span class="s2">"assembly_accession"</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="s2">"NA"</span><span class="p">])</span>
                                 <span class="p">)</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span>
                                     <span class="mi">0</span>
                                 <span class="p">],</span>  <span class="c1"># optional if gca exists</span>
-                                <span class="s2">&quot;platform&quot;</span><span class="p">:</span> <span class="n">g</span><span class="p">[</span><span class="s2">&quot;platform&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
-                                <span class="s2">&quot;paired&quot;</span><span class="p">:</span> <span class="nb">bool</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">g</span><span class="p">[</span><span class="s2">&quot;paired&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">])),</span>
-                                <span class="c1"># &quot;paired&quot;: g[&quot;paired&quot;].iloc[0],</span>
-                                <span class="s2">&quot;predicted_tissue&quot;</span><span class="p">:</span> <span class="n">g</span><span class="p">[</span><span class="s2">&quot;predicted_tissue&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
-                                <span class="s2">&quot;pair1&quot;</span><span class="p">:</span> <span class="n">g</span><span class="p">[</span><span class="n">g</span><span class="p">[</span><span class="s2">&quot;file_name&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="s2">&quot;_1&quot;</span><span class="p">)][</span>
-                                    <span class="s2">&quot;file_url&quot;</span>
+                                <span class="s2">"platform"</span><span class="p">:</span> <span class="n">g</span><span class="p">[</span><span class="s2">"platform"</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                                <span class="s2">"paired"</span><span class="p">:</span> <span class="nb">bool</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">g</span><span class="p">[</span><span class="s2">"paired"</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">])),</span>
+                                <span class="c1"># "paired": g["paired"].iloc[0],</span>
+                                <span class="s2">"predicted_tissue"</span><span class="p">:</span> <span class="n">g</span><span class="p">[</span><span class="s2">"predicted_tissue"</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                                <span class="s2">"pair1"</span><span class="p">:</span> <span class="n">g</span><span class="p">[</span><span class="n">g</span><span class="p">[</span><span class="s2">"file_name"</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="s2">"_1"</span><span class="p">)][</span>
+                                    <span class="s2">"file_url"</span>
                                 <span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
-                                <span class="s2">&quot;md5_1&quot;</span><span class="p">:</span> <span class="n">g</span><span class="p">[</span><span class="n">g</span><span class="p">[</span><span class="s2">&quot;file_name&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="s2">&quot;_1&quot;</span><span class="p">)][</span>
-                                    <span class="s2">&quot;md5&quot;</span>
+                                <span class="s2">"md5_1"</span><span class="p">:</span> <span class="n">g</span><span class="p">[</span><span class="n">g</span><span class="p">[</span><span class="s2">"file_name"</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="s2">"_1"</span><span class="p">)][</span>
+                                    <span class="s2">"md5"</span>
                                 <span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
-                                <span class="s2">&quot;pair2&quot;</span><span class="p">:</span> <span class="n">g</span><span class="p">[</span><span class="n">g</span><span class="p">[</span><span class="s2">&quot;file_name&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="s2">&quot;_2&quot;</span><span class="p">)][</span>
-                                    <span class="s2">&quot;file_url&quot;</span>
+                                <span class="s2">"pair2"</span><span class="p">:</span> <span class="n">g</span><span class="p">[</span><span class="n">g</span><span class="p">[</span><span class="s2">"file_name"</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="s2">"_2"</span><span class="p">)][</span>
+                                    <span class="s2">"file_url"</span>
                                 <span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
-                                <span class="s2">&quot;md5_2&quot;</span><span class="p">:</span> <span class="n">g</span><span class="p">[</span><span class="n">g</span><span class="p">[</span><span class="s2">&quot;file_name&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="s2">&quot;_2&quot;</span><span class="p">)][</span>
-                                    <span class="s2">&quot;md5&quot;</span>
+                                <span class="s2">"md5_2"</span><span class="p">:</span> <span class="n">g</span><span class="p">[</span><span class="n">g</span><span class="p">[</span><span class="s2">"file_name"</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="s2">"_2"</span><span class="p">)][</span>
+                                    <span class="s2">"md5"</span>
                                 <span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
                             <span class="p">}</span>
                         <span class="p">)</span>
                     <span class="p">)</span>
                     <span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
                 <span class="p">)</span>
-                <span class="n">output_df</span> <span class="o">=</span> <span class="n">output_df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;tissue&quot;</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;ignore&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
-                    <span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;predicted_tissue&quot;</span><span class="p">:</span> <span class="s2">&quot;tissue&quot;</span><span class="p">}</span>
+                <span class="n">output_df</span> <span class="o">=</span> <span class="n">output_df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">"tissue"</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s2">"ignore"</span><span class="p">)</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
+                    <span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">"predicted_tissue"</span><span class="p">:</span> <span class="s2">"tissue"</span><span class="p">}</span>
                 <span class="p">)</span>
 
-                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">file_name</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">file_name</span><span class="p">,</span> <span class="s2">"w"</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
                     <span class="n">output_df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span>  <span class="c1"># pylint: disable=unspecified-encoding</span>
                         <span class="n">f</span><span class="p">,</span>
-                        <span class="n">sep</span><span class="o">=</span><span class="s2">&quot;,&quot;</span><span class="p">,</span>
+                        <span class="n">sep</span><span class="o">=</span><span class="s2">","</span><span class="p">,</span>
                         <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                         <span class="n">columns</span><span class="o">=</span><span class="p">[</span>
-                            <span class="s2">&quot;taxon_id&quot;</span><span class="p">,</span>
-                            <span class="s2">&quot;assembly_accession&quot;</span><span class="p">,</span>
-                            <span class="s2">&quot;platform&quot;</span><span class="p">,</span>
-                            <span class="s2">&quot;paired&quot;</span><span class="p">,</span>
-                            <span class="s2">&quot;tissue&quot;</span><span class="p">,</span>
-                            <span class="s2">&quot;run_accession&quot;</span><span class="p">,</span>
-                            <span class="s2">&quot;pair1&quot;</span><span class="p">,</span>
-                            <span class="s2">&quot;md5_1&quot;</span><span class="p">,</span>
-                            <span class="s2">&quot;pair2&quot;</span><span class="p">,</span>
-                            <span class="s2">&quot;md5_2&quot;</span><span class="p">,</span>
+                            <span class="s2">"taxon_id"</span><span class="p">,</span>
+                            <span class="s2">"assembly_accession"</span><span class="p">,</span>
+                            <span class="s2">"platform"</span><span class="p">,</span>
+                            <span class="s2">"paired"</span><span class="p">,</span>
+                            <span class="s2">"tissue"</span><span class="p">,</span>
+                            <span class="s2">"run_accession"</span><span class="p">,</span>
+                            <span class="s2">"pair1"</span><span class="p">,</span>
+                            <span class="s2">"md5_1"</span><span class="p">,</span>
+                            <span class="s2">"pair2"</span><span class="p">,</span>
+                            <span class="s2">"md5_2"</span><span class="p">,</span>
                         <span class="p">],</span>
                         <span class="n">header</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                     <span class="p">)</span>
@@ -5646,26 +5646,26 @@ The function checks the FastQC quality criteria for         each row and returns
 <span class="normal">280</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">prioritise_tissues</span><span class="p">(</span>
     <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">priority_tissues</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Assign a numeric priority to tissue predictions based on a predefined list.</span>
 
-<span class="sd">    This function adds a &#39;priority&#39; column to the input DataFrame:</span>
-<span class="sd">    - Rows where the &#39;tissue_prediction&#39; matches any of the `priority_tissues`</span>
+<span class="sd">    This function adds a 'priority' column to the input DataFrame:</span>
+<span class="sd">    - Rows where the 'tissue_prediction' matches any of the `priority_tissues`</span>
 <span class="sd">    (case-insensitive, partial match) are assigned a priority of 1.</span>
 <span class="sd">    - All other rows receive a priority of 2.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        df (pd.DataFrame): DataFrame containing a &#39;tissue_prediction&#39; column.</span>
+<span class="sd">        df (pd.DataFrame): DataFrame containing a 'tissue_prediction' column.</span>
 <span class="sd">        priority_tissues (List[str]): List of tissue names to prioritize \</span>
-<span class="sd">            (e.g., [&#39;brain&#39;, &#39;liver&#39;]).</span>
+<span class="sd">            (e.g., ['brain', 'liver']).</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        pd.DataFrame: Modified DataFrame with an added &#39;priority&#39; column.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">        pd.DataFrame: Modified DataFrame with an added 'priority' column.</span>
+<span class="sd">    """</span>
     <span class="n">priority_regex</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
-        <span class="sa">r</span><span class="s2">&quot;|&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">escape</span><span class="p">,</span> <span class="n">priority_tissues</span><span class="p">)),</span> <span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span>
+        <span class="sa">r</span><span class="s2">"|"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">escape</span><span class="p">,</span> <span class="n">priority_tissues</span><span class="p">)),</span> <span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span>
     <span class="p">)</span>
-    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;priority&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;tissue_prediction&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+    <span class="n">df</span><span class="p">[</span><span class="s2">"priority"</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">"tissue_prediction"</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
         <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="mi">1</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">priority_regex</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">else</span> <span class="mi">2</span>
     <span class="p">)</span>
     <span class="k">return</span> <span class="n">df</span>
@@ -5762,7 +5762,7 @@ The function checks the STAR quality criteria for each row         and returns T
 <span class="normal">91</span>
 <span class="normal">92</span>
 <span class="normal">93</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">star_quality</span><span class="p">(</span><span class="n">row</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Calculate STAR quality based on the criteria.</span>
+<span class="w">    </span><span class="sd">"""Calculate STAR quality based on the criteria.</span>
 <span class="sd">    The function checks the STAR quality criteria for each row \</span>
 <span class="sd">        and returns True if the criteria are met.</span>
 
@@ -5771,11 +5771,11 @@ The function checks the STAR quality criteria for each row         and returns T
 
 <span class="sd">    Returns:</span>
 <span class="sd">        bool: True if the criteria are met, False otherwise.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="p">(</span>
-        <span class="n">row</span><span class="p">[</span><span class="s2">&quot;uniquely_mapped_reads_percentage&quot;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">50</span>
-        <span class="ow">and</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;percentage_reads_mapped_to_multiple_loci&quot;</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">30</span>
-        <span class="ow">and</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;percentage_reads_unmapped_too_short&quot;</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">20</span>
+        <span class="n">row</span><span class="p">[</span><span class="s2">"uniquely_mapped_reads_percentage"</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">50</span>
+        <span class="ow">and</span> <span class="n">row</span><span class="p">[</span><span class="s2">"percentage_reads_mapped_to_multiple_loci"</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">30</span>
+        <span class="ow">and</span> <span class="n">row</span><span class="p">[</span><span class="s2">"percentage_reads_unmapped_too_short"</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">20</span>
     <span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>

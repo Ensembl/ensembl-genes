@@ -3868,7 +3868,7 @@ can be removed later without changing GFF parsing or database loading logic.</p>
 
 
 <h3 id="ensembl.genes.ensembl_loading.ncbi_annotation_report.NCBI_DATASETS_REPORT_URL" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">NCBI_DATASETS_REPORT_URL</span> <span class="o">=</span> <span class="s1">&#39;https://api.ncbi.nlm.nih.gov/datasets/v2/genome/accession/</span><span class="si">{accession}</span><span class="s1">/dataset_report&#39;</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">NCBI_DATASETS_REPORT_URL</span> <span class="o">=</span> <span class="s1">'https://api.ncbi.nlm.nih.gov/datasets/v2/genome/accession/</span><span class="si">{accession}</span><span class="s1">/dataset_report'</span></code>
 
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
@@ -3921,13 +3921,13 @@ can be removed later without changing GFF parsing or database loading logic.</p>
 <span class="normal">33</span>
 <span class="normal">34</span>
 <span class="normal">35</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">HttpResponse</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Minimal response interface required by the resolver.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Minimal response interface required by the resolver."""</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">raise_for_status</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Raise when the NCBI request failed.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Raise when the NCBI request failed."""</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">json</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the decoded response payload.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return the decoded response payload."""</span>
 </code></pre></div></td></tr></table></div>
               </details>
 
@@ -3962,7 +3962,7 @@ can be removed later without changing GFF parsing or database loading logic.</p>
               <summary>Source code in <code>src/python/ensembl/genes/ensembl_loading/ncbi_annotation_report.py</code></summary>
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">34</span>
 <span class="normal">35</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">json</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the decoded response payload.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Return the decoded response payload."""</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -3987,7 +3987,7 @@ can be removed later without changing GFF parsing or database loading logic.</p>
               <summary>Source code in <code>src/python/ensembl/genes/ensembl_loading/ncbi_annotation_report.py</code></summary>
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">31</span>
 <span class="normal">32</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">raise_for_status</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Raise when the NCBI request failed.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Raise when the NCBI request failed."""</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -4035,10 +4035,10 @@ can be removed later without changing GFF parsing or database loading logic.</p>
 <span class="normal">40</span>
 <span class="normal">41</span>
 <span class="normal">42</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">HttpSession</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Minimal session interface used for test injection.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Minimal session interface used for test injection."""</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">timeout</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">HttpResponse</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Perform an HTTP GET request.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Perform an HTTP GET request."""</span>
 </code></pre></div></td></tr></table></div>
               </details>
 
@@ -4073,7 +4073,7 @@ can be removed later without changing GFF parsing or database loading logic.</p>
               <summary>Source code in <code>src/python/ensembl/genes/ensembl_loading/ncbi_annotation_report.py</code></summary>
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">41</span>
 <span class="normal">42</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">timeout</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">HttpResponse</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Perform an HTTP GET request.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Perform an HTTP GET request."""</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -4145,13 +4145,13 @@ can be removed later without changing GFF parsing or database loading logic.</p>
     <span class="n">session</span><span class="p">:</span> <span class="n">HttpSession</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">timeout</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">20</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return NCBI&#39;s official annotation-report URL for a GCF accession.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Return NCBI's official annotation-report URL for a GCF accession."""</span>
 
     <span class="n">accession</span> <span class="o">=</span> <span class="n">assembly_accession</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">accession</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;GCF_&quot;</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">accession</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"GCF_"</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="s2">&quot;NCBI eukaryotic annotation reports require a GCF accession: &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">assembly_accession</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="s2">"NCBI eukaryotic annotation reports require a GCF accession: "</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">assembly_accession</span><span class="si">}</span><span class="s2">"</span>
         <span class="p">)</span>
 
     <span class="k">if</span> <span class="n">session</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -4159,19 +4159,19 @@ can be removed later without changing GFF parsing or database loading logic.</p>
             <span class="kn">import</span><span class="w"> </span><span class="nn">requests</span>  <span class="c1"># type: ignore[import]  # pylint: disable=import-outside-toplevel</span>
         <span class="k">except</span> <span class="ne">ImportError</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>  <span class="c1"># pragma: no cover - dependency issue</span>
             <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span>
-                <span class="s2">&quot;The NCBI annotation resolver requires the &#39;requests&#39; package.&quot;</span>
+                <span class="s2">"The NCBI annotation resolver requires the 'requests' package."</span>
             <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">error</span>
         <span class="n">http_session</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="n">HttpSession</span><span class="p">,</span> <span class="n">requests</span><span class="o">.</span><span class="n">Session</span><span class="p">())</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">http_session</span> <span class="o">=</span> <span class="n">session</span>
 
-    <span class="n">url</span> <span class="o">=</span> <span class="n">NCBI_DATASETS_REPORT_URL</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">accession</span><span class="o">=</span><span class="n">quote</span><span class="p">(</span><span class="n">accession</span><span class="p">,</span> <span class="n">safe</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">))</span>
+    <span class="n">url</span> <span class="o">=</span> <span class="n">NCBI_DATASETS_REPORT_URL</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">accession</span><span class="o">=</span><span class="n">quote</span><span class="p">(</span><span class="n">accession</span><span class="p">,</span> <span class="n">safe</span><span class="o">=</span><span class="s2">""</span><span class="p">))</span>
     <span class="n">response</span> <span class="o">=</span> <span class="n">http_session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">)</span>
     <span class="n">response</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span>
     <span class="n">report_url</span> <span class="o">=</span> <span class="n">_find_annotation_report_url</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">())</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">report_url</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="s2">&quot;NCBI did not return an annotation-report URL for &quot;</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">assembly_accession</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="s2">"NCBI did not return an annotation-report URL for "</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">assembly_accession</span><span class="si">}</span><span class="s2">"</span>
         <span class="p">)</span>
     <span class="k">return</span> <span class="n">report_url</span>
 </code></pre></div></td></tr></table></div>
@@ -4203,10 +4203,10 @@ can be removed later without changing GFF parsing or database loading logic.</p>
 <span class="normal">125</span>
 <span class="normal">126</span>
 <span class="normal">127</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Print the annotation-report URL for one GCF accession.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Print the annotation-report URL for one GCF accession."""</span>
 
     <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">()</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;assembly_accession&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"assembly_accession"</span><span class="p">)</span>
     <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
     <span class="nb">print</span><span class="p">(</span><span class="n">get_annotation_report_url</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">assembly_accession</span><span class="p">))</span>
 </code></pre></div></td></tr></table></div>

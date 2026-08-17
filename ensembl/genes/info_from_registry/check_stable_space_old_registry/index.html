@@ -3819,7 +3819,7 @@ using the new registry to start anno runs.</p>
 <span class="normal">78</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_old_stable_space_info</span><span class="p">(</span>
     <span class="n">taxon_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">server_info</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get the stable space that has been assigned to old registry.</span>
+<span class="w">    </span><span class="sd">"""Get the stable space that has been assigned to old registry.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        taxon_id (int): The taxon identifier for which to find the stable space ID.</span>
@@ -3827,34 +3827,34 @@ using the new registry to start anno runs.</p>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        int: Assigned stable space.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>  <span class="c1"># pylint: disable=logging-fstring-interpolation</span>
-        <span class="sa">f</span><span class="s2">&quot;Check if taxon ID </span><span class="si">{</span><span class="n">taxon_id</span><span class="si">}</span><span class="s2"> has stable space in old registry&quot;</span>
+        <span class="sa">f</span><span class="s2">"Check if taxon ID </span><span class="si">{</span><span class="n">taxon_id</span><span class="si">}</span><span class="s2"> has stable space in old registry"</span>
     <span class="p">)</span>
     <span class="n">space_query</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="sa">f</span><span class="s2">&quot;SELECT MAX(stable_id_space_id) as old_stable_id &quot;</span>
-        <span class="sa">f</span><span class="s2">&quot;FROM assembly &quot;</span>
-        <span class="sa">f</span><span class="s2">&quot;WHERE taxonomy = </span><span class="si">{</span><span class="n">taxon_id</span><span class="si">}</span><span class="s2">;&quot;</span>
+        <span class="sa">f</span><span class="s2">"SELECT MAX(stable_id_space_id) as old_stable_id "</span>
+        <span class="sa">f</span><span class="s2">"FROM assembly "</span>
+        <span class="sa">f</span><span class="s2">"WHERE taxonomy = </span><span class="si">{</span><span class="n">taxon_id</span><span class="si">}</span><span class="s2">;"</span>
     <span class="p">)</span>
 
     <span class="n">output_query</span> <span class="o">=</span> <span class="n">mysql_fetch_data</span><span class="p">(</span>
         <span class="n">space_query</span><span class="p">,</span>
-        <span class="n">host</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">&quot;registry&quot;</span><span class="p">][</span><span class="s2">&quot;db_host&quot;</span><span class="p">],</span>
-        <span class="n">user</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">&quot;registry&quot;</span><span class="p">][</span><span class="s2">&quot;db_user&quot;</span><span class="p">],</span>
-        <span class="n">port</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">&quot;registry&quot;</span><span class="p">][</span><span class="s2">&quot;db_port&quot;</span><span class="p">],</span>
-        <span class="n">database</span><span class="o">=</span><span class="s2">&quot;gb_assembly_registry&quot;</span><span class="p">,</span>
-        <span class="n">password</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="n">host</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">"registry"</span><span class="p">][</span><span class="s2">"db_host"</span><span class="p">],</span>
+        <span class="n">user</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">"registry"</span><span class="p">][</span><span class="s2">"db_user"</span><span class="p">],</span>
+        <span class="n">port</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">"registry"</span><span class="p">][</span><span class="s2">"db_port"</span><span class="p">],</span>
+        <span class="n">database</span><span class="o">=</span><span class="s2">"gb_assembly_registry"</span><span class="p">,</span>
+        <span class="n">password</span><span class="o">=</span><span class="s2">""</span><span class="p">,</span>
     <span class="p">)</span>
 
-    <span class="n">old_stable_id</span> <span class="o">=</span> <span class="n">output_query</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;max_stable_id&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="n">old_stable_id</span> <span class="o">=</span> <span class="n">output_query</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"max_stable_id"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">old_stable_id</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>  <span class="c1"># pylint: disable=logging-fstring-interpolation</span>
-            <span class="sa">f</span><span class="s2">&quot;Stable space not found in old registry for taxon ID </span><span class="si">{</span><span class="n">taxon_id</span><span class="si">}</span><span class="s2">.&quot;</span>
+            <span class="sa">f</span><span class="s2">"Stable space not found in old registry for taxon ID </span><span class="si">{</span><span class="n">taxon_id</span><span class="si">}</span><span class="s2">."</span>
         <span class="p">)</span>
 
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>  <span class="c1"># pylint: disable=logging-fstring-interpolation</span>
-        <span class="sa">f</span><span class="s2">&quot;Max stable space in the old registry for taxon ID </span><span class="si">{</span><span class="n">taxon_id</span><span class="si">}</span><span class="s2"> is </span><span class="si">{</span><span class="n">old_stable_id</span><span class="si">}</span><span class="s2">.&quot;</span>
+        <span class="sa">f</span><span class="s2">"Max stable space in the old registry for taxon ID </span><span class="si">{</span><span class="n">taxon_id</span><span class="si">}</span><span class="s2"> is </span><span class="si">{</span><span class="n">old_stable_id</span><span class="si">}</span><span class="s2">."</span>
     <span class="p">)</span>
 
     <span class="k">return</span> <span class="n">old_stable_id</span>

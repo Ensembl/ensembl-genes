@@ -4181,7 +4181,7 @@
 <span class="normal">283</span>
 <span class="normal">284</span>
 <span class="normal">285</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">MetadataDbClient</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Queries the Ensembl Metadata Schema to build GenomeMetadata.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Queries the Ensembl Metadata Schema to build GenomeMetadata."""</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">host</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">port</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">user</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">dbname</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">host</span> <span class="o">=</span> <span class="n">host</span>
@@ -4190,7 +4190,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">dbname</span> <span class="o">=</span> <span class="n">dbname</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_fetch_taxonomy_lineage</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">taxonomy_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Fetch taxonomy classification names for a given taxonomy_id.</span>
+<span class="w">        </span><span class="sd">"""Fetch taxonomy classification names for a given taxonomy_id.</span>
 
 <span class="sd">        Queries the ``organism_classification`` table in the metadata DB,</span>
 <span class="sd">        which stores the NCBI lineage as (organism_id, cls_group_id, rank)</span>
@@ -4200,7 +4200,7 @@
 <span class="sd">        query fails — this is expected on some DB versions.</span>
 
 <span class="sd">        Returns names ordered leaf → root (most specific first).</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">taxonomy_id</span><span class="p">:</span>
             <span class="k">return</span> <span class="p">[]</span>
 
@@ -4209,8 +4209,8 @@
         <span class="c1"># the most common query patterns and silently fall back on failure.</span>
         <span class="n">queries</span> <span class="o">=</span> <span class="p">[</span>
             <span class="c1"># New metadata schema: taxonomy_node parent traversal</span>
-            <span class="c1"># Walk from the organism&#39;s taxonomy_id up through parent nodes.</span>
-<span class="w">            </span><span class="sd">&quot;&quot;&quot;</span>
+            <span class="c1"># Walk from the organism's taxonomy_id up through parent nodes.</span>
+<span class="w">            </span><span class="sd">"""</span>
 <span class="sd">            WITH RECURSIVE lineage AS (</span>
 <span class="sd">                SELECT taxonomy_id, name, parent_id</span>
 <span class="sd">                FROM taxonomy_node</span>
@@ -4223,15 +4223,15 @@
 <span class="sd">            )</span>
 <span class="sd">            SELECT name FROM lineage</span>
 <span class="sd">            WHERE taxonomy_id != %s</span>
-<span class="sd">            &quot;&quot;&quot;</span><span class="p">,</span>
+<span class="sd">            """</span><span class="p">,</span>
             <span class="c1"># Alternate: flat organism_classification table</span>
-<span class="w">            </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">            </span><span class="sd">"""</span>
 <span class="sd">            SELECT oc.name</span>
 <span class="sd">            FROM organism o</span>
 <span class="sd">            JOIN organism_classification oc ON o.organism_id = oc.organism_id</span>
 <span class="sd">            WHERE o.taxonomy_id = %s</span>
 <span class="sd">            ORDER BY oc.classification_order ASC</span>
-<span class="sd">            &quot;&quot;&quot;</span><span class="p">,</span>
+<span class="sd">            """</span><span class="p">,</span>
         <span class="p">]</span>
 
         <span class="k">for</span> <span class="n">query</span> <span class="ow">in</span> <span class="n">queries</span><span class="p">:</span>
@@ -4243,7 +4243,7 @@
                     <span class="n">database</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dbname</span><span class="p">,</span>
                 <span class="p">)</span>
                 <span class="k">with</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span> <span class="k">as</span> <span class="n">cursor</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="n">query</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">query</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s2">"</span><span class="si">%s</span><span class="s2">"</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
                         <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="p">(</span><span class="n">taxonomy_id</span><span class="p">,</span> <span class="n">taxonomy_id</span><span class="p">))</span>
                     <span class="k">else</span><span class="p">:</span>
                         <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="p">(</span><span class="n">taxonomy_id</span><span class="p">,))</span>
@@ -4253,20 +4253,20 @@
                 <span class="k">if</span> <span class="n">rows</span><span class="p">:</span>
                     <span class="n">names</span> <span class="o">=</span> <span class="p">[</span><span class="n">r</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">rows</span> <span class="k">if</span> <span class="n">r</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
                     <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                        <span class="s2">&quot;Fetched </span><span class="si">%d</span><span class="s2"> lineage entries for taxon_id=</span><span class="si">%d</span><span class="s2"> from metadata DB&quot;</span><span class="p">,</span>
+                        <span class="s2">"Fetched </span><span class="si">%d</span><span class="s2"> lineage entries for taxon_id=</span><span class="si">%d</span><span class="s2"> from metadata DB"</span><span class="p">,</span>
                         <span class="nb">len</span><span class="p">(</span><span class="n">names</span><span class="p">),</span>
                         <span class="n">taxonomy_id</span><span class="p">,</span>
                     <span class="p">)</span>
                     <span class="k">return</span> <span class="n">names</span>
             <span class="k">except</span> <span class="n">pymysql</span><span class="o">.</span><span class="n">Error</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-                <span class="c1"># Table doesn&#39;t exist or query is incompatible — try next</span>
+                <span class="c1"># Table doesn't exist or query is incompatible — try next</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                    <span class="s2">&quot;Taxonomy lineage query failed for taxon_id=</span><span class="si">%d</span><span class="s2">: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+                    <span class="s2">"Taxonomy lineage query failed for taxon_id=</span><span class="si">%d</span><span class="s2">: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span>
                     <span class="n">taxonomy_id</span><span class="p">,</span>
                     <span class="n">e</span><span class="p">,</span>
                 <span class="p">)</span>
                 <span class="k">try</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="s2">&quot;conn&quot;</span> <span class="ow">in</span> <span class="nb">locals</span><span class="p">()</span> <span class="ow">and</span> <span class="n">conn</span><span class="o">.</span><span class="n">open</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="s2">"conn"</span> <span class="ow">in</span> <span class="nb">locals</span><span class="p">()</span> <span class="ow">and</span> <span class="n">conn</span><span class="o">.</span><span class="n">open</span><span class="p">:</span>
                         <span class="n">conn</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
                 <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>  <span class="c1"># pylint: disable=broad-exception-caught</span>
                     <span class="k">pass</span>
@@ -4275,7 +4275,7 @@
         <span class="k">return</span> <span class="p">[]</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">get_genome_uuids_by_accessions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">accessions</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Look up genome UUIDs for a list of assembly accessions.</span>
+<span class="w">        </span><span class="sd">"""Look up genome UUIDs for a list of assembly accessions.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -4286,7 +4286,7 @@
 <span class="sd">        -------</span>
 <span class="sd">        Dict mapping accession → genome_uuid for accessions found in the</span>
 <span class="sd">        metadata DB.  Missing accessions are silently omitted.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">accessions</span><span class="p">:</span>
             <span class="k">return</span> <span class="p">{}</span>
 
@@ -4295,8 +4295,8 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="n">unique</span><span class="p">:</span>
             <span class="k">return</span> <span class="p">{}</span>
 
-        <span class="n">placeholders</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">unique</span><span class="p">))</span>
-        <span class="n">query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+        <span class="n">placeholders</span> <span class="o">=</span> <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s2">"</span><span class="si">%s</span><span class="s2">"</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">unique</span><span class="p">))</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"""</span>
 <span class="s2">            SELECT DISTINCT</span>
 <span class="s2">                assembly.accession,</span>
 <span class="s2">                genome.genome_uuid</span>
@@ -4304,9 +4304,9 @@
 <span class="s2">            JOIN assembly ON genome.assembly_id = assembly.assembly_id</span>
 <span class="s2">            JOIN genome_dataset ON genome.genome_id = genome_dataset.genome_id</span>
 <span class="s2">            JOIN dataset ON genome_dataset.dataset_id = dataset.dataset_id</span>
-<span class="s2">            WHERE dataset.name = &#39;genebuild&#39;</span>
+<span class="s2">            WHERE dataset.name = 'genebuild'</span>
 <span class="s2">              AND assembly.accession IN (</span><span class="si">{</span><span class="n">placeholders</span><span class="si">}</span><span class="s2">)</span>
-<span class="s2">        &quot;&quot;&quot;</span>
+<span class="s2">        """</span>
 
         <span class="n">result</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">try</span><span class="p">:</span>
@@ -4323,31 +4323,31 @@
                     <span class="k">if</span> <span class="n">acc</span> <span class="ow">and</span> <span class="n">guuid</span><span class="p">:</span>
                         <span class="n">result</span><span class="p">[</span><span class="n">acc</span><span class="p">]</span> <span class="o">=</span> <span class="n">guuid</span>
         <span class="k">except</span> <span class="n">pymysql</span><span class="o">.</span><span class="n">Error</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;MySQL error looking up genome UUIDs: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">"MySQL error looking up genome UUIDs: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
         <span class="k">finally</span><span class="p">:</span>
-            <span class="k">if</span> <span class="s2">&quot;conn&quot;</span> <span class="ow">in</span> <span class="nb">locals</span><span class="p">()</span> <span class="ow">and</span> <span class="n">conn</span><span class="o">.</span><span class="n">open</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s2">"conn"</span> <span class="ow">in</span> <span class="nb">locals</span><span class="p">()</span> <span class="ow">and</span> <span class="n">conn</span><span class="o">.</span><span class="n">open</span><span class="p">:</span>
                 <span class="n">conn</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-            <span class="s2">&quot;Resolved </span><span class="si">%d</span><span class="s2"> / </span><span class="si">%d</span><span class="s2"> accessions to genome UUIDs from metadata DB.&quot;</span><span class="p">,</span>
+            <span class="s2">"Resolved </span><span class="si">%d</span><span class="s2"> / </span><span class="si">%d</span><span class="s2"> accessions to genome UUIDs from metadata DB."</span><span class="p">,</span>
             <span class="nb">len</span><span class="p">(</span><span class="n">result</span><span class="p">),</span>
             <span class="nb">len</span><span class="p">(</span><span class="n">unique</span><span class="p">),</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">result</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">fetch_by_identifier</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">identifier</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">GenomeMetadata</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Identifier can be a Genome UUID, a core DB name, or an Assembly Accession.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="c1"># Determine the field to search</span>
-        <span class="k">if</span> <span class="s2">&quot;-&quot;</span> <span class="ow">in</span> <span class="n">identifier</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">identifier</span><span class="p">)</span> <span class="o">==</span> <span class="mi">36</span><span class="p">:</span>
-            <span class="n">where_clause</span> <span class="o">=</span> <span class="s2">&quot;genome.genome_uuid = </span><span class="si">%s</span><span class="s2">&quot;</span>
-        <span class="k">elif</span> <span class="s2">&quot;core&quot;</span> <span class="ow">in</span> <span class="n">identifier</span> <span class="ow">or</span> <span class="s2">&quot;_cm_&quot;</span> <span class="ow">in</span> <span class="n">identifier</span><span class="p">:</span>
-            <span class="n">where_clause</span> <span class="o">=</span> <span class="s2">&quot;dataset_source.name = </span><span class="si">%s</span><span class="s2">&quot;</span>
+        <span class="k">if</span> <span class="s2">"-"</span> <span class="ow">in</span> <span class="n">identifier</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">identifier</span><span class="p">)</span> <span class="o">==</span> <span class="mi">36</span><span class="p">:</span>
+            <span class="n">where_clause</span> <span class="o">=</span> <span class="s2">"genome.genome_uuid = </span><span class="si">%s</span><span class="s2">"</span>
+        <span class="k">elif</span> <span class="s2">"core"</span> <span class="ow">in</span> <span class="n">identifier</span> <span class="ow">or</span> <span class="s2">"_cm_"</span> <span class="ow">in</span> <span class="n">identifier</span><span class="p">:</span>
+            <span class="n">where_clause</span> <span class="o">=</span> <span class="s2">"dataset_source.name = </span><span class="si">%s</span><span class="s2">"</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">where_clause</span> <span class="o">=</span> <span class="s2">&quot;assembly.accession = </span><span class="si">%s</span><span class="s2">&quot;</span>
+            <span class="n">where_clause</span> <span class="o">=</span> <span class="s2">"assembly.accession = </span><span class="si">%s</span><span class="s2">"</span>
 
-        <span class="n">query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"""</span>
 <span class="s2">            SELECT </span>
 <span class="s2">                genome.genome_uuid,</span>
 <span class="s2">                dataset_source.name AS dbname,</span>
@@ -4356,11 +4356,11 @@
 <span class="s2">                organism.strain,</span>
 <span class="s2">                organism.taxonomy_id,</span>
 <span class="s2">                assembly.name AS assembly_name,</span>
-<span class="s2">                MAX(CASE WHEN attribute.name = &#39;genebuild.method_display&#39; THEN dataset_attribute.value END) AS annotation_method,</span>
-<span class="s2">                MAX(CASE WHEN attribute.name = &#39;genebuild.annotation_source&#39; THEN dataset_attribute.value END) AS annotation_source,</span>
-<span class="s2">                MAX(CASE WHEN attribute.name = &#39;genebuild.last_geneset_update&#39; THEN dataset_attribute.value END) AS geneset_date,</span>
-<span class="s2">                MAX(CASE WHEN attribute.name = &#39;genebuild.busco&#39; THEN dataset_attribute.value END) AS busco_score,</span>
-<span class="s2">                MAX(CASE WHEN attribute.name = &#39;genebuild.busco_dataset&#39; THEN dataset_attribute.value END) AS busco_lineage</span>
+<span class="s2">                MAX(CASE WHEN attribute.name = 'genebuild.method_display' THEN dataset_attribute.value END) AS annotation_method,</span>
+<span class="s2">                MAX(CASE WHEN attribute.name = 'genebuild.annotation_source' THEN dataset_attribute.value END) AS annotation_source,</span>
+<span class="s2">                MAX(CASE WHEN attribute.name = 'genebuild.last_geneset_update' THEN dataset_attribute.value END) AS geneset_date,</span>
+<span class="s2">                MAX(CASE WHEN attribute.name = 'genebuild.busco' THEN dataset_attribute.value END) AS busco_score,</span>
+<span class="s2">                MAX(CASE WHEN attribute.name = 'genebuild.busco_dataset' THEN dataset_attribute.value END) AS busco_lineage</span>
 <span class="s2">            FROM genome</span>
 <span class="s2">            JOIN assembly ON genome.assembly_id = assembly.assembly_id</span>
 <span class="s2">            JOIN organism ON genome.organism_id = organism.organism_id</span>
@@ -4369,12 +4369,12 @@
 <span class="s2">            JOIN dataset_source ON dataset.dataset_source_id = dataset_source.dataset_source_id</span>
 <span class="s2">            LEFT JOIN dataset_attribute ON dataset.dataset_id = dataset_attribute.dataset_id</span>
 <span class="s2">            LEFT JOIN attribute ON dataset_attribute.attribute_id = attribute.attribute_id </span>
-<span class="s2">                AND attribute.name IN (&#39;genebuild.method_display&#39;, &#39;genebuild.annotation_source&#39;, &#39;genebuild.last_geneset_update&#39;, &#39;genebuild.busco&#39;, &#39;genebuild.busco_dataset&#39;)</span>
-<span class="s2">            WHERE dataset.name = &#39;genebuild&#39;</span>
+<span class="s2">                AND attribute.name IN ('genebuild.method_display', 'genebuild.annotation_source', 'genebuild.last_geneset_update', 'genebuild.busco', 'genebuild.busco_dataset')</span>
+<span class="s2">            WHERE dataset.name = 'genebuild'</span>
 <span class="s2">              AND </span><span class="si">{</span><span class="n">where_clause</span><span class="si">}</span>
 <span class="s2">            GROUP BY genome.genome_uuid, dataset_source.name, assembly.accession, organism.scientific_name, organism.strain, organism.taxonomy_id, assembly.name</span>
 <span class="s2">            LIMIT 1</span>
-<span class="s2">        &quot;&quot;&quot;</span>
+<span class="s2">        """</span>
 
         <span class="k">try</span><span class="p">:</span>
             <span class="n">conn</span> <span class="o">=</span> <span class="n">pymysql</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span>
@@ -4384,23 +4384,23 @@
                 <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="p">(</span><span class="n">identifier</span><span class="p">,))</span>
                 <span class="n">row</span> <span class="o">=</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
         <span class="k">except</span> <span class="n">pymysql</span><span class="o">.</span><span class="n">Error</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;MySQL error querying metadata DB: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">"MySQL error querying metadata DB: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
             <span class="k">return</span> <span class="kc">None</span>
         <span class="k">finally</span><span class="p">:</span>
-            <span class="k">if</span> <span class="s2">&quot;conn&quot;</span> <span class="ow">in</span> <span class="nb">locals</span><span class="p">()</span> <span class="ow">and</span> <span class="n">conn</span><span class="o">.</span><span class="n">open</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s2">"conn"</span> <span class="ow">in</span> <span class="nb">locals</span><span class="p">()</span> <span class="ow">and</span> <span class="n">conn</span><span class="o">.</span><span class="n">open</span><span class="p">:</span>
                 <span class="n">conn</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">row</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;No metadata found for identifier: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">identifier</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">"No metadata found for identifier: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">identifier</span><span class="p">)</span>
             <span class="k">return</span> <span class="kc">None</span>
 
-        <span class="n">species_name</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;scientific_name&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;scientific_name&quot;</span><span class="p">]</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">species_name</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="s2">"scientific_name"</span><span class="p">]</span> <span class="k">if</span> <span class="n">row</span><span class="p">[</span><span class="s2">"scientific_name"</span><span class="p">]</span> <span class="k">else</span> <span class="s2">""</span>
 
         <span class="c1"># Proper alternate pairing: look for assemblies of the exact same taxonomy &amp; strain</span>
         <span class="c1"># but with a different accession. Returns the rapid-release URL.</span>
         <span class="n">alternate_url</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">if</span> <span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;strain&quot;</span><span class="p">):</span>
-            <span class="n">alt_query</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"strain"</span><span class="p">):</span>
+            <span class="n">alt_query</span> <span class="o">=</span> <span class="s2">"""</span>
 <span class="s2">                SELECT genome.url_name</span>
 <span class="s2">                FROM genome</span>
 <span class="s2">                JOIN organism ON genome.organism_id = organism.organism_id</span>
@@ -4409,45 +4409,45 @@
 <span class="s2">                  AND organism.strain = </span><span class="si">%s</span>
 <span class="s2">                  AND assembly.accession != </span><span class="si">%s</span>
 <span class="s2">                LIMIT 1</span>
-<span class="s2">            &quot;&quot;&quot;</span>
+<span class="s2">            """</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">conn</span> <span class="o">=</span> <span class="n">pymysql</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span>
                     <span class="n">host</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">host</span><span class="p">,</span> <span class="n">user</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">user</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">port</span><span class="p">,</span> <span class="n">database</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dbname</span>
                 <span class="p">)</span>
                 <span class="k">with</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">(</span><span class="n">pymysql</span><span class="o">.</span><span class="n">cursors</span><span class="o">.</span><span class="n">DictCursor</span><span class="p">)</span> <span class="k">as</span> <span class="n">cursor</span><span class="p">:</span>
                     <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
-                        <span class="n">alt_query</span><span class="p">,</span> <span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;taxonomy_id&quot;</span><span class="p">],</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;strain&quot;</span><span class="p">],</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;accession&quot;</span><span class="p">])</span>
+                        <span class="n">alt_query</span><span class="p">,</span> <span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">"taxonomy_id"</span><span class="p">],</span> <span class="n">row</span><span class="p">[</span><span class="s2">"strain"</span><span class="p">],</span> <span class="n">row</span><span class="p">[</span><span class="s2">"accession"</span><span class="p">])</span>
                     <span class="p">)</span>
                     <span class="n">alt_row</span> <span class="o">=</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
-                    <span class="k">if</span> <span class="n">alt_row</span> <span class="ow">and</span> <span class="n">alt_row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;url_name&quot;</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">alt_row</span> <span class="ow">and</span> <span class="n">alt_row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"url_name"</span><span class="p">):</span>
                         <span class="n">alternate_url</span> <span class="o">=</span> <span class="p">(</span>
-                            <span class="s2">&quot;https://rapid.ensembl.org/&quot;</span>
-                            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">alt_row</span><span class="p">[</span><span class="s1">&#39;url_name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">/Info/Index&quot;</span>
+                            <span class="s2">"https://rapid.ensembl.org/"</span>
+                            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">alt_row</span><span class="p">[</span><span class="s1">'url_name'</span><span class="p">]</span><span class="si">}</span><span class="s2">/Info/Index"</span>
                         <span class="p">)</span>
             <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>  <span class="c1"># pylint: disable=broad-exception-caught</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Failed to lookup alternate haplotype: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">"Failed to lookup alternate haplotype: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
             <span class="k">finally</span><span class="p">:</span>
-                <span class="k">if</span> <span class="s2">&quot;conn&quot;</span> <span class="ow">in</span> <span class="nb">locals</span><span class="p">()</span> <span class="ow">and</span> <span class="n">conn</span><span class="o">.</span><span class="n">open</span><span class="p">:</span>
+                <span class="k">if</span> <span class="s2">"conn"</span> <span class="ow">in</span> <span class="nb">locals</span><span class="p">()</span> <span class="ow">and</span> <span class="n">conn</span><span class="o">.</span><span class="n">open</span><span class="p">:</span>
                     <span class="n">conn</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
         <span class="c1"># Attempt to fetch taxonomy lineage from the metadata DB</span>
-        <span class="n">taxonomy_lineage</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fetch_taxonomy_lineage</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;taxonomy_id&quot;</span><span class="p">])</span>
+        <span class="n">taxonomy_lineage</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fetch_taxonomy_lineage</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">"taxonomy_id"</span><span class="p">])</span>
 
         <span class="k">return</span> <span class="n">GenomeMetadata</span><span class="p">(</span>
-            <span class="n">genome_uuid</span><span class="o">=</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;genome_uuid&quot;</span><span class="p">],</span>
-            <span class="n">dbname</span><span class="o">=</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;dbname&quot;</span><span class="p">],</span>
-            <span class="n">accession</span><span class="o">=</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;accession&quot;</span><span class="p">],</span>
+            <span class="n">genome_uuid</span><span class="o">=</span><span class="n">row</span><span class="p">[</span><span class="s2">"genome_uuid"</span><span class="p">],</span>
+            <span class="n">dbname</span><span class="o">=</span><span class="n">row</span><span class="p">[</span><span class="s2">"dbname"</span><span class="p">],</span>
+            <span class="n">accession</span><span class="o">=</span><span class="n">row</span><span class="p">[</span><span class="s2">"accession"</span><span class="p">],</span>
             <span class="n">species_name</span><span class="o">=</span><span class="n">species_name</span><span class="p">,</span>
-            <span class="n">assembly_name</span><span class="o">=</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;assembly_name&quot;</span><span class="p">],</span>
-            <span class="n">strain</span><span class="o">=</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;strain&quot;</span><span class="p">],</span>
-            <span class="n">taxon_id</span><span class="o">=</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;taxonomy_id&quot;</span><span class="p">],</span>
+            <span class="n">assembly_name</span><span class="o">=</span><span class="n">row</span><span class="p">[</span><span class="s2">"assembly_name"</span><span class="p">],</span>
+            <span class="n">strain</span><span class="o">=</span><span class="n">row</span><span class="p">[</span><span class="s2">"strain"</span><span class="p">],</span>
+            <span class="n">taxon_id</span><span class="o">=</span><span class="n">row</span><span class="p">[</span><span class="s2">"taxonomy_id"</span><span class="p">],</span>
             <span class="n">taxonomy_lineage</span><span class="o">=</span><span class="n">taxonomy_lineage</span> <span class="ow">or</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">alternate_of</span><span class="o">=</span><span class="n">alternate_url</span><span class="p">,</span>
-            <span class="n">annotation_source</span><span class="o">=</span><span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;annotation_source&quot;</span><span class="p">),</span>
-            <span class="n">annotation_method</span><span class="o">=</span><span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;annotation_method&quot;</span><span class="p">),</span>
-            <span class="n">annotation_date</span><span class="o">=</span><span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;geneset_date&quot;</span><span class="p">),</span>
-            <span class="n">busco_score</span><span class="o">=</span><span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;busco_score&quot;</span><span class="p">),</span>
-            <span class="n">busco_lineage</span><span class="o">=</span><span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;busco_lineage&quot;</span><span class="p">),</span>
+            <span class="n">annotation_source</span><span class="o">=</span><span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"annotation_source"</span><span class="p">),</span>
+            <span class="n">annotation_method</span><span class="o">=</span><span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"annotation_method"</span><span class="p">),</span>
+            <span class="n">annotation_date</span><span class="o">=</span><span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"geneset_date"</span><span class="p">),</span>
+            <span class="n">busco_score</span><span class="o">=</span><span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"busco_score"</span><span class="p">),</span>
+            <span class="n">busco_lineage</span><span class="o">=</span><span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"busco_lineage"</span><span class="p">),</span>
             <span class="n">is_released</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="p">)</span>
 </code></pre></div></td></tr></table></div>
@@ -4677,18 +4677,18 @@
 <span class="normal">283</span>
 <span class="normal">284</span>
 <span class="normal">285</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">fetch_by_identifier</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">identifier</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">GenomeMetadata</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Identifier can be a Genome UUID, a core DB name, or an Assembly Accession.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="c1"># Determine the field to search</span>
-    <span class="k">if</span> <span class="s2">&quot;-&quot;</span> <span class="ow">in</span> <span class="n">identifier</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">identifier</span><span class="p">)</span> <span class="o">==</span> <span class="mi">36</span><span class="p">:</span>
-        <span class="n">where_clause</span> <span class="o">=</span> <span class="s2">&quot;genome.genome_uuid = </span><span class="si">%s</span><span class="s2">&quot;</span>
-    <span class="k">elif</span> <span class="s2">&quot;core&quot;</span> <span class="ow">in</span> <span class="n">identifier</span> <span class="ow">or</span> <span class="s2">&quot;_cm_&quot;</span> <span class="ow">in</span> <span class="n">identifier</span><span class="p">:</span>
-        <span class="n">where_clause</span> <span class="o">=</span> <span class="s2">&quot;dataset_source.name = </span><span class="si">%s</span><span class="s2">&quot;</span>
+    <span class="k">if</span> <span class="s2">"-"</span> <span class="ow">in</span> <span class="n">identifier</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">identifier</span><span class="p">)</span> <span class="o">==</span> <span class="mi">36</span><span class="p">:</span>
+        <span class="n">where_clause</span> <span class="o">=</span> <span class="s2">"genome.genome_uuid = </span><span class="si">%s</span><span class="s2">"</span>
+    <span class="k">elif</span> <span class="s2">"core"</span> <span class="ow">in</span> <span class="n">identifier</span> <span class="ow">or</span> <span class="s2">"_cm_"</span> <span class="ow">in</span> <span class="n">identifier</span><span class="p">:</span>
+        <span class="n">where_clause</span> <span class="o">=</span> <span class="s2">"dataset_source.name = </span><span class="si">%s</span><span class="s2">"</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">where_clause</span> <span class="o">=</span> <span class="s2">&quot;assembly.accession = </span><span class="si">%s</span><span class="s2">&quot;</span>
+        <span class="n">where_clause</span> <span class="o">=</span> <span class="s2">"assembly.accession = </span><span class="si">%s</span><span class="s2">"</span>
 
-    <span class="n">query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+    <span class="n">query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"""</span>
 <span class="s2">        SELECT </span>
 <span class="s2">            genome.genome_uuid,</span>
 <span class="s2">            dataset_source.name AS dbname,</span>
@@ -4697,11 +4697,11 @@
 <span class="s2">            organism.strain,</span>
 <span class="s2">            organism.taxonomy_id,</span>
 <span class="s2">            assembly.name AS assembly_name,</span>
-<span class="s2">            MAX(CASE WHEN attribute.name = &#39;genebuild.method_display&#39; THEN dataset_attribute.value END) AS annotation_method,</span>
-<span class="s2">            MAX(CASE WHEN attribute.name = &#39;genebuild.annotation_source&#39; THEN dataset_attribute.value END) AS annotation_source,</span>
-<span class="s2">            MAX(CASE WHEN attribute.name = &#39;genebuild.last_geneset_update&#39; THEN dataset_attribute.value END) AS geneset_date,</span>
-<span class="s2">            MAX(CASE WHEN attribute.name = &#39;genebuild.busco&#39; THEN dataset_attribute.value END) AS busco_score,</span>
-<span class="s2">            MAX(CASE WHEN attribute.name = &#39;genebuild.busco_dataset&#39; THEN dataset_attribute.value END) AS busco_lineage</span>
+<span class="s2">            MAX(CASE WHEN attribute.name = 'genebuild.method_display' THEN dataset_attribute.value END) AS annotation_method,</span>
+<span class="s2">            MAX(CASE WHEN attribute.name = 'genebuild.annotation_source' THEN dataset_attribute.value END) AS annotation_source,</span>
+<span class="s2">            MAX(CASE WHEN attribute.name = 'genebuild.last_geneset_update' THEN dataset_attribute.value END) AS geneset_date,</span>
+<span class="s2">            MAX(CASE WHEN attribute.name = 'genebuild.busco' THEN dataset_attribute.value END) AS busco_score,</span>
+<span class="s2">            MAX(CASE WHEN attribute.name = 'genebuild.busco_dataset' THEN dataset_attribute.value END) AS busco_lineage</span>
 <span class="s2">        FROM genome</span>
 <span class="s2">        JOIN assembly ON genome.assembly_id = assembly.assembly_id</span>
 <span class="s2">        JOIN organism ON genome.organism_id = organism.organism_id</span>
@@ -4710,12 +4710,12 @@
 <span class="s2">        JOIN dataset_source ON dataset.dataset_source_id = dataset_source.dataset_source_id</span>
 <span class="s2">        LEFT JOIN dataset_attribute ON dataset.dataset_id = dataset_attribute.dataset_id</span>
 <span class="s2">        LEFT JOIN attribute ON dataset_attribute.attribute_id = attribute.attribute_id </span>
-<span class="s2">            AND attribute.name IN (&#39;genebuild.method_display&#39;, &#39;genebuild.annotation_source&#39;, &#39;genebuild.last_geneset_update&#39;, &#39;genebuild.busco&#39;, &#39;genebuild.busco_dataset&#39;)</span>
-<span class="s2">        WHERE dataset.name = &#39;genebuild&#39;</span>
+<span class="s2">            AND attribute.name IN ('genebuild.method_display', 'genebuild.annotation_source', 'genebuild.last_geneset_update', 'genebuild.busco', 'genebuild.busco_dataset')</span>
+<span class="s2">        WHERE dataset.name = 'genebuild'</span>
 <span class="s2">          AND </span><span class="si">{</span><span class="n">where_clause</span><span class="si">}</span>
 <span class="s2">        GROUP BY genome.genome_uuid, dataset_source.name, assembly.accession, organism.scientific_name, organism.strain, organism.taxonomy_id, assembly.name</span>
 <span class="s2">        LIMIT 1</span>
-<span class="s2">    &quot;&quot;&quot;</span>
+<span class="s2">    """</span>
 
     <span class="k">try</span><span class="p">:</span>
         <span class="n">conn</span> <span class="o">=</span> <span class="n">pymysql</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span>
@@ -4725,23 +4725,23 @@
             <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="p">(</span><span class="n">identifier</span><span class="p">,))</span>
             <span class="n">row</span> <span class="o">=</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
     <span class="k">except</span> <span class="n">pymysql</span><span class="o">.</span><span class="n">Error</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;MySQL error querying metadata DB: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">"MySQL error querying metadata DB: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
         <span class="k">return</span> <span class="kc">None</span>
     <span class="k">finally</span><span class="p">:</span>
-        <span class="k">if</span> <span class="s2">&quot;conn&quot;</span> <span class="ow">in</span> <span class="nb">locals</span><span class="p">()</span> <span class="ow">and</span> <span class="n">conn</span><span class="o">.</span><span class="n">open</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s2">"conn"</span> <span class="ow">in</span> <span class="nb">locals</span><span class="p">()</span> <span class="ow">and</span> <span class="n">conn</span><span class="o">.</span><span class="n">open</span><span class="p">:</span>
             <span class="n">conn</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">row</span><span class="p">:</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;No metadata found for identifier: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">identifier</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">"No metadata found for identifier: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">identifier</span><span class="p">)</span>
         <span class="k">return</span> <span class="kc">None</span>
 
-    <span class="n">species_name</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;scientific_name&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;scientific_name&quot;</span><span class="p">]</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+    <span class="n">species_name</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="s2">"scientific_name"</span><span class="p">]</span> <span class="k">if</span> <span class="n">row</span><span class="p">[</span><span class="s2">"scientific_name"</span><span class="p">]</span> <span class="k">else</span> <span class="s2">""</span>
 
     <span class="c1"># Proper alternate pairing: look for assemblies of the exact same taxonomy &amp; strain</span>
     <span class="c1"># but with a different accession. Returns the rapid-release URL.</span>
     <span class="n">alternate_url</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="k">if</span> <span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;strain&quot;</span><span class="p">):</span>
-        <span class="n">alt_query</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"strain"</span><span class="p">):</span>
+        <span class="n">alt_query</span> <span class="o">=</span> <span class="s2">"""</span>
 <span class="s2">            SELECT genome.url_name</span>
 <span class="s2">            FROM genome</span>
 <span class="s2">            JOIN organism ON genome.organism_id = organism.organism_id</span>
@@ -4750,45 +4750,45 @@
 <span class="s2">              AND organism.strain = </span><span class="si">%s</span>
 <span class="s2">              AND assembly.accession != </span><span class="si">%s</span>
 <span class="s2">            LIMIT 1</span>
-<span class="s2">        &quot;&quot;&quot;</span>
+<span class="s2">        """</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">conn</span> <span class="o">=</span> <span class="n">pymysql</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span>
                 <span class="n">host</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">host</span><span class="p">,</span> <span class="n">user</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">user</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">port</span><span class="p">,</span> <span class="n">database</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dbname</span>
             <span class="p">)</span>
             <span class="k">with</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">(</span><span class="n">pymysql</span><span class="o">.</span><span class="n">cursors</span><span class="o">.</span><span class="n">DictCursor</span><span class="p">)</span> <span class="k">as</span> <span class="n">cursor</span><span class="p">:</span>
                 <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
-                    <span class="n">alt_query</span><span class="p">,</span> <span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;taxonomy_id&quot;</span><span class="p">],</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;strain&quot;</span><span class="p">],</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;accession&quot;</span><span class="p">])</span>
+                    <span class="n">alt_query</span><span class="p">,</span> <span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">"taxonomy_id"</span><span class="p">],</span> <span class="n">row</span><span class="p">[</span><span class="s2">"strain"</span><span class="p">],</span> <span class="n">row</span><span class="p">[</span><span class="s2">"accession"</span><span class="p">])</span>
                 <span class="p">)</span>
                 <span class="n">alt_row</span> <span class="o">=</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
-                <span class="k">if</span> <span class="n">alt_row</span> <span class="ow">and</span> <span class="n">alt_row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;url_name&quot;</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">alt_row</span> <span class="ow">and</span> <span class="n">alt_row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"url_name"</span><span class="p">):</span>
                     <span class="n">alternate_url</span> <span class="o">=</span> <span class="p">(</span>
-                        <span class="s2">&quot;https://rapid.ensembl.org/&quot;</span>
-                        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">alt_row</span><span class="p">[</span><span class="s1">&#39;url_name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">/Info/Index&quot;</span>
+                        <span class="s2">"https://rapid.ensembl.org/"</span>
+                        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">alt_row</span><span class="p">[</span><span class="s1">'url_name'</span><span class="p">]</span><span class="si">}</span><span class="s2">/Info/Index"</span>
                     <span class="p">)</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>  <span class="c1"># pylint: disable=broad-exception-caught</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Failed to lookup alternate haplotype: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">"Failed to lookup alternate haplotype: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
         <span class="k">finally</span><span class="p">:</span>
-            <span class="k">if</span> <span class="s2">&quot;conn&quot;</span> <span class="ow">in</span> <span class="nb">locals</span><span class="p">()</span> <span class="ow">and</span> <span class="n">conn</span><span class="o">.</span><span class="n">open</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s2">"conn"</span> <span class="ow">in</span> <span class="nb">locals</span><span class="p">()</span> <span class="ow">and</span> <span class="n">conn</span><span class="o">.</span><span class="n">open</span><span class="p">:</span>
                 <span class="n">conn</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
     <span class="c1"># Attempt to fetch taxonomy lineage from the metadata DB</span>
-    <span class="n">taxonomy_lineage</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fetch_taxonomy_lineage</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;taxonomy_id&quot;</span><span class="p">])</span>
+    <span class="n">taxonomy_lineage</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fetch_taxonomy_lineage</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">"taxonomy_id"</span><span class="p">])</span>
 
     <span class="k">return</span> <span class="n">GenomeMetadata</span><span class="p">(</span>
-        <span class="n">genome_uuid</span><span class="o">=</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;genome_uuid&quot;</span><span class="p">],</span>
-        <span class="n">dbname</span><span class="o">=</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;dbname&quot;</span><span class="p">],</span>
-        <span class="n">accession</span><span class="o">=</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;accession&quot;</span><span class="p">],</span>
+        <span class="n">genome_uuid</span><span class="o">=</span><span class="n">row</span><span class="p">[</span><span class="s2">"genome_uuid"</span><span class="p">],</span>
+        <span class="n">dbname</span><span class="o">=</span><span class="n">row</span><span class="p">[</span><span class="s2">"dbname"</span><span class="p">],</span>
+        <span class="n">accession</span><span class="o">=</span><span class="n">row</span><span class="p">[</span><span class="s2">"accession"</span><span class="p">],</span>
         <span class="n">species_name</span><span class="o">=</span><span class="n">species_name</span><span class="p">,</span>
-        <span class="n">assembly_name</span><span class="o">=</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;assembly_name&quot;</span><span class="p">],</span>
-        <span class="n">strain</span><span class="o">=</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;strain&quot;</span><span class="p">],</span>
-        <span class="n">taxon_id</span><span class="o">=</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;taxonomy_id&quot;</span><span class="p">],</span>
+        <span class="n">assembly_name</span><span class="o">=</span><span class="n">row</span><span class="p">[</span><span class="s2">"assembly_name"</span><span class="p">],</span>
+        <span class="n">strain</span><span class="o">=</span><span class="n">row</span><span class="p">[</span><span class="s2">"strain"</span><span class="p">],</span>
+        <span class="n">taxon_id</span><span class="o">=</span><span class="n">row</span><span class="p">[</span><span class="s2">"taxonomy_id"</span><span class="p">],</span>
         <span class="n">taxonomy_lineage</span><span class="o">=</span><span class="n">taxonomy_lineage</span> <span class="ow">or</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">alternate_of</span><span class="o">=</span><span class="n">alternate_url</span><span class="p">,</span>
-        <span class="n">annotation_source</span><span class="o">=</span><span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;annotation_source&quot;</span><span class="p">),</span>
-        <span class="n">annotation_method</span><span class="o">=</span><span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;annotation_method&quot;</span><span class="p">),</span>
-        <span class="n">annotation_date</span><span class="o">=</span><span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;geneset_date&quot;</span><span class="p">),</span>
-        <span class="n">busco_score</span><span class="o">=</span><span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;busco_score&quot;</span><span class="p">),</span>
-        <span class="n">busco_lineage</span><span class="o">=</span><span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;busco_lineage&quot;</span><span class="p">),</span>
+        <span class="n">annotation_source</span><span class="o">=</span><span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"annotation_source"</span><span class="p">),</span>
+        <span class="n">annotation_method</span><span class="o">=</span><span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"annotation_method"</span><span class="p">),</span>
+        <span class="n">annotation_date</span><span class="o">=</span><span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"geneset_date"</span><span class="p">),</span>
+        <span class="n">busco_score</span><span class="o">=</span><span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"busco_score"</span><span class="p">),</span>
+        <span class="n">busco_lineage</span><span class="o">=</span><span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"busco_lineage"</span><span class="p">),</span>
         <span class="n">is_released</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span>
 </code></pre></div></td></tr></table></div>
@@ -4879,7 +4879,7 @@ metadata DB.  Missing accessions are silently omitted.</p>
 <span class="normal">167</span>
 <span class="normal">168</span>
 <span class="normal">169</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_genome_uuids_by_accessions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">accessions</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Look up genome UUIDs for a list of assembly accessions.</span>
+<span class="w">    </span><span class="sd">"""Look up genome UUIDs for a list of assembly accessions.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -4890,7 +4890,7 @@ metadata DB.  Missing accessions are silently omitted.</p>
 <span class="sd">    -------</span>
 <span class="sd">    Dict mapping accession → genome_uuid for accessions found in the</span>
 <span class="sd">    metadata DB.  Missing accessions are silently omitted.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">accessions</span><span class="p">:</span>
         <span class="k">return</span> <span class="p">{}</span>
 
@@ -4899,8 +4899,8 @@ metadata DB.  Missing accessions are silently omitted.</p>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">unique</span><span class="p">:</span>
         <span class="k">return</span> <span class="p">{}</span>
 
-    <span class="n">placeholders</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">unique</span><span class="p">))</span>
-    <span class="n">query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+    <span class="n">placeholders</span> <span class="o">=</span> <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s2">"</span><span class="si">%s</span><span class="s2">"</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">unique</span><span class="p">))</span>
+    <span class="n">query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"""</span>
 <span class="s2">        SELECT DISTINCT</span>
 <span class="s2">            assembly.accession,</span>
 <span class="s2">            genome.genome_uuid</span>
@@ -4908,9 +4908,9 @@ metadata DB.  Missing accessions are silently omitted.</p>
 <span class="s2">        JOIN assembly ON genome.assembly_id = assembly.assembly_id</span>
 <span class="s2">        JOIN genome_dataset ON genome.genome_id = genome_dataset.genome_id</span>
 <span class="s2">        JOIN dataset ON genome_dataset.dataset_id = dataset.dataset_id</span>
-<span class="s2">        WHERE dataset.name = &#39;genebuild&#39;</span>
+<span class="s2">        WHERE dataset.name = 'genebuild'</span>
 <span class="s2">          AND assembly.accession IN (</span><span class="si">{</span><span class="n">placeholders</span><span class="si">}</span><span class="s2">)</span>
-<span class="s2">    &quot;&quot;&quot;</span>
+<span class="s2">    """</span>
 
     <span class="n">result</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">try</span><span class="p">:</span>
@@ -4927,13 +4927,13 @@ metadata DB.  Missing accessions are silently omitted.</p>
                 <span class="k">if</span> <span class="n">acc</span> <span class="ow">and</span> <span class="n">guuid</span><span class="p">:</span>
                     <span class="n">result</span><span class="p">[</span><span class="n">acc</span><span class="p">]</span> <span class="o">=</span> <span class="n">guuid</span>
     <span class="k">except</span> <span class="n">pymysql</span><span class="o">.</span><span class="n">Error</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;MySQL error looking up genome UUIDs: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">"MySQL error looking up genome UUIDs: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
     <span class="k">finally</span><span class="p">:</span>
-        <span class="k">if</span> <span class="s2">&quot;conn&quot;</span> <span class="ow">in</span> <span class="nb">locals</span><span class="p">()</span> <span class="ow">and</span> <span class="n">conn</span><span class="o">.</span><span class="n">open</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s2">"conn"</span> <span class="ow">in</span> <span class="nb">locals</span><span class="p">()</span> <span class="ow">and</span> <span class="n">conn</span><span class="o">.</span><span class="n">open</span><span class="p">:</span>
             <span class="n">conn</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
     <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-        <span class="s2">&quot;Resolved </span><span class="si">%d</span><span class="s2"> / </span><span class="si">%d</span><span class="s2"> accessions to genome UUIDs from metadata DB.&quot;</span><span class="p">,</span>
+        <span class="s2">"Resolved </span><span class="si">%d</span><span class="s2"> / </span><span class="si">%d</span><span class="s2"> accessions to genome UUIDs from metadata DB."</span><span class="p">,</span>
         <span class="nb">len</span><span class="p">(</span><span class="n">result</span><span class="p">),</span>
         <span class="nb">len</span><span class="p">(</span><span class="n">unique</span><span class="p">),</span>
     <span class="p">)</span>

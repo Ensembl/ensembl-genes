@@ -4348,7 +4348,7 @@
 <span class="normal">122</span>
 <span class="normal">123</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">CoreLoadQualityReport</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Summary of a post-load comparison between parsed GFF and core rows.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Summary of a post-load comparison between parsed GFF and core rows."""</span>
 
     <span class="n">source_name</span><span class="p">:</span> <span class="nb">str</span>
     <span class="n">metrics</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">QualityMetric</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
@@ -4360,58 +4360,58 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">passed</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return True when every quality metric passed.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return True when every quality metric passed."""</span>
 
         <span class="k">return</span> <span class="nb">all</span><span class="p">(</span><span class="n">metric</span><span class="o">.</span><span class="n">passed</span> <span class="k">for</span> <span class="n">metric</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">metrics</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">failure_summary</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a compact summary of all quality check discrepancies.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return a compact summary of all quality check discrepancies."""</span>
 
         <span class="n">missing</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">metric</span><span class="o">.</span><span class="n">missing</span> <span class="k">for</span> <span class="n">metric</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">metrics</span><span class="p">)</span>
         <span class="n">unexpected</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">metric</span><span class="o">.</span><span class="n">unexpected</span> <span class="k">for</span> <span class="n">metric</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">metrics</span><span class="p">)</span>
         <span class="n">mismatched</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">metric</span><span class="o">.</span><span class="n">mismatched</span> <span class="k">for</span> <span class="n">metric</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">metrics</span><span class="p">)</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;missing=</span><span class="si">{</span><span class="n">missing</span><span class="si">}</span><span class="s2"> unexpected=</span><span class="si">{</span><span class="n">unexpected</span><span class="si">}</span><span class="s2"> mismatched=</span><span class="si">{</span><span class="n">mismatched</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">"missing=</span><span class="si">{</span><span class="n">missing</span><span class="si">}</span><span class="s2"> unexpected=</span><span class="si">{</span><span class="n">unexpected</span><span class="si">}</span><span class="s2"> mismatched=</span><span class="si">{</span><span class="n">mismatched</span><span class="si">}</span><span class="s2">"</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">render_lines</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return printable/loggable report lines.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return printable/loggable report lines."""</span>
 
-        <span class="n">status</span> <span class="o">=</span> <span class="s2">&quot;PASS&quot;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">passed</span> <span class="k">else</span> <span class="s2">&quot;FAIL&quot;</span>
-        <span class="n">lines</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;GFF core quality check: </span><span class="si">{</span><span class="n">status</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;source: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">source_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span>
-        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;expected vs core rows:&quot;</span><span class="p">)</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="s2">"PASS"</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">passed</span> <span class="k">else</span> <span class="s2">"FAIL"</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">"GFF core quality check: </span><span class="si">{</span><span class="n">status</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"source: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">source_name</span><span class="si">}</span><span class="s2">"</span><span class="p">]</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">"expected vs core rows:"</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">metric</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">metrics</span><span class="p">:</span>
             <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                <span class="s2">&quot;  &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">metric</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">: expected=</span><span class="si">{</span><span class="n">metric</span><span class="o">.</span><span class="n">expected</span><span class="si">}</span><span class="s2"> observed=</span><span class="si">{</span><span class="n">metric</span><span class="o">.</span><span class="n">observed</span><span class="si">}</span><span class="s2"> &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;missing=</span><span class="si">{</span><span class="n">metric</span><span class="o">.</span><span class="n">missing</span><span class="si">}</span><span class="s2"> unexpected=</span><span class="si">{</span><span class="n">metric</span><span class="o">.</span><span class="n">unexpected</span><span class="si">}</span><span class="s2"> &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;mismatched=</span><span class="si">{</span><span class="n">metric</span><span class="o">.</span><span class="n">mismatched</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="s2">"  "</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">metric</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">: expected=</span><span class="si">{</span><span class="n">metric</span><span class="o">.</span><span class="n">expected</span><span class="si">}</span><span class="s2"> observed=</span><span class="si">{</span><span class="n">metric</span><span class="o">.</span><span class="n">observed</span><span class="si">}</span><span class="s2"> "</span>
+                <span class="sa">f</span><span class="s2">"missing=</span><span class="si">{</span><span class="n">metric</span><span class="o">.</span><span class="n">missing</span><span class="si">}</span><span class="s2"> unexpected=</span><span class="si">{</span><span class="n">metric</span><span class="o">.</span><span class="n">unexpected</span><span class="si">}</span><span class="s2"> "</span>
+                <span class="sa">f</span><span class="s2">"mismatched=</span><span class="si">{</span><span class="n">metric</span><span class="o">.</span><span class="n">mismatched</span><span class="si">}</span><span class="s2">"</span>
             <span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">gene_biotypes</span><span class="p">:</span>
             <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                <span class="s2">&quot;gene biotypes: &quot;</span>
-                <span class="o">+</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">biotype</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">count</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="s2">"gene biotypes: "</span>
+                <span class="o">+</span> <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">biotype</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">count</span><span class="si">}</span><span class="s2">"</span>
                     <span class="k">for</span> <span class="n">biotype</span><span class="p">,</span> <span class="n">count</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">gene_biotypes</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
                 <span class="p">)</span>
             <span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">transcript_biotypes</span><span class="p">:</span>
             <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                <span class="s2">&quot;transcript biotypes: &quot;</span>
-                <span class="o">+</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">biotype</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">count</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="s2">"transcript biotypes: "</span>
+                <span class="o">+</span> <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">biotype</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">count</span><span class="si">}</span><span class="s2">"</span>
                     <span class="k">for</span> <span class="n">biotype</span><span class="p">,</span> <span class="n">count</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">transcript_biotypes</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
                 <span class="p">)</span>
             <span class="p">)</span>
 
         <span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">examples</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">missing_examples</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
             <span class="k">if</span> <span class="n">examples</span><span class="p">:</span>
-                <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;missing </span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2"> examples: </span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">examples</span><span class="p">[:</span><span class="mi">10</span><span class="p">])</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"missing </span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2"> examples: </span><span class="si">{</span><span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">examples</span><span class="p">[:</span><span class="mi">10</span><span class="p">])</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">examples</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">unexpected_examples</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
             <span class="k">if</span> <span class="n">examples</span><span class="p">:</span>
-                <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;unexpected </span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2"> examples: </span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">examples</span><span class="p">[:</span><span class="mi">10</span><span class="p">])</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"unexpected </span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2"> examples: </span><span class="si">{</span><span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">examples</span><span class="p">[:</span><span class="mi">10</span><span class="p">])</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">examples</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mismatch_examples</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
             <span class="k">if</span> <span class="n">examples</span><span class="p">:</span>
-                <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;mismatched </span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2"> examples: </span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">examples</span><span class="p">[:</span><span class="mi">10</span><span class="p">])</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"mismatched </span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2"> examples: </span><span class="si">{</span><span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">examples</span><span class="p">[:</span><span class="mi">10</span><span class="p">])</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">lines</span>
 </code></pre></div></td></tr></table></div>
@@ -4621,12 +4621,12 @@
 <span class="normal">78</span>
 <span class="normal">79</span>
 <span class="normal">80</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">failure_summary</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a compact summary of all quality check discrepancies.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Return a compact summary of all quality check discrepancies."""</span>
 
     <span class="n">missing</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">metric</span><span class="o">.</span><span class="n">missing</span> <span class="k">for</span> <span class="n">metric</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">metrics</span><span class="p">)</span>
     <span class="n">unexpected</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">metric</span><span class="o">.</span><span class="n">unexpected</span> <span class="k">for</span> <span class="n">metric</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">metrics</span><span class="p">)</span>
     <span class="n">mismatched</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">metric</span><span class="o">.</span><span class="n">mismatched</span> <span class="k">for</span> <span class="n">metric</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">metrics</span><span class="p">)</span>
-    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;missing=</span><span class="si">{</span><span class="n">missing</span><span class="si">}</span><span class="s2"> unexpected=</span><span class="si">{</span><span class="n">unexpected</span><span class="si">}</span><span class="s2"> mismatched=</span><span class="si">{</span><span class="n">mismatched</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">"missing=</span><span class="si">{</span><span class="n">missing</span><span class="si">}</span><span class="s2"> unexpected=</span><span class="si">{</span><span class="n">unexpected</span><span class="si">}</span><span class="s2"> mismatched=</span><span class="si">{</span><span class="n">mismatched</span><span class="si">}</span><span class="s2">"</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -4691,45 +4691,45 @@
 <span class="normal">121</span>
 <span class="normal">122</span>
 <span class="normal">123</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">render_lines</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return printable/loggable report lines.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Return printable/loggable report lines."""</span>
 
-    <span class="n">status</span> <span class="o">=</span> <span class="s2">&quot;PASS&quot;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">passed</span> <span class="k">else</span> <span class="s2">&quot;FAIL&quot;</span>
-    <span class="n">lines</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;GFF core quality check: </span><span class="si">{</span><span class="n">status</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;source: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">source_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span>
-    <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;expected vs core rows:&quot;</span><span class="p">)</span>
+    <span class="n">status</span> <span class="o">=</span> <span class="s2">"PASS"</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">passed</span> <span class="k">else</span> <span class="s2">"FAIL"</span>
+    <span class="n">lines</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">"GFF core quality check: </span><span class="si">{</span><span class="n">status</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"source: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">source_name</span><span class="si">}</span><span class="s2">"</span><span class="p">]</span>
+    <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">"expected vs core rows:"</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">metric</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">metrics</span><span class="p">:</span>
         <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-            <span class="s2">&quot;  &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">metric</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">: expected=</span><span class="si">{</span><span class="n">metric</span><span class="o">.</span><span class="n">expected</span><span class="si">}</span><span class="s2"> observed=</span><span class="si">{</span><span class="n">metric</span><span class="o">.</span><span class="n">observed</span><span class="si">}</span><span class="s2"> &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;missing=</span><span class="si">{</span><span class="n">metric</span><span class="o">.</span><span class="n">missing</span><span class="si">}</span><span class="s2"> unexpected=</span><span class="si">{</span><span class="n">metric</span><span class="o">.</span><span class="n">unexpected</span><span class="si">}</span><span class="s2"> &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;mismatched=</span><span class="si">{</span><span class="n">metric</span><span class="o">.</span><span class="n">mismatched</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="s2">"  "</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">metric</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">: expected=</span><span class="si">{</span><span class="n">metric</span><span class="o">.</span><span class="n">expected</span><span class="si">}</span><span class="s2"> observed=</span><span class="si">{</span><span class="n">metric</span><span class="o">.</span><span class="n">observed</span><span class="si">}</span><span class="s2"> "</span>
+            <span class="sa">f</span><span class="s2">"missing=</span><span class="si">{</span><span class="n">metric</span><span class="o">.</span><span class="n">missing</span><span class="si">}</span><span class="s2"> unexpected=</span><span class="si">{</span><span class="n">metric</span><span class="o">.</span><span class="n">unexpected</span><span class="si">}</span><span class="s2"> "</span>
+            <span class="sa">f</span><span class="s2">"mismatched=</span><span class="si">{</span><span class="n">metric</span><span class="o">.</span><span class="n">mismatched</span><span class="si">}</span><span class="s2">"</span>
         <span class="p">)</span>
 
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">gene_biotypes</span><span class="p">:</span>
         <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-            <span class="s2">&quot;gene biotypes: &quot;</span>
-            <span class="o">+</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">biotype</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">count</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="s2">"gene biotypes: "</span>
+            <span class="o">+</span> <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">biotype</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">count</span><span class="si">}</span><span class="s2">"</span>
                 <span class="k">for</span> <span class="n">biotype</span><span class="p">,</span> <span class="n">count</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">gene_biotypes</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
             <span class="p">)</span>
         <span class="p">)</span>
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">transcript_biotypes</span><span class="p">:</span>
         <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-            <span class="s2">&quot;transcript biotypes: &quot;</span>
-            <span class="o">+</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">biotype</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">count</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="s2">"transcript biotypes: "</span>
+            <span class="o">+</span> <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">biotype</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">count</span><span class="si">}</span><span class="s2">"</span>
                 <span class="k">for</span> <span class="n">biotype</span><span class="p">,</span> <span class="n">count</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">transcript_biotypes</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
             <span class="p">)</span>
         <span class="p">)</span>
 
     <span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">examples</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">missing_examples</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
         <span class="k">if</span> <span class="n">examples</span><span class="p">:</span>
-            <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;missing </span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2"> examples: </span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">examples</span><span class="p">[:</span><span class="mi">10</span><span class="p">])</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"missing </span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2"> examples: </span><span class="si">{</span><span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">examples</span><span class="p">[:</span><span class="mi">10</span><span class="p">])</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">examples</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">unexpected_examples</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
         <span class="k">if</span> <span class="n">examples</span><span class="p">:</span>
-            <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;unexpected </span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2"> examples: </span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">examples</span><span class="p">[:</span><span class="mi">10</span><span class="p">])</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"unexpected </span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2"> examples: </span><span class="si">{</span><span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">examples</span><span class="p">[:</span><span class="mi">10</span><span class="p">])</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">examples</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mismatch_examples</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
         <span class="k">if</span> <span class="n">examples</span><span class="p">:</span>
-            <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;mismatched </span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2"> examples: </span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">examples</span><span class="p">[:</span><span class="mi">10</span><span class="p">])</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"mismatched </span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2"> examples: </span><span class="si">{</span><span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">examples</span><span class="p">[:</span><span class="mi">10</span><span class="p">])</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">lines</span>
 </code></pre></div></td></tr></table></div>
@@ -4784,14 +4784,14 @@
 <span class="normal">33</span>
 <span class="normal">34</span>
 <span class="normal">35</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">QualityCursor</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Cursor protocol required by the post-load quality checker.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Cursor protocol required by the post-load quality checker."""</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">operation</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">Any</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Execute one SQL statement.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Execute one SQL statement."""</span>
         <span class="o">...</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">fetchall</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="o">...</span><span class="p">]]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Fetch all result rows.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Fetch all result rows."""</span>
         <span class="o">...</span>
 </code></pre></div></td></tr></table></div>
               </details>
@@ -4828,7 +4828,7 @@
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">29</span>
 <span class="normal">30</span>
 <span class="normal">31</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">operation</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">Any</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Execute one SQL statement.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Execute one SQL statement."""</span>
     <span class="o">...</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -4855,7 +4855,7 @@
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">33</span>
 <span class="normal">34</span>
 <span class="normal">35</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">fetchall</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="o">...</span><span class="p">]]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Fetch all result rows.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Fetch all result rows."""</span>
     <span class="o">...</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -4918,7 +4918,7 @@
 <span class="normal">52</span>
 <span class="normal">53</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">QualityMetric</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;One expected-vs-observed quality metric.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""One expected-vs-observed quality metric."""</span>
 
     <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
     <span class="n">expected</span><span class="p">:</span> <span class="nb">int</span>
@@ -4929,7 +4929,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">passed</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return True when this metric has no discrepancy.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return True when this metric has no discrepancy."""</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">missing</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">unexpected</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">mismatched</span> <span class="o">==</span> <span class="mi">0</span>
 </code></pre></div></td></tr></table></div>
@@ -5131,7 +5131,7 @@
     <span class="n">report</span><span class="p">:</span> <span class="n">CoreLoadQualityReport</span><span class="p">,</span>
     <span class="n">logger</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Print and log a post-load quality report.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Print and log a post-load quality report."""</span>
 
     <span class="n">log</span> <span class="o">=</span> <span class="n">logger</span> <span class="ow">or</span> <span class="n">LOGGER</span>
     <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">report</span><span class="o">.</span><span class="n">render_lines</span><span class="p">():</span>
@@ -5185,7 +5185,7 @@
 <span class="normal">218</span>
 <span class="normal">219</span>
 <span class="normal">220</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">expected_translation_stable_ids</span><span class="p">(</span><span class="n">annotation</span><span class="p">:</span> <span class="n">ParsedAnnotation</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return transcript ID to expected translation stable ID for loadable CDS.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Return transcript ID to expected translation stable ID for loadable CDS."""</span>
 
     <span class="n">expected</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">for</span> <span class="n">transcript_id</span><span class="p">,</span> <span class="n">cds_list</span> <span class="ow">in</span> <span class="n">annotation</span><span class="o">.</span><span class="n">cds_segments</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
@@ -5207,7 +5207,7 @@
             <span class="n">exon</span><span class="o">.</span><span class="n">start</span> <span class="o">&lt;=</span> <span class="n">translation_end_pos</span> <span class="o">&lt;=</span> <span class="n">exon</span><span class="o">.</span><span class="n">end</span> <span class="k">for</span> <span class="n">exon</span> <span class="ow">in</span> <span class="n">transcript</span><span class="o">.</span><span class="n">exons</span>
         <span class="p">)</span>
         <span class="k">if</span> <span class="n">start_found</span> <span class="ow">and</span> <span class="n">end_found</span><span class="p">:</span>
-            <span class="n">expected</span><span class="p">[</span><span class="n">transcript_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">transcript</span><span class="o">.</span><span class="n">protein_id</span> <span class="ow">or</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">transcript_id</span><span class="si">}</span><span class="s2">_prot&quot;</span>
+            <span class="n">expected</span><span class="p">[</span><span class="n">transcript_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">transcript</span><span class="o">.</span><span class="n">protein_id</span> <span class="ow">or</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">transcript_id</span><span class="si">}</span><span class="s2">_prot"</span>
 
     <span class="k">return</span> <span class="n">expected</span>
 </code></pre></div></td></tr></table></div>
@@ -5375,7 +5375,7 @@
     <span class="n">exon_id_map</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="nb">int</span><span class="p">],</span>
     <span class="n">source_config</span><span class="p">:</span> <span class="n">GffSourceConfig</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CoreLoadQualityReport</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compare rows inserted into core against the parsed GFF annotation.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Compare rows inserted into core against the parsed GFF annotation."""</span>
 
     <span class="n">report</span> <span class="o">=</span> <span class="n">CoreLoadQualityReport</span><span class="p">(</span><span class="n">source_name</span><span class="o">=</span><span class="n">source_config</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
     <span class="n">report</span><span class="o">.</span><span class="n">gene_biotypes</span> <span class="o">=</span> <span class="n">_count_biotypes</span><span class="p">(</span>
@@ -5392,14 +5392,14 @@
     <span class="p">}</span>
     <span class="n">actual_gene_by_db_id</span> <span class="o">=</span> <span class="n">_fetch_id_to_values</span><span class="p">(</span>
         <span class="n">cursor</span><span class="p">,</span>
-        <span class="s2">&quot;gene&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;gene_id&quot;</span><span class="p">,</span>
-        <span class="p">(</span><span class="s2">&quot;stable_id&quot;</span><span class="p">,</span> <span class="s2">&quot;biotype&quot;</span><span class="p">),</span>
+        <span class="s2">"gene"</span><span class="p">,</span>
+        <span class="s2">"gene_id"</span><span class="p">,</span>
+        <span class="p">(</span><span class="s2">"stable_id"</span><span class="p">,</span> <span class="s2">"biotype"</span><span class="p">),</span>
         <span class="nb">list</span><span class="p">(</span><span class="n">expected_gene_by_db_id</span><span class="p">),</span>
     <span class="p">)</span>
     <span class="n">_add_id_value_metric</span><span class="p">(</span>
         <span class="n">report</span><span class="p">,</span>
-        <span class="s2">&quot;genes&quot;</span><span class="p">,</span>
+        <span class="s2">"genes"</span><span class="p">,</span>
         <span class="n">expected_gene_by_db_id</span><span class="p">,</span>
         <span class="n">actual_gene_by_db_id</span><span class="p">,</span>
     <span class="p">)</span>
@@ -5411,14 +5411,14 @@
     <span class="p">}</span>
     <span class="n">actual_transcript_by_db_id</span> <span class="o">=</span> <span class="n">_fetch_id_to_values</span><span class="p">(</span>
         <span class="n">cursor</span><span class="p">,</span>
-        <span class="s2">&quot;transcript&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;transcript_id&quot;</span><span class="p">,</span>
-        <span class="p">(</span><span class="s2">&quot;stable_id&quot;</span><span class="p">,</span> <span class="s2">&quot;biotype&quot;</span><span class="p">),</span>
+        <span class="s2">"transcript"</span><span class="p">,</span>
+        <span class="s2">"transcript_id"</span><span class="p">,</span>
+        <span class="p">(</span><span class="s2">"stable_id"</span><span class="p">,</span> <span class="s2">"biotype"</span><span class="p">),</span>
         <span class="nb">list</span><span class="p">(</span><span class="n">expected_transcript_by_db_id</span><span class="p">),</span>
     <span class="p">)</span>
     <span class="n">_add_id_value_metric</span><span class="p">(</span>
         <span class="n">report</span><span class="p">,</span>
-        <span class="s2">&quot;transcripts&quot;</span><span class="p">,</span>
+        <span class="s2">"transcripts"</span><span class="p">,</span>
         <span class="n">expected_transcript_by_db_id</span><span class="p">,</span>
         <span class="n">actual_transcript_by_db_id</span><span class="p">,</span>
     <span class="p">)</span>
@@ -5435,14 +5435,14 @@
             <span class="n">expected_exon_by_db_id</span><span class="p">[</span><span class="n">db_id</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">exon</span><span class="o">.</span><span class="n">stable_id</span><span class="p">,)</span>
     <span class="n">actual_exon_by_db_id</span> <span class="o">=</span> <span class="n">_fetch_id_to_values</span><span class="p">(</span>
         <span class="n">cursor</span><span class="p">,</span>
-        <span class="s2">&quot;exon&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;exon_id&quot;</span><span class="p">,</span>
-        <span class="p">(</span><span class="s2">&quot;stable_id&quot;</span><span class="p">,),</span>
+        <span class="s2">"exon"</span><span class="p">,</span>
+        <span class="s2">"exon_id"</span><span class="p">,</span>
+        <span class="p">(</span><span class="s2">"stable_id"</span><span class="p">,),</span>
         <span class="nb">list</span><span class="p">(</span><span class="n">expected_exon_by_db_id</span><span class="p">),</span>
     <span class="p">)</span>
     <span class="n">_add_id_value_metric</span><span class="p">(</span>
         <span class="n">report</span><span class="p">,</span>
-        <span class="s2">&quot;exons&quot;</span><span class="p">,</span>
+        <span class="s2">"exons"</span><span class="p">,</span>
         <span class="n">expected_exon_by_db_id</span><span class="p">,</span>
         <span class="n">actual_exon_by_db_id</span><span class="p">,</span>
         <span class="n">ignore_expected_none</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
@@ -5461,7 +5461,7 @@
     <span class="n">unexpected_pairs</span> <span class="o">=</span> <span class="n">actual_exon_transcript_pairs</span> <span class="o">-</span> <span class="n">expected_exon_transcript_pairs</span>
     <span class="n">report</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
         <span class="n">QualityMetric</span><span class="p">(</span>
-            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;exon_transcript_links&quot;</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">"exon_transcript_links"</span><span class="p">,</span>
             <span class="n">expected</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">expected_exon_transcript_pairs</span><span class="p">),</span>
             <span class="n">observed</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">actual_exon_transcript_pairs</span><span class="p">),</span>
             <span class="n">missing</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">missing_pairs</span><span class="p">),</span>
@@ -5469,13 +5469,13 @@
         <span class="p">)</span>
     <span class="p">)</span>
     <span class="k">if</span> <span class="n">missing_pairs</span><span class="p">:</span>
-        <span class="n">report</span><span class="o">.</span><span class="n">missing_examples</span><span class="p">[</span><span class="s2">&quot;exon_transcript_links&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="sa">f</span><span class="s2">&quot;exon_id=</span><span class="si">{</span><span class="n">exon_id</span><span class="si">}</span><span class="s2">:transcript_id=</span><span class="si">{</span><span class="n">transcript_id</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">report</span><span class="o">.</span><span class="n">missing_examples</span><span class="p">[</span><span class="s2">"exon_transcript_links"</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="sa">f</span><span class="s2">"exon_id=</span><span class="si">{</span><span class="n">exon_id</span><span class="si">}</span><span class="s2">:transcript_id=</span><span class="si">{</span><span class="n">transcript_id</span><span class="si">}</span><span class="s2">"</span>
             <span class="k">for</span> <span class="n">exon_id</span><span class="p">,</span> <span class="n">transcript_id</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">missing_pairs</span><span class="p">)[:</span><span class="mi">10</span><span class="p">]</span>
         <span class="p">]</span>
     <span class="k">if</span> <span class="n">unexpected_pairs</span><span class="p">:</span>
-        <span class="n">report</span><span class="o">.</span><span class="n">unexpected_examples</span><span class="p">[</span><span class="s2">&quot;exon_transcript_links&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="sa">f</span><span class="s2">&quot;exon_id=</span><span class="si">{</span><span class="n">exon_id</span><span class="si">}</span><span class="s2">:transcript_id=</span><span class="si">{</span><span class="n">transcript_id</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">report</span><span class="o">.</span><span class="n">unexpected_examples</span><span class="p">[</span><span class="s2">"exon_transcript_links"</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="sa">f</span><span class="s2">"exon_id=</span><span class="si">{</span><span class="n">exon_id</span><span class="si">}</span><span class="s2">:transcript_id=</span><span class="si">{</span><span class="n">transcript_id</span><span class="si">}</span><span class="s2">"</span>
             <span class="k">for</span> <span class="n">exon_id</span><span class="p">,</span> <span class="n">transcript_id</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">unexpected_pairs</span><span class="p">)[:</span><span class="mi">10</span><span class="p">]</span>
         <span class="p">]</span>
 
@@ -5491,7 +5491,7 @@
     <span class="p">)</span>
     <span class="n">_add_id_value_metric</span><span class="p">(</span>
         <span class="n">report</span><span class="p">,</span>
-        <span class="s2">&quot;translations&quot;</span><span class="p">,</span>
+        <span class="s2">"translations"</span><span class="p">,</span>
         <span class="p">{</span>
             <span class="n">db_id</span><span class="p">:</span> <span class="p">(</span><span class="n">stable_id</span><span class="p">,)</span>
             <span class="k">for</span> <span class="n">db_id</span><span class="p">,</span> <span class="n">stable_id</span> <span class="ow">in</span> <span class="n">expected_translation_by_db_transcript_id</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>

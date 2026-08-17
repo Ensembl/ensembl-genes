@@ -3798,7 +3798,7 @@
 
 
 <h3 id="ensembl.genes.info_from_registry.update_assembly_registry.parser" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s1">&#39;Update the status of a genebuild in the registry database.&#39;</span><span class="p">,</span> <span class="n">formatter_class</span><span class="o">=</span><span class="p">(</span><span class="n">argparse</span><span class="o">.</span><span class="n">RawDescriptionHelpFormatter</span><span class="p">),</span> <span class="n">epilog</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">            Status values should match the gb_status enum:</span><span class="se">\n</span><span class="s1">            in_progress, insufficient_data, check_busco, completed,</span><span class="se">\n</span><span class="s1">            pre_released, handed_over, archive</span><span class="se">\n\n</span><span class="s1">            Examples:</span><span class="se">\n</span><span class="s1">            </span><span class="si">%(prog)s</span><span class="s1"> --host localhost --user myuser --password mypass --database registry</span><span class="se">\n</span><span class="s1">                    --assembly GCA_123456789.1 --status completed --genebuilder john_doe</span><span class="se">\n\n</span><span class="s1">            </span><span class="si">%(prog)s</span><span class="s1"> --host localhost --user myuser --password mypass --database registry</span><span class="se">\n</span><span class="s1">                    --assembly GCA_123456789.1 --status in_progress --genebuilder jane_smith --dev</span><span class="se">\n</span><span class="s1">        &#39;</span><span class="p">)</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s1">'Update the status of a genebuild in the registry database.'</span><span class="p">,</span> <span class="n">formatter_class</span><span class="o">=</span><span class="n">argparse</span><span class="o">.</span><span class="n">RawDescriptionHelpFormatter</span><span class="p">,</span> <span class="n">epilog</span><span class="o">=</span><span class="s1">'</span><span class="se">\n</span><span class="s1">            Status values should match the gb_status enum:</span><span class="se">\n</span><span class="s1">            in_progress, insufficient_data, check_busco, completed,</span><span class="se">\n</span><span class="s1">            pre_released, handed_over, archive</span><span class="se">\n\n</span><span class="s1">            Examples:</span><span class="se">\n</span><span class="s1">            </span><span class="si">%(prog)s</span><span class="s1"> --host localhost --user myuser --password mypass --database registry</span><span class="se">\n</span><span class="s1">                    --assembly GCA_123456789.1 --status completed --genebuilder john_doe</span><span class="se">\n\n</span><span class="s1">            </span><span class="si">%(prog)s</span><span class="s1"> --host localhost --user myuser --password mypass --database registry</span><span class="se">\n</span><span class="s1">                    --assembly GCA_123456789.1 --status in_progress --genebuilder jane_smith --dev</span><span class="se">\n</span><span class="s1">        '</span><span class="p">)</span></code>
 
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
@@ -3900,21 +3900,21 @@
 <span class="normal">57</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">ensure_genebuilder_exists</span><span class="p">(</span>
     <span class="n">connection</span><span class="p">:</span> <span class="n">Connection</span><span class="p">[</span><span class="n">DictCursor</span><span class="p">],</span> <span class="n">genebuilder</span><span class="p">:</span> <span class="nb">str</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Ensure genebuilder exists in the genebuilder table.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        connection: MySQL connection object</span>
 <span class="sd">        genebuilder (str): Genebuilder name</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">check_query</span> <span class="o">=</span> <span class="s2">&quot;SELECT genebuilder FROM genebuilder WHERE genebuilder = </span><span class="si">%s</span><span class="s2">&quot;</span>
+<span class="sd">    """</span>
+    <span class="n">check_query</span> <span class="o">=</span> <span class="s2">"SELECT genebuilder FROM genebuilder WHERE genebuilder = </span><span class="si">%s</span><span class="s2">"</span>
 
     <span class="k">with</span> <span class="n">connection</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span> <span class="k">as</span> <span class="n">cursor</span><span class="p">:</span>
         <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">check_query</span><span class="p">,</span> <span class="p">(</span><span class="n">genebuilder</span><span class="p">,))</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchone</span><span class="p">():</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Genebuilder &#39;</span><span class="si">{</span><span class="n">genebuilder</span><span class="si">}</span><span class="s2">&#39; does not exist in the</span><span class="se">\</span>
-<span class="s2">                    genebuilder table. Please add it first.&quot;</span>
+                <span class="sa">f</span><span class="s2">"Genebuilder '</span><span class="si">{</span><span class="n">genebuilder</span><span class="si">}</span><span class="s2">' does not exist in the</span><span class="se">\</span>
+<span class="s2">                    genebuilder table. Please add it first."</span>
             <span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -4188,7 +4188,7 @@
     <span class="n">genebuild_version</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">dev</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Insert a new genebuild status record.</span>
 
 <span class="sd">    Args:</span>
@@ -4200,15 +4200,15 @@
 <span class="sd">        annotation_source (str): Annotation source</span>
 <span class="sd">        annotation_method (str): Annotation method</span>
 <span class="sd">        current_date (str): Current date</span>
-<span class="sd">        release_type (str): Release type (default: &quot;not_available&quot;)</span>
+<span class="sd">        release_type (str): Release type (default: "not_available")</span>
 <span class="sd">        dev (bool): If True, only print SQL without executing</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="c1"># date completed is being used to track the last time this record was updated</span>
     <span class="c1"># so we set it to the current date</span>
     <span class="n">date_status_update</span> <span class="o">=</span> <span class="n">current_date</span>
 
     <span class="c1"># Add not avaialable for release type</span>
-    <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+    <span class="n">query</span> <span class="o">=</span> <span class="s2">"""</span>
 <span class="s2">    INSERT INTO genebuild_status (</span>
 <span class="s2">        assembly_id, gca_accession, gb_status, last_attempt,</span>
 <span class="s2">        genebuilder, annotation_source, annotation_method,</span>
@@ -4216,7 +4216,7 @@
 <span class="s2">        genebuild_version</span>
 <span class="s2">    )</span>
 <span class="s2">    VALUES (</span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, 1, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">)</span>
-<span class="s2">    &quot;&quot;&quot;</span>
+<span class="s2">    """</span>
 
     <span class="n">params</span> <span class="o">=</span> <span class="p">(</span>
         <span class="n">assembly_id</span><span class="p">,</span>
@@ -4232,12 +4232,12 @@
     <span class="p">)</span>
 
     <span class="k">if</span> <span class="n">dev</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Would execute:&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">"Would execute:"</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span><span class="n">query</span> <span class="o">%</span> <span class="n">params</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">with</span> <span class="n">connection</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span> <span class="k">as</span> <span class="n">cursor</span><span class="p">:</span>
             <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Inserted new record for GCA </span><span class="si">{</span><span class="n">assembly</span><span class="si">}</span><span class="s2"> with status &#39;</span><span class="si">{</span><span class="n">status</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Inserted new record for GCA </span><span class="si">{</span><span class="n">assembly</span><span class="si">}</span><span class="s2"> with status '</span><span class="si">{</span><span class="n">status</span><span class="si">}</span><span class="s2">'"</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -4919,7 +4919,7 @@
     <span class="n">genebuild_version</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
     <span class="n">dev</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Main function to update the genebuild status in the registry database.</span>
 
 <span class="sd">    Args:</span>
@@ -4933,10 +4933,10 @@
 <span class="sd">        genebuilder (str): Genebuilder name</span>
 <span class="sd">        annotation_source (str): Annotation source</span>
 <span class="sd">        annotation_method (str): Annotation method</span>
-<span class="sd">        release_type (str): Release type (default: &quot;not_available&quot;)</span>
+<span class="sd">        release_type (str): Release type (default: "not_available")</span>
 <span class="sd">        genebuild_version (str): Genebuild version</span>
 <span class="sd">        dev (bool): If True, only print SQL statements without executing</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">connection</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="k">try</span><span class="p">:</span>
@@ -4946,7 +4946,7 @@
         <span class="p">)</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">connection</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Failed to connect to the database&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">"Failed to connect to the database"</span><span class="p">)</span>
 
         <span class="c1"># Start transaction</span>
         <span class="n">connection</span><span class="o">.</span><span class="n">begin</span><span class="p">()</span>
@@ -4955,21 +4955,21 @@
 
         <span class="n">assembly_id</span> <span class="o">=</span> <span class="n">fetch_assembly_id</span><span class="p">(</span><span class="n">connection</span><span class="p">,</span> <span class="n">assembly</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">assembly_id</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Assembly not found for GCA: </span><span class="si">{</span><span class="n">assembly</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Assembly not found for GCA: </span><span class="si">{</span><span class="n">assembly</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
-        <span class="n">current_date</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">current_date</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">"%Y-%m-</span><span class="si">%d</span><span class="s2">"</span><span class="p">)</span>
         <span class="n">existing_record</span> <span class="o">=</span> <span class="n">fetch_current_genebuild_record</span><span class="p">(</span>
             <span class="n">connection</span><span class="p">,</span> <span class="n">assembly</span><span class="p">,</span> <span class="n">genebuilder</span>
         <span class="p">)</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">existing_record</span><span class="p">:</span>
             <span class="c1"># No existing record for this genebuilder - INSERT new</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No existing record found for </span><span class="si">{</span><span class="n">assembly</span><span class="si">}</span><span class="s2"> by </span><span class="si">{</span><span class="n">genebuilder</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Creating new record with status: </span><span class="si">{</span><span class="n">status</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"No existing record found for </span><span class="si">{</span><span class="n">assembly</span><span class="si">}</span><span class="s2"> by </span><span class="si">{</span><span class="n">genebuilder</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Creating new record with status: </span><span class="si">{</span><span class="n">status</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
             <span class="c1"># Use defaults for new records if not specified</span>
-            <span class="n">method_to_insert</span> <span class="o">=</span> <span class="n">annotation_method</span> <span class="k">if</span> <span class="n">annotation_method</span> <span class="k">else</span> <span class="s2">&quot;pending&quot;</span>
-            <span class="n">source_to_insert</span> <span class="o">=</span> <span class="n">annotation_source</span> <span class="k">if</span> <span class="n">annotation_source</span> <span class="k">else</span> <span class="s2">&quot;ensembl&quot;</span>
+            <span class="n">method_to_insert</span> <span class="o">=</span> <span class="n">annotation_method</span> <span class="k">if</span> <span class="n">annotation_method</span> <span class="k">else</span> <span class="s2">"pending"</span>
+            <span class="n">source_to_insert</span> <span class="o">=</span> <span class="n">annotation_source</span> <span class="k">if</span> <span class="n">annotation_source</span> <span class="k">else</span> <span class="s2">"ensembl"</span>
 
             <span class="c1"># Determine genebuild version: must be unique per assembly, not per genebuilder</span>
             <span class="k">if</span> <span class="n">genebuild_version</span><span class="p">:</span>
@@ -4978,11 +4978,11 @@
                 <span class="k">if</span> <span class="n">highest_version</span><span class="p">:</span>
                     <span class="k">if</span> <span class="n">genebuild_version</span> <span class="o">&lt;=</span> <span class="n">highest_version</span><span class="p">:</span>
                         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                            <span class="sa">f</span><span class="s2">&quot;Genebuild version &#39;</span><span class="si">{</span><span class="n">genebuild_version</span><span class="si">}</span><span class="s2">&#39; already exists or is lower &quot;</span>
-                            <span class="sa">f</span><span class="s2">&quot;than existing version &#39;</span><span class="si">{</span><span class="n">highest_version</span><span class="si">}</span><span class="s2">&#39; for assembly </span><span class="si">{</span><span class="n">assembly</span><span class="si">}</span><span class="s2">. &quot;</span>
-                            <span class="sa">f</span><span class="s2">&quot;Versions must be unique per assembly across all genebuilders. &quot;</span>
-                            <span class="sa">f</span><span class="s2">&quot;Please use a version higher than &#39;</span><span class="si">{</span><span class="n">highest_version</span><span class="si">}</span><span class="s2">&#39; &quot;</span>
-                            <span class="sa">f</span><span class="s2">&quot;or omit --genebuild_version to auto-increment.&quot;</span>
+                            <span class="sa">f</span><span class="s2">"Genebuild version '</span><span class="si">{</span><span class="n">genebuild_version</span><span class="si">}</span><span class="s2">' already exists or is lower "</span>
+                            <span class="sa">f</span><span class="s2">"than existing version '</span><span class="si">{</span><span class="n">highest_version</span><span class="si">}</span><span class="s2">' for assembly </span><span class="si">{</span><span class="n">assembly</span><span class="si">}</span><span class="s2">. "</span>
+                            <span class="sa">f</span><span class="s2">"Versions must be unique per assembly across all genebuilders. "</span>
+                            <span class="sa">f</span><span class="s2">"Please use a version higher than '</span><span class="si">{</span><span class="n">highest_version</span><span class="si">}</span><span class="s2">' "</span>
+                            <span class="sa">f</span><span class="s2">"or omit --genebuild_version to auto-increment."</span>
                         <span class="p">)</span>
                 <span class="n">version_to_insert</span> <span class="o">=</span> <span class="n">genebuild_version</span>
             <span class="k">else</span><span class="p">:</span>
@@ -4993,13 +4993,13 @@
                     <span class="c1"># Another genebuilder has a version for this assembly - increment it</span>
                     <span class="n">version_to_insert</span> <span class="o">=</span> <span class="n">increment_genebuild_version</span><span class="p">(</span><span class="n">highest_version</span><span class="p">)</span>
                     <span class="nb">print</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;Found existing genebuild version &#39;</span><span class="si">{</span><span class="n">highest_version</span><span class="si">}</span><span class="s2">&#39; </span><span class="se">\</span>
-<span class="s2">                            for </span><span class="si">{</span><span class="n">assembly</span><span class="si">}</span><span class="s2"> (by another genebuilder)&quot;</span>
+                        <span class="sa">f</span><span class="s2">"Found existing genebuild version '</span><span class="si">{</span><span class="n">highest_version</span><span class="si">}</span><span class="s2">' </span><span class="se">\</span>
+<span class="s2">                            for </span><span class="si">{</span><span class="n">assembly</span><span class="si">}</span><span class="s2"> (by another genebuilder)"</span>
                     <span class="p">)</span>
-                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Auto-incrementing to version: </span><span class="si">{</span><span class="n">version_to_insert</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Auto-incrementing to version: </span><span class="si">{</span><span class="n">version_to_insert</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="c1"># No version exists for this assembly yet - start with ENS01</span>
-                    <span class="n">version_to_insert</span> <span class="o">=</span> <span class="s2">&quot;ENS01&quot;</span>
+                    <span class="n">version_to_insert</span> <span class="o">=</span> <span class="s2">"ENS01"</span>
 
             <span class="n">insert_new_record</span><span class="p">(</span>
                 <span class="n">connection</span><span class="p">,</span>
@@ -5017,25 +5017,25 @@
 
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># Existing record found for this genebuilder</span>
-            <span class="n">current_status</span> <span class="o">=</span> <span class="n">existing_record</span><span class="p">[</span><span class="s2">&quot;gb_status&quot;</span><span class="p">]</span>
-            <span class="n">current_method</span> <span class="o">=</span> <span class="n">existing_record</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;annotation_method&quot;</span><span class="p">)</span>
-            <span class="n">current_source</span> <span class="o">=</span> <span class="n">existing_record</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;annotation_source&quot;</span><span class="p">)</span>
-            <span class="n">current_version</span> <span class="o">=</span> <span class="n">existing_record</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;genebuild_version&quot;</span><span class="p">)</span>
-            <span class="n">record_id</span> <span class="o">=</span> <span class="n">existing_record</span><span class="p">[</span><span class="s2">&quot;genebuild_status_id&quot;</span><span class="p">]</span>
+            <span class="n">current_status</span> <span class="o">=</span> <span class="n">existing_record</span><span class="p">[</span><span class="s2">"gb_status"</span><span class="p">]</span>
+            <span class="n">current_method</span> <span class="o">=</span> <span class="n">existing_record</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"annotation_method"</span><span class="p">)</span>
+            <span class="n">current_source</span> <span class="o">=</span> <span class="n">existing_record</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"annotation_source"</span><span class="p">)</span>
+            <span class="n">current_version</span> <span class="o">=</span> <span class="n">existing_record</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"genebuild_version"</span><span class="p">)</span>
+            <span class="n">record_id</span> <span class="o">=</span> <span class="n">existing_record</span><span class="p">[</span><span class="s2">"genebuild_status_id"</span><span class="p">]</span>
 
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Found existing record for </span><span class="si">{</span><span class="n">assembly</span><span class="si">}</span><span class="s2"> by </span><span class="si">{</span><span class="n">genebuilder</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Current status: &#39;</span><span class="si">{</span><span class="n">current_status</span><span class="si">}</span><span class="s2">&#39;, requested status: &#39;</span><span class="si">{</span><span class="n">status</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Found existing record for </span><span class="si">{</span><span class="n">assembly</span><span class="si">}</span><span class="s2"> by </span><span class="si">{</span><span class="n">genebuilder</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Current status: '</span><span class="si">{</span><span class="n">current_status</span><span class="si">}</span><span class="s2">', requested status: '</span><span class="si">{</span><span class="n">status</span><span class="si">}</span><span class="s2">'"</span><span class="p">)</span>
 
             <span class="c1"># Status categories</span>
             <span class="n">terminal_statuses</span> <span class="o">=</span> <span class="p">[</span>
-                <span class="s2">&quot;live&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;pre_released&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;handed_over&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;archive&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;coming_soon&quot;</span><span class="p">,</span>
+                <span class="s2">"live"</span><span class="p">,</span>
+                <span class="s2">"pre_released"</span><span class="p">,</span>
+                <span class="s2">"handed_over"</span><span class="p">,</span>
+                <span class="s2">"archive"</span><span class="p">,</span>
+                <span class="s2">"coming_soon"</span><span class="p">,</span>
             <span class="p">]</span>
-            <span class="n">active_statuses</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;insufficient_data&quot;</span><span class="p">,</span> <span class="s2">&quot;in_progress&quot;</span><span class="p">,</span> <span class="s2">&quot;check_busco&quot;</span><span class="p">]</span>
-            <span class="n">completed_status</span> <span class="o">=</span> <span class="s2">&quot;completed&quot;</span>  <span class="c1"># terminal-like status</span>
+            <span class="n">active_statuses</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"insufficient_data"</span><span class="p">,</span> <span class="s2">"in_progress"</span><span class="p">,</span> <span class="s2">"check_busco"</span><span class="p">]</span>
+            <span class="n">completed_status</span> <span class="o">=</span> <span class="s2">"completed"</span>  <span class="c1"># terminal-like status</span>
 
             <span class="c1"># Determine if method/source/version should be updated</span>
             <span class="c1"># (preserve existing if not specified)</span>
@@ -5073,18 +5073,18 @@
                     <span class="n">changes</span> <span class="o">=</span> <span class="p">[]</span>
                     <span class="k">if</span> <span class="n">method_changed</span><span class="p">:</span>
                         <span class="n">changes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                            <span class="sa">f</span><span class="s2">&quot;method from &#39;</span><span class="si">{</span><span class="n">current_method</span><span class="si">}</span><span class="s2">&#39; to &#39;</span><span class="si">{</span><span class="n">annotation_method</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
+                            <span class="sa">f</span><span class="s2">"method from '</span><span class="si">{</span><span class="n">current_method</span><span class="si">}</span><span class="s2">' to '</span><span class="si">{</span><span class="n">annotation_method</span><span class="si">}</span><span class="s2">'"</span>
                         <span class="p">)</span>
                     <span class="k">if</span> <span class="n">source_changed</span><span class="p">:</span>
                         <span class="n">changes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                            <span class="sa">f</span><span class="s2">&quot;source from &#39;</span><span class="si">{</span><span class="n">current_source</span><span class="si">}</span><span class="s2">&#39; to &#39;</span><span class="si">{</span><span class="n">annotation_source</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
+                            <span class="sa">f</span><span class="s2">"source from '</span><span class="si">{</span><span class="n">current_source</span><span class="si">}</span><span class="s2">' to '</span><span class="si">{</span><span class="n">annotation_source</span><span class="si">}</span><span class="s2">'"</span>
                         <span class="p">)</span>
                     <span class="k">if</span> <span class="n">version_changed</span><span class="p">:</span>
                         <span class="n">changes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                            <span class="sa">f</span><span class="s2">&quot;version from &#39;</span><span class="si">{</span><span class="n">current_version</span><span class="si">}</span><span class="s2">&#39; to &#39;</span><span class="si">{</span><span class="n">genebuild_version</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
+                            <span class="sa">f</span><span class="s2">"version from '</span><span class="si">{</span><span class="n">current_version</span><span class="si">}</span><span class="s2">' to '</span><span class="si">{</span><span class="n">genebuild_version</span><span class="si">}</span><span class="s2">'"</span>
                         <span class="p">)</span>
                     <span class="nb">print</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;Status is already &#39;</span><span class="si">{</span><span class="n">status</span><span class="si">}</span><span class="s2">&#39;, but updating </span><span class="si">{</span><span class="s1">&#39; and &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">changes</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+                        <span class="sa">f</span><span class="s2">"Status is already '</span><span class="si">{</span><span class="n">status</span><span class="si">}</span><span class="s2">', but updating </span><span class="si">{</span><span class="s1">' and '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">changes</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span>
                     <span class="p">)</span>
                     <span class="n">update_existing_record</span><span class="p">(</span>
                         <span class="n">connection</span><span class="p">,</span>
@@ -5097,7 +5097,7 @@
                         <span class="n">genebuild_version</span> <span class="k">if</span> <span class="n">version_changed</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
                     <span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
-                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Status is already &#39;</span><span class="si">{</span><span class="n">status</span><span class="si">}</span><span class="s2">&#39;. No changes needed.&quot;</span><span class="p">)</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Status is already '</span><span class="si">{</span><span class="n">status</span><span class="si">}</span><span class="s2">'. No changes needed."</span><span class="p">)</span>
                     <span class="k">return</span>
 
             <span class="c1"># Block backwards transitions from completed (unless new version provided)</span>
@@ -5109,7 +5109,7 @@
 
                 <span class="k">if</span> <span class="n">effective_version</span> <span class="o">!=</span> <span class="n">current_version</span><span class="p">:</span>
                     <span class="k">if</span> <span class="n">effective_version</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;genebuild_version is required&quot;</span><span class="p">)</span>
+                        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"genebuild_version is required"</span><span class="p">)</span>
 
                     <span class="c1"># Validate the new version against ALL existing versions for this assembly</span>
                     <span class="n">highest_version</span> <span class="o">=</span> <span class="n">fetch_highest_genebuild_version</span><span class="p">(</span>
@@ -5117,25 +5117,25 @@
                     <span class="p">)</span>
                     <span class="k">if</span> <span class="n">highest_version</span> <span class="ow">and</span> <span class="n">effective_version</span> <span class="o">&lt;=</span> <span class="n">highest_version</span><span class="p">:</span>
                         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                            <span class="sa">f</span><span class="s2">&quot;Genebuild version &#39;</span><span class="si">{</span><span class="n">effective_version</span><span class="si">}</span><span class="s2">&#39; already exists or is lower &quot;</span>
-                            <span class="sa">f</span><span class="s2">&quot;than existing version &#39;</span><span class="si">{</span><span class="n">highest_version</span><span class="si">}</span><span class="s2">&#39; for assembly </span><span class="si">{</span><span class="n">assembly</span><span class="si">}</span><span class="s2">. &quot;</span>
-                            <span class="sa">f</span><span class="s2">&quot;Versions must be unique per assembly across all genebuilders. &quot;</span>
-                            <span class="sa">f</span><span class="s2">&quot;Please use a version higher than &#39;</span><span class="si">{</span><span class="n">highest_version</span><span class="si">}</span><span class="s2">&#39;.&quot;</span>
+                            <span class="sa">f</span><span class="s2">"Genebuild version '</span><span class="si">{</span><span class="n">effective_version</span><span class="si">}</span><span class="s2">' already exists or is lower "</span>
+                            <span class="sa">f</span><span class="s2">"than existing version '</span><span class="si">{</span><span class="n">highest_version</span><span class="si">}</span><span class="s2">' for assembly </span><span class="si">{</span><span class="n">assembly</span><span class="si">}</span><span class="s2">. "</span>
+                            <span class="sa">f</span><span class="s2">"Versions must be unique per assembly across all genebuilders. "</span>
+                            <span class="sa">f</span><span class="s2">"Please use a version higher than '</span><span class="si">{</span><span class="n">highest_version</span><span class="si">}</span><span class="s2">'."</span>
                         <span class="p">)</span>
 
                     <span class="nb">print</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;Moving from &#39;completed&#39; to &#39;</span><span class="si">{</span><span class="n">status</span><span class="si">}</span><span class="s2">&#39; &quot;</span>
-                        <span class="sa">f</span><span class="s2">&quot;with new version </span><span class="si">{</span><span class="n">effective_version</span><span class="si">}</span><span class="s2">&quot;</span>
+                        <span class="sa">f</span><span class="s2">"Moving from 'completed' to '</span><span class="si">{</span><span class="n">status</span><span class="si">}</span><span class="s2">' "</span>
+                        <span class="sa">f</span><span class="s2">"with new version </span><span class="si">{</span><span class="n">effective_version</span><span class="si">}</span><span class="s2">"</span>
                     <span class="p">)</span>
-                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Creating new attempt.&quot;</span><span class="p">)</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">"Creating new attempt."</span><span class="p">)</span>
 
                     <span class="n">method_to_insert</span> <span class="o">=</span> <span class="p">(</span>
-                        <span class="n">annotation_method</span> <span class="k">if</span> <span class="n">annotation_method</span> <span class="k">else</span> <span class="s2">&quot;pending&quot;</span>
+                        <span class="n">annotation_method</span> <span class="k">if</span> <span class="n">annotation_method</span> <span class="k">else</span> <span class="s2">"pending"</span>
                     <span class="p">)</span>
                     <span class="n">source_to_insert</span> <span class="o">=</span> <span class="p">(</span>
                         <span class="n">annotation_source</span>
                         <span class="k">if</span> <span class="n">annotation_source</span>
-                        <span class="k">else</span> <span class="n">current_source</span> <span class="ow">or</span> <span class="s2">&quot;pending&quot;</span>
+                        <span class="k">else</span> <span class="n">current_source</span> <span class="ow">or</span> <span class="s2">"pending"</span>
                     <span class="p">)</span>
 
                     <span class="n">set_old_record_historical</span><span class="p">(</span><span class="n">connection</span><span class="p">,</span> <span class="n">record_id</span><span class="p">,</span> <span class="n">dev</span><span class="p">)</span>
@@ -5160,12 +5160,12 @@
                     <span class="n">suggested_version</span> <span class="o">=</span> <span class="p">(</span>
                         <span class="n">increment_genebuild_version</span><span class="p">(</span><span class="n">highest_version</span><span class="p">)</span>
                         <span class="k">if</span> <span class="n">highest_version</span>
-                        <span class="k">else</span> <span class="s2">&quot;ENS02&quot;</span>
+                        <span class="k">else</span> <span class="s2">"ENS02"</span>
                     <span class="p">)</span>
                     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;Cannot move backwards from &#39;completed&#39; to &#39;</span><span class="si">{</span><span class="n">status</span><span class="si">}</span><span class="s2">&#39;. &quot;</span>
-                        <span class="sa">f</span><span class="s2">&quot;To restart work, provide a new --genebuild_version higher &quot;</span>
-                        <span class="sa">f</span><span class="s2">&quot;than &#39;</span><span class="si">{</span><span class="n">highest_version</span><span class="si">}</span><span class="s2">&#39; (e.g., </span><span class="si">{</span><span class="n">suggested_version</span><span class="si">}</span><span class="s2">).&quot;</span>
+                        <span class="sa">f</span><span class="s2">"Cannot move backwards from 'completed' to '</span><span class="si">{</span><span class="n">status</span><span class="si">}</span><span class="s2">'. "</span>
+                        <span class="sa">f</span><span class="s2">"To restart work, provide a new --genebuild_version higher "</span>
+                        <span class="sa">f</span><span class="s2">"than '</span><span class="si">{</span><span class="n">highest_version</span><span class="si">}</span><span class="s2">' (e.g., </span><span class="si">{</span><span class="n">suggested_version</span><span class="si">}</span><span class="s2">)."</span>
                     <span class="p">)</span>
 
             <span class="c1"># Block backwards transitions from terminal statuses</span>
@@ -5180,7 +5180,7 @@
 
                 <span class="k">if</span> <span class="n">effective_version</span> <span class="o">!=</span> <span class="n">current_version</span><span class="p">:</span>
                     <span class="k">if</span> <span class="n">effective_version</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;genebuild_version is required&quot;</span><span class="p">)</span>
+                        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"genebuild_version is required"</span><span class="p">)</span>
 
                     <span class="c1"># Validate the new version against ALL existing versions for this assembly</span>
                     <span class="n">highest_version</span> <span class="o">=</span> <span class="n">fetch_highest_genebuild_version</span><span class="p">(</span>
@@ -5188,24 +5188,24 @@
                     <span class="p">)</span>
                     <span class="k">if</span> <span class="n">highest_version</span> <span class="ow">and</span> <span class="n">effective_version</span> <span class="o">&lt;=</span> <span class="n">highest_version</span><span class="p">:</span>
                         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                            <span class="sa">f</span><span class="s2">&quot;Genebuild version &#39;</span><span class="si">{</span><span class="n">effective_version</span><span class="si">}</span><span class="s2">&#39; already exists or is lower &quot;</span>
-                            <span class="sa">f</span><span class="s2">&quot;than existing version &#39;</span><span class="si">{</span><span class="n">highest_version</span><span class="si">}</span><span class="s2">&#39; for assembly </span><span class="si">{</span><span class="n">assembly</span><span class="si">}</span><span class="s2">. &quot;</span>
-                            <span class="sa">f</span><span class="s2">&quot;Versions must be unique per assembly across all genebuilders. &quot;</span>
-                            <span class="sa">f</span><span class="s2">&quot;Please use a version higher than &#39;</span><span class="si">{</span><span class="n">highest_version</span><span class="si">}</span><span class="s2">&#39;.&quot;</span>
+                            <span class="sa">f</span><span class="s2">"Genebuild version '</span><span class="si">{</span><span class="n">effective_version</span><span class="si">}</span><span class="s2">' already exists or is lower "</span>
+                            <span class="sa">f</span><span class="s2">"than existing version '</span><span class="si">{</span><span class="n">highest_version</span><span class="si">}</span><span class="s2">' for assembly </span><span class="si">{</span><span class="n">assembly</span><span class="si">}</span><span class="s2">. "</span>
+                            <span class="sa">f</span><span class="s2">"Versions must be unique per assembly across all genebuilders. "</span>
+                            <span class="sa">f</span><span class="s2">"Please use a version higher than '</span><span class="si">{</span><span class="n">highest_version</span><span class="si">}</span><span class="s2">'."</span>
                         <span class="p">)</span>
                     <span class="nb">print</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;Moving from terminal status &#39;</span><span class="si">{</span><span class="n">current_status</span><span class="si">}</span><span class="s2">&#39; to </span><span class="se">\</span>
-<span class="s2">                            &#39;</span><span class="si">{</span><span class="n">status</span><span class="si">}</span><span class="s2">&#39; with new version </span><span class="si">{</span><span class="n">effective_version</span><span class="si">}</span><span class="s2">&quot;</span>
+                        <span class="sa">f</span><span class="s2">"Moving from terminal status '</span><span class="si">{</span><span class="n">current_status</span><span class="si">}</span><span class="s2">' to </span><span class="se">\</span>
+<span class="s2">                            '</span><span class="si">{</span><span class="n">status</span><span class="si">}</span><span class="s2">' with new version </span><span class="si">{</span><span class="n">effective_version</span><span class="si">}</span><span class="s2">"</span>
                     <span class="p">)</span>
-                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Creating new attempt.&quot;</span><span class="p">)</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">"Creating new attempt."</span><span class="p">)</span>
 
                     <span class="n">method_to_insert</span> <span class="o">=</span> <span class="p">(</span>
-                        <span class="n">annotation_method</span> <span class="k">if</span> <span class="n">annotation_method</span> <span class="k">else</span> <span class="s2">&quot;pending&quot;</span>
+                        <span class="n">annotation_method</span> <span class="k">if</span> <span class="n">annotation_method</span> <span class="k">else</span> <span class="s2">"pending"</span>
                     <span class="p">)</span>
                     <span class="n">source_to_insert</span> <span class="o">=</span> <span class="p">(</span>
                         <span class="n">annotation_source</span>
                         <span class="k">if</span> <span class="n">annotation_source</span>
-                        <span class="k">else</span> <span class="n">current_source</span> <span class="ow">or</span> <span class="s2">&quot;pending&quot;</span>
+                        <span class="k">else</span> <span class="n">current_source</span> <span class="ow">or</span> <span class="s2">"pending"</span>
                     <span class="p">)</span>
 
                     <span class="n">set_old_record_historical</span><span class="p">(</span><span class="n">connection</span><span class="p">,</span> <span class="n">record_id</span><span class="p">,</span> <span class="n">dev</span><span class="p">)</span>
@@ -5230,21 +5230,21 @@
                     <span class="n">suggested_version</span> <span class="o">=</span> <span class="p">(</span>
                         <span class="n">increment_genebuild_version</span><span class="p">(</span><span class="n">highest_version</span><span class="p">)</span>
                         <span class="k">if</span> <span class="n">highest_version</span>
-                        <span class="k">else</span> <span class="s2">&quot;ENS02&quot;</span>
+                        <span class="k">else</span> <span class="s2">"ENS02"</span>
                     <span class="p">)</span>
                     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;Cannot move from terminal status &#39;</span><span class="si">{</span><span class="n">current_status</span><span class="si">}</span><span class="s2">&#39; to &#39;</span><span class="si">{</span><span class="n">status</span><span class="si">}</span><span class="s2">&#39; &quot;</span>
-                        <span class="sa">f</span><span class="s2">&quot;with same genebuild_version &#39;</span><span class="si">{</span><span class="n">current_version</span><span class="si">}</span><span class="s2">&#39;. &quot;</span>
-                        <span class="sa">f</span><span class="s2">&quot;To restart work, provide a new --genebuild_version higher &quot;</span>
-                        <span class="sa">f</span><span class="s2">&quot;than &#39;</span><span class="si">{</span><span class="n">highest_version</span><span class="si">}</span><span class="s2">&#39; (e.g., </span><span class="si">{</span><span class="n">suggested_version</span><span class="si">}</span><span class="s2">).&quot;</span>
+                        <span class="sa">f</span><span class="s2">"Cannot move from terminal status '</span><span class="si">{</span><span class="n">current_status</span><span class="si">}</span><span class="s2">' to '</span><span class="si">{</span><span class="n">status</span><span class="si">}</span><span class="s2">' "</span>
+                        <span class="sa">f</span><span class="s2">"with same genebuild_version '</span><span class="si">{</span><span class="n">current_version</span><span class="si">}</span><span class="s2">'. "</span>
+                        <span class="sa">f</span><span class="s2">"To restart work, provide a new --genebuild_version higher "</span>
+                        <span class="sa">f</span><span class="s2">"than '</span><span class="si">{</span><span class="n">highest_version</span><span class="si">}</span><span class="s2">' (e.g., </span><span class="si">{</span><span class="n">suggested_version</span><span class="si">}</span><span class="s2">)."</span>
                     <span class="p">)</span>
 
             <span class="c1"># Terminal to terminal transition - UPDATE same record</span>
             <span class="k">elif</span> <span class="n">current_status</span> <span class="ow">in</span> <span class="n">terminal_statuses</span> <span class="ow">and</span> <span class="n">status</span> <span class="ow">in</span> <span class="n">terminal_statuses</span><span class="p">:</span>
                 <span class="nb">print</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Moving from terminal status &#39;</span><span class="si">{</span><span class="n">current_status</span><span class="si">}</span><span class="s2">&#39; to terminal status &#39;</span><span class="si">{</span><span class="n">status</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
+                    <span class="sa">f</span><span class="s2">"Moving from terminal status '</span><span class="si">{</span><span class="n">current_status</span><span class="si">}</span><span class="s2">' to terminal status '</span><span class="si">{</span><span class="n">status</span><span class="si">}</span><span class="s2">'"</span>
                 <span class="p">)</span>
-                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Updating existing record.&quot;</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">"Updating existing record."</span><span class="p">)</span>
                 <span class="n">update_existing_record</span><span class="p">(</span>
                     <span class="n">connection</span><span class="p">,</span>
                     <span class="n">record_id</span><span class="p">,</span>
@@ -5258,8 +5258,8 @@
 
             <span class="c1"># Completed to terminal transition - UPDATE same record</span>
             <span class="k">elif</span> <span class="n">current_status</span> <span class="o">==</span> <span class="n">completed_status</span> <span class="ow">and</span> <span class="n">status</span> <span class="ow">in</span> <span class="n">terminal_statuses</span><span class="p">:</span>
-                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Moving from &#39;completed&#39; to terminal status &#39;</span><span class="si">{</span><span class="n">status</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
-                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Updating existing record.&quot;</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Moving from 'completed' to terminal status '</span><span class="si">{</span><span class="n">status</span><span class="si">}</span><span class="s2">'"</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">"Updating existing record."</span><span class="p">)</span>
                 <span class="n">update_existing_record</span><span class="p">(</span>
                     <span class="n">connection</span><span class="p">,</span>
                     <span class="n">record_id</span><span class="p">,</span>
@@ -5276,7 +5276,7 @@
                 <span class="n">status</span> <span class="ow">in</span> <span class="n">active_statuses</span> <span class="ow">or</span> <span class="n">status</span> <span class="o">==</span> <span class="n">completed_status</span>
             <span class="p">):</span>
                 <span class="nb">print</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Current status &#39;</span><span class="si">{</span><span class="n">current_status</span><span class="si">}</span><span class="s2">&#39; is active. Updating to &#39;</span><span class="si">{</span><span class="n">status</span><span class="si">}</span><span class="s2">&#39;.&quot;</span>
+                    <span class="sa">f</span><span class="s2">"Current status '</span><span class="si">{</span><span class="n">current_status</span><span class="si">}</span><span class="s2">' is active. Updating to '</span><span class="si">{</span><span class="n">status</span><span class="si">}</span><span class="s2">'."</span>
                 <span class="p">)</span>
                 <span class="n">update_existing_record</span><span class="p">(</span>
                     <span class="n">connection</span><span class="p">,</span>
@@ -5292,9 +5292,9 @@
             <span class="c1"># Active to terminal - UPDATE same record</span>
             <span class="k">elif</span> <span class="n">current_status</span> <span class="ow">in</span> <span class="n">active_statuses</span> <span class="ow">and</span> <span class="n">status</span> <span class="ow">in</span> <span class="n">terminal_statuses</span><span class="p">:</span>
                 <span class="nb">print</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Moving from active status &#39;</span><span class="si">{</span><span class="n">current_status</span><span class="si">}</span><span class="s2">&#39; to terminal status &#39;</span><span class="si">{</span><span class="n">status</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
+                    <span class="sa">f</span><span class="s2">"Moving from active status '</span><span class="si">{</span><span class="n">current_status</span><span class="si">}</span><span class="s2">' to terminal status '</span><span class="si">{</span><span class="n">status</span><span class="si">}</span><span class="s2">'"</span>
                 <span class="p">)</span>
-                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Updating existing record.&quot;</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">"Updating existing record."</span><span class="p">)</span>
                 <span class="n">update_existing_record</span><span class="p">(</span>
                     <span class="n">connection</span><span class="p">,</span>
                     <span class="n">record_id</span><span class="p">,</span>
@@ -5308,15 +5308,15 @@
 
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Unexpected status transition: &#39;</span><span class="si">{</span><span class="n">current_status</span><span class="si">}</span><span class="s2">&#39; to &#39;</span><span class="si">{</span><span class="n">status</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
+                    <span class="sa">f</span><span class="s2">"Unexpected status transition: '</span><span class="si">{</span><span class="n">current_status</span><span class="si">}</span><span class="s2">' to '</span><span class="si">{</span><span class="n">status</span><span class="si">}</span><span class="s2">'"</span>
                 <span class="p">)</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">dev</span><span class="p">:</span>
             <span class="c1"># Commit transaction</span>
             <span class="n">connection</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Transaction completed successfully&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">"Transaction completed successfully"</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;DEV MODE: No changes were made to the database&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">"DEV MODE: No changes were made to the database"</span><span class="p">)</span>
 
     <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">connection</span><span class="p">:</span>
@@ -5435,25 +5435,25 @@
 <span class="normal">197</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">set_old_record_historical</span><span class="p">(</span>
     <span class="n">connection</span><span class="p">:</span> <span class="n">Connection</span><span class="p">[</span><span class="n">DictCursor</span><span class="p">],</span> <span class="n">record_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">dev</span><span class="p">:</span> <span class="nb">bool</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Set an existing record to historical (last_attempt = 0).</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        connection: MySQL connection object</span>
 <span class="sd">        record_id (int): genebuild_status_id to update</span>
 <span class="sd">        dev (bool): If True, only print SQL without executing</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">query</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="s2">&quot;UPDATE genebuild_status SET last_attempt = 0 WHERE genebuild_status_id = </span><span class="si">%s</span><span class="s2">&quot;</span>
+        <span class="s2">"UPDATE genebuild_status SET last_attempt = 0 WHERE genebuild_status_id = </span><span class="si">%s</span><span class="s2">"</span>
     <span class="p">)</span>
 
     <span class="k">if</span> <span class="n">dev</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Would execute:&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">"Would execute:"</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span><span class="n">query</span> <span class="o">%</span> <span class="p">(</span><span class="n">record_id</span><span class="p">,))</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">with</span> <span class="n">connection</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span> <span class="k">as</span> <span class="n">cursor</span><span class="p">:</span>
             <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="p">(</span><span class="n">record_id</span><span class="p">,))</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Set record </span><span class="si">{</span><span class="n">record_id</span><span class="si">}</span><span class="s2"> to historical&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Set record </span><span class="si">{</span><span class="n">record_id</span><span class="si">}</span><span class="s2"> to historical"</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -5676,7 +5676,7 @@
     <span class="n">annotation_source</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">genebuild_version</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Update an existing genebuild status record.</span>
 
 <span class="sd">    Args:</span>
@@ -5688,32 +5688,32 @@
 <span class="sd">        annotation_method (str, optional): New annotation method</span>
 <span class="sd">        annotation_source (str, optional): New annotation source</span>
 <span class="sd">        genebuild_version (str, optional): New genebuild version</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">query_parts</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;gb_status = </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;date_status_update = </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">]</span>
+<span class="sd">    """</span>
+    <span class="n">query_parts</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"gb_status = </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="s2">"date_status_update = </span><span class="si">%s</span><span class="s2">"</span><span class="p">]</span>
     <span class="n">params</span> <span class="o">=</span> <span class="p">[</span><span class="n">status</span><span class="p">,</span> <span class="n">current_date</span><span class="p">]</span>
     <span class="k">if</span> <span class="n">annotation_method</span><span class="p">:</span>
-        <span class="n">query_parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;annotation_method = </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">query_parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">"annotation_method = </span><span class="si">%s</span><span class="s2">"</span><span class="p">)</span>
         <span class="n">params</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">annotation_method</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">annotation_source</span><span class="p">:</span>
-        <span class="n">query_parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;annotation_source = </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">query_parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">"annotation_source = </span><span class="si">%s</span><span class="s2">"</span><span class="p">)</span>
         <span class="n">params</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">annotation_source</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">genebuild_version</span><span class="p">:</span>
-        <span class="n">query_parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;genebuild_version = </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">query_parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">"genebuild_version = </span><span class="si">%s</span><span class="s2">"</span><span class="p">)</span>
         <span class="n">params</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">genebuild_version</span><span class="p">)</span>
-    <span class="n">query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+    <span class="n">query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"""</span>
 <span class="s2">UPDATE genebuild_status</span>
-<span class="s2">SET </span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">query_parts</span><span class="p">)</span><span class="si">}</span>
+<span class="s2">SET </span><span class="si">{</span><span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">query_parts</span><span class="p">)</span><span class="si">}</span>
 <span class="s2">WHERE genebuild_status_id = %s</span>
-<span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">"""</span>
     <span class="n">params</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">record_id</span><span class="p">))</span>
 
     <span class="k">if</span> <span class="n">dev</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Would execute:&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">"Would execute:"</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">with</span> <span class="n">connection</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span> <span class="k">as</span> <span class="n">cursor</span><span class="p">:</span>
             <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Updated record </span><span class="si">{</span><span class="n">record_id</span><span class="si">}</span><span class="s2"> to status &#39;</span><span class="si">{</span><span class="n">status</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Updated record </span><span class="si">{</span><span class="n">record_id</span><span class="si">}</span><span class="s2"> to status '</span><span class="si">{</span><span class="n">status</span><span class="si">}</span><span class="s2">'"</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>

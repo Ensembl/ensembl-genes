@@ -3992,7 +3992,7 @@ core database, using the provided connection settings.</p>
     <span class="n">server_info</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]],</span>  <span class="c1"># pylint: disable=unused-argument</span>
     <span class="n">core_adaptor</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Updates the local registry file with new DBAdaptor connection details for a</span>
 <span class="sd">    core database, using the provided connection settings.</span>
 
@@ -4000,14 +4000,14 @@ core database, using the provided connection settings.</p>
 <span class="sd">    ----------</span>
 <span class="sd">    settings : Dict[str, Any],</span>
 <span class="sd">        Must contain:</span>
-<span class="sd">            - &#39;base_output_dir&#39;: str, where the local Databases.pm file is placed.</span>
+<span class="sd">            - 'base_output_dir': str, where the local Databases.pm file is placed.</span>
 
 <span class="sd">    server_info : Dict[str, Dict[str, Any]],</span>
 <span class="sd">        Used to pass to `update_registry_path_and_create_entry`.</span>
 
 <span class="sd">    core_adaptor : Dict[str, str],</span>
 <span class="sd">        Must contain:</span>
-<span class="sd">            - &#39;host&#39;, &#39;port&#39;, &#39;dbname&#39;, &#39;user&#39;, &#39;pass&#39;, &#39;species&#39;, &#39;group&#39;</span>
+<span class="sd">            - 'host', 'port', 'dbname', 'user', 'pass', 'species', 'group'</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">    -------</span>
@@ -4020,35 +4020,35 @@ core database, using the provided connection settings.</p>
 
 <span class="sd">    RuntimeError:</span>
 <span class="sd">        If there is an error overwriting the original registry file.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">registry_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">settings</span><span class="p">[</span><span class="s2">&quot;base_output_dir&quot;</span><span class="p">])</span> <span class="o">/</span> <span class="s2">&quot;Databases.pm&quot;</span>
+<span class="sd">    """</span>
+    <span class="n">registry_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">settings</span><span class="p">[</span><span class="s2">"base_output_dir"</span><span class="p">])</span> <span class="o">/</span> <span class="s2">"Databases.pm"</span>
     <span class="n">registry_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-        <span class="nb">str</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ENSCODE&quot;</span><span class="p">)),</span>
-        <span class="s2">&quot;ensembl-analysis&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;scripts&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;genebuild&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;gbiab&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;support_files&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;Databases.pm&quot;</span><span class="p">,</span>
+        <span class="nb">str</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"ENSCODE"</span><span class="p">)),</span>
+        <span class="s2">"ensembl-analysis"</span><span class="p">,</span>
+        <span class="s2">"scripts"</span><span class="p">,</span>
+        <span class="s2">"genebuild"</span><span class="p">,</span>
+        <span class="s2">"gbiab"</span><span class="p">,</span>
+        <span class="s2">"support_files"</span><span class="p">,</span>
+        <span class="s2">"Databases.pm"</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">registry_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
         <span class="n">shutil</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">registry_file</span><span class="p">,</span> <span class="n">registry_path</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">registry_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
-        <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;A registry file was not found at: </span><span class="si">{</span><span class="n">registry_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"A registry file was not found at: </span><span class="si">{</span><span class="n">registry_path</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">db_string</span><span class="p">(</span><span class="n">db_details</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Bio::EnsEMBL::DBSQL::DBAdaptor-&gt;new(</span><span class="se">\n</span><span class="s2">&quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;  -host =&gt; &#39;</span><span class="si">{</span><span class="n">db_details</span><span class="p">[</span><span class="s1">&#39;host&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&#39;,</span><span class="se">\n</span><span class="s2">&quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;  -port =&gt; &#39;</span><span class="si">{</span><span class="n">db_details</span><span class="p">[</span><span class="s1">&#39;port&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&#39;,</span><span class="se">\n</span><span class="s2">&quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;  -dbname =&gt; &#39;</span><span class="si">{</span><span class="n">db_details</span><span class="p">[</span><span class="s1">&#39;dbname&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&#39;,</span><span class="se">\n</span><span class="s2">&quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;  -user =&gt; &#39;</span><span class="si">{</span><span class="n">db_details</span><span class="p">[</span><span class="s1">&#39;user&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&#39;,</span><span class="se">\n</span><span class="s2">&quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;  -pass =&gt; &#39;</span><span class="si">{</span><span class="n">db_details</span><span class="p">[</span><span class="s1">&#39;pass&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&#39;,</span><span class="se">\n</span><span class="s2">&quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;  -species =&gt; &#39;</span><span class="si">{</span><span class="n">db_details</span><span class="p">[</span><span class="s1">&#39;species&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&#39;,</span><span class="se">\n</span><span class="s2">&quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;  -group =&gt; &#39;</span><span class="si">{</span><span class="n">db_details</span><span class="p">[</span><span class="s1">&#39;group&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&#39;,</span><span class="se">\n</span><span class="s2">&quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;);</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">"Bio::EnsEMBL::DBSQL::DBAdaptor-&gt;new(</span><span class="se">\n</span><span class="s2">"</span>
+            <span class="sa">f</span><span class="s2">"  -host =&gt; '</span><span class="si">{</span><span class="n">db_details</span><span class="p">[</span><span class="s1">'host'</span><span class="p">]</span><span class="si">}</span><span class="s2">',</span><span class="se">\n</span><span class="s2">"</span>
+            <span class="sa">f</span><span class="s2">"  -port =&gt; '</span><span class="si">{</span><span class="n">db_details</span><span class="p">[</span><span class="s1">'port'</span><span class="p">]</span><span class="si">}</span><span class="s2">',</span><span class="se">\n</span><span class="s2">"</span>
+            <span class="sa">f</span><span class="s2">"  -dbname =&gt; '</span><span class="si">{</span><span class="n">db_details</span><span class="p">[</span><span class="s1">'dbname'</span><span class="p">]</span><span class="si">}</span><span class="s2">',</span><span class="se">\n</span><span class="s2">"</span>
+            <span class="sa">f</span><span class="s2">"  -user =&gt; '</span><span class="si">{</span><span class="n">db_details</span><span class="p">[</span><span class="s1">'user'</span><span class="p">]</span><span class="si">}</span><span class="s2">',</span><span class="se">\n</span><span class="s2">"</span>
+            <span class="sa">f</span><span class="s2">"  -pass =&gt; '</span><span class="si">{</span><span class="n">db_details</span><span class="p">[</span><span class="s1">'pass'</span><span class="p">]</span><span class="si">}</span><span class="s2">',</span><span class="se">\n</span><span class="s2">"</span>
+            <span class="sa">f</span><span class="s2">"  -species =&gt; '</span><span class="si">{</span><span class="n">db_details</span><span class="p">[</span><span class="s1">'species'</span><span class="p">]</span><span class="si">}</span><span class="s2">',</span><span class="se">\n</span><span class="s2">"</span>
+            <span class="sa">f</span><span class="s2">"  -group =&gt; '</span><span class="si">{</span><span class="n">db_details</span><span class="p">[</span><span class="s1">'group'</span><span class="p">]</span><span class="si">}</span><span class="s2">',</span><span class="se">\n</span><span class="s2">"</span>
+            <span class="sa">f</span><span class="s2">");</span><span class="se">\n</span><span class="s2">"</span>
         <span class="p">)</span>
 
     <span class="c1"># Generate registry entries</span>
@@ -4062,20 +4062,20 @@ core database, using the provided connection settings.</p>
     <span class="n">inserted</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">:</span>
         <span class="n">new_lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">inserted</span> <span class="ow">and</span> <span class="s2">&quot;{&quot;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">inserted</span> <span class="ow">and</span> <span class="s2">"{"</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
             <span class="n">new_lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">core_string</span><span class="p">)</span>
             <span class="n">inserted</span> <span class="o">=</span> <span class="kc">True</span>
 
     <span class="c1"># Write to a temporary file</span>
-    <span class="n">tmp_path</span> <span class="o">=</span> <span class="n">registry_path</span><span class="o">.</span><span class="n">with_suffix</span><span class="p">(</span><span class="s2">&quot;.pm.tmp&quot;</span><span class="p">)</span>
-    <span class="n">tmp_path</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">new_lines</span><span class="p">))</span>
+    <span class="n">tmp_path</span> <span class="o">=</span> <span class="n">registry_path</span><span class="o">.</span><span class="n">with_suffix</span><span class="p">(</span><span class="s2">".pm.tmp"</span><span class="p">)</span>
+    <span class="n">tmp_path</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">""</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">new_lines</span><span class="p">))</span>
 
     <span class="c1"># Overwrite the original registry file</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="n">shutil</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">registry_path</span><span class="p">))</span>
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>  <span class="c1"># pylint: disable=raise-missing-from</span>
-            <span class="sa">f</span><span class="s2">&quot;Issue overwriting the old registry: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">"Issue overwriting the old registry: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span>
         <span class="p">)</span>
 
     <span class="k">return</span> <span class="n">registry_path</span>
@@ -4182,7 +4182,7 @@ the correct local registry.</p>
 <span class="normal">116</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">update_registry_path_in_pipedb</span><span class="p">(</span>
     <span class="n">parent_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">server_info</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Updates the resource_description table in the pipeline database by replacing</span>
 <span class="sd">    the shared registry path with a local copy. This ensures worker nodes access</span>
 <span class="sd">    the correct local registry.</span>
@@ -4191,57 +4191,57 @@ the correct local registry.</p>
 <span class="sd">    ----------</span>
 <span class="sd">    settings : dict</span>
 <span class="sd">        Must contain:</span>
-<span class="sd">            - &#39;base_output_dir&#39;: Path to where the new registry will be copied.</span>
+<span class="sd">            - 'base_output_dir': Path to where the new registry will be copied.</span>
 
 <span class="sd">    server_info : dict</span>
 <span class="sd">        Connection info for the pipeline database under:</span>
-<span class="sd">            - server_info[&quot;pipeline_db&quot;][&quot;db_host&quot;]</span>
-<span class="sd">            - server_info[&quot;pipeline_db&quot;][&quot;db_user&quot;]</span>
-<span class="sd">            - server_info[&quot;pipeline_db&quot;][&quot;db_port&quot;]</span>
-<span class="sd">            - server_info[&quot;pipeline_db&quot;][&quot;db_password&quot;]</span>
-<span class="sd">            - server_info[&quot;pipeline_db&quot;][&quot;db_name&quot;]</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Updating registry path in pipeline DB&quot;</span><span class="p">)</span>
+<span class="sd">            - server_info["pipeline_db"]["db_host"]</span>
+<span class="sd">            - server_info["pipeline_db"]["db_user"]</span>
+<span class="sd">            - server_info["pipeline_db"]["db_port"]</span>
+<span class="sd">            - server_info["pipeline_db"]["db_password"]</span>
+<span class="sd">            - server_info["pipeline_db"]["db_name"]</span>
+<span class="sd">    """</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"Updating registry path in pipeline DB"</span><span class="p">)</span>
     <span class="n">registry_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-        <span class="nb">str</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ENSCODE&quot;</span><span class="p">)),</span>
-        <span class="s2">&quot;ensembl-analysis&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;scripts&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;genebuild&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;gbiab&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;support_files&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;Databases.pm&quot;</span><span class="p">,</span>
+        <span class="nb">str</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"ENSCODE"</span><span class="p">)),</span>
+        <span class="s2">"ensembl-analysis"</span><span class="p">,</span>
+        <span class="s2">"scripts"</span><span class="p">,</span>
+        <span class="s2">"genebuild"</span><span class="p">,</span>
+        <span class="s2">"gbiab"</span><span class="p">,</span>
+        <span class="s2">"support_files"</span><span class="p">,</span>
+        <span class="s2">"Databases.pm"</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>  <span class="c1"># pylint: disable=logging-fstring-interpolation</span>
-        <span class="sa">f</span><span class="s2">&quot;parent_dir : </span><span class="si">{</span><span class="n">parent_dir</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="sa">f</span><span class="s2">"parent_dir : </span><span class="si">{</span><span class="n">parent_dir</span><span class="si">}</span><span class="s2">"</span>
     <span class="p">)</span>
-    <span class="n">new_registry_file</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">parent_dir</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span> <span class="o">/</span> <span class="s2">&quot;Databases.pm&quot;</span>
+    <span class="n">new_registry_file</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">parent_dir</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span> <span class="o">/</span> <span class="s2">"Databases.pm"</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">new_registry_file</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
-        <span class="k">raise</span> <span class="ne">OSError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Registry file doesn&#39;t exist: </span><span class="si">{</span><span class="n">new_registry_file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">OSError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Registry file doesn't exist: </span><span class="si">{</span><span class="n">new_registry_file</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>  <span class="c1"># pylint: disable=logging-fstring-interpolation</span>
-        <span class="sa">f</span><span class="s2">&quot;Registry file exist at </span><span class="si">{</span><span class="n">new_registry_file</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="sa">f</span><span class="s2">"Registry file exist at </span><span class="si">{</span><span class="n">new_registry_file</span><span class="si">}</span><span class="s2">"</span>
     <span class="p">)</span>
 
-    <span class="n">update_resources_query</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+    <span class="n">update_resources_query</span> <span class="o">=</span> <span class="s2">"""</span>
 <span class="s2">		UPDATE resource_description </span>
 <span class="s2">		SET worker_cmd_args = REPLACE(worker_cmd_args, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">);</span>
-<span class="s2">	&quot;&quot;&quot;</span>
+<span class="s2">	"""</span>
 
     <span class="n">success</span> <span class="o">=</span> <span class="n">mysql_update</span><span class="p">(</span>
         <span class="n">query</span><span class="o">=</span><span class="n">update_resources_query</span><span class="p">,</span>
-        <span class="n">host</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">&quot;pipeline_db&quot;</span><span class="p">][</span><span class="s2">&quot;db_host&quot;</span><span class="p">],</span>
-        <span class="n">user</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">&quot;pipeline_db&quot;</span><span class="p">][</span><span class="s2">&quot;db_user&quot;</span><span class="p">],</span>
-        <span class="n">port</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">&quot;pipeline_db&quot;</span><span class="p">][</span><span class="s2">&quot;db_port&quot;</span><span class="p">],</span>
-        <span class="n">password</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">&quot;pipeline_db&quot;</span><span class="p">][</span><span class="s2">&quot;db_password&quot;</span><span class="p">],</span>
-        <span class="n">database</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">&quot;pipeline_db&quot;</span><span class="p">][</span><span class="s2">&quot;db_name&quot;</span><span class="p">],</span>
+        <span class="n">host</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">"pipeline_db"</span><span class="p">][</span><span class="s2">"db_host"</span><span class="p">],</span>
+        <span class="n">user</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">"pipeline_db"</span><span class="p">][</span><span class="s2">"db_user"</span><span class="p">],</span>
+        <span class="n">port</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">"pipeline_db"</span><span class="p">][</span><span class="s2">"db_port"</span><span class="p">],</span>
+        <span class="n">password</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">"pipeline_db"</span><span class="p">][</span><span class="s2">"db_password"</span><span class="p">],</span>
+        <span class="n">database</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s2">"pipeline_db"</span><span class="p">][</span><span class="s2">"db_name"</span><span class="p">],</span>
         <span class="n">params</span><span class="o">=</span><span class="p">(</span><span class="n">registry_file</span><span class="p">,</span> <span class="n">new_registry_file</span><span class="p">),</span>
     <span class="p">)</span>
 
     <span class="k">if</span> <span class="n">success</span><span class="p">:</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Registry path updated successfully.&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"Registry path updated successfully."</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Failed to update registry path.&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">"Failed to update registry path."</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>

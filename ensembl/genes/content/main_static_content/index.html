@@ -3912,7 +3912,7 @@ and generates HTML files containing assembly and annotation content.</p>
 
 
 <h3 id="ensembl.genes.content.main_static_content.CORE_QUERY" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">CORE_QUERY</span> <span class="o">=</span> <span class="s2">&quot;SELECT meta_key, meta_value FROM meta WHERE meta_key IN (&#39;assembly.accession&#39;, &#39;species.url&#39;);&quot;</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">CORE_QUERY</span> <span class="o">=</span> <span class="s2">"SELECT meta_key, meta_value FROM meta WHERE meta_key IN ('assembly.accession', 'species.url');"</span></code>
 
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
@@ -3952,7 +3952,7 @@ and generates HTML files containing assembly and annotation content.</p>
 
 
 <h3 id="ensembl.genes.content.main_static_content.assembly_info" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">assembly_info</span> <span class="o">=</span> <span class="n">get_assembly_info</span><span class="p">(</span><span class="n">core_dict</span><span class="p">[</span><span class="s1">&#39;assembly.accession&#39;</span><span class="p">])</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">assembly_info</span> <span class="o">=</span> <span class="n">get_assembly_info</span><span class="p">(</span><span class="n">core_dict</span><span class="p">[</span><span class="s1">'assembly.accession'</span><span class="p">])</span></code>
 
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
@@ -3972,7 +3972,7 @@ and generates HTML files containing assembly and annotation content.</p>
 
 
 <h3 id="ensembl.genes.content.main_static_content.core_dict" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">core_dict</span> <span class="o">=</span> <span class="p">{(</span><span class="n">meta_pair</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span> <span class="p">(</span><span class="n">meta_pair</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="k">for</span> <span class="n">meta_pair</span> <span class="ow">in</span> <span class="n">core_meta</span><span class="p">}</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">core_dict</span> <span class="o">=</span> <span class="p">{</span><span class="n">meta_pair</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span> <span class="n">meta_pair</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">meta_pair</span> <span class="ow">in</span> <span class="n">core_meta</span><span class="p">}</span></code>
 
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
@@ -3992,7 +3992,7 @@ and generates HTML files containing assembly and annotation content.</p>
 
 
 <h3 id="ensembl.genes.content.main_static_content.core_meta" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">core_meta</span> <span class="o">=</span> <span class="n">mysql_fetch_data</span><span class="p">(</span><span class="n">CORE_QUERY</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="p">(</span><span class="n">server_info</span><span class="p">[</span><span class="s1">&#39;server&#39;</span><span class="p">][</span><span class="s1">&#39;db_host&#39;</span><span class="p">]),</span> <span class="n">user</span><span class="o">=</span><span class="p">(</span><span class="n">server_info</span><span class="p">[</span><span class="s1">&#39;server&#39;</span><span class="p">][</span><span class="s1">&#39;db_user&#39;</span><span class="p">]),</span> <span class="n">port</span><span class="o">=</span><span class="p">(</span><span class="n">server_info</span><span class="p">[</span><span class="s1">&#39;server&#39;</span><span class="p">][</span><span class="s1">&#39;db_port&#39;</span><span class="p">]),</span> <span class="n">database</span><span class="o">=</span><span class="n">db</span><span class="p">)</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">core_meta</span> <span class="o">=</span> <span class="n">mysql_fetch_data</span><span class="p">(</span><span class="n">CORE_QUERY</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s1">'server'</span><span class="p">][</span><span class="s1">'db_host'</span><span class="p">],</span> <span class="n">user</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s1">'server'</span><span class="p">][</span><span class="s1">'db_user'</span><span class="p">],</span> <span class="n">port</span><span class="o">=</span><span class="n">server_info</span><span class="p">[</span><span class="s1">'server'</span><span class="p">][</span><span class="s1">'db_port'</span><span class="p">],</span> <span class="n">database</span><span class="o">=</span><span class="n">db</span><span class="p">)</span></code>
 
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
@@ -4052,7 +4052,7 @@ and generates HTML files containing assembly and annotation content.</p>
 
 
 <h3 id="ensembl.genes.content.main_static_content.parser" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s1">&#39;Prepare static content files for main release&#39;</span><span class="p">)</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s1">'Prepare static content files for main release'</span><span class="p">)</span></code>
 
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
@@ -4072,7 +4072,7 @@ and generates HTML files containing assembly and annotation content.</p>
 
 
 <h3 id="ensembl.genes.content.main_static_content.server_info" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">server_info</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;server&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;db_host&#39;</span><span class="p">:</span> <span class="n">args</span><span class="o">.</span><span class="n">host</span><span class="p">,</span> <span class="s1">&#39;db_port&#39;</span><span class="p">:</span> <span class="n">args</span><span class="o">.</span><span class="n">port</span><span class="p">,</span> <span class="s1">&#39;db_user&#39;</span><span class="p">:</span> <span class="s1">&#39;ensro&#39;</span><span class="p">}}</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">server_info</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'server'</span><span class="p">:</span> <span class="p">{</span><span class="s1">'db_host'</span><span class="p">:</span> <span class="n">args</span><span class="o">.</span><span class="n">host</span><span class="p">,</span> <span class="s1">'db_port'</span><span class="p">:</span> <span class="n">args</span><span class="o">.</span><span class="n">port</span><span class="p">,</span> <span class="s1">'db_user'</span><span class="p">:</span> <span class="s1">'ensro'</span><span class="p">}}</span></code>
 
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
@@ -4092,7 +4092,7 @@ and generates HTML files containing assembly and annotation content.</p>
 
 
 <h3 id="ensembl.genes.content.main_static_content.url_name" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">url_name</span> <span class="o">=</span> <span class="n">core_dict</span><span class="p">[</span><span class="s1">&#39;species.url&#39;</span><span class="p">]</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">url_name</span> <span class="o">=</span> <span class="n">core_dict</span><span class="p">[</span><span class="s1">'species.url'</span><span class="p">]</span></code>
 
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
@@ -4225,7 +4225,7 @@ and generates HTML files containing assembly and annotation content.</p>
 <span class="normal">104</span>
 <span class="normal">105</span>
 <span class="normal">106</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_assembly_info</span><span class="p">(</span><span class="n">accession</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Retrieve assembly information from the ENA API for a given accession.</span>
 
 <span class="sd">    Args:</span>
@@ -4234,39 +4234,39 @@ and generates HTML files containing assembly and annotation content.</p>
 <span class="sd">    Returns:</span>
 <span class="sd">        dict: A dictionary containing assembly attributes such as name, level,\</span>
 <span class="sd">        submitter, and counts.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">assembly_url</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;https://www.ebi.ac.uk/ena/browser/api/xml/</span><span class="si">{</span><span class="n">accession</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="sd">    """</span>
+    <span class="n">assembly_url</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"https://www.ebi.ac.uk/ena/browser/api/xml/</span><span class="si">{</span><span class="n">accession</span><span class="si">}</span><span class="s2">"</span>
     <span class="n">assembly_xml</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">assembly_url</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
     <span class="n">assembly_dict</span> <span class="o">=</span> <span class="n">xmltodict</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">assembly_xml</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
-    <span class="n">assembly_attribs</span> <span class="o">=</span> <span class="n">assembly_dict</span><span class="p">[</span><span class="s2">&quot;ASSEMBLY_SET&quot;</span><span class="p">][</span><span class="s2">&quot;ASSEMBLY&quot;</span><span class="p">][</span><span class="s2">&quot;ASSEMBLY_ATTRIBUTES&quot;</span><span class="p">][</span>
-        <span class="s2">&quot;ASSEMBLY_ATTRIBUTE&quot;</span>
+    <span class="n">assembly_attribs</span> <span class="o">=</span> <span class="n">assembly_dict</span><span class="p">[</span><span class="s2">"ASSEMBLY_SET"</span><span class="p">][</span><span class="s2">"ASSEMBLY"</span><span class="p">][</span><span class="s2">"ASSEMBLY_ATTRIBUTES"</span><span class="p">][</span>
+        <span class="s2">"ASSEMBLY_ATTRIBUTE"</span>
     <span class="p">]</span>
 
     <span class="n">return_dict</span> <span class="o">=</span> <span class="p">{}</span>
 
     <span class="c1"># Retrieve specific attributes with error handling</span>
-    <span class="n">return_dict</span><span class="p">[</span><span class="s2">&quot;assembly.name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">assembly_dict</span><span class="p">[</span><span class="s2">&quot;ASSEMBLY_SET&quot;</span><span class="p">][</span><span class="s2">&quot;ASSEMBLY&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
-        <span class="s2">&quot;NAME&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span>
+    <span class="n">return_dict</span><span class="p">[</span><span class="s2">"assembly.name"</span><span class="p">]</span> <span class="o">=</span> <span class="n">assembly_dict</span><span class="p">[</span><span class="s2">"ASSEMBLY_SET"</span><span class="p">][</span><span class="s2">"ASSEMBLY"</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+        <span class="s2">"NAME"</span><span class="p">,</span> <span class="s2">""</span>
     <span class="p">)</span>
-    <span class="n">return_dict</span><span class="p">[</span><span class="s2">&quot;assembly.level&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">assembly_dict</span><span class="p">[</span><span class="s2">&quot;ASSEMBLY_SET&quot;</span><span class="p">][</span><span class="s2">&quot;ASSEMBLY&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
-        <span class="s2">&quot;ASSEMBLY_LEVEL&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span>
+    <span class="n">return_dict</span><span class="p">[</span><span class="s2">"assembly.level"</span><span class="p">]</span> <span class="o">=</span> <span class="n">assembly_dict</span><span class="p">[</span><span class="s2">"ASSEMBLY_SET"</span><span class="p">][</span><span class="s2">"ASSEMBLY"</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+        <span class="s2">"ASSEMBLY_LEVEL"</span><span class="p">,</span> <span class="s2">""</span>
     <span class="p">)</span>
-    <span class="n">return_dict</span><span class="p">[</span><span class="s2">&quot;assembly.submitter&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">assembly_dict</span><span class="p">[</span><span class="s2">&quot;ASSEMBLY_SET&quot;</span><span class="p">][</span><span class="s2">&quot;ASSEMBLY&quot;</span><span class="p">][</span>
-        <span class="s2">&quot;IDENTIFIERS&quot;</span>
-    <span class="p">][</span><span class="s2">&quot;SUBMITTER_ID&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;@namespace&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="n">return_dict</span><span class="p">[</span><span class="s2">"assembly.submitter"</span><span class="p">]</span> <span class="o">=</span> <span class="n">assembly_dict</span><span class="p">[</span><span class="s2">"ASSEMBLY_SET"</span><span class="p">][</span><span class="s2">"ASSEMBLY"</span><span class="p">][</span>
+        <span class="s2">"IDENTIFIERS"</span>
+    <span class="p">][</span><span class="s2">"SUBMITTER_ID"</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"@namespace"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span>
 
     <span class="c1"># Fetch specific attributes based on tags</span>
     <span class="k">for</span> <span class="n">attrib_set</span> <span class="ow">in</span> <span class="n">assembly_attribs</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">attrib_set</span><span class="p">[</span><span class="s2">&quot;TAG&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;count-contig&quot;</span><span class="p">:</span>
-            <span class="n">return_dict</span><span class="p">[</span><span class="s2">&quot;contig.count&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">attrib_set</span><span class="p">[</span><span class="s2">&quot;VALUE&quot;</span><span class="p">]</span>
-        <span class="k">elif</span> <span class="n">attrib_set</span><span class="p">[</span><span class="s2">&quot;TAG&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;scaffold-count&quot;</span><span class="p">:</span>
-            <span class="n">return_dict</span><span class="p">[</span><span class="s2">&quot;scaffold.count&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">attrib_set</span><span class="p">[</span><span class="s2">&quot;VALUE&quot;</span><span class="p">]</span>
-        <span class="k">elif</span> <span class="n">attrib_set</span><span class="p">[</span><span class="s2">&quot;TAG&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;ENA-LAST-UPDATED&quot;</span><span class="p">:</span>
-            <span class="n">return_dict</span><span class="p">[</span><span class="s2">&quot;assembly.date&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">attrib_set</span><span class="p">[</span><span class="s2">&quot;VALUE&quot;</span><span class="p">]</span>
-        <span class="k">elif</span> <span class="n">attrib_set</span><span class="p">[</span><span class="s2">&quot;TAG&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;n50&quot;</span><span class="p">:</span>
-            <span class="n">return_dict</span><span class="p">[</span><span class="s2">&quot;scaffold.n50&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">attrib_set</span><span class="p">[</span><span class="s2">&quot;VALUE&quot;</span><span class="p">]</span>
-        <span class="k">elif</span> <span class="n">attrib_set</span><span class="p">[</span><span class="s2">&quot;TAG&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;contig-n50&quot;</span><span class="p">:</span>
-            <span class="n">return_dict</span><span class="p">[</span><span class="s2">&quot;contig.n50&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">attrib_set</span><span class="p">[</span><span class="s2">&quot;VALUE&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">attrib_set</span><span class="p">[</span><span class="s2">"TAG"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"count-contig"</span><span class="p">:</span>
+            <span class="n">return_dict</span><span class="p">[</span><span class="s2">"contig.count"</span><span class="p">]</span> <span class="o">=</span> <span class="n">attrib_set</span><span class="p">[</span><span class="s2">"VALUE"</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="n">attrib_set</span><span class="p">[</span><span class="s2">"TAG"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"scaffold-count"</span><span class="p">:</span>
+            <span class="n">return_dict</span><span class="p">[</span><span class="s2">"scaffold.count"</span><span class="p">]</span> <span class="o">=</span> <span class="n">attrib_set</span><span class="p">[</span><span class="s2">"VALUE"</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="n">attrib_set</span><span class="p">[</span><span class="s2">"TAG"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"ENA-LAST-UPDATED"</span><span class="p">:</span>
+            <span class="n">return_dict</span><span class="p">[</span><span class="s2">"assembly.date"</span><span class="p">]</span> <span class="o">=</span> <span class="n">attrib_set</span><span class="p">[</span><span class="s2">"VALUE"</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="n">attrib_set</span><span class="p">[</span><span class="s2">"TAG"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"n50"</span><span class="p">:</span>
+            <span class="n">return_dict</span><span class="p">[</span><span class="s2">"scaffold.n50"</span><span class="p">]</span> <span class="o">=</span> <span class="n">attrib_set</span><span class="p">[</span><span class="s2">"VALUE"</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="n">attrib_set</span><span class="p">[</span><span class="s2">"TAG"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"contig-n50"</span><span class="p">:</span>
+            <span class="n">return_dict</span><span class="p">[</span><span class="s2">"contig.n50"</span><span class="p">]</span> <span class="o">=</span> <span class="n">attrib_set</span><span class="p">[</span><span class="s2">"VALUE"</span><span class="p">]</span>
 
     <span class="k">return</span> <span class="n">return_dict</span>
 </code></pre></div></td></tr></table></div>
@@ -4441,7 +4441,7 @@ and generates HTML files containing assembly and annotation content.</p>
 <span class="normal">59</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">mysql_fetch_data</span><span class="p">(</span>
     <span class="n">query</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">database</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">host</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">port</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">user</span><span class="p">:</span> <span class="nb">str</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Fetch data from a MySQL database based on a provided query.</span>
 
 <span class="sd">    Args:</span>
@@ -4453,7 +4453,7 @@ and generates HTML files containing assembly and annotation content.</p>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        tuple: A tuple containing the fetched data.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="n">conn</span> <span class="o">=</span> <span class="n">pymysql</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span>
             <span class="n">host</span><span class="o">=</span><span class="n">host</span><span class="p">,</span> <span class="n">user</span><span class="o">=</span><span class="n">user</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="n">port</span><span class="p">,</span> <span class="n">database</span><span class="o">=</span><span class="n">database</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
@@ -4462,7 +4462,7 @@ and generates HTML files containing assembly and annotation content.</p>
         <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
         <span class="n">info</span> <span class="o">=</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
     <span class="k">except</span> <span class="n">pymysql</span><span class="o">.</span><span class="n">Error</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Database error: </span><span class="si">{</span><span class="n">err</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Database error: </span><span class="si">{</span><span class="n">err</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
         <span class="n">info</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="k">finally</span><span class="p">:</span>
         <span class="n">cursor</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
@@ -4590,40 +4590,40 @@ and generates HTML files containing assembly and annotation content.</p>
 <span class="normal">143</span>
 <span class="normal">144</span>
 <span class="normal">145</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">write_content</span><span class="p">(</span><span class="n">info</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="n">out_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">url_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Write assembly and annotation content to HTML files.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        info (dict): Assembly information to be written.</span>
 <span class="sd">        output_dir (Path): Directory path for output files.</span>
 <span class="sd">        url_path (str): Name used to title the output files.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span>  <span class="c1"># pylint: disable=unspecified-encoding</span>
-        <span class="n">out_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">url_path</span><span class="si">}</span><span class="s2">_assembly.html&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span>
+        <span class="n">out_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">url_path</span><span class="si">}</span><span class="s2">_assembly.html"</span><span class="p">,</span> <span class="s2">"w"</span>
     <span class="p">)</span> <span class="k">as</span> <span class="n">assembly_out</span><span class="p">:</span>  <span class="c1"># pylint: disable=unspecified-encoding</span>
         <span class="nb">print</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;&lt;p&gt;The </span><span class="si">{</span><span class="n">info</span><span class="p">[</span><span class="s1">&#39;assembly.name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> assembly was submitted by &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">info</span><span class="p">[</span><span class="s1">&#39;assembly.submitter&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> and last updated on &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">info</span><span class="p">[</span><span class="s1">&#39;assembly.date&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">. The assembly is on the &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">info</span><span class="p">[</span><span class="s1">&#39;assembly.level&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;level, consisting of </span><span class="si">{</span><span class="n">info</span><span class="p">[</span><span class="s1">&#39;contig.count&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> contigs assembled into &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">info</span><span class="p">[</span><span class="s1">&#39;scaffold.count&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> scaffolds. &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;The N50 size is the length such that 50% of the assembled genome lies in &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;blocks of the N50 size or longer. &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;The N50 length for the contigs is </span><span class="si">{</span><span class="n">info</span><span class="p">[</span><span class="s1">&#39;contig.n50&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> while the &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;scaffold N50 is </span><span class="si">{</span><span class="n">info</span><span class="p">[</span><span class="s1">&#39;scaffold.n50&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">.&lt;/p&gt;&quot;</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">"&lt;p&gt;The </span><span class="si">{</span><span class="n">info</span><span class="p">[</span><span class="s1">'assembly.name'</span><span class="p">]</span><span class="si">}</span><span class="s2"> assembly was submitted by "</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">info</span><span class="p">[</span><span class="s1">'assembly.submitter'</span><span class="p">]</span><span class="si">}</span><span class="s2"> and last updated on "</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">info</span><span class="p">[</span><span class="s1">'assembly.date'</span><span class="p">]</span><span class="si">}</span><span class="s2">. The assembly is on the "</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">info</span><span class="p">[</span><span class="s1">'assembly.level'</span><span class="p">]</span><span class="si">}</span><span class="s2"> "</span>
+            <span class="sa">f</span><span class="s2">"level, consisting of </span><span class="si">{</span><span class="n">info</span><span class="p">[</span><span class="s1">'contig.count'</span><span class="p">]</span><span class="si">}</span><span class="s2"> contigs assembled into "</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">info</span><span class="p">[</span><span class="s1">'scaffold.count'</span><span class="p">]</span><span class="si">}</span><span class="s2"> scaffolds. "</span>
+            <span class="sa">f</span><span class="s2">"The N50 size is the length such that 50% of the assembled genome lies in "</span>
+            <span class="sa">f</span><span class="s2">"blocks of the N50 size or longer. "</span>
+            <span class="sa">f</span><span class="s2">"The N50 length for the contigs is </span><span class="si">{</span><span class="n">info</span><span class="p">[</span><span class="s1">'contig.n50'</span><span class="p">]</span><span class="si">}</span><span class="s2"> while the "</span>
+            <span class="sa">f</span><span class="s2">"scaffold N50 is </span><span class="si">{</span><span class="n">info</span><span class="p">[</span><span class="s1">'scaffold.n50'</span><span class="p">]</span><span class="si">}</span><span class="s2">.&lt;/p&gt;"</span><span class="p">,</span>
             <span class="n">file</span><span class="o">=</span><span class="n">assembly_out</span><span class="p">,</span>
         <span class="p">)</span>
 
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span>  <span class="c1"># pylint: disable=unspecified-encoding</span>
-        <span class="n">out_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">url_path</span><span class="si">}</span><span class="s2">_annotation.html&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span>
+        <span class="n">out_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">url_path</span><span class="si">}</span><span class="s2">_annotation.html"</span><span class="p">,</span> <span class="s2">"w"</span>
     <span class="p">)</span> <span class="k">as</span> <span class="n">annotation_out</span><span class="p">:</span>  <span class="c1"># pylint: disable=unspecified-encoding</span>
         <span class="nb">print</span><span class="p">(</span>
-            <span class="s2">&quot;&lt;p&gt;Genome annotation was generated using the &quot;</span>
-            <span class="s1">&#39;&lt;a href=&quot;https://beta.ensembl.org/help/articles/vertebrate-genome-annotation&quot;&gt;Ensembl vertebrate annotation pipeline&lt;/a&gt;. &#39;</span>  <span class="c1"># pylint: disable=line-too-long</span>
-            <span class="s2">&quot;&lt;/p&gt;&lt;p&gt;In accordance with the &quot;</span>
-            <span class="s1">&#39;&lt;a href=&quot;https://en.wikipedia.org/wiki/Fort_Lauderdale_Agreement&quot;&gt;Fort Lauderdale Agreement&lt;/a&gt;, please check the publication &#39;</span>  <span class="c1"># pylint: disable=line-too-long</span>
-            <span class="s2">&quot;status of the genome/assembly before publishing any genome-wide analyses using these data.&lt;/p&gt;&quot;</span><span class="p">,</span>  <span class="c1"># pylint: disable=line-too-long</span>
+            <span class="s2">"&lt;p&gt;Genome annotation was generated using the "</span>
+            <span class="s1">'&lt;a href="https://beta.ensembl.org/help/articles/vertebrate-genome-annotation"&gt;Ensembl vertebrate annotation pipeline&lt;/a&gt;. '</span>  <span class="c1"># pylint: disable=line-too-long</span>
+            <span class="s2">"&lt;/p&gt;&lt;p&gt;In accordance with the "</span>
+            <span class="s1">'&lt;a href="https://en.wikipedia.org/wiki/Fort_Lauderdale_Agreement"&gt;Fort Lauderdale Agreement&lt;/a&gt;, please check the publication '</span>  <span class="c1"># pylint: disable=line-too-long</span>
+            <span class="s2">"status of the genome/assembly before publishing any genome-wide analyses using these data.&lt;/p&gt;"</span><span class="p">,</span>  <span class="c1"># pylint: disable=line-too-long</span>
             <span class="n">file</span><span class="o">=</span><span class="n">annotation_out</span><span class="p">,</span>
         <span class="p">)</span>
 </code></pre></div></td></tr></table></div>

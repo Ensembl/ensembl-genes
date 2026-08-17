@@ -4049,10 +4049,10 @@ Replaces fragile 'information_schema' matching for tracking genomes in active pr
 <span class="normal">207</span>
 <span class="normal">208</span>
 <span class="normal">209</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">GbTrackerClient</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Queries the new gb_schema DB to build GenomeMetadata for pre-release cores.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Queries the new gb_schema DB to build GenomeMetadata for pre-release cores."""</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">host</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">port</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">user</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">dbname</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;gb_assembly_metadata&quot;</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">host</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">port</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">user</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">dbname</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"gb_assembly_metadata"</span>
     <span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">host</span> <span class="o">=</span> <span class="n">host</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">port</span> <span class="o">=</span> <span class="n">port</span>
@@ -4060,19 +4060,19 @@ Replaces fragile 'information_schema' matching for tracking genomes in active pr
         <span class="bp">self</span><span class="o">.</span><span class="n">dbname</span> <span class="o">=</span> <span class="n">dbname</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">fetch_by_identifier</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">identifier</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">GenomeMetadata</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Looks up a pre-release core database name or accession in the tracking tables.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="s2">&quot;_core_&quot;</span> <span class="ow">in</span> <span class="n">identifier</span> <span class="ow">or</span> <span class="s2">&quot;_cm_&quot;</span> <span class="ow">in</span> <span class="n">identifier</span><span class="p">:</span>
-            <span class="n">separator</span> <span class="o">=</span> <span class="s2">&quot;_core_&quot;</span> <span class="k">if</span> <span class="s2">&quot;_core_&quot;</span> <span class="ow">in</span> <span class="n">identifier</span> <span class="k">else</span> <span class="s2">&quot;_cm_&quot;</span>
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="s2">"_core_"</span> <span class="ow">in</span> <span class="n">identifier</span> <span class="ow">or</span> <span class="s2">"_cm_"</span> <span class="ow">in</span> <span class="n">identifier</span><span class="p">:</span>
+            <span class="n">separator</span> <span class="o">=</span> <span class="s2">"_core_"</span> <span class="k">if</span> <span class="s2">"_core_"</span> <span class="ow">in</span> <span class="n">identifier</span> <span class="k">else</span> <span class="s2">"_cm_"</span>
             <span class="n">species_search</span> <span class="o">=</span> <span class="n">identifier</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">separator</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-            <span class="n">where_clause</span> <span class="o">=</span> <span class="s2">&quot;REPLACE(LOWER(s.scientific_name), &#39; &#39;, &#39;_&#39;) = </span><span class="si">%s</span><span class="s2">&quot;</span>
+            <span class="n">where_clause</span> <span class="o">=</span> <span class="s2">"REPLACE(LOWER(s.scientific_name), ' ', '_') = </span><span class="si">%s</span><span class="s2">"</span>
             <span class="n">query_param</span> <span class="o">=</span> <span class="n">species_search</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">where_clause</span> <span class="o">=</span> <span class="s2">&quot;gs.gca_accession = </span><span class="si">%s</span><span class="s2">&quot;</span>
+            <span class="n">where_clause</span> <span class="o">=</span> <span class="s2">"gs.gca_accession = </span><span class="si">%s</span><span class="s2">"</span>
             <span class="n">query_param</span> <span class="o">=</span> <span class="n">identifier</span>
 
-        <span class="n">query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"""</span>
 <span class="s2">            SELECT</span>
 <span class="s2">                NULL AS genome_uuid,</span>
 <span class="s2">                NULL AS core_dbname,</span>
@@ -4081,17 +4081,17 @@ Replaces fragile 'information_schema' matching for tracking genomes in active pr
 <span class="s2">                s.species_taxon_id AS taxon_id,</span>
 <span class="s2">                a.asm_name AS assembly_name,</span>
 <span class="s2">                gs.annotation_method,</span>
-<span class="s2">                MAX(CASE WHEN am.metrics_name = &#39;genebuild.busco&#39; THEN am.metrics_value END) AS busco_score,</span>
-<span class="s2">                MAX(CASE WHEN am.metrics_name = &#39;genebuild.busco_dataset&#39; THEN am.metrics_value END) AS busco_lineage</span>
+<span class="s2">                MAX(CASE WHEN am.metrics_name = 'genebuild.busco' THEN am.metrics_value END) AS busco_score,</span>
+<span class="s2">                MAX(CASE WHEN am.metrics_name = 'genebuild.busco_dataset' THEN am.metrics_value END) AS busco_lineage</span>
 <span class="s2">            FROM genebuild_status gs</span>
 <span class="s2">            JOIN assembly a ON gs.assembly_id = a.assembly_id</span>
 <span class="s2">            JOIN species s ON a.lowest_taxon_id = s.lowest_taxon_id</span>
 <span class="s2">            LEFT JOIN annotation_metrics am ON gs.assembly_id = am.assembly_id AND gs.genebuild_status_id = am.genebuild_status_id</span>
-<span class="s2">            WHERE gs.gb_status IN (&#39;in_progress&#39;, &#39;pre_released&#39;)</span>
+<span class="s2">            WHERE gs.gb_status IN ('in_progress', 'pre_released')</span>
 <span class="s2">              AND </span><span class="si">{</span><span class="n">where_clause</span><span class="si">}</span>
 <span class="s2">            GROUP BY gs.gca_accession, s.scientific_name, s.species_taxon_id, a.asm_name, gs.annotation_method</span>
 <span class="s2">            LIMIT 1</span>
-<span class="s2">        &quot;&quot;&quot;</span>
+<span class="s2">        """</span>
 
         <span class="k">try</span><span class="p">:</span>
             <span class="n">conn</span> <span class="o">=</span> <span class="n">pymysql</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span>
@@ -4101,34 +4101,34 @@ Replaces fragile 'information_schema' matching for tracking genomes in active pr
                 <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="p">(</span><span class="n">query_param</span><span class="p">,))</span>
                 <span class="n">row</span> <span class="o">=</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
         <span class="k">except</span> <span class="n">pymysql</span><span class="o">.</span><span class="n">Error</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;MySQL error querying gb_schema: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">"MySQL error querying gb_schema: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
             <span class="k">return</span> <span class="kc">None</span>
         <span class="k">finally</span><span class="p">:</span>
-            <span class="k">if</span> <span class="s2">&quot;conn&quot;</span> <span class="ow">in</span> <span class="nb">locals</span><span class="p">()</span> <span class="ow">and</span> <span class="n">conn</span><span class="o">.</span><span class="n">open</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s2">"conn"</span> <span class="ow">in</span> <span class="nb">locals</span><span class="p">()</span> <span class="ow">and</span> <span class="n">conn</span><span class="o">.</span><span class="n">open</span><span class="p">:</span>
                 <span class="n">conn</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">row</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">None</span>
 
-        <span class="c1"># Pre-release DBs don&#39;t have beta links yet, but they have FTPs constructed locally</span>
-        <span class="n">raw_method</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;annotation_method&quot;</span><span class="p">)</span>
+        <span class="c1"># Pre-release DBs don't have beta links yet, but they have FTPs constructed locally</span>
+        <span class="n">raw_method</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"annotation_method"</span><span class="p">)</span>
         <span class="n">method_map</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;braker&quot;</span><span class="p">:</span> <span class="s2">&quot;BRAKER2&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;full_genebuild&quot;</span><span class="p">:</span> <span class="s2">&quot;Ensembl Genebuild&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;mixed_strategy_build&quot;</span><span class="p">:</span> <span class="s2">&quot;Mixed Strategy Build&quot;</span><span class="p">,</span>
+            <span class="s2">"braker"</span><span class="p">:</span> <span class="s2">"BRAKER2"</span><span class="p">,</span>
+            <span class="s2">"full_genebuild"</span><span class="p">:</span> <span class="s2">"Ensembl Genebuild"</span><span class="p">,</span>
+            <span class="s2">"mixed_strategy_build"</span><span class="p">:</span> <span class="s2">"Mixed Strategy Build"</span><span class="p">,</span>
         <span class="p">}</span>
         <span class="n">anno_method</span> <span class="o">=</span> <span class="n">method_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">raw_method</span><span class="p">)</span> <span class="k">if</span> <span class="n">raw_method</span> <span class="k">else</span> <span class="n">raw_method</span>
 
         <span class="k">return</span> <span class="n">GenomeMetadata</span><span class="p">(</span>
-            <span class="n">genome_uuid</span><span class="o">=</span><span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;genome_uuid&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">&quot;unknown&quot;</span><span class="p">,</span>
-            <span class="n">dbname</span><span class="o">=</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;core_dbname&quot;</span><span class="p">]</span> <span class="ow">or</span> <span class="s2">&quot;unknown&quot;</span><span class="p">,</span>
-            <span class="n">accession</span><span class="o">=</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;assembly_accession&quot;</span><span class="p">],</span>
-            <span class="n">species_name</span><span class="o">=</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;species_name&quot;</span><span class="p">],</span>
-            <span class="n">assembly_name</span><span class="o">=</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;assembly_name&quot;</span><span class="p">],</span>
-            <span class="n">taxon_id</span><span class="o">=</span><span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;taxon_id&quot;</span><span class="p">),</span>
+            <span class="n">genome_uuid</span><span class="o">=</span><span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"genome_uuid"</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">"unknown"</span><span class="p">,</span>
+            <span class="n">dbname</span><span class="o">=</span><span class="n">row</span><span class="p">[</span><span class="s2">"core_dbname"</span><span class="p">]</span> <span class="ow">or</span> <span class="s2">"unknown"</span><span class="p">,</span>
+            <span class="n">accession</span><span class="o">=</span><span class="n">row</span><span class="p">[</span><span class="s2">"assembly_accession"</span><span class="p">],</span>
+            <span class="n">species_name</span><span class="o">=</span><span class="n">row</span><span class="p">[</span><span class="s2">"species_name"</span><span class="p">],</span>
+            <span class="n">assembly_name</span><span class="o">=</span><span class="n">row</span><span class="p">[</span><span class="s2">"assembly_name"</span><span class="p">],</span>
+            <span class="n">taxon_id</span><span class="o">=</span><span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"taxon_id"</span><span class="p">),</span>
             <span class="n">annotation_method</span><span class="o">=</span><span class="n">anno_method</span><span class="p">,</span>
-            <span class="n">busco_score</span><span class="o">=</span><span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;busco_score&quot;</span><span class="p">),</span>
-            <span class="n">busco_lineage</span><span class="o">=</span><span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;busco_lineage&quot;</span><span class="p">),</span>
+            <span class="n">busco_score</span><span class="o">=</span><span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"busco_score"</span><span class="p">),</span>
+            <span class="n">busco_lineage</span><span class="o">=</span><span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"busco_lineage"</span><span class="p">),</span>
             <span class="n">is_on_rapid</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
             <span class="n">is_on_beta</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
             <span class="n">is_released</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
@@ -4137,45 +4137,45 @@ Replaces fragile 'information_schema' matching for tracking genomes in active pr
     <span class="k">def</span><span class="w"> </span><span class="nf">fetch_project_pre_releases</span><span class="p">(</span>  <span class="c1"># pylint: disable=too-many-locals</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">ProjectConfig</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">GenomeMetadata</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Discovers pre-release genomes from the GB registry scoping exclusively by the explicit</span>
 <span class="sd">        ProjectConfig rules (e.g. bioproject_scoping or custom_group_scoping).</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">config</span><span class="o">.</span><span class="n">bioproject_scoping</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">config</span><span class="o">.</span><span class="n">custom_group_scoping</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                <span class="s2">&quot;Project &#39;</span><span class="si">%s</span><span class="s2">&#39; has no defined pre-release scoping bounds in &quot;</span>
-                <span class="s2">&quot;GB registry.&quot;</span><span class="p">,</span>
+                <span class="s2">"Project '</span><span class="si">%s</span><span class="s2">' has no defined pre-release scoping bounds in "</span>
+                <span class="s2">"GB registry."</span><span class="p">,</span>
                 <span class="n">config</span><span class="o">.</span><span class="n">project_name</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="k">return</span> <span class="p">[]</span>
 
         <span class="n">where_clauses</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">params</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">joins</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">joins</span> <span class="o">=</span> <span class="s2">""</span>
 
         <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">bioproject_scoping</span><span class="p">:</span>
-            <span class="n">joins</span> <span class="o">+=</span> <span class="s2">&quot; JOIN bioproject bp ON gs.assembly_id = bp.assembly_id&quot;</span>
-            <span class="n">joins</span> <span class="o">+=</span> <span class="s2">&quot; JOIN main_bioproject mb ON bp.bioproject_id = mb.bioproject_id&quot;</span>
+            <span class="n">joins</span> <span class="o">+=</span> <span class="s2">" JOIN bioproject bp ON gs.assembly_id = bp.assembly_id"</span>
+            <span class="n">joins</span> <span class="o">+=</span> <span class="s2">" JOIN main_bioproject mb ON bp.bioproject_id = mb.bioproject_id"</span>
 
-            <span class="n">in_clause</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">bioproject_scoping</span><span class="p">))</span>
-            <span class="n">where_clauses</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;mb.bioproject_name IN (</span><span class="si">{</span><span class="n">in_clause</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+            <span class="n">in_clause</span> <span class="o">=</span> <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s2">"</span><span class="si">%s</span><span class="s2">"</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">bioproject_scoping</span><span class="p">))</span>
+            <span class="n">where_clauses</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"mb.bioproject_name IN (</span><span class="si">{</span><span class="n">in_clause</span><span class="si">}</span><span class="s2">)"</span><span class="p">)</span>
             <span class="n">params</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">bioproject_scoping</span><span class="p">)</span>
 
         <span class="k">elif</span> <span class="n">config</span><span class="o">.</span><span class="n">custom_group_scoping</span><span class="p">:</span>
             <span class="n">joins</span> <span class="o">+=</span> <span class="p">(</span>
-                <span class="s2">&quot; JOIN custom_group cg ON gs.assembly_id = cg.item&quot;</span>
-                <span class="s2">&quot; AND cg.group_type = &#39;assembly&#39;&quot;</span>
+                <span class="s2">" JOIN custom_group cg ON gs.assembly_id = cg.item"</span>
+                <span class="s2">" AND cg.group_type = 'assembly'"</span>
             <span class="p">)</span>
 
-            <span class="n">in_clause</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">custom_group_scoping</span><span class="p">))</span>
-            <span class="n">where_clauses</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;cg.group_name IN (</span><span class="si">{</span><span class="n">in_clause</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+            <span class="n">in_clause</span> <span class="o">=</span> <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s2">"</span><span class="si">%s</span><span class="s2">"</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">custom_group_scoping</span><span class="p">))</span>
+            <span class="n">where_clauses</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"cg.group_name IN (</span><span class="si">{</span><span class="n">in_clause</span><span class="si">}</span><span class="s2">)"</span><span class="p">)</span>
             <span class="n">params</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">custom_group_scoping</span><span class="p">)</span>
 
         <span class="n">where_cond</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="s2">&quot; OR &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">where_clauses</span><span class="p">)</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">where_clauses</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="n">where_clauses</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="s2">" OR "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">where_clauses</span><span class="p">)</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">where_clauses</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="n">where_clauses</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="p">)</span>
 
-        <span class="n">query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"""</span>
 <span class="s2">            SELECT </span>
 <span class="s2">                NULL AS genome_uuid,</span>
 <span class="s2">                NULL AS core_dbname,</span>
@@ -4184,17 +4184,17 @@ Replaces fragile 'information_schema' matching for tracking genomes in active pr
 <span class="s2">                s.species_taxon_id AS taxon_id,</span>
 <span class="s2">                a.asm_name AS assembly_name,</span>
 <span class="s2">                gs.annotation_method,</span>
-<span class="s2">                MAX(CASE WHEN am.metrics_name = &#39;genebuild.busco&#39; THEN am.metrics_value END) AS busco_score,</span>
-<span class="s2">                MAX(CASE WHEN am.metrics_name = &#39;genebuild.busco_dataset&#39; THEN am.metrics_value END) AS busco_lineage</span>
+<span class="s2">                MAX(CASE WHEN am.metrics_name = 'genebuild.busco' THEN am.metrics_value END) AS busco_score,</span>
+<span class="s2">                MAX(CASE WHEN am.metrics_name = 'genebuild.busco_dataset' THEN am.metrics_value END) AS busco_lineage</span>
 <span class="s2">            FROM genebuild_status gs</span>
 <span class="s2">            JOIN assembly a ON gs.assembly_id = a.assembly_id</span>
 <span class="s2">            JOIN species s ON a.lowest_taxon_id = s.lowest_taxon_id</span>
 <span class="s2">            </span><span class="si">{</span><span class="n">joins</span><span class="si">}</span>
 <span class="s2">            LEFT JOIN annotation_metrics am ON gs.assembly_id = am.assembly_id AND gs.genebuild_status_id = am.genebuild_status_id</span>
-<span class="s2">            WHERE gs.gb_status = &#39;pre_released&#39;</span>
+<span class="s2">            WHERE gs.gb_status = 'pre_released'</span>
 <span class="s2">              AND (</span><span class="si">{</span><span class="n">where_cond</span><span class="si">}</span><span class="s2">)</span>
 <span class="s2">            GROUP BY gs.gca_accession, s.scientific_name, s.species_taxon_id, a.asm_name, gs.annotation_method</span>
-<span class="s2">        &quot;&quot;&quot;</span>
+<span class="s2">        """</span>
 
         <span class="k">try</span><span class="p">:</span>
             <span class="n">conn</span> <span class="o">=</span> <span class="n">pymysql</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span>
@@ -4205,35 +4205,35 @@ Replaces fragile 'information_schema' matching for tracking genomes in active pr
                 <span class="n">rows</span> <span class="o">=</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
         <span class="k">except</span> <span class="n">pymysql</span><span class="o">.</span><span class="n">Error</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-                <span class="s2">&quot;MySQL error querying gb_schema for project pre-releases: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">e</span>
+                <span class="s2">"MySQL error querying gb_schema for project pre-releases: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">e</span>
             <span class="p">)</span>
             <span class="k">return</span> <span class="p">[]</span>
         <span class="k">finally</span><span class="p">:</span>
-            <span class="k">if</span> <span class="s2">&quot;conn&quot;</span> <span class="ow">in</span> <span class="nb">locals</span><span class="p">()</span> <span class="ow">and</span> <span class="n">conn</span><span class="o">.</span><span class="n">open</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s2">"conn"</span> <span class="ow">in</span> <span class="nb">locals</span><span class="p">()</span> <span class="ow">and</span> <span class="n">conn</span><span class="o">.</span><span class="n">open</span><span class="p">:</span>
                 <span class="n">conn</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
         <span class="n">pre_releases</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">method_map</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;braker&quot;</span><span class="p">:</span> <span class="s2">&quot;BRAKER2&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;full_genebuild&quot;</span><span class="p">:</span> <span class="s2">&quot;Ensembl Genebuild&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;mixed_strategy_build&quot;</span><span class="p">:</span> <span class="s2">&quot;Mixed Strategy Build&quot;</span><span class="p">,</span>
+            <span class="s2">"braker"</span><span class="p">:</span> <span class="s2">"BRAKER2"</span><span class="p">,</span>
+            <span class="s2">"full_genebuild"</span><span class="p">:</span> <span class="s2">"Ensembl Genebuild"</span><span class="p">,</span>
+            <span class="s2">"mixed_strategy_build"</span><span class="p">:</span> <span class="s2">"Mixed Strategy Build"</span><span class="p">,</span>
         <span class="p">}</span>
 
         <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">:</span>
-            <span class="n">raw_method</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;annotation_method&quot;</span><span class="p">)</span>
+            <span class="n">raw_method</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"annotation_method"</span><span class="p">)</span>
             <span class="n">anno_method</span> <span class="o">=</span> <span class="n">method_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">raw_method</span><span class="p">)</span> <span class="k">if</span> <span class="n">raw_method</span> <span class="k">else</span> <span class="n">raw_method</span>
 
             <span class="n">pre_releases</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                 <span class="n">GenomeMetadata</span><span class="p">(</span>
-                    <span class="n">genome_uuid</span><span class="o">=</span><span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;genome_uuid&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">&quot;unknown&quot;</span><span class="p">,</span>
-                    <span class="n">dbname</span><span class="o">=</span><span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;core_dbname&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">&quot;unknown&quot;</span><span class="p">,</span>
-                    <span class="n">accession</span><span class="o">=</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;assembly_accession&quot;</span><span class="p">],</span>
-                    <span class="n">species_name</span><span class="o">=</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;species_name&quot;</span><span class="p">],</span>
-                    <span class="n">assembly_name</span><span class="o">=</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;assembly_name&quot;</span><span class="p">],</span>
-                    <span class="n">taxon_id</span><span class="o">=</span><span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;taxon_id&quot;</span><span class="p">),</span>
+                    <span class="n">genome_uuid</span><span class="o">=</span><span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"genome_uuid"</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">"unknown"</span><span class="p">,</span>
+                    <span class="n">dbname</span><span class="o">=</span><span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"core_dbname"</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">"unknown"</span><span class="p">,</span>
+                    <span class="n">accession</span><span class="o">=</span><span class="n">row</span><span class="p">[</span><span class="s2">"assembly_accession"</span><span class="p">],</span>
+                    <span class="n">species_name</span><span class="o">=</span><span class="n">row</span><span class="p">[</span><span class="s2">"species_name"</span><span class="p">],</span>
+                    <span class="n">assembly_name</span><span class="o">=</span><span class="n">row</span><span class="p">[</span><span class="s2">"assembly_name"</span><span class="p">],</span>
+                    <span class="n">taxon_id</span><span class="o">=</span><span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"taxon_id"</span><span class="p">),</span>
                     <span class="n">annotation_method</span><span class="o">=</span><span class="n">anno_method</span><span class="p">,</span>
-                    <span class="n">busco_score</span><span class="o">=</span><span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;busco_score&quot;</span><span class="p">),</span>
-                    <span class="n">busco_lineage</span><span class="o">=</span><span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;busco_lineage&quot;</span><span class="p">),</span>
+                    <span class="n">busco_score</span><span class="o">=</span><span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"busco_score"</span><span class="p">),</span>
+                    <span class="n">busco_lineage</span><span class="o">=</span><span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"busco_lineage"</span><span class="p">),</span>
                     <span class="n">is_on_rapid</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                     <span class="n">is_on_beta</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                     <span class="n">is_released</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
@@ -4427,19 +4427,19 @@ Replaces fragile 'information_schema' matching for tracking genomes in active pr
 <span class="normal"> 99</span>
 <span class="normal">100</span>
 <span class="normal">101</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">fetch_by_identifier</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">identifier</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">GenomeMetadata</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Looks up a pre-release core database name or accession in the tracking tables.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="s2">&quot;_core_&quot;</span> <span class="ow">in</span> <span class="n">identifier</span> <span class="ow">or</span> <span class="s2">&quot;_cm_&quot;</span> <span class="ow">in</span> <span class="n">identifier</span><span class="p">:</span>
-        <span class="n">separator</span> <span class="o">=</span> <span class="s2">&quot;_core_&quot;</span> <span class="k">if</span> <span class="s2">&quot;_core_&quot;</span> <span class="ow">in</span> <span class="n">identifier</span> <span class="k">else</span> <span class="s2">&quot;_cm_&quot;</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="s2">"_core_"</span> <span class="ow">in</span> <span class="n">identifier</span> <span class="ow">or</span> <span class="s2">"_cm_"</span> <span class="ow">in</span> <span class="n">identifier</span><span class="p">:</span>
+        <span class="n">separator</span> <span class="o">=</span> <span class="s2">"_core_"</span> <span class="k">if</span> <span class="s2">"_core_"</span> <span class="ow">in</span> <span class="n">identifier</span> <span class="k">else</span> <span class="s2">"_cm_"</span>
         <span class="n">species_search</span> <span class="o">=</span> <span class="n">identifier</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">separator</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="n">where_clause</span> <span class="o">=</span> <span class="s2">&quot;REPLACE(LOWER(s.scientific_name), &#39; &#39;, &#39;_&#39;) = </span><span class="si">%s</span><span class="s2">&quot;</span>
+        <span class="n">where_clause</span> <span class="o">=</span> <span class="s2">"REPLACE(LOWER(s.scientific_name), ' ', '_') = </span><span class="si">%s</span><span class="s2">"</span>
         <span class="n">query_param</span> <span class="o">=</span> <span class="n">species_search</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">where_clause</span> <span class="o">=</span> <span class="s2">&quot;gs.gca_accession = </span><span class="si">%s</span><span class="s2">&quot;</span>
+        <span class="n">where_clause</span> <span class="o">=</span> <span class="s2">"gs.gca_accession = </span><span class="si">%s</span><span class="s2">"</span>
         <span class="n">query_param</span> <span class="o">=</span> <span class="n">identifier</span>
 
-    <span class="n">query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+    <span class="n">query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"""</span>
 <span class="s2">        SELECT</span>
 <span class="s2">            NULL AS genome_uuid,</span>
 <span class="s2">            NULL AS core_dbname,</span>
@@ -4448,17 +4448,17 @@ Replaces fragile 'information_schema' matching for tracking genomes in active pr
 <span class="s2">            s.species_taxon_id AS taxon_id,</span>
 <span class="s2">            a.asm_name AS assembly_name,</span>
 <span class="s2">            gs.annotation_method,</span>
-<span class="s2">            MAX(CASE WHEN am.metrics_name = &#39;genebuild.busco&#39; THEN am.metrics_value END) AS busco_score,</span>
-<span class="s2">            MAX(CASE WHEN am.metrics_name = &#39;genebuild.busco_dataset&#39; THEN am.metrics_value END) AS busco_lineage</span>
+<span class="s2">            MAX(CASE WHEN am.metrics_name = 'genebuild.busco' THEN am.metrics_value END) AS busco_score,</span>
+<span class="s2">            MAX(CASE WHEN am.metrics_name = 'genebuild.busco_dataset' THEN am.metrics_value END) AS busco_lineage</span>
 <span class="s2">        FROM genebuild_status gs</span>
 <span class="s2">        JOIN assembly a ON gs.assembly_id = a.assembly_id</span>
 <span class="s2">        JOIN species s ON a.lowest_taxon_id = s.lowest_taxon_id</span>
 <span class="s2">        LEFT JOIN annotation_metrics am ON gs.assembly_id = am.assembly_id AND gs.genebuild_status_id = am.genebuild_status_id</span>
-<span class="s2">        WHERE gs.gb_status IN (&#39;in_progress&#39;, &#39;pre_released&#39;)</span>
+<span class="s2">        WHERE gs.gb_status IN ('in_progress', 'pre_released')</span>
 <span class="s2">          AND </span><span class="si">{</span><span class="n">where_clause</span><span class="si">}</span>
 <span class="s2">        GROUP BY gs.gca_accession, s.scientific_name, s.species_taxon_id, a.asm_name, gs.annotation_method</span>
 <span class="s2">        LIMIT 1</span>
-<span class="s2">    &quot;&quot;&quot;</span>
+<span class="s2">    """</span>
 
     <span class="k">try</span><span class="p">:</span>
         <span class="n">conn</span> <span class="o">=</span> <span class="n">pymysql</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span>
@@ -4468,34 +4468,34 @@ Replaces fragile 'information_schema' matching for tracking genomes in active pr
             <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="p">(</span><span class="n">query_param</span><span class="p">,))</span>
             <span class="n">row</span> <span class="o">=</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
     <span class="k">except</span> <span class="n">pymysql</span><span class="o">.</span><span class="n">Error</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;MySQL error querying gb_schema: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">"MySQL error querying gb_schema: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
         <span class="k">return</span> <span class="kc">None</span>
     <span class="k">finally</span><span class="p">:</span>
-        <span class="k">if</span> <span class="s2">&quot;conn&quot;</span> <span class="ow">in</span> <span class="nb">locals</span><span class="p">()</span> <span class="ow">and</span> <span class="n">conn</span><span class="o">.</span><span class="n">open</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s2">"conn"</span> <span class="ow">in</span> <span class="nb">locals</span><span class="p">()</span> <span class="ow">and</span> <span class="n">conn</span><span class="o">.</span><span class="n">open</span><span class="p">:</span>
             <span class="n">conn</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">row</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">None</span>
 
-    <span class="c1"># Pre-release DBs don&#39;t have beta links yet, but they have FTPs constructed locally</span>
-    <span class="n">raw_method</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;annotation_method&quot;</span><span class="p">)</span>
+    <span class="c1"># Pre-release DBs don't have beta links yet, but they have FTPs constructed locally</span>
+    <span class="n">raw_method</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"annotation_method"</span><span class="p">)</span>
     <span class="n">method_map</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;braker&quot;</span><span class="p">:</span> <span class="s2">&quot;BRAKER2&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;full_genebuild&quot;</span><span class="p">:</span> <span class="s2">&quot;Ensembl Genebuild&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;mixed_strategy_build&quot;</span><span class="p">:</span> <span class="s2">&quot;Mixed Strategy Build&quot;</span><span class="p">,</span>
+        <span class="s2">"braker"</span><span class="p">:</span> <span class="s2">"BRAKER2"</span><span class="p">,</span>
+        <span class="s2">"full_genebuild"</span><span class="p">:</span> <span class="s2">"Ensembl Genebuild"</span><span class="p">,</span>
+        <span class="s2">"mixed_strategy_build"</span><span class="p">:</span> <span class="s2">"Mixed Strategy Build"</span><span class="p">,</span>
     <span class="p">}</span>
     <span class="n">anno_method</span> <span class="o">=</span> <span class="n">method_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">raw_method</span><span class="p">)</span> <span class="k">if</span> <span class="n">raw_method</span> <span class="k">else</span> <span class="n">raw_method</span>
 
     <span class="k">return</span> <span class="n">GenomeMetadata</span><span class="p">(</span>
-        <span class="n">genome_uuid</span><span class="o">=</span><span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;genome_uuid&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">&quot;unknown&quot;</span><span class="p">,</span>
-        <span class="n">dbname</span><span class="o">=</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;core_dbname&quot;</span><span class="p">]</span> <span class="ow">or</span> <span class="s2">&quot;unknown&quot;</span><span class="p">,</span>
-        <span class="n">accession</span><span class="o">=</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;assembly_accession&quot;</span><span class="p">],</span>
-        <span class="n">species_name</span><span class="o">=</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;species_name&quot;</span><span class="p">],</span>
-        <span class="n">assembly_name</span><span class="o">=</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;assembly_name&quot;</span><span class="p">],</span>
-        <span class="n">taxon_id</span><span class="o">=</span><span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;taxon_id&quot;</span><span class="p">),</span>
+        <span class="n">genome_uuid</span><span class="o">=</span><span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"genome_uuid"</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">"unknown"</span><span class="p">,</span>
+        <span class="n">dbname</span><span class="o">=</span><span class="n">row</span><span class="p">[</span><span class="s2">"core_dbname"</span><span class="p">]</span> <span class="ow">or</span> <span class="s2">"unknown"</span><span class="p">,</span>
+        <span class="n">accession</span><span class="o">=</span><span class="n">row</span><span class="p">[</span><span class="s2">"assembly_accession"</span><span class="p">],</span>
+        <span class="n">species_name</span><span class="o">=</span><span class="n">row</span><span class="p">[</span><span class="s2">"species_name"</span><span class="p">],</span>
+        <span class="n">assembly_name</span><span class="o">=</span><span class="n">row</span><span class="p">[</span><span class="s2">"assembly_name"</span><span class="p">],</span>
+        <span class="n">taxon_id</span><span class="o">=</span><span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"taxon_id"</span><span class="p">),</span>
         <span class="n">annotation_method</span><span class="o">=</span><span class="n">anno_method</span><span class="p">,</span>
-        <span class="n">busco_score</span><span class="o">=</span><span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;busco_score&quot;</span><span class="p">),</span>
-        <span class="n">busco_lineage</span><span class="o">=</span><span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;busco_lineage&quot;</span><span class="p">),</span>
+        <span class="n">busco_score</span><span class="o">=</span><span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"busco_score"</span><span class="p">),</span>
+        <span class="n">busco_lineage</span><span class="o">=</span><span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"busco_lineage"</span><span class="p">),</span>
         <span class="n">is_on_rapid</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="n">is_on_beta</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="n">is_released</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
@@ -4632,45 +4632,45 @@ ProjectConfig rules (e.g. bioproject_scoping or custom_group_scoping).</p>
 <span class="normal">209</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">fetch_project_pre_releases</span><span class="p">(</span>  <span class="c1"># pylint: disable=too-many-locals</span>
     <span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">ProjectConfig</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">GenomeMetadata</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Discovers pre-release genomes from the GB registry scoping exclusively by the explicit</span>
 <span class="sd">    ProjectConfig rules (e.g. bioproject_scoping or custom_group_scoping).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">config</span><span class="o">.</span><span class="n">bioproject_scoping</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">config</span><span class="o">.</span><span class="n">custom_group_scoping</span><span class="p">:</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-            <span class="s2">&quot;Project &#39;</span><span class="si">%s</span><span class="s2">&#39; has no defined pre-release scoping bounds in &quot;</span>
-            <span class="s2">&quot;GB registry.&quot;</span><span class="p">,</span>
+            <span class="s2">"Project '</span><span class="si">%s</span><span class="s2">' has no defined pre-release scoping bounds in "</span>
+            <span class="s2">"GB registry."</span><span class="p">,</span>
             <span class="n">config</span><span class="o">.</span><span class="n">project_name</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="p">[]</span>
 
     <span class="n">where_clauses</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">params</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">joins</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="n">joins</span> <span class="o">=</span> <span class="s2">""</span>
 
     <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">bioproject_scoping</span><span class="p">:</span>
-        <span class="n">joins</span> <span class="o">+=</span> <span class="s2">&quot; JOIN bioproject bp ON gs.assembly_id = bp.assembly_id&quot;</span>
-        <span class="n">joins</span> <span class="o">+=</span> <span class="s2">&quot; JOIN main_bioproject mb ON bp.bioproject_id = mb.bioproject_id&quot;</span>
+        <span class="n">joins</span> <span class="o">+=</span> <span class="s2">" JOIN bioproject bp ON gs.assembly_id = bp.assembly_id"</span>
+        <span class="n">joins</span> <span class="o">+=</span> <span class="s2">" JOIN main_bioproject mb ON bp.bioproject_id = mb.bioproject_id"</span>
 
-        <span class="n">in_clause</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">bioproject_scoping</span><span class="p">))</span>
-        <span class="n">where_clauses</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;mb.bioproject_name IN (</span><span class="si">{</span><span class="n">in_clause</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+        <span class="n">in_clause</span> <span class="o">=</span> <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s2">"</span><span class="si">%s</span><span class="s2">"</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">bioproject_scoping</span><span class="p">))</span>
+        <span class="n">where_clauses</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"mb.bioproject_name IN (</span><span class="si">{</span><span class="n">in_clause</span><span class="si">}</span><span class="s2">)"</span><span class="p">)</span>
         <span class="n">params</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">bioproject_scoping</span><span class="p">)</span>
 
     <span class="k">elif</span> <span class="n">config</span><span class="o">.</span><span class="n">custom_group_scoping</span><span class="p">:</span>
         <span class="n">joins</span> <span class="o">+=</span> <span class="p">(</span>
-            <span class="s2">&quot; JOIN custom_group cg ON gs.assembly_id = cg.item&quot;</span>
-            <span class="s2">&quot; AND cg.group_type = &#39;assembly&#39;&quot;</span>
+            <span class="s2">" JOIN custom_group cg ON gs.assembly_id = cg.item"</span>
+            <span class="s2">" AND cg.group_type = 'assembly'"</span>
         <span class="p">)</span>
 
-        <span class="n">in_clause</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">custom_group_scoping</span><span class="p">))</span>
-        <span class="n">where_clauses</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;cg.group_name IN (</span><span class="si">{</span><span class="n">in_clause</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+        <span class="n">in_clause</span> <span class="o">=</span> <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s2">"</span><span class="si">%s</span><span class="s2">"</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">custom_group_scoping</span><span class="p">))</span>
+        <span class="n">where_clauses</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"cg.group_name IN (</span><span class="si">{</span><span class="n">in_clause</span><span class="si">}</span><span class="s2">)"</span><span class="p">)</span>
         <span class="n">params</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">custom_group_scoping</span><span class="p">)</span>
 
     <span class="n">where_cond</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="s2">&quot; OR &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">where_clauses</span><span class="p">)</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">where_clauses</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="n">where_clauses</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="s2">" OR "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">where_clauses</span><span class="p">)</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">where_clauses</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="n">where_clauses</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
     <span class="p">)</span>
 
-    <span class="n">query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+    <span class="n">query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"""</span>
 <span class="s2">        SELECT </span>
 <span class="s2">            NULL AS genome_uuid,</span>
 <span class="s2">            NULL AS core_dbname,</span>
@@ -4679,17 +4679,17 @@ ProjectConfig rules (e.g. bioproject_scoping or custom_group_scoping).</p>
 <span class="s2">            s.species_taxon_id AS taxon_id,</span>
 <span class="s2">            a.asm_name AS assembly_name,</span>
 <span class="s2">            gs.annotation_method,</span>
-<span class="s2">            MAX(CASE WHEN am.metrics_name = &#39;genebuild.busco&#39; THEN am.metrics_value END) AS busco_score,</span>
-<span class="s2">            MAX(CASE WHEN am.metrics_name = &#39;genebuild.busco_dataset&#39; THEN am.metrics_value END) AS busco_lineage</span>
+<span class="s2">            MAX(CASE WHEN am.metrics_name = 'genebuild.busco' THEN am.metrics_value END) AS busco_score,</span>
+<span class="s2">            MAX(CASE WHEN am.metrics_name = 'genebuild.busco_dataset' THEN am.metrics_value END) AS busco_lineage</span>
 <span class="s2">        FROM genebuild_status gs</span>
 <span class="s2">        JOIN assembly a ON gs.assembly_id = a.assembly_id</span>
 <span class="s2">        JOIN species s ON a.lowest_taxon_id = s.lowest_taxon_id</span>
 <span class="s2">        </span><span class="si">{</span><span class="n">joins</span><span class="si">}</span>
 <span class="s2">        LEFT JOIN annotation_metrics am ON gs.assembly_id = am.assembly_id AND gs.genebuild_status_id = am.genebuild_status_id</span>
-<span class="s2">        WHERE gs.gb_status = &#39;pre_released&#39;</span>
+<span class="s2">        WHERE gs.gb_status = 'pre_released'</span>
 <span class="s2">          AND (</span><span class="si">{</span><span class="n">where_cond</span><span class="si">}</span><span class="s2">)</span>
 <span class="s2">        GROUP BY gs.gca_accession, s.scientific_name, s.species_taxon_id, a.asm_name, gs.annotation_method</span>
-<span class="s2">    &quot;&quot;&quot;</span>
+<span class="s2">    """</span>
 
     <span class="k">try</span><span class="p">:</span>
         <span class="n">conn</span> <span class="o">=</span> <span class="n">pymysql</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span>
@@ -4700,35 +4700,35 @@ ProjectConfig rules (e.g. bioproject_scoping or custom_group_scoping).</p>
             <span class="n">rows</span> <span class="o">=</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
     <span class="k">except</span> <span class="n">pymysql</span><span class="o">.</span><span class="n">Error</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-            <span class="s2">&quot;MySQL error querying gb_schema for project pre-releases: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">e</span>
+            <span class="s2">"MySQL error querying gb_schema for project pre-releases: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">e</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="p">[]</span>
     <span class="k">finally</span><span class="p">:</span>
-        <span class="k">if</span> <span class="s2">&quot;conn&quot;</span> <span class="ow">in</span> <span class="nb">locals</span><span class="p">()</span> <span class="ow">and</span> <span class="n">conn</span><span class="o">.</span><span class="n">open</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s2">"conn"</span> <span class="ow">in</span> <span class="nb">locals</span><span class="p">()</span> <span class="ow">and</span> <span class="n">conn</span><span class="o">.</span><span class="n">open</span><span class="p">:</span>
             <span class="n">conn</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
     <span class="n">pre_releases</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">method_map</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;braker&quot;</span><span class="p">:</span> <span class="s2">&quot;BRAKER2&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;full_genebuild&quot;</span><span class="p">:</span> <span class="s2">&quot;Ensembl Genebuild&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;mixed_strategy_build&quot;</span><span class="p">:</span> <span class="s2">&quot;Mixed Strategy Build&quot;</span><span class="p">,</span>
+        <span class="s2">"braker"</span><span class="p">:</span> <span class="s2">"BRAKER2"</span><span class="p">,</span>
+        <span class="s2">"full_genebuild"</span><span class="p">:</span> <span class="s2">"Ensembl Genebuild"</span><span class="p">,</span>
+        <span class="s2">"mixed_strategy_build"</span><span class="p">:</span> <span class="s2">"Mixed Strategy Build"</span><span class="p">,</span>
     <span class="p">}</span>
 
     <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">:</span>
-        <span class="n">raw_method</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;annotation_method&quot;</span><span class="p">)</span>
+        <span class="n">raw_method</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"annotation_method"</span><span class="p">)</span>
         <span class="n">anno_method</span> <span class="o">=</span> <span class="n">method_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">raw_method</span><span class="p">)</span> <span class="k">if</span> <span class="n">raw_method</span> <span class="k">else</span> <span class="n">raw_method</span>
 
         <span class="n">pre_releases</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
             <span class="n">GenomeMetadata</span><span class="p">(</span>
-                <span class="n">genome_uuid</span><span class="o">=</span><span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;genome_uuid&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">&quot;unknown&quot;</span><span class="p">,</span>
-                <span class="n">dbname</span><span class="o">=</span><span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;core_dbname&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">&quot;unknown&quot;</span><span class="p">,</span>
-                <span class="n">accession</span><span class="o">=</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;assembly_accession&quot;</span><span class="p">],</span>
-                <span class="n">species_name</span><span class="o">=</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;species_name&quot;</span><span class="p">],</span>
-                <span class="n">assembly_name</span><span class="o">=</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;assembly_name&quot;</span><span class="p">],</span>
-                <span class="n">taxon_id</span><span class="o">=</span><span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;taxon_id&quot;</span><span class="p">),</span>
+                <span class="n">genome_uuid</span><span class="o">=</span><span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"genome_uuid"</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">"unknown"</span><span class="p">,</span>
+                <span class="n">dbname</span><span class="o">=</span><span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"core_dbname"</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">"unknown"</span><span class="p">,</span>
+                <span class="n">accession</span><span class="o">=</span><span class="n">row</span><span class="p">[</span><span class="s2">"assembly_accession"</span><span class="p">],</span>
+                <span class="n">species_name</span><span class="o">=</span><span class="n">row</span><span class="p">[</span><span class="s2">"species_name"</span><span class="p">],</span>
+                <span class="n">assembly_name</span><span class="o">=</span><span class="n">row</span><span class="p">[</span><span class="s2">"assembly_name"</span><span class="p">],</span>
+                <span class="n">taxon_id</span><span class="o">=</span><span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"taxon_id"</span><span class="p">),</span>
                 <span class="n">annotation_method</span><span class="o">=</span><span class="n">anno_method</span><span class="p">,</span>
-                <span class="n">busco_score</span><span class="o">=</span><span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;busco_score&quot;</span><span class="p">),</span>
-                <span class="n">busco_lineage</span><span class="o">=</span><span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;busco_lineage&quot;</span><span class="p">),</span>
+                <span class="n">busco_score</span><span class="o">=</span><span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"busco_score"</span><span class="p">),</span>
+                <span class="n">busco_lineage</span><span class="o">=</span><span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"busco_lineage"</span><span class="p">),</span>
                 <span class="n">is_on_rapid</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                 <span class="n">is_on_beta</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                 <span class="n">is_released</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
