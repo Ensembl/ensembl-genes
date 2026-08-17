@@ -33,66 +33,6 @@
          <lastmod>2026-08-17</lastmod>
     </url>
     <url>
-         <loc>https://ensembl.github.io/ensembl-genes/ensembl/genes/ensembl_loading/</loc>
-         <lastmod>2026-08-17</lastmod>
-    </url>
-    <url>
-         <loc>https://ensembl.github.io/ensembl-genes/ensembl/genes/ensembl_loading/gff_annotation/</loc>
-         <lastmod>2026-08-17</lastmod>
-    </url>
-    <url>
-         <loc>https://ensembl.github.io/ensembl-genes/ensembl/genes/ensembl_loading/gff_cli/</loc>
-         <lastmod>2026-08-17</lastmod>
-    </url>
-    <url>
-         <loc>https://ensembl.github.io/ensembl-genes/ensembl/genes/ensembl_loading/gff_core_database/</loc>
-         <lastmod>2026-08-17</lastmod>
-    </url>
-    <url>
-         <loc>https://ensembl.github.io/ensembl-genes/ensembl/genes/ensembl_loading/gff_core_loader/</loc>
-         <lastmod>2026-08-17</lastmod>
-    </url>
-    <url>
-         <loc>https://ensembl.github.io/ensembl-genes/ensembl/genes/ensembl_loading/gff_metadata/</loc>
-         <lastmod>2026-08-17</lastmod>
-    </url>
-    <url>
-         <loc>https://ensembl.github.io/ensembl-genes/ensembl/genes/ensembl_loading/gff_models/</loc>
-         <lastmod>2026-08-17</lastmod>
-    </url>
-    <url>
-         <loc>https://ensembl.github.io/ensembl-genes/ensembl/genes/ensembl_loading/gff_quality_check/</loc>
-         <lastmod>2026-08-17</lastmod>
-    </url>
-    <url>
-         <loc>https://ensembl.github.io/ensembl-genes/ensembl/genes/ensembl_loading/gff_repeat_loader/</loc>
-         <lastmod>2026-08-17</lastmod>
-    </url>
-    <url>
-         <loc>https://ensembl.github.io/ensembl-genes/ensembl/genes/ensembl_loading/gff_source_config/</loc>
-         <lastmod>2026-08-17</lastmod>
-    </url>
-    <url>
-         <loc>https://ensembl.github.io/ensembl-genes/ensembl/genes/ensembl_loading/ncbi_annotation_report/</loc>
-         <lastmod>2026-08-17</lastmod>
-    </url>
-    <url>
-         <loc>https://ensembl.github.io/ensembl-genes/ensembl/genes/ensembl_loading/refseq_constants/</loc>
-         <lastmod>2026-08-17</lastmod>
-    </url>
-    <url>
-         <loc>https://ensembl.github.io/ensembl-genes/ensembl/genes/ensembl_loading/refseq_conversion/</loc>
-         <lastmod>2026-08-17</lastmod>
-    </url>
-    <url>
-         <loc>https://ensembl.github.io/ensembl-genes/ensembl/genes/ensembl_loading/refseq_models/</loc>
-         <lastmod>2026-08-17</lastmod>
-    </url>
-    <url>
-         <loc>https://ensembl.github.io/ensembl-genes/ensembl/genes/ensembl_loading/refseq_ncbi/</loc>
-         <lastmod>2026-08-17</lastmod>
-    </url>
-    <url>
          <loc>https://ensembl.github.io/ensembl-genes/ensembl/genes/info_from_registry/</loc>
          <lastmod>2026-08-17</lastmod>
     </url>
