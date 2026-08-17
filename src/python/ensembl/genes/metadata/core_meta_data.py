@@ -324,6 +324,7 @@ def write_metadata_json(  # pylint: disable=too-many-arguments
         json_out.write("\n")
 
 
+# pylint: disable=too-many-locals,too-many-branches,too-many-statements
 def main() -> None:
     parser = argparse.ArgumentParser(description="Prepare SQL updates for core dbs")
     parser.add_argument(
