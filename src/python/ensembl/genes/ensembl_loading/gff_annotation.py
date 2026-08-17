@@ -693,7 +693,11 @@ def parse_converted_gff3(
                 )
                 for transcript_id in transcript_parent_ids:
                     transcript = annotation.transcripts.get(transcript_id)
-                    if protein_stable_id and transcript and transcript.protein_id is None:
+                    if (
+                        protein_stable_id
+                        and transcript
+                        and transcript.protein_id is None
+                    ):
                         transcript.protein_id = normalize_id(
                             protein_stable_id,
                             source_config,
@@ -706,12 +710,18 @@ def parse_converted_gff3(
                             )
                         )
                         for transcript_attribute in transcript_attributes:
-                            if transcript_attribute not in transcript.transcript_attributes:
+                            if (
+                                transcript_attribute
+                                not in transcript.transcript_attributes
+                            ):
                                 transcript.transcript_attributes.append(
                                     transcript_attribute
                                 )
                         for translation_attribute in translation_attributes:
-                            if translation_attribute not in transcript.translation_attributes:
+                            if (
+                                translation_attribute
+                                not in transcript.translation_attributes
+                            ):
                                 transcript.translation_attributes.append(
                                     translation_attribute
                                 )

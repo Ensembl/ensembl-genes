@@ -91,9 +91,7 @@ def load_seq_regions_from_fna(
             mitochondrial_attributes = [
                 ("sequence_location", "mitochondrial_chromosome")
             ]
-            mitochondrial_attributes.extend(
-                (seq_region_attributes or {}).get(name, [])
-            )
+            mitochondrial_attributes.extend((seq_region_attributes or {}).get(name, []))
             for code, value in mitochondrial_attributes:
                 attrib_type_id = get_or_create_attrib_type(cursor, code)
                 cursor.execute(
