@@ -4382,23 +4382,23 @@
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/python/ensembl/genes/ensembl_loading/gff_annotation.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">913</span>
-<span class="normal">914</span>
-<span class="normal">915</span>
-<span class="normal">916</span>
-<span class="normal">917</span>
-<span class="normal">918</span>
-<span class="normal">919</span>
-<span class="normal">920</span>
-<span class="normal">921</span>
-<span class="normal">922</span>
-<span class="normal">923</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">923</span>
 <span class="normal">924</span>
 <span class="normal">925</span>
 <span class="normal">926</span>
 <span class="normal">927</span>
 <span class="normal">928</span>
-<span class="normal">929</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">apply_biotype_overrides</span><span class="p">(</span>
+<span class="normal">929</span>
+<span class="normal">930</span>
+<span class="normal">931</span>
+<span class="normal">932</span>
+<span class="normal">933</span>
+<span class="normal">934</span>
+<span class="normal">935</span>
+<span class="normal">936</span>
+<span class="normal">937</span>
+<span class="normal">938</span>
+<span class="normal">939</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">apply_biotype_overrides</span><span class="p">(</span>
     <span class="n">annotation</span><span class="p">:</span> <span class="n">ParsedAnnotation</span><span class="p">,</span>
     <span class="n">source_config</span><span class="p">:</span> <span class="n">GffSourceConfig</span> <span class="o">=</span> <span class="n">REFSEQ_CONFIG</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ParsedAnnotation</span><span class="p">:</span>
@@ -4622,17 +4622,7 @@
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/python/ensembl/genes/ensembl_loading/gff_annotation.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">823</span>
-<span class="normal">824</span>
-<span class="normal">825</span>
-<span class="normal">826</span>
-<span class="normal">827</span>
-<span class="normal">828</span>
-<span class="normal">829</span>
-<span class="normal">830</span>
-<span class="normal">831</span>
-<span class="normal">832</span>
-<span class="normal">833</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">833</span>
 <span class="normal">834</span>
 <span class="normal">835</span>
 <span class="normal">836</span>
@@ -4709,7 +4699,17 @@
 <span class="normal">907</span>
 <span class="normal">908</span>
 <span class="normal">909</span>
-<span class="normal">910</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">compute_exon_phases</span><span class="p">(</span><span class="n">annotation</span><span class="p">:</span> <span class="n">ParsedAnnotation</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ParsedAnnotation</span><span class="p">:</span>
+<span class="normal">910</span>
+<span class="normal">911</span>
+<span class="normal">912</span>
+<span class="normal">913</span>
+<span class="normal">914</span>
+<span class="normal">915</span>
+<span class="normal">916</span>
+<span class="normal">917</span>
+<span class="normal">918</span>
+<span class="normal">919</span>
+<span class="normal">920</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">compute_exon_phases</span><span class="p">(</span><span class="n">annotation</span><span class="p">:</span> <span class="n">ParsedAnnotation</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ParsedAnnotation</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Compute exon phase and end_phase values from CDS segments."""</span>
 
     <span class="k">for</span> <span class="n">transcript_id</span><span class="p">,</span> <span class="n">cds_list</span> <span class="ow">in</span> <span class="n">annotation</span><span class="o">.</span><span class="n">cds_segments</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
@@ -5238,7 +5238,17 @@
 <span class="normal">742</span>
 <span class="normal">743</span>
 <span class="normal">744</span>
-<span class="normal">745</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">parse_converted_gff3</span><span class="p">(</span>
+<span class="normal">745</span>
+<span class="normal">746</span>
+<span class="normal">747</span>
+<span class="normal">748</span>
+<span class="normal">749</span>
+<span class="normal">750</span>
+<span class="normal">751</span>
+<span class="normal">752</span>
+<span class="normal">753</span>
+<span class="normal">754</span>
+<span class="normal">755</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">parse_converted_gff3</span><span class="p">(</span>
     <span class="n">converted_gff_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span>
     <span class="n">logger</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">source_config</span><span class="p">:</span> <span class="n">GffSourceConfig</span> <span class="o">=</span> <span class="n">REFSEQ_CONFIG</span><span class="p">,</span>
@@ -5481,7 +5491,11 @@
                 <span class="p">)</span>
                 <span class="k">for</span> <span class="n">transcript_id</span> <span class="ow">in</span> <span class="n">transcript_parent_ids</span><span class="p">:</span>
                     <span class="n">transcript</span> <span class="o">=</span> <span class="n">annotation</span><span class="o">.</span><span class="n">transcripts</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">transcript_id</span><span class="p">)</span>
-                    <span class="k">if</span> <span class="n">protein_stable_id</span> <span class="ow">and</span> <span class="n">transcript</span> <span class="ow">and</span> <span class="n">transcript</span><span class="o">.</span><span class="n">protein_id</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="p">(</span>
+                        <span class="n">protein_stable_id</span>
+                        <span class="ow">and</span> <span class="n">transcript</span>
+                        <span class="ow">and</span> <span class="n">transcript</span><span class="o">.</span><span class="n">protein_id</span> <span class="ow">is</span> <span class="kc">None</span>
+                    <span class="p">):</span>
                         <span class="n">transcript</span><span class="o">.</span><span class="n">protein_id</span> <span class="o">=</span> <span class="n">normalize_id</span><span class="p">(</span>
                             <span class="n">protein_stable_id</span><span class="p">,</span>
                             <span class="n">source_config</span><span class="p">,</span>
@@ -5494,12 +5508,18 @@
                             <span class="p">)</span>
                         <span class="p">)</span>
                         <span class="k">for</span> <span class="n">transcript_attribute</span> <span class="ow">in</span> <span class="n">transcript_attributes</span><span class="p">:</span>
-                            <span class="k">if</span> <span class="n">transcript_attribute</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">transcript</span><span class="o">.</span><span class="n">transcript_attributes</span><span class="p">:</span>
+                            <span class="k">if</span> <span class="p">(</span>
+                                <span class="n">transcript_attribute</span>
+                                <span class="ow">not</span> <span class="ow">in</span> <span class="n">transcript</span><span class="o">.</span><span class="n">transcript_attributes</span>
+                            <span class="p">):</span>
                                 <span class="n">transcript</span><span class="o">.</span><span class="n">transcript_attributes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                                     <span class="n">transcript_attribute</span>
                                 <span class="p">)</span>
                         <span class="k">for</span> <span class="n">translation_attribute</span> <span class="ow">in</span> <span class="n">translation_attributes</span><span class="p">:</span>
-                            <span class="k">if</span> <span class="n">translation_attribute</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">transcript</span><span class="o">.</span><span class="n">translation_attributes</span><span class="p">:</span>
+                            <span class="k">if</span> <span class="p">(</span>
+                                <span class="n">translation_attribute</span>
+                                <span class="ow">not</span> <span class="ow">in</span> <span class="n">transcript</span><span class="o">.</span><span class="n">translation_attributes</span>
+                            <span class="p">):</span>
                                 <span class="n">transcript</span><span class="o">.</span><span class="n">translation_attributes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                                     <span class="n">translation_attribute</span>
                                 <span class="p">)</span>
@@ -5882,22 +5902,22 @@
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/python/ensembl/genes/ensembl_loading/gff_annotation.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">932</span>
-<span class="normal">933</span>
-<span class="normal">934</span>
-<span class="normal">935</span>
-<span class="normal">936</span>
-<span class="normal">937</span>
-<span class="normal">938</span>
-<span class="normal">939</span>
-<span class="normal">940</span>
-<span class="normal">941</span>
-<span class="normal">942</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">942</span>
 <span class="normal">943</span>
 <span class="normal">944</span>
 <span class="normal">945</span>
 <span class="normal">946</span>
-<span class="normal">947</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">prepare_annotation_for_load</span><span class="p">(</span>
+<span class="normal">947</span>
+<span class="normal">948</span>
+<span class="normal">949</span>
+<span class="normal">950</span>
+<span class="normal">951</span>
+<span class="normal">952</span>
+<span class="normal">953</span>
+<span class="normal">954</span>
+<span class="normal">955</span>
+<span class="normal">956</span>
+<span class="normal">957</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">prepare_annotation_for_load</span><span class="p">(</span>
     <span class="n">converted_gff_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span>
     <span class="n">logger</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">source_config</span><span class="p">:</span> <span class="n">GffSourceConfig</span> <span class="o">=</span> <span class="n">REFSEQ_CONFIG</span><span class="p">,</span>
@@ -5935,17 +5955,7 @@
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/python/ensembl/genes/ensembl_loading/gff_annotation.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">748</span>
-<span class="normal">749</span>
-<span class="normal">750</span>
-<span class="normal">751</span>
-<span class="normal">752</span>
-<span class="normal">753</span>
-<span class="normal">754</span>
-<span class="normal">755</span>
-<span class="normal">756</span>
-<span class="normal">757</span>
-<span class="normal">758</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">758</span>
 <span class="normal">759</span>
 <span class="normal">760</span>
 <span class="normal">761</span>
@@ -6007,7 +6017,17 @@
 <span class="normal">817</span>
 <span class="normal">818</span>
 <span class="normal">819</span>
-<span class="normal">820</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">reconcile_annotation</span><span class="p">(</span>
+<span class="normal">820</span>
+<span class="normal">821</span>
+<span class="normal">822</span>
+<span class="normal">823</span>
+<span class="normal">824</span>
+<span class="normal">825</span>
+<span class="normal">826</span>
+<span class="normal">827</span>
+<span class="normal">828</span>
+<span class="normal">829</span>
+<span class="normal">830</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">reconcile_annotation</span><span class="p">(</span>
     <span class="n">annotation</span><span class="p">:</span> <span class="n">ParsedAnnotation</span><span class="p">,</span>
     <span class="n">logger</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ParsedAnnotation</span><span class="p">:</span>
