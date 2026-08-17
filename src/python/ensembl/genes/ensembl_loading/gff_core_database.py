@@ -50,6 +50,7 @@ def load_seq_regions_from_fna(
     coord_system_id: int,
     logger: logging.Logger | None = None,
     source_config: GffSourceConfig = REFSEQ_CONFIG,
+    seq_region_attributes: Mapping[str, list[tuple[str, str]]] | None = None,
 ) -> dict[str, int]:
     """Load seq_region and dna rows from a converted FASTA file."""
 
@@ -85,6 +86,21 @@ def load_seq_regions_from_fna(
                 "VALUES (%s, %s, '')",
                 (seq_region_id, source_config.toplevel_attrib_type_id),
             )
+
+        if name.upper() in {"MT", "CHRM", "CHRMT"}:
+            mitochondrial_attributes = [
+                ("sequence_location", "mitochondrial_chromosome")
+            ]
+            mitochondrial_attributes.extend(
+                (seq_region_attributes or {}).get(name, [])
+            )
+            for code, value in mitochondrial_attributes:
+                attrib_type_id = get_or_create_attrib_type(cursor, code)
+                cursor.execute(
+                    "INSERT IGNORE INTO seq_region_attrib "
+                    "(seq_region_id, attrib_type_id, value) VALUES (%s,%s,%s)",
+                    (seq_region_id, attrib_type_id, value),
+                )
 
         seq_region_ids[name] = seq_region_id
 
@@ -461,6 +477,41 @@ def insert_genes(
         )
 
 
+def get_or_create_attrib_type(cursor: DbCursor, code: str) -> int:
+    """Return the core attribute type ID for an imported annotation code."""
+
+    cursor.execute(
+        "SELECT attrib_type_id FROM attrib_type WHERE code = %s LIMIT 1",
+        (code,),
+    )
+    row = cursor.fetchone()
+    if row is not None:
+        return int(row[0])
+    cursor.execute(
+        "INSERT INTO attrib_type (code, name, description) VALUES (%s,%s,%s)",
+        (code, code, "Imported from RefSeq annotation exceptions"),
+    )
+    return cursor.lastrowid
+
+
+def insert_attributes(
+    cursor: DbCursor,
+    table: str,
+    object_column: str,
+    object_id: int,
+    attributes: list[tuple[str, str]],
+) -> None:
+    """Insert core attributes for one transcript or translation."""
+
+    for code, value in attributes:
+        attrib_type_id = get_or_create_attrib_type(cursor, code)
+        cursor.execute(
+            f"INSERT INTO {table} ({object_column}, attrib_type_id, value) "
+            "VALUES (%s,%s,%s)",
+            (object_id, attrib_type_id, value),
+        )
+
+
 def insert_transcripts_and_exons(
     cursor: DbCursor,
     annotation: ParsedAnnotation,
@@ -500,6 +551,13 @@ def insert_transcripts_and_exons(
                 transcript.stable_id,
                 source_config.source_label,
             ),
+        )
+        insert_attributes(
+            cursor,
+            "transcript_attrib",
+            "transcript_id",
+            transcript_id_map[transcript_id],
+            transcript.transcript_attributes,
         )
 
         sorted_exons = sorted(
@@ -635,4 +693,11 @@ def insert_translations(
             cursor.execute(
                 "UPDATE transcript SET canonical_translation_id = %s WHERE transcript_id = %s",
                 (translation_id, db_transcript_id),
+            )
+            insert_attributes(
+                cursor,
+                "translation_attrib",
+                "translation_id",
+                translation_id,
+                transcript.translation_attributes,
             )

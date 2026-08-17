@@ -6,6 +6,8 @@
 # pylint: disable=too-many-arguments
 # pylint: disable=too-many-branches
 # pylint: disable=too-many-locals
+# pylint: disable=too-many-nested-blocks
+# pylint: disable=too-many-statements
 # pylint: disable=too-many-return-statements
 
 from __future__ import annotations
@@ -15,6 +17,7 @@ import re
 from collections.abc import Mapping, Sequence
 from pathlib import Path
 from typing import Any, Protocol
+from urllib.parse import unquote
 
 try:  # Support both package imports and direct same-directory imports.
     from .gff_metadata import (
@@ -75,13 +78,17 @@ def normalize_id(
     return normalized_id
 
 
-def parent_id(
+def parent_ids(
     raw_parent: str,
     source_config: GffSourceConfig = REFSEQ_CONFIG,
-) -> str:
-    """Return the normalized Parent ID using the configured source rule."""
+) -> list[str]:
+    """Return all normalized IDs in a comma-separated GFF3 Parent value."""
 
-    return normalize_id(raw_parent, source_config)
+    return [
+        normalize_id(parent.strip(), source_config)
+        for parent in raw_parent.split(",")
+        if parent.strip()
+    ]
 
 
 def first_existing_attribute(
@@ -100,7 +107,73 @@ def first_existing_attribute(
 def parse_gff3_attributes(raw_attributes: str) -> dict[str, str]:
     """Parse a GFF3 attribute column into a key-value dictionary."""
 
-    return dict(item.split("=", 1) for item in raw_attributes.split(";") if "=" in item)
+    return {
+        unquote(key): unquote(value)
+        for item in raw_attributes.split(";")
+        if "=" in item
+        for key, value in [item.split("=", 1)]
+    }
+
+
+def parse_translation_attributes(
+    raw_value: str,
+    note: str = "",
+) -> tuple[list[tuple[str, str]], list[tuple[str, str]]]:
+    """Convert NCBI ``transl_except`` values to Ensembl attributes."""
+
+    translation_attributes: list[tuple[str, str]] = []
+    transcript_attributes: list[tuple[str, str]] = []
+    amino_acid_codes = {
+        "Ala": "A",
+        "Arg": "R",
+        "Asn": "N",
+        "Asp": "D",
+        "Cys": "C",
+        "Gln": "Q",
+        "Glu": "E",
+        "Gly": "G",
+        "His": "H",
+        "Ile": "I",
+        "Leu": "L",
+        "Lys": "K",
+        "Met": "M",
+        "Phe": "F",
+        "Pro": "P",
+        "Ser": "S",
+        "Thr": "T",
+        "Trp": "W",
+        "Tyr": "Y",
+        "Val": "V",
+    }
+    exception_pattern = re.compile(
+        r"pos:(?P<position>join\([^)]*\)|\d+(?:\.\.\d+)?),"
+        r"aa:(?P<amino_acid>[A-Za-z*]+)"
+    )
+    for match in exception_pattern.finditer(raw_value):
+        position = match.group("position")
+        coordinates = [int(value) for value in re.findall(r"\d+", position)]
+        if not coordinates:
+            continue
+        start, end = coordinates[0], coordinates[-1]
+        amino_acid = match.group("amino_acid")
+        if amino_acid == "Sec":
+            code, value = "_selenocysteine", f"{start} {end} U"
+        elif amino_acid == "TERM":
+            transcript_attributes.append(("_rna_edit", f"{start} {end} *"))
+            continue
+        elif amino_acid == "Met" and re.search(r"non-AUG\s+\(\w{3}\)", note):
+            transcript_attributes.append(("initial_met", "1 1 M"))
+            continue
+        else:
+            code, value = (
+                "amino_acid_sub",
+                f"{start} {end} {amino_acid_codes.get(amino_acid, '')}",
+            )
+        translation_attributes.append((code, value))
+    frameshift = re.search(r"([-+]\d+).*ribosomal frameshift", note)
+    if frameshift:
+        transcript_attributes.append(("_rib_frameshift", frameshift.group(1)))
+    return transcript_attributes, translation_attributes
 
 
 def parse_gtf_attributes(raw_attributes: str) -> dict[str, str]:
@@ -414,6 +487,14 @@ def parse_converted_gff3(
 
             strand_value = 1 if strand == "+" else -1
             attributes = parse_feature_attributes(attrs, source_config)
+            if feature_type == "CDS" and attributes.get("transl_table"):
+                seq_region_attributes = annotation.seq_region_attributes.setdefault(
+                    seq_name,
+                    [],
+                )
+                codon_table = ("codon_table", attributes["transl_table"])
+                if codon_table not in seq_region_attributes:
+                    seq_region_attributes.append(codon_table)
 
             if feature_type in source_config.parsed_gene_feature_types:
                 gene_id = normalize_id(
@@ -470,7 +551,7 @@ def parse_converted_gff3(
                     ),
                     source_config,
                 )
-                gene_id = parent_id(
+                gene_parents = parent_ids(
                     required_attribute(
                         attributes,
                         source_config.parent_gene_attribute,
@@ -480,6 +561,13 @@ def parse_converted_gff3(
                     ),
                     source_config,
                 )
+                if len(gene_parents) != 1:
+                    raise ValueError(
+                        f"{gff_path}:{line_number}: transcript {transcript_id} "
+                        "has multiple gene parents; this core model supports "
+                        "one gene per transcript"
+                    )
+                gene_id = gene_parents[0]
                 stable_id = (
                     first_existing_attribute(
                         attributes,
@@ -521,7 +609,7 @@ def parse_converted_gff3(
                 continue
 
             if feature_type == "exon":
-                transcript_id = parent_id(
+                transcript_parent_ids = parent_ids(
                     required_attribute(
                         attributes,
                         source_config.exon_parent_attribute,
@@ -531,65 +619,65 @@ def parse_converted_gff3(
                     ),
                     source_config,
                 )
-                if transcript_id not in annotation.transcripts:
-                    biotype = (
-                        annotation.genes[transcript_id].biotype
-                        if transcript_id in annotation.genes
-                        else resolve_biotype(
-                            feature_type,
-                            attributes,
-                            transcript_id,
-                            log,
-                            source_config=source_config,
-                        )
-                    )
-                    if transcript_id not in annotation.genes:
-                        annotation.genes[transcript_id] = GeneRecord(
-                            seq_name=seq_name,
-                            start=start,
-                            end=end,
-                            strand=strand_value,
-                            biotype=biotype,
-                            stable_id=transcript_id,
-                            name=transcript_id,
-                        )
-                    dummy_transcript_id = f"{transcript_id}_dTx"
-                    annotation.transcripts.setdefault(
-                        dummy_transcript_id,
-                        TranscriptRecord(
-                            gene_id=transcript_id,
-                            seq_name=seq_name,
-                            start=start,
-                            end=end,
-                            strand=strand_value,
-                            biotype=biotype,
-                            stable_id=dummy_transcript_id,
-                        ),
-                    )
-                    transcript_id = dummy_transcript_id
-
                 exon_stable_id = first_existing_attribute(
                     attributes,
                     source_config.exon_stable_id_attributes,
                 )
-                annotation.transcripts[transcript_id].exons.append(
-                    ExonRecord(
-                        start=start,
-                        end=end,
-                        strand=strand_value,
-                        phase=None,
-                        end_phase=None,
-                        stable_id=(
-                            normalize_id(exon_stable_id, source_config)
-                            if exon_stable_id
-                            else None
-                        ),
+                for transcript_id in transcript_parent_ids:
+                    if transcript_id not in annotation.transcripts:
+                        biotype = (
+                            annotation.genes[transcript_id].biotype
+                            if transcript_id in annotation.genes
+                            else resolve_biotype(
+                                feature_type,
+                                attributes,
+                                transcript_id,
+                                log,
+                                source_config=source_config,
+                            )
+                        )
+                        if transcript_id not in annotation.genes:
+                            annotation.genes[transcript_id] = GeneRecord(
+                                seq_name=seq_name,
+                                start=start,
+                                end=end,
+                                strand=strand_value,
+                                biotype=biotype,
+                                stable_id=transcript_id,
+                                name=transcript_id,
+                            )
+                        dummy_transcript_id = f"{transcript_id}_dTx"
+                        annotation.transcripts.setdefault(
+                            dummy_transcript_id,
+                            TranscriptRecord(
+                                gene_id=transcript_id,
+                                seq_name=seq_name,
+                                start=start,
+                                end=end,
+                                strand=strand_value,
+                                biotype=biotype,
+                                stable_id=dummy_transcript_id,
+                            ),
+                        )
+                        transcript_id = dummy_transcript_id
+                    annotation.transcripts[transcript_id].exons.append(
+                        ExonRecord(
+                            start=start,
+                            end=end,
+                            strand=strand_value,
+                            phase=None,
+                            end_phase=None,
+                            stable_id=(
+                                normalize_id(exon_stable_id, source_config)
+                                if exon_stable_id
+                                else None
+                            ),
+                        )
                     )
-                )
                 continue
 
             if feature_type == "CDS":
-                transcript_id = parent_id(
+                transcript_parent_ids = parent_ids(
                     required_attribute(
                         attributes,
                         source_config.cds_parent_attribute,
@@ -603,23 +691,48 @@ def parse_converted_gff3(
                     attributes,
                     source_config.translation_stable_id_attributes,
                 )
-                if (
-                    protein_stable_id
-                    and transcript_id in annotation.transcripts
-                    and annotation.transcripts[transcript_id].protein_id is None
-                ):
-                    annotation.transcripts[transcript_id].protein_id = normalize_id(
-                        protein_stable_id,
-                        source_config,
+                for transcript_id in transcript_parent_ids:
+                    transcript = annotation.transcripts.get(transcript_id)
+                    if protein_stable_id and transcript and transcript.protein_id is None:
+                        transcript.protein_id = normalize_id(
+                            protein_stable_id,
+                            source_config,
+                        )
+                    if transcript and "transl_except" in attributes:
+                        transcript_attributes, translation_attributes = (
+                            parse_translation_attributes(
+                                attributes["transl_except"],
+                                attributes.get("Note", ""),
+                            )
+                        )
+                        for transcript_attribute in transcript_attributes:
+                            if transcript_attribute not in transcript.transcript_attributes:
+                                transcript.transcript_attributes.append(
+                                    transcript_attribute
+                                )
+                        for translation_attribute in translation_attributes:
+                            if translation_attribute not in transcript.translation_attributes:
+                                transcript.translation_attributes.append(
+                                    translation_attribute
+                                )
+                    elif transcript:
+                        frameshift = re.search(
+                            r"([-+]\d+).*ribosomal frameshift",
+                            attributes.get("Note", ""),
+                        )
+                        if frameshift:
+                            attribute = ("_rib_frameshift", frameshift.group(1))
+                            if attribute not in transcript.transcript_attributes:
+                                transcript.transcript_attributes.append(attribute)
+                    annotation.cds_segments.setdefault(transcript_id, []).append(
+                        CdsSegment(
+                            start=start,
+                            end=end,
+                            strand=strand_value,
+                            phase=phase,
+                        )
                     )
-                annotation.cds_segments.setdefault(transcript_id, []).append(
-                    CdsSegment(
-                        start=start,
-                        end=end,
-                        strand=strand_value,
-                        phase=phase,
-                    )
-                )
+                continue
 
     synthesize_cds_from_translation_coords(annotation, log)
     log.info(

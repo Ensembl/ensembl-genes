@@ -123,17 +123,18 @@ def load_to_ensembl_core(
             assembly_report_path=assembly_report_path,
             source_config=source_config,
         )
+        annotation = prepare_annotation_for_load(
+            converted_gff_path,
+            logger=log,
+            source_config=source_config,
+        )
         seq_region_ids = load_seq_regions_from_fna(
             converted_fna_path,
             cursor,
             coord_system_id,
             logger=log,
             source_config=source_config,
-        )
-        annotation = prepare_annotation_for_load(
-            converted_gff_path,
-            logger=log,
-            source_config=source_config,
+            seq_region_attributes=annotation.seq_region_attributes,
         )
         gene_id_map, transcript_id_map = allocate_numeric_ids(annotation)
         insert_genes(

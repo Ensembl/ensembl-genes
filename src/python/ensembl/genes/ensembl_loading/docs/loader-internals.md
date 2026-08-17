@@ -60,6 +60,14 @@ For example, `Bradysia coprophila` and `GCF_014529535.1` become
 The `species.url` metadata uses the same compact accession but preserves the
 capitalized genus, for example `Bradysia_coprophila_gca014529535v1`.
 
+### Mitochondrial RefSeq Features
+
+When a RefSeq FASTA contains `MT`, the loader adds the same core sequence
+attributes used by the mitochondrial Perl loader: `sequence_location` with
+value `mitochondrial_chromosome` and `codon_table` from the mitochondrial GFF
+CDS `transl_table` attribute. The MT sequence and its RefSeq gene, transcript,
+exon, CDS, tRNA, and rRNA features are loaded through the normal core path.
+
 For RefSeq accessions beginning with `GCF`, the GenBank accession from the
 assembly report is stored as `assembly.alt_accession`. The web accession source
 and type default to `NCBI` and `INSDC Assembly ID` respectively.
@@ -86,7 +94,10 @@ becomes:
 does not strip anything. The RefSeq config strips `gene-`, `rna-`, `cds-`, and
 `exon-`.
 
-`parent_id()` applies the same normalization to `Parent`.
+`parent_ids()` splits comma-separated GFF3 `Parent` values and applies the same
+normalization to every parent. Exon and CDS rows are attached to every listed
+transcript. A transcript with multiple gene parents is rejected because the
+Ensembl core schema stores one gene per transcript.
 
 ### Gene Rows
 
@@ -167,6 +178,14 @@ CDS rows are used for:
 1. Computing exon `phase` and `end_phase`.
 2. Creating `translation` rows.
 3. Updating `transcript.canonical_translation_id`.
+
+NCBI `transl_except` attributes are URL-decoded and converted to core attribute
+rows. Selenocysteine and amino-acid substitutions use the translation-level
+`_selenocysteine` and `amino_acid_sub` codes. Termination edits, non-AUG starts,
+and ribosomal-frame-shift markers are retained as transcript-level
+`_rna_edit`, `initial_met`, and `_rib_frameshift` attributes. This preserves the
+RefSeq exception information in `translation_attrib` or `transcript_attrib`
+instead of silently discarding it.
 
 CDS rows do not create genes or transcripts by themselves. If a CDS parent does
 not match a parsed transcript, that CDS group is ignored during phase and

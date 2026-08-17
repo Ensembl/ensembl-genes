@@ -53,6 +53,8 @@ class TranscriptRecord:
     exons: list[ExonRecord] = field(default_factory=list)
     protein_id: str | None = None
     translation_coords: str | None = None
+    transcript_attributes: list[tuple[str, str]] = field(default_factory=list)
+    translation_attributes: list[tuple[str, str]] = field(default_factory=list)
 
 
 @dataclass(frozen=True)
@@ -72,3 +74,6 @@ class ParsedAnnotation:
     genes: dict[str, GeneRecord] = field(default_factory=dict)
     transcripts: dict[str, TranscriptRecord] = field(default_factory=dict)
     cds_segments: dict[str, list[CdsSegment]] = field(default_factory=dict)
+    seq_region_attributes: dict[str, list[tuple[str, str]]] = field(
+        default_factory=dict
+    )

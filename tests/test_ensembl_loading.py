@@ -26,6 +26,7 @@ from ensembl.genes.ensembl_loading import (
     gff_metadata,
     gff_repeat_loader,
 )
+from ensembl.genes.ensembl_loading.gff_annotation import parse_converted_gff3
 from ensembl.genes.ensembl_loading.gff_quality_check import (
     expected_translation_stable_ids,
 )
@@ -437,6 +438,85 @@ def test_source_specific_annotation_parsers(tmp_path: Path) -> None:
     assert set(refseq.transcripts) == {"TxA"}
     assert refseq.transcripts["TxA"].stable_id == "TxA"
     assert expected_translation_stable_ids(refseq) == {"TxA": "TxA_prot"}
+
+
+def test_refseq_parser_supports_multiple_parents_and_translation_exceptions(
+    tmp_path: Path,
+) -> None:
+    gff = write_lines(
+        tmp_path / "multi_parent.gff3",
+        [
+            feature_row(
+                "1",
+                "gene",
+                1,
+                100,
+                "+",
+                "ID=gene-g1;gene_biotype=protein_coding",
+                source="RefSeq",
+            ),
+            feature_row(
+                "1",
+                "gene",
+                1,
+                100,
+                "+",
+                "ID=gene-g2;gene_biotype=protein_coding",
+                source="RefSeq",
+            ),
+            feature_row(
+                "1",
+                "mRNA",
+                1,
+                100,
+                "+",
+                "ID=rna-t1;Parent=gene-g1;Name=t1",
+                source="RefSeq",
+            ),
+            feature_row(
+                "1",
+                "mRNA",
+                1,
+                100,
+                "+",
+                "ID=rna-t2;Parent=gene-g2;Name=t2",
+                source="RefSeq",
+            ),
+            feature_row(
+                "1",
+                "exon",
+                1,
+                100,
+                "+",
+                "ID=exon-e1;Parent=rna-t1,rna-t2",
+                source="RefSeq",
+            ),
+            feature_row(
+                "1",
+                "CDS",
+                1,
+                100,
+                "+",
+                "ID=cds-c1;Parent=rna-t1,rna-t2;"
+                "protein_id=NP_1;transl_table=2;"
+                "transl_except=(pos:10..12%2Caa:Sec)",
+                source="RefSeq",
+                phase="0",
+            ),
+        ],
+    )
+
+    annotation = parse_converted_gff3(gff)
+
+    assert [len(annotation.transcripts[tx].exons) for tx in ("t1", "t2")] == [1, 1]
+    assert set(annotation.cds_segments) == {"t1", "t2"}
+    assert annotation.seq_region_attributes == {"1": [("codon_table", "2")]}
+    assert annotation.transcripts["t1"].translation_attributes == [
+        ("_selenocysteine", "10 12 U")
+    ]
+    assert annotation.transcripts["t2"].translation_attributes == [
+        ("_selenocysteine", "10 12 U")
+    ]
 
 
 def test_refseq_discovery_and_conversion_helpers(tmp_path: Path) -> None:
