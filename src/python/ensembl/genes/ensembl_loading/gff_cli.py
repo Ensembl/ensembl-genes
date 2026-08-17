@@ -50,7 +50,7 @@ ANNO_SINGLE_LINE_OUTPUTS = (
     (Path("dust_output") / "annotation.gtf", "dust"),
     (Path("red_output") / "annotation.gtf", "repeatdetector"),
     (Path("trf_output") / "annotation.gtf", "trf"),
-    (Path("repeatmasker_output") / "annotation.gtf", "repeatmask_repbase_human"),
+    (Path("repeatmasker_output") / "annotation.gtf", "repeatmasker"),
     (Path("cpg_output") / "annotation.gtf", "cpg"),
     (Path("eponine_output") / "annotation.gtf", "eponine"),
 )
