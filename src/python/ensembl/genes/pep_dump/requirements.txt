@@ -1,0 +1,2 @@
+# Python 3.8 or newer. The only third-party dependency is the MySQL driver.
+PyMySQL>=1.1.0
