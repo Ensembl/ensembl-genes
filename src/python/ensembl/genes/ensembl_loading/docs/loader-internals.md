@@ -21,26 +21,26 @@ The implementation is split by responsibility:
 
 `gff_metadata.py`
 : Reads assembly-report headers, normalizes assembly dates and accession
-  tokens, derives species database-name tokens, and opens plain or gzip text
-  files.
+tokens, derives species database-name tokens, and opens plain or gzip text
+files.
 
 `gff_annotation.py`
 : Parses GFF3/GTF feature rows into `ParsedAnnotation` records, reconciles
-  missing gene/transcript/exon relationships, computes exon phases, and applies
-  biotype overrides.
+missing gene/transcript/exon relationships, computes exon phases, and applies
+biotype overrides.
 
 `gff_core_database.py`
 : Handles schema loading, core metadata insertion, FASTA/`seq_region` loading,
-  numeric ID allocation, and feature-row inserts.
+numeric ID allocation, and feature-row inserts.
 
 `gff_core_loader.py`
 : Provides the public loading functions and coordinates the database
-  transactions and quality checks.
+transactions and quality checks.
 
 `ncbi_annotation_report.py`
 : Temporary isolated helper that queries NCBI Datasets for the official
-  annotation-report URL of a GCF accession. It is called by
-  `gff_metadata.py` and can be removed later without changing the core loader.
+annotation-report URL of a GCF accession. It is called by
+`gff_metadata.py` and can be removed later without changing the core loader.
 
 ## Assembly-Report Metadata
 
@@ -179,13 +179,19 @@ CDS rows are used for:
 2. Creating `translation` rows.
 3. Updating `transcript.canonical_translation_id`.
 
-NCBI `transl_except` attributes are URL-decoded and converted to core attribute
-rows. Selenocysteine and amino-acid substitutions use the translation-level
+NCBI `transl_except` attributes are URL-decoded, mapped from genomic
+coordinates through the strand-aware spliced CDS, and converted to
+peptide-relative core attribute rows. Selenocysteine and amino-acid substitutions use the translation-level
 `_selenocysteine` and `amino_acid_sub` codes. Termination edits, non-AUG starts,
-and ribosomal-frame-shift markers are retained as transcript-level
-`_rna_edit`, `initial_met`, and `_rib_frameshift` attributes. This preserves the
-RefSeq exception information in `translation_attrib` or `transcript_attrib`
-instead of silently discarding it.
+and ribosomal slippage are retained as Ensembl-compatible SeqEdit attributes.
+Stop-codon completion notes such as `addition of 3' A residues` are converted
+to `_rna_edit` values with the inserted bases. Ribosomal-slippage gaps and
+overlaps are converted to transcript-level `_rna_edit` values using the loaded
+DNA sequence, with `_rib_frameshift` retained as a marker.
+
+When loading RefSeq into an existing core, MT genes and dependent MT feature
+rows are removed in the same transaction before the replacement annotation is
+inserted. Non-MT features are left untouched.
 
 CDS rows do not create genes or transcripts by themselves. If a CDS parent does
 not match a parsed transcript, that CDS group is ignored during phase and

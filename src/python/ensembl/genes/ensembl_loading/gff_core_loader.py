@@ -27,6 +27,7 @@ try:  # Support both package imports and direct same-directory imports.
         load_existing_seq_region_ids,
         load_schema_sql,
         load_seq_regions_from_fna,
+        replace_mitochondrial_features,
         resolve_schema_sql_path,
     )
     from .gff_quality_check import emit_quality_report, run_core_load_quality_check
@@ -49,6 +50,7 @@ except ImportError:  # pragma: no cover - used when run beside this file.
         load_existing_seq_region_ids,
         load_schema_sql,
         load_seq_regions_from_fna,
+        replace_mitochondrial_features,
         resolve_schema_sql_path,
     )
     from gff_quality_check import (  # type: ignore
@@ -136,6 +138,10 @@ def load_to_ensembl_core(
             source_config=source_config,
             seq_region_attributes=annotation.seq_region_attributes,
         )
+        if source_config.name == "refseq" and any(
+            name.upper() in {"MT", "CHRM", "CHRMT"} for name in seq_region_ids
+        ):
+            replace_mitochondrial_features(cursor)
         gene_id_map, transcript_id_map = allocate_numeric_ids(annotation)
         insert_genes(
             cursor,
@@ -232,6 +238,11 @@ def load_gff_features_to_core(
             coord_system_name=coord_system_name,
             coord_system_version=coord_system_version,
         )
+        if source_config.name == "refseq" and any(
+            transcript.seq_name.upper() in {"MT", "CHRM", "CHRMT"}
+            for transcript in annotation.transcripts.values()
+        ):
+            replace_mitochondrial_features(cursor)
         analysis_id = get_or_create_analysis(cursor, source_config=source_config)
         seq_region_ids = load_existing_seq_region_ids(
             cursor,

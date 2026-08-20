@@ -122,6 +122,54 @@ def load_seq_regions_from_fna(
     return seq_region_ids
 
 
+def replace_mitochondrial_features(cursor: DbCursor) -> None:
+    """Remove existing MT features before a RefSeq mitochondrial reload."""
+
+    cursor.execute(
+        "DELETE ta FROM translation_attrib ta "
+        "JOIN translation tl ON tl.translation_id = ta.translation_id "
+        "JOIN transcript t ON t.transcript_id = tl.transcript_id "
+        "JOIN seq_region sr ON sr.seq_region_id = t.seq_region_id "
+        "WHERE UPPER(sr.name) IN ('MT','CHRM','CHRMT')"
+    )
+    cursor.execute(
+        "DELETE FROM translation WHERE transcript_id IN "
+        "(SELECT t.transcript_id FROM transcript t "
+        "JOIN seq_region sr ON sr.seq_region_id = t.seq_region_id "
+        "WHERE UPPER(sr.name) IN ('MT','CHRM','CHRMT'))"
+    )
+    cursor.execute(
+        "DELETE FROM transcript_attrib WHERE transcript_id IN "
+        "(SELECT t.transcript_id FROM transcript t "
+        "JOIN seq_region sr ON sr.seq_region_id = t.seq_region_id "
+        "WHERE UPPER(sr.name) IN ('MT','CHRM','CHRMT'))"
+    )
+    cursor.execute(
+        "DELETE FROM exon_transcript WHERE transcript_id IN "
+        "(SELECT t.transcript_id FROM transcript t "
+        "JOIN seq_region sr ON sr.seq_region_id = t.seq_region_id "
+        "WHERE UPPER(sr.name) IN ('MT','CHRM','CHRMT'))"
+    )
+    cursor.execute(
+        "DELETE FROM transcript WHERE transcript_id IN "
+        "(SELECT transcript_id FROM (SELECT t.transcript_id FROM transcript t "
+        "JOIN seq_region sr ON sr.seq_region_id = t.seq_region_id "
+        "WHERE UPPER(sr.name) IN ('MT','CHRM','CHRMT')) mt_transcripts)"
+    )
+    cursor.execute(
+        "DELETE FROM gene WHERE seq_region_id IN "
+        "(SELECT seq_region_id FROM seq_region "
+        "WHERE UPPER(name) IN ('MT','CHRM','CHRMT'))"
+    )
+    cursor.execute(
+        "DELETE e FROM exon e "
+        "JOIN seq_region sr ON sr.seq_region_id = e.seq_region_id "
+        "LEFT JOIN exon_transcript et ON et.exon_id = e.exon_id "
+        "WHERE et.exon_id IS NULL "
+        "AND UPPER(sr.name) IN ('MT','CHRM','CHRMT')"
+    )
+
+
 def core_schema_version(schema_sql_path: str | Path | None = None) -> str:
     """Return the bundled core schema version used in derived DB names."""
 
@@ -510,6 +558,93 @@ def insert_attributes(
         )
 
 
+def _reverse_complement(sequence: str) -> str:
+    """Return the reverse complement of a DNA string."""
+
+    return sequence.translate(str.maketrans("ACGTacgt", "TGCAtgca"))[::-1]
+
+
+def frameshift_transcript_attributes(
+    cursor: DbCursor,
+    transcript: Any,
+    cds_segments: list[Any],
+    seq_region_id: int,
+) -> list[tuple[str, str]]:
+    """Create transcript SeqEdits for RefSeq ribosomal slippage intervals."""
+
+    if not transcript.frameshift_events:
+        return []
+    strand = transcript.strand
+    ordered_cds = sorted(
+        cds_segments,
+        key=lambda cds: cds.end if strand == -1 else cds.start,
+        reverse=(strand == -1),
+    )
+    transcript_coordinates: dict[int, int] = {}
+    transcript_position = 1
+    for exon in sorted(
+        transcript.exons,
+        key=lambda item: item.end if strand == -1 else item.start,
+        reverse=(strand == -1),
+    ):
+        coordinates = (
+            range(exon.end, exon.start - 1, -1)
+            if strand == -1
+            else range(exon.start, exon.end + 1)
+        )
+        for coordinate in coordinates:
+            transcript_coordinates[coordinate] = transcript_position
+            transcript_position += 1
+
+    cursor.execute(
+        "SELECT sequence FROM dna WHERE seq_region_id = %s", (seq_region_id,)
+    )
+    row = cursor.fetchone()
+    dna = str(row[0]) if row else ""
+    attributes: list[tuple[str, str]] = []
+    for _exception, note in transcript.frameshift_events:
+        match = re.search(r"([+-])(\d+)", note)
+        direction = match.group(1) if match else "-"
+        length = int(match.group(2)) if match else 1
+        for current, following in zip(ordered_cds, ordered_cds[1:]):
+            if strand == 1:
+                gap_start = current.end + 1
+                gap_end = following.start - 1
+                overlap_start = following.start
+                overlap_end = current.end
+            else:
+                gap_start = following.end + 1
+                gap_end = current.start - 1
+                overlap_start = current.start
+                overlap_end = following.end
+
+            if direction == "+" and gap_end - gap_start + 1 == length:
+                positions = [
+                    transcript_coordinates.get(coordinate)
+                    for coordinate in range(gap_start, gap_end + 1)
+                ]
+                mapped_positions = [
+                    position for position in positions if position is not None
+                ]
+                if len(mapped_positions) == len(positions):
+                    attributes.append(
+                        (
+                            "_rna_edit",
+                            f"{min(mapped_positions)} {max(mapped_positions)} ",
+                        )
+                    )
+            elif direction == "-" and overlap_end - overlap_start + 1 == length:
+                position = transcript_coordinates.get(overlap_start)
+                if position is not None and dna:
+                    sequence = dna[overlap_start - 1 : overlap_end]
+                    if strand == -1:
+                        sequence = _reverse_complement(sequence)
+                    attributes.append(
+                        ("_rna_edit", f"{position} {position} {sequence}")
+                    )
+    return attributes
+
+
 def insert_transcripts_and_exons(
     cursor: DbCursor,
     annotation: ParsedAnnotation,
@@ -550,12 +685,18 @@ def insert_transcripts_and_exons(
                 source_config.source_label,
             ),
         )
+        frameshift_attributes = frameshift_transcript_attributes(
+            cursor,
+            transcript,
+            annotation.cds_segments.get(transcript_id, []),
+            seq_region_id,
+        )
         insert_attributes(
             cursor,
             "transcript_attrib",
             "transcript_id",
             transcript_id_map[transcript_id],
-            transcript.transcript_attributes,
+            [*transcript.transcript_attributes, *frameshift_attributes],
         )
 
         sorted_exons = sorted(

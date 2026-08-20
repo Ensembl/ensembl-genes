@@ -55,6 +55,8 @@ class TranscriptRecord:
     translation_coords: str | None = None
     transcript_attributes: list[tuple[str, str]] = field(default_factory=list)
     translation_attributes: list[tuple[str, str]] = field(default_factory=list)
+    translation_exceptions: list[tuple[str, str]] = field(default_factory=list)
+    frameshift_events: list[tuple[str, str]] = field(default_factory=list)
 
 
 @dataclass(frozen=True)

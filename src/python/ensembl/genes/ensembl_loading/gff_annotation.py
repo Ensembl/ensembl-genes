@@ -8,6 +8,7 @@
 # pylint: disable=too-many-locals
 # pylint: disable=too-many-nested-blocks
 # pylint: disable=too-many-statements
+# pylint: disable=too-many-lines
 # pylint: disable=too-many-return-statements
 
 from __future__ import annotations
@@ -117,9 +118,11 @@ def parse_gff3_attributes(raw_attributes: str) -> dict[str, str]:
 
 def parse_translation_attributes(
     raw_value: str,
+    cds_segments: Sequence[CdsSegment],
+    strand: int,
     note: str = "",
 ) -> tuple[list[tuple[str, str]], list[tuple[str, str]]]:
-    """Convert NCBI ``transl_except`` values to Ensembl attributes."""
+    """Convert genomic NCBI exceptions to peptide-relative attributes."""
 
     translation_attributes: list[tuple[str, str]] = []
     transcript_attributes: list[tuple[str, str]] = []
@@ -149,17 +152,72 @@ def parse_translation_attributes(
         r"pos:(?P<position>join\([^)]*\)|\d+(?:\.\.\d+)?),"
         r"aa:(?P<amino_acid>[A-Za-z*]+)"
     )
+    genomic_to_cds_position: dict[int, int] = {}
+    ordered_cds = sorted(
+        cds_segments,
+        key=lambda cds: cds.end if strand == -1 else cds.start,
+        reverse=(strand == -1),
+    )
+    cds_position = 1
+    for cds in ordered_cds:
+        coordinates = (
+            range(cds.end, cds.start - 1, -1)
+            if strand == -1
+            else range(cds.start, cds.end + 1)
+        )
+        for genomic_coordinate in coordinates:
+            genomic_to_cds_position[genomic_coordinate] = cds_position
+            cds_position += 1
+
     for match in exception_pattern.finditer(raw_value):
         position = match.group("position")
-        coordinates = [int(value) for value in re.findall(r"\d+", position)]
-        if not coordinates:
+        genomic_coordinates: list[int] = []
+        for coordinate_range in re.findall(r"\d+(?:\.\.\d+)?", position):
+            bounds = [int(value) for value in coordinate_range.split("..")]
+            if len(bounds) == 1:
+                genomic_coordinates.append(bounds[0])
+            else:
+                start, end = bounds
+                step = 1 if start <= end else -1
+                genomic_coordinates.extend(range(start, end + step, step))
+        cds_positions_with_gaps = [
+            genomic_to_cds_position.get(coordinate)
+            for coordinate in genomic_coordinates
+        ]
+        if not cds_positions_with_gaps or any(
+            position is None for position in cds_positions_with_gaps
+        ):
+            raise ValueError(
+                "Could not map RefSeq transl_except genomic coordinates "
+                f"{position!r} to the transcript CDS"
+            )
+        cds_positions = [
+            position for position in cds_positions_with_gaps if position is not None
+        ]
+        peptide_positions = [((position - 1) // 3) + 1 for position in cds_positions]
+        if not peptide_positions:
             continue
-        start, end = coordinates[0], coordinates[-1]
+        start, end = min(peptide_positions), max(peptide_positions)
         amino_acid = match.group("amino_acid")
         if amino_acid == "Sec":
             code, value = "_selenocysteine", f"{start} {end} U"
         elif amino_acid == "TERM":
-            transcript_attributes.append(("_rna_edit", f"{start} {end} *"))
+            added_bases = re.search(
+                r"completed by the addition of 3['’] ([ATGC]+) residues",
+                note,
+                re.IGNORECASE,
+            )
+            if added_bases:
+                replacement = (
+                    "AA"
+                    if re.search(r"TAA", note, re.IGNORECASE)
+                    else added_bases.group(1)
+                )
+                translation_attributes.append(
+                    ("_rna_edit", f"{start} {start + 1} {replacement}")
+                )
+            else:
+                translation_attributes.append(("_rna_edit", f"{start} {end} *"))
             continue
         elif amino_acid == "Met" and re.search(r"non-AUG\s+\(\w{3}\)", note):
             transcript_attributes.append(("initial_met", "1 1 M"))
@@ -450,6 +508,28 @@ def synthesize_cds_from_translation_coords(
         logger.info("Synthesized CDS segments for %s transcripts", synthesized)
 
 
+def resolve_translation_exceptions(annotation: ParsedAnnotation) -> None:
+    """Map RefSeq genomic exceptions onto peptide-relative attributes."""
+
+    for transcript_id, transcript in annotation.transcripts.items():
+        cds_segments = annotation.cds_segments.get(transcript_id, [])
+        for raw_value, note in transcript.translation_exceptions:
+            transcript_attributes, translation_attributes = (
+                parse_translation_attributes(
+                    raw_value,
+                    cds_segments,
+                    transcript.strand,
+                    note,
+                )
+            )
+            for attribute in transcript_attributes:
+                if attribute not in transcript.transcript_attributes:
+                    transcript.transcript_attributes.append(attribute)
+            for attribute in translation_attributes:
+                if attribute not in transcript.translation_attributes:
+                    transcript.translation_attributes.append(attribute)
+
+
 def parse_converted_gff3(
     converted_gff_path: str | Path,
     logger: logging.Logger | None = None,
@@ -702,30 +782,21 @@ def parse_converted_gff3(
                             protein_stable_id,
                             source_config,
                         )
-                    if transcript and "transl_except" in attributes:
-                        transcript_attributes, translation_attributes = (
-                            parse_translation_attributes(
+                    if transcript:
+                        if "transl_except" in attributes:
+                            exception = (
                                 attributes["transl_except"],
                                 attributes.get("Note", ""),
                             )
-                        )
-                        for transcript_attribute in transcript_attributes:
-                            if (
-                                transcript_attribute
-                                not in transcript.transcript_attributes
-                            ):
-                                transcript.transcript_attributes.append(
-                                    transcript_attribute
-                                )
-                        for translation_attribute in translation_attributes:
-                            if (
-                                translation_attribute
-                                not in transcript.translation_attributes
-                            ):
-                                transcript.translation_attributes.append(
-                                    translation_attribute
-                                )
-                    elif transcript:
+                            if exception not in transcript.translation_exceptions:
+                                transcript.translation_exceptions.append(exception)
+                        if attributes.get("exception") == "ribosomal slippage":
+                            event = (
+                                attributes["exception"],
+                                attributes.get("Note", ""),
+                            )
+                            if event not in transcript.frameshift_events:
+                                transcript.frameshift_events.append(event)
                         frameshift = re.search(
                             r"([-+]\d+).*ribosomal frameshift",
                             attributes.get("Note", ""),
@@ -745,6 +816,7 @@ def parse_converted_gff3(
                 continue
 
     synthesize_cds_from_translation_coords(annotation, log)
+    resolve_translation_exceptions(annotation)
     log.info(
         "Parsed %s genes, %s transcripts, and %s CDS transcript groups from %s",
         len(annotation.genes),

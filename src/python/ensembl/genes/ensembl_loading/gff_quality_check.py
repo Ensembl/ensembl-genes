@@ -192,6 +192,32 @@ def _fetch_translations(
     return {int(row[0]): row[1] for row in cursor.fetchall()}
 
 
+def _fetch_translation_attributes(
+    cursor: QualityCursor,
+    transcript_ids: Sequence[int],
+) -> dict[int, tuple[tuple[str, str], ...]]:
+    """Fetch translation attributes grouped by transcript ID."""
+
+    transcript_range = _range_from_ids(transcript_ids)
+    if transcript_range is None:
+        return {}
+    cursor.execute(
+        "SELECT tl.transcript_id, at.code, ta.value "
+        "FROM translation_attrib ta "
+        "JOIN translation tl ON tl.translation_id = ta.translation_id "
+        "JOIN attrib_type at ON at.attrib_type_id = ta.attrib_type_id "
+        "WHERE tl.transcript_id BETWEEN %s AND %s",
+        transcript_range,
+    )
+    attributes: dict[int, list[tuple[str, str]]] = {}
+    for transcript_id, code, value in cursor.fetchall():
+        attributes.setdefault(int(transcript_id), []).append((code, value))
+    return {
+        transcript_id: tuple(sorted(values))
+        for transcript_id, values in attributes.items()
+    }
+
+
 def expected_translation_stable_ids(annotation: ParsedAnnotation) -> dict[str, str]:
     """Return transcript ID to expected translation stable ID for loadable CDS."""
 
@@ -362,6 +388,25 @@ def run_core_load_quality_check(
             db_id: (stable_id,)
             for db_id, stable_id in actual_translation_by_db_transcript_id.items()
         },
+    )
+
+    expected_translation_attributes = {
+        transcript_id_map[transcript_id]: tuple(
+            sorted(transcript.translation_attributes)
+        )
+        for transcript_id, transcript in annotation.transcripts.items()
+        if transcript.translation_attributes and transcript_id in transcript_id_map
+    }
+    actual_translation_attributes: dict[int, tuple[tuple[str, str], ...]] = (
+        _fetch_translation_attributes(cursor, list(expected_transcript_by_db_id))
+        if expected_translation_attributes
+        else {}
+    )
+    _add_id_value_metric(
+        report,
+        "translation_attributes",
+        expected_translation_attributes,
+        actual_translation_attributes,
     )
 
     return report

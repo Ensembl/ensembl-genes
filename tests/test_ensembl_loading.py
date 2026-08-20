@@ -26,7 +26,18 @@ from ensembl.genes.ensembl_loading import (
     gff_metadata,
     gff_repeat_loader,
 )
-from ensembl.genes.ensembl_loading.gff_annotation import parse_converted_gff3
+from ensembl.genes.ensembl_loading.gff_annotation import (
+    parse_converted_gff3,
+    parse_translation_attributes,
+)
+from ensembl.genes.ensembl_loading.gff_core_database import (
+    frameshift_transcript_attributes,
+)
+from ensembl.genes.ensembl_loading.gff_models import (
+    CdsSegment,
+    ExonRecord,
+    TranscriptRecord,
+)
 from ensembl.genes.ensembl_loading.gff_quality_check import (
     expected_translation_stable_ids,
 )
@@ -512,11 +523,46 @@ def test_refseq_parser_supports_multiple_parents_and_translation_exceptions(
     assert set(annotation.cds_segments) == {"t1", "t2"}
     assert annotation.seq_region_attributes == {"1": [("codon_table", "2")]}
     assert annotation.transcripts["t1"].translation_attributes == [
-        ("_selenocysteine", "10 12 U")
+        ("_selenocysteine", "4 4 U")
     ]
     assert annotation.transcripts["t2"].translation_attributes == [
-        ("_selenocysteine", "10 12 U")
+        ("_selenocysteine", "4 4 U")
     ]
+
+
+def test_refseq_translation_edits_and_frameshift_use_core_coordinates() -> None:
+    cds = [CdsSegment(1, 3, 1, "0")]
+    assert parse_translation_attributes(
+        "(pos:1..3,aa:TERM)",
+        cds,
+        1,
+        "TAA stop codon is completed by the addition of 3' A residues",
+    ) == ([], [("_rna_edit", "1 2 AA")])
+
+    class DnaCursor:
+        def execute(self, *_: Any) -> None:
+            pass
+
+        def fetchone(self) -> tuple[str]:
+            return ("AACAAAA",)
+
+    transcript = TranscriptRecord(
+        gene_id="g1",
+        seq_name="1",
+        start=1,
+        end=7,
+        strand=1,
+        biotype="protein_coding",
+        stable_id="t1",
+        exons=[ExonRecord(1, 7, 1)],
+        frameshift_events=[("ribosomal slippage", "+1 ribosomal frameshift")],
+    )
+    assert frameshift_transcript_attributes(
+        DnaCursor(),
+        transcript,
+        [CdsSegment(1, 3, 1, "0"), CdsSegment(5, 7, 1, "0")],
+        1,
+    ) == [("_rna_edit", "4 4 ")]
 
 
 def test_refseq_discovery_and_conversion_helpers(tmp_path: Path) -> None:
