@@ -32,6 +32,7 @@ from ensembl.genes.ensembl_loading.gff_annotation import (
 )
 from ensembl.genes.ensembl_loading.gff_core_database import (
     frameshift_transcript_attributes,
+    insert_refseq_seq_region_synonyms,
 )
 from ensembl.genes.ensembl_loading.gff_models import (
     CdsSegment,
@@ -634,6 +635,44 @@ def test_refseq_discovery_and_conversion_helpers(tmp_path: Path) -> None:
     assert len(records) == 1
     assert records[0].species_name == "Mus musculus"
     assert records[0].paths.gff_url.endswith("_genomic.gff.gz")
+
+
+def test_insert_refseq_seq_region_synonyms_preserves_multiple_accessions() -> None:
+    class SynonymCursor:
+        def __init__(self) -> None:
+            self.rows = {"1": 11, "ALT_LOCUS": 12}
+            self.current_row: tuple[int] | None = None
+            self.synonyms: list[tuple[int, str, int]] = []
+
+        def execute(self, operation: str, params: tuple[object, ...]) -> None:
+            if operation.startswith("SELECT seq_region_id"):
+                self.current_row = (
+                    self.rows[params[0]],
+                ) if params[0] in self.rows else None
+            else:
+                self.synonyms.append((int(params[0]), str(params[1]), int(params[2])))
+
+        def fetchone(self) -> tuple[int] | None:
+            return self.current_row
+
+    cursor = SynonymCursor()
+    inserted = insert_refseq_seq_region_synonyms(
+        cursor,
+        coord_system_id=3,
+        accession_to_name={
+            "NC_000001.11": "1",
+            "NW_000001.1": "ALT_LOCUS",
+            "NT_000002.1": "ALT_LOCUS",
+            "NC_MISSING.1": "missing",
+        },
+    )
+
+    assert inserted == 3
+    assert cursor.synonyms == [
+        (11, "NC_000001.11", 1830),
+        (12, "NW_000001.1", 1830),
+        (12, "NT_000002.1", 1830),
+    ]
 
 
 def test_initialise_core_tables_loads_assembly_report_meta(

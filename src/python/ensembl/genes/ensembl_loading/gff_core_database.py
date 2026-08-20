@@ -122,6 +122,35 @@ def load_seq_regions_from_fna(
     return seq_region_ids
 
 
+def insert_refseq_seq_region_synonyms(
+    cursor: DbCursor,
+    coord_system_id: int,
+    accession_to_name: Mapping[str, str],
+) -> int:
+    """Insert original RefSeq accessions as synonyms for loaded seq_regions."""
+
+    inserted = 0
+    for accession, sequence_name in accession_to_name.items():
+        cursor.execute(
+            "SELECT seq_region_id FROM seq_region "
+            "WHERE name = %s AND coord_system_id = %s",
+            (sequence_name, coord_system_id),
+        )
+        row = cursor.fetchone()
+        if row is None:
+            continue
+
+        cursor.execute(
+            "INSERT IGNORE INTO seq_region_synonym "
+            "(seq_region_id, synonym, external_db_id) VALUES (%s, %s, %s)",
+            (int(row[0]), accession, 1830),
+        )
+        inserted += 1
+
+    LOGGER.info("Inserted %s RefSeq seq_region synonyms", inserted)
+    return inserted
+
+
 def replace_mitochondrial_features(cursor: DbCursor) -> None:
     """Remove existing MT features before a RefSeq mitochondrial reload."""
 

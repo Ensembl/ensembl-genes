@@ -238,6 +238,13 @@ filter. Malformed feature rows with fewer than nine columns are skipped.
 the original script's plain-text FASTA handling, so pass a decompressed FASTA
 file when calling it directly.
 
+When a RefSeq core is created, the original RefSeq accession for every loaded
+sequence is also inserted into `seq_region_synonym` with `external_db_id =
+1830`. This includes multiple accessions that resolve to the same converted
+sequence name, such as alternate-locus or patch accessions. Synonyms are only
+inserted for sequence regions present in the loaded FASTA, so filtered loads do
+not create synonyms for omitted sequences.
+
 ### Listing RefSeq Assemblies
 
 List assemblies across all configured NCBI groups:

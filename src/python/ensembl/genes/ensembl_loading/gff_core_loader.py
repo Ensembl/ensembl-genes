@@ -22,6 +22,7 @@ try:  # Support both package imports and direct same-directory imports.
         get_or_create_analysis,
         initialise_core_tables,
         insert_genes,
+        insert_refseq_seq_region_synonyms,
         insert_transcripts_and_exons,
         insert_translations,
         load_existing_seq_region_ids,
@@ -32,6 +33,7 @@ try:  # Support both package imports and direct same-directory imports.
     )
     from .gff_quality_check import emit_quality_report, run_core_load_quality_check
     from .gff_source_config import GENERIC_GFF_CONFIG, REFSEQ_CONFIG, GffSourceConfig
+    from .refseq_conversion import load_refseq_name_map
 except ImportError:  # pragma: no cover - used when run beside this file.
     from gff_annotation import (  # type: ignore
         prepare_annotation_for_load,
@@ -45,6 +47,7 @@ except ImportError:  # pragma: no cover - used when run beside this file.
         get_or_create_analysis,
         initialise_core_tables,
         insert_genes,
+        insert_refseq_seq_region_synonyms,
         insert_transcripts_and_exons,
         insert_translations,
         load_existing_seq_region_ids,
@@ -62,6 +65,7 @@ except ImportError:  # pragma: no cover - used when run beside this file.
         REFSEQ_CONFIG,
         GffSourceConfig,
     )
+    from refseq_conversion import load_refseq_name_map  # type: ignore
 
 
 LOGGER = logging.getLogger(__name__)
@@ -138,6 +142,12 @@ def load_to_ensembl_core(
             source_config=source_config,
             seq_region_attributes=annotation.seq_region_attributes,
         )
+        if source_config.name == "refseq":
+            insert_refseq_seq_region_synonyms(
+                cursor,
+                coord_system_id,
+                load_refseq_name_map(assembly_report_path),
+            )
         if source_config.name == "refseq" and any(
             name.upper() in {"MT", "CHRM", "CHRMT"} for name in seq_region_ids
         ):
