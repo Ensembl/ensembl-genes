@@ -647,8 +647,8 @@ def test_insert_refseq_seq_region_synonyms_preserves_multiple_accessions() -> No
         def execute(self, operation: str, params: tuple[object, ...]) -> None:
             if operation.startswith("SELECT seq_region_id"):
                 self.current_row = (
-                    self.rows[params[0]],
-                ) if params[0] in self.rows else None
+                    (self.rows[params[0]],) if params[0] in self.rows else None
+                )
             else:
                 self.synonyms.append((int(params[0]), str(params[1]), int(params[2])))
 
