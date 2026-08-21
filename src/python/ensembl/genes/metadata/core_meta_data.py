@@ -324,7 +324,8 @@ def write_metadata_json(  # pylint: disable=too-many-arguments
         json_out.write("\n")
 
 
-if __name__ == "__main__":
+# pylint: disable=too-many-locals,too-many-branches,too-many-statements
+def main() -> None:
     parser = argparse.ArgumentParser(description="Prepare SQL updates for core dbs")
     parser.add_argument(
         "-o",
@@ -912,3 +913,7 @@ if __name__ == "__main__":
                 for key, val in truth_dict.items()
             )
         )
+
+
+if __name__ == "__main__":
+    main()
