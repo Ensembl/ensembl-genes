@@ -129,7 +129,7 @@ def stable_space_per_taxon(taxon_id: int, server_info: dict) -> int:
     return stable_space_id
 
 
-def stable_space_range(stable_space_id: int, server_info: dict) -> int | bool:
+def stable_space_range(stable_space_id: int, server_info: dict) -> int | None:
     """Check if a stable space range exists for the given stable space ID.
 
     Args:
@@ -137,7 +137,8 @@ def stable_space_range(stable_space_id: int, server_info: dict) -> int | bool:
         server_info (dict): The server information for database connection.
 
     Returns:
-        bool: True if the stable space range exists, False otherwise.
+        int | None: The stable space start if the range exists or was created,
+            None if the range could not be found or created.
     """
     logger.info(f"Get stable space renage for {stable_space_id}")
     query = f"SELECT * FROM stable_space WHERE stable_space_id = '{stable_space_id}';"
@@ -154,7 +155,11 @@ def stable_space_range(stable_space_id: int, server_info: dict) -> int | bool:
         logger.info(
             f"Stable space ID {stable_space_id} already exists with range: {output_query[0]}."
         )
-        return True
+        stable_space_start = output_query[0].get("stable_space_start")
+        if stable_space_start is None:
+            logger.error(f"Stable space ID {stable_space_id} has no start value.")
+            return None
+        return int(stable_space_start)
 
     else:
         logger.info(
@@ -181,7 +186,7 @@ def stable_space_range(stable_space_id: int, server_info: dict) -> int | bool:
                 logger.error(
                     f"Previous stable space ID {previous_space_id} has no end value."
                 )
-                return False
+                return None
             new_start = int(previous_end) + 1
             new_end = new_start + 4999999
             logger.info(
@@ -212,13 +217,13 @@ def stable_space_range(stable_space_id: int, server_info: dict) -> int | bool:
                 logger.error(
                     f"Failed to insert stable space range for ID {stable_space_id}."
                 )
-                return False
+                return None
         else:
             logger.error(
                 f"Failed to create stable space range for ID {stable_space_id}. \
                     Previous space ID {previous_space_id} not found."
             )
-            return False
+            return None
 
 
 def assign_stable_id(
@@ -242,7 +247,7 @@ def assign_stable_id(
     logger.info(f"Check if stable space range exists {stable_space_id}")
     stable_space_start = stable_space_range(stable_space_id, server_info)
 
-    if stable_space_start is not False:
+    if stable_space_start is not None:
         logger.info(
             f"Assigned stable space ID {stable_space_id} for {gca_accession}\
                 and taxon ID {taxon_id}."
