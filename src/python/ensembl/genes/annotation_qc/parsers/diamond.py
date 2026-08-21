@@ -23,4 +23,11 @@ def parse_diamond_hits(path: str) -> pd.DataFrame:
         "evalue",
         "bitscore",
     ]
-    return pd.read_csv(path, sep="\t", header=None, names=diamond_cols)
+    hits = pd.read_csv(path, sep="\t", header=None, names=diamond_cols)
+    # gffread-derived query FASTA headers are commonly prefixed with
+    # ``transcript:``, while annotation parsers expose the bare transcript ID.
+    # Normalize here so DIAMOND hits can be merged with translation metrics.
+    hits["qseqid"] = hits["qseqid"].str.replace(
+        r"^transcript:", "", regex=True
+    )
+    return hits
