@@ -25,6 +25,8 @@ Functions:
     - mysql_update: Executes an UPDATE/INSERT/DELETE query with optional parameters.
 """
 
+from __future__ import annotations
+
 import logging
 from typing import Any, Optional
 
