@@ -49,7 +49,9 @@ def load_refseq_name_map(assembly_report_path: str | Path) -> dict[str, str]:
                 continue
 
             accession_to_name[refseq_accession] = (
-                assigned_molecule if assigned_molecule != "na" else sequence_name
+                assigned_molecule
+                if columns[1] == "assembled-molecule" and assigned_molecule != "na"
+                else sequence_name
             )
 
     LOGGER.info(
