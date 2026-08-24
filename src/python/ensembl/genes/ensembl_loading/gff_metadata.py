@@ -19,10 +19,7 @@ LOGGER = logging.getLogger(__name__)
 DEFAULT_ASSEMBLY_WEB_ACCESSION_SOURCE = "NCBI"
 DEFAULT_ASSEMBLY_WEB_ACCESSION_TYPE = "INSDC Assembly ID"
 
-try:  # Support both package imports and direct same-directory imports.
-    from .ncbi_annotation_report import get_annotation_report_url
-except ImportError:  # pragma: no cover - used when run beside this file.
-    from ncbi_annotation_report import get_annotation_report_url  # type: ignore
+from .ncbi_annotation_report import get_annotation_report_url
 
 
 def species_db_name_token(species_name: str) -> str:

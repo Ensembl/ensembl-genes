@@ -9,82 +9,37 @@ from pathlib import Path
 # pylint: disable=too-many-locals
 # pylint: disable=too-many-branches
 # pylint: disable=too-many-return-statements
-try:  # Support both package imports and direct same-directory imports.
-    from .core_utils.add_prod_tables import (
-        get_connection as get_prod_connection,
-    )
-    from .core_utils.add_prod_tables import (
-        load_default_config,
-    )
-    from .core_utils.add_prod_tables import (
-        sync_tables as sync_prod_tables,
-    )
-    from .gff_annotation import (
-        prepare_annotation_for_load,
-    )
-    from .gff_core_database import (
-        allocate_numeric_ids,
-        allocate_numeric_ids_from_core,
-        connect_mysql,
-        derive_core_db_name,
-        get_coord_system_id,
-        get_or_create_analysis,
-        initialise_core_tables,
-        insert_genes,
-        insert_refseq_seq_region_synonyms,
-        insert_transcripts_and_exons,
-        insert_translations,
-        load_existing_seq_region_ids,
-        load_schema_sql,
-        load_seq_regions_from_fna,
-        replace_mitochondrial_features,
-        resolve_schema_sql_path,
-    )
-    from .gff_quality_check import emit_quality_report, run_core_load_quality_check
-    from .gff_source_config import GENERIC_GFF_CONFIG, REFSEQ_CONFIG, GffSourceConfig
-    from .refseq_conversion import load_refseq_name_map
-except ImportError:  # pragma: no cover - used when run beside this file.
-    from core_utils.add_prod_tables import (  # type: ignore[no-redef]
-        get_connection as get_prod_connection,
-    )
-    from core_utils.add_prod_tables import (
-        load_default_config,
-    )
-    from core_utils.add_prod_tables import (
-        sync_tables as sync_prod_tables,
-    )
-    from gff_annotation import (  # type: ignore
-        prepare_annotation_for_load,
-    )
-    from gff_core_database import (  # type: ignore
-        allocate_numeric_ids,
-        allocate_numeric_ids_from_core,
-        connect_mysql,
-        derive_core_db_name,
-        get_coord_system_id,
-        get_or_create_analysis,
-        initialise_core_tables,
-        insert_genes,
-        insert_refseq_seq_region_synonyms,
-        insert_transcripts_and_exons,
-        insert_translations,
-        load_existing_seq_region_ids,
-        load_schema_sql,
-        load_seq_regions_from_fna,
-        replace_mitochondrial_features,
-        resolve_schema_sql_path,
-    )
-    from gff_quality_check import (  # type: ignore
-        emit_quality_report,
-        run_core_load_quality_check,
-    )
-    from gff_source_config import (  # type: ignore
-        GENERIC_GFF_CONFIG,
-        REFSEQ_CONFIG,
-        GffSourceConfig,
-    )
-    from refseq_conversion import load_refseq_name_map  # type: ignore
-
+from .core_utils.add_prod_tables import (
+    get_connection as get_prod_connection,
+)
+from .core_utils.add_prod_tables import (
+    load_default_config,
+)
+from .core_utils.add_prod_tables import (
+    sync_tables as sync_prod_tables,
+)
+from .gff_annotation import prepare_annotation_for_load
+from .gff_core_database import (
+    allocate_numeric_ids,
+    allocate_numeric_ids_from_core,
+    connect_mysql,
+    derive_core_db_name,
+    get_coord_system_id,
+    get_or_create_analysis,
+    initialise_core_tables,
+    insert_genes,
+    insert_refseq_seq_region_synonyms,
+    insert_transcripts_and_exons,
+    insert_translations,
+    load_existing_seq_region_ids,
+    load_schema_sql,
+    load_seq_regions_from_fna,
+    replace_mitochondrial_features,
+    resolve_schema_sql_path,
+)
+from .gff_quality_check import emit_quality_report, run_core_load_quality_check
+from .gff_source_config import GENERIC_GFF_CONFIG, REFSEQ_CONFIG, GffSourceConfig
+from .refseq_conversion import load_refseq_name_map
 
 LOGGER = logging.getLogger(__name__)
 

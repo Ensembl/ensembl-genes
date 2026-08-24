@@ -20,31 +20,15 @@ from pathlib import Path
 from typing import Any, Protocol
 from urllib.parse import unquote
 
-try:  # Support both package imports and direct same-directory imports.
-    from .gff_metadata import (
-        open_text_maybe_gzip,
-    )
-    from .gff_models import (
-        CdsSegment,
-        ExonRecord,
-        GeneRecord,
-        ParsedAnnotation,
-        TranscriptRecord,
-    )
-    from .gff_source_config import REFSEQ_CONFIG, GffSourceConfig
-except ImportError:  # pragma: no cover - used when run beside this file.
-    from gff_metadata import (  # type: ignore
-        open_text_maybe_gzip,
-    )
-    from gff_models import (  # type: ignore
-        CdsSegment,
-        ExonRecord,
-        GeneRecord,
-        ParsedAnnotation,
-        TranscriptRecord,
-    )
-    from gff_source_config import REFSEQ_CONFIG, GffSourceConfig  # type: ignore
-
+from .gff_metadata import open_text_maybe_gzip
+from .gff_models import (
+    CdsSegment,
+    ExonRecord,
+    GeneRecord,
+    ParsedAnnotation,
+    TranscriptRecord,
+)
+from .gff_source_config import REFSEQ_CONFIG, GffSourceConfig
 
 LOGGER = logging.getLogger(__name__)
 

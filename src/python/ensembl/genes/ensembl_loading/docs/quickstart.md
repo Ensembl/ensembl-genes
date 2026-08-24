@@ -12,7 +12,7 @@ gff-loader --help
 You can also run the CLI without installing the console script:
 
 ```bash
-python src/python/ensembl/genes/ensembl_loading/gff_cli.py --help
+gff-loader --help
 ```
 
 Set logging verbosity with `--log-level`:

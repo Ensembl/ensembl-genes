@@ -13,29 +13,14 @@ from collections.abc import Mapping
 from pathlib import Path
 from typing import Any
 
-try:  # Support both package imports and direct same-directory imports.
-    from .gff_annotation import DbCursor
-    from .gff_metadata import (
-        parse_assembly_report_metadata,
-        refseq_accession_db_token,
-        species_db_name_token,
-    )
-    from .gff_models import ParsedAnnotation
-    from .gff_source_config import GENERIC_GFF_CONFIG, REFSEQ_CONFIG, GffSourceConfig
-except ImportError:  # pragma: no cover - used when run beside this file.
-    from gff_annotation import DbCursor  # type: ignore
-    from gff_metadata import (  # type: ignore
-        parse_assembly_report_metadata,
-        refseq_accession_db_token,
-        species_db_name_token,
-    )
-    from gff_models import ParsedAnnotation  # type: ignore
-    from gff_source_config import (  # type: ignore
-        GENERIC_GFF_CONFIG,
-        REFSEQ_CONFIG,
-        GffSourceConfig,
-    )
-
+from .gff_annotation import DbCursor
+from .gff_metadata import (
+    parse_assembly_report_metadata,
+    refseq_accession_db_token,
+    species_db_name_token,
+)
+from .gff_models import ParsedAnnotation
+from .gff_source_config import GENERIC_GFF_CONFIG, REFSEQ_CONFIG, GffSourceConfig
 
 LOGGER = logging.getLogger(__name__)
 DEFAULT_CORE_SCHEMA_SQL_PATH = (

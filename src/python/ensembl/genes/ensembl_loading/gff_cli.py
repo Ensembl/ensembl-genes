@@ -8,37 +8,14 @@ from collections.abc import Sequence
 from pathlib import Path
 from typing import Any
 
-try:  # Support both package imports and direct same-directory imports.
-    from .gff_core_loader import load_gff_features_to_core, load_to_ensembl_core
-    from .gff_repeat_loader import (
-        available_single_line_feature_analyses,
-        load_single_line_features_to_core,
-    )
-    from .gff_source_config import available_source_configs, get_source_config
-    from .refseq_conversion import convert_fna_headers, convert_gff_to_ensembl
-    from .refseq_ncbi import download_annotations, list_available_annotations
-except ImportError:  # pragma: no cover - used when run beside this file.
-    from gff_core_loader import (  # type: ignore
-        load_gff_features_to_core,
-        load_to_ensembl_core,
-    )
-    from gff_repeat_loader import (  # type: ignore
-        available_single_line_feature_analyses,
-        load_single_line_features_to_core,
-    )
-    from gff_source_config import (  # type: ignore
-        available_source_configs,
-        get_source_config,
-    )
-    from refseq_conversion import (  # type: ignore
-        convert_fna_headers,
-        convert_gff_to_ensembl,
-    )
-    from refseq_ncbi import (  # type: ignore
-        download_annotations,
-        list_available_annotations,
-    )
-
+from .gff_core_loader import load_gff_features_to_core, load_to_ensembl_core
+from .gff_repeat_loader import (
+    available_single_line_feature_analyses,
+    load_single_line_features_to_core,
+)
+from .gff_source_config import available_source_configs, get_source_config
+from .refseq_conversion import convert_fna_headers, convert_gff_to_ensembl
+from .refseq_ncbi import download_annotations, list_available_annotations
 
 LOGGER = logging.getLogger(__name__)
 ANNO_REQUIRED_GENE_GTF = Path("annotation_output") / "annotation.gtf"

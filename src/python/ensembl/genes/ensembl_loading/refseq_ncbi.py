@@ -16,15 +16,8 @@ from pathlib import Path
 import requests  # type: ignore[import]
 
 # pylint: disable=too-many-arguments
-
-
-try:  # Support both package imports and direct same-directory imports.
-    from . import refseq_constants as _refseq_constants
-    from . import refseq_models as _refseq_models
-except ImportError:  # pragma: no cover - used when run beside this file.
-    import refseq_constants as _refseq_constants  # type: ignore[import,no-redef]
-    import refseq_models as _refseq_models  # type: ignore[import,no-redef]
-
+from . import refseq_constants as _refseq_constants
+from . import refseq_models as _refseq_models
 
 LOGGER = logging.getLogger(__name__)
 

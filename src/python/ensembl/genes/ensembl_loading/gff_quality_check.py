@@ -10,15 +10,8 @@ from typing import Any, Protocol
 # pylint: disable=too-many-locals
 # pylint: disable=too-many-arguments
 # pylint: disable=unnecessary-ellipsis
-
-
-try:  # Support both package imports and direct same-directory imports.
-    from .gff_models import ParsedAnnotation
-    from .gff_source_config import GffSourceConfig
-except ImportError:  # pragma: no cover - used when run beside this file.
-    from gff_models import ParsedAnnotation  # type: ignore
-    from gff_source_config import GffSourceConfig  # type: ignore
-
+from .gff_models import ParsedAnnotation
+from .gff_source_config import GffSourceConfig
 
 LOGGER = logging.getLogger(__name__)
 

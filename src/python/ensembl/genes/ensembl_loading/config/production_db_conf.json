@@ -1,6 +1,6 @@
 {
     "host": "mysql-ens-production-1",
     "port": 4721,
-    "user": "",
+    "user": "ensro",
     "password": ""
 }
