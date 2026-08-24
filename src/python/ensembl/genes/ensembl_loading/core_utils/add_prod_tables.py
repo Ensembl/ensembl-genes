@@ -8,6 +8,7 @@ import logging
 from contextlib import closing
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Any, cast
 
 import pymysql
 
@@ -109,12 +110,13 @@ def fetch_table_rows(
 
     with closing(prod_conn.cursor()) as cur:
         cur.execute(f"SHOW COLUMNS FROM `{table}`")
-        production_columns = [row["Field"] for row in cur.fetchall()]
+        column_rows = cast(list[dict[str, Any]], cur.fetchall())
+        production_columns = [row["Field"] for row in column_rows]
         current_filter = (
             " WHERE `is_current` = 1" if "is_current" in production_columns else ""
         )
         cur.execute(f"SELECT * FROM `{table}`{current_filter}")
-        rows = cur.fetchall()
+        rows = cast(list[dict[str, Any]], cur.fetchall())
 
     logger.info(
         "Fetched %d rows from production table %s",

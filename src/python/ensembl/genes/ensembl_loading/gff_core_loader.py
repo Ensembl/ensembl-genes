@@ -44,11 +44,11 @@ try:  # Support both package imports and direct same-directory imports.
     from .gff_source_config import GENERIC_GFF_CONFIG, REFSEQ_CONFIG, GffSourceConfig
     from .refseq_conversion import load_refseq_name_map
 except ImportError:  # pragma: no cover - used when run beside this file.
-    from core_utils.add_prod_tables import (
-        get_connection as get_prod_connection,  # type: ignore
+    from core_utils.add_prod_tables import (  # type: ignore
+        get_connection as get_prod_connection,
     )
     from core_utils.add_prod_tables import (
-        load_default_config,  # type: ignore
+        load_default_config,
     )
     from core_utils.add_prod_tables import (
         sync_tables as sync_prod_tables,  # type: ignore
