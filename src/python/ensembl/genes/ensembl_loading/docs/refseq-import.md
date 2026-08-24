@@ -213,8 +213,10 @@ column 6: RefSeq accession
 
 The mapping rule is:
 
-1. If assigned molecule is not `na`, use assigned molecule.
-2. Otherwise use sequence name.
+1. For `assembled-molecule` rows, use the assigned molecule when it is not
+   `na`.
+2. For unlocalized/unplaced scaffolds, alternate loci, patches, and other
+   non-primary rows, use the unique sequence name.
 3. Key the mapping by RefSeq accession.
 
 Example:
@@ -438,6 +440,9 @@ gff-loader refseq run \
 --db-user
 --db-password
 ```
+
+The production connection is read automatically from
+`config/production_db_conf.json`.
 
 `--assembly-acc` selects the RefSeq assembly to download. When `--load-core` is
 used, that same downloaded assembly accession is also used for core metadata and

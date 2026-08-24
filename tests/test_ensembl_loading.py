@@ -592,7 +592,7 @@ def test_refseq_discovery_and_conversion_helpers(tmp_path: Path) -> None:
         [
             "# header",
             "chrOne\tassembled-molecule\t1\tChromosome\tna\tna\tNC_000001.11",
-            "scaffoldA\tunlocalized-scaffold\tna\tna\tna\tna\tNW_000001.1",
+            "scaffoldA\tunlocalized-scaffold\t1\tna\tna\tna\tNW_000001.1",
         ],
     )
     assert load_refseq_name_map(report) == {

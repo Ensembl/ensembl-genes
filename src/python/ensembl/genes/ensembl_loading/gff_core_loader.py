@@ -10,6 +10,15 @@ from pathlib import Path
 # pylint: disable=too-many-branches
 # pylint: disable=too-many-return-statements
 try:  # Support both package imports and direct same-directory imports.
+    from .core_utils.add_prod_tables import (
+        get_connection as get_prod_connection,
+    )
+    from .core_utils.add_prod_tables import (
+        load_default_config,
+    )
+    from .core_utils.add_prod_tables import (
+        sync_tables as sync_prod_tables,
+    )
     from .gff_annotation import (
         prepare_annotation_for_load,
     )
@@ -35,6 +44,15 @@ try:  # Support both package imports and direct same-directory imports.
     from .gff_source_config import GENERIC_GFF_CONFIG, REFSEQ_CONFIG, GffSourceConfig
     from .refseq_conversion import load_refseq_name_map
 except ImportError:  # pragma: no cover - used when run beside this file.
+    from core_utils.add_prod_tables import (
+        get_connection as get_prod_connection,  # type: ignore
+    )
+    from core_utils.add_prod_tables import (
+        load_default_config,  # type: ignore
+    )
+    from core_utils.add_prod_tables import (
+        sync_tables as sync_prod_tables,  # type: ignore
+    )
     from gff_annotation import (  # type: ignore
         prepare_annotation_for_load,
     )
@@ -121,6 +139,20 @@ def load_to_ensembl_core(
             load_schema_sql(cursor, resolved_schema_sql_path)
         else:
             log.info("Skipping schema SQL loading")
+
+        production_db_config = load_default_config()
+        log.info("Synchronizing production-controlled tables")
+        production_connection = get_prod_connection(
+            host=production_db_config.host,
+            port=production_db_config.port,
+            user=production_db_config.user,
+            password=production_db_config.password,
+            db="ensembl_production",
+        )
+        try:
+            sync_prod_tables(production_connection, connection)
+        finally:
+            production_connection.close()
 
         coord_system_id, analysis_id = initialise_core_tables(
             cursor,

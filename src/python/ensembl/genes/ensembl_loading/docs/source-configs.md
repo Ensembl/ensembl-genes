@@ -88,8 +88,9 @@ xref or display_xref rows.
 : Fallback biotype when no source-specific rule applies.
 
 `toplevel_attrib_type_id`
-: Attribute type ID inserted into `seq_region_attrib` when `create-core` loads
-FASTA seq_regions.
+: Retained for compatibility with older callers. `create-core` resolves the
+`toplevel` attribute ID by code after synchronizing `attrib_type` from
+`ensembl_production`; this configured numeric value is no longer used.
 
 ### Generic Source Config
 

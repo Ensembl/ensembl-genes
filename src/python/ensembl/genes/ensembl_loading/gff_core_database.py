@@ -84,7 +84,7 @@ def load_seq_regions_from_fna(
             cursor.execute(
                 "INSERT INTO seq_region_attrib (seq_region_id, attrib_type_id, value) "
                 "VALUES (%s, %s, '')",
-                (seq_region_id, source_config.toplevel_attrib_type_id),
+                (seq_region_id, get_or_create_attrib_type(cursor, "toplevel")),
             )
 
         if name.upper() in {"MT", "CHRM", "CHRMT"}:

@@ -243,6 +243,21 @@ gff-loader create-core annotations.gff3 genome.fna \
   --source generic
 ```
 
+`create-core` synchronizes `external_db`, `attrib_type`, `misc_set`, `biotype`,
+and `unmapped_reason` from `ensembl_production` before inserting dependent core.
+Please fill in the production connection details before running `create-core`.
+The production connection is read automatically from
+`config/production_db_conf.json`, which has this structure:
+
+```json
+{
+    "host": "mysql-ens-production-1",
+    "port": 0000,
+    "user": "read_only_username",
+    "password": "<read-password>"
+}
+```
+
 By default, `create-core` loads the bundled schema:
 
 ```text
@@ -266,22 +281,23 @@ style:
 Scientific name + GCF_037462849.1 -> scientific_name_gcf037462849v1_rs_core_114_1
 ```
 
-`create-core` performs these operations in one transaction:
+`create-core` performs these operations in this order:
 
 1. Connect to the MySQL server without selecting a database.
 2. `CREATE DATABASE IF NOT EXISTS <derived_core_db_name>`.
 3. `USE <derived_core_db_name>`.
 4. Load schema SQL from the bundled `config/core_schema.sql`, unless
    `--schema-sql-path` overrides or disables it.
-5. Insert one `coord_system` row:
+5. Synchronize the production-controlled tables from `ensembl_production`.
+6. Insert one `coord_system` row:
    `primary_assembly`, empty version, rank `1`,
    `default_version,sequence_level`.
-6. Insert core `meta` rows for species name, assembly accession, assembly name,
+7. Insert core `meta` rows for species name, assembly accession, assembly name,
    and genebuild/transcriptbuild/exonbuild levels.
-7. Insert an `analysis` row from the selected source config.
-8. Load FASTA sequences into `seq_region`, `dna`, and `seq_region_attrib`.
-9. Parse and load GFF3 features.
-10. Commit, or roll back the whole transaction if any step fails.
+8. Insert an `analysis` row from the selected source config.
+9. Load FASTA sequences into `seq_region`, `dna`, and `seq_region_attrib`.
+10. Parse and load GFF3 features.
+11. Commit, or roll back the annotation load if any step fails.
 
 The optional positional `assembly_report` argument is retained for compatibility
 with RefSeq-style calling code, but the core loader itself does not read the
