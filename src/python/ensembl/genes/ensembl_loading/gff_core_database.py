@@ -49,7 +49,6 @@ def load_seq_regions_from_fna(
     cursor: DbCursor,
     coord_system_id: int,
     logger: logging.Logger | None = None,
-    source_config: GffSourceConfig = REFSEQ_CONFIG,
     seq_region_attributes: Mapping[str, list[tuple[str, str]]] | None = None,
 ) -> dict[str, int]:
     """Load seq_region and dna rows from a converted FASTA file."""
