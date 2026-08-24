@@ -15,11 +15,11 @@ from datetime import datetime
 from pathlib import Path
 from typing import TextIO
 
+from .ncbi_annotation_report import get_annotation_report_url
+
 LOGGER = logging.getLogger(__name__)
 DEFAULT_ASSEMBLY_WEB_ACCESSION_SOURCE = "NCBI"
 DEFAULT_ASSEMBLY_WEB_ACCESSION_TYPE = "INSDC Assembly ID"
-
-from .ncbi_annotation_report import get_annotation_report_url
 
 
 def species_db_name_token(species_name: str) -> str:
