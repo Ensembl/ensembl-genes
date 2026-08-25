@@ -292,7 +292,9 @@ def get_stable_space(
             f"Stable space {stable_space_id} already assigned for GCA {gca_accession}."
         )
         if stable_space_start is None:
-            raise ValueError(f"No stable space start found for GCA {gca_accession}. No valid range.")
+            raise ValueError(
+                f"No stable space start found for GCA {gca_accession}. No valid range."
+            )
         return int(stable_space_start)
 
     else:
