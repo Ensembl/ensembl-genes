@@ -15,8 +15,7 @@
 # limitations under the License.
 # pylint: disable=logging-fstring-interpolation
 """This module handles the assignment of unique species prefixes
-based on taxon IDs by interacting with the assembly registry and
-metadata databases.
+based on taxon IDs by interacting with the metadata database.
 """
 
 import json
@@ -66,7 +65,7 @@ def get_special_cases() -> dict[str, str]:
 
 
 def existing_prefix(server_info: dict) -> list[str]:
-    """Get a list of existing species prefixes from the gb assembly registry and metadata databases.
+    """Get a list of existing species prefixes from the metadata database.
 
     Args:
         server_info (dict): Information about the database server.
@@ -74,17 +73,6 @@ def existing_prefix(server_info: dict) -> list[str]:
     Returns:
         list[str]: A list of existing species prefixes.
     """
-    # Getting existing prefix from registry db. To be removed when the registry is updated.
-    prefix_registry_query = f"SELECT DISTINCT species_prefix FROM assembly ;"  # pylint: disable=f-string-without-interpolation
-    output_registry = mysql_fetch_data(
-        prefix_registry_query,
-        host=server_info["registry"]["db_host"],
-        user=server_info["registry"]["db_user"],
-        port=server_info["registry"]["db_port"],
-        database=server_info["registry"]["db_name"],
-        password="",
-    )
-    # Getting existing prefix from metadata db
     prefix_metadata_query = f"SELECT DISTINCT prefix FROM species_prefix ;"  # pylint: disable=f-string-without-interpolation
     output_metadata = mysql_fetch_data(
         prefix_metadata_query,
@@ -94,9 +82,7 @@ def existing_prefix(server_info: dict) -> list[str]:
         database=server_info["registry"]["db_name"],
         password="",
     )
-    prefix_list = [
-        list(item.values())[0] for item in list(output_registry) + list(output_metadata)
-    ]
+    prefix_list = [list(item.values())[0] for item in output_metadata]
     existing_prefix_list = list(set(prefix_list))
     logger.debug(f"Num Existing prefix: {len(existing_prefix_list)}")
     return existing_prefix_list
@@ -202,8 +188,7 @@ def create_prefix(
 
 def get_species_prefix(taxon_id: int, server_info: dict) -> Optional[str]:
     """
-    This function retrieves the species prefix from the assembly registry
-    and metadata databases.
+    This function retrieves the species prefix from the metadata database.
     If the prefix is not found, it creates a new one. There are special cases
     where the prefix is predefined.
     - Canis lupus (wolf) -> ENSCAF
@@ -232,20 +217,6 @@ def get_species_prefix(taxon_id: int, server_info: dict) -> Optional[str]:
 
         logger.info(f"Searching for prefix for taxon ID: {taxon_id}")
 
-        prefix_registry_query = (
-            f"SELECT DISTINCT species_prefix FROM assembly WHERE taxonomy = {taxon_id}"
-        )
-        output_registry = mysql_fetch_data(
-            prefix_registry_query,
-            host=server_info["registry"]["db_host"],
-            user=server_info["registry"]["db_user"],
-            port=int(server_info["registry"]["db_port"]),
-            database="gb_assembly_registry",
-            password="",
-        )
-        if output_registry:
-            logger.info(f"Prefix found in old registry: {output_registry}")
-
         prefix_metadata_query = (
             "SELECT DISTINCT prefix FROM species_prefix "
             f"WHERE lowest_taxon_id = {taxon_id}"
@@ -261,11 +232,8 @@ def get_species_prefix(taxon_id: int, server_info: dict) -> Optional[str]:
         if output_metadata:
             logger.info(f"Prefix found in new metadata registry: {output_metadata}")
 
-        # Combine output and get list of unique values
-        output = [
-            list(item.values())[0]
-            for item in list(output_registry) + list(output_metadata)
-        ]
+        # Get list of unique values
+        output = [list(item.values())[0] for item in output_metadata]
         prefix_list = list(set(output))
 
         # no prefix, create new prefix

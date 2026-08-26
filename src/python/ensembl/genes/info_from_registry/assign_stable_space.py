@@ -19,9 +19,6 @@
 import logging
 import pymysql  # type: ignore
 from ensembl.genes.info_from_registry.mysql_helper import mysql_fetch_data
-from ensembl.genes.info_from_registry.check_stable_space_old_registry import (
-    get_old_stable_space_info,
-)
 
 # Configure logging
 logging.basicConfig(
@@ -86,45 +83,18 @@ def stable_space_per_taxon(taxon_id: int, server_info: dict) -> int:
 
     stable_space_tmp = output_query[0].get("max_stable_id", None)
 
-    ####################
-    # remove when all pipelines have moved to the new registry:
-    old_stable_space_info = get_old_stable_space_info(taxon_id, server_info)
-    ####################
-
-    if old_stable_space_info is None:
-        if stable_space_tmp is None:
-            stable_space_id = 1
-            logger.info(
-                f"No stable space found for taxon ID {taxon_id}. "
-                f"Assigning new stable space ID {stable_space_id}."
-            )
-        else:
-            stable_space_id = stable_space_tmp + 1
-            logger.info(
-                f"No old stable space for taxon ID {taxon_id}. "
-                f"Using tmp value {stable_space_tmp}, assigning new ID {stable_space_id}."
-            )
-
-    else:  # old_stable_space_info is not None
-        if stable_space_tmp is None:
-            stable_space_id = old_stable_space_info + 1
-            logger.info(
-                f"Found old stable space {old_stable_space_info} for taxon ID {taxon_id}. "
-                f"Assigning new ID {stable_space_id}."
-            )
-        elif stable_space_tmp == old_stable_space_info:
-            stable_space_id = stable_space_tmp + 1
-            logger.info(
-                f"Stable space {stable_space_tmp} matches old record for taxon ID {taxon_id}. "
-                f"Assigning new ID {stable_space_id}."
-            )
-        else:
-            msg = (
-                f"Conflicting stable space for taxon ID {taxon_id}: "
-                f"{old_stable_space_info} != {stable_space_tmp}"
-            )
-            logger.error(msg)
-            raise Exception(msg)  # pylint: disable=broad-exception-raised
+    if stable_space_tmp is None:
+        stable_space_id = 1
+        logger.info(
+            f"No stable space found for taxon ID {taxon_id}. "
+            f"Assigning new stable space ID {stable_space_id}."
+        )
+    else:
+        stable_space_id = stable_space_tmp + 1
+        logger.info(
+            f"Last assigned value {stable_space_tmp}. Assigning new ID {stable_space_id} "
+            f"for taxon ID {taxon_id}."
+        )
 
     return stable_space_id
 
@@ -140,7 +110,7 @@ def stable_space_range(stable_space_id: int, server_info: dict) -> int | None:
         int | None: The stable space start if the range exists or was created,
             None if the range could not be found or created.
     """
-    logger.info(f"Get stable space renage for {stable_space_id}")
+    logger.info(f"Get stable space range for {stable_space_id}")
     query = f"SELECT * FROM stable_space WHERE stable_space_id = '{stable_space_id}';"
     output_query = mysql_fetch_data(
         query,
@@ -322,7 +292,9 @@ def get_stable_space(
             f"Stable space {stable_space_id} already assigned for GCA {gca_accession}."
         )
         if stable_space_start is None:
-            raise ValueError(f"No stable space start found for GCA {gca_accession}.")
+            raise ValueError(
+                f"No stable space start found for GCA {gca_accession}. No valid range."
+            )
         return int(stable_space_start)
 
     else:
