@@ -25,12 +25,20 @@ Functions:
     - mysql_update: Executes an UPDATE/INSERT/DELETE query with optional parameters.
 """
 
+from __future__ import annotations
+
 import logging
-from typing import Any, Optional
+from typing import TYPE_CHECKING, Any, TypeAlias
 
 import pymysql
 from pymysql.connections import Connection
 from pymysql.cursors import DictCursor
+
+if TYPE_CHECKING:
+    MySQLConnection: TypeAlias = Connection[DictCursor]
+else:
+    # PyMySQL's runtime Connection class is not subscriptable.
+    MySQLConnection = Connection
 
 # Configure logging
 logging.basicConfig(
@@ -40,12 +48,12 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-__all__ = ["mysql_fetch_data", "mysql_update"]
+__all__ = ["mysql_fetch_data", "mysql_get_connection", "mysql_update"]
 
 
 def mysql_get_connection(
     database: str, host: str, port: int, user: str, password: str
-) -> Optional[Connection[DictCursor]]:  # pylint: disable=unsubscriptable-object
+) -> MySQLConnection | None:
     """
     Establish a connection to the MySQL database.
     """
@@ -71,7 +79,7 @@ def mysql_fetch_data(  # pylint:disable=too-many-arguments
     port: int,
     user: str,
     password: str,
-    params: Optional[tuple[Any, ...] | list[Any]] = None,
+    params: tuple[Any, ...] | list[Any] | None = None,
 ) -> list[dict[str, Any]]:
     """
     Execute a SELECT query on the specified MySQL database and return results.
@@ -119,7 +127,7 @@ def mysql_update(  # pylint:disable=too-many-arguments
     port: int,
     user: str,
     password: str,
-    params: Optional[tuple[Any, ...] | list[Any]] = None,
+    params: tuple[Any, ...] | list[Any] | None = None,
 ) -> bool:
     """
     Execute an UPDATE, INSERT, or DELETE query on the specified MySQL database.
