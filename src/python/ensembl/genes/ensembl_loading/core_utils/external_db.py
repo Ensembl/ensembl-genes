@@ -43,9 +43,7 @@ def get_refseq_external_db_name(accession: str, object_type: str) -> str:
     for prefix, db_name in mapping.items():
         if accession.startswith(prefix):
             return db_name
-    raise ValueError(
-        f"Unsupported RefSeq {object_type} accession: {accession!r}"
-    )
+    raise ValueError(f"Unsupported RefSeq {object_type} accession: {accession!r}")
 
 
 def is_refseq_accession(accession: str, object_type: str) -> bool:

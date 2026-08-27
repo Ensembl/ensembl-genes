@@ -696,7 +696,6 @@ def test_insert_refseq_gene_name_creates_xref_relationships() -> None:
 
         def executemany(self, operation: str, seq_params: Any) -> Any:
             del operation, seq_params
-            return None
 
         def fetchone(self) -> tuple[int] | None:
             return self.current_row
