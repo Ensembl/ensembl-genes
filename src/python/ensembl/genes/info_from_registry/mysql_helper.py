@@ -35,10 +35,10 @@ from pymysql.connections import Connection
 from pymysql.cursors import DictCursor
 
 if TYPE_CHECKING:
-    MYSQL_CONNECTION: TypeAlias = Connection[DictCursor]
+    RegistryConnection: TypeAlias = Connection[DictCursor]
 else:
     # PyMySQL's runtime Connection class is not subscriptable.
-    MYSQL_CONNECTION = Connection  # pylint: disable=invalid-name
+    RegistryConnection = Connection
 
 # Configure logging
 logging.basicConfig(
@@ -53,7 +53,7 @@ __all__ = ["mysql_fetch_data", "mysql_get_connection", "mysql_update"]
 
 def mysql_get_connection(
     database: str, host: str, port: int, user: str, password: str
-) -> MYSQL_CONNECTION | None:
+) -> RegistryConnection | None:
     """
     Establish a connection to the MySQL database.
     """
