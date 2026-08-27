@@ -52,6 +52,7 @@ from ensembl.genes.ensembl_loading.gff_source_config import (
 from ensembl.genes.ensembl_loading.refseq_conversion import (
     convert_gff_to_ensembl,
     default_gff_output_path,
+    load_assembly_report_name_maps,
     load_refseq_name_map,
 )
 from ensembl.genes.ensembl_loading.refseq_ncbi import (
@@ -594,13 +595,23 @@ def test_refseq_discovery_and_conversion_helpers(tmp_path: Path) -> None:
         tmp_path / "assembly_report.txt",
         [
             "# header",
-            "chrOne\tassembled-molecule\t1\tChromosome\tna\tna\tNC_000001.11",
-            "scaffoldA\tunlocalized-scaffold\t1\tna\tna\tna\tNW_000001.1",
+            "chrOne\tassembled-molecule\t1\tChromosome\tCM_000001.11\tna\tNC_000001.11",
+            "scaffoldA\tunlocalized-scaffold\t1\tna\tJH000001.1\tna\tNW_000001.1",
         ],
     )
     assert load_refseq_name_map(report) == {
         "NC_000001.11": "1",
         "NW_000001.1": "scaffoldA",
+    }
+    assert load_assembly_report_name_maps(report) == {
+        "RefSeq_genomic": {
+            "NC_000001.11": "1",
+            "NW_000001.1": "scaffoldA",
+        },
+        "INSDC": {
+            "CM_000001.11": "1",
+            "JH000001.1": "scaffoldA",
+        },
     }
 
     gff = write_lines(
@@ -649,7 +660,7 @@ def test_insert_refseq_seq_region_synonyms_preserves_multiple_accessions() -> No
 
         def execute(self, operation: str, params: tuple[Any, ...]) -> None:
             if operation.startswith("SELECT external_db_id"):
-                self.current_row = (1830,)
+                self.current_row = (1830 if params[0] == "RefSeq_genomic" else 1800,)
             elif operation.startswith("SELECT seq_region_id"):
                 self.current_row = (
                     (self.rows[params[0]],) if params[0] in self.rows else None
@@ -670,13 +681,15 @@ def test_insert_refseq_seq_region_synonyms_preserves_multiple_accessions() -> No
             "NT_000002.1": "ALT_LOCUS",
             "NC_MISSING.1": "missing",
         },
+        genbank_accession_to_name={"CM_000001.11": "1"},
     )
 
-    assert inserted == 3
+    assert inserted == 4
     assert cursor.synonyms == [
         (11, "NC_000001.11", 1830),
         (12, "NW_000001.1", 1830),
         (12, "NT_000002.1", 1830),
+        (11, "CM_000001.11", 1800),
     ]
 
 

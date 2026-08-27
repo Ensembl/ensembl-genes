@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import Any
 
 REFSEQ_GENOMIC_DB_NAME = "RefSeq_genomic"
+INSDC_DB_NAME = "INSDC"
 REFSEQ_GENE_DB_NAME = "RefSeq_gene_name"
 REFSEQ_TRANSCRIPT_DB_BY_PREFIX = {
     "NM_": "RefSeq_mRNA",

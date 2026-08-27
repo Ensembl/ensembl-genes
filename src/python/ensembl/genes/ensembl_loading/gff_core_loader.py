@@ -39,7 +39,7 @@ from .gff_core_database import (
 )
 from .gff_quality_check import emit_quality_report, run_core_load_quality_check
 from .gff_source_config import GENERIC_GFF_CONFIG, REFSEQ_CONFIG, GffSourceConfig
-from .refseq_conversion import load_refseq_name_map
+from .refseq_conversion import load_assembly_report_name_maps
 
 LOGGER = logging.getLogger(__name__)
 
@@ -129,10 +129,12 @@ def load_to_ensembl_core(
             seq_region_attributes=annotation.seq_region_attributes,
         )
         if source_config.name == "refseq":
+            accession_maps = load_assembly_report_name_maps(assembly_report_path)
             insert_refseq_seq_region_synonyms(
                 cursor,
                 coord_system_id,
-                load_refseq_name_map(assembly_report_path),
+                accession_maps["RefSeq_genomic"],
+                accession_maps["INSDC"],
             )
         if source_config.name == "refseq" and any(
             name.upper() in {"MT", "CHRM", "CHRMT"} for name in seq_region_ids

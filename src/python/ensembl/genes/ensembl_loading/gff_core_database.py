@@ -14,6 +14,7 @@ from pathlib import Path
 from typing import Any
 
 from .core_utils.external_db import (
+    INSDC_DB_NAME,
     REFSEQ_GENE_DB_NAME,
     REFSEQ_GENOMIC_DB_NAME,
     get_external_db_id,
@@ -117,29 +118,37 @@ def insert_refseq_seq_region_synonyms(
     cursor: DbCursor,
     coord_system_id: int,
     accession_to_name: Mapping[str, str],
+    genbank_accession_to_name: Mapping[str, str] | None = None,
 ) -> int:
-    """Insert original RefSeq accessions as synonyms for loaded seq_regions."""
+    """Insert RefSeq and GenBank accessions as seq_region synonyms."""
 
-    external_db_id = get_external_db_id(cursor, REFSEQ_GENOMIC_DB_NAME)
+    accession_maps = [(REFSEQ_GENOMIC_DB_NAME, accession_to_name)]
+    if genbank_accession_to_name:
+        accession_maps.append((INSDC_DB_NAME, genbank_accession_to_name))
+    external_db_ids = {
+        db_name: get_external_db_id(cursor, db_name)
+        for db_name, _accessions in accession_maps
+    }
     inserted = 0
-    for accession, sequence_name in accession_to_name.items():
-        cursor.execute(
-            "SELECT seq_region_id FROM seq_region "
-            "WHERE name = %s AND coord_system_id = %s",
-            (sequence_name, coord_system_id),
-        )
-        row = cursor.fetchone()
-        if row is None:
-            continue
+    for db_name, accessions in accession_maps:
+        for accession, sequence_name in accessions.items():
+            cursor.execute(
+                "SELECT seq_region_id FROM seq_region "
+                "WHERE name = %s AND coord_system_id = %s",
+                (sequence_name, coord_system_id),
+            )
+            row = cursor.fetchone()
+            if row is None:
+                continue
 
-        cursor.execute(
-            "INSERT IGNORE INTO seq_region_synonym "
-            "(seq_region_id, synonym, external_db_id) VALUES (%s, %s, %s)",
-            (int(row[0]), accession, external_db_id),
-        )
-        inserted += 1
+            cursor.execute(
+                "INSERT IGNORE INTO seq_region_synonym "
+                "(seq_region_id, synonym, external_db_id) VALUES (%s, %s, %s)",
+                (int(row[0]), accession, external_db_ids[db_name]),
+            )
+            inserted += 1
 
-    LOGGER.info("Inserted %s RefSeq seq_region synonyms", inserted)
+    LOGGER.info("Inserted %s RefSeq and GenBank seq_region synonyms", inserted)
     return inserted
 
 

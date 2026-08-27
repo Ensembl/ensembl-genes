@@ -31,7 +31,18 @@ def open_text_maybe_gzip(path: str | Path) -> Iterator[TextIO]:
 def load_refseq_name_map(assembly_report_path: str | Path) -> dict[str, str]:
     """Load RefSeq accession to Ensembl-style seq_region name mappings."""
 
-    accession_to_name: dict[str, str] = {}
+    return load_assembly_report_name_maps(assembly_report_path)["RefSeq_genomic"]
+
+
+def load_assembly_report_name_maps(
+    assembly_report_path: str | Path,
+) -> dict[str, dict[str, str]]:
+    """Load RefSeq and GenBank accession to seq_region name mappings."""
+
+    accession_maps: dict[str, dict[str, str]] = {
+        "RefSeq_genomic": {},
+        "INSDC": {},
+    }
     report_path = Path(assembly_report_path)
     with report_path.open("r", encoding="utf-8") as handle:
         for line in handle:
@@ -44,22 +55,24 @@ def load_refseq_name_map(assembly_report_path: str | Path) -> dict[str, str]:
 
             sequence_name = columns[0]
             assigned_molecule = columns[2]
-            refseq_accession = columns[6]
-            if not refseq_accession or refseq_accession == "na":
-                continue
-
-            accession_to_name[refseq_accession] = (
+            sequence_name_for_mapping = (
                 assigned_molecule
                 if columns[1] == "assembled-molecule" and assigned_molecule != "na"
                 else sequence_name
             )
 
+            for index, db_name in ((4, "INSDC"), (6, "RefSeq_genomic")):
+                accession = columns[index]
+                if accession and accession != "na":
+                    accession_maps[db_name][accession] = sequence_name_for_mapping
+
     LOGGER.info(
-        "Loaded %s sequence name mappings from %s",
-        len(accession_to_name),
+        "Loaded %s RefSeq and %s GenBank sequence name mappings from %s",
+        len(accession_maps["RefSeq_genomic"]),
+        len(accession_maps["INSDC"]),
         report_path,
     )
-    return accession_to_name
+    return accession_maps
 
 
 def default_gff_output_path(gff_path: str | Path) -> Path:
