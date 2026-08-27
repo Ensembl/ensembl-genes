@@ -136,6 +136,15 @@ dmypy.json
 
 # Cython debug symbols
 cython_debug/
+.pytest_cache
+dist
+build
+*swp
+__pycache__
+
+#other
+.nextflow
+.codex
 # macOS
 .DS_Store
 
