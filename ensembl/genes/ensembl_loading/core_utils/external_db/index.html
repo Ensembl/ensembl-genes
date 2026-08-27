@@ -1198,6 +1198,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#ensembl.genes.ensembl_loading.core_utils.external_db.INSDC_DB_NAME" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;INSDC_DB_NAME
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#ensembl.genes.ensembl_loading.core_utils.external_db.REFSEQ_GENE_DB_NAME" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3754,6 +3765,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#ensembl.genes.ensembl_loading.core_utils.external_db.INSDC_DB_NAME" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;INSDC_DB_NAME
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#ensembl.genes.ensembl_loading.core_utils.external_db.REFSEQ_GENE_DB_NAME" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3893,6 +3915,26 @@
 
 
 
+<h3 id="ensembl.genes.ensembl_loading.core_utils.external_db.INSDC_DB_NAME" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">INSDC_DB_NAME</span> <span class="o">=</span> <span class="s1">'INSDC'</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
+  </span>
+
+<a href="#ensembl.genes.ensembl_loading.core_utils.external_db.INSDC_DB_NAME" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
 <h3 id="ensembl.genes.ensembl_loading.core_utils.external_db.REFSEQ_GENE_DB_NAME" class="doc doc-heading">
 <code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">REFSEQ_GENE_DB_NAME</span> <span class="o">=</span> <span class="s1">'RefSeq_gene_name'</span></code>
 
@@ -3988,8 +4030,7 @@
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/python/ensembl/genes/ensembl_loading/core_utils/external_db.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">21</span>
-<span class="normal">22</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">22</span>
 <span class="normal">23</span>
 <span class="normal">24</span>
 <span class="normal">25</span>
@@ -4000,7 +4041,8 @@
 <span class="normal">30</span>
 <span class="normal">31</span>
 <span class="normal">32</span>
-<span class="normal">33</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_external_db_id</span><span class="p">(</span><span class="n">cursor</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">db_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="normal">33</span>
+<span class="normal">34</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_external_db_id</span><span class="p">(</span><span class="n">cursor</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">db_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Resolve an external database ID from the synchronized core table."""</span>
     <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
         <span class="s2">"SELECT external_db_id FROM external_db WHERE db_name = </span><span class="si">%s</span><span class="s2"> LIMIT 1"</span><span class="p">,</span>
@@ -4035,8 +4077,7 @@
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/python/ensembl/genes/ensembl_loading/core_utils/external_db.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">36</span>
-<span class="normal">37</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">37</span>
 <span class="normal">38</span>
 <span class="normal">39</span>
 <span class="normal">40</span>
@@ -4045,7 +4086,8 @@
 <span class="normal">43</span>
 <span class="normal">44</span>
 <span class="normal">45</span>
-<span class="normal">46</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_refseq_external_db_name</span><span class="p">(</span><span class="n">accession</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">object_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="normal">46</span>
+<span class="normal">47</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_refseq_external_db_name</span><span class="p">(</span><span class="n">accession</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">object_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Resolve the RefSeq external database name from an accession prefix."""</span>
     <span class="n">mapping</span> <span class="o">=</span> <span class="p">(</span>
         <span class="n">REFSEQ_TRANSCRIPT_DB_BY_PREFIX</span>
@@ -4078,14 +4120,14 @@
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/python/ensembl/genes/ensembl_loading/core_utils/external_db.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">49</span>
-<span class="normal">50</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">50</span>
 <span class="normal">51</span>
 <span class="normal">52</span>
 <span class="normal">53</span>
 <span class="normal">54</span>
 <span class="normal">55</span>
-<span class="normal">56</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">is_refseq_accession</span><span class="p">(</span><span class="n">accession</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">object_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="normal">56</span>
+<span class="normal">57</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">is_refseq_accession</span><span class="p">(</span><span class="n">accession</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">object_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Return whether an accession has a supported RefSeq feature prefix."""</span>
     <span class="n">mapping</span> <span class="o">=</span> <span class="p">(</span>
         <span class="n">REFSEQ_TRANSCRIPT_DB_BY_PREFIX</span>
