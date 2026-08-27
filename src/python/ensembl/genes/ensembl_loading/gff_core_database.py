@@ -13,6 +13,13 @@ from collections.abc import Mapping
 from pathlib import Path
 from typing import Any
 
+from .core_utils.external_db import (
+    REFSEQ_GENE_DB_NAME,
+    REFSEQ_GENOMIC_DB_NAME,
+    get_external_db_id,
+    get_refseq_external_db_name,
+    is_refseq_accession,
+)
 from .gff_annotation import DbCursor
 from .gff_metadata import (
     parse_assembly_report_metadata,
@@ -113,6 +120,7 @@ def insert_refseq_seq_region_synonyms(
 ) -> int:
     """Insert original RefSeq accessions as synonyms for loaded seq_regions."""
 
+    external_db_id = get_external_db_id(cursor, REFSEQ_GENOMIC_DB_NAME)
     inserted = 0
     for accession, sequence_name in accession_to_name.items():
         cursor.execute(
@@ -127,7 +135,7 @@ def insert_refseq_seq_region_synonyms(
         cursor.execute(
             "INSERT IGNORE INTO seq_region_synonym "
             "(seq_region_id, synonym, external_db_id) VALUES (%s, %s, %s)",
-            (int(row[0]), accession, 1830),
+            (int(row[0]), accession, external_db_id),
         )
         inserted += 1
 
@@ -519,8 +527,8 @@ def insert_genes(
             """INSERT INTO gene
                (gene_id, seq_region_id, seq_region_start, seq_region_end,
                 seq_region_strand, biotype, analysis_id, stable_id,
-                display_xref_id, source, canonical_transcript_id)
-               VALUES (%s,%s,%s,%s,%s,%s,%s,%s,NULL,%s,%s)""",
+                display_xref_id, source, canonical_transcript_id, description)
+               VALUES (%s,%s,%s,%s,%s,%s,%s,%s,NULL,%s,%s,%s)""",
             (
                 gene_id_map[gene_id],
                 seq_region_id,
@@ -532,7 +540,36 @@ def insert_genes(
                 gene.stable_id,
                 source_config.source_label,
                 canonical_transcript_id,
+                gene.description,
             ),
+        )
+        if source_config.name != REFSEQ_CONFIG.name:
+            continue
+        external_db_id = get_external_db_id(cursor, REFSEQ_GENE_DB_NAME)
+        gene_db_id = gene_id_map[gene_id]
+        xref_accession = gene.xref_geneid or gene.stable_id
+        cursor.execute(
+            """INSERT INTO xref
+               (external_db_id, dbprimary_acc, display_label, version,
+                description, info_type, info_text)
+               VALUES (%s,%s,%s,NULL,NULL,'DIRECT','')""",
+            (
+                external_db_id,
+                xref_accession,
+                gene.name,
+            ),
+        )
+        xref_id = cursor.lastrowid
+        cursor.execute(
+            """INSERT INTO object_xref
+               (ensembl_id, ensembl_object_type, xref_id, linkage_annotation,
+                analysis_id)
+               VALUES (%s,'Gene',%s,NULL,%s)""",
+            (gene_db_id, xref_id, analysis_id),
+        )
+        cursor.execute(
+            "UPDATE gene SET display_xref_id = %s WHERE gene_id = %s",
+            (xref_id, gene_db_id),
         )
 
 
@@ -569,6 +606,34 @@ def insert_attributes(
             "VALUES (%s,%s,%s)",
             (object_id, attrib_type_id, value),
         )
+
+
+def insert_refseq_object_xref(
+    cursor: DbCursor,
+    accession: str,
+    object_id: int,
+    object_type: str,
+    analysis_id: int | None,
+) -> int:
+    """Insert and link one RefSeq xref for a core object."""
+    db_name = get_refseq_external_db_name(accession, object_type)
+    external_db_id = get_external_db_id(cursor, db_name)
+    cursor.execute(
+        """INSERT INTO xref
+           (external_db_id, dbprimary_acc, display_label, version,
+            description, info_type, info_text)
+           VALUES (%s,%s,%s,NULL,NULL,'DIRECT','')""",
+        (external_db_id, accession, accession),
+    )
+    xref_id = cursor.lastrowid
+    cursor.execute(
+        """INSERT INTO object_xref
+           (ensembl_id, ensembl_object_type, xref_id, linkage_annotation,
+            analysis_id)
+           VALUES (%s,%s,%s,NULL,%s)""",
+        (object_id, object_type, xref_id, analysis_id),
+    )
+    return xref_id
 
 
 def _reverse_complement(sequence: str) -> str:
@@ -698,6 +763,20 @@ def insert_transcripts_and_exons(
                 source_config.source_label,
             ),
         )
+        if source_config.name == REFSEQ_CONFIG.name and is_refseq_accession(
+            transcript.stable_id, "Transcript"
+        ):
+            transcript_xref_id = insert_refseq_object_xref(
+                cursor,
+                transcript.stable_id,
+                transcript_id_map[transcript_id],
+                "Transcript",
+                analysis_id,
+            )
+            cursor.execute(
+                "UPDATE transcript SET display_xref_id = %s WHERE transcript_id = %s",
+                (transcript_xref_id, transcript_id_map[transcript_id]),
+            )
         frameshift_attributes = frameshift_transcript_attributes(
             cursor,
             transcript,
@@ -775,6 +854,8 @@ def insert_translations(
     annotation: ParsedAnnotation,
     transcript_id_map: Mapping[str, int],
     exon_id_map: Mapping[tuple[str, int], int],
+    analysis_id: int | None = None,
+    source_config: GffSourceConfig = REFSEQ_CONFIG,
 ) -> None:
     """Insert translation rows and canonical translation links."""
 
@@ -842,6 +923,18 @@ def insert_translations(
                 ),
             )
             translation_id = cursor.lastrowid
+            if (
+                source_config.name == REFSEQ_CONFIG.name
+                and transcript.protein_id
+                and is_refseq_accession(transcript.protein_id, "Translation")
+            ):
+                insert_refseq_object_xref(
+                    cursor,
+                    transcript.protein_id,
+                    translation_id,
+                    "Translation",
+                    analysis_id,
+                )
             cursor.execute(
                 "UPDATE transcript SET canonical_translation_id = %s WHERE transcript_id = %s",
                 (translation_id, db_transcript_id),

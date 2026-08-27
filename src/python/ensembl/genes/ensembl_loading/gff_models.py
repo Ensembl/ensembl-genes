@@ -37,6 +37,7 @@ class GeneRecord:
     stable_id: str
     name: str
     xref_geneid: str | None = None
+    description: str | None = None
 
 
 @dataclass

@@ -601,6 +601,7 @@ def parse_converted_gff3(
                     stable_id=gene_id,
                     xref_geneid=dbxref_geneid,
                     name=gene_name,
+                    description=attributes.get("description"),
                 )
                 continue
 

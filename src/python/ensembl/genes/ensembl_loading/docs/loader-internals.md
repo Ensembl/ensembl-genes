@@ -342,15 +342,20 @@ are reused in `load-features`; `create-core` inserts one during bootstrap.
 
 `gene`
 : Inserts one row per `GeneRecord`. `stable_id` is the normalized gene ID.
+The parsed gene name and NCBI GeneID are inserted as a RefSeq `xref`, linked
+through `object_xref`, and assigned to `gene.display_xref_id`.
 `source` is `source_config.source_label`. `canonical_transcript_id` is the first
 transcript found for that gene in parsed insertion order. `display_xref_id` is
 currently `NULL`.
+The GFF `description` attribute is written to `gene.description`.
 
 `transcript`
 : Inserts one row per `TranscriptRecord`. `stable_id` comes from configured
 attributes, usually `Name`, then falls back to normalized transcript ID.
 `source` is `source_config.source_label`. `display_xref_id` is currently
 `NULL`.
+RefSeq transcript accessions are inserted into `xref` and linked through
+`object_xref` with `ensembl_object_type = 'Transcript'`.
 
 `exon`
 : Inserts exon rows and reuses an existing exon from the current load when
@@ -366,6 +371,8 @@ the selected source config captures exon stable IDs.
 `translation`
 : Inserted only when a matching transcript and CDS group allow start and end
 placement inside exons.
+RefSeq protein accessions are inserted into `xref` and linked through
+`object_xref` with `ensembl_object_type = 'Translation'`.
 
 Numeric ID allocation differs by mode:
 

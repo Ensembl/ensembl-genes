@@ -158,7 +158,14 @@ def load_to_ensembl_core(
             source_config=source_config,
             deduplicate_exons=deduplicate_exons,
         )
-        insert_translations(cursor, annotation, transcript_id_map, exon_id_map)
+        insert_translations(
+            cursor,
+            annotation,
+            transcript_id_map,
+            exon_id_map,
+            analysis_id,
+            source_config,
+        )
         quality_report = run_core_load_quality_check(
             cursor,
             annotation,
@@ -269,7 +276,14 @@ def load_gff_features_to_core(
             first_exon_id=first_exon_id,
             deduplicate_exons=deduplicate_exons,
         )
-        insert_translations(cursor, annotation, transcript_id_map, exon_id_map)
+        insert_translations(
+            cursor,
+            annotation,
+            transcript_id_map,
+            exon_id_map,
+            analysis_id,
+            source_config,
+        )
         quality_report = run_core_load_quality_check(
             cursor,
             annotation,

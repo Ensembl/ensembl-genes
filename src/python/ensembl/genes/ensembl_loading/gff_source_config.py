@@ -140,6 +140,7 @@ REFSEQ_CONFIG = GffSourceConfig(
         "IG_J_gene": "IG_J_gene",
         "IG_C_gene": "IG_C_gene",
     },
+    translation_stable_id_attributes=("protein_id", "Name"),
 )
 
 GENERIC_GFF_CONFIG = GffSourceConfig(

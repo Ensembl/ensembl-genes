@@ -155,6 +155,9 @@ RefSeq genes:
 5. `Dbxref=GeneID:<value>` is captured in memory.
 6. Biotype is resolved from `gbkey`, `pseudo`, `transcript_biotype`,
    `gene_biotype`, and RefSeq override maps.
+7. The GFF `description` attribute is stored in `gene.description`.
+8. RefSeq transcript and protein accessions are loaded into `xref` and linked
+   to their transcript or translation rows through `object_xref`.
 
 RefSeq transcripts:
 
@@ -241,11 +244,12 @@ the original script's plain-text FASTA handling, so pass a decompressed FASTA
 file when calling it directly.
 
 When a RefSeq core is created, the original RefSeq accession for every loaded
-sequence is also inserted into `seq_region_synonym` with `external_db_id =
-1830`. This includes multiple accessions that resolve to the same converted
-sequence name, such as alternate-locus or patch accessions. Synonyms are only
-inserted for sequence regions present in the loaded FASTA, so filtered loads do
-not create synonyms for omitted sequences.
+sequence is also inserted into `seq_region_synonym`. The ID is resolved from
+the synchronized `external_db` row named `RefSeq_genomic`. This includes
+multiple accessions that resolve to the same converted sequence name, such as
+alternate-locus or patch accessions. Synonyms are only inserted for sequence
+regions present in the loaded FASTA, so filtered loads do not create synonyms
+for omitted sequences.
 
 ### Listing RefSeq Assemblies
 

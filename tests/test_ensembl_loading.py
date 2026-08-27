@@ -32,11 +32,14 @@ from ensembl.genes.ensembl_loading.gff_annotation import (
 )
 from ensembl.genes.ensembl_loading.gff_core_database import (
     frameshift_transcript_attributes,
+    insert_genes,
     insert_refseq_seq_region_synonyms,
 )
 from ensembl.genes.ensembl_loading.gff_models import (
     CdsSegment,
     ExonRecord,
+    GeneRecord,
+    ParsedAnnotation,
     TranscriptRecord,
 )
 from ensembl.genes.ensembl_loading.gff_quality_check import (
@@ -371,7 +374,7 @@ def test_source_specific_annotation_parsers(tmp_path: Path) -> None:
                 100,
                 500,
                 "+",
-                "ID=rna-TxA;Parent=gene-GeneA;Name=TxA;gbkey=mRNA",
+                "ID=rna-TxA;Parent=gene-GeneA;Name=NM_000001;gbkey=mRNA",
                 source="RefSeq",
             ),
             feature_row(
@@ -389,7 +392,7 @@ def test_source_specific_annotation_parsers(tmp_path: Path) -> None:
                 150,
                 200,
                 "+",
-                "ID=cds-ProtA;Parent=rna-TxA;protein_id=ProtA",
+                "ID=cds-ProtA;Parent=rna-TxA;protein_id=XP_000001",
                 source="RefSeq",
                 phase="0",
             ),
@@ -448,8 +451,8 @@ def test_source_specific_annotation_parsers(tmp_path: Path) -> None:
 
     assert set(refseq.genes) == {"GeneA"}
     assert set(refseq.transcripts) == {"TxA"}
-    assert refseq.transcripts["TxA"].stable_id == "TxA"
-    assert expected_translation_stable_ids(refseq) == {"TxA": "TxA_prot"}
+    assert refseq.transcripts["TxA"].stable_id == "NM_000001"
+    assert expected_translation_stable_ids(refseq) == {"TxA": "XP_000001"}
 
 
 def test_refseq_parser_supports_multiple_parents_and_translation_exceptions(
@@ -645,7 +648,9 @@ def test_insert_refseq_seq_region_synonyms_preserves_multiple_accessions() -> No
             self.synonyms: list[tuple[int, str, int]] = []
 
         def execute(self, operation: str, params: tuple[Any, ...]) -> None:
-            if operation.startswith("SELECT seq_region_id"):
+            if operation.startswith("SELECT external_db_id"):
+                self.current_row = (1830,)
+            elif operation.startswith("SELECT seq_region_id"):
                 self.current_row = (
                     (self.rows[params[0]],) if params[0] in self.rows else None
                 )
@@ -673,6 +678,78 @@ def test_insert_refseq_seq_region_synonyms_preserves_multiple_accessions() -> No
         (12, "NW_000001.1", 1830),
         (12, "NT_000002.1", 1830),
     ]
+
+
+def test_insert_refseq_gene_name_creates_xref_relationships() -> None:
+    class GeneCursor:
+        def __init__(self) -> None:
+            self.lastrowid = 0
+            self.current_row: tuple[int] | None = None
+            self.statements: list[tuple[str, tuple[Any, ...] | None]] = []
+
+        def execute(self, operation: str, params: Any | None = None) -> Any:
+            self.statements.append((operation, params))
+            if operation.startswith("SELECT external_db_id"):
+                self.current_row = (1830,)
+            elif operation.startswith("INSERT INTO xref"):
+                self.lastrowid = 21
+
+        def executemany(self, operation: str, seq_params: Any) -> Any:
+            del operation, seq_params
+            return None
+
+        def fetchone(self) -> tuple[int] | None:
+            return self.current_row
+
+    cursor = GeneCursor()
+    annotation = ParsedAnnotation(
+        genes={
+            "GeneA": GeneRecord(
+                seq_name="1",
+                start=10,
+                end=50,
+                strand=1,
+                biotype="protein_coding",
+                stable_id="GeneA",
+                name="Gene symbol A",
+                xref_geneid="12345",
+                description="Gene description",
+            )
+        }
+    )
+
+    insert_genes(
+        cursor,
+        annotation,
+        seq_region_ids={"1": 4},
+        gene_id_map={"GeneA": 7},
+        transcript_id_map={},
+        analysis_id=9,
+        source_config=get_source_config("refseq"),
+    )
+
+    assert cursor.statements[0][1] == (
+        7,
+        4,
+        10,
+        50,
+        1,
+        "protein_coding",
+        9,
+        "GeneA",
+        "refseq",
+        None,
+        "Gene description",
+    )
+    assert cursor.statements[2] == (
+        "INSERT INTO xref\n"
+        "               (external_db_id, dbprimary_acc, display_label, version,\n"
+        "                description, info_type, info_text)\n"
+        "               VALUES (%s,%s,%s,NULL,NULL,'DIRECT','')",
+        (1830, "12345", "Gene symbol A"),
+    )
+    assert cursor.statements[3][1] == (7, 21, 9)
+    assert cursor.statements[4][1] == (21, 7)
 
 
 def test_initialise_core_tables_loads_assembly_report_meta(
