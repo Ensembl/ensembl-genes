@@ -885,7 +885,7 @@ def main(  # pylint:disable=too-many-branches, too-many-statements, too-many-loc
             clade = info_dict.get("clade", "").lower()
             if clade in ["mammalia", "rodentia", "primates", "marsupials"]:
                 info_dict["protein_blast_db_file"] = "uniprot_mammalia_sp"
-            elif clade in ["teleostei", "sharks"]:
+            elif clade in ["teleostei", "zebrafish", "sharks"]:
                 info_dict["protein_blast_db_file"] = "uniprot_vertebrataSP_plus_fishTR"
             else:
                 info_dict["protein_blast_db_file"] = "uniprot_vertebrata_sp"

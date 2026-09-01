@@ -465,6 +465,20 @@
         "masking_timer_short": "3h",
         "projection_source_production_name": "homo_sapiens"
     },
+    "zebrafish": {
+        "taxon_id": 7955,
+        "repbase_library": "Teleostei",
+        "repbase_logic_name": "teleost",
+        "uniprot_set": "zebrafish_basic",
+        "sanity_set": "zebrafish_basic",
+        "ig_tr_fasta_file": "fish_ig_tr.fa",
+        "masking_timer_long": "6h",
+        "masking_timer_short": "3h",
+        "skip_projection": 0,
+        "skip_lastz": 0,
+        "projection_source_production_name": "danio_rerio_zebrafish",
+        "repeatmasker_slice_size": 500000
+    },
     "teleostei": {
         "taxon_id": 186623,
         "repbase_library": "Teleostei",
