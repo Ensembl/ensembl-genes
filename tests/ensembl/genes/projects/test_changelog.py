@@ -52,7 +52,7 @@ NEW_YAML = """\
   annotation_gff3: https://ftp.ebi.ac.uk/pub/ensemblorganisms/Drosophila_melanogaster/GCA_000001/ensembl/geneset/2025_10/genes.gff3.gz
   image: Arthropods.png
   ftp_dumps: https://ftp.ebi.ac.uk/pub/ensemblorganisms/Drosophila_melanogaster/GCA_000001/
-  beta_link: https://beta.ensembl.org/species/some-uuid
+  beta_link: https://ensembl.org/species/some-uuid
 
 - species: Papilio machaon
   accession: GCA_000003

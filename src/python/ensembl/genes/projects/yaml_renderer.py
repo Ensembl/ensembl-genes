@@ -203,7 +203,7 @@ class YamlRenderer:  # pylint: disable=too-few-public-methods
         status = self._check_beta_status(meta.genome_uuid)
         if status == "available":
             return (
-                f"https://beta.ensembl.org/species/{meta.genome_uuid}",
+                f"https://ensembl.org/species/{meta.genome_uuid}",
                 "available",
             )
         # "unavailable" or "error" — do not emit a possibly-broken link.

@@ -464,7 +464,7 @@ For pre-release discovery without UUIDs, you may still rely on the registry trac
             if "alternate" not in doc:
                 alt_uuid = acc_to_uuid.get(alt_acc)
                 if alt_uuid and alt_uuid != "unknown":
-                    alt_url = f"https://beta.ensembl.org/species/{alt_uuid}"
+                    alt_url = f"https://ensembl.org/species/{alt_uuid}"
                     doc["alternate"] = alt_url
                     logger.debug(
                         "Set alternate haplotype: %s -> %s (uuid=%s)",

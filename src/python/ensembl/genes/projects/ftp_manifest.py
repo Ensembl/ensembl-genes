@@ -3,7 +3,7 @@ Manifest reader for the new Ensembl accession-based FTP structure.
 
 The species manifest at:
 
-    https://ftp.ebi.ac.uk/pub/ensemblorganisms/species.new_ftp_structure.json
+    https://ftp.ebi.ac.uk/pub/ensemblorganisms/species.json
 
 is the authoritative index of what data is available on the new FTP site.
 This module downloads it once, parses it, and exposes an efficient lookup API.
@@ -36,7 +36,7 @@ logger = logging.getLogger(__name__)
 # ---------------------------------------------------------------------------
 
 MANIFEST_URL = (
-    "https://ftp.ebi.ac.uk/pub/ensemblorganisms/species.new_ftp_structure.json"
+    "https://ftp.ebi.ac.uk/pub/ensemblorganisms/species.json"
 )
 EBI_FTP_BASE = "https://ftp.ebi.ac.uk/pub/ensemblorganisms/"
 

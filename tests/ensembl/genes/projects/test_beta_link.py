@@ -1,4 +1,4 @@
-"""Tests for beta.ensembl.org species-page availability checking.
+"""Tests for ensembl.org species-page availability checking.
 
 All network calls are mocked. Run with:
     pytest tests/ensembl/genes/projects/test_beta_link.py -v
@@ -122,7 +122,7 @@ class TestResolveBetaLink:
         ):
             link, status = renderer._resolve_beta_link(_meta(), target_released=True)
         assert link == (
-            "https://beta.ensembl.org/species/" "525cc33d-82e2-4df5-90f2-70ef460cb418"
+            "https://ensembl.org/species/" "525cc33d-82e2-4df5-90f2-70ef460cb418"
         )
         assert status == "available"
 
@@ -256,6 +256,6 @@ class TestStandardRenderIntegration:
             doc = renderer.render(meta)
 
         assert doc["beta_link"] == (
-            "https://beta.ensembl.org/species/" "525cc33d-82e2-4df5-90f2-70ef460cb418"
+            "https://ensembl.org/species/" "525cc33d-82e2-4df5-90f2-70ef460cb418"
         )
         assert doc["__audit_beta_status__"] == "available"

@@ -137,7 +137,7 @@ def write_content(info: Dict[str, str], out_dir: Path, url_path: str) -> None:
     ) as annotation_out:  # pylint: disable=unspecified-encoding
         print(
             "<p>Genome annotation was generated using the "
-            '<a href="https://beta.ensembl.org/help/articles/vertebrate-genome-annotation">Ensembl vertebrate annotation pipeline</a>. '  # pylint: disable=line-too-long
+            '<a href="https://ensembl.org/help/articles/vertebrate-genome-annotation">Ensembl vertebrate annotation pipeline</a>. '  # pylint: disable=line-too-long
             "</p><p>In accordance with the "
             '<a href="https://en.wikipedia.org/wiki/Fort_Lauderdale_Agreement">Fort Lauderdale Agreement</a>, please check the publication '  # pylint: disable=line-too-long
             "status of the genome/assembly before publishing any genome-wide analyses using these data.</p>",  # pylint: disable=line-too-long
