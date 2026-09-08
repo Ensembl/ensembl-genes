@@ -259,6 +259,261 @@
           }
         }
       }
+    },
+    "Homo_sapiens": {
+      "taxid": 9606,
+      "species_taxonomy_id": 9606,
+      "scientific_name": "Homo sapiens",
+      "common_name": "Human",
+      "strain": null,
+      "strain_type": null,
+      "biosample_id": "SAMN00000003",
+      "assemblies": {
+        "GCA_018852605.1": {
+          "name": "HG002.alt.pat.f1_v2",
+          "level": "primary_assembly",
+          "genebuild_providers": {
+            "ensembl": {
+              "2022_07": {
+                "release": "2022_07",
+                "paths": {
+                  "genebuild": {
+                    "files": {
+                      "annotations": {
+                        "genes.gtf.gz": "GCA/018/852/605/1/ensembl/2022_07/geneset/genes.gtf.gz",
+                        "genes.gff3.gz": "GCA/018/852/605/1/ensembl/2022_07/geneset/genes.gff3.gz"
+                      }
+                    }
+                  },
+                  "short_variants": {
+                    "files": {
+                      "variation_data": {}
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "assembly": {
+            "files": {
+              "genome_sequences": {
+                "softmasked.fa.bgz": "GCA/018/852/605/1/ensembl/2022_07/genome/softmasked.fa.bgz"
+              }
+            }
+          }
+        },
+        "GCA_018469665.2": {
+          "name": "HG002.alt.mat.f1_v2",
+          "level": "primary_assembly",
+          "genebuild_providers": {
+            "ensembl": {
+              "2025_08": {
+                "release": "2025_08",
+                "paths": {
+                  "genebuild": {
+                    "files": {
+                      "annotations": {
+                        "genes.gtf.gz": "GCA/018/469/665/2/ensembl/2025_08/geneset/genes.gtf.gz",
+                        "genes.gff3.gz": "GCA/018/469/665/2/ensembl/2025_08/geneset/genes.gff3.gz"
+                      }
+                    }
+                  },
+                  "short_variants": {
+                    "files": {
+                      "variation_data": {
+                        "variation.vcf.gz": "GCA/018/469/665/2/ensembl/2025_08/variation/2025_12_15/variation.vcf.gz"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "assembly": {
+            "files": {
+              "genome_sequences": {
+                "softmasked.fa.bgz": "GCA/018/469/665/2/ensembl/2025_08/genome/softmasked.fa.bgz"
+              }
+            }
+          }
+        },
+        "GCA_018506975.2": {
+          "name": "HG005.alt.pat.f1_v2",
+          "level": "primary_assembly",
+          "genebuild_providers": {
+            "ensembl": {
+              "2025_08": {
+                "release": "2025_08",
+                "paths": {
+                  "genebuild": {
+                    "files": {
+                      "annotations": {
+                        "genes.gtf.gz": "GCA/018/506/975/2/ensembl/2025_08/geneset/genes.gtf.gz",
+                        "genes.gff3.gz": "GCA/018/506/975/2/ensembl/2025_08/geneset/genes.gff3.gz"
+                      }
+                    }
+                  },
+                  "short_variants": {
+                    "files": {
+                      "variation_data": {
+                        "variation.vcf.gz": "GCA/018/506/975/2/ensembl/2025_08/variation/2025_12_15/2025_12_15/variation.vcf.gz"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "assembly": {
+            "files": {
+              "genome_sequences": {
+                "softmasked.fa.bgz": "GCA/018/506/975/2/ensembl/2025_08/genome/softmasked.fa.bgz"
+              }
+            }
+          }
+        },
+        "GCA_000001405.29": {
+          "name": "GRCh38.p14",
+          "level": "chromosome",
+          "genebuild_providers": {
+            "ensembl": {
+              "2024_11": {
+                "release": "2024_11",
+                "paths": {
+                  "genebuild": {
+                    "files": {
+                      "annotations": {
+                        "genes.gtf.gz": "GCA/000/001/405/29/ensembl/2024_11/geneset/genes.gtf.gz",
+                        "genes.gff3.gz": "GCA/000/001/405/29/ensembl/2024_11/geneset/genes.gff3.gz"
+                      }
+                    }
+                  },
+                  "short_variants": {
+                    "files": {
+                      "variation_data": {
+                        "variation.vcf.gz": "GCA/000/001/405/29/ensembl/2024_11/variation/2025_08_13/variation.vcf.gz"
+                      }
+                    }
+                  }
+                }
+              },
+              "2026_04": {
+                "release": "2026_04",
+                "paths": {
+                  "genebuild": {
+                    "files": {
+                      "annotations": {
+                        "genes.gtf.gz": "GCA/000/001/405/29/ensembl/2026_04/geneset/genes.gtf.gz",
+                        "genes.gff3.gz": "GCA/000/001/405/29/ensembl/2026_04/geneset/genes.gff3.gz"
+                      }
+                    }
+                  },
+                  "short_variants": {
+                    "files": {
+                      "variation_data": {
+                        "variation.vcf.gz": "GCA/000/001/405/29/ensembl/2026_04/variation/2026_07_13/variation.vcf.gz"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "assembly": {
+            "files": {
+              "genome_sequences": {
+                "softmasked.fa.bgz": "GCA/000/001/405/29/ensembl/2026_04/genome/softmasked.fa.bgz"
+              }
+            }
+          }
+        },
+        "GCA_000001635.9": {
+          "name": "GRCm39",
+          "level": "chromosome",
+          "genebuild_providers": {
+            "ensembl": {
+              "2024_11": {
+                "release": "2024_11",
+                "paths": {
+                  "genebuild": {
+                    "files": {
+                      "annotations": {
+                        "genes.gtf.gz": "GCA/000/001/635/9/ensembl/2024_11/geneset/genes.gtf.gz",
+                        "genes.gff3.gz": "GCA/000/001/635/9/ensembl/2024_11/geneset/genes.gff3.gz"
+                      }
+                    }
+                  },
+                  "short_variants": {
+                    "files": {
+                      "variation_data": {
+                        "variation.vcf.gz": "GCA/000/001/635/9/ensembl/2024_11/variation/2025_08_13/variation.vcf.gz"
+                      }
+                    }
+                  }
+                }
+              },
+              "2026_04": {
+                "release": "2026_04",
+                "paths": {
+                  "genebuild": {
+                    "files": {
+                      "annotations": {
+                        "genes.gtf.gz": "GCA/000/001/635/9/ensembl/2026_04/geneset/genes.gtf.gz",
+                        "genes.gff3.gz": "GCA/000/001/635/9/ensembl/2026_04/geneset/genes.gff3.gz"
+                      }
+                    }
+                  },
+                  "short_variants": {
+                    "files": {
+                      "variation_data": {}
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "assembly": {
+            "files": {
+              "genome_sequences": {
+                "softmasked.fa.bgz": "GCA/000/001/635/9/ensembl/2026_04/genome/softmasked.fa.bgz"
+              }
+            }
+          }
+        },
+        "GCA_046332015.1": {
+          "name": "HG002.alt.mat.v1",
+          "level": "primary_assembly",
+          "genebuild_providers": {
+            "ensembl": {
+              "2025_12": {
+                "release": "2025_12",
+                "paths": {
+                  "genebuild": {
+                    "files": {
+                      "annotations": {
+                        "genes.gtf.gz": "GCA/046/332/015/1/ensembl/2025_12/geneset/genes.gtf.gz",
+                        "genes.gff3.gz": "GCA/046/332/015/1/ensembl/2025_12/geneset/genes.gff3.gz"
+                      }
+                    }
+                  },
+                  "short_variants": {
+                    "files": {
+                      "variation_data": {}
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "assembly": {
+            "files": {
+              "genome_sequences": {
+                "softmasked.fa.bgz": "GCA/046/332/015/1/ensembl/2025_12/genome/softmasked.fa.bgz"
+              }
+            }
+          }
+        }
+      }
     }
   }
 }

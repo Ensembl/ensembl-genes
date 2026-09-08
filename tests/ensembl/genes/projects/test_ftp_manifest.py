@@ -160,6 +160,42 @@ class TestEnsemblFtpManifestLookup:
         assert record is not None
 
 
+class TestEnsemblFtpManifestLookupVariationVcf:
+    """Tests for EnsemblFtpManifest.lookup_variation_vcf()."""
+
+    def setup_method(self):
+        self.manifest = EnsemblFtpManifest(_FIXTURE_DATA)
+
+    def test_lookup_variation_vcf_returns_exact_path_and_date(self):
+        res = self.manifest.lookup_variation_vcf("GCA_018469665.2")
+        assert res is not None
+        vcf_path, date_key = res
+        assert (
+            vcf_path
+            == "GCA/018/469/665/2/ensembl/2025_08/variation/2025_12_15/variation.vcf.gz"
+        )
+        assert date_key == "2025_08"
+
+    def test_lookup_variation_vcf_absent_accession_returns_none(self):
+        assert self.manifest.lookup_variation_vcf("GCA_000000000.0") is None
+
+    def test_lookup_variation_vcf_no_vcf_returns_none(self):
+        assert self.manifest.lookup_variation_vcf("GCA_046332015.1") is None
+
+    def test_lookup_variation_vcf_provider_filter(self):
+        res = self.manifest.lookup_variation_vcf("GCA_018469665.2", provider="ensembl")
+        assert res is not None
+
+    def test_lookup_variation_vcf_ambiguous_provider_returns_none(self):
+        # GCA_999999999.1 has multiple providers (community, braker) and no ensembl preference
+        assert (
+            self.manifest.lookup_variation_vcf(
+                "GCA_999999999.1", provider="nonexistent"
+            )
+            is None
+        )
+
+
 class TestEnsemblFtpManifestFromUrl:
     """Tests for EnsemblFtpManifest.from_url() — all network calls mocked."""
 

@@ -17,8 +17,6 @@ from typing import Any, Dict, List
 
 import yaml
 
-logger = logging.getLogger(__name__)
-
 from ensembl.genes.projects.changelog import (
     compare_yamls,
     format_changelog,
@@ -39,6 +37,8 @@ from ensembl.genes.projects.registry.metadata_db import MetadataDbClient
 from ensembl.genes.projects.registry.gb_tracker import GbTrackerClient
 from ensembl.genes.projects.registry.ncbi_entrez import patch_ncbi_data
 
+logger = logging.getLogger(__name__)
+
 
 @dataclass
 class Candidate:  # pylint: disable=too-many-instance-attributes
@@ -57,6 +57,8 @@ class Candidate:  # pylint: disable=too-many-instance-attributes
     audit_provider_status: str = ""
     audit_date_status: str = ""
     audit_vep_status: str = ""
+    audit_variation_status: str = ""
+    audit_variation_date: str = ""
 
 
 def _extract_audit_fields(doc: Dict[str, Any]) -> Dict[str, Any]:
@@ -237,6 +239,8 @@ For pre-release discovery without UUIDs, you may still rely on the registry trac
         audit_provider_status = audit_fields.get("__audit_provider_status__", "")
         audit_date_status = audit_fields.get("__audit_date_status__", "")
         audit_vep_status = audit_fields.get("__audit_vep_status__", "")
+        audit_variation_status = audit_fields.get("__audit_variation_status__", "")
+        audit_variation_date = audit_fields.get("__audit_variation_date__", "")
 
         candidates.append(
             Candidate(
@@ -253,6 +257,8 @@ For pre-release discovery without UUIDs, you may still rely on the registry trac
                 audit_provider_status=audit_provider_status,
                 audit_date_status=audit_date_status,
                 audit_vep_status=audit_vep_status,
+                audit_variation_status=audit_variation_status,
+                audit_variation_date=audit_variation_date,
             )
         )
 
@@ -285,6 +291,8 @@ For pre-release discovery without UUIDs, you may still rely on the registry trac
         audit_provider_status = audit_fields.get("__audit_provider_status__", "")
         audit_date_status = audit_fields.get("__audit_date_status__", "")
         audit_vep_status = audit_fields.get("__audit_vep_status__", "")
+        audit_variation_status = audit_fields.get("__audit_variation_status__", "")
+        audit_variation_date = audit_fields.get("__audit_variation_date__", "")
 
         identifier = f"discovered_gb_{meta.accession}"
         candidates.append(
@@ -302,6 +310,8 @@ For pre-release discovery without UUIDs, you may still rely on the registry trac
                 audit_provider_status=audit_provider_status,
                 audit_date_status=audit_date_status,
                 audit_vep_status=audit_vep_status,
+                audit_variation_status=audit_variation_status,
+                audit_variation_date=audit_variation_date,
             )
         )
 
@@ -464,7 +474,7 @@ For pre-release discovery without UUIDs, you may still rely on the registry trac
             if "alternate" not in doc:
                 alt_uuid = acc_to_uuid.get(alt_acc)
                 if alt_uuid and alt_uuid != "unknown":
-                    alt_url = f"https://ensembl.org/species/{alt_uuid}"
+                    alt_url = f"https://www.ensembl.org/species/{alt_uuid}"
                     doc["alternate"] = alt_url
                     logger.debug(
                         "Set alternate haplotype: %s -> %s (uuid=%s)",
@@ -504,7 +514,8 @@ For pre-release discovery without UUIDs, you may still rely on the registry trac
                     f"{c.meta.taxon_id or ''}\t{c.meta.busco_lineage or ''}\t"
                     f"{tax_lineage_str}\t{image_value}\t"
                     f"{c.audit_manifest_status}\t{c.audit_provider_status}\t"
-                    f"{c.audit_date_status}\t{c.audit_vep_status}\n"
+                    f"{c.audit_date_status}\t{c.audit_vep_status}\t"
+                    f"{c.audit_variation_status}\t{c.audit_variation_date}\n"
                 )
                 if row not in seen_audit_rows:
                     seen_audit_rows.add(row)

@@ -39,6 +39,12 @@ class ProjectConfig:  # pylint: disable=too-many-instance-attributes
     # VEP links will simply be omitted and recorded in the audit trail.
     use_legacy_vep_fallback: bool = False
 
+    # When True, the generator will attempt to resolve and emit a
+    # ``variation_vcf`` field pointing to the dated directory that contains
+    # ``variation.vcf.gz`` for the assembly, as supplied by the main FTP
+    # manifest.  Enabled for HPRC; disabled for all other projects.
+    include_variation_vcf: bool = False
+
     # Pre-release Registry Scoping
     bioproject_scoping: Optional[List[str]] = None
     custom_group_scoping: Optional[List[str]] = None
@@ -63,6 +69,7 @@ def get_project_config(project_name: str) -> ProjectConfig:
             schema_type="hprc",
             bioproject_scoping=["HPRC"],
             use_legacy_vep_fallback=True,
+            include_variation_vcf=True,
         )
     if name_lower in ("mouse_genomes", "mouse"):
         return ProjectConfig(

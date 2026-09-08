@@ -318,5 +318,81 @@ class EnsemblFtpManifest:
         """
         return self._index.get(accession)
 
+    def lookup_variation_vcf(  # pylint: disable=too-many-locals
+        self,
+        accession: str,
+        *,
+        provider: str | None = None,
+    ) -> tuple[str, str] | None:
+        """Return the manifest-provided path and date_key for the newest usable
+        variation VCF for *accession*.
+
+        Resolution rules:
+
+        1. Look up the accession.  Return ``None`` if absent.
+        2. Select the provider using the same priority as the main manifest
+           (exact match → single provider → ``"ensembl"`` preference).
+        3. Collect all date records for that provider that contain
+           ``"variation.vcf.gz"`` in their ``variation_files``.
+        4. Sort the candidates by their parsed date tuple, newest first.
+           Date keys that cannot be parsed are treated as oldest.
+        5. Return ``(relative_path, date_key)`` for the newest usable
+           candidate, or ``None`` if none found.
+
+        The returned path is the *exact* value from the manifest (relative,
+        no leading slash).  Callers must prepend :data:`EBI_FTP_BASE` and
+        derive the containing directory via :func:`posixpath.dirname`.
+
+        Args:
+            accession: INSDC accession string.
+            provider:  Optional provider hint (e.g. ``"ensembl"``).
+
+        Returns:
+            ``(relative_vcf_path, date_key)`` or ``None``.
+        """
+        record = self._index.get(accession)
+        if record is None:
+            return None
+
+        # Select provider using same priority rules as _resolve_provider.
+        providers = record.providers
+        if not providers:
+            return None
+
+        selected_provider: str | None = None
+        if provider:
+            prov_lower = provider.lower()
+            if prov_lower in providers:
+                selected_provider = prov_lower
+        if selected_provider is None:
+            if len(providers) == 1:
+                selected_provider = next(iter(providers))
+            elif "ensembl" in providers:
+                selected_provider = "ensembl"
+            else:
+                # Ambiguous — no deterministic selection possible
+                return None
+
+        provider_dates = providers[selected_provider]
+
+        # Collect (parsed_date_tuple, date_key, vcf_path) for usable candidates.
+        candidates: list[tuple[tuple[int, ...], str, str]] = []
+        for date_key, pdr in provider_dates.items():
+            vcf_path = pdr.variation_files.get("variation.vcf.gz")
+            if not vcf_path:
+                continue
+            parsed = _parse_manifest_date(date_key)
+            # Unparseable dates sort as (0,) — effectively oldest
+            sort_key = parsed if parsed is not None else (0,)
+            candidates.append((sort_key, date_key, vcf_path))
+
+        if not candidates:
+            return None
+
+        # Sort newest first; use date_key as secondary sort for stability.
+        candidates.sort(key=lambda x: (x[0], x[1]), reverse=True)
+        _sort_key, best_date_key, best_path = candidates[0]
+        return best_path, best_date_key
+
     def __len__(self) -> int:
         return len(self._index)

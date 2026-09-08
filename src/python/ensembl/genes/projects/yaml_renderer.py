@@ -3,6 +3,7 @@ Converts internal GenomeMetadata objects into specific project YAML schemas.
 """
 
 import logging
+import posixpath
 import re
 from typing import Any, Dict, List, Optional
 
@@ -69,7 +70,7 @@ class YamlRenderer:  # pylint: disable=too-few-public-methods
         Resolution order:
 
         A. New manifest — reserved for a future ``vep`` section in
-           ``species.new_ftp_structure.json``.  Currently that manifest does
+           ``species.json``.  Currently that manifest does
            not expose VEP paths so this step is a no-op placeholder.
 
         B. Legacy manifest (``species.json``) — used when
@@ -176,6 +177,85 @@ class YamlRenderer:  # pylint: disable=too-few-public-methods
 
         return vep_directory_url, "available_legacy_manifest"
 
+    def _resolve_variation_vcf_url(  # pylint: disable=too-many-return-statements
+        self,
+        meta: GenomeMetadata,
+        ftp_assets: Dict[str, Any],
+    ) -> tuple[str | None, str, str]:
+        """Resolve a variation VCF directory URL from the new FTP manifest.
+
+        This method is entirely independent of VEP resolution.  A genome may
+        have one, both, or neither of ``variants_vep`` and ``variation_vcf``.
+
+        Resolution steps:
+
+        1. If ``config.include_variation_vcf`` is ``False`` → ``not_applicable``.
+        2. If ``manifest`` is ``None`` → ``manifest_unavailable``.
+        3. If accession is not in manifest → ``not_in_manifest``.
+        4. If no ``variation.vcf.gz`` exists for any date → ``no_vcf``.
+        5. Take the *exact* relative path from the manifest, derive the
+           containing directory via :func:`posixpath.dirname` (preserves any
+           duplicated path components verbatim).
+        6. Construct the full URL using :data:`EBI_FTP_BASE`.
+        7. Validate with :func:`~ftp_client.check_url_status`.
+           If it fails → ``url_unavailable``.
+        8. Return the directory URL → ``available``.
+
+        Args:
+            meta: Genome metadata for the current record.
+            ftp_assets: The dict returned by ``_resolve_ftp_assets()``;
+                used to extract the resolved provider.
+
+        Returns:
+            ``(url_or_none, audit_status, date_key)`` where *audit_status*
+            is one of ``available``, ``not_applicable``, ``manifest_unavailable``,
+            ``not_in_manifest``, ``no_vcf``, or ``url_unavailable``, and
+            *date_key* is the selected manifest date or ``""``.
+        """
+        if not self.config.include_variation_vcf:
+            return None, "not_applicable", ""
+
+        if self.manifest is None:
+            return None, "manifest_unavailable", ""
+
+        resolved_provider = ftp_assets.get("resolved_provider")
+        result = self.manifest.lookup_variation_vcf(
+            meta.accession, provider=resolved_provider
+        )
+
+        if result is None:
+            # Distinguish: accession missing entirely vs. no VCF for the accession
+            if self.manifest.lookup(meta.accession) is None:
+                return None, "not_in_manifest", ""
+            return None, "no_vcf", ""
+
+        vcf_rel_path, date_key = result
+
+        # Derive the containing directory from the exact manifest path.
+        # posixpath.dirname preserves all path components verbatim, including
+        # any duplicated date segments (e.g. .../2025_12_15/2025_12_15/).
+        parent = posixpath.dirname(vcf_rel_path.rstrip("/"))
+        if not parent:
+            logger.warning(
+                "Cannot derive variation VCF directory from manifest path %r for %s.",
+                vcf_rel_path,
+                meta.accession,
+            )
+            return None, "no_vcf", date_key
+
+        vcf_dir_rel = f"{parent}/"
+        vcf_dir_url = f"{EBI_FTP_BASE.rstrip('/')}/{vcf_dir_rel.lstrip('/')}"
+
+        if not check_url_status(vcf_dir_url):
+            logger.info(
+                "Variation VCF directory for %s is not reachable: %s",
+                meta.accession,
+                vcf_dir_url,
+            )
+            return None, "url_unavailable", date_key
+
+        return vcf_dir_url, "available", date_key
+
     def _check_beta_status(self, genome_uuid: str) -> str:
         """Cached wrapper around ``check_beta_species_status``."""
         if genome_uuid in self._beta_status_cache:
@@ -203,7 +283,7 @@ class YamlRenderer:  # pylint: disable=too-few-public-methods
         status = self._check_beta_status(meta.genome_uuid)
         if status == "available":
             return (
-                f"https://ensembl.org/species/{meta.genome_uuid}",
+                f"https://www.ensembl.org/species/{meta.genome_uuid}",
                 "available",
             )
         # "unavailable" or "error" — do not emit a possibly-broken link.
@@ -466,7 +546,10 @@ class YamlRenderer:  # pylint: disable=too-few-public-methods
                             try:
                                 acc_path = accession_to_ftp_path(meta.accession)
                             except ValueError as exc:
-                                audit_reason = f"Could not compute FTP path for {meta.accession}: {exc}"
+                                audit_reason = (
+                                    f"Could not compute FTP path for "
+                                    f"{meta.accession}: {exc}"
+                                )
                             else:
                                 resolved_annotation_files = {
                                     fname: EBI_FTP_BASE + rel_path
@@ -482,7 +565,9 @@ class YamlRenderer:  # pylint: disable=too-few-public-methods
                                 }
                                 resolved_genome_files = {
                                     fname: EBI_FTP_BASE + rel_path
-                                    for fname, rel_path in manifest_record.assembly_genome_files.items()
+                                    for fname, rel_path in (
+                                        manifest_record.assembly_genome_files.items()
+                                    )
                                 }
 
                                 audit_decision = "included_released"
@@ -732,7 +817,9 @@ class YamlRenderer:  # pylint: disable=too-few-public-methods
 
         return {k: v for k, v in doc.items() if v is not None}
 
-    def _render_hprc(self, meta: GenomeMetadata) -> Dict[str, Any]:
+    def _render_hprc(  # pylint: disable=too-many-locals,too-many-branches,too-many-statements
+        self, meta: GenomeMetadata
+    ) -> Dict[str, Any]:
         """Renders Schema B: HPRC"""
         doc: Dict[str, Any] = {}
 
@@ -783,12 +870,23 @@ class YamlRenderer:  # pylint: disable=too-few-public-methods
             for k, v in pre_urls.items():
                 doc[k] = v
 
-        # VEP resolution: try the new manifest first (no VEP section yet),
-        # then fall back to the legacy species.json manifest for HPRC.
+        # VEP resolution (variants_vep): looks for genes.gff3.bgz in the
+        # legacy-style VEP section of the manifest.  Independent of variation_vcf.
         vep_url, vep_status = self._resolve_vep_url(meta, ftp_resolution)
         if vep_url:
             doc["variants_vep"] = vep_url
         doc["__audit_vep_status__"] = vep_status
+
+        # Variation VCF resolution (variation_vcf): looks for variation.vcf.gz
+        # in the new accession-based manifest.  Entirely independent of VEP.
+        # A genome may have one, both, or neither field.
+        vcf_url, vcf_status, vcf_date = self._resolve_variation_vcf_url(
+            meta, ftp_resolution
+        )
+        if vcf_url:
+            doc["variation_vcf"] = vcf_url
+        doc["__audit_variation_status__"] = vcf_status
+        doc["__audit_variation_date__"] = vcf_date
 
         acc_path = ftp_resolution.get("acc_ftp_path")
         if target_released and acc_path:
@@ -805,7 +903,9 @@ class YamlRenderer:  # pylint: disable=too-few-public-methods
 
         return {k: v for k, v in doc.items() if v is not None}
 
-    def _render_mouse(self, meta: GenomeMetadata) -> Dict[str, Any]:
+    def _render_mouse(  # pylint: disable=too-many-branches
+        self, meta: GenomeMetadata
+    ) -> Dict[str, Any]:
         """Renders Schema C: Mouse Genomes"""
         doc: Dict[str, Any] = {}
 

@@ -427,7 +427,7 @@ def check_beta_species_status(genome_uuid: str) -> str:
     """
     if not genome_uuid or genome_uuid == "unknown":
         return "error"
-    url = f"https://ensembl.org/species/{genome_uuid}"
+    url = f"https://www.ensembl.org/species/{genome_uuid}"
     try:
         response = requests.get(url, allow_redirects=True, timeout=10)
         # Non-200 responses are treated as unavailable (page not served).

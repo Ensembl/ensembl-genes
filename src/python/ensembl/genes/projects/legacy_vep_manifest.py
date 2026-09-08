@@ -1,22 +1,22 @@
 """
 Legacy VEP manifest reader for the old Ensembl organisms FTP structure.
 
-The legacy manifest at:
+This module looks for VEP annotation file paths in the Ensembl organisms
+manifest at:
 
     https://ftp.ebi.ac.uk/pub/ensemblorganisms/species.json
 
-uses species-name-based directory paths and is no longer the primary source of
-data.  This module reads it **only** to resolve VEP annotation file paths for
-projects (currently only HPRC) where the new accession-based manifest
-(``species.new_ftp_structure.json``) does not yet include VEP entries.
+That URL is now the *new* accession-based manifest.  As of 2026-09, the
+manifest no longer carries a ``paths.genebuild.files.vep`` section, so
+VEP lookups return no results.  The code is kept as a clean extension
+point: if/when Ensembl re-introduces ``vep`` entries into the manifest,
+lookups will succeed automatically without any code changes.
 
-All other FTP data — genesets, genome sequences, homology, variation — continues
-to be resolved exclusively from ``EnsemblFtpManifest``.
-
-The ``species.json`` manifest stores paths to individual VEP files
-(e.g. ``genes.gff3.bgz``).  The project page links to the *directory* that
-contains those files, not to the file itself.  The directory is derived from
-the primary VEP file path via :attr:`LegacyVepRecord.directory_path`.
+For VEP lookups that do find data, the manifest stores paths to individual
+VEP files (e.g. ``genes.gff3.bgz``).  The project page links to the
+*directory* that contains those files, not to the file itself.  The
+directory is derived from the primary VEP file path via
+:attr:`LegacyVepRecord.directory_path`.
 
 Usage::
 

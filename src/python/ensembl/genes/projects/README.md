@@ -69,7 +69,7 @@ The script generates two main outputs:
 
 A genome is only included in the final YAML if it has valid FTP assets. A GUUID alone is not enough.
 
-- **Accession-Based FTP Structure**: Released genesets, genome sequences, homologies, and variant files are resolved via the authoritative manifest `species.new_ftp_structure.json`. The layout uses GCA/GCF accession triplets (e.g. `GCA/922/984/935/2/`). Manifest paths are used verbatim.
+- **Accession-Based FTP Structure**: Released genesets, genome sequences, homologies, and variant files are resolved via the authoritative manifest `species.json`. The layout uses GCA/GCF accession triplets (e.g. `GCA/922/984/935/2/`). Manifest paths are used verbatim.
 - **Legacy VEP Fallback (HPRC only)**: Where VEP annotation directories are not yet present in the new accession-based manifest, HPRC project pages temporarily fall back to the legacy `species.json` manifest (`use_legacy_vep_fallback: True` in `config.py`).
   - `variants_vep` links to the containing dated VEP directory (e.g. `https://ftp.ebi.ac.uk/pub/ensemblorganisms/Homo_sapiens/GCA_009914755.4/vep/ensembl/geneset/2022_07/`), not directly to `genes.gff3.bgz`.
   - The legacy VEP directory URL is checked via HTTP before emission.
@@ -134,7 +134,7 @@ The pipeline automatically identifies alternate haplotype pairs among assemblies
 
 Only assemblies that are *both present* in the generated dataset are linked. No external URLs are invented. If an assembly already has an `alternate` field from the metadata DB, it is preserved.
 
-The output field is `alternate: https://ensembl.org/species/<alternate_genome_uuid>`. The alternate accession is resolved to its genome UUID (from the in-run cache first, then a batch metadata-DB lookup). If no genome UUID can be found for the alternate assembly, the `alternate` field is **omitted entirely** rather than emitting a raw accession or a broken link.
+The output field is `alternate: https://www.ensembl.org/species/<alternate_genome_uuid>`. The alternate accession is resolved to its genome UUID (from the in-run cache first, then a batch metadata-DB lookup). If no genome UUID can be found for the alternate assembly, the `alternate` field is **omitted entirely** rather than emitting a raw accession or a broken link.
 
 ## Beta Link Validation
 
@@ -144,7 +144,7 @@ To avoid emitting broken `beta_link` values, the renderer validates each release
 
 - The page body is fetched and inspected — a status-code check alone is insufficient because the error page returns HTTP 200.
 - A page is treated as **unavailable** if the status is non-200, or the body contains `"We do not recognise the species identified"` or `"Find available species in the Species selector"`.
-- Only a confirmed-usable page yields a real `beta_link: https://ensembl.org/species/<uuid>`.
+- Only a confirmed-usable page yields a real `beta_link: https://www.ensembl.org/species/<uuid>`.
 - Otherwise `beta_link: Coming soon!` is emitted. **The genome is never excluded** for this reason — FTP links and all other fields are unchanged.
 - Pre-release genomes skip the check and emit `Coming soon!` directly (no wasted network call).
 - Availability is cached per genome UUID for the duration of a run.
