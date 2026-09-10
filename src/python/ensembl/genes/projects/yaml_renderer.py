@@ -60,7 +60,7 @@ class YamlRenderer:  # pylint: disable=too-few-public-methods
         # Per-run cache for FTP species name resolution.
         self._ftp_species_cache: Dict[str, str] = {}
 
-    def _resolve_vep_url(
+    def _resolve_vep_url(  # pylint: disable=too-many-return-statements
         self,
         meta: GenomeMetadata,
         ftp_assets: Dict[str, Any],
@@ -69,22 +69,26 @@ class YamlRenderer:  # pylint: disable=too-few-public-methods
 
         Resolution order:
 
-        A. New manifest — reserved for a future ``vep`` section in
-           ``species.json``.  Currently that manifest does
-           not expose VEP paths so this step is a no-op placeholder.
-
-        B. Legacy manifest (``species.json``) — used when
-           ``config.use_legacy_vep_fallback`` is True and the legacy manifest
-           was successfully loaded.
+        A. Authoritative manifest (``LegacyVepManifest``) — used when
+           ``config.use_legacy_vep_fallback`` is True and a populated legacy
+           manifest was successfully loaded.
 
            The lookup uses the exact assembly accession.  Provider and
            annotation date are used as tie-breakers when multiple records
            exist for the same accession.
 
-           If the resolved path is a relative path it is joined with
-           :data:`~legacy_vep_manifest.EBI_FTP_BASE`.  The resulting URL is
-           validated via :func:`~ftp_client.check_url_status` before it is
-           emitted.
+           The actual ``genes.gff3.bgz`` FILE URL is validated via
+           :func:`~ftp_client.check_url_status` before the containing
+           directory is emitted.
+
+        B. Tightly constrained legacy-path probe — used when no machine-readable
+           VEP index is available, for HPRC genomes where the legacy FTP hierarchy
+           is demonstrably deterministic:
+           ``Homo_sapiens/{accession}/vep/{provider}/geneset/{annotation_date}/genes.gff3.bgz``
+           Every path component comes from authoritative metadata already held
+           by the generator.
+           Validates the actual ``genes.gff3.bgz`` FILE URL before emitting the
+           containing directory.
 
         C. No result — ``variants_vep`` is omitted.
 
@@ -96,86 +100,89 @@ class YamlRenderer:  # pylint: disable=too-few-public-methods
         Returns:
             ``(url_or_none, audit_status)`` where *audit_status* is one of:
 
-            * ``available_new_manifest`` — not currently reachable
-            * ``available_legacy_manifest`` — directory URL from ``species.json``, validated
-            * ``not_found`` — neither manifest contained a VEP path
-            * ``legacy_manifest_unavailable`` — fallback enabled but manifest absent
-            * ``legacy_url_unavailable`` — legacy directory found but URL check failed
+            * ``available_legacy_manifest`` — validated VEP directory URL
+            * ``not_found`` — manifest searched and accession has no VEP data
+            * ``legacy_manifest_unavailable`` — manifest/probe unavailable or probe failed
+            * ``legacy_url_unavailable`` — manifest record found but file URL check failed
             * ``ambiguous_legacy_record`` — multiple unresolvable VEP records
             * ``not_applicable`` — VEP fallback disabled for this project
-
-        The emitted URL points to the dated release *directory* (e.g.
-        ``.../vep/ensembl/geneset/2022_07/``), not to the
-        ``genes.gff3.bgz`` file directly.
         """
-        # Step A: new accession-based manifest.
-        # The current new manifest schema has no VEP section; reserved for
-        # when it is added in the future.  Do not speculate.
-        # (If a "vep" key appears in ftp_assets in the future, handle it here.)
-
-        # VEP fallback disabled for this project.
         if not self.config.use_legacy_vep_fallback:
             return None, "not_applicable"
-
-        # Step B: legacy manifest.
-        if self.legacy_vep_manifest is None:
-            return None, "legacy_manifest_unavailable"
 
         resolved_provider = ftp_assets.get("resolved_provider")
         resolved_date = ftp_assets.get("resolved_date")
 
-        # Check for ambiguity before attempting resolution.
-        if self.legacy_vep_manifest.is_ambiguous(
-            meta.accession,
-            provider=resolved_provider,
-            annotation_date=resolved_date,
-        ):
-            providers_dates = [
-                f"{p}/{d}"
-                for p, d in self.legacy_vep_manifest.candidate_provider_dates(
-                    meta.accession
+        # Step A: Authoritative manifest record if available and populated
+        if self.legacy_vep_manifest is not None and len(self.legacy_vep_manifest) > 0:
+            if self.legacy_vep_manifest.is_ambiguous(
+                meta.accession,
+                provider=resolved_provider,
+                annotation_date=resolved_date,
+            ):
+                providers_dates = [
+                    f"{p}/{d}"
+                    for p, d in self.legacy_vep_manifest.candidate_provider_dates(
+                        meta.accession
+                    )
+                ]
+                logger.info(
+                    "Ambiguous legacy VEP records for %s: %s. No VEP URL emitted.",
+                    meta.accession,
+                    providers_dates,
                 )
-            ]
-            logger.info(
-                "Ambiguous legacy VEP records for %s: %s. No VEP URL emitted.",
+                return None, "ambiguous_legacy_record"
+
+            legacy_record = self.legacy_vep_manifest.lookup_vep(
                 meta.accession,
-                providers_dates,
+                provider=resolved_provider,
+                annotation_date=resolved_date,
             )
-            return None, "ambiguous_legacy_record"
 
-        legacy_record = self.legacy_vep_manifest.lookup_vep(
-            meta.accession,
-            provider=resolved_provider,
-            annotation_date=resolved_date,
-        )
+            if legacy_record is None:
+                return None, "not_found"
 
-        if legacy_record is None:
-            return None, "not_found"
+            # Validate the actual genes.gff3.bgz FILE URL before emitting.
+            vep_file_url = _manifest_url(
+                LegacyVepManifest.EBI_FTP_BASE, legacy_record.vep_relative_path
+            )
+            if not check_url_status(vep_file_url):
+                logger.info(
+                    "Legacy VEP file for %s is not reachable: %s",
+                    meta.accession,
+                    vep_file_url,
+                )
+                return None, "legacy_url_unavailable"
 
-        # Derive the dated release directory from the primary VEP file path.
-        # The manifest stores a direct file path (genes.gff3.bgz); the project
-        # page links to the containing directory so users can browse or download
-        # any of the VEP files (the .csi companion index is also present there).
-        vep_dir_path = legacy_record.directory_path
-        if vep_dir_path.startswith(("http://", "https://")):
-            # Guard for future schema changes where the manifest might supply
-            # a full URL rather than a relative path.
-            vep_directory_url = vep_dir_path
-        else:
             vep_directory_url = _manifest_url(
-                LegacyVepManifest.EBI_FTP_BASE, vep_dir_path
+                LegacyVepManifest.EBI_FTP_BASE, legacy_record.directory_path
             )
+            return vep_directory_url, "available_legacy_manifest"
 
-        # Validate the directory URL before emitting.
-        if not check_url_status(vep_directory_url):
+        # Step B: Tightly constrained legacy-path probe for HPRC
+        # Only used when no authoritative manifest index is available.
+        provider = resolved_provider or "ensembl"
+        date = resolved_date or (
+            meta.annotation_date.replace("-", "_") if meta.annotation_date else None
+        )
+        if not date or not meta.accession:
+            return None, "legacy_manifest_unavailable"
+
+        species_dir = "Homo_sapiens"
+        vep_dir_rel = f"{species_dir}/{meta.accession}/vep/{provider}/geneset/{date}/"
+        vep_rel_file = f"{vep_dir_rel}genes.gff3.bgz"
+        vep_file_url = _manifest_url(EBI_FTP_BASE, vep_rel_file)
+
+        if not check_url_status(vep_file_url):
             logger.info(
-                "Legacy VEP directory for %s is not reachable: %s",
+                "Probed legacy VEP file for %s is not reachable: %s",
                 meta.accession,
-                vep_directory_url,
+                vep_file_url,
             )
-            return None, "legacy_url_unavailable"
+            return None, "legacy_manifest_unavailable"
 
-        return vep_directory_url, "available_legacy_manifest"
+        vep_dir_url = _manifest_url(EBI_FTP_BASE, vep_dir_rel)
+        return vep_dir_url, "available_legacy_manifest"
 
     def _resolve_variation_vcf_url(  # pylint: disable=too-many-return-statements
         self,
@@ -193,13 +200,16 @@ class YamlRenderer:  # pylint: disable=too-few-public-methods
         2. If ``manifest`` is ``None`` → ``manifest_unavailable``.
         3. If accession is not in manifest → ``not_in_manifest``.
         4. If no ``variation.vcf.gz`` exists for any date → ``no_vcf``.
-        5. Take the *exact* relative path from the manifest, derive the
-           containing directory via :func:`posixpath.dirname` (preserves any
-           duplicated path components verbatim).
-        6. Construct the full URL using :data:`EBI_FTP_BASE`.
-        7. Validate with :func:`~ftp_client.check_url_status`.
-           If it fails → ``url_unavailable``.
-        8. Return the directory URL → ``available``.
+        5. Enumerate candidates sorted newest variation release date first.
+        6. Validate each candidate's actual ``variation.vcf.gz`` FILE URL
+           via :func:`~ftp_client.check_url_status`.
+        7. If valid:
+           - Derive containing directory from the exact manifest path via
+             :func:`posixpath.dirname` (preserves duplicated dates verbatim).
+           - Construct full URL using :data:`EBI_FTP_BASE`.
+           - Return ``(vcf_dir_url, "available", variation_date)``.
+        8. If validation fails, try the next candidate.
+        9. If all candidates fail → ``url_unavailable``.
 
         Args:
             meta: Genome metadata for the current record.
@@ -210,7 +220,7 @@ class YamlRenderer:  # pylint: disable=too-few-public-methods
             ``(url_or_none, audit_status, date_key)`` where *audit_status*
             is one of ``available``, ``not_applicable``, ``manifest_unavailable``,
             ``not_in_manifest``, ``no_vcf``, or ``url_unavailable``, and
-            *date_key* is the selected manifest date or ``""``.
+            *date_key* is the selected variation release date or ``""``.
         """
         if not self.config.include_variation_vcf:
             return None, "not_applicable", ""
@@ -218,43 +228,43 @@ class YamlRenderer:  # pylint: disable=too-few-public-methods
         if self.manifest is None:
             return None, "manifest_unavailable", ""
 
+        if self.manifest.lookup(meta.accession) is None:
+            return None, "not_in_manifest", ""
+
         resolved_provider = ftp_assets.get("resolved_provider")
-        result = self.manifest.lookup_variation_vcf(
+        candidates = self.manifest.candidate_variation_vcfs(
             meta.accession, provider=resolved_provider
         )
 
-        if result is None:
-            # Distinguish: accession missing entirely vs. no VCF for the accession
-            if self.manifest.lookup(meta.accession) is None:
-                return None, "not_in_manifest", ""
+        if not candidates:
             return None, "no_vcf", ""
 
-        vcf_rel_path, date_key = result
+        latest_date = candidates[0].variation_date
+        for cand in candidates:
+            vcf_rel_path = cand.rel_path
+            vcf_file_url = _manifest_url(EBI_FTP_BASE, vcf_rel_path)
 
-        # Derive the containing directory from the exact manifest path.
-        # posixpath.dirname preserves all path components verbatim, including
-        # any duplicated date segments (e.g. .../2025_12_15/2025_12_15/).
-        parent = posixpath.dirname(vcf_rel_path.rstrip("/"))
-        if not parent:
-            logger.warning(
-                "Cannot derive variation VCF directory from manifest path %r for %s.",
-                vcf_rel_path,
-                meta.accession,
-            )
-            return None, "no_vcf", date_key
+            if not check_url_status(vcf_file_url):
+                logger.info(
+                    "Variation VCF file for %s is not reachable: %s",
+                    meta.accession,
+                    vcf_file_url,
+                )
+                continue
 
-        vcf_dir_rel = f"{parent}/"
-        vcf_dir_url = f"{EBI_FTP_BASE.rstrip('/')}/{vcf_dir_rel.lstrip('/')}"
+            parent = posixpath.dirname(vcf_rel_path.rstrip("/"))
+            if not parent:
+                logger.warning(
+                    "Cannot derive variation VCF directory from manifest path %r for %s.",
+                    vcf_rel_path,
+                    meta.accession,
+                )
+                continue
 
-        if not check_url_status(vcf_dir_url):
-            logger.info(
-                "Variation VCF directory for %s is not reachable: %s",
-                meta.accession,
-                vcf_dir_url,
-            )
-            return None, "url_unavailable", date_key
+            vcf_dir_url = _manifest_url(EBI_FTP_BASE, f"{parent}/")
+            return vcf_dir_url, "available", cand.variation_date
 
-        return vcf_dir_url, "available", date_key
+        return None, "url_unavailable", latest_date
 
     def _check_beta_status(self, genome_uuid: str) -> str:
         """Cached wrapper around ``check_beta_species_status``."""
@@ -466,7 +476,7 @@ class YamlRenderer:  # pylint: disable=too-few-public-methods
     # FTP asset resolution
     # ------------------------------------------------------------------
 
-    def _resolve_ftp_assets(  # pylint: disable=too-many-locals,too-many-branches,too-many-statements
+    def _resolve_ftp_assets(  # pylint: disable=too-many-locals,too-many-branches,too-many-statements,too-many-nested-blocks
         self, meta: GenomeMetadata
     ) -> Dict[str, Any]:
         """Resolve FTP file URLs for one genome.

@@ -246,7 +246,13 @@ class LegacyVepManifest:
                 f"Legacy VEP manifest response is not valid JSON: {exc}"
             ) from exc
 
-        return cls(data)
+        manifest = cls(data)
+        if len(manifest) == 0:
+            raise LegacyVepManifestError(
+                f"Legacy VEP manifest from {cls.MANIFEST_URL} contains no VEP records "
+                "(schema no longer available)."
+            )
+        return manifest
 
     # ------------------------------------------------------------------
     # Index building

@@ -35,9 +35,7 @@ logger = logging.getLogger(__name__)
 # Constants
 # ---------------------------------------------------------------------------
 
-MANIFEST_URL = (
-    "https://ftp.ebi.ac.uk/pub/ensemblorganisms/species.json"
-)
+MANIFEST_URL = "https://ftp.ebi.ac.uk/pub/ensemblorganisms/species.json"
 EBI_FTP_BASE = "https://ftp.ebi.ac.uk/pub/ensemblorganisms/"
 
 # ---------------------------------------------------------------------------
@@ -73,6 +71,27 @@ class ProviderDateRecord:
     annotation_files: dict[str, str] = field(default_factory=dict)
     homology_files: dict[str, str] = field(default_factory=dict)
     variation_files: dict[str, str] = field(default_factory=dict)
+
+
+@dataclass
+class VariationRecord:
+    """One candidate variation VCF release for an assembly.
+
+    ``rel_path`` is the exact relative FTP path from the manifest
+    (e.g. ``"GCA/018/469/665/2/ensembl/2025_08/variation/2025_12_15/variation.vcf.gz"``).
+
+    ``variation_date`` is the variation release date string extracted from
+    the path (e.g. ``"2025_12_15"``).
+
+    ``parsed_date`` is the comparable integer tuple for sorting (e.g. ``(2025, 12, 15)``).
+
+    ``genebuild_date`` is the containing genebuild/annotation date key (e.g. ``"2025_08"``).
+    """
+
+    rel_path: str
+    variation_date: str
+    parsed_date: tuple[int, ...]
+    genebuild_date: str
 
 
 @dataclass
@@ -129,6 +148,32 @@ def _parse_manifest_date(date_str: str) -> tuple[int, ...] | None:
             return None
         return (year, month, day)
     return (year, month)
+
+
+_VARIATION_DATE_RE = re.compile(r"/variation/(\d{4}[_\-]\d{2}(?:[_\-]\d{2})?)")
+
+
+def extract_variation_date_from_path(rel_path: str) -> str:
+    """Extract the variation release date string from a variation file path.
+
+    The variation release date lives inside the path after ``/variation/``, e.g.::
+
+        extract_variation_date_from_path(
+            "GCA/018/469/665/2/ensembl/2025_08/variation/2025_12_15/variation.vcf.gz"
+        )
+        # -> "2025_12_15"
+
+        extract_variation_date_from_path(
+            "GCA/018/506/975/2/ensembl/2025_08/variation/2025_12_15/2025_12_15/variation.vcf.gz"
+        )
+        # -> "2025_12_15"
+
+    Returns an empty string if no standard date segment follows ``/variation/``.
+    """
+    m = _VARIATION_DATE_RE.search(rel_path)
+    if m:
+        return m.group(1)
+    return ""
 
 
 # ---------------------------------------------------------------------------
@@ -318,46 +363,30 @@ class EnsemblFtpManifest:
         """
         return self._index.get(accession)
 
-    def lookup_variation_vcf(  # pylint: disable=too-many-locals
+    def candidate_variation_vcfs(  # pylint: disable=too-many-locals
         self,
         accession: str,
         *,
         provider: str | None = None,
-    ) -> tuple[str, str] | None:
-        """Return the manifest-provided path and date_key for the newest usable
-        variation VCF for *accession*.
+    ) -> list[VariationRecord]:
+        """Return all usable variation VCF candidate records for *accession*,
+        sorted newest variation release date first.
 
         Resolution rules:
-
-        1. Look up the accession.  Return ``None`` if absent.
-        2. Select the provider using the same priority as the main manifest
-           (exact match → single provider → ``"ensembl"`` preference).
-        3. Collect all date records for that provider that contain
-           ``"variation.vcf.gz"`` in their ``variation_files``.
-        4. Sort the candidates by their parsed date tuple, newest first.
-           Date keys that cannot be parsed are treated as oldest.
-        5. Return ``(relative_path, date_key)`` for the newest usable
-           candidate, or ``None`` if none found.
-
-        The returned path is the *exact* value from the manifest (relative,
-        no leading slash).  Callers must prepend :data:`EBI_FTP_BASE` and
-        derive the containing directory via :func:`posixpath.dirname`.
-
-        Args:
-            accession: INSDC accession string.
-            provider:  Optional provider hint (e.g. ``"ensembl"``).
-
-        Returns:
-            ``(relative_vcf_path, date_key)`` or ``None``.
+        1. Look up accession. Return empty list if absent.
+        2. Select provider using standard priority (exact match -> single provider -> 'ensembl').
+        3. Enumerate all date records for that provider.
+        4. For records with 'variation.vcf.gz', extract the variation release date from the path.
+        5. Parse the date into a comparable tuple for sorting.
+        6. Sort candidates by parsed variation date (newest first), with deterministic tie-breaking.
         """
         record = self._index.get(accession)
         if record is None:
-            return None
+            return []
 
-        # Select provider using same priority rules as _resolve_provider.
         providers = record.providers
         if not providers:
-            return None
+            return []
 
         selected_provider: str | None = None
         if provider:
@@ -370,29 +399,66 @@ class EnsemblFtpManifest:
             elif "ensembl" in providers:
                 selected_provider = "ensembl"
             else:
-                # Ambiguous — no deterministic selection possible
-                return None
+                return []
 
         provider_dates = providers[selected_provider]
-
-        # Collect (parsed_date_tuple, date_key, vcf_path) for usable candidates.
-        candidates: list[tuple[tuple[int, ...], str, str]] = []
-        for date_key, pdr in provider_dates.items():
+        candidates: list[VariationRecord] = []
+        for gb_date_key, pdr in provider_dates.items():
             vcf_path = pdr.variation_files.get("variation.vcf.gz")
             if not vcf_path:
                 continue
-            parsed = _parse_manifest_date(date_key)
-            # Unparseable dates sort as (0,) — effectively oldest
+            var_date = extract_variation_date_from_path(vcf_path)
+            parsed = _parse_manifest_date(var_date) if var_date else None
+            if parsed is None:
+                # Fall back to genebuild date if variation date could not be parsed
+                parsed = _parse_manifest_date(gb_date_key)
             sort_key = parsed if parsed is not None else (0,)
-            candidates.append((sort_key, date_key, vcf_path))
+            candidates.append(
+                VariationRecord(
+                    rel_path=vcf_path,
+                    variation_date=var_date or gb_date_key,
+                    parsed_date=sort_key,
+                    genebuild_date=gb_date_key,
+                )
+            )
 
+        # Sort newest variation release first; tie-break deterministically
+        candidates.sort(
+            key=lambda c: (
+                c.parsed_date,
+                c.variation_date,
+                c.genebuild_date,
+                c.rel_path,
+            ),
+            reverse=True,
+        )
+        return candidates
+
+    def lookup_variation_vcf(
+        self,
+        accession: str,
+        *,
+        provider: str | None = None,
+    ) -> tuple[str, str] | None:
+        """Return the manifest-provided relative path and variation release date
+        for the newest usable variation VCF for *accession*, or None.
+
+        The returned path is the *exact* value from the manifest (relative,
+        no leading slash).  Callers must prepend :data:`EBI_FTP_BASE` and
+        derive the containing directory via :func:`posixpath.dirname`.
+
+        Args:
+            accession: INSDC accession string.
+            provider:  Optional provider hint (e.g. ``"ensembl"``).
+
+        Returns:
+            ``(relative_vcf_path, variation_date)`` or ``None``.
+        """
+        candidates = self.candidate_variation_vcfs(accession, provider=provider)
         if not candidates:
             return None
-
-        # Sort newest first; use date_key as secondary sort for stability.
-        candidates.sort(key=lambda x: (x[0], x[1]), reverse=True)
-        _sort_key, best_date_key, best_path = candidates[0]
-        return best_path, best_date_key
+        best = candidates[0]
+        return best.rel_path, best.variation_date
 
     def __len__(self) -> int:
         return len(self._index)

@@ -106,13 +106,17 @@ class TestVepResolutionOrder:
         assert _url is None
 
     def test_vep_legacy_manifest_unavailable_when_not_loaded(self):
-        """HPRC config, but no legacy manifest loaded → legacy_manifest_unavailable."""
+        """HPRC config, no legacy manifest loaded, probe fails → legacy_manifest_unavailable."""
         config = get_project_config("hprc")
         renderer = YamlRenderer(config, legacy_vep_manifest=None)
         meta = _make_hprc_meta()
         ftp_assets = {"resolved_provider": "ensembl", "resolved_date": "2022_07"}
 
-        _url, status = renderer._resolve_vep_url(meta, ftp_assets)
+        with patch(
+            "ensembl.genes.projects.yaml_renderer.check_url_status",
+            return_value=False,
+        ):
+            _url, status = renderer._resolve_vep_url(meta, ftp_assets)
         assert status == "legacy_manifest_unavailable"
         assert _url is None
 
@@ -236,9 +240,8 @@ class TestVepResolutionOrder:
         assert status == "ambiguous_legacy_record"
         assert vep_url is None
 
-    def test_directory_url_passed_to_check_url_status(self):
-        """check_url_status must receive the directory URL (trailing /), not the
-        genes.gff3.bgz file URL."""
+    def test_file_url_passed_to_check_url_status(self):
+        """check_url_status must receive the genes.gff3.bgz file URL, not the directory URL."""
         config = get_project_config("hprc")
         legacy = LegacyVepManifest(_LEGACY_MANIFEST_DATA)
         renderer = YamlRenderer(config, legacy_vep_manifest=legacy)
@@ -260,11 +263,8 @@ class TestVepResolutionOrder:
         assert len(captured_urls) == 1
         checked = captured_urls[0]
         assert checked.endswith(
-            "/"
-        ), f"check_url_status received a non-directory URL: {checked!r}"
-        assert (
-            "genes.gff3.bgz" not in checked
-        ), f"check_url_status received a file URL instead of a directory: {checked!r}"
+            "genes.gff3.bgz"
+        ), f"check_url_status received a non-file URL: {checked!r}"
         assert "2022_07" in checked
 
 
@@ -362,7 +362,30 @@ class TestHprcRendererOutput:
         assert doc["__audit_vep_status__"] == "legacy_url_unavailable"
 
     def test_variants_vep_absent_when_legacy_manifest_none(self):
-        """Full render: no legacy manifest → variants_vep absent."""
+        """Full render: no legacy manifest and probe fails → variants_vep absent."""
+        renderer = _make_hprc_renderer(legacy_manifest_data=None)
+        meta = _make_hprc_meta()
+
+        with (
+            patch.object(
+                renderer, "_resolve_ftp_assets", return_value=_HPRC_FTP_RESOLUTION
+            ),
+            patch(
+                "ensembl.genes.projects.yaml_renderer.check_beta_species_status",
+                return_value="unavailable",
+            ),
+            patch(
+                "ensembl.genes.projects.yaml_renderer.check_url_status",
+                return_value=False,
+            ),
+        ):
+            doc = renderer.render(meta)
+
+        assert "variants_vep" not in doc
+        assert doc["__audit_vep_status__"] == "legacy_manifest_unavailable"
+
+    def test_variants_vep_probed_when_legacy_manifest_none(self):
+        """Full render: no legacy manifest, probe succeeds → variants_vep emitted."""
         renderer = _make_hprc_renderer(legacy_manifest_data=None)
         meta = _make_hprc_meta()
 
@@ -381,8 +404,13 @@ class TestHprcRendererOutput:
         ):
             doc = renderer.render(meta)
 
-        assert "variants_vep" not in doc
-        assert doc["__audit_vep_status__"] == "legacy_manifest_unavailable"
+        assert "variants_vep" in doc
+        expected_dir = (
+            "https://ftp.ebi.ac.uk/pub/ensemblorganisms/"
+            f"Homo_sapiens/{_HPRC_ACCESSION}/vep/ensembl/geneset/2022_07/"
+        )
+        assert doc["variants_vep"] == expected_dir
+        assert doc["__audit_vep_status__"] == "available_legacy_manifest"
 
     def test_variants_vep_absent_when_accession_not_in_legacy(self):
         """Full render: accession absent from legacy manifest → not_found."""

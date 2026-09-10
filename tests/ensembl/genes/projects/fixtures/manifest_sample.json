@@ -321,7 +321,7 @@
                   "short_variants": {
                     "files": {
                       "variation_data": {
-                        "variation.vcf.gz": "GCA/018/469/665/2/ensembl/2025_08/variation/2025_12_15/variation.vcf.gz"
+                        "variation.vcf.gz": "GCA/018/469/665/2/ensembl/2025_08/variation/2025_12_15/2025_12_15/variation.vcf.gz"
                       }
                     }
                   }
@@ -509,6 +509,41 @@
             "files": {
               "genome_sequences": {
                 "softmasked.fa.bgz": "GCA/046/332/015/1/ensembl/2025_12/genome/softmasked.fa.bgz"
+              }
+            }
+          }
+        },
+        "GCA_009914755.4": {
+          "name": "T2T-CHM13v2.0",
+          "level": "chromosome",
+          "genebuild_providers": {
+            "ensembl": {
+              "2022_07": {
+                "release": "2022_07",
+                "paths": {
+                  "genebuild": {
+                    "files": {
+                      "annotations": {
+                        "genes.gtf.gz": "GCA/009/914/755/4/ensembl/2022_07/geneset/genes.gtf.gz",
+                        "genes.gff3.gz": "GCA/009/914/755/4/ensembl/2022_07/geneset/genes.gff3.gz"
+                      }
+                    }
+                  },
+                  "short_variants": {
+                    "files": {
+                      "variation_data": {
+                        "variation.vcf.gz": "GCA/009/914/755/4/ensembl/2022_07/variation/2025_01_16/nested_extra/variation.vcf.gz"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "assembly": {
+            "files": {
+              "genome_sequences": {
+                "softmasked.fa.bgz": "GCA/009/914/755/4/ensembl/2022_07/genome/softmasked.fa.bgz"
               }
             }
           }

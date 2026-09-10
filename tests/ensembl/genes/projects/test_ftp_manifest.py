@@ -172,9 +172,9 @@ class TestEnsemblFtpManifestLookupVariationVcf:
         vcf_path, date_key = res
         assert (
             vcf_path
-            == "GCA/018/469/665/2/ensembl/2025_08/variation/2025_12_15/variation.vcf.gz"
+            == "GCA/018/469/665/2/ensembl/2025_08/variation/2025_12_15/2025_12_15/variation.vcf.gz"
         )
-        assert date_key == "2025_08"
+        assert date_key == "2025_12_15"
 
     def test_lookup_variation_vcf_absent_accession_returns_none(self):
         assert self.manifest.lookup_variation_vcf("GCA_000000000.0") is None
