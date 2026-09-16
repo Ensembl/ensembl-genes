@@ -44,15 +44,15 @@ DEFAULT_ASSEMBLY_PROVIDER_URL = "https://www.ebi.ac.uk/ena/browser/home"
 DEFAULT_ENSEMBL_PROVIDER_NAME = "Ensembl"
 
 DEFAULT_VERTEBRATE_GENEBUILD_URL = (
-    "https://beta.ensembl.org/help/articles/vertebrate-genome-annotation"
+    "https://ensembl.org/help/articles/vertebrate-genome-annotation"
 )
 DEFAULT_NONVERTEBRATE_GENEBUILD_URL = (
-    "https://beta.ensembl.org/help/articles/non-vertebrate-genome-annotation"
+    "https://ensembl.org/help/articles/non-vertebrate-genome-annotation"
 )
-DEFAULT_BRAKER_URL = "https://beta.ensembl.org/help/articles/braker-2-genome-annotation"
-DEFAULT_HELIXER_URL = "https://beta.ensembl.org/help/articles/helixer-genome-annotation"
+DEFAULT_BRAKER_URL = "https://ensembl.org/help/articles/braker-2-genome-annotation"
+DEFAULT_HELIXER_URL = "https://ensembl.org/help/articles/helixer-genome-annotation"
 DEFAULT_HUMAN_MAPPING_URL = (
-    "https://beta.ensembl.org/help/articles/human-genome-automated-annotation"
+    "https://ensembl.org/help/articles/human-genome-automated-annotation"
 )
 
 BIOSAMPLE_OVERRIDES = {
