@@ -22,12 +22,11 @@ from __future__ import annotations
 
 import argparse
 from datetime import datetime
-from typing import Optional
 
-from pymysql.connections import Connection
-from pymysql.cursors import DictCursor
-
-from ensembl.genes.info_from_registry.mysql_helper import mysql_get_connection
+from ensembl.genes.info_from_registry.mysql_helper import (
+    RegistryConnection,
+    mysql_get_connection,
+)
 from ensembl.genes.info_from_registry.registry_helper import (
     fetch_assembly_id,
     fetch_current_genebuild_record,
@@ -36,9 +35,7 @@ from ensembl.genes.info_from_registry.registry_helper import (
 )
 
 
-def ensure_genebuilder_exists(
-    connection: Connection[DictCursor], genebuilder: str
-) -> None:
+def ensure_genebuilder_exists(connection: RegistryConnection, genebuilder: str) -> None:
     """
     Ensure genebuilder exists in the genebuilder table.
 
@@ -59,7 +56,7 @@ def ensure_genebuilder_exists(
 
 # fetch_current_record is now fetch_current_genebuild_record imported from registry_helper
 def insert_new_record(  # pylint:disable=too-many-arguments
-    connection: Connection[DictCursor],
+    connection: RegistryConnection,
     assembly_id: int,
     assembly: str,
     genebuilder: str,
@@ -124,14 +121,14 @@ def insert_new_record(  # pylint:disable=too-many-arguments
 
 
 def update_existing_record(  # pylint:disable=too-many-arguments
-    connection: Connection[DictCursor],
+    connection: RegistryConnection,
     record_id: int,
     status: str,
     current_date: str,
     dev: bool,
-    annotation_method: Optional[str] = None,
-    annotation_source: Optional[str] = None,
-    genebuild_version: Optional[str] = None,
+    annotation_method: str | None = None,
+    annotation_source: str | None = None,
+    genebuild_version: str | None = None,
 ) -> None:
     """
     Update an existing genebuild status record.
@@ -174,7 +171,7 @@ WHERE genebuild_status_id = %s
 
 
 def set_old_record_historical(
-    connection: Connection[DictCursor], record_id: int, dev: bool
+    connection: RegistryConnection, record_id: int, dev: bool
 ) -> None:
     """
     Set an existing record to historical (last_attempt = 0).
@@ -206,10 +203,10 @@ def main(  # pylint:disable=too-many-arguments, too-many-statements, too-many-br
     assembly: str,
     status: str,
     genebuilder: str,
-    annotation_source: Optional[str],
-    annotation_method: Optional[str],
+    annotation_source: str | None,
+    annotation_method: str | None,
     release_type: str,
-    genebuild_version: Optional[str],
+    genebuild_version: str | None,
     dev: bool = False,
 ) -> None:
     """
