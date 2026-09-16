@@ -86,7 +86,7 @@ def load_to_ensembl_core(
     )
     cursor = connection.cursor()
     try:
-        cursor.execute(f"CREATE DATABASE IF NOT EXISTS {db_name}")
+        cursor.execute(f"CREATE DATABASE {db_name}")
         cursor.execute(f"USE {db_name}")
         resolved_schema_sql_path = resolve_schema_sql_path(schema_sql_path)
         if resolved_schema_sql_path:

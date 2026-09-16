@@ -284,7 +284,8 @@ Scientific name + GCF_037462849.1 -> scientific_name_gcf037462849v1_rs_core_114_
 `create-core` performs these operations in this order:
 
 1. Connect to the MySQL server without selecting a database.
-2. `CREATE DATABASE IF NOT EXISTS <derived_core_db_name>`.
+2. `CREATE DATABASE <derived_core_db_name>`; loading fails if the database
+   already exists.
 3. `USE <derived_core_db_name>`.
 4. Load schema SQL from the bundled `config/core_schema.sql`, unless
    `--schema-sql-path` overrides or disables it.
