@@ -981,8 +981,3 @@ class YamlRenderer:  # pylint: disable=too-few-public-methods
             doc["alternate"] = meta.alternate_of
 
         return {k: v for k, v in doc.items() if v is not None}
-
-    def _build_rapid_ftp_url(self, meta: GenomeMetadata, resource_type: str) -> str:
-        """Helper to build Rapid Release FTP URLs"""
-        base = f"https://ftp.ensembl.org/pub/rapid-release/species/{meta.species_name}"
-        return f"{base}/{resource_type}"

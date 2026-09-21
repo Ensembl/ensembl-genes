@@ -1,15 +1,14 @@
 """
-Legacy VEP manifest reader for the old Ensembl organisms FTP structure.
+Legacy VEP manifest reader for Ensembl organisms VEP records.
 
 This module looks for VEP annotation file paths in the Ensembl organisms
 manifest at:
 
     https://ftp.ebi.ac.uk/pub/ensemblorganisms/species.json
 
-That URL is now the *new* accession-based manifest.  As of 2026-09, the
-manifest no longer carries a ``paths.genebuild.files.vep`` section, so
-VEP lookups return no results.  The code is kept as a clean extension
-point: if/when Ensembl re-introduces ``vep`` entries into the manifest,
+The manifest does not currently carry a ``paths.genebuild.files.vep`` section,
+so VEP lookups return no results via this path. The code is kept as a clean
+extension point: if/when Ensembl re-introduces ``vep`` entries into the manifest,
 lookups will succeed automatically without any code changes.
 
 For VEP lookups that do find data, the manifest stores paths to individual

@@ -2,7 +2,6 @@
 
 import logging
 import socket
-import sys
 import time
 from ftplib import FTP, error_perm, error_temp
 from typing import Any, Callable, Optional
@@ -321,13 +320,13 @@ class EnsemblFTP:
         except error_perm as e:
             if "550" in str(e):
                 return ""
-            print(f"FTP permission error: {e}", file=sys.stderr)
+            logger.warning("FTP permission error in check_for_file: %s", e)
             return ""
         except error_temp as e:
-            print(f"FTP temporary error: {e}", file=sys.stderr)
+            logger.warning("FTP temporary error in check_for_file: %s", e)
             return ""
         except Exception as e:  # pylint: disable=broad-exception-caught
-            print(f"Error while checking FTP file: {e}", file=sys.stderr)
+            logger.error("Unexpected error in check_for_file: %s", e)
             return ""
 
     def check_pre_release_file(
@@ -353,7 +352,7 @@ class EnsemblFTP:
         except error_perm:
             return ""
         except Exception as e:  # pylint: disable=broad-exception-caught
-            print(f"Error while checking pre-release file: {e}", file=sys.stderr)
+            logger.error("Unexpected error in check_pre_release_file: %s", e)
         return ""
 
     def close_connections(self) -> None:
@@ -396,7 +395,7 @@ def check_url_status(url: str) -> bool:
         response.close()
         return response.status_code == 200
     except requests.RequestException as e:
-        print(f"Error checking URL {url}: {e}")
+        logger.warning("Error checking URL %s: %s", url, e)
         return False
 
 
@@ -438,5 +437,5 @@ def check_beta_species_status(genome_uuid: str) -> str:
             return "unavailable"
         return "available"
     except requests.RequestException as e:
-        print(f"Error checking beta species {genome_uuid}: {e}", file=sys.stderr)
+        logger.warning("Error checking ensembl.org species page %s: %s", genome_uuid, e)
         return "error"

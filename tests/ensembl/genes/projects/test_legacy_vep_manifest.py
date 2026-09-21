@@ -92,13 +92,14 @@ class TestLegacyVepManifestInit:
         assert len(m) == 4
 
     def test_index_built_for_accession_with_vep(self):
+        """GCA_018852605.1 has VEP data in the fixture — lookup must succeed."""
         m = self._make()
-        assert "GCA_018852605.1" in m._index
+        assert m.lookup_vep("GCA_018852605.1") is not None
 
     def test_accession_without_vep_not_in_index(self):
-        """GCA_999000001.1 has no vep section in the fixture."""
+        """GCA_999000001.1 has no vep section in the fixture — lookup must return None."""
         m = self._make()
-        assert "GCA_999000001.1" not in m._index
+        assert m.lookup_vep("GCA_999000001.1") is None
 
 
 # ---------------------------------------------------------------------------
