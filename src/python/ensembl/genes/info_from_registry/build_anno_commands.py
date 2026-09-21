@@ -54,8 +54,8 @@ def build_annotation_commands(
         f" --short_read_fastq_dir {get('short_read_dir')}"
         f" --long_read_fastq_dir {get('long_read_dir')}"
         f" --max_intron_length {get('max_intron_length')}"
-        f" --protein_file {get('protein_file')}"
-        f" --busco_protein_file {get('busco_protein_file')}"
+        f" --uniprot_protein_file {get('protein_file')}"
+        f" --orthodb_protein_file {get('busco_protein_file')}"
         f" --rfam_accessions_file {get('rfam_accessions_file')}"
         f" --num_threads {anno_settings['num_threads']}"
     )
