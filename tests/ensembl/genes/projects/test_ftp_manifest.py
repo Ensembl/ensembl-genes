@@ -12,15 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Tests for ftp_manifest — all network access is mocked."""
+# pylint: disable=missing-function-docstring,attribute-defined-outside-init
 
 import json
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import pytest
+import requests as req_mod
 
 from ensembl.genes.projects.ftp_manifest import (
-    EBI_FTP_BASE,
     EnsemblFtpManifest,
     ManifestError,
     _parse_manifest_date,
@@ -209,16 +210,12 @@ class TestEnsemblFtpManifestFromUrl:
 
     def test_timeout_raises_manifest_error(self):
         """A request timeout raises ManifestError (not a raw requests exception)."""
-        import requests as req_mod
-
         with patch("requests.get", side_effect=req_mod.exceptions.Timeout()):
             with pytest.raises(ManifestError, match="Timed out"):
                 EnsemblFtpManifest.from_url()
 
     def test_http_error_raises_manifest_error(self):
         """A non-200 HTTP response raises ManifestError."""
-        import requests as req_mod
-
         mock_response = MagicMock()
         mock_response.raise_for_status.side_effect = req_mod.exceptions.HTTPError("503")
         with patch("requests.get", return_value=mock_response):
@@ -243,8 +240,6 @@ class TestEnsemblFtpManifestFromUrl:
 
     def test_exception_is_chained(self):
         """ManifestError wraps the original exception via exception chaining."""
-        import requests as req_mod
-
         with patch("requests.get", side_effect=req_mod.exceptions.Timeout()):
             with pytest.raises(ManifestError) as exc_info:
                 EnsemblFtpManifest.from_url()

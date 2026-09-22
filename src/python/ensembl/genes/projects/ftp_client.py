@@ -196,9 +196,10 @@ class EnsemblFTP:
                 if attempt < self.max_retries - 1:
                     try:
                         self._reconnect(which)
+                    # Intentional defensive boundary around reconnect
                     except (
-                        Exception
-                    ) as reconnect_exc:  # pylint: disable=broad-exception-caught
+                        Exception  # pylint: disable=broad-exception-caught
+                    ) as reconnect_exc:
                         logger.warning(
                             "FTP %s reconnect failed (attempt %d/%d): %s",
                             which,

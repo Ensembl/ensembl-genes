@@ -12,9 +12,7 @@ Run with::
 
 import json
 from pathlib import Path
-from unittest.mock import MagicMock, patch
-
-import pytest
+from unittest.mock import patch
 
 from ensembl.genes.projects.config import ProjectConfig, get_project_config
 from ensembl.genes.projects.ftp_manifest import EnsemblFtpManifest
@@ -547,11 +545,6 @@ class TestNonHprcUnchanged:
 
     def test_standard_render_unaffected_by_legacy_manifest(self):
         """Passing a legacy_vep_manifest to a standard renderer has no effect."""
-        import json
-        from pathlib import Path
-
-        from ensembl.genes.projects.ftp_manifest import EnsemblFtpManifest
-
         fixture_path = Path(__file__).parent / "fixtures" / "manifest_sample.json"
         with fixture_path.open() as fh:
             new_data = json.load(fh)

@@ -13,13 +13,14 @@
 # limitations under the License.
 """Tests for EnsemblFTP retry logic — all FTP and sleep calls are mocked."""
 
-import socket
-from ftplib import FTP, error_perm, error_temp
-from unittest.mock import MagicMock, call, patch
+# pylint: disable=protected-access,missing-function-docstring
+
+from ftplib import FTP, error_perm
+from unittest.mock import MagicMock, patch
 
 import pytest
 
-from ensembl.genes.projects.ftp_client import EnsemblFTP, _TRANSIENT_FTP_ERRORS
+from ensembl.genes.projects.ftp_client import EnsemblFTP
 
 
 def make_client(max_retries: int = 2) -> EnsemblFTP:
@@ -84,7 +85,7 @@ class TestRetrySuccess:
         c = make_client(max_retries=2)
         attempt = [0]
 
-        def _op(conn):
+        def _op(_conn):
             attempt[0] += 1
             if attempt[0] == 1:
                 raise ConnectionResetError("broken pipe")
@@ -112,7 +113,7 @@ class TestRetrySuccess:
         def replace_ebi():
             c.ebi_ftp = new_ftp
 
-        with patch.object(c, "_reconnect", side_effect=lambda w: replace_ebi()):
+        with patch.object(c, "_reconnect", side_effect=lambda _w: replace_ebi()):
             c._retry("ebi", _op)
 
         assert connections_seen[1] is new_ftp
@@ -133,7 +134,7 @@ class TestRetrySuccess:
         def replace_ebi():
             c.ebi_ftp = new_ftp
 
-        with patch.object(c, "_reconnect", side_effect=lambda w: replace_ebi()):
+        with patch.object(c, "_reconnect", side_effect=lambda _w: replace_ebi()):
             c._retry("ebi", _op)
 
         # Only the original connection was used on the failing attempt
@@ -147,7 +148,6 @@ class TestRetrySuccess:
         first_ftp = c.ebi_ftp
         new_ftp = MagicMock(spec=FTP)
         new_ftp.nlst.return_value = ["file.txt"]
-        call_sequence = []
 
         def _op(conn):
             conn.cwd("/")
@@ -161,7 +161,7 @@ class TestRetrySuccess:
         def replace_ebi():
             c.ebi_ftp = new_ftp
 
-        with patch.object(c, "_reconnect", side_effect=lambda w: replace_ebi()):
+        with patch.object(c, "_reconnect", side_effect=lambda _w: replace_ebi()):
             files = c._retry("ebi", _op)
 
         assert files == ["file.txt"]
@@ -186,7 +186,7 @@ class TestRetrySuccess:
         c = make_client(max_retries=2)
         call_count = [0]
 
-        def _op(conn):
+        def _op(_conn):
             call_count[0] += 1
             raise error_perm("550 No such file")
 
@@ -203,7 +203,7 @@ class TestRetrySuccess:
         c = make_client(max_retries=2)
         received = []
 
-        def _op(conn, path, mode="r"):
+        def _op(_conn, path, mode="r"):
             received.append((path, mode))
             if len(received) == 1:
                 raise ConnectionResetError("oops")
@@ -221,7 +221,7 @@ class TestRetrySuccess:
         operation again and raises EOFError — which is the final exception."""
         c = make_client(max_retries=2)
 
-        def _op(conn):
+        def _op(_conn):
             raise EOFError("initial failure")
 
         reconnect_error = RuntimeError("reconnect completely failed")
@@ -242,7 +242,7 @@ class TestRetrySleep:
         c = make_client(max_retries=2)
         attempt = [0]
 
-        def _op(conn):
+        def _op(_conn):
             attempt[0] += 1
             if attempt[0] < 2:
                 raise ConnectionResetError("first attempt")
@@ -256,14 +256,14 @@ class TestRetrySleep:
     def test_sleep_not_called_on_success(self):
         """_sleep is never called when the first attempt succeeds."""
         c = make_client(max_retries=2)
-        c._retry("ebi", lambda conn: "ok")
+        c._retry("ebi", lambda _conn: "ok")
         c._sleep.assert_not_called()
 
     def test_sleep_not_called_after_last_failed_attempt(self):
         """_sleep is not called on the final exhausted attempt (no more retries)."""
         c = make_client(max_retries=2)
 
-        def _op(conn):
+        def _op(_conn):
             raise EOFError("always fails")
 
         with patch.object(c, "_reconnect"):
@@ -282,7 +282,7 @@ class TestMaxRetries:
         c = make_client(max_retries=1)
         call_count = [0]
 
-        def _op(conn):
+        def _op(_conn):
             call_count[0] += 1
             raise EOFError("fail")
 

@@ -13,17 +13,19 @@
 # limitations under the License.
 """Tests for YamlRenderer FTP resolution — all network calls mocked."""
 
+# pylint: disable=protected-access
+
+import copy
 import json
 from pathlib import Path
 from unittest.mock import MagicMock, patch
-
-import pytest
 
 from ensembl.genes.projects.config import ProjectConfig
 from ensembl.genes.projects.ftp_manifest import (
     EBI_FTP_BASE,
     EnsemblFtpManifest,
 )
+from ensembl.genes.projects.generate_project_yaml import _extract_audit_fields
 from ensembl.genes.projects.models import GenomeMetadata
 from ensembl.genes.projects.yaml_renderer import YamlRenderer
 
@@ -36,7 +38,7 @@ with _FIXTURE_PATH.open() as _f:
     _FIXTURE_DATA = json.load(_f)
 
 
-def _make_meta(
+def _make_meta(  # pylint: disable=too-many-arguments
     accession: str = "GCA_922984935.2",
     species_name: str = "Meles meles",
     annotation_source: str = "ensembl",
@@ -174,7 +176,9 @@ class TestProviderSelection:
                     "genebuild": {
                         "files": {
                             "annotations": {
-                                "genes.gtf.gz": "GCA/999/999/999/1/ensembl/2023_05/geneset/genes.gtf.gz"
+                                "genes.gtf.gz": (
+                                    "GCA/999/999/999/1/ensembl/2023_05/geneset/genes.gtf.gz"
+                                )
                             }
                         }
                     }
@@ -235,7 +239,9 @@ class TestProviderSelection:
                     "genebuild": {
                         "files": {
                             "annotations": {
-                                "genes.gtf.gz": "GCA/999/999/999/1/ensembl/2023_05/geneset/genes.gtf.gz"
+                                "genes.gtf.gz": (
+                                    "GCA/999/999/999/1/ensembl/2023_05/geneset/genes.gtf.gz"
+                                )
                             }
                         }
                     }
@@ -349,15 +355,13 @@ class TestFileClassification:
 
     def test_r11_missing_optional_pep_does_not_exclude(self):
         """A manifest record without pep.fa.bgz is still considered released."""
-        import copy
-
         data_no_pep = copy.deepcopy(_FIXTURE_DATA)
         # Remove pep.fa.bgz from 2024_02 release of Chrysaora quinquecirrha
         for species_name, sp in data_no_pep["species"].items():
             if species_name == "Chrysaora_quinquecirrha":
-                for acc, asm in sp.get("assemblies", {}).items():
-                    for prov, dates in asm.get("genebuild_providers", {}).items():
-                        for d, date_obj in dates.items():
+                for _acc, asm in sp.get("assemblies", {}).items():
+                    for _prov, dates in asm.get("genebuild_providers", {}).items():
+                        for _d, date_obj in dates.items():
                             date_obj.get("paths", {}).get("genebuild", {}).get(
                                 "files", {}
                             ).get("annotations", {}).pop("pep.fa.bgz", None)
@@ -432,7 +436,7 @@ class TestVerbatimPaths:
 # ---------------------------------------------------------------------------
 
 
-class TestManifestUnavailable:
+class TestManifestUnavailable:  # pylint: disable=too-few-public-methods
     """R12: manifest=None falls back to pre-release."""
 
     def test_manifest_none_sets_manifest_unavailable_status(self):
@@ -456,18 +460,14 @@ class TestAuditKeyLifecycle:
         """render() returns a dict containing __audit_*__ keys."""
         renderer = _make_renderer()
         meta = _make_meta()
-        doc = _render(renderer, meta)
-        # At this point they should be GONE because _render calls render() directly
-        # and the test framework doesn't extract them.  We need raw access.
-        # To test this properly, we call _resolve_ftp_assets directly:
+        # _render calls render() directly and strips audit keys.
+        # To test raw assets before stripping, call _resolve_ftp_assets directly:
         assets = renderer._resolve_ftp_assets(meta)
         audit_keys = [k for k in assets if k.startswith("__audit_")]
         assert len(audit_keys) > 0, "Expected audit keys in _resolve_ftp_assets output"
 
     def test_audit_keys_absent_after_extract(self):
         """After _extract_audit_fields, no __audit_*__ keys remain."""
-        from ensembl.genes.projects.generate_project_yaml import _extract_audit_fields
-
         sample_doc = {
             "species": "Meles meles",
             "__audit_decision__": "included_released",
@@ -497,8 +497,6 @@ class TestStandardProjectRegression:
 
     def test_released_genome_yaml_schema(self):
         """A released genome produces correct YAML fields with new URL format."""
-        from ensembl.genes.projects.generate_project_yaml import _extract_audit_fields
-
         renderer = _make_renderer(schema_type="standard")
         meta = _make_meta()
         doc = _render(renderer, meta)
@@ -530,8 +528,6 @@ class TestStandardProjectRegression:
     def test_released_genome_no_internal_keys(self):
         """No internal implementation keys appear in the final YAML doc
         after the orchestration layer has extracted audit fields."""
-        from ensembl.genes.projects.generate_project_yaml import _extract_audit_fields
-
         renderer = _make_renderer(schema_type="standard")
         meta = _make_meta()
         doc = _render(renderer, meta)
@@ -557,8 +553,6 @@ class TestHprcRendering:
 
     def test_hprc_no_internal_keys(self):
         """No __audit_*__ keys appear in the cleaned HPRC doc after extraction."""
-        from ensembl.genes.projects.generate_project_yaml import _extract_audit_fields
-
         renderer = _make_renderer(schema_type="hprc")
         meta = _make_meta()
         doc = _render(renderer, meta)
@@ -605,7 +599,7 @@ class TestHandedOverPreRelease:
             "anthias_nicholsi_gca051175935v2"
         )
 
-        def mock_check(variant, accession, ext):
+        def mock_check(_variant, _accession, ext):
             if ext == ".gtf.gz":
                 return f"{base}.gtf.gz"
             if ext in (".gff3.gz", ".gff3"):
@@ -668,7 +662,7 @@ class TestHandedOverPreRelease:
             "anthias_nicholsi_gca051175935v2"
         )
 
-        def mock_check(variant, accession, ext):
+        def mock_check(_variant, _accession, ext):
             if ext == ".gtf.gz":
                 return f"{base}.gtf.gz"
             if ext in (".gff3.gz", ".gff3"):

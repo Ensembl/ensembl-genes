@@ -197,7 +197,10 @@ class TestStandardRenderIntegration:
             "audit_decision": "included_released",
             "audit_reason": "Found released FTP assets.",
             "annotation_files": {
-                "genes.gtf.gz": "https://ftp.ebi.ac.uk/pub/ensemblorganisms/GCA/982/375/345/1/ensembl/2024_01/geneset/genes.gtf.gz",
+                "genes.gtf.gz": (
+                    "https://ftp.ebi.ac.uk/pub/ensemblorganisms/"
+                    "GCA/982/375/345/1/ensembl/2024_01/geneset/genes.gtf.gz"
+                ),
             },
             "genome_files": {},
             "homology_files": {},
@@ -236,7 +239,10 @@ class TestStandardRenderIntegration:
             "audit_decision": "included_released",
             "audit_reason": "Found released FTP assets.",
             "annotation_files": {
-                "genes.gtf.gz": "https://ftp.ebi.ac.uk/pub/ensemblorganisms/GCA/982/375/345/1/ensembl/2024_01/geneset/genes.gtf.gz",
+                "genes.gtf.gz": (
+                    "https://ftp.ebi.ac.uk/pub/ensemblorganisms/"
+                    "GCA/982/375/345/1/ensembl/2024_01/geneset/genes.gtf.gz"
+                ),
             },
             "genome_files": {},
             "homology_files": {},

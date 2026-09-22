@@ -21,8 +21,6 @@ including ``handed_over`` records.
 
 from unittest.mock import MagicMock, patch
 
-import pytest
-
 from ensembl.genes.projects.config import ProjectConfig
 from ensembl.genes.projects.registry.gb_tracker import GbTrackerClient
 
@@ -47,7 +45,7 @@ def _make_config(
     )
 
 
-def _make_row(
+def _make_row(  # pylint: disable=too-many-arguments
     accession: str = "GCA_051175935.2",
     species_name: str = "Anthias nicholsi",
     asm_name: str = "fAntiNich1.1",
@@ -156,7 +154,7 @@ class TestProjectDiscovery:
         with patch("pymysql.connect") as mock_connect:
             results = client.fetch_project_pre_releases(config)
 
-        assert results == []
+        assert not results
         mock_connect.assert_not_called()
 
 
