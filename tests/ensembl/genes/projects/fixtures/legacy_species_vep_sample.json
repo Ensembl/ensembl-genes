@@ -1,0 +1,206 @@
+{
+  "species": {
+    "Homo_sapiens_HG002_pat": {
+      "taxid": 9606,
+      "species_taxonomy_id": 9606,
+      "scientific_name": "Homo sapiens",
+      "common_name": "Human",
+      "strain": "HG002",
+      "strain_type": "individual",
+      "biosample_id": "SAMN03255769",
+      "assemblies": {
+        "GCA_018852605.1": {
+          "name": "HG002.alt.pat.f1_v2",
+          "level": "primary_assembly",
+          "genebuild_providers": {
+            "ensembl": {
+              "2022_07": {
+                "release": "2022_07",
+                "paths": {
+                  "homologies": {
+                    "files": {
+                      "homology_data": {
+                        "Homo_sapiens-GCA_018852605.1-2022_07-homology.tsv.gz": "Homo_sapiens/GCA_018852605.1/ensembl/homology/2022_07/Homo_sapiens-GCA_018852605.1-2022_07-homology.tsv.gz"
+                      }
+                    }
+                  },
+                  "genebuild": {
+                    "files": {
+                      "annotations": {
+                        "cdna.fa.gz": "Homo_sapiens/GCA_018852605.1/ensembl/geneset/2022_07/cdna.fa.gz",
+                        "genes.gff3.gz": "Homo_sapiens/GCA_018852605.1/ensembl/geneset/2022_07/genes.gff3.gz",
+                        "genes.gtf.gz": "Homo_sapiens/GCA_018852605.1/ensembl/geneset/2022_07/genes.gtf.gz",
+                        "pep.fa.gz": "Homo_sapiens/GCA_018852605.1/ensembl/geneset/2022_07/pep.fa.gz"
+                      },
+                      "vep": {
+                        "genes.gff3.bgz": "Homo_sapiens/GCA_018852605.1/vep/ensembl/geneset/2022_07/genes.gff3.bgz",
+                        "genes.gff3.bgz.csi": "Homo_sapiens/GCA_018852605.1/vep/ensembl/geneset/2022_07/genes.gff3.bgz.csi"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "assembly": {
+            "files": {
+              "genome_sequences": {
+                "softmasked.fa.gz": "Homo_sapiens/GCA_018852605.1/genome/softmasked.fa.gz"
+              },
+              "vep": {
+                "softmasked.fa.bgz": "Homo_sapiens/GCA_018852605.1/vep/genome/softmasked.fa.bgz",
+                "softmasked.fa.bgz.fai": "Homo_sapiens/GCA_018852605.1/vep/genome/softmasked.fa.bgz.fai"
+              }
+            }
+          }
+        }
+      }
+    },
+    "Homo_sapiens_HG01928_pat": {
+      "taxid": 9606,
+      "species_taxonomy_id": 9606,
+      "scientific_name": "Homo sapiens",
+      "common_name": "Human",
+      "strain": "HG01928",
+      "strain_type": "individual",
+      "biosample_id": "SAMEA7534462",
+      "assemblies": {
+        "GCA_018472705.1": {
+          "name": "HG01928.alt.pat.f1_v2",
+          "level": "primary_assembly",
+          "genebuild_providers": {
+            "ensembl": {
+              "2022_08": {
+                "release": "2022_08",
+                "paths": {
+                  "short_variants": {
+                    "files": {
+                      "variation_data": {
+                        "variation.vcf.gz": "Homo_sapiens/GCA_018472705.1/ensembl/variation/2022_08/variation.vcf.gz"
+                      }
+                    }
+                  },
+                  "genebuild": {
+                    "files": {
+                      "annotations": {
+                        "genes.gtf.gz": "Homo_sapiens/GCA_018472705.1/ensembl/geneset/2022_08/genes.gtf.gz"
+                      },
+                      "vep": {
+                        "genes.gff3.bgz": "Homo_sapiens/GCA_018472705.1/vep/ensembl/geneset/2022_08/genes.gff3.bgz",
+                        "genes.gff3.bgz.csi": "Homo_sapiens/GCA_018472705.1/vep/ensembl/geneset/2022_08/genes.gff3.bgz.csi"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "assembly": {
+            "files": {
+              "genome_sequences": {
+                "softmasked.fa.gz": "Homo_sapiens/GCA_018472705.1/genome/softmasked.fa.gz"
+              },
+              "vep": {
+                "softmasked.fa.bgz": "Homo_sapiens/GCA_018472705.1/vep/genome/softmasked.fa.bgz"
+              }
+            }
+          }
+        }
+      }
+    },
+    "Homo_sapiens_no_vep": {
+      "taxid": 9606,
+      "species_taxonomy_id": 9606,
+      "scientific_name": "Homo sapiens",
+      "common_name": "Human",
+      "strain": "HG99999",
+      "strain_type": "individual",
+      "biosample_id": "SAMN00000099",
+      "assemblies": {
+        "GCA_999000001.1": {
+          "name": "HG99999.no.vep",
+          "level": "primary_assembly",
+          "genebuild_providers": {
+            "ensembl": {
+              "2023_01": {
+                "release": "2023_01",
+                "paths": {
+                  "genebuild": {
+                    "files": {
+                      "annotations": {
+                        "genes.gtf.gz": "Homo_sapiens/GCA_999000001.1/ensembl/geneset/2023_01/genes.gtf.gz"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "assembly": {
+            "files": {
+              "genome_sequences": {
+                "softmasked.fa.gz": "Homo_sapiens/GCA_999000001.1/genome/softmasked.fa.gz"
+              }
+            }
+          }
+        }
+      }
+    },
+    "Homo_sapiens_two_providers": {
+      "taxid": 9606,
+      "species_taxonomy_id": 9606,
+      "scientific_name": "Homo sapiens",
+      "common_name": "Human",
+      "strain": "HG88888",
+      "strain_type": "individual",
+      "biosample_id": "SAMN00000088",
+      "assemblies": {
+        "GCA_888000001.1": {
+          "name": "HG88888.ambiguous",
+          "level": "primary_assembly",
+          "genebuild_providers": {
+            "ensembl": {
+              "2022_07": {
+                "release": "2022_07",
+                "paths": {
+                  "genebuild": {
+                    "files": {
+                      "annotations": {
+                        "genes.gtf.gz": "Homo_sapiens/GCA_888000001.1/ensembl/geneset/2022_07/genes.gtf.gz"
+                      },
+                      "vep": {
+                        "genes.gff3.bgz": "Homo_sapiens/GCA_888000001.1/vep/ensembl/geneset/2022_07/genes.gff3.bgz"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "community": {
+              "2022_07": {
+                "release": "2022_07",
+                "paths": {
+                  "genebuild": {
+                    "files": {
+                      "annotations": {
+                        "genes.gtf.gz": "Homo_sapiens/GCA_888000001.1/community/geneset/2022_07/genes.gtf.gz"
+                      },
+                      "vep": {
+                        "genes.gff3.bgz": "Homo_sapiens/GCA_888000001.1/vep/community/geneset/2022_07/genes.gff3.bgz"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "assembly": {
+            "files": {
+              "genome_sequences": {}
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -13,7 +13,7 @@ import sys
 from collections import defaultdict
 from dataclasses import dataclass
 from pathlib import Path
-from typing import List
+from typing import Any, Dict, List
 
 import yaml
 
@@ -25,12 +25,19 @@ from ensembl.genes.projects.changelog import (
 )
 from ensembl.genes.projects.config import get_project_config
 from ensembl.genes.projects.ftp_client import EnsemblFTP
+from ensembl.genes.projects.ftp_manifest import EnsemblFtpManifest, ManifestError
 from ensembl.genes.projects.haplotype_resolver import HaplotypeResolver
+from ensembl.genes.projects.legacy_vep_manifest import (
+    LegacyVepManifest,
+    LegacyVepManifestError,
+)
 from ensembl.genes.projects.models import GenomeMetadata
 from ensembl.genes.projects.yaml_renderer import YamlRenderer
 from ensembl.genes.projects.registry.metadata_db import MetadataDbClient
 from ensembl.genes.projects.registry.gb_tracker import GbTrackerClient
 from ensembl.genes.projects.registry.ncbi_entrez import patch_ncbi_data
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -46,6 +53,21 @@ class Candidate:  # pylint: disable=too-many-instance-attributes
     input_order: int
     audit_image_source: str = ""
     audit_beta_status: str = ""
+    audit_manifest_status: str = ""
+    audit_provider_status: str = ""
+    audit_date_status: str = ""
+    audit_vep_status: str = ""
+    audit_variation_status: str = ""
+    audit_variation_date: str = ""
+
+
+def _extract_audit_fields(doc: Dict[str, Any]) -> Dict[str, Any]:
+    """Remove and return all ``__audit_*__`` keys from *doc* in one pass.
+
+    This prevents any newly added audit key from accidentally leaking into
+    YAML output because someone forgot to add an explicit ``doc.pop()`` call.
+    """
+    return {key: doc.pop(key) for key in list(doc) if key.startswith("__audit_")}
 
 
 def _load_server_config() -> dict:
@@ -108,7 +130,43 @@ For pre-release discovery without UUIDs, you may still rely on the registry trac
 
     config = get_project_config(args.project)
     ftp_client = EnsemblFTP(timeout=30)
-    renderer = YamlRenderer(config, ftp_client)
+
+    # Download and index the species manifest once for the whole run.
+    # On failure, continue with pre-release fallback only (Option B policy).
+    manifest: EnsemblFtpManifest | None = None
+    try:
+        manifest = EnsemblFtpManifest.from_url()
+        logger.info("FTP manifest loaded: %d assemblies indexed.", len(manifest))
+    except ManifestError as exc:
+        logger.error(
+            "FTP manifest unavailable: %s. Released FTP resolution will be "
+            "skipped; pre-release fallback will run where applicable.",
+            exc,
+        )
+
+    # Download and index the legacy VEP manifest when the project requires it.
+    # Only for HPRC (use_legacy_vep_fallback=True).  Failure is non-fatal.
+    legacy_vep_manifest: LegacyVepManifest | None = None
+    if config.use_legacy_vep_fallback:
+        try:
+            legacy_vep_manifest = LegacyVepManifest.from_url()
+            logger.info(
+                "Legacy VEP manifest loaded: %d VEP records indexed.",
+                len(legacy_vep_manifest),
+            )
+        except LegacyVepManifestError as exc:
+            logger.warning(
+                "Legacy VEP manifest unavailable: %s. "
+                "HPRC VEP links will be omitted where not resolvable.",
+                exc,
+            )
+
+    renderer = YamlRenderer(
+        config,
+        ftp_client,
+        manifest=manifest,
+        legacy_vep_manifest=legacy_vep_manifest,
+    )
 
     server_conf = _load_server_config()
     meta_conf = server_conf["meta_beta"]
@@ -124,8 +182,6 @@ For pre-release discovery without UUIDs, you may still rely on the registry trac
     gb_client = GbTrackerClient(
         host=gb_conf["db_host"], port=gb_conf["db_port"], user=gb_conf["db_user"]
     )
-
-    logger = logging.getLogger(__name__)
 
     # Read inputs
     try:
@@ -173,11 +229,18 @@ For pre-release discovery without UUIDs, you may still rely on the registry trac
         patch_ncbi_data(meta, config)
         doc = renderer.render(meta)
 
-        audit_decision = doc.pop("__audit_decision__", "excluded")
-        audit_reason = doc.pop("__audit_reason__", "No document returned")
-        audit_resolved_date = doc.pop("__audit_resolved_date__", "")
-        audit_image_source = doc.pop("__audit_image_source__", "")
-        audit_beta_status = doc.pop("__audit_beta_status__", "")
+        audit_fields = _extract_audit_fields(doc)
+        audit_decision = audit_fields.get("__audit_decision__", "excluded")
+        audit_reason = audit_fields.get("__audit_reason__", "No document returned")
+        audit_resolved_date = audit_fields.get("__audit_resolved_date__", "")
+        audit_image_source = audit_fields.get("__audit_image_source__", "")
+        audit_beta_status = audit_fields.get("__audit_beta_status__", "")
+        audit_manifest_status = audit_fields.get("__audit_manifest_status__", "")
+        audit_provider_status = audit_fields.get("__audit_provider_status__", "")
+        audit_date_status = audit_fields.get("__audit_date_status__", "")
+        audit_vep_status = audit_fields.get("__audit_vep_status__", "")
+        audit_variation_status = audit_fields.get("__audit_variation_status__", "")
+        audit_variation_date = audit_fields.get("__audit_variation_date__", "")
 
         candidates.append(
             Candidate(
@@ -190,6 +253,12 @@ For pre-release discovery without UUIDs, you may still rely on the registry trac
                 input_order=idx,
                 audit_image_source=audit_image_source,
                 audit_beta_status=audit_beta_status,
+                audit_manifest_status=audit_manifest_status,
+                audit_provider_status=audit_provider_status,
+                audit_date_status=audit_date_status,
+                audit_vep_status=audit_vep_status,
+                audit_variation_status=audit_variation_status,
+                audit_variation_date=audit_variation_date,
             )
         )
 
@@ -212,11 +281,18 @@ For pre-release discovery without UUIDs, you may still rely on the registry trac
         patch_ncbi_data(meta, config)
         doc = renderer.render(meta)
 
-        audit_decision = doc.pop("__audit_decision__", "excluded")
-        audit_reason = doc.pop("__audit_reason__", "No document returned")
-        audit_resolved_date = doc.pop("__audit_resolved_date__", "")
-        audit_image_source = doc.pop("__audit_image_source__", "")
-        audit_beta_status = doc.pop("__audit_beta_status__", "")
+        audit_fields = _extract_audit_fields(doc)
+        audit_decision = audit_fields.get("__audit_decision__", "excluded")
+        audit_reason = audit_fields.get("__audit_reason__", "No document returned")
+        audit_resolved_date = audit_fields.get("__audit_resolved_date__", "")
+        audit_image_source = audit_fields.get("__audit_image_source__", "")
+        audit_beta_status = audit_fields.get("__audit_beta_status__", "")
+        audit_manifest_status = audit_fields.get("__audit_manifest_status__", "")
+        audit_provider_status = audit_fields.get("__audit_provider_status__", "")
+        audit_date_status = audit_fields.get("__audit_date_status__", "")
+        audit_vep_status = audit_fields.get("__audit_vep_status__", "")
+        audit_variation_status = audit_fields.get("__audit_variation_status__", "")
+        audit_variation_date = audit_fields.get("__audit_variation_date__", "")
 
         identifier = f"discovered_gb_{meta.accession}"
         candidates.append(
@@ -230,6 +306,12 @@ For pre-release discovery without UUIDs, you may still rely on the registry trac
                 input_order=idx,
                 audit_image_source=audit_image_source,
                 audit_beta_status=audit_beta_status,
+                audit_manifest_status=audit_manifest_status,
+                audit_provider_status=audit_provider_status,
+                audit_date_status=audit_date_status,
+                audit_vep_status=audit_vep_status,
+                audit_variation_status=audit_variation_status,
+                audit_variation_date=audit_variation_date,
             )
         )
 
@@ -245,6 +327,32 @@ For pre-release discovery without UUIDs, you may still rely on the registry trac
                 meta.accession,
                 audit_reason,
             )
+
+    # Run-level manifest outage summary — print to stderr so it is impossible
+    # to overlook in logs and CI output.
+    if manifest is None:
+        skipped_count = sum(
+            1 for c in candidates if c.audit_manifest_status == "manifest_unavailable"
+        )
+        fallback_count = sum(
+            1
+            for c in candidates
+            if c.audit_manifest_status == "manifest_unavailable"
+            and c.audit_decision == "included_prerelease"
+        )
+        excluded_count = sum(
+            1
+            for c in candidates
+            if c.audit_manifest_status == "manifest_unavailable"
+            and c.audit_decision == "excluded"
+        )
+        print(
+            f"WARNING: Manifest unavailable: released FTP resolution was "
+            f"skipped for {skipped_count} genome(s); "
+            f"{fallback_count} resolved through pre-release fallback and "
+            f"{excluded_count} excluded (no FTP assets found).",
+            file=sys.stderr,
+        )
 
     grouped_candidates = defaultdict(list)
     for c in candidates:
@@ -366,7 +474,7 @@ For pre-release discovery without UUIDs, you may still rely on the registry trac
             if "alternate" not in doc:
                 alt_uuid = acc_to_uuid.get(alt_acc)
                 if alt_uuid and alt_uuid != "unknown":
-                    alt_url = f"https://beta.ensembl.org/species/{alt_uuid}"
+                    alt_url = f"https://www.ensembl.org/species/{alt_uuid}"
                     doc["alternate"] = alt_url
                     logger.debug(
                         "Set alternate haplotype: %s -> %s (uuid=%s)",
@@ -404,7 +512,10 @@ For pre-release discovery without UUIDs, you may still rely on the registry trac
                     f"{c.audit_reason}\t{c.audit_image_source}\t"
                     f"{c.audit_beta_status}\t{beta_link_value}\t"
                     f"{c.meta.taxon_id or ''}\t{c.meta.busco_lineage or ''}\t"
-                    f"{tax_lineage_str}\t{image_value}\n"
+                    f"{tax_lineage_str}\t{image_value}\t"
+                    f"{c.audit_manifest_status}\t{c.audit_provider_status}\t"
+                    f"{c.audit_date_status}\t{c.audit_vep_status}\t"
+                    f"{c.audit_variation_status}\t{c.audit_variation_date}\n"
                 )
                 if row not in seen_audit_rows:
                     seen_audit_rows.add(row)

@@ -20,7 +20,7 @@ generate_project_yaml ./cbp_guuids.txt \
 
 ## Environment Requirements
 
-- **Python Version**: Python 3.9+ is recommended. (Note: Ensure type hint compatibility if using older versions like 3.8).
+- **Python Version**: Python 3.10+ is required.
 - **PYTHONPATH**: Must include the `src/python` directory of this repository so modules can be resolved (`export PYTHONPATH=$PWD/src/python`).
 - **Required Packages**: 
   - `PyMySQL` (for DB connections)
@@ -65,14 +65,17 @@ The script generates two main outputs:
 2. **Audit TSV (`--audit-file`)**: A highly recommended log file that records the decision for every candidate genome. 
    - Decisions include: `included_released`, `included_prerelease`, `excluded`, `excluded_duplicate`, or `kept_duplicate`.
 
-## Publishability Rules
+## Publishability Rules and FTP Resolution
 
 A genome is only included in the final YAML if it has valid FTP assets. A GUUID alone is not enough.
-- **Released FTP**: The script checks the released FTP path.
-- **Pre-release Fallback**: If the released FTP is not found, the script tries the pre-release FTP fallback.
-- **Exclusion**: If neither exists, the genome is excluded from the YAML.
-- **Dynamic Date Resolution**: The metadata database date is used as a hint, but the code dynamically lists the FTP directory to resolve the actual date if it differs.
-- **Annotation Source**: The `annotation_source` from the metadata controls whether the FTP path points to `ensembl`, `braker`, or other sources.
+
+- **Accession-Based FTP Structure**: Released genesets, genome sequences, homologies, and variant files are resolved via the authoritative manifest `species.json`. The layout uses GCA/GCF accession triplets (e.g. `GCA/922/984/935/2/`). Manifest paths are used verbatim.
+- **VEP Fallback (HPRC only)**: Where VEP annotation directories are not yet present in the manifest, HPRC project pages fall back to the species-name-based FTP hierarchy (`use_legacy_vep_fallback: True` in `config.py`).
+  - `variants_vep` links to the containing dated VEP directory (e.g. `https://ftp.ebi.ac.uk/pub/ensemblorganisms/Homo_sapiens/GCA_009914755.4/vep/ensembl/geneset/2022_07/`), not directly to `genes.gff3.bgz`.
+  - The actual `genes.gff3.bgz` file URL is validated via HTTP before the directory URL is emitted.
+  - Failure to load the legacy manifest or resolve a VEP URL does not exclude an HPRC genome; `variants_vep` is simply omitted and recorded in the audit TSV.
+- **Pre-release Fallback**: If released FTP assets are not found in the manifest, the script attempts the pre-release FTP fallback. A failure of either manifest does not prevent valid pre-release fallback.
+- **Exclusion**: If neither released nor pre-release assets exist, the genome is excluded from the YAML.
 
 ## Images and Icons
 
@@ -116,7 +119,9 @@ Different projects map to different underlying YAML schemas (`standard`, `hprc`,
 - **HPRC (`--project hprc`)**: 
   - Adds HPRC-specific columns such as `assembly_submitter` and `assembly_link`.
   - Determines `parent_of_origin` from the assembly report.
-  - Automatically checks for and links to `variants_vep` if available on the FTP.
+  - `variants_vep` — links to the dated VEP annotation directory (containing `genes.gff3.bgz`) when available. Resolved via the species-name-based FTP hierarchy.
+  - `variation_vcf` — links to the dated variation directory (containing `variation.vcf.gz`) when available. Resolved from variation entries in the `species.json` manifest.
+  - These two fields are **independent**: a genome may have one, both, or neither. The actual file URL (`genes.gff3.bgz` or `variation.vcf.gz`) is validated via HTTP; the emitted link points to the containing directory. Manifest paths — including any nested or duplicated date components — are used verbatim.
 - **Mouse Genomes (`--project mouse_genomes`)**:
   - Automatically incorporates the `strain` metadata explicitly as a separate display field.
   - Includes `alternate` linkage if it is an alternate haplotype.
@@ -131,17 +136,17 @@ The pipeline automatically identifies alternate haplotype pairs among assemblies
 
 Only assemblies that are *both present* in the generated dataset are linked. No external URLs are invented. If an assembly already has an `alternate` field from the metadata DB, it is preserved.
 
-The output field is `alternate: https://beta.ensembl.org/species/<alternate_genome_uuid>`. The alternate accession is resolved to its genome UUID (from the in-run cache first, then a batch metadata-DB lookup). If no genome UUID can be found for the alternate assembly, the `alternate` field is **omitted entirely** rather than emitting a raw accession or a broken link.
+The output field is `alternate: https://www.ensembl.org/species/<alternate_genome_uuid>`. The alternate accession is resolved to its genome UUID (from the in-run cache first, then a batch metadata-DB lookup). If no genome UUID can be found for the alternate assembly, the `alternate` field is **omitted entirely** rather than emitting a raw accession or a broken link.
 
 ## Beta Link Validation
 
-A genome can have a valid genome UUID and valid FTP assets while its beta.ensembl.org species page is not yet live. Visiting such a UUID shows a "We do not recognise the species identified..." error page (which still returns HTTP 200).
+A genome can have a valid genome UUID and valid FTP assets while its ensembl.org species page is not yet live. Visiting such a UUID shows a "We do not recognise the species identified..." error page (which still returns HTTP 200).
 
 To avoid emitting broken `beta_link` values, the renderer validates each released genome's beta page before emitting a link (`check_beta_species_status` in `ftp_client.py`):
 
 - The page body is fetched and inspected — a status-code check alone is insufficient because the error page returns HTTP 200.
 - A page is treated as **unavailable** if the status is non-200, or the body contains `"We do not recognise the species identified"` or `"Find available species in the Species selector"`.
-- Only a confirmed-usable page yields a real `beta_link: https://beta.ensembl.org/species/<uuid>`.
+- Only a confirmed-usable page yields a real `beta_link: https://www.ensembl.org/species/<uuid>`.
 - Otherwise `beta_link: Coming soon!` is emitted. **The genome is never excluded** for this reason — FTP links and all other fields are unchanged.
 - Pre-release genomes skip the check and emit `Coming soon!` directly (no wasted network call).
 - Availability is cached per genome UUID for the duration of a run.
@@ -158,12 +163,14 @@ Understanding the codebase organization:
 - **`icon_resolver.py`**: Taxonomy-lineage-based icon resolver. Maps taxon IDs to icon filenames using NCBI lineage data, with per-run caching and `icons.txt` override support.
 - **`haplotype_resolver.py`**: Identifies alternate haplotype pairs among assemblies in the project dataset using NCBI BioSample metadata, sample names, and assembly naming conventions.
 - **`ftp_client.py`**: Core logic for querying the EBI/Ensembl FTP servers.
+- **`ftp_manifest.py`**: Reads the accession-based `species.json` manifest and indexes released annotation, genome, homology, and variation file paths per assembly.
+- **`legacy_vep_manifest.py`**: Indexes VEP annotation file paths from the `species.json` manifest and provides the URL-joining utility used for both VEP and variation VCF link construction.
+- **`accession_utils.py`**: Converts GCA/GCF accession strings to the NCBI triplet directory layout used on the EBI FTP.
 - **`changelog.py`**: Compares old and new YAML outputs and generates human-readable and TSV changelogs.
 - **`registry/gb_tracker.py`**: Client for GB registry pre-release discovery.
 - **`registry/metadata_db.py`**: Client for the metadata DB to look up released GUUIDs.
 - **`registry/ncbi_entrez.py`**: NCBI web scraping for assembly submitters, population data, and parent-of-origin.
 - **`bioproject_tracking.py`** (in `ensembl.genes.tracking`): An auxiliary tool for candidate discovery (to generate the input file), but *not* for final YAML eligibility.
-- **Legacy scripts removed**: the old `write_yaml.py` and `hprc_write_yaml.py` scripts have been removed. `generate_project_yaml.py` is now the sole supported YAML-generation entrypoint (use `--project hprc` for the HPRC schema).
 
 ## Tests
 
@@ -171,10 +178,18 @@ Project-page tests live under the repository test tree (mirroring the package la
 
 ```
 tests/ensembl/genes/projects/
-  test_changelog.py          # changelog diff/compare logic
-  test_icon_resolver.py      # taxonomy → icon resolution (incl. BUSCO fallback)
-  test_haplotype_resolver.py # alternate haplotype pairing
-  test_beta_link.py          # beta.ensembl.org availability checking
+  test_changelog.py              # changelog diff/compare logic
+  test_icon_resolver.py          # taxonomy → icon resolution (incl. BUSCO fallback)
+  test_haplotype_resolver.py     # alternate haplotype pairing
+  test_ensembl_link.py           # ensembl.org availability checking
+  test_accession_utils.py        # GCA/GCF → FTP triplet-path conversion
+  test_ftp_manifest.py           # accession-based species.json manifest reader
+  test_ftp_resolution.py         # released-file FTP URL resolution end-to-end
+  test_ftp_retry.py              # complete-operation FTP retry behaviour
+  test_gb_tracker_discovery.py   # pre-release discovery via GB registry
+  test_hprc_vep_resolution.py    # HPRC VEP URL resolution (manifest + probe fallback)
+  test_legacy_vep_manifest.py    # legacy species.json VEP index reader
+  test_variation_vcf.py          # HPRC variation VCF URL discovery and YAML output
 ```
 
 All tests mock network/DB access, so they run offline:
@@ -190,7 +205,7 @@ pytest tests/ensembl/genes/projects -v
 ## Troubleshooting
 
 - **`ModuleNotFoundError: No module named 'ensembl'`**: Ensure `PYTHONPATH` is set correctly (`export PYTHONPATH=$PWD/src/python`).
-- **Python Type Hint Issues**: The code uses Python 3.9+ type hints. Upgrade your Python version if you see syntax errors around type annotations.
+- **Python Type Hint Issues**: The code requires Python 3.10+. Upgrade your Python version if you see syntax errors around type annotations.
 - **DB Connection Errors**: Check `server_config.json` hosts and your VPN/network connection. If on a cluster, ensure read-only MySQL permissions are loaded.
 - **Missing FTP Assets**: If a genome is excluded, check the audit TSV. Usually, the files haven't been synchronized to the public EBI FTP yet.
 - **Duplicate GUUID/Accession**: The script deduplicates automatically based on accession, species name, and date, keeping the most recent released copy. The excluded ones will show `excluded_duplicate` in the audit TSV.
