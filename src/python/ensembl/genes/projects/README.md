@@ -181,7 +181,7 @@ tests/ensembl/genes/projects/
   test_changelog.py              # changelog diff/compare logic
   test_icon_resolver.py          # taxonomy → icon resolution (incl. BUSCO fallback)
   test_haplotype_resolver.py     # alternate haplotype pairing
-  test_beta_link.py              # ensembl.org availability checking
+  test_ensembl_link.py           # ensembl.org availability checking
   test_accession_utils.py        # GCA/GCF → FTP triplet-path conversion
   test_ftp_manifest.py           # accession-based species.json manifest reader
   test_ftp_resolution.py         # released-file FTP URL resolution end-to-end

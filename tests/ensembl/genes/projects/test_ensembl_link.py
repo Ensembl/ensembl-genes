@@ -1,7 +1,7 @@
 """Tests for ensembl.org species-page availability checking.
 
 All network calls are mocked. Run with:
-    pytest tests/ensembl/genes/projects/test_beta_link.py -v
+    pytest tests/ensembl/genes/projects/test_ensembl_link.py -v
 """
 
 # pylint: disable=missing-class-docstring,missing-function-docstring
