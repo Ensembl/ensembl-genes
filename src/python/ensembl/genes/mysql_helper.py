@@ -21,6 +21,8 @@ else:
 logger = logging.getLogger(__name__)
 
 
+# The connection factory intentionally exposes the common PyMySQL options.
+# pylint: disable=too-many-arguments
 def get_mysql_connection(
     *,
     database: str | None = None,
@@ -30,7 +32,7 @@ def get_mysql_connection(
     password: str | None = None,
     cursorclass: type[Cursor] | None = None,
     **kwargs: Any,
-) -> MySQLConnection:  # pylint: disable=too-many-arguments
+) -> MySQLConnection:
     """Create a PyMySQL connection with consistent connection options.
 
     ``cursorclass`` is optional because existing scripts use both PyMySQL's
