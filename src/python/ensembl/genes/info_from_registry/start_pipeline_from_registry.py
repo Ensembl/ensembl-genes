@@ -36,6 +36,7 @@ from pathlib import Path
 from typing import Any
 
 import pymysql  # type: ignore
+
 from ensembl.genes.info_from_registry.assign_species_prefix import get_species_prefix
 from ensembl.genes.info_from_registry.assign_stable_space import get_stable_space
 from ensembl.genes.info_from_registry.build_anno_commands import (
@@ -47,13 +48,13 @@ from ensembl.genes.info_from_registry.create_config import (
     edit_config_main,
 )
 from ensembl.genes.info_from_registry.create_pipe_reg import create_registry_entry
-from ensembl.genes.info_from_registry.mysql_helper import mysql_fetch_data
 from ensembl.genes.info_from_registry.taxonomy_helper import (
     assign_clade,
     assign_clade_info_custom_loading,
     get_parent_taxon,
 )
 from ensembl.genes.metrics.busco_lineage_selector import get_dataset_match
+from ensembl.genes.mysql_helper import mysql_fetch_data
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 

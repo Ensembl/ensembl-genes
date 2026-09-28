@@ -17,10 +17,14 @@
 """This module manages the assignment of stable space IDs for genomic assemblies"""
 
 import logging
+
 import pymysql  # type: ignore
-from ensembl.genes.mysql_helper import get_mysql_connection
-from ensembl.genes.mysql_helper import MySQLConnection
-from ensembl.genes.info_from_registry.mysql_helper import mysql_fetch_data
+
+from ensembl.genes.mysql_helper import (
+    MySQLConnection,
+    get_mysql_connection,
+    mysql_fetch_data,
+)
 
 # Configure logging
 logging.basicConfig(
@@ -31,9 +35,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-def insert_to_db(
-    insert_query, conn: MySQLConnection, store_new_registry: bool
-) -> bool:
+def insert_to_db(insert_query, conn: MySQLConnection, store_new_registry: bool) -> bool:
     """Insert data into the database and handle duplicate entries.
 
     Args:
@@ -226,7 +228,7 @@ def assign_stable_id(
         )
 
         insert_query = f"""INSERT INTO stable_space_species_log (stable_space_id, \
-            lowest_taxon_id, gca_accession, assembly_id) 
+            lowest_taxon_id, gca_accession, assembly_id)
             VALUES ({stable_space_id}, {taxon_id}, '{gca_accession}', {assembly_id});
             """
         conn = get_mysql_connection(

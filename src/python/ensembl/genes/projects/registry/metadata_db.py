@@ -3,7 +3,6 @@ Data fetcher for the Ensembl Metadata database.
 """
 
 import logging
-from typing import Dict, List, Optional
 
 import pymysql
 
@@ -23,7 +22,7 @@ class MetadataDbClient:
         self.user = user
         self.dbname = dbname
 
-    def _fetch_taxonomy_lineage(self, taxonomy_id: int) -> List[str]:
+    def _fetch_taxonomy_lineage(self, taxonomy_id: int) -> list[str]:
         """Fetch taxonomy classification names for a given taxonomy_id.
 
         Queries the ``organism_classification`` table in the metadata DB,
@@ -108,7 +107,7 @@ class MetadataDbClient:
 
         return []
 
-    def get_genome_uuids_by_accessions(self, accessions: List[str]) -> Dict[str, str]:
+    def get_genome_uuids_by_accessions(self, accessions: list[str]) -> dict[str, str]:
         """Look up genome UUIDs for a list of assembly accessions.
 
         Parameters
@@ -142,7 +141,7 @@ class MetadataDbClient:
               AND assembly.accession IN ({placeholders})
         """
 
-        result: Dict[str, str] = {}
+        result: dict[str, str] = {}
         try:
             conn = get_mysql_connection(
                 host=self.host,
@@ -169,7 +168,7 @@ class MetadataDbClient:
         )
         return result
 
-    def fetch_by_identifier(self, identifier: str) -> Optional[GenomeMetadata]:
+    def fetch_by_identifier(self, identifier: str) -> GenomeMetadata | None:
         """
         Identifier can be a Genome UUID, a core DB name, or an Assembly Accession.
         """
@@ -182,7 +181,7 @@ class MetadataDbClient:
             where_clause = "assembly.accession = %s"
 
         query = f"""
-            SELECT 
+            SELECT
                 genome.genome_uuid,
                 dataset_source.name AS dbname,
                 assembly.accession,
@@ -202,7 +201,7 @@ class MetadataDbClient:
             JOIN dataset ON genome_dataset.dataset_id = dataset.dataset_id
             JOIN dataset_source ON dataset.dataset_source_id = dataset_source.dataset_source_id
             LEFT JOIN dataset_attribute ON dataset.dataset_id = dataset_attribute.dataset_id
-            LEFT JOIN attribute ON dataset_attribute.attribute_id = attribute.attribute_id 
+            LEFT JOIN attribute ON dataset_attribute.attribute_id = attribute.attribute_id
                 AND attribute.name IN ('genebuild.method_display', 'genebuild.annotation_source', 'genebuild.last_geneset_update', 'genebuild.busco', 'genebuild.busco_dataset')
             WHERE dataset.name = 'genebuild'
               AND {where_clause}

@@ -21,7 +21,7 @@ from __future__ import annotations
 
 import logging
 import os
-from typing import TYPE_CHECKING, Dict, List, Optional, Tuple
+from typing import TYPE_CHECKING
 
 import requests
 import xmltodict
@@ -37,7 +37,7 @@ logger = logging.getLogger(__name__)
 # The lookup dict is checked against the lineage which is already ordered
 # leaf → root, so the first hit is always the most-specific classification.
 
-_DEFAULT_RULES: Dict[str, str] = {
+_DEFAULT_RULES: dict[str, str] = {
     # --- Arthropoda: specific orders first ---
     "Lepidoptera": "Lepidoptera.png",
     "Hymenoptera": "Arthropods.png",
@@ -92,7 +92,7 @@ _DEFAULT_RULES: Dict[str, str] = {
 # The keys are lowercase BUSCO tokens; values are the canonical taxonomy
 # name to look up in the rules dict.
 
-_BUSCO_TO_TAXON: Dict[str, str] = {
+_BUSCO_TO_TAXON: dict[str, str] = {
     # Arthropods
     "lepidoptera": "Lepidoptera",
     "hymenoptera": "Hymenoptera",
@@ -172,7 +172,7 @@ _BUSCO_TO_TAXON: Dict[str, str] = {
 # like "eudicotyledons_odb12" that aren't in the explicit dict above.
 # Checked in order; first match wins.
 
-_BUSCO_SUBSTRING_PATTERNS: List[Tuple[str, str]] = [
+_BUSCO_SUBSTRING_PATTERNS: list[tuple[str, str]] = [
     ("eudicot", "Plants.png"),
     ("dicot", "Plants.png"),
     ("monocot", "Plants.png"),
@@ -198,10 +198,10 @@ class IconResolver:  # pylint: disable=too-few-public-methods
 
     def __init__(
         self,
-        icons_file: Optional[str] = None,
+        icons_file: str | None = None,
     ) -> None:
         # Build the combined lookup: defaults first, then overrides
-        self._lookup: Dict[str, str] = dict(_DEFAULT_RULES)
+        self._lookup: dict[str, str] = dict(_DEFAULT_RULES)
 
         # Load project-specific overrides from icons.txt
         if icons_file is None:
@@ -214,13 +214,13 @@ class IconResolver:  # pylint: disable=too-few-public-methods
                         self._lookup[parts[0]] = parts[1]
 
         # Per-run lineage cache: taxon_id → list of ScientificName strings
-        self._lineage_cache: Dict[int, List[str]] = {}
+        self._lineage_cache: dict[int, list[str]] = {}
 
     # ------------------------------------------------------------------
     # Public API
     # ------------------------------------------------------------------
 
-    def resolve_icon(self, meta: "GenomeMetadata") -> Tuple[str, str, str]:
+    def resolve_icon(self, meta: GenomeMetadata) -> tuple[str, str, str]:
         """Return the best icon filename for a genome.
 
         Tries lineage sources in order:
@@ -315,7 +315,7 @@ class IconResolver:  # pylint: disable=too-few-public-methods
     # ------------------------------------------------------------------
 
     @staticmethod
-    def _normalise_lineage(raw: object) -> List[str]:
+    def _normalise_lineage(raw: object) -> list[str]:
         """Coerce raw lineage data into a clean list of taxonomy names.
 
         Handles:
@@ -338,7 +338,7 @@ class IconResolver:  # pylint: disable=too-few-public-methods
             return [str(t).strip() for t in raw if t and str(t).strip()]
         return []
 
-    def _match_lineage(self, lineage: List[str]) -> str:
+    def _match_lineage(self, lineage: list[str]) -> str:
         """Walk lineage leaf → root; return first matching icon."""
         for name in lineage:
             icon = self._lookup.get(name)
@@ -346,7 +346,7 @@ class IconResolver:  # pylint: disable=too-few-public-methods
                 return icon
         return _FALLBACK_ICON
 
-    def _find_matched_term(self, lineage: List[str]) -> str:
+    def _find_matched_term(self, lineage: list[str]) -> str:
         """Return the first lineage name that matches a rule."""
         for name in lineage:
             if name in self._lookup:
@@ -358,7 +358,7 @@ class IconResolver:  # pylint: disable=too-few-public-methods
     # ------------------------------------------------------------------
 
     @staticmethod
-    def _normalise_busco_token(busco_lineage: Optional[str]) -> str:
+    def _normalise_busco_token(busco_lineage: str | None) -> str:
         """Extract the taxonomy token from a BUSCO lineage string.
 
         E.g. ``"insecta_odb10"`` → ``"insecta"``,
@@ -373,7 +373,7 @@ class IconResolver:  # pylint: disable=too-few-public-methods
         # Strip any remaining underscores (some are e.g. "cyprinodontiformes_odb10")
         return token.strip("_")
 
-    def _resolve_from_busco(self, busco_lineage: Optional[str]) -> Optional[str]:
+    def _resolve_from_busco(self, busco_lineage: str | None) -> str | None:
         """Try to resolve an icon from the busco_lineage string.
 
         First tries an exact match in ``_BUSCO_TO_TAXON``, then falls
@@ -398,7 +398,7 @@ class IconResolver:  # pylint: disable=too-few-public-methods
 
         return None
 
-    def _busco_matched_term(self, busco_lineage: Optional[str]) -> str:
+    def _busco_matched_term(self, busco_lineage: str | None) -> str:
         """Return the taxon name derived from busco_lineage."""
         token = self._normalise_busco_token(busco_lineage)
         if not token:
@@ -420,7 +420,7 @@ class IconResolver:  # pylint: disable=too-few-public-methods
     # NCBI Entrez lineage retrieval (cached)
     # ------------------------------------------------------------------
 
-    def _get_ncbi_lineage(self, taxon_id: int) -> List[str]:
+    def _get_ncbi_lineage(self, taxon_id: int) -> list[str]:
         """Return cached taxonomy lineage (leaf → root) for *taxon_id*."""
         if taxon_id in self._lineage_cache:
             return self._lineage_cache[taxon_id]
@@ -430,7 +430,7 @@ class IconResolver:  # pylint: disable=too-few-public-methods
         return lineage
 
     @staticmethod
-    def _fetch_lineage_from_ncbi(taxon_id: int) -> List[str]:
+    def _fetch_lineage_from_ncbi(taxon_id: int) -> list[str]:
         """Fetch the full taxonomy lineage from NCBI Entrez.
 
         Returns a list of scientific names ordered leaf → root.

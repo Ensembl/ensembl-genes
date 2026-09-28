@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import json
 import os
-from typing import Any, Dict
+from typing import Any
 
 import pandas as pd
 
@@ -42,7 +42,7 @@ def append_tsv(df: pd.DataFrame, path: str, header_if_new: bool = True) -> None:
     df.to_csv(path, sep="\t", index=False, mode="a", header=write_header)
 
 
-def write_manifest(manifest: Dict[str, Any], path: str) -> None:
+def write_manifest(manifest: dict[str, Any], path: str) -> None:
     ensure_dir(os.path.dirname(path))
     with open(path, "w", encoding="utf-8") as fh:
         json.dump(manifest, fh, indent=2, sort_keys=True)

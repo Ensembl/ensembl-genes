@@ -4,13 +4,12 @@ Replaces fragile 'information_schema' matching for tracking genomes in active pr
 """
 
 import logging
-from typing import List, Optional
 
 import pymysql
 
 from ensembl.genes.mysql_helper import get_mysql_connection
-from ensembl.genes.projects.models import GenomeMetadata
 from ensembl.genes.projects.config import ProjectConfig
+from ensembl.genes.projects.models import GenomeMetadata
 
 logger = logging.getLogger(__name__)
 
@@ -26,7 +25,7 @@ class GbTrackerClient:
         self.user = user
         self.dbname = dbname
 
-    def fetch_by_identifier(self, identifier: str) -> Optional[GenomeMetadata]:
+    def fetch_by_identifier(self, identifier: str) -> GenomeMetadata | None:
         """
         Looks up a pre-release core database name or accession in the tracking tables.
         """
@@ -103,7 +102,7 @@ class GbTrackerClient:
 
     def fetch_project_pre_releases(  # pylint: disable=too-many-locals
         self, config: ProjectConfig
-    ) -> List[GenomeMetadata]:
+    ) -> list[GenomeMetadata]:
         """
         Discovers pre-release genomes from the GB registry scoping exclusively by the explicit
         ProjectConfig rules (e.g. bioproject_scoping or custom_group_scoping).
@@ -143,7 +142,7 @@ class GbTrackerClient:
         )
 
         query = f"""
-            SELECT 
+            SELECT
                 NULL AS genome_uuid,
                 NULL AS core_dbname,
                 gs.gca_accession AS assembly_accession,

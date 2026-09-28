@@ -21,7 +21,7 @@ and generates HTML files containing assembly and annotation content.
 
 import argparse
 from pathlib import Path
-from typing import Dict, Optional, Tuple
+
 import pymysql
 import requests
 import xmltodict
@@ -31,7 +31,7 @@ from ensembl.genes.mysql_helper import get_mysql_connection
 
 def mysql_fetch_data(
     query: str, database: str, host: str, port: int, user: str
-) -> Optional[Tuple]:
+) -> tuple | None:
     """
     Fetch data from a MySQL database based on a provided query.
 
@@ -61,7 +61,7 @@ def mysql_fetch_data(
     return info
 
 
-def get_assembly_info(accession: str) -> Dict[str, str]:
+def get_assembly_info(accession: str) -> dict[str, str]:
     """
     Retrieve assembly information from the ENA API for a given accession.
 
@@ -108,7 +108,7 @@ def get_assembly_info(accession: str) -> Dict[str, str]:
     return return_dict
 
 
-def write_content(info: Dict[str, str], out_dir: Path, url_path: str) -> None:
+def write_content(info: dict[str, str], out_dir: Path, url_path: str) -> None:
     """
     Write assembly and annotation content to HTML files.
 

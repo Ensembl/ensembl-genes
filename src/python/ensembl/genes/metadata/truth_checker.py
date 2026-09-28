@@ -28,10 +28,11 @@ import re
 import subprocess
 import sys
 import tempfile
+from collections.abc import Iterable
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, Iterable, List, Optional
+from typing import Any
 
 SQL_STRING = r"'(?P<{name}>(?:''|[^'])*)'"
 INSERT_RE = re.compile(
@@ -73,7 +74,7 @@ class TruthCheckError(Exception):
 
     exit_code = 2
 
-    def __init__(self, message: str, report: Optional[Dict[str, Any]] = None):
+    def __init__(self, message: str, report: dict[str, Any] | None = None):
         super().__init__(message)
         self.report = report or {}
 
@@ -89,10 +90,10 @@ class ScriptRun:
     """Result paths and process output for one metadata script run."""
 
     name: str
-    command: List[str]
+    command: list[str]
     output_dir: Path
     sql_path: Path
-    json_path: Optional[Path]
+    json_path: Path | None
     stdout: str
     stderr: str
 
@@ -102,7 +103,7 @@ def sql_unescape(value: str) -> str:
     return value.replace("''", "'")
 
 
-def output_name(db_name: str, production_name: Optional[str]) -> str:
+def output_name(db_name: str, production_name: str | None) -> str:
     """Return the metadata script output basename."""
     return production_name or db_name
 
@@ -113,7 +114,7 @@ def tail_text(text: str, max_lines: int = 40) -> str:
     return "\n".join(lines[-max_lines:])
 
 
-def parse_sql_patch(sql_path: Path) -> List[Dict[str, str]]:
+def parse_sql_patch(sql_path: Path) -> list[dict[str, str]]:
     """Parse generated SQL into normalized metadata actions."""
     if not sql_path.exists():
         raise TruthCheckError(
@@ -121,7 +122,7 @@ def parse_sql_patch(sql_path: Path) -> List[Dict[str, str]]:
             {"sql_path": str(sql_path)},
         )
 
-    actions: List[Dict[str, str]] = []
+    actions: list[dict[str, str]] = []
     with open(sql_path, "r", encoding="utf-8") as handle:
         for line_number, raw_line in enumerate(handle, start=1):
             line = raw_line.strip()
@@ -183,18 +184,18 @@ def parse_sql_patch(sql_path: Path) -> List[Dict[str, str]]:
 
 
 def actions_by_key(
-    actions: Iterable[Dict[str, str]]
-) -> Dict[str, List[Dict[str, str]]]:
+    actions: Iterable[dict[str, str]]
+) -> dict[str, list[dict[str, str]]]:
     """Group SQL actions by meta_key for clearer diffs."""
-    grouped: Dict[str, List[Dict[str, str]]] = {}
+    grouped: dict[str, list[dict[str, str]]] = {}
     for action in actions:
         grouped.setdefault(action["meta_key"], []).append(action)
     return grouped
 
 
 def compare_actions(
-    old_actions: List[Dict[str, str]], registry_actions: List[Dict[str, str]]
-) -> Dict[str, Any]:
+    old_actions: list[dict[str, str]], registry_actions: list[dict[str, str]]
+) -> dict[str, Any]:
     """Return a structured difference report."""
     old_by_key = actions_by_key(old_actions)
     registry_by_key = actions_by_key(registry_actions)
@@ -236,7 +237,7 @@ def compare_actions(
     }
 
 
-def load_metadata_json(json_path: Optional[Path]) -> Dict[str, Any]:
+def load_metadata_json(json_path: Path | None) -> dict[str, Any]:
     """Load generated metadata JSON and return its metadata dictionary."""
     if json_path is None:
         raise TruthCheckError("Expected JSON output path was not configured")
@@ -271,8 +272,8 @@ def load_metadata_json(json_path: Optional[Path]) -> Dict[str, Any]:
 
 
 def compare_metadata(
-    old_metadata: Dict[str, str], registry_metadata: Dict[str, str]
-) -> Dict[str, Any]:
+    old_metadata: dict[str, str], registry_metadata: dict[str, str]
+) -> dict[str, Any]:
     """Return a structured difference report for generated metadata values."""
     all_keys = sorted(set(old_metadata) | set(registry_metadata))
 
@@ -329,7 +330,7 @@ def compare_metadata(
     }
 
 
-def script_env(repo_root: Path) -> Dict[str, str]:
+def script_env(repo_root: Path) -> dict[str, str]:
     """Build an environment that can import local ensembl modules."""
     env = os.environ.copy()
     src_python = str(repo_root / "src" / "python")
@@ -344,10 +345,10 @@ def script_env(repo_root: Path) -> Dict[str, str]:
 
 def run_command(  # pylint: disable=too-many-arguments
     name: str,
-    command: List[str],
+    command: list[str],
     output_dir: Path,
     sql_path: Path,
-    json_path: Optional[Path],
+    json_path: Path | None,
     repo_root: Path,
 ) -> ScriptRun:
     """Run a metadata script and convert failures to eHive-friendly errors."""
@@ -384,7 +385,7 @@ def run_command(  # pylint: disable=too-many-arguments
 
 def build_old_command(
     args: argparse.Namespace, output_dir: Path, json_path: Path
-) -> List[str]:
+) -> list[str]:
     """Build the old core_meta_data.py command."""
     command = [
         sys.executable,
@@ -411,7 +412,7 @@ def build_old_command(
 
 def build_registry_command(
     args: argparse.Namespace, output_dir: Path, json_path: Path
-) -> List[str]:
+) -> list[str]:
     """Build the registry-backed core_meta_reg.py command."""
     command = [
         sys.executable,
@@ -454,7 +455,7 @@ def build_registry_command(
     return command
 
 
-def write_report(path: Optional[Path], report: Dict[str, Any]) -> None:
+def write_report(path: Path | None, report: dict[str, Any]) -> None:
     """Write a JSON report if requested."""
     if not path:
         return
@@ -483,7 +484,7 @@ def resolve_work_dir(
         ) from exc
 
 
-def run_truth_check(args: argparse.Namespace) -> Dict[str, Any]:
+def run_truth_check(args: argparse.Namespace) -> dict[str, Any]:
     """Run both scripts, parse JSON outputs, and compare generated metadata."""
     repo_root = args.repo_root
     temp_dir = resolve_work_dir(args)

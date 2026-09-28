@@ -4,7 +4,7 @@ Converts internal GenomeMetadata objects into specific project YAML schemas.
 
 import logging
 import re
-from typing import Any, Dict, List
+from typing import Any
 
 import requests
 
@@ -27,9 +27,9 @@ class YamlRenderer:  # pylint: disable=too-few-public-methods
         self.ftp_client = ftp_client
         self.icon_resolver = IconResolver()
         # Per-run cache of beta species availability, keyed by genome UUID.
-        self._beta_status_cache: Dict[str, str] = {}
+        self._beta_status_cache: dict[str, str] = {}
         # Per-run cache for FTP species name resolution.
-        self._ftp_species_cache: Dict[str, str] = {}
+        self._ftp_species_cache: dict[str, str] = {}
 
     def _check_beta_status(self, genome_uuid: str) -> str:
         """Cached wrapper around ``check_beta_species_status``."""
@@ -64,7 +64,7 @@ class YamlRenderer:  # pylint: disable=too-few-public-methods
         # "unavailable" or "error" — do not emit a possibly-broken link.
         return "Coming soon!", status
 
-    def render(self, meta: GenomeMetadata) -> Dict[str, Any]:
+    def render(self, meta: GenomeMetadata) -> dict[str, Any]:
         """Dispatches to the correct schema renderer based on project config."""
         if self.config.schema_type == "hprc":
             return self._render_hprc(meta)
@@ -72,8 +72,8 @@ class YamlRenderer:  # pylint: disable=too-few-public-methods
             return self._render_mouse(meta)
         return self._render_standard(meta)
 
-    def _normalise_species_for_ftp(self, species_name: str) -> List[str]:
-        variants: List[str] = []
+    def _normalise_species_for_ftp(self, species_name: str) -> list[str]:
+        variants: list[str] = []
 
         # Ensure first letter is capitalized without lowercasing the rest
         if not species_name:
@@ -156,7 +156,7 @@ class YamlRenderer:  # pylint: disable=too-few-public-methods
 
     def _resolve_ftp_assets(  # pylint: disable=too-many-locals,too-many-branches,too-many-statements
         self, meta: GenomeMetadata
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         # Original old base logic for checking if we used a fallback
         ftp_species_name_base = meta.species_name.capitalize().replace(" ", "_")
         variants = self._normalise_species_for_ftp(meta.species_name)
@@ -290,9 +290,9 @@ class YamlRenderer:  # pylint: disable=too-few-public-methods
 
     def _render_standard(  # pylint: disable=too-many-locals,too-many-branches,too-many-statements
         self, meta: GenomeMetadata
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Renders Schema A: Standard Projects (VGP, DToL, ERGA)"""
-        doc: Dict[str, Any] = {}
+        doc: dict[str, Any] = {}
 
         # species display name must only come from the scientific name -- never from strain,
         # sample description, habitat text, or any other free-text metadata field.
@@ -395,9 +395,9 @@ class YamlRenderer:  # pylint: disable=too-few-public-methods
 
         return {k: v for k, v in doc.items() if v is not None}
 
-    def _render_hprc(self, meta: GenomeMetadata) -> Dict[str, Any]:
+    def _render_hprc(self, meta: GenomeMetadata) -> dict[str, Any]:
         """Renders Schema B: HPRC"""
-        doc: Dict[str, Any] = {}
+        doc: dict[str, Any] = {}
 
         doc["assembly"] = meta.assembly_name
         if meta.parent_of_origin:
@@ -458,9 +458,9 @@ class YamlRenderer:  # pylint: disable=too-few-public-methods
 
         return {k: v for k, v in doc.items() if v is not None}
 
-    def _render_mouse(self, meta: GenomeMetadata) -> Dict[str, Any]:
+    def _render_mouse(self, meta: GenomeMetadata) -> dict[str, Any]:
         """Renders Schema C: Mouse Genomes"""
-        doc: Dict[str, Any] = {}
+        doc: dict[str, Any] = {}
 
         doc["species"] = meta.species_name
         if meta.strain:

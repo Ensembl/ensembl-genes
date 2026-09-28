@@ -28,11 +28,9 @@ from __future__ import annotations
 
 import argparse
 import sys
-from typing import Optional
 
-from ensembl.genes.info_from_registry.mysql_helper import mysql_get_connection
-from ensembl.genes.mysql_helper import MySQLConnection
-from ensembl.genes.info_from_registry.registry_helper import fetch_registry_ids
+from ensembl.genes.mysql_helper import MySQLConnection, mysql_get_connection
+from ensembl.genes.registry_helper import fetch_registry_ids
 
 
 def fetch_core_metrics(
@@ -154,7 +152,7 @@ def write_assembly_metrics(
 
 def write_genebuild_metrics(
     registry_connection: MySQLConnection,
-    genebuild_status_id: Optional[int],
+    genebuild_status_id: int | None,
     assembly_id: int,
     rows: list[tuple[str, str]],
     dev: bool,
@@ -227,7 +225,7 @@ def main(  # pylint:disable=too-many-arguments, too-many-locals
     core_host: str,
     core_port: int,
     core_user: str,
-    core_password: Optional[str],
+    core_password: str | None,
     core_db: str,
     assembly: str,
     species_id: int,
@@ -285,7 +283,7 @@ def main(  # pylint:disable=too-many-arguments, too-many-locals
             f"Found assembly_id: {assembly_id}, genebuild_status_id: {genebuild_status_id}"
         )
 
-        print(f"Fetching metrics from core database...")
+        print("Fetching metrics from core database...")
         meta_rows = fetch_core_metrics(core_connection, species_id)
         if not meta_rows:
             print("No metrics found in core database")
@@ -314,7 +312,7 @@ def main(  # pylint:disable=too-many-arguments, too-many-locals
     except Exception as e:  # pylint:disable=broad-exception-caught
         if registry_connection:
             registry_connection.rollback()
-        print(f"ERROR: {str(e)}", file=sys.stderr)
+        print(f"ERROR: {e!s}", file=sys.stderr)
         sys.exit(1)
 
     finally:

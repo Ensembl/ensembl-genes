@@ -22,16 +22,14 @@ from __future__ import annotations
 
 import argparse
 from datetime import datetime
-from typing import Optional
 
-from ensembl.genes.info_from_registry.mysql_helper import mysql_get_connection
-from ensembl.genes.info_from_registry.registry_helper import (
+from ensembl.genes.mysql_helper import MySQLConnection, mysql_get_connection
+from ensembl.genes.registry_helper import (
     fetch_assembly_id,
     fetch_current_genebuild_record,
     fetch_highest_genebuild_version,
     increment_genebuild_version,
 )
-from ensembl.genes.mysql_helper import MySQLConnection
 
 
 def ensure_genebuilder_exists(
@@ -127,9 +125,9 @@ def update_existing_record(  # pylint:disable=too-many-arguments
     status: str,
     current_date: str,
     dev: bool,
-    annotation_method: Optional[str] = None,
-    annotation_source: Optional[str] = None,
-    genebuild_version: Optional[str] = None,
+    annotation_method: str | None = None,
+    annotation_source: str | None = None,
+    genebuild_version: str | None = None,
 ) -> None:
     """
     Update an existing genebuild status record.
@@ -204,10 +202,10 @@ def main(  # pylint:disable=too-many-arguments, too-many-statements, too-many-br
     assembly: str,
     status: str,
     genebuilder: str,
-    annotation_source: Optional[str],
-    annotation_method: Optional[str],
+    annotation_source: str | None,
+    annotation_method: str | None,
     release_type: str,
-    genebuild_version: Optional[str],
+    genebuild_version: str | None,
     dev: bool = False,
 ) -> None:
     """

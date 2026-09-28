@@ -20,19 +20,18 @@ applies quality checks using FastQC and STAR, and generates a report summarizing
 
 import argparse
 import re
-import typing
 from pathlib import Path
+
 import pandas as pd
 import pymysql
-from sqlalchemy import create_engine
-from sqlalchemy import text
+from sqlalchemy import create_engine, text
 
 from ensembl.genes.mysql_helper import MySQLConnection, get_mysql_connection
 
 
 def connect_to_db(
     host: str, user: str, password: str, database: str, port=3306
-) -> typing.Optional[MySQLConnection]:
+) -> MySQLConnection | None:
     """
     Establishes a connection to the MySQL database.
 
@@ -81,10 +80,10 @@ def star_quality(row: pd.Series) -> bool:
     """Calculate STAR quality based on the criteria.
     The function checks the STAR quality criteria for each row \
         and returns True if the criteria are met.
-        
+
     Args:
         row (_type_): dataframe row
-        
+
     Returns:
         bool: True if the criteria are met, False otherwise.
     """
@@ -255,7 +254,7 @@ def create_report(df: pd.DataFrame, tissue_report_file: str) -> pd.DataFrame:
 
 
 def prioritise_tissues(
-    df: pd.DataFrame, priority_tissues: typing.List[str]
+    df: pd.DataFrame, priority_tissues: list[str]
 ) -> pd.DataFrame:
     """
     Assign a numeric priority to tissue predictions based on a predefined list.
