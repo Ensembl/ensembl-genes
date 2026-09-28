@@ -13,10 +13,10 @@ from pymysql.connections import Connection
 from pymysql.cursors import Cursor, DictCursor
 
 if TYPE_CHECKING:
-    MySQLConnection: TypeAlias = Connection[Any]
+    MySQLConnection: TypeAlias = Connection[Any]  # pylint: disable=invalid-name
 else:
     # PyMySQL versions before 1.0 expose Connection as a non-subscriptable class.
-    MySQLConnection: TypeAlias = Connection
+    MySQLConnection: TypeAlias = Connection  # pylint: disable=invalid-name
 
 logger = logging.getLogger(__name__)
 
@@ -30,7 +30,7 @@ def get_mysql_connection(
     password: str | None = None,
     cursorclass: type[Cursor] | None = None,
     **kwargs: Any,
-) -> MySQLConnection:
+) -> MySQLConnection:  # pylint: disable=too-many-arguments
     """Create a PyMySQL connection with consistent connection options.
 
     ``cursorclass`` is optional because existing scripts use both PyMySQL's

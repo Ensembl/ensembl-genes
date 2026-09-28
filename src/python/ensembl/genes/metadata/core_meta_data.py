@@ -494,7 +494,7 @@ def main() -> None:
         truth_dict["organism.biosample_id"] = "SAMN04256190"
     elif db == "ciona_intestinalis_core_110_3":
         truth_dict["organism.biosample_id"] = "SAMD00414333"
-    elif db == "homo_sapiens_37_core_110_37" or db == "homo_sapiens_core_110_38":
+    elif db in ("homo_sapiens_37_core_110_37", "homo_sapiens_core_110_38"):
         truth_dict["organism.biosample_id"] = "SAMN12121739"
     elif db == "saccharomyces_cerevisiae_core_57_110_4":
         truth_dict["organism.biosample_id"] = "SAMEA3184125"
