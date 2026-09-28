@@ -26,6 +26,7 @@ import string
 from typing import Optional
 import pymysql  # pylint: disable=import-error  # type: ignore
 
+from ensembl.genes.mysql_helper import MySQLConnection, get_mysql_connection
 from ensembl.genes.info_from_registry.mysql_helper import mysql_fetch_data
 
 # Configure logging
@@ -113,7 +114,7 @@ def generate_random_prefix(existing_prefix_list: list[str]) -> str:
 def insert_prefix_into_db(
     prefix: str,
     taxon_id: int,
-    conn: pymysql.connections.Connection,
+    conn: MySQLConnection,
     store_new_registry: bool = False,
 ) -> bool:
     """Insert a new species prefix into the database.
@@ -166,7 +167,7 @@ def create_prefix(
         str: The newly created species prefix.
     """
     logger.info(f"Creating new prefix for taxon ID: {taxon_id}")
-    conn = pymysql.connect(
+    conn = get_mysql_connection(
         host=server_info["registry"]["db_host"],
         user=server_info["registry"]["db_user_w"],
         port=int(server_info["registry"]["db_port"]),
@@ -248,7 +249,7 @@ def get_species_prefix(taxon_id: int, server_info: dict) -> Optional[str]:
             species_prefix = str(prefix_list[0])
             logger.info(f"Saving exting prefix {species_prefix} in new registry")
             # Open a new connection
-            conn = pymysql.connect(
+            conn = get_mysql_connection(
                 host=server_info["registry"]["db_host"],
                 user=server_info["registry"]["db_user_w"],
                 port=int(server_info["registry"]["db_port"]),

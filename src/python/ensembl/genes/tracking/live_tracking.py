@@ -21,6 +21,8 @@ from typing import List, Tuple, Any
 from pathlib import Path
 import pymysql
 
+from ensembl.genes.mysql_helper import get_mysql_connection
+
 with open(  # pylint:disable=unspecified-encoding
     Path(__file__).parent / "./live_tracking_config.json", "r"
 ) as f:
@@ -60,7 +62,7 @@ def mysql_fetch_data(
         from the given host.
     """
     try:
-        conn = pymysql.connect(
+        conn = get_mysql_connection(
             host=host, user=user, port=port, database=database.strip()
         )
 
@@ -99,7 +101,7 @@ def check_database_on_server(
         bool: True if the database exists, False otherwise.
     """
     try:
-        conn = pymysql.connect(
+        conn = get_mysql_connection(
             host=config["server_details"]["staging"][server_key]["db_host"],
             user=config["server_details"]["staging"][server_key]["db_user"],
             passwd=config["server_details"]["staging"][server_key]["db_pass"],

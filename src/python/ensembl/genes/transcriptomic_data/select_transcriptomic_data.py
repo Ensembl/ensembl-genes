@@ -27,10 +27,12 @@ import pymysql
 from sqlalchemy import create_engine
 from sqlalchemy import text
 
+from ensembl.genes.mysql_helper import MySQLConnection, get_mysql_connection
+
 
 def connect_to_db(
     host: str, user: str, password: str, database: str, port=3306
-) -> typing.Optional[pymysql.connections.Connection]:
+) -> typing.Optional[MySQLConnection]:
     """
     Establishes a connection to the MySQL database.
 
@@ -45,7 +47,7 @@ def connect_to_db(
         A pymysql connection object.
     """
     try:
-        connection = pymysql.connect(
+        connection = get_mysql_connection(
             host=host, user=user, password=password, database=database, port=port
         )
         return connection

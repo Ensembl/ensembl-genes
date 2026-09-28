@@ -24,9 +24,6 @@ import argparse
 from datetime import datetime
 from typing import Optional
 
-from pymysql.connections import Connection
-from pymysql.cursors import DictCursor
-
 from ensembl.genes.info_from_registry.mysql_helper import mysql_get_connection
 from ensembl.genes.info_from_registry.registry_helper import (
     fetch_assembly_id,
@@ -34,10 +31,11 @@ from ensembl.genes.info_from_registry.registry_helper import (
     fetch_highest_genebuild_version,
     increment_genebuild_version,
 )
+from ensembl.genes.mysql_helper import MySQLConnection
 
 
 def ensure_genebuilder_exists(
-    connection: Connection[DictCursor], genebuilder: str
+    connection: MySQLConnection, genebuilder: str
 ) -> None:
     """
     Ensure genebuilder exists in the genebuilder table.
@@ -59,7 +57,7 @@ def ensure_genebuilder_exists(
 
 # fetch_current_record is now fetch_current_genebuild_record imported from registry_helper
 def insert_new_record(  # pylint:disable=too-many-arguments
-    connection: Connection[DictCursor],
+    connection: MySQLConnection,
     assembly_id: int,
     assembly: str,
     genebuilder: str,
@@ -124,7 +122,7 @@ def insert_new_record(  # pylint:disable=too-many-arguments
 
 
 def update_existing_record(  # pylint:disable=too-many-arguments
-    connection: Connection[DictCursor],
+    connection: MySQLConnection,
     record_id: int,
     status: str,
     current_date: str,
@@ -174,7 +172,7 @@ WHERE genebuild_status_id = %s
 
 
 def set_old_record_historical(
-    connection: Connection[DictCursor], record_id: int, dev: bool
+    connection: MySQLConnection, record_id: int, dev: bool
 ) -> None:
     """
     Set an existing record to historical (last_attempt = 0).

@@ -22,19 +22,15 @@ import logging.config
 import os
 from datetime import date, datetime
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Dict, Iterable, List, Optional, Tuple, TypeAlias
+from typing import Any, Dict, Iterable, List, Optional, Tuple, TypeAlias
 
 import pymysql
+from ensembl.genes.mysql_helper import MySQLConnection, get_mysql_connection
 from ensembl.genes.info_from_registry.registry_helper import (
     fetch_current_genebuild_record,
 )
 
-if TYPE_CHECKING:
-    RegistryConnection: TypeAlias = pymysql.connections.Connection[
-        pymysql.cursors.DictCursor
-    ]
-else:
-    RegistryConnection = pymysql.connections.Connection
+RegistryConnection: TypeAlias = MySQLConnection
 
 logger: logging.Logger = logging.getLogger(__name__)
 
@@ -107,7 +103,7 @@ def mysql_fetch_data(  # pylint: disable=too-many-arguments
     cursor = None
     info: List[Dict[str, Any]] = []
     try:
-        conn = pymysql.connect(
+        conn = get_mysql_connection(
             host=host,
             user=user,
             port=int(port),
@@ -464,7 +460,7 @@ def fetch_registry_metadata(
     """Fetch all registry metadata needed by this script."""
     connection = None
     try:
-        connection = pymysql.connect(
+        connection = get_mysql_connection(
             database=registry_config["db_name"],
             host=registry_config["db_host"],
             port=int(registry_config["db_port"]),

@@ -21,6 +21,8 @@ from typing import List, Optional
 
 import pymysql
 
+from ensembl.genes.mysql_helper import get_mysql_connection
+
 logger = logging.getLogger(__name__)
 
 DEFAULT_REGISTRY_DB = "gb_assembly_metadata"
@@ -84,7 +86,7 @@ def get_bioproject_names(
 
     conn = None
     try:
-        conn = pymysql.connect(
+        conn = get_mysql_connection(
             host=registry_host,
             user=user,
             port=registry_port,

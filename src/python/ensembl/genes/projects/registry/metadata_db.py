@@ -7,6 +7,7 @@ from typing import Dict, List, Optional
 
 import pymysql
 
+from ensembl.genes.mysql_helper import get_mysql_connection
 from ensembl.genes.projects.models import GenomeMetadata
 
 logging.basicConfig(level=logging.INFO)
@@ -69,7 +70,7 @@ class MetadataDbClient:
 
         for query in queries:
             try:
-                conn = pymysql.connect(
+                conn = get_mysql_connection(
                     host=self.host,
                     user=self.user,
                     port=self.port,
@@ -143,7 +144,7 @@ class MetadataDbClient:
 
         result: Dict[str, str] = {}
         try:
-            conn = pymysql.connect(
+            conn = get_mysql_connection(
                 host=self.host,
                 user=self.user,
                 port=self.port,
@@ -210,7 +211,7 @@ class MetadataDbClient:
         """
 
         try:
-            conn = pymysql.connect(
+            conn = get_mysql_connection(
                 host=self.host, user=self.user, port=self.port, database=self.dbname
             )
             with conn.cursor(pymysql.cursors.DictCursor) as cursor:
@@ -244,7 +245,7 @@ class MetadataDbClient:
                 LIMIT 1
             """
             try:
-                conn = pymysql.connect(
+                conn = get_mysql_connection(
                     host=self.host, user=self.user, port=self.port, database=self.dbname
                 )
                 with conn.cursor(pymysql.cursors.DictCursor) as cursor:

@@ -41,6 +41,8 @@ from typing import Any, Dict, List, Optional, Sequence, Tuple
 import pymysql
 import requests
 
+from ensembl.genes.mysql_helper import get_mysql_connection
+
 # -----------------------------------
 # Logging
 # -----------------------------------
@@ -97,7 +99,7 @@ def mysql_fetch_data(
     """
     try:
         server_config = _get_config()["server_details"][server_group][server_name]
-        connection = pymysql.connect(
+        connection = get_mysql_connection(
             host=server_config["db_host"],
             user=server_config["db_user"],
             port=server_config["db_port"],

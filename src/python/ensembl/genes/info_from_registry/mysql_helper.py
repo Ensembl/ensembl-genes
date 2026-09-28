@@ -29,8 +29,9 @@ import logging
 from typing import Any, Optional
 
 import pymysql
-from pymysql.connections import Connection
 from pymysql.cursors import DictCursor
+
+from ensembl.genes.mysql_helper import MySQLConnection, get_mysql_connection
 
 # Configure logging
 logging.basicConfig(
@@ -40,25 +41,25 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-__all__ = ["mysql_fetch_data", "mysql_update"]
+__all__ = ["mysql_fetch_data", "mysql_get_connection", "mysql_update"]
 
 
 def mysql_get_connection(
     database: str, host: str, port: int, user: str, password: str
-) -> Optional[Connection[DictCursor]]:  # pylint: disable=unsubscriptable-object
+) -> Optional[MySQLConnection]:
     """
     Establish a connection to the MySQL database.
     """
     try:
-        conn = pymysql.connect(
+        conn = get_mysql_connection(
             host=host,
             user=user,
             port=port,
             password=password,
             database=database.strip(),
-            cursorclass=pymysql.cursors.DictCursor,
+            cursorclass=DictCursor,
         )
-        return conn  # type: ignore
+        return conn
     except pymysql.Error as err:
         print(f"MySQL error: {err}")
         return None
@@ -90,13 +91,13 @@ def mysql_fetch_data(  # pylint:disable=too-many-arguments
                     Returns an empty list on failure.
     """
     try:
-        conn = pymysql.connect(
+        conn = get_mysql_connection(
             host=host,
             user=user,
             port=int(port),
             password=password,
             database=database.strip(),
-            cursorclass=pymysql.cursors.DictCursor,
+            cursorclass=DictCursor,
         )
         with conn.cursor() as cursor:
             cursor.execute(query, params or ())
@@ -138,13 +139,13 @@ def mysql_update(  # pylint:disable=too-many-arguments
     """
 
     try:
-        conn = pymysql.connect(
+        conn = get_mysql_connection(
             host=host,
             user=user,
             port=int(port),
             password=password,
             database=database.strip(),
-            cursorclass=pymysql.cursors.DictCursor,
+            cursorclass=DictCursor,
         )
         with conn.cursor() as cursor:
             cursor.execute(query, params or ())

@@ -28,6 +28,8 @@ import pymysql
 import requests
 import xmltodict
 
+from ensembl.genes.mysql_helper import get_mysql_connection
+
 
 def _load_bioproject_names_getter() -> Callable[..., List[str]]:
     try:
@@ -64,7 +66,7 @@ def mysql_fetch_data(
     cursor = None
     info: List[Tuple[Any, ...]] = []
     try:
-        conn = pymysql.connect(
+        conn = get_mysql_connection(
             host=host, user=user, port=port, database=database.strip()
         )
         cursor = conn.cursor()

@@ -26,6 +26,8 @@ import pymysql
 import requests
 import xmltodict
 
+from ensembl.genes.mysql_helper import get_mysql_connection
+
 
 def mysql_fetch_data(
     query: str, database: str, host: str, port: int, user: str
@@ -44,7 +46,7 @@ def mysql_fetch_data(
         tuple: A tuple containing the fetched data.
     """
     try:
-        conn = pymysql.connect(
+        conn = get_mysql_connection(
             host=host, user=user, port=port, database=database.strip()
         )
         cursor = conn.cursor()

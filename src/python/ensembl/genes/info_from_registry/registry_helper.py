@@ -21,19 +21,16 @@ that are shared across multiple scripts.
 """
 
 import re
-from typing import TYPE_CHECKING, Any, Optional, TypeAlias, cast
+from typing import Any, Optional, TypeAlias, cast
 
 import pymysql
 
-if TYPE_CHECKING:
-    RegistryConnection: TypeAlias = pymysql.connections.Connection[
-        pymysql.cursors.DictCursor
-    ]
-else:
-    RegistryConnection = pymysql.connections.Connection
+from ensembl.genes.mysql_helper import MySQLConnection
+
+RegistryConnection: TypeAlias = MySQLConnection
 
 
-def fetch_assembly_id(connection: RegistryConnection, assembly: str) -> Optional[int]:
+def fetch_assembly_id(connection: MySQLConnection, assembly: str) -> Optional[int]:
     """
     Fetch the assembly ID for a given assembly accession.
 

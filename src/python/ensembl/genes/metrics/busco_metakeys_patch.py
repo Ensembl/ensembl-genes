@@ -21,6 +21,8 @@ from pathlib import Path
 from typing import Dict, Optional, Union
 import pymysql
 
+from ensembl.genes.mysql_helper import get_mysql_connection
+
 
 def parse_busco_file(  # pylint: disable=too-many-locals, too-many-statements, unspecified-encoding
     file_path: str,
@@ -267,7 +269,7 @@ def execute_sql_patches(  # pylint: disable=too-many-arguments, too-many-locals
     connection = None  # Initialize connection variable
     # Connect to the database and execute the SQL statements
     try:
-        connection = pymysql.connect(
+        connection = get_mysql_connection(
             host=host, user=user, password=password, database=db_name, port=int(port)
         )
         with connection.cursor() as cursor:

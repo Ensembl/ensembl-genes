@@ -8,6 +8,7 @@ from typing import List, Optional
 
 import pymysql
 
+from ensembl.genes.mysql_helper import get_mysql_connection
 from ensembl.genes.projects.models import GenomeMetadata
 from ensembl.genes.projects.config import ProjectConfig
 
@@ -60,7 +61,7 @@ class GbTrackerClient:
         """
 
         try:
-            conn = pymysql.connect(
+            conn = get_mysql_connection(
                 host=self.host, user=self.user, port=self.port, database=self.dbname
             )
             with conn.cursor(pymysql.cursors.DictCursor) as cursor:
@@ -163,7 +164,7 @@ class GbTrackerClient:
         """
 
         try:
-            conn = pymysql.connect(
+            conn = get_mysql_connection(
                 host=self.host, user=self.user, port=self.port, database=self.dbname
             )
             with conn.cursor(pymysql.cursors.DictCursor) as cursor:

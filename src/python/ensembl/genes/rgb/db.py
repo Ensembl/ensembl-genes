@@ -8,6 +8,8 @@ from typing import Iterable, List, Optional, Tuple
 import pandas as pd
 import pymysql
 
+from ensembl.genes.mysql_helper import get_mysql_connection
+
 
 @dataclass
 class DBParams:
@@ -20,7 +22,7 @@ class DBParams:
 
 @contextlib.contextmanager
 def connect(params: DBParams):
-    conn = pymysql.connect(
+    conn = get_mysql_connection(
         host=params.host,
         port=params.port,
         user=params.user,
