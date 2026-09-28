@@ -142,7 +142,10 @@ _HAP_PATTERNS = [
     # hap1 / hap2
     (re.compile(r"^(.+?)[\._\-]?(hap[12]|haplotype[12])(.*)$", re.IGNORECASE), "hap"),
     # pat / mat / paternal / maternal
-    (re.compile(r"^(.+?)[\._\-]?(pat(?:ernal)?|mat(?:ernal)?)(.*)$", re.IGNORECASE), "parent"),
+    (
+        re.compile(r"^(.+?)[\._\-]?(pat(?:ernal)?|mat(?:ernal)?)(.*)$", re.IGNORECASE),
+        "parent",
+    ),
     # primary / alternate
     (re.compile(r"^(.+?)[\._\-]?(primary|alternate|alt)(.*)$", re.IGNORECASE), "alt"),
 ]

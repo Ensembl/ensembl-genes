@@ -253,9 +253,7 @@ def create_report(df: pd.DataFrame, tissue_report_file: str) -> pd.DataFrame:
     return df
 
 
-def prioritise_tissues(
-    df: pd.DataFrame, priority_tissues: list[str]
-) -> pd.DataFrame:
+def prioritise_tissues(df: pd.DataFrame, priority_tissues: list[str]) -> pd.DataFrame:
     """
     Assign a numeric priority to tissue predictions based on a predefined list.
 

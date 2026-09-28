@@ -32,9 +32,7 @@ from ensembl.genes.registry_helper import (
 )
 
 
-def ensure_genebuilder_exists(
-    connection: MySQLConnection, genebuilder: str
-) -> None:
+def ensure_genebuilder_exists(connection: MySQLConnection, genebuilder: str) -> None:
     """
     Ensure genebuilder exists in the genebuilder table.
 
