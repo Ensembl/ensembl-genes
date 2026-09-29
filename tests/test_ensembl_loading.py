@@ -476,9 +476,7 @@ def test_refseq_quality_check_excludes_non_coding_cds() -> None:
         cds_segments={"t1": [CdsSegment(1, 100, 1, "0")]},
     )
 
-    assert (
-        expected_translation_stable_ids(annotation, get_source_config("refseq")) == {}
-    )
+    assert not expected_translation_stable_ids(annotation, get_source_config("refseq"))
 
 
 def test_refseq_parser_supports_multiple_parents_and_translation_exceptions(
