@@ -133,7 +133,7 @@ def parse_translation_attributes(
         "Val": "V",
     }
     exception_pattern = re.compile(
-        r"pos:(?P<position>join\([^)]*\)|\d+(?:\.\.\d+)?),"
+        r"pos:(?P<position>join\([^)]*\)|complement\([^)]*\)|\d+(?:\.\.\d+)?),"
         r"aa:(?P<amino_acid>[A-Za-z*]+)"
     )
     genomic_to_cds_position: dict[int, int] = {}
@@ -209,7 +209,11 @@ def parse_translation_attributes(
         else:
             code, value = (
                 "amino_acid_sub",
-                f"{start} {end} {amino_acid_codes.get(amino_acid, '')}",
+                # RefSeq uses ``Other`` when the genomic codon was edited but
+                # does not disclose the replacement amino acid. X preserves
+                # that uncertainty while preventing the genomic stop codon
+                # from being exposed as a real internal termination.
+                f"{start} {end} {amino_acid_codes.get(amino_acid, 'X')}",
             )
         translation_attributes.append((code, value))
     frameshift = re.search(r"([-+]\d+).*ribosomal frameshift", note)
@@ -236,6 +240,17 @@ def parse_gtf_attributes(raw_attributes: str) -> dict[str, str]:
             value = value[1:-1]
         attributes[key] = value
     return attributes
+
+
+def has_refseq_translation_discrepancy(note: str) -> bool:
+    """Return whether a RefSeq note describes substitutions and frameshifts."""
+
+    if not re.search(r"RefSeq protein has", note, re.IGNORECASE):
+        return False
+    return bool(
+        re.search(r"\bsubstitution\w*\b", note, re.IGNORECASE)
+        and re.search(r"\bframeshift\w*\b", note, re.IGNORECASE)
+    )
 
 
 def parse_feature_attributes(
@@ -287,18 +302,26 @@ def resolve_biotype(
     transcript_biotype = attributes.get(source_config.transcript_biotype_attribute)
     gene_biotype = attributes.get(source_config.gene_biotype_attribute)
 
-    if gbkey.endswith(source_config.segment_gbkey_suffix):
-        segment_type = gbkey[0]
-        return f"{source_config.segment_biotype_prefix}_{segment_type}_gene"
-
     if source_config.transcribed_pseudogene_gbkey_token in gbkey:
         return "transcribed_pseudogene"
 
     if pseudo_flag:
         return "pseudogene"
 
+    if gbkey.endswith(source_config.segment_gbkey_suffix):
+        segment_type = gbkey[0]
+        return f"{source_config.segment_biotype_prefix}_{segment_type}_gene"
+
     if transcript_biotype:
-        return transcript_biotype
+        return source_config.transcript_biotype_overrides.get(
+            transcript_biotype,
+            transcript_biotype,
+        )
+
+    if source_config.name == REFSEQ_CONFIG.name and feature_type == "transcript":
+        if feature_id.startswith(("NR_", "XR_")):
+            return "lncRNA"
+        return "protein_coding"
 
     if source_config.translation_coords_attribute and attributes.get(
         source_config.translation_coords_attribute
@@ -306,9 +329,11 @@ def resolve_biotype(
         return "protein_coding"
 
     if feature_type in source_config.biotype_transcript_feature_types:
-        return source_config.transcript_feature_biotype_map.get(
-            feature_type,
-            feature_type,
+        feature_biotype = source_config.transcript_feature_biotype_map.get(
+            feature_type, feature_type
+        )
+        return source_config.transcript_biotype_overrides.get(
+            feature_biotype, feature_biotype
         )
 
     if feature_type == "exon":
@@ -317,7 +342,7 @@ def resolve_biotype(
             return exon_biotype
 
     if gene_biotype:
-        return gene_biotype
+        return source_config.gene_biotype_overrides.get(gene_biotype, gene_biotype)
 
     log.debug(
         "Defaulting biotype to %s for %s %s %s",
@@ -640,6 +665,13 @@ def parse_converted_gff3(
                     )
                     or transcript_id
                 )
+                stable_id = normalize_id(stable_id, source_config)
+                existing_stable_ids = {
+                    transcript.stable_id
+                    for transcript in annotation.transcripts.values()
+                }
+                if stable_id in existing_stable_ids:
+                    stable_id = f"{stable_id}_{transcript_id}"
                 annotation.transcripts[transcript_id] = TranscriptRecord(
                     gene_id=gene_id,
                     seq_name=seq_name,
@@ -739,6 +771,9 @@ def parse_converted_gff3(
                             ),
                         )
                     )
+                    transcript_record = annotation.transcripts[transcript_id]
+                    transcript_record.start = min(transcript_record.start, start)
+                    transcript_record.end = max(transcript_record.end, end)
                 continue
 
             if feature_type == "CDS":
@@ -768,6 +803,10 @@ def parse_converted_gff3(
                             source_config,
                         )
                     if transcript:
+                        if has_refseq_translation_discrepancy(
+                            attributes.get("Note", "")
+                        ):
+                            transcript.unresolved_translation_discrepancy = True
                         if "transl_except" in attributes:
                             exception = (
                                 attributes["transl_except"],
@@ -877,6 +916,29 @@ def reconcile_annotation(
             ],
         )
         added_transcripts += 1
+
+    for transcript in annotation.transcripts.values():
+        ordered_exons = sorted(
+            transcript.exons,
+            key=lambda exon: exon.start,
+            reverse=(transcript.strand == -1),
+        )
+        for rank, exon in enumerate(ordered_exons, start=1):
+            if exon.stable_id is None:
+                exon.stable_id = (
+                    f"{transcript.gene_id}_exon_{exon.start}_{exon.end}_"
+                    f"{exon.strand}"
+                )
+
+    for gene_id, gene in annotation.genes.items():
+        transcripts = [
+            transcript
+            for transcript in annotation.transcripts.values()
+            if transcript.gene_id == gene_id
+        ]
+        if transcripts:
+            gene.start = min(transcript.start for transcript in transcripts)
+            gene.end = max(transcript.end for transcript in transcripts)
 
     log.info(
         "Reconciled annotation (%s genes, %s transcripts, %s synthetic exons)",
@@ -992,6 +1054,24 @@ def apply_biotype_overrides(
             transcript.biotype = source_config.transcript_biotype_overrides[
                 transcript.biotype
             ]
+
+    # RefSeq occasionally labels a parent gene as misc_RNA/miRNA while its
+    # only transcript rows use another non-coding biotype. Core's biotype
+    # check requires the gene and at least one transcript to share a group;
+    # retain the transcript annotation and make the parent agree with it.
+    for gene in annotation.genes.values():
+        transcripts = [
+            transcript
+            for transcript in annotation.transcripts.values()
+            if transcript.gene_id == gene.stable_id
+        ]
+        if not transcripts:
+            continue
+        transcript_biotypes = {transcript.biotype for transcript in transcripts}
+        if gene.biotype == "misc_RNA" and transcript_biotypes == {"lncRNA"}:
+            gene.biotype = "lncRNA"
+        elif gene.biotype == "miRNA" and transcript_biotypes == {"misc_RNA"}:
+            gene.biotype = "misc_RNA"
 
     return annotation
 

@@ -4,6 +4,7 @@
 # accept the complete set of values needed for each insert workflow.
 # pylint: disable=too-many-arguments
 # pylint: disable=too-many-locals
+# pylint: disable=too-many-lines
 
 from __future__ import annotations
 
@@ -35,6 +36,19 @@ DEFAULT_CORE_SCHEMA_SQL_PATH = (
     Path(__file__).resolve().parent / "config" / "core_schema.sql"
 )
 DEFAULT_ENSEMBL_RELEASE = "114"
+PROTEIN_CODING_TRANSCRIPT_BIOTYPES = frozenset(
+    {"protein_coding", "nonsense_mediated_decay", "protein_coding_LoF"}
+)
+
+
+def is_coding_transcript(
+    transcript: Any,
+    source_config: GffSourceConfig,
+) -> bool:
+    """Return whether a transcript is eligible for a translation row."""
+    if source_config.name == REFSEQ_CONFIG.name:
+        return transcript.biotype in PROTEIN_CODING_TRANSCRIPT_BIOTYPES
+    return "protein_coding" in transcript.biotype
 
 
 def load_seq_regions_from_fna(
@@ -362,6 +376,7 @@ def get_coord_system_id(
 def get_or_create_analysis(
     cursor: DbCursor,
     source_config: GffSourceConfig = REFSEQ_CONFIG,
+    controlled_metadata: Mapping[str, str] | None = None,
 ) -> int:
     """Return an existing analysis_id or create one for the selected source."""
 
@@ -371,13 +386,39 @@ def get_or_create_analysis(
     )
     row = cursor.fetchone()
     if row is not None:
-        return int(row[0])
+        analysis_id = int(row[0])
+        ensure_analysis_description(cursor, analysis_id, controlled_metadata)
+        return analysis_id
 
     cursor.execute(
         "INSERT INTO analysis (logic_name,created,program) VALUES (%s,NOW(),%s)",
         (source_config.analysis_logic_name, source_config.analysis_program),
     )
-    return int(cursor.lastrowid)
+    analysis_id = int(cursor.lastrowid)
+    ensure_analysis_description(cursor, analysis_id, controlled_metadata)
+    return analysis_id
+
+
+def ensure_analysis_description(
+    cursor: DbCursor,
+    analysis_id: int,
+    controlled_metadata: Mapping[str, str],
+) -> None:
+    """Ensure the analysis has the display metadata required by core checks."""
+    display_label = controlled_metadata["display_label"]
+    description = controlled_metadata["description"]
+    web_data = controlled_metadata.get("web_data")
+    cursor.execute(
+        """INSERT INTO analysis_description
+           (analysis_id, description, display_label, displayable, web_data)
+           VALUES (%s,%s,%s,1,%s)
+           ON DUPLICATE KEY UPDATE
+             description = VALUES(description),
+             display_label = VALUES(display_label),
+             displayable = VALUES(displayable),
+             web_data = VALUES(web_data)""",
+        (analysis_id, description, display_label, web_data),
+    )
 
 
 def required_seq_region_names(annotation: ParsedAnnotation) -> set[str]:
@@ -386,6 +427,26 @@ def required_seq_region_names(annotation: ParsedAnnotation) -> set[str]:
     names = {gene.seq_name for gene in annotation.genes.values()}
     names.update(transcript.seq_name for transcript in annotation.transcripts.values())
     return names
+
+
+def insert_meta_coord(cursor: DbCursor, coord_system_id: int) -> None:
+    """Record the maximum feature span for each core feature table."""
+    for table_name in ("gene", "transcript", "exon"):
+        cursor.execute(
+            f"SELECT COALESCE(MAX(f.seq_region_end - f.seq_region_start + 1), 0) "
+            f"FROM {table_name} f "
+            "JOIN seq_region sr ON sr.seq_region_id = f.seq_region_id "
+            "WHERE sr.coord_system_id = %s",
+            (coord_system_id,),
+        )
+        row = cursor.fetchone()
+        max_length = int(row[0]) if row is not None else 0
+        cursor.execute(
+            """INSERT INTO meta_coord (table_name, coord_system_id, max_length)
+               VALUES (%s,%s,%s)
+               ON DUPLICATE KEY UPDATE max_length = VALUES(max_length)""",
+            (table_name, coord_system_id, max_length),
+        )
 
 
 def load_existing_seq_region_ids(
@@ -461,8 +522,12 @@ def initialise_core_tables(
     assembly_accession: str,
     assembly_report_path: str | Path = "",
     source_config: GffSourceConfig = REFSEQ_CONFIG,
+    controlled_metadata: Mapping[str, str] | None = None,
 ) -> tuple[int, int]:
     """Insert coord_system, meta, and analysis bootstrap rows."""
+
+    if controlled_metadata is None:
+        raise ValueError("Controlled analysis metadata is required")
 
     assembly_metadata = parse_assembly_report_metadata(
         assembly_report_path,
@@ -471,7 +536,7 @@ def initialise_core_tables(
     )
     cursor.execute(
         "INSERT INTO coord_system (name,version,rank,attrib) "
-        "VALUES ('primary_assembly','',1,'default_version,sequence_level')"
+        "VALUES ('primary_assembly','1',1,'default_version,sequence_level')"
     )
     coord_system_id = int(cursor.lastrowid)
     cursor.executemany(
@@ -492,6 +557,7 @@ def initialise_core_tables(
         (source_config.analysis_logic_name, source_config.analysis_program),
     )
     analysis_id = int(cursor.lastrowid)
+    ensure_analysis_description(cursor, analysis_id, controlled_metadata)
     return coord_system_id, analysis_id
 
 
@@ -523,8 +589,29 @@ def insert_genes(
     """Insert gene rows into the core database."""
 
     first_transcript_by_gene: dict[str, str] = {}
-    for transcript_id, transcript in annotation.transcripts.items():
-        first_transcript_by_gene.setdefault(transcript.gene_id, transcript_id)
+    for gene_id in annotation.genes:
+        transcripts = [
+            (transcript_id, transcript)
+            for transcript_id, transcript in annotation.transcripts.items()
+            if transcript.gene_id == gene_id
+        ]
+        coding_with_translation = [
+            transcript_id
+            for transcript_id, transcript in transcripts
+            if is_coding_transcript(transcript, source_config)
+            and annotation.cds_segments.get(transcript_id)
+        ]
+        coding = [
+            transcript_id
+            for transcript_id, transcript in transcripts
+            if is_coding_transcript(transcript, source_config)
+        ]
+        if coding_with_translation:
+            first_transcript_by_gene[gene_id] = coding_with_translation[0]
+        elif coding:
+            first_transcript_by_gene[gene_id] = coding[0]
+        elif transcripts:
+            first_transcript_by_gene[gene_id] = transcripts[0][0]
 
     for gene_id, gene in annotation.genes.items():
         seq_region_id = seq_region_ids[gene.seq_name]
@@ -576,10 +663,11 @@ def insert_genes(
                VALUES (%s,'Gene',%s,NULL,%s)""",
             (gene_db_id, xref_id, analysis_id),
         )
-        cursor.execute(
-            "UPDATE gene SET display_xref_id = %s WHERE gene_id = %s",
-            (xref_id, gene_db_id),
-        )
+        if gene.name != gene.stable_id:
+            cursor.execute(
+                "UPDATE gene SET display_xref_id = %s WHERE gene_id = %s",
+                (xref_id, gene_db_id),
+            )
 
 
 def get_or_create_attrib_type(cursor: DbCursor, code: str) -> int:
@@ -608,7 +696,11 @@ def insert_attributes(
 ) -> None:
     """Insert core attributes for one transcript or translation."""
 
+    inserted: set[tuple[str, str]] = set()
     for code, value in attributes:
+        if (code, value) in inserted:
+            continue
+        inserted.add((code, value))
         attrib_type_id = get_or_create_attrib_type(cursor, code)
         cursor.execute(
             f"INSERT INTO {table} ({object_column}, attrib_type_id, value) "
@@ -720,6 +812,7 @@ def frameshift_transcript_attributes(
                             f"{min(mapped_positions)} {max(mapped_positions)} ",
                         )
                     )
+                    attributes.append(("_rib_frameshift", f"{direction}{length}"))
             elif direction == "-" and overlap_end - overlap_start + 1 == length:
                 position = transcript_coordinates.get(overlap_start)
                 if position is not None and dna:
@@ -727,9 +820,53 @@ def frameshift_transcript_attributes(
                     if strand == -1:
                         sequence = _reverse_complement(sequence)
                     attributes.append(
-                        ("_rna_edit", f"{position} {position} {sequence}")
+                        # An overlapping CDS base represents a -1 slippage:
+                        # retain the base and insert a second copy of it.
+                        ("_rna_edit", f"{position} {position} {sequence}{sequence}")
                     )
+                    attributes.append(("_rib_frameshift", f"{direction}{length}"))
     return attributes
+
+
+def unresolved_translation_attributes(
+    cursor: DbCursor,
+    transcript: Any,
+    cds_segments: list[Any],
+    seq_region_id: int,
+) -> list[tuple[str, str]]:
+    """Mark internal genomic stops in RefSeq proteins with unknown residues."""
+
+    if not transcript.unresolved_translation_discrepancy:
+        return []
+    cursor.execute(
+        "SELECT sequence FROM dna WHERE seq_region_id = %s", (seq_region_id,)
+    )
+    row = cursor.fetchone()
+    dna = str(row[0]) if row else ""
+    if not dna:
+        return []
+
+    ordered_cds = sorted(
+        cds_segments,
+        key=lambda cds: cds.end if transcript.strand == -1 else cds.start,
+        reverse=(transcript.strand == -1),
+    )
+    sequence_parts = []
+    for cds in ordered_cds:
+        sequence = dna[cds.start - 1 : cds.end]
+        sequence_parts.append(
+            sequence
+            if transcript.strand == 1
+            else _reverse_complement(sequence)
+        )
+    sequence = "".join(sequence_parts)
+    stop_codons = {"TAA", "TAG", "TGA"}
+    return [
+        ("amino_acid_sub", f"{position} {position} X")
+        for position, offset in enumerate(range(0, len(sequence) - 2, 3), start=1)
+        if sequence[offset : offset + 3].upper() in stop_codons
+        and offset + 3 < len(sequence)
+    ]
 
 
 def insert_transcripts_and_exons(
@@ -775,16 +912,12 @@ def insert_transcripts_and_exons(
         if source_config.name == REFSEQ_CONFIG.name and is_refseq_accession(
             transcript.stable_id, "Transcript"
         ):
-            transcript_xref_id = insert_refseq_object_xref(
+            insert_refseq_object_xref(
                 cursor,
                 transcript.stable_id,
                 transcript_id_map[transcript_id],
                 "Transcript",
                 analysis_id,
-            )
-            cursor.execute(
-                "UPDATE transcript SET display_xref_id = %s WHERE transcript_id = %s",
-                (transcript_xref_id, transcript_id_map[transcript_id]),
             )
         frameshift_attributes = frameshift_transcript_attributes(
             cursor,
@@ -915,7 +1048,13 @@ def insert_translations(
                 )
                 end_rank = rank_map[exon.coordinate_key]
 
-        if start_rank and end_rank and start_offset and end_offset:
+        if (
+            start_rank
+            and end_rank
+            and start_offset
+            and end_offset
+            and is_coding_transcript(transcript, source_config)
+        ):
             protein_id = transcript.protein_id or f"{transcript_id}_prot"
             cursor.execute(
                 """INSERT INTO translation
@@ -932,8 +1071,29 @@ def insert_translations(
                 ),
             )
             translation_id = cursor.lastrowid
+            discrepancy_attributes: list[tuple[str, str]] = []
             if (
                 source_config.name == REFSEQ_CONFIG.name
+                and transcript.unresolved_translation_discrepancy
+            ):
+                cursor.execute(
+                    "SELECT seq_region_id FROM transcript WHERE transcript_id = %s",
+                    (db_transcript_id,),
+                )
+                seq_region_row = cursor.fetchone()
+                if seq_region_row:
+                    discrepancy_attributes = unresolved_translation_attributes(
+                        cursor,
+                        transcript,
+                        cds_list,
+                        int(seq_region_row[0]),
+                    )
+            for attribute in discrepancy_attributes:
+                if attribute not in transcript.translation_attributes:
+                    transcript.translation_attributes.append(attribute)
+            if (
+                source_config.name == REFSEQ_CONFIG.name
+                and is_coding_transcript(transcript, source_config)
                 and transcript.protein_id
                 and is_refseq_accession(transcript.protein_id, "Translation")
             ):

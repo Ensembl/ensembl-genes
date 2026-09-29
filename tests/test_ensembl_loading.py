@@ -29,6 +29,8 @@ from ensembl.genes.ensembl_loading import (
 from ensembl.genes.ensembl_loading.gff_annotation import (
     parse_converted_gff3,
     parse_translation_attributes,
+    has_refseq_translation_discrepancy,
+    resolve_biotype,
 )
 from ensembl.genes.ensembl_loading.gff_core_database import (
     frameshift_transcript_attributes,
@@ -456,6 +458,29 @@ def test_source_specific_annotation_parsers(tmp_path: Path) -> None:
     assert expected_translation_stable_ids(refseq) == {"TxA": "XP_000001"}
 
 
+def test_refseq_quality_check_excludes_non_coding_cds() -> None:
+    transcript = TranscriptRecord(
+        gene_id="g1",
+        seq_name="1",
+        start=1,
+        end=100,
+        strand=1,
+        biotype="transcript",
+        stable_id="t1",
+        exons=[ExonRecord(1, 100, 1)],
+        protein_id="XP_000001",
+    )
+    annotation = ParsedAnnotation(
+        genes={},
+        transcripts={"t1": transcript},
+        cds_segments={"t1": [CdsSegment(1, 100, 1, "0")]},
+    )
+
+    assert (
+        expected_translation_stable_ids(annotation, get_source_config("refseq")) == {}
+    )
+
+
 def test_refseq_parser_supports_multiple_parents_and_translation_exceptions(
     tmp_path: Path,
 ) -> None:
@@ -535,8 +560,26 @@ def test_refseq_parser_supports_multiple_parents_and_translation_exceptions(
     ]
 
 
+def test_refseq_pseudogene_precedes_immunoglobulin_segment_biotype() -> None:
+    assert (
+        resolve_biotype(
+            "C_gene_segment",
+            {"gbkey": "C_region", "pseudo": "true"},
+            "id-Iglc4",
+        )
+        == "pseudogene"
+    )
+
+
 def test_refseq_translation_edits_and_frameshift_use_core_coordinates() -> None:
     cds = [CdsSegment(1, 3, 1, "0")]
+    assert parse_translation_attributes("(pos:1..3,aa:Other)", cds, 1) == (
+        [],
+        [("amino_acid_sub", "1 1 X")],
+    )
+    assert parse_translation_attributes(
+        "(pos:complement(1..3),aa:Other)", cds, -1
+    ) == ([], [("amino_acid_sub", "1 1 X")])
     assert parse_translation_attributes(
         "(pos:1..3,aa:TERM)",
         cds,
@@ -567,7 +610,19 @@ def test_refseq_translation_edits_and_frameshift_use_core_coordinates() -> None:
         transcript,
         [CdsSegment(1, 3, 1, "0"), CdsSegment(5, 7, 1, "0")],
         1,
-    ) == [("_rna_edit", "4 4 ")]
+    ) == [("_rna_edit", "4 4 "), ("_rib_frameshift", "+1")]
+
+
+def test_refseq_translation_discrepancy_note_accepts_singular_counts() -> None:
+    assert has_refseq_translation_discrepancy(
+        "RefSeq protein has 1 substitution and 1 frameshift"
+    )
+    assert has_refseq_translation_discrepancy(
+        "RefSeq protein has 2 substitutions and 3 frameshifts"
+    )
+    assert not has_refseq_translation_discrepancy(
+        "RefSeq protein has 1 substitution"
+    )
 
 
 def test_refseq_discovery_and_conversion_helpers(tmp_path: Path) -> None:
@@ -784,6 +839,11 @@ def test_initialise_core_tables_loads_assembly_report_meta(
         "Homo sapiens",
         "GCA_000001405.29",
         assembly_report_path=assembly_report,
+        controlled_metadata={
+            "description": "controlled description",
+            "display_label": "controlled label",
+            "web_data": "{}",
+        },
     )
 
     assert coord_system_id == 1
@@ -844,6 +904,11 @@ def test_initialise_core_tables_loads_refseq_alt_accession(
         "Mus musculus",
         "GCF_000001635.27",
         assembly_report_path=assembly_report,
+        controlled_metadata={
+            "description": "controlled description",
+            "display_label": "controlled label",
+            "web_data": "{}",
+        },
     )
 
     assert cursor.meta_rows == [
@@ -902,10 +967,12 @@ class FakeCoreCursor:
             self.fetchone_result = None
         elif sql.startswith("insert into coord_system"):
             self.lastrowid = 1
-        elif sql.startswith("insert into analysis"):
+        elif sql.startswith("insert into analysis "):
             assert params is not None
             self.analysis_inserted = tuple(params)
             self.lastrowid = 7
+        elif sql.startswith("insert into analysis_description"):
+            pass
         elif sql.startswith("insert into meta"):
             assert params is not None
             self.meta_rows.append((1, params[0], params[1]))
@@ -914,6 +981,8 @@ class FakeCoreCursor:
             seq_name = params[0]
             seq_region_id = self.seq_regions.get(seq_name)
             self.fetchone_result = (seq_region_id,) if seq_region_id else None
+        elif sql.startswith("select coalesce(max(f.seq_region_end"):
+            self.fetchone_result = (0,)
         elif (
             sql.startswith("select coalesce(max(gene_id)")
             or sql.startswith("select coalesce(max(transcript_id)")
@@ -939,7 +1008,9 @@ class FakeCoreCursor:
             assert params is not None
             self.lastrowid = len(self.translations) + 1
             self.translations[int(params[0])] = params[5]
-        elif sql.startswith("update transcript set canonical_translation_id"):
+        elif sql.startswith(
+            "update transcript set canonical_translation_id"
+        ) or sql.startswith("insert into meta_coord"):
             pass
         elif sql.startswith("select gene_id, stable_id, biotype from gene"):
             self.fetchall_result = [
@@ -1325,6 +1396,11 @@ def test_anno_gtf_loads_into_existing_core_with_quality_check(
     )
     connection = FakeCoreConnection()
     monkeypatch.setattr(gff_core_loader, "connect_mysql", lambda **_: connection)
+    monkeypatch.setattr(
+        gff_core_loader,
+        "fetch_controlled_analysis_metadata",
+        lambda _: {"description": "d", "display_label": "l", "web_data": "{}"},
+    )
 
     summary = gff_core_loader.load_gff_features_to_core(
         gff_path=gtf,
@@ -1436,6 +1512,11 @@ def test_anno_gtf_reuses_matching_exons_by_default(
     )
     connection = FakeCoreConnection()
     monkeypatch.setattr(gff_core_loader, "connect_mysql", lambda **_: connection)
+    monkeypatch.setattr(
+        gff_core_loader,
+        "fetch_controlled_analysis_metadata",
+        lambda _: {"description": "d", "display_label": "l", "web_data": "{}"},
+    )
 
     gff_core_loader.load_gff_features_to_core(
         gff_path=gtf,
@@ -1447,7 +1528,7 @@ def test_anno_gtf_reuses_matching_exons_by_default(
         source_config=get_source_config("anno_gtf"),
     )
 
-    assert connection.cursor_instance.exons == {1: (None,)}
+    assert connection.cursor_instance.exons == {1: ("gene1_exon_100_200_1",)}
     assert connection.cursor_instance.exon_transcripts == {(1, 1), (1, 2)}
 
 
@@ -1494,6 +1575,11 @@ def test_anno_gtf_can_disable_exon_deduplication(
     )
     connection = FakeCoreConnection()
     monkeypatch.setattr(gff_core_loader, "connect_mysql", lambda **_: connection)
+    monkeypatch.setattr(
+        gff_core_loader,
+        "fetch_controlled_analysis_metadata",
+        lambda _: {"description": "d", "display_label": "l", "web_data": "{}"},
+    )
 
     gff_core_loader.load_gff_features_to_core(
         gff_path=gtf,
@@ -1506,7 +1592,10 @@ def test_anno_gtf_can_disable_exon_deduplication(
         deduplicate_exons=False,
     )
 
-    assert connection.cursor_instance.exons == {1: (None,), 2: (None,)}
+    assert connection.cursor_instance.exons == {
+        1: ("gene1_exon_100_200_1",),
+        2: ("gene1_exon_100_200_1",),
+    }
     assert connection.cursor_instance.exon_transcripts == {(1, 1), (2, 2)}
 
 
@@ -1553,6 +1642,11 @@ def test_anno_gtf_does_not_reuse_matching_exons_across_genes(
     )
     connection = FakeCoreConnection()
     monkeypatch.setattr(gff_core_loader, "connect_mysql", lambda **_: connection)
+    monkeypatch.setattr(
+        gff_core_loader,
+        "fetch_controlled_analysis_metadata",
+        lambda _: {"description": "d", "display_label": "l", "web_data": "{}"},
+    )
 
     gff_core_loader.load_gff_features_to_core(
         gff_path=gtf,
@@ -1564,5 +1658,8 @@ def test_anno_gtf_does_not_reuse_matching_exons_across_genes(
         source_config=get_source_config("anno_gtf"),
     )
 
-    assert connection.cursor_instance.exons == {1: (None,), 2: (None,)}
+    assert connection.cursor_instance.exons == {
+        1: ("gene1_exon_100_200_1",),
+        2: ("gene2_exon_100_200_1",),
+    }
     assert connection.cursor_instance.exon_transcripts == {(1, 1), (2, 2)}

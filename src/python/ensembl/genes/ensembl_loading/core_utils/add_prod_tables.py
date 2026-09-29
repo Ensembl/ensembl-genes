@@ -127,6 +127,31 @@ def fetch_table_rows(
     return rows
 
 
+def fetch_analysis_metadata(
+    prod_conn: pymysql.Connection,
+    logic_name: str,
+) -> dict[str, Any]:
+    """Fetch current controlled analysis metadata and its web-data payload."""
+
+    with closing(prod_conn.cursor()) as cur:
+        cur.execute(
+            """SELECT ad.description, ad.display_label, wd.data AS web_data
+               FROM analysis_description ad
+               LEFT JOIN web_data wd USING (web_data_id)
+               WHERE ad.logic_name = %s AND ad.is_current = 1
+               ORDER BY ad.analysis_description_id DESC
+               LIMIT 1""",
+            (logic_name,),
+        )
+        row = cur.fetchone()
+
+    if row is None:
+        raise ValueError(
+            f"No current controlled analysis metadata for logic name {logic_name!r}"
+        )
+    return dict(row)
+
+
 def fetch_core_columns(
     core_conn: pymysql.Connection,
     table: str,

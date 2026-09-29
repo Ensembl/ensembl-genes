@@ -10,8 +10,9 @@ from typing import Any, Protocol
 # pylint: disable=too-many-locals
 # pylint: disable=too-many-arguments
 # pylint: disable=unnecessary-ellipsis
+from .gff_core_database import is_coding_transcript
 from .gff_models import ParsedAnnotation
-from .gff_source_config import GffSourceConfig
+from .gff_source_config import GENERIC_GFF_CONFIG, GffSourceConfig
 
 LOGGER = logging.getLogger(__name__)
 
@@ -211,13 +212,21 @@ def _fetch_translation_attributes(
     }
 
 
-def expected_translation_stable_ids(annotation: ParsedAnnotation) -> dict[str, str]:
+def expected_translation_stable_ids(
+    annotation: ParsedAnnotation,
+    source_config: GffSourceConfig = GENERIC_GFF_CONFIG,
+) -> dict[str, str]:
     """Return transcript ID to expected translation stable ID for loadable CDS."""
 
     expected: dict[str, str] = {}
     for transcript_id, cds_list in annotation.cds_segments.items():
         transcript = annotation.transcripts.get(transcript_id)
-        if transcript is None or not cds_list or not transcript.exons:
+        if (
+            transcript is None
+            or not cds_list
+            or not transcript.exons
+            or not is_coding_transcript(transcript, source_config)
+        ):
             continue
 
         if transcript.strand == 1:
@@ -360,7 +369,9 @@ def run_core_load_quality_check(
             for exon_id, transcript_id in sorted(unexpected_pairs)[:10]
         ]
 
-    expected_translation_by_transcript_id = expected_translation_stable_ids(annotation)
+    expected_translation_by_transcript_id = expected_translation_stable_ids(
+        annotation, source_config
+    )
     expected_translation_by_db_transcript_id = {
         transcript_id_map[transcript_id]: stable_id
         for transcript_id, stable_id in expected_translation_by_transcript_id.items()
@@ -388,7 +399,10 @@ def run_core_load_quality_check(
             sorted(transcript.translation_attributes)
         )
         for transcript_id, transcript in annotation.transcripts.items()
-        if transcript.translation_attributes and transcript_id in transcript_id_map
+        if (
+            transcript.translation_attributes
+            and transcript_id in expected_translation_by_transcript_id
+        )
     }
     actual_translation_attributes: dict[int, tuple[tuple[str, str], ...]] = (
         _fetch_translation_attributes(cursor, list(expected_transcript_by_db_id))

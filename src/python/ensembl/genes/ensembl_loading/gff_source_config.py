@@ -99,12 +99,20 @@ REFSEQ_CONFIG = GffSourceConfig(
             "siRNA",
             "tRNA",
             "pseudogenic_tRNA",
+            "D_gene_segment",
+            "V_gene_segment",
+            "J_gene_segment",
+            "C_gene_segment",
             "C_region",
             "precursor_RNA",
         }
     ),
     transcript_feature_biotype_map={
         "mRNA": "protein_coding",
+        "D_gene_segment": "IG_D_gene",
+        "V_gene_segment": "IG_V_gene",
+        "J_gene_segment": "IG_J_gene",
+        "C_gene_segment": "IG_C_gene",
         "C_region": "IG_C_gene",
     },
     exon_gbkey_biotype_map={
@@ -113,6 +121,10 @@ REFSEQ_CONFIG = GffSourceConfig(
         "C_region": "IG_C_gene",
     },
     gene_biotype_overrides={
+        "other": "misc_RNA",
+        "precursor_RNA": "misc_RNA",
+        "ncRNA": "misc_RNA",
+        "lnc_RNA": "lncRNA",
         "V_segment": "IG_V_gene",
         "D_segment": "IG_D_gene",
         "J_segment": "IG_J_gene",
@@ -120,8 +132,10 @@ REFSEQ_CONFIG = GffSourceConfig(
         "C_region": "IG_C_gene",
     },
     transcript_biotype_overrides={
-        "lncRNA": "lncRNA",
-        "antisense_RNA": "antisense_RNA",
+        "other": "misc_RNA",
+        "precursor_RNA": "misc_RNA",
+        "lnc_RNA": "lncRNA",
+        "ncRNA": "misc_RNA",
         "pseudogene": "pseudogene",
         "transcribed_pseudogene": "transcribed_pseudogene",
         "rRNA": "rRNA",
@@ -129,7 +143,6 @@ REFSEQ_CONFIG = GffSourceConfig(
         "snoRNA": "snoRNA",
         "tRNA": "tRNA",
         "miRNA": "miRNA",
-        "ncRNA": "ncRNA",
         "misc_RNA": "misc_RNA",
         "telomerase_RNA": "telomerase_RNA",
         "RNase_P_RNA": "RNase_P_RNA",
@@ -140,6 +153,8 @@ REFSEQ_CONFIG = GffSourceConfig(
         "IG_J_gene": "IG_J_gene",
         "IG_C_gene": "IG_C_gene",
     },
+    exon_stable_id_attributes=("ID",),
+    transcript_stable_id_attributes=("Name", "ID"),
     translation_stable_id_attributes=("protein_id", "Name"),
 )
 

@@ -10,10 +10,11 @@ from pathlib import Path
 # pylint: disable=too-many-branches
 # pylint: disable=too-many-return-statements
 from .core_utils.add_prod_tables import (
-    get_connection as get_prod_connection,
+    fetch_analysis_metadata,
+    load_default_config,
 )
 from .core_utils.add_prod_tables import (
-    load_default_config,
+    get_connection as get_prod_connection,
 )
 from .core_utils.add_prod_tables import (
     sync_tables as sync_prod_tables,
@@ -28,6 +29,7 @@ from .gff_core_database import (
     get_or_create_analysis,
     initialise_core_tables,
     insert_genes,
+    insert_meta_coord,
     insert_refseq_seq_region_synonyms,
     insert_transcripts_and_exons,
     insert_translations,
@@ -42,6 +44,28 @@ from .gff_source_config import GENERIC_GFF_CONFIG, REFSEQ_CONFIG, GffSourceConfi
 from .refseq_conversion import load_assembly_report_name_maps
 
 LOGGER = logging.getLogger(__name__)
+
+
+def fetch_controlled_analysis_metadata(
+    source_config: GffSourceConfig,
+) -> dict[str, str]:
+    """Fetch analysis metadata for any configured import source."""
+
+    config = load_default_config()
+    production_connection = get_prod_connection(
+        host=config.host,
+        port=config.port,
+        user=config.user,
+        password=config.password,
+        db="ensembl_production",
+    )
+    try:
+        return fetch_analysis_metadata(
+            production_connection,
+            source_config.analysis_logic_name,
+        )
+    finally:
+        production_connection.close()
 
 
 def load_to_ensembl_core(
@@ -105,6 +129,10 @@ def load_to_ensembl_core(
             db="ensembl_production",
         )
         try:
+            controlled_metadata = fetch_analysis_metadata(
+                production_connection,
+                source_config.analysis_logic_name,
+            )
             sync_prod_tables(production_connection, connection)
         finally:
             production_connection.close()
@@ -115,6 +143,7 @@ def load_to_ensembl_core(
             assembly_accession,
             assembly_report_path=assembly_report_path,
             source_config=source_config,
+            controlled_metadata=controlled_metadata,
         )
         annotation = prepare_annotation_for_load(
             converted_gff_path,
@@ -168,6 +197,7 @@ def load_to_ensembl_core(
             analysis_id,
             source_config,
         )
+        insert_meta_coord(cursor, coord_system_id)
         quality_report = run_core_load_quality_check(
             cursor,
             annotation,
@@ -248,7 +278,12 @@ def load_gff_features_to_core(
             for transcript in annotation.transcripts.values()
         ):
             replace_mitochondrial_features(cursor)
-        analysis_id = get_or_create_analysis(cursor, source_config=source_config)
+        controlled_metadata = fetch_controlled_analysis_metadata(source_config)
+        analysis_id = get_or_create_analysis(
+            cursor,
+            source_config=source_config,
+            controlled_metadata=controlled_metadata,
+        )
         seq_region_ids = load_existing_seq_region_ids(
             cursor,
             annotation,
@@ -286,6 +321,7 @@ def load_gff_features_to_core(
             analysis_id,
             source_config,
         )
+        insert_meta_coord(cursor, resolved_coord_system_id)
         quality_report = run_core_load_quality_check(
             cursor,
             annotation,
