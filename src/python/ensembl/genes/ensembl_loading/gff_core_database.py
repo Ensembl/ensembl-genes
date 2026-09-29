@@ -387,7 +387,8 @@ def get_or_create_analysis(
     row = cursor.fetchone()
     if row is not None:
         analysis_id = int(row[0])
-        ensure_analysis_description(cursor, analysis_id, controlled_metadata)
+        if controlled_metadata is not None:
+            ensure_analysis_description(cursor, analysis_id, controlled_metadata)
         return analysis_id
 
     cursor.execute(
@@ -395,7 +396,8 @@ def get_or_create_analysis(
         (source_config.analysis_logic_name, source_config.analysis_program),
     )
     analysis_id = int(cursor.lastrowid)
-    ensure_analysis_description(cursor, analysis_id, controlled_metadata)
+    if controlled_metadata is not None:
+        ensure_analysis_description(cursor, analysis_id, controlled_metadata)
     return analysis_id
 
 
@@ -855,18 +857,28 @@ def unresolved_translation_attributes(
     for cds in ordered_cds:
         sequence = dna[cds.start - 1 : cds.end]
         sequence_parts.append(
-            sequence
-            if transcript.strand == 1
-            else _reverse_complement(sequence)
+            sequence if transcript.strand == 1 else _reverse_complement(sequence)
         )
     sequence = "".join(sequence_parts)
     stop_codons = {"TAA", "TAG", "TGA"}
-    return [
-        ("amino_acid_sub", f"{position} {position} X")
-        for position, offset in enumerate(range(0, len(sequence) - 2, 3), start=1)
-        if sequence[offset : offset + 3].upper() in stop_codons
-        and offset + 3 < len(sequence)
-    ]
+
+    # A RefSeq alignment can contain both substitutions and indels.  In that
+    # case the genomic CDS no longer has one reliable reading frame: a stop
+    # codon introduced by one indel shifts the frame used to find later stops.
+    # Check each possible phase and mark only the corresponding peptide
+    # positions as unknown.  This keeps the translation usable without
+    # pretending that the genomic sequence identifies the replacement amino
+    # acids.
+    attributes: set[tuple[str, str]] = set()
+    for frame in range(3):
+        for offset in range(frame, len(sequence) - 2, 3):
+            if sequence[offset : offset + 3].upper() not in stop_codons:
+                continue
+            if offset + 3 >= len(sequence):
+                continue
+            position = ((offset - frame) // 3) + 1
+            attributes.add(("amino_acid_sub", f"{position} {position} X"))
+    return sorted(attributes, key=lambda attribute: int(attribute[1].split()[0]))
 
 
 def insert_transcripts_and_exons(
@@ -991,6 +1003,9 @@ def insert_transcripts_and_exons(
     return exon_id_map, per_transcript_coord_to_exon_id
 
 
+# Pylint counts the independent source/schema guards in this orchestration
+# function as branches; keeping them together makes the insert sequence clear.
+# pylint: disable=too-many-branches
 def insert_translations(
     cursor: DbCursor,
     annotation: ParsedAnnotation,
@@ -1115,3 +1130,6 @@ def insert_translations(
                 translation_id,
                 transcript.translation_attributes,
             )
+
+
+# pylint: enable=too-many-branches

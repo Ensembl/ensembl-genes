@@ -923,7 +923,7 @@ def reconcile_annotation(
             key=lambda exon: exon.start,
             reverse=(transcript.strand == -1),
         )
-        for rank, exon in enumerate(ordered_exons, start=1):
+        for exon in ordered_exons:
             if exon.stable_id is None:
                 exon.stable_id = (
                     f"{transcript.gene_id}_exon_{exon.start}_{exon.end}_"

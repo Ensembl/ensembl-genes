@@ -27,9 +27,9 @@ from ensembl.genes.ensembl_loading import (
     gff_repeat_loader,
 )
 from ensembl.genes.ensembl_loading.gff_annotation import (
+    has_refseq_translation_discrepancy,
     parse_converted_gff3,
     parse_translation_attributes,
-    has_refseq_translation_discrepancy,
     resolve_biotype,
 )
 from ensembl.genes.ensembl_loading.gff_core_database import (
@@ -577,9 +577,10 @@ def test_refseq_translation_edits_and_frameshift_use_core_coordinates() -> None:
         [],
         [("amino_acid_sub", "1 1 X")],
     )
-    assert parse_translation_attributes(
-        "(pos:complement(1..3),aa:Other)", cds, -1
-    ) == ([], [("amino_acid_sub", "1 1 X")])
+    assert parse_translation_attributes("(pos:complement(1..3),aa:Other)", cds, -1) == (
+        [],
+        [("amino_acid_sub", "1 1 X")],
+    )
     assert parse_translation_attributes(
         "(pos:1..3,aa:TERM)",
         cds,
@@ -620,9 +621,7 @@ def test_refseq_translation_discrepancy_note_accepts_singular_counts() -> None:
     assert has_refseq_translation_discrepancy(
         "RefSeq protein has 2 substitutions and 3 frameshifts"
     )
-    assert not has_refseq_translation_discrepancy(
-        "RefSeq protein has 1 substitution"
-    )
+    assert not has_refseq_translation_discrepancy("RefSeq protein has 1 substitution")
 
 
 def test_refseq_discovery_and_conversion_helpers(tmp_path: Path) -> None:
