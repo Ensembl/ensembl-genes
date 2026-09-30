@@ -4542,7 +4542,9 @@
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/python/ensembl/genes/ensembl_loading/gff_annotation.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1042</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1040</span>
+<span class="normal">1041</span>
+<span class="normal">1042</span>
 <span class="normal">1043</span>
 <span class="normal">1044</span>
 <span class="normal">1045</span>
@@ -4574,9 +4576,7 @@
 <span class="normal">1071</span>
 <span class="normal">1072</span>
 <span class="normal">1073</span>
-<span class="normal">1074</span>
-<span class="normal">1075</span>
-<span class="normal">1076</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">apply_biotype_overrides</span><span class="p">(</span>
+<span class="normal">1074</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">apply_biotype_overrides</span><span class="p">(</span>
     <span class="n">annotation</span><span class="p">:</span> <span class="n">ParsedAnnotation</span><span class="p">,</span>
     <span class="n">source_config</span><span class="p">:</span> <span class="n">GffSourceConfig</span> <span class="o">=</span> <span class="n">REFSEQ_CONFIG</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ParsedAnnotation</span><span class="p">:</span>
@@ -4596,12 +4596,12 @@
     <span class="c1"># only transcript rows use another non-coding biotype. Core's biotype</span>
     <span class="c1"># check requires the gene and at least one transcript to share a group;</span>
     <span class="c1"># retain the transcript annotation and make the parent agree with it.</span>
+    <span class="n">transcripts_by_gene</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="n">TranscriptRecord</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">transcript</span> <span class="ow">in</span> <span class="n">annotation</span><span class="o">.</span><span class="n">transcripts</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+        <span class="n">transcripts_by_gene</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">transcript</span><span class="o">.</span><span class="n">gene_id</span><span class="p">,</span> <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">transcript</span><span class="p">)</span>
+
     <span class="k">for</span> <span class="n">gene</span> <span class="ow">in</span> <span class="n">annotation</span><span class="o">.</span><span class="n">genes</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
-        <span class="n">transcripts</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="n">transcript</span>
-            <span class="k">for</span> <span class="n">transcript</span> <span class="ow">in</span> <span class="n">annotation</span><span class="o">.</span><span class="n">transcripts</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
-            <span class="k">if</span> <span class="n">transcript</span><span class="o">.</span><span class="n">gene_id</span> <span class="o">==</span> <span class="n">gene</span><span class="o">.</span><span class="n">stable_id</span>
-        <span class="p">]</span>
+        <span class="n">transcripts</span> <span class="o">=</span> <span class="n">transcripts_by_gene</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">gene</span><span class="o">.</span><span class="n">stable_id</span><span class="p">,</span> <span class="p">[])</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">transcripts</span><span class="p">:</span>
             <span class="k">continue</span>
         <span class="n">transcript_biotypes</span> <span class="o">=</span> <span class="p">{</span><span class="n">transcript</span><span class="o">.</span><span class="n">biotype</span> <span class="k">for</span> <span class="n">transcript</span> <span class="ow">in</span> <span class="n">transcripts</span><span class="p">}</span>
@@ -4818,7 +4818,9 @@
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/python/ensembl/genes/ensembl_loading/gff_annotation.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 952</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 950</span>
+<span class="normal"> 951</span>
+<span class="normal"> 952</span>
 <span class="normal"> 953</span>
 <span class="normal"> 954</span>
 <span class="normal"> 955</span>
@@ -4903,9 +4905,7 @@
 <span class="normal">1034</span>
 <span class="normal">1035</span>
 <span class="normal">1036</span>
-<span class="normal">1037</span>
-<span class="normal">1038</span>
-<span class="normal">1039</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">compute_exon_phases</span><span class="p">(</span><span class="n">annotation</span><span class="p">:</span> <span class="n">ParsedAnnotation</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ParsedAnnotation</span><span class="p">:</span>
+<span class="normal">1037</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">compute_exon_phases</span><span class="p">(</span><span class="n">annotation</span><span class="p">:</span> <span class="n">ParsedAnnotation</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ParsedAnnotation</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Compute exon phase and end_phase values from CDS segments."""</span>
 
     <span class="k">for</span> <span class="n">transcript_id</span><span class="p">,</span> <span class="n">cds_list</span> <span class="ow">in</span> <span class="n">annotation</span><span class="o">.</span><span class="n">cds_segments</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
@@ -5488,9 +5488,7 @@
 <span class="normal">846</span>
 <span class="normal">847</span>
 <span class="normal">848</span>
-<span class="normal">849</span>
-<span class="normal">850</span>
-<span class="normal">851</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">parse_converted_gff3</span><span class="p">(</span>
+<span class="normal">849</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">parse_converted_gff3</span><span class="p">(</span>
     <span class="n">converted_gff_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span>
     <span class="n">logger</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">source_config</span><span class="p">:</span> <span class="n">GffSourceConfig</span> <span class="o">=</span> <span class="n">REFSEQ_CONFIG</span><span class="p">,</span>
@@ -5500,6 +5498,7 @@
     <span class="n">log</span> <span class="o">=</span> <span class="n">logger</span> <span class="ow">or</span> <span class="n">LOGGER</span>
     <span class="n">annotation</span> <span class="o">=</span> <span class="n">ParsedAnnotation</span><span class="p">()</span>
     <span class="n">gff_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">converted_gff_path</span><span class="p">)</span>
+    <span class="n">transcript_stable_ids</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
 
     <span class="k">with</span> <span class="n">open_text_maybe_gzip</span><span class="p">(</span><span class="n">gff_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">gff_handle</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">line_number</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">gff_handle</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
@@ -5617,12 +5616,9 @@
                     <span class="ow">or</span> <span class="n">transcript_id</span>
                 <span class="p">)</span>
                 <span class="n">stable_id</span> <span class="o">=</span> <span class="n">normalize_id</span><span class="p">(</span><span class="n">stable_id</span><span class="p">,</span> <span class="n">source_config</span><span class="p">)</span>
-                <span class="n">existing_stable_ids</span> <span class="o">=</span> <span class="p">{</span>
-                    <span class="n">transcript</span><span class="o">.</span><span class="n">stable_id</span>
-                    <span class="k">for</span> <span class="n">transcript</span> <span class="ow">in</span> <span class="n">annotation</span><span class="o">.</span><span class="n">transcripts</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
-                <span class="p">}</span>
-                <span class="k">if</span> <span class="n">stable_id</span> <span class="ow">in</span> <span class="n">existing_stable_ids</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">stable_id</span> <span class="ow">in</span> <span class="n">transcript_stable_ids</span><span class="p">:</span>
                     <span class="n">stable_id</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">stable_id</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">transcript_id</span><span class="si">}</span><span class="s2">"</span>
+                <span class="n">transcript_stable_ids</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">stable_id</span><span class="p">)</span>
                 <span class="n">annotation</span><span class="o">.</span><span class="n">transcripts</span><span class="p">[</span><span class="n">transcript_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">TranscriptRecord</span><span class="p">(</span>
                     <span class="n">gene_id</span><span class="o">=</span><span class="n">gene_id</span><span class="p">,</span>
                     <span class="n">seq_name</span><span class="o">=</span><span class="n">seq_name</span><span class="p">,</span>
@@ -6273,7 +6269,9 @@
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/python/ensembl/genes/ensembl_loading/gff_annotation.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1079</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1077</span>
+<span class="normal">1078</span>
+<span class="normal">1079</span>
 <span class="normal">1080</span>
 <span class="normal">1081</span>
 <span class="normal">1082</span>
@@ -6286,9 +6284,7 @@
 <span class="normal">1089</span>
 <span class="normal">1090</span>
 <span class="normal">1091</span>
-<span class="normal">1092</span>
-<span class="normal">1093</span>
-<span class="normal">1094</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">prepare_annotation_for_load</span><span class="p">(</span>
+<span class="normal">1092</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">prepare_annotation_for_load</span><span class="p">(</span>
     <span class="n">converted_gff_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span>
     <span class="n">logger</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">source_config</span><span class="p">:</span> <span class="n">GffSourceConfig</span> <span class="o">=</span> <span class="n">REFSEQ_CONFIG</span><span class="p">,</span>
@@ -6326,7 +6322,9 @@
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/python/ensembl/genes/ensembl_loading/gff_annotation.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">854</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">852</span>
+<span class="normal">853</span>
+<span class="normal">854</span>
 <span class="normal">855</span>
 <span class="normal">856</span>
 <span class="normal">857</span>
@@ -6419,9 +6417,7 @@
 <span class="normal">944</span>
 <span class="normal">945</span>
 <span class="normal">946</span>
-<span class="normal">947</span>
-<span class="normal">948</span>
-<span class="normal">949</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">reconcile_annotation</span><span class="p">(</span>
+<span class="normal">947</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">reconcile_annotation</span><span class="p">(</span>
     <span class="n">annotation</span><span class="p">:</span> <span class="n">ParsedAnnotation</span><span class="p">,</span>
     <span class="n">logger</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ParsedAnnotation</span><span class="p">:</span>
@@ -6500,12 +6496,12 @@
                     <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">exon</span><span class="o">.</span><span class="n">strand</span><span class="si">}</span><span class="s2">"</span>
                 <span class="p">)</span>
 
+    <span class="n">transcripts_by_gene</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="n">TranscriptRecord</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">transcript</span> <span class="ow">in</span> <span class="n">annotation</span><span class="o">.</span><span class="n">transcripts</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+        <span class="n">transcripts_by_gene</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">transcript</span><span class="o">.</span><span class="n">gene_id</span><span class="p">,</span> <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">transcript</span><span class="p">)</span>
+
     <span class="k">for</span> <span class="n">gene_id</span><span class="p">,</span> <span class="n">gene</span> <span class="ow">in</span> <span class="n">annotation</span><span class="o">.</span><span class="n">genes</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-        <span class="n">transcripts</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="n">transcript</span>
-            <span class="k">for</span> <span class="n">transcript</span> <span class="ow">in</span> <span class="n">annotation</span><span class="o">.</span><span class="n">transcripts</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
-            <span class="k">if</span> <span class="n">transcript</span><span class="o">.</span><span class="n">gene_id</span> <span class="o">==</span> <span class="n">gene_id</span>
-        <span class="p">]</span>
+        <span class="n">transcripts</span> <span class="o">=</span> <span class="n">transcripts_by_gene</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">gene_id</span><span class="p">,</span> <span class="p">[])</span>
         <span class="k">if</span> <span class="n">transcripts</span><span class="p">:</span>
             <span class="n">gene</span><span class="o">.</span><span class="n">start</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">transcript</span><span class="o">.</span><span class="n">start</span> <span class="k">for</span> <span class="n">transcript</span> <span class="ow">in</span> <span class="n">transcripts</span><span class="p">)</span>
             <span class="n">gene</span><span class="o">.</span><span class="n">end</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">transcript</span><span class="o">.</span><span class="n">end</span> <span class="k">for</span> <span class="n">transcript</span> <span class="ow">in</span> <span class="n">transcripts</span><span class="p">)</span>
