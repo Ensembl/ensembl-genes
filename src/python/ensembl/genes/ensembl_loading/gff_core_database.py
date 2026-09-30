@@ -591,12 +591,14 @@ def insert_genes(
     """Insert gene rows into the core database."""
 
     first_transcript_by_gene: dict[str, str] = {}
-    for gene_id in annotation.genes:
-        transcripts = [
+    transcripts_by_gene: dict[str, list[tuple[str, Any]]] = {}
+    for transcript_id, transcript in annotation.transcripts.items():
+        transcripts_by_gene.setdefault(transcript.gene_id, []).append(
             (transcript_id, transcript)
-            for transcript_id, transcript in annotation.transcripts.items()
-            if transcript.gene_id == gene_id
-        ]
+        )
+
+    for gene_id in annotation.genes:
+        transcripts = transcripts_by_gene.get(gene_id, [])
         coding_with_translation = [
             transcript_id
             for transcript_id, transcript in transcripts
@@ -615,7 +617,7 @@ def insert_genes(
         elif transcripts:
             first_transcript_by_gene[gene_id] = transcripts[0][0]
 
-    for gene_id, gene in annotation.genes.items():
+    for gene_index, (gene_id, gene) in enumerate(annotation.genes.items(), start=1):
         seq_region_id = seq_region_ids[gene.seq_name]
         first_transcript = first_transcript_by_gene.get(gene_id)
         canonical_transcript_id = (
@@ -670,6 +672,8 @@ def insert_genes(
                 "UPDATE gene SET display_xref_id = %s WHERE gene_id = %s",
                 (xref_id, gene_db_id),
             )
+        if gene_index % 10000 == 0:
+            LOGGER.info("Inserted %s/%s genes", gene_index, len(annotation.genes))
 
 
 def get_or_create_attrib_type(cursor: DbCursor, code: str) -> int:
@@ -865,10 +869,10 @@ def unresolved_translation_attributes(
     # A RefSeq alignment can contain both substitutions and indels.  In that
     # case the genomic CDS no longer has one reliable reading frame: a stop
     # codon introduced by one indel shifts the frame used to find later stops.
-    # Check each possible phase and mark only the corresponding peptide
-    # positions as unknown.  This keeps the translation usable without
-    # pretending that the genomic sequence identifies the replacement amino
-    # acids.
+    # Check each possible phase and mark the corresponding peptide position,
+    # plus the following position, as unknown.  The extra position accounts
+    # for the first codon after an unresolved indel, whose frame cannot be
+    # recovered from the genomic sequence alone.
     attributes: set[tuple[str, str]] = set()
     for frame in range(3):
         for offset in range(frame, len(sequence) - 2, 3):
@@ -877,7 +881,13 @@ def unresolved_translation_attributes(
             if offset + 3 >= len(sequence):
                 continue
             position = ((offset - frame) // 3) + 1
-            attributes.add(("amino_acid_sub", f"{position} {position} X"))
+            for uncertain_position in (position, position + 1):
+                attributes.add(
+                    (
+                        "amino_acid_sub",
+                        f"{uncertain_position} {uncertain_position} X",
+                    )
+                )
     return sorted(attributes, key=lambda attribute: int(attribute[1].split()[0]))
 
 
@@ -901,7 +911,9 @@ def insert_transcripts_and_exons(
     )
     next_exon_id = first_exon_id
 
-    for transcript_id, transcript in annotation.transcripts.items():
+    for transcript_index, (transcript_id, transcript) in enumerate(
+        annotation.transcripts.items(), start=1
+    ):
         seq_region_id = seq_region_ids[transcript.seq_name]
         cursor.execute(
             """INSERT INTO transcript
@@ -999,6 +1011,12 @@ def insert_transcripts_and_exons(
             )
 
         per_transcript_coord_to_exon_id[transcript_id] = coord_to_exon_id
+        if transcript_index % 10000 == 0:
+            LOGGER.info(
+                "Inserted %s/%s transcripts and exons",
+                transcript_index,
+                len(annotation.transcripts),
+            )
 
     return exon_id_map, per_transcript_coord_to_exon_id
 
@@ -1016,7 +1034,9 @@ def insert_translations(
 ) -> None:
     """Insert translation rows and canonical translation links."""
 
-    for transcript_id, cds_list in annotation.cds_segments.items():
+    for translation_index, (transcript_id, cds_list) in enumerate(
+        annotation.cds_segments.items(), start=1
+    ):
         db_transcript_id = transcript_id_map.get(transcript_id)
         if not db_transcript_id or transcript_id not in annotation.transcripts:
             continue
@@ -1129,6 +1149,12 @@ def insert_translations(
                 "translation_id",
                 translation_id,
                 transcript.translation_attributes,
+            )
+        if translation_index % 10000 == 0:
+            LOGGER.info(
+                "Processed %s/%s CDS transcript groups",
+                translation_index,
+                len(annotation.cds_segments),
             )
 
 

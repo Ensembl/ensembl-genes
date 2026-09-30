@@ -549,6 +549,7 @@ def parse_converted_gff3(
     log = logger or LOGGER
     annotation = ParsedAnnotation()
     gff_path = Path(converted_gff_path)
+    transcript_stable_ids: set[str] = set()
 
     with open_text_maybe_gzip(gff_path) as gff_handle:
         for line_number, line in enumerate(gff_handle, start=1):
@@ -666,12 +667,9 @@ def parse_converted_gff3(
                     or transcript_id
                 )
                 stable_id = normalize_id(stable_id, source_config)
-                existing_stable_ids = {
-                    transcript.stable_id
-                    for transcript in annotation.transcripts.values()
-                }
-                if stable_id in existing_stable_ids:
+                if stable_id in transcript_stable_ids:
                     stable_id = f"{stable_id}_{transcript_id}"
+                transcript_stable_ids.add(stable_id)
                 annotation.transcripts[transcript_id] = TranscriptRecord(
                     gene_id=gene_id,
                     seq_name=seq_name,
@@ -930,12 +928,12 @@ def reconcile_annotation(
                     f"{exon.strand}"
                 )
 
+    transcripts_by_gene: dict[str, list[TranscriptRecord]] = {}
+    for transcript in annotation.transcripts.values():
+        transcripts_by_gene.setdefault(transcript.gene_id, []).append(transcript)
+
     for gene_id, gene in annotation.genes.items():
-        transcripts = [
-            transcript
-            for transcript in annotation.transcripts.values()
-            if transcript.gene_id == gene_id
-        ]
+        transcripts = transcripts_by_gene.get(gene_id, [])
         if transcripts:
             gene.start = min(transcript.start for transcript in transcripts)
             gene.end = max(transcript.end for transcript in transcripts)
@@ -1059,12 +1057,12 @@ def apply_biotype_overrides(
     # only transcript rows use another non-coding biotype. Core's biotype
     # check requires the gene and at least one transcript to share a group;
     # retain the transcript annotation and make the parent agree with it.
+    transcripts_by_gene: dict[str, list[TranscriptRecord]] = {}
+    for transcript in annotation.transcripts.values():
+        transcripts_by_gene.setdefault(transcript.gene_id, []).append(transcript)
+
     for gene in annotation.genes.values():
-        transcripts = [
-            transcript
-            for transcript in annotation.transcripts.values()
-            if transcript.gene_id == gene.stable_id
-        ]
+        transcripts = transcripts_by_gene.get(gene.stable_id, [])
         if not transcripts:
             continue
         transcript_biotypes = {transcript.biotype for transcript in transcripts}
