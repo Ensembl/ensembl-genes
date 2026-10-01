@@ -226,8 +226,8 @@ def add_create_core_db_options(
     parser.add_argument(
         "--schema-sql-path",
         help=(
-            "Ensembl core schema SQL path; defaults to bundled "
-            "config/core_schema.sql, use an empty string to skip"
+            "Ensembl core schema SQL path or URL; defaults to the official "
+            "release 114 GitHub schema, use an empty string to skip"
         ),
     )
 

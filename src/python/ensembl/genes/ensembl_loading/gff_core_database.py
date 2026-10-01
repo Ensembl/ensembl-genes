@@ -13,6 +13,8 @@ import re
 from collections.abc import Mapping
 from pathlib import Path
 from typing import Any
+from urllib.error import URLError
+from urllib.request import urlopen
 
 from .core_utils.external_db import (
     INSDC_DB_NAME,
@@ -32,8 +34,8 @@ from .gff_models import ParsedAnnotation
 from .gff_source_config import GENERIC_GFF_CONFIG, REFSEQ_CONFIG, GffSourceConfig
 
 LOGGER = logging.getLogger(__name__)
-DEFAULT_CORE_SCHEMA_SQL_PATH = (
-    Path(__file__).resolve().parent / "config" / "core_schema.sql"
+DEFAULT_CORE_SCHEMA_URL = (
+    "https://raw.githubusercontent.com/Ensembl/ensembl/" "release/114/sql/table.sql"
 )
 DEFAULT_ENSEMBL_RELEASE = "114"
 PROTEIN_CODING_TRANSCRIPT_BIOTYPES = frozenset(
@@ -215,9 +217,16 @@ def replace_mitochondrial_features(cursor: DbCursor) -> None:
 
 
 def core_schema_version(schema_sql_path: str | Path | None = None) -> str:
-    """Return the bundled core schema version used in derived DB names."""
+    """Return the core schema version used in derived DB names."""
 
-    schema_path = Path(schema_sql_path or DEFAULT_CORE_SCHEMA_SQL_PATH)
+    schema_source = schema_sql_path or DEFAULT_CORE_SCHEMA_URL
+    if isinstance(schema_source, str) and schema_source.startswith(
+        ("http://", "https://")
+    ):
+        match = re.search(r"/release/(\d+)/", schema_source)
+        return match.group(1) if match else DEFAULT_ENSEMBL_RELEASE
+
+    schema_path = Path(schema_source)
     try:
         schema_sql = schema_path.read_text(encoding="utf-8")
     except OSError:
@@ -273,25 +282,39 @@ def derive_core_db_name(
 
 
 def load_schema_sql(cursor: DbCursor, schema_sql_path: str | Path) -> None:
-    """Load a semicolon-delimited Ensembl schema SQL file."""
+    """Load a semicolon-delimited Ensembl schema SQL file or URL."""
 
-    raw_schema = Path(schema_sql_path).read_text(encoding="utf-8")
+    schema_source = str(schema_sql_path)
+    if schema_source.startswith(("http://", "https://")):
+        try:
+            with urlopen(schema_source, timeout=60) as response:
+                raw_schema = response.read().decode("utf-8")
+        except (OSError, URLError) as error:
+            raise RuntimeError(
+                f"Could not download Ensembl core schema from {schema_source}"
+            ) from error
+    else:
+        raw_schema = Path(schema_sql_path).read_text(encoding="utf-8")
     clean_schema = re.sub(r"/\*\*.*?\*/", "", raw_schema, flags=re.DOTALL)
     for statement in filter(None, map(str.strip, clean_schema.split(";"))):
         cursor.execute(statement)
 
 
-def resolve_schema_sql_path(schema_sql_path: str | Path | None) -> Path | None:
-    """Return the schema SQL path to use for core creation.
+def resolve_schema_sql_path(schema_sql_path: str | Path | None) -> str | Path | None:
+    """Return the schema SQL path or URL to use for core creation.
 
-    ``None`` means use the bundled default schema. An empty string disables
-    schema loading explicitly.
+    ``None`` means use the official Ensembl release 114 schema URL. An empty
+    string disables schema loading explicitly.
     """
 
     if schema_sql_path == "":
         return None
     if schema_sql_path is None:
-        return DEFAULT_CORE_SCHEMA_SQL_PATH
+        return DEFAULT_CORE_SCHEMA_URL
+    if isinstance(schema_sql_path, str) and schema_sql_path.startswith(
+        ("http://", "https://")
+    ):
+        return schema_sql_path
     return Path(schema_sql_path)
 
 

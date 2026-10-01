@@ -258,13 +258,13 @@ The production connection is read automatically from
 }
 ```
 
-By default, `create-core` loads the bundled schema:
+By default, `create-core` loads the official Ensembl release 114 schema:
 
 ```text
-src/python/ensembl/genes/ensembl_loading/config/core_schema.sql
+https://raw.githubusercontent.com/Ensembl/ensembl/release/114/sql/table.sql
 ```
 
-Use `--schema-sql-path /path/to/schema.sql` to override it. Use
+Use `--schema-sql-path /path/to/schema.sql` or a schema URL to override it. Use
 `--schema-sql-path ""` to skip schema loading explicitly.
 
 The database name is derived from species and assembly accession. Generic
@@ -287,7 +287,7 @@ Scientific name + GCF_037462849.1 -> scientific_name_gcf037462849v1_rs_core_114_
 2. `CREATE DATABASE <derived_core_db_name>`; loading fails if the database
    already exists.
 3. `USE <derived_core_db_name>`.
-4. Load schema SQL from the bundled `config/core_schema.sql`, unless
+4. Load schema SQL from the official Ensembl release 114 GitHub URL, unless
    `--schema-sql-path` overrides or disables it.
 5. Synchronize the production-controlled tables from `ensembl_production`.
 6. Insert one `coord_system` row:
