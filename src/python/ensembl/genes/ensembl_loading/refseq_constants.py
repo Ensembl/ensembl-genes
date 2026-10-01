@@ -28,5 +28,9 @@ ANNOTATION_METADATA_FIELDS: Final[tuple[str, ...]] = (
     "gff3_local",
     "fasta_local",
     "assembly_report_local",
+    "repeatmasker_out_ftp",
+    "repeatmasker_run_ftp",
+    "repeatmasker_out_local",
+    "repeatmasker_run_local",
     "downloaded",
 )

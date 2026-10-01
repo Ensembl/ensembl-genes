@@ -355,6 +355,18 @@ For one assembly, the downloader expects these files:
 <ftp_base>_assembly_report.txt
 ```
 
+RepeatMasker files are optional:
+
+```text
+<ftp_base>_rm.out.gz
+<ftp_base>_rm.run
+```
+
+The `.out.gz` file is the input required for conversion. The `.run` file is
+provenance describing the RepeatMasker version, parameters, and library; it is
+not required by the converter or repeat loader, but is downloaded for
+reproducibility.
+
 Existing local files are reused. Empty downloads raise an error. Multiple
 downloads use `ThreadPoolExecutor` with `--max-workers`, capped to the number of
 targets.
@@ -389,6 +401,23 @@ gff-loader refseq convert-fna \
 ```
 
 The GFF and FASTA converter accepts plain text or `.gz` input.
+
+RepeatMasker output can be downloaded and converted independently, which makes
+it suitable for separate workflow processes:
+
+```bash
+gff-loader refseq download-repeatmasker \
+  --base-dir refseq_data \
+  --assembly-acc GCF_000001635.27
+
+gff-loader refseq convert-repeatmasker \
+  refseq_data/GCF/000/001/635/GCF_000001635.27/GCF_000001635.27_GRCm39_rm.out.gz \
+  refseq_data/GCF/000/001/635/GCF_000001635.27/GCF_000001635.27_GRCm39_assembly_report.txt \
+  --output refseq_data/GCF/000/001/635/GCF_000001635.27/GCF_000001635.27_GRCm39_repeatmasker.gtf
+```
+
+Load the resulting GTF with the existing single-line feature loader using
+`--analysis-name repeatmasker`.
 
 ### End-To-End RefSeq Run
 

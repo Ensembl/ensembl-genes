@@ -15,6 +15,17 @@ from typing import TextIO
 LOGGER = logging.getLogger(__name__)
 
 
+def default_repeatmasker_output_path(repeatmasker_path: str | Path) -> Path:
+    """Return the default GTF path for a RepeatMasker output file."""
+
+    path = Path(repeatmasker_path)
+    name = path.name
+    for suffix in (".out.gz", ".out"):
+        if name.endswith(suffix):
+            return path.with_name(f"{name[:-len(suffix)]}_repeatmasker.gtf")
+    return path.with_name(f"{path.stem}_repeatmasker.gtf")
+
+
 @contextmanager
 def open_text_maybe_gzip(path: str | Path) -> Iterator[TextIO]:
     """Open plain-text or gzip-compressed files for text reading."""
@@ -211,4 +222,78 @@ def convert_gff_to_ensembl(
         converted_features,
         skipped_features,
     )
+    return output
+
+
+def convert_repeatmasker_to_gtf(
+    repeatmasker_path: str | Path,
+    assembly_report_path: str | Path,
+    output_path: str | Path | None = None,
+    logger: logging.Logger | None = None,
+) -> Path:
+    """Convert NCBI RepeatMasker ``*_rm.out`` output to single-line GTF."""
+
+    try:
+        from ensembl.tools.anno.repeat_annotation.repeatmasker import (  # pylint: disable=import-outside-toplevel
+            get_repeat_type,
+        )
+    except ImportError as error:  # pragma: no cover - environment dependent
+        raise ImportError(
+            "RepeatMasker conversion requires the installed ensembl-tools package"
+        ) from error
+
+    log = logger or LOGGER
+    output = (
+        Path(output_path)
+        if output_path is not None
+        else default_repeatmasker_output_path(repeatmasker_path)
+    )
+    refseq_to_name = load_refseq_name_map(assembly_report_path)
+    repeat_ids: dict[str, int] = {}
+    converted_records = 0
+    unmapped_sequences = 0
+
+    with (
+        open_text_maybe_gzip(repeatmasker_path) as input_handle,
+        output.open("w", encoding="utf-8") as output_handle,
+    ):
+        for line_number, raw_line in enumerate(input_handle, start=1):
+            if not raw_line.strip() or not raw_line.lstrip()[:1].isdigit():
+                continue
+            fields = raw_line.split()
+            if fields and fields[-1] == "*":
+                fields.pop()
+            if len(fields) < 15:
+                log.debug("Skipping short RepeatMasker row %s", line_number)
+                continue
+
+            source_seq_name = fields[4]
+            seq_name = refseq_to_name.get(source_seq_name, source_seq_name)
+            if seq_name == source_seq_name and source_seq_name not in refseq_to_name:
+                unmapped_sequences += 1
+            repeat_ids[seq_name] = repeat_ids.get(seq_name, 0) + 1
+            strand = "-" if fields[8] == "C" else "+"
+            repeat_class = fields[10]
+            repeat_type = get_repeat_type(repeat_class)
+            attributes = (
+                f"repeat_id {repeat_ids[seq_name]}; "
+                f'repeat_name "{fields[9]}"; '
+                f'repeat_class "{repeat_class}"; '
+                f'repeat_type "{repeat_type}"; '
+                f'repeat_start "{fields[13] if strand == "-" else fields[11]}"; '
+                f'repeat_end "{fields[12]}"; '
+                f'score "{fields[0]}";'
+            )
+            output_handle.write(
+                f"{seq_name}\tRepeatMasker\trepeat\t{fields[5]}\t{fields[6]}\t.\t"
+                f"{strand}\t.\t{attributes}\n"
+            )
+            converted_records += 1
+
+    if unmapped_sequences:
+        log.warning(
+            "%s RepeatMasker rows used unmapped sequence names",
+            unmapped_sequences,
+        )
+    log.info("Wrote RepeatMasker GTF to %s (%s records)", output, converted_records)
     return output
