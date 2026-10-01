@@ -1,7 +1,7 @@
-"""Tests for beta.ensembl.org species-page availability checking.
+"""Tests for ensembl.org species-page availability checking.
 
 All network calls are mocked. Run with:
-    pytest tests/ensembl/genes/projects/test_beta_link.py -v
+    pytest tests/ensembl/genes/projects/test_ensembl_link.py -v
 """
 
 # pylint: disable=missing-class-docstring,missing-function-docstring
@@ -122,7 +122,7 @@ class TestResolveBetaLink:
         ):
             link, status = renderer._resolve_beta_link(_meta(), target_released=True)
         assert link == (
-            "https://beta.ensembl.org/species/" "525cc33d-82e2-4df5-90f2-70ef460cb418"
+            "https://www.ensembl.org/species/" "525cc33d-82e2-4df5-90f2-70ef460cb418"
         )
         assert status == "available"
 
@@ -193,8 +193,18 @@ class TestStandardRenderIntegration:
             "is_released": True,
             "ftp_species_name": "Achillea_ptarmica",
             "resolved_date": "2024_01",
+            "acc_ftp_path": "GCA/982/375/345/1",
             "audit_decision": "included_released",
             "audit_reason": "Found released FTP assets.",
+            "annotation_files": {
+                "genes.gtf.gz": (
+                    "https://ftp.ebi.ac.uk/pub/ensemblorganisms/"
+                    "GCA/982/375/345/1/ensembl/2024_01/geneset/genes.gtf.gz"
+                ),
+            },
+            "genome_files": {},
+            "homology_files": {},
+            "variation_files": {},
         }
         with (
             patch.object(renderer, "_resolve_ftp_assets", return_value=ftp_resolution),
@@ -225,8 +235,18 @@ class TestStandardRenderIntegration:
             "is_released": True,
             "ftp_species_name": "Achillea_ptarmica",
             "resolved_date": "2024_01",
+            "acc_ftp_path": "GCA/982/375/345/1",
             "audit_decision": "included_released",
             "audit_reason": "Found released FTP assets.",
+            "annotation_files": {
+                "genes.gtf.gz": (
+                    "https://ftp.ebi.ac.uk/pub/ensemblorganisms/"
+                    "GCA/982/375/345/1/ensembl/2024_01/geneset/genes.gtf.gz"
+                ),
+            },
+            "genome_files": {},
+            "homology_files": {},
+            "variation_files": {},
         }
         with (
             patch.object(renderer, "_resolve_ftp_assets", return_value=ftp_resolution),
@@ -242,6 +262,6 @@ class TestStandardRenderIntegration:
             doc = renderer.render(meta)
 
         assert doc["beta_link"] == (
-            "https://beta.ensembl.org/species/" "525cc33d-82e2-4df5-90f2-70ef460cb418"
+            "https://www.ensembl.org/species/" "525cc33d-82e2-4df5-90f2-70ef460cb418"
         )
         assert doc["__audit_beta_status__"] == "available"

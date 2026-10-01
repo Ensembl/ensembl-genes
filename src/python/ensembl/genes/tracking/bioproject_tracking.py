@@ -896,7 +896,7 @@ Supported --project_name values: hprc
         print(f"Found {len(accessions_taxon)} assemblies for taxon ID {args.taxon_id}")
 
     print(
-        f"Found {len(live_annotations)} annotations in beta.ensembl.org \
+        f"Found {len(live_annotations)} annotations in ensembl.org \
             for {len(unique_taxon_ids)} unique species"
     )
 

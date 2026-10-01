@@ -52,7 +52,7 @@ NEW_YAML = """\
   annotation_gff3: https://ftp.ebi.ac.uk/pub/ensemblorganisms/Drosophila_melanogaster/GCA_000001/ensembl/geneset/2025_10/genes.gff3.gz
   image: Arthropods.png
   ftp_dumps: https://ftp.ebi.ac.uk/pub/ensemblorganisms/Drosophila_melanogaster/GCA_000001/
-  beta_link: https://beta.ensembl.org/species/some-uuid
+  beta_link: https://www.ensembl.org/species/some-uuid
 
 - species: Papilio machaon
   accession: GCA_000003
@@ -72,7 +72,6 @@ def test_normalise_value():
     assert _normalise_value("  foo/  ") == "foo"
     assert _normalise_value("2025-09") == "2025_09"
     assert _normalise_value("2025_09") == "2025_09"
-    print("  [PASS] _normalise_value")
 
 
 def test_extract_key():
@@ -80,7 +79,6 @@ def test_extract_key():
     assert _extract_key({"assembly_accession": "GCA_2"}) == "GCA_2"
     assert _extract_key({"species": "Homo sapiens"}) == "Homo sapiens"
     assert _extract_key({}) is None
-    print("  [PASS] _extract_key")
 
 
 def test_compare():
@@ -110,18 +108,15 @@ def test_compare():
         # Added: GCA_000004
         assert len(added) == 1, f"Expected 1 added, got {len(added)}: {added}"
         assert added[0][0] == "GCA_000004"
-        print("  [PASS] Added detection")
 
         # Removed: GCA_000002
         assert len(removed) == 1, f"Expected 1 removed, got {len(removed)}: {removed}"
         assert removed[0][0] == "GCA_000002"
-        print("  [PASS] Removed detection")
 
         # Modified: GCA_000001 and GCA_000003
         mod_keys = [m[0] for m in modified]
         assert "GCA_000001" in mod_keys, f"GCA_000001 not in modified: {mod_keys}"
         assert "GCA_000003" in mod_keys, f"GCA_000003 not in modified: {mod_keys}"
-        print("  [PASS] Modified detection")
 
         # Check field-level diffs for GCA_000001
         gca1_mod = [m for m in modified if m[0] == "GCA_000001"][0]
@@ -134,9 +129,6 @@ def test_compare():
         assert (
             "ftp_dumps" not in diff_fields
         ), f"ftp_dumps should not differ: {diff_fields}"
-        print(
-            "  [PASS] Field-level diff (GCA_000001: gtf date change, beta_link transition)"
-        )
 
         # GCA_000003: image change + busco_score change
         gca3_mod = [m for m in modified if m[0] == "GCA_000003"][0]
@@ -145,9 +137,6 @@ def test_compare():
         assert (
             "busco_score" in diff_fields_3
         ), f"busco_score not in diffs: {diff_fields_3}"
-        print(
-            "  [PASS] Field-level diff (GCA_000003: image change, busco_score change)"
-        )
 
         # Format the report and check it's non-empty
         report = format_changelog(added, removed, modified)
@@ -155,7 +144,6 @@ def test_compare():
         assert "Added (1)" in report
         assert "Removed (1)" in report
         assert "Modified (2)" in report
-        print("  [PASS] Report formatting")
 
         # TSV output
         tsv_path = new_path + ".changelog.tsv"
@@ -166,7 +154,6 @@ def test_compare():
         assert any("added" in l for l in lines)
         assert any("removed" in l for l in lines)
         assert any("modified" in l for l in lines)
-        print("  [PASS] TSV output")
         os.unlink(tsv_path)
 
     finally:
@@ -186,7 +173,6 @@ def test_no_differences():
         assert len(modified) == 0
         report = format_changelog(added, removed, modified)
         assert "No differences detected" in report
-        print("  [PASS] No differences (identical inputs)")
     finally:
         os.unlink(path)
 
@@ -214,7 +200,6 @@ def test_date_normalisation_ignored():
         docs_b = load_yaml_as_keyed_dict(path_b)
         _, _, modified = compare_yamls(docs_a, docs_b)
         assert len(modified) == 0, f"Date normalisation failed, got diffs: {modified}"
-        print("  [PASS] Date normalisation (YYYY-MM vs YYYY_MM)")
     finally:
         os.unlink(path_a)
         os.unlink(path_b)
@@ -245,18 +230,6 @@ def test_hprc_schema():
         _, _, modified = compare_yamls(docs_a, docs_b)
         assert len(modified) == 1
         assert modified[0][0] == "GCA_018852605.3"
-        print("  [PASS] HPRC schema (assembly_accession key)")
     finally:
         os.unlink(path_a)
         os.unlink(path_b)
-
-
-if __name__ == "__main__":
-    print("Running changelog tests...\n")
-    test_normalise_value()
-    test_extract_key()
-    test_compare()
-    test_no_differences()
-    test_date_normalisation_ignored()
-    test_hprc_schema()
-    print("\nAll tests passed.")
