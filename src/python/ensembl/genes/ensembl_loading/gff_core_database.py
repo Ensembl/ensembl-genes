@@ -35,7 +35,7 @@ from .gff_source_config import GENERIC_GFF_CONFIG, REFSEQ_CONFIG, GffSourceConfi
 
 LOGGER = logging.getLogger(__name__)
 DEFAULT_CORE_SCHEMA_URL = (
-    "https://raw.githubusercontent.com/Ensembl/ensembl/" "release/114/sql/table.sql"
+    "https://raw.githubusercontent.com/Ensembl/ensembl/" + "release/114/sql/table.sql"
 )
 DEFAULT_ENSEMBL_RELEASE = "114"
 PROTEIN_CODING_TRANSCRIPT_BIOTYPES = frozenset(
