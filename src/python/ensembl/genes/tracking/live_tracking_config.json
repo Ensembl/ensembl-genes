@@ -1,39 +1,39 @@
 {
-    "server_details" : {
-	"meta": {
-	    "rapid" : {
-		"db_name" : "ensembl_metadata_qrp",
-		"db_host" : "mysql-ens-meta-prod-1",
-		"db_user" : "ensro",
-		"db_port" : 4483
-	    },
-	    "beta" : {
-                "db_name" : "ensembl_genome_metadata",
-                "db_host" : "mysql-ens-production-1",
-                "db_user" : "ensro",
-                "db_port" : 4721
-	    }
-	},
-	"genebuild": {
-	    "prod_1" : {
-		"db_host": "mysql-ens-genebuild-prod-1",
-		"db_user": "ensro",
-		"db_port" : 4527
-	    }
-	},
-	"staging": {
-	    "st5" : {
-		"db_host": "mysql-ens-sta-5.ebi.ac.uk",
-		"db_port": 4684,
-		"db_user": "ensro",
-		"db_pass": ""
-	    },
-	    "st6"	: {
-      		"db_host": "mysql-ens-sta-6.ebi.ac.uk",
+    "server_details": {
+        "meta": {
+            "rapid": {
+                "db_name": "ensembl_metadata_qrp",
+                "db_host": "mysql-ens-meta-prod-1",
+                "db_user": "ensro",
+                "db_port": 4483
+            },
+            "beta": {
+                "db_name": "ensembl_genome_metadata",
+                "db_host": "mysql-ens-production-1",
+                "db_user": "ensro",
+                "db_port": 4721
+            }
+        },
+        "genebuild": {
+            "prod_1": {
+                "db_host": "mysql-ens-genebuild-prod-1",
+                "db_user": "ensro",
+                "db_port": 4527
+            }
+        },
+        "staging": {
+            "st5": {
+                "db_host": "mysql-ens-sta-5.ebi.ac.uk",
+                "db_port": 4684,
+                "db_user": "ensro",
+                "db_pass": ""
+            },
+            "st6": {
+                "db_host": "mysql-ens-sta-6.ebi.ac.uk",
                 "db_port": 4695,
                 "db_user": "ensro",
                 "db_pass": ""
-  	    }
-	}
+            }
+        }
     }
 }

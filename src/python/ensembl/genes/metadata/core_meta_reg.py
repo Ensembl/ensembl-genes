@@ -20,21 +20,17 @@ import json
 import logging
 import logging.config
 import os
+from collections.abc import Iterable
 from datetime import date, datetime
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Dict, Iterable, List, Optional, Tuple, TypeAlias
+from typing import Any, TypeAlias
 
 import pymysql
-from ensembl.genes.info_from_registry.registry_helper import (
-    fetch_current_genebuild_record,
-)
 
-if TYPE_CHECKING:
-    RegistryConnection: TypeAlias = pymysql.connections.Connection[
-        pymysql.cursors.DictCursor
-    ]
-else:
-    RegistryConnection = pymysql.connections.Connection
+from ensembl.genes.mysql_helper import MySQLConnection, get_mysql_connection
+from ensembl.genes.registry_helper import fetch_current_genebuild_record
+
+RegistryConnection: TypeAlias = MySQLConnection
 
 logger: logging.Logger = logging.getLogger(__name__)
 
@@ -97,17 +93,17 @@ def mysql_fetch_data(  # pylint: disable=too-many-arguments
     port: int,
     user: str,
     password: str = "",
-    params: Optional[Tuple[Any, ...] | List[Any]] = None,
-) -> List[Dict[str, Any]]:
+    params: tuple[Any, ...] | list[Any] | None = None,
+) -> list[dict[str, Any]]:
     """
     Run a SELECT query and return fetched rows as dictionaries.
     Returns an empty list on error.
     """
     conn = None
     cursor = None
-    info: List[Dict[str, Any]] = []
+    info: list[dict[str, Any]] = []
     try:
-        conn = pymysql.connect(
+        conn = get_mysql_connection(
             host=host,
             user=user,
             port=int(port),
@@ -179,9 +175,9 @@ def sql_escape(value: Any) -> str:
     return normalise_text(value).replace("'", "''")
 
 
-def read_two_column_static_file(path: Path) -> Dict[str, str]:
+def read_two_column_static_file(path: Path) -> dict[str, str]:
     """Load static metadata files keyed by their first tab-delimited column."""
-    result: Dict[str, str] = {}
+    result: dict[str, str] = {}
     if not path.exists():
         logger.warning("Static metadata file does not exist: %s", path)
         return result
@@ -197,9 +193,9 @@ def read_two_column_static_file(path: Path) -> Dict[str, str]:
     return result
 
 
-def read_provider_static_file(path: Path) -> Dict[str, Dict[str, str]]:
+def read_provider_static_file(path: Path) -> dict[str, dict[str, str]]:
     """Load provider fallback values, handling mixed tab/space separated rows."""
-    result: Dict[str, Dict[str, str]] = {}
+    result: dict[str, dict[str, str]] = {}
     if not path.exists():
         logger.warning("Provider static file does not exist: %s", path)
         return result
@@ -250,10 +246,10 @@ def get_core_metadata(  # pylint: disable=too-many-arguments
     port: int,
     user: str,
     password: str,
-    production_name: Optional[str],
-) -> Tuple[int, Dict[str, str]]:
+    production_name: str | None,
+) -> tuple[int, dict[str, str]]:
     """Fetch existing core meta values used to decide INSERT/UPDATE output."""
-    core_dict: Dict[str, str] = {}
+    core_dict: dict[str, str] = {}
 
     if production_name:
         core_dict["species.production_name"] = production_name
@@ -317,8 +313,8 @@ def get_core_metadata(  # pylint: disable=too-many-arguments
 
 
 def registry_accession_candidates(
-    core_dict: Dict[str, str], assembly_accession: Optional[str]
-) -> List[str]:
+    core_dict: dict[str, str], assembly_accession: str | None
+) -> list[str]:
     """Return accessions to try against the registry, preserving order."""
     candidates = [
         assembly_accession,
@@ -338,7 +334,7 @@ def registry_accession_candidates(
 def fetch_registry_assembly(
     connection: RegistryConnection,
     accession_candidates: Iterable[str],
-) -> Tuple[str, Dict[str, Any]]:
+) -> tuple[str, dict[str, Any]]:
     """Fetch assembly, organism, and species registry data for an accession."""
     query = """
         SELECT
@@ -388,7 +384,7 @@ def fetch_registry_assembly(
 def fetch_registry_bioprojects(
     connection: RegistryConnection,
     assembly_id: int,
-) -> List[Dict[str, Any]]:
+) -> list[dict[str, Any]]:
     """Fetch all bioproject rows for a registry assembly."""
     query = """
         SELECT
@@ -408,8 +404,8 @@ def fetch_registry_genebuilds(
     connection: RegistryConnection,
     registry_gca: str,
     assembly_id: int,
-    genebuilder: Optional[str],
-) -> Tuple[Optional[Dict[str, Any]], List[Dict[str, Any]]]:
+    genebuilder: str | None,
+) -> tuple[dict[str, Any] | None, list[dict[str, Any]]]:
     """Fetch the selected current genebuild and all current genebuild attempts."""
     all_query = """
         SELECT *
@@ -457,14 +453,14 @@ def fetch_registry_genebuilds(
 
 
 def fetch_registry_metadata(
-    registry_config: Dict[str, Any],
+    registry_config: dict[str, Any],
     accession_candidates: Iterable[str],
-    genebuilder: Optional[str],
-) -> Dict[str, Any]:
+    genebuilder: str | None,
+) -> dict[str, Any]:
     """Fetch all registry metadata needed by this script."""
     connection = None
     try:
-        connection = pymysql.connect(
+        connection = get_mysql_connection(
             database=registry_config["db_name"],
             host=registry_config["db_host"],
             port=int(registry_config["db_port"]),
@@ -503,9 +499,9 @@ def fetch_registry_metadata(
 
 
 def apply_accession_logic(
-    core_dict: Dict[str, str],
-    truth_dict: Dict[str, Any],
-    registry_assembly: Dict[str, Any],
+    core_dict: dict[str, str],
+    truth_dict: dict[str, Any],
+    registry_assembly: dict[str, Any],
 ) -> None:
     """Preserve the old GCA/GCF accession handling."""
     core_accession = core_dict.get("assembly.accession", "")
@@ -532,8 +528,8 @@ def apply_accession_logic(
 
 def add_registry_assembly_metadata(
     db_name: str,
-    registry_assembly: Dict[str, Any],
-    truth_dict: Dict[str, Any],
+    registry_assembly: dict[str, Any],
+    truth_dict: dict[str, Any],
 ) -> None:
     """Map assembly/organism/species registry columns to core meta keys."""
     truth_dict["assembly.name"] = normalise_text(
@@ -582,9 +578,9 @@ def add_registry_assembly_metadata(
 
 def add_static_metadata(
     metadata_dir: Path,
-    registry_assembly: Dict[str, Any],
-    truth_dict: Dict[str, Any],
-) -> Dict[str, Dict[str, str]]:
+    registry_assembly: dict[str, Any],
+    truth_dict: dict[str, Any],
+) -> dict[str, dict[str, str]]:
     """Add static-file values that are still not represented in the registry."""
     provider_static_file = metadata_dir / "provider_static.txt"
     ref_static_file = metadata_dir / "ref_static.txt"
@@ -614,8 +610,8 @@ def add_static_metadata(
 
 
 def provider_from_static(
-    provider_values: Dict[str, Dict[str, str]], production_name: str
-) -> Tuple[str, str]:
+    provider_values: dict[str, dict[str, str]], production_name: str
+) -> tuple[str, str]:
     """Return provider fallback values for a production name."""
     provider = provider_values.get(production_name)
     if provider:
@@ -624,7 +620,7 @@ def provider_from_static(
 
 
 def add_assembly_provider_metadata(
-    core_dict: Dict[str, str], truth_dict: Dict[str, Any]
+    core_dict: dict[str, str], truth_dict: dict[str, Any]
 ) -> None:
     """Add assembly provider defaults when missing from the core DB."""
     if "assembly.provider_name" not in core_dict:
@@ -636,9 +632,9 @@ def add_assembly_provider_metadata(
 
 
 def add_import_provider_metadata(
-    core_dict: Dict[str, str],
-    truth_dict: Dict[str, Any],
-    provider_values: Dict[str, Dict[str, str]],
+    core_dict: dict[str, str],
+    truth_dict: dict[str, Any],
+    provider_values: dict[str, dict[str, str]],
 ) -> None:
     """Apply old import-provider fallback rules."""
     production_name = core_dict.get("species.production_name", "")
@@ -679,9 +675,9 @@ def add_import_provider_metadata(
 def add_genebuild_method_defaults(
     method: str,
     registry_source: str,
-    core_dict: Dict[str, str],
-    truth_dict: Dict[str, Any],
-    provider_values: Dict[str, Dict[str, str]],
+    core_dict: dict[str, str],
+    truth_dict: dict[str, Any],
+    provider_values: dict[str, dict[str, str]],
 ) -> None:
     """Map registry genebuild method/source to old web-facing meta values."""
     scientific_name = truth_dict.get("organism.scientific_name", "").lower()
@@ -764,10 +760,10 @@ def add_genebuild_method_defaults(
 
 
 def add_genebuild_metadata(
-    selected_genebuild: Optional[Dict[str, Any]],
-    core_dict: Dict[str, str],
-    truth_dict: Dict[str, Any],
-    provider_values: Dict[str, Dict[str, str]],
+    selected_genebuild: dict[str, Any] | None,
+    core_dict: dict[str, str],
+    truth_dict: dict[str, Any],
+    provider_values: dict[str, dict[str, str]],
 ) -> None:
     """Add genebuild metadata from registry, with old core/default fallbacks."""
     method = ""
@@ -833,7 +829,7 @@ def add_genebuild_metadata(
 
 
 def add_core_fallback_metadata(
-    core_dict: Dict[str, str], truth_dict: Dict[str, Any], team: str
+    core_dict: dict[str, str], truth_dict: dict[str, Any], team: str
 ) -> None:
     """Add metadata that is still sourced from core values or script arguments."""
     try:
@@ -875,13 +871,13 @@ def add_core_fallback_metadata(
 
 def build_truth_metadata(
     db_name: str,
-    core_dict: Dict[str, str],
-    registry_payload: Dict[str, Any],
+    core_dict: dict[str, str],
+    registry_payload: dict[str, Any],
     metadata_dir: Path,
     team: str,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Build the full metadata dictionary used for SQL and JSON output."""
-    truth_dict: Dict[str, Any] = {}
+    truth_dict: dict[str, Any] = {}
     registry_assembly = registry_payload["assembly"]
 
     apply_accession_logic(core_dict, truth_dict, registry_assembly)
@@ -900,10 +896,10 @@ def build_truth_metadata(
 
 
 def build_sql_actions(
-    truth_dict: Dict[str, Any], core_dict: Dict[str, str], species_id: int
-) -> List[Dict[str, str]]:
+    truth_dict: dict[str, Any], core_dict: dict[str, str], species_id: int
+) -> list[dict[str, str]]:
     """Create SQL patch statements with the old insert/update/delete behavior."""
-    actions: List[Dict[str, str]] = []
+    actions: list[dict[str, str]] = []
 
     for meta_key, raw_value in truth_dict.items():
         meta_value = normalise_text(raw_value)
@@ -951,7 +947,7 @@ def build_sql_actions(
 
 
 def check_required_metadata(
-    core_dict: Dict[str, str], truth_dict: Dict[str, Any]
+    core_dict: dict[str, str], truth_dict: dict[str, Any]
 ) -> None:
     """Log missing required metadata keys."""
     for required_key in REQUIRED_META_KEYS:
@@ -972,7 +968,7 @@ def check_required_metadata(
             )
 
 
-def write_sql(sql_path: Path, db_name: str, sql_actions: List[Dict[str, str]]) -> None:
+def write_sql(sql_path: Path, db_name: str, sql_actions: list[dict[str, str]]) -> None:
     """Write the SQL patch file."""
     with open(sql_path, "w", encoding="utf-8") as sql_out:
         print(f"USE {db_name};", file=sql_out)
@@ -984,11 +980,11 @@ def write_metadata_json(  # pylint: disable=too-many-arguments
     json_path: Path,
     db_name: str,
     species_id: int,
-    registry_config: Dict[str, Any],
-    registry_payload: Dict[str, Any],
-    core_dict: Dict[str, str],
-    truth_dict: Dict[str, Any],
-    sql_actions: List[Dict[str, str]],
+    registry_config: dict[str, Any],
+    registry_payload: dict[str, Any],
+    core_dict: dict[str, str],
+    truth_dict: dict[str, Any],
+    sql_actions: list[dict[str, str]],
 ) -> None:
     """Write a JSON artifact with all metadata retrieved and generated."""
     safe_registry_config = {

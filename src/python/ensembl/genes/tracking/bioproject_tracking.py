@@ -35,11 +35,14 @@ import shutil
 import subprocess
 import sys
 from collections import Counter
+from collections.abc import Sequence
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Sequence, Tuple
+from typing import Any
 
 import pymysql
 import requests
+
+from ensembl.genes.mysql_helper import get_mysql_connection
 
 # -----------------------------------
 # Logging
@@ -55,10 +58,10 @@ logging.basicConfig(
 # requires the config file to be present in the current working directory.
 # The path is resolved relative to this module, mirroring how
 # generate_project_yaml.py locates server_config.json.
-_CONFIG_CACHE: Optional[Dict[str, Any]] = None
+_CONFIG_CACHE: dict[str, Any] | None = None
 
 
-def _get_config() -> Dict[str, Any]:
+def _get_config() -> dict[str, Any]:
     """Load and cache the tracking config JSON (resolved next to this module)."""
     global _CONFIG_CACHE  # pylint:disable=global-statement
     if _CONFIG_CACHE is None:
@@ -73,11 +76,11 @@ def _get_config() -> Dict[str, Any]:
 # -----------------------------------
 def mysql_fetch_data(
     query: str,
-    params: Tuple = (),
+    params: tuple = (),
     server_group: str = "meta",
     server_name: str = "beta",
-    db_name: Optional[str] = None,
-) -> Sequence[Tuple[Any, ...]]:
+    db_name: str | None = None,
+) -> Sequence[tuple[Any, ...]]:
     """
     Executes a SQL query with optional parameters to fetch results from a specified MySQL server.
 
@@ -97,7 +100,7 @@ def mysql_fetch_data(
     """
     try:
         server_config = _get_config()["server_details"][server_group][server_name]
-        connection = pymysql.connect(
+        connection = get_mysql_connection(
             host=server_config["db_host"],
             user=server_config["db_user"],
             port=server_config["db_port"],
@@ -122,7 +125,7 @@ def mysql_fetch_data(
 # -----------------------------------
 def get_assembly_accessions(  # pylint:disable=too-many-branches, too-many-statements, too-many-locals
     query_id: str, query_type: str, only_haploid: bool = False
-) -> Dict[str, Dict[str, int]]:
+) -> dict[str, dict[str, int]]:
     """
     Fetches assembly accessions from NCBI Datasets API based on BioProject or Taxon ID.
 
@@ -135,8 +138,8 @@ def get_assembly_accessions(  # pylint:disable=too-many-branches, too-many-state
         Dict[str, Dict[str, int]]: A dictionary mapping assembly accessions to their taxon IDs.
     """
 
-    def _parse_reports(lines: List[str]) -> Dict[str, Dict[str, int]]:
-        accs: Dict[str, Dict[str, int]] = {}
+    def _parse_reports(lines: list[str]) -> dict[str, dict[str, int]]:
+        accs: dict[str, dict[str, int]] = {}
         for line in lines:
             line = line.strip()
             if not line:
@@ -219,7 +222,7 @@ def get_assembly_accessions(  # pylint:disable=too-many-branches, too-many-state
         )
         return {}
 
-    assembly_accessions: Dict[str, Dict[str, int]] = {}
+    assembly_accessions: dict[str, dict[str, int]] = {}
     page_size = 5000
     next_page_token = None
 
@@ -268,7 +271,7 @@ _HPRC_CATALOG_URL = (
 )
 
 
-def fetch_hprc_assemblies() -> Dict[str, Dict[str, int]]:
+def fetch_hprc_assemblies() -> dict[str, dict[str, int]]:
     """Fetches HPRC release 2 assembly GCAs from the HPRC data portal catalog.
 
     The HPRC data explorer stores its catalog as a static JSON file in its
@@ -296,7 +299,7 @@ def fetch_hprc_assemblies() -> Dict[str, Dict[str, int]]:
         logging.error("Failed to parse HPRC catalog JSON: %s", exc)
         sys.exit(1)
 
-    accessions: Dict[str, Dict[str, int]] = {}
+    accessions: dict[str, dict[str, int]] = {}
     for entry in catalog:
         release = str(entry.get("release", "")).strip()
         gca = (entry.get("genbankAccession") or "").strip()
@@ -311,7 +314,7 @@ def fetch_hprc_assemblies() -> Dict[str, Dict[str, int]]:
     return accessions
 
 
-def fetch_project_assemblies(project_name: str) -> Dict[str, Dict[str, int]]:
+def fetch_project_assemblies(project_name: str) -> dict[str, dict[str, int]]:
     """Dispatcher for project-specific assembly discovery.
 
     Args:
@@ -338,7 +341,7 @@ def fetch_project_assemblies(project_name: str) -> Dict[str, Dict[str, int]]:
 _CORE_VER_RE = re.compile(r"_core_(\d+)_", re.IGNORECASE)
 
 
-def _score_dbname(dbname: str) -> Tuple[int, int, str]:
+def _score_dbname(dbname: str) -> tuple[int, int, str]:
     """
     Higher tuple is better.
     1) Higher core version
@@ -358,8 +361,8 @@ def _score_dbname(dbname: str) -> Tuple[int, int, str]:
 
 
 def get_ensembl_live(
-    accessions_taxon: Dict[str, Dict[str, int]],
-) -> Tuple[Dict[str, Dict[str, Any]], List[str]]:
+    accessions_taxon: dict[str, dict[str, int]],
+) -> tuple[dict[str, dict[str, Any]], list[str]]:
     """
     Fetches Ensembl live database annotations for a list of assembly accessions.
 
@@ -398,7 +401,7 @@ def get_ensembl_live(
     rows = mysql_fetch_data(query, tuple(accessions))
 
     # Seed with taxon info so missing ones can still be tracked
-    live_annotations: Dict[str, Dict[str, Any]] = {}
+    live_annotations: dict[str, dict[str, Any]] = {}
 
     for accession, guuid, dbname in rows:
         entry = live_annotations.setdefault(
@@ -430,16 +433,16 @@ def get_ensembl_live(
 # Taxonomy info
 # -----------------------------------
 def get_taxonomy_info(
-    live_annotations: Dict[str, Dict[str, Any]],
-    accessions_taxon: Dict[str, Dict[str, int]],
+    live_annotations: dict[str, dict[str, Any]],
+    accessions_taxon: dict[str, dict[str, int]],
     rank: str,
-) -> Dict[str, Dict[str, Any]]:
+) -> dict[str, dict[str, Any]]:
     """
     Fetches taxonomy information for a given rank from the NCBI Datasets API.
     For each accession in `live_annotations`, this function retrieves its `taxon_id`\
     and queries the NCBI taxonomy endpoint to get the classification at the specified rank.
     The retrieved rank name is then added to the corresponding annotation data.
-    
+
     Args:
         live_annotations (Dict[str, Dict[str, str]]): A dictionary where each key is \
             an assembly accession and its value contains annotation details (including \
@@ -447,7 +450,7 @@ def get_taxonomy_info(
         accessions_taxon (Dict[str, Dict[str, int]]): A dictionary mapping accessions \
             to basic taxon information, such as {"GCA_000001405.39": {"taxon_id": 9606}}.
         rank (str): The taxonomic rank to retrieve (e.g., "order", "class", "phylum").
-        
+
     Returns:
         Dict[str, Dict[str, str]]: The updated `live_annotations` dictionary with an
         additional key for the requested rank. For example:
@@ -495,18 +498,18 @@ def get_taxonomy_info(
 # Add FTP (per match + best)
 # -----------------------------------
 def add_ftp(  # pylint:disable=too-many-locals, too-many-branches, too-many-statements
-    annotations: Dict[str, Dict[str, Any]], release_type: str = "live"
-) -> Dict[str, Dict[str, Any]]:
+    annotations: dict[str, dict[str, Any]], release_type: str = "live"
+) -> dict[str, dict[str, Any]]:
     """
     Adds FTP links to the annotations dictionary based on the release type.
-    
+
     Args:
         annotations (Dict[str, Dict[str, Any]]): A dictionary where each key is \
             an assembly accession and its value contains annotation details, \
             including matches with database names or genome UUIDs.
         release_type (str): The type of release to determine FTP link construction.\
             Can be either "live" or "pre".
-            
+
     Returns:
         Dict[str, Dict[str, Any]]: The updated annotations dictionary with FTP links \
         added to each match and the top-level annotation where applicable.
@@ -577,7 +580,7 @@ def add_ftp(  # pylint:disable=too-many-locals, too-many-branches, too-many-stat
                 SELECT genome.genebuild_date, organism.scientific_name, dataset_attribute.value
                 FROM genome
                 JOIN organism USING(organism_id)
-                JOIN genome_dataset USING(genome_id) 
+                JOIN genome_dataset USING(genome_id)
                 JOIN dataset_attribute USING(dataset_id)
                 WHERE genome.genome_uuid = %s
                 AND attribute_id=169
@@ -624,7 +627,7 @@ def add_ftp(  # pylint:disable=too-many-locals, too-many-branches, too-many-stat
     return annotations
 
 
-def get_pre_release(missing_annotations: List[str]) -> Dict[str, Dict[str, str]]:
+def get_pre_release(missing_annotations: list[str]) -> dict[str, dict[str, str]]:
     """
     Checks for the existence of pre-release Ensembl database schemas for a \
         list of missing accessions.
@@ -635,13 +638,13 @@ def get_pre_release(missing_annotations: List[str]) -> Dict[str, Dict[str, str]]
     `information_schema.schemata` table to check if a database with that name exists.
     If such a schema is found, the function records the corresponding accession and \
     database name in the returned dictionary.
-    
+
     Args:
         missing_annotations (List[str]): A list of assembly accessions (e.g., 'GCA_000001405.39') \
             for which no live annotation database was found.
-            
+
     Returns:
-        Dict[str, Dict[str, str]]: A dictionary mapping each accession with a found pre-release 
+        Dict[str, Dict[str, str]]: A dictionary mapping each accession with a found pre-release
         database to a nested dictionary containing:
             - "dbname": The name of the pre-release schema (e.g., 'gca000001405v39').
         Example:
@@ -656,7 +659,7 @@ def get_pre_release(missing_annotations: List[str]) -> Dict[str, Dict[str, str]]
         - If no matching schema is found for an accession, it is omitted from the result.
         - The function uses `mysql_fetch_data` to query the MySQL server's schema metadata.
     """
-    pre_release_annotations: Dict[str, Dict[str, str]] = {}
+    pre_release_annotations: dict[str, dict[str, str]] = {}
 
     for accession in missing_annotations:
         match = re.match(r"(GCA|GCF)_(\d+)\.(\d+)", accession)
@@ -687,7 +690,7 @@ def get_pre_release(missing_annotations: List[str]) -> Dict[str, Dict[str, str]]
 # Report writer (explode when multiple matches)
 # -----------------------------------
 def write_report(
-    live_annotations: Dict[str, Dict[str, Any]],
+    live_annotations: dict[str, dict[str, Any]],
     report_file: str,
     rank: str,
     include_class: bool = False,
@@ -696,7 +699,7 @@ def write_report(
     """
     Writes a tab-separated report. If an accession has multiple matches,
     produces one line per match; otherwise one line.
-    
+
     Args:
         live_annotations (Dict[str, Dict[str, Any]]): A dictionary where each key is \
             an assembly accession and its value contains annotation details, \
@@ -705,7 +708,7 @@ def write_report(
         rank (str): The taxonomic rank to include if `include_class` is True.
         include_class (bool): If True, includes the taxonomic classification at the specified rank.
         include_ftp (bool): If True, includes FTP links in the report.
-        
+
     Returns:
         None
     """
@@ -876,7 +879,7 @@ Supported --project_name values: hprc
         if args.ftp and pre_release_annotations:
             pre_release_annotations = add_ftp(pre_release_annotations, "pre")
 
-        all_annotations: Dict[str, Dict[str, Any]] = {  # type: ignore
+        all_annotations: dict[str, dict[str, Any]] = {  # type: ignore
             **live_annotations,
             **pre_release_annotations,
         }

@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Dict, List, Tuple
 
 import pandas as pd
 
@@ -12,10 +11,10 @@ class Interval:
     start: int
     end: int
 
-    def overlaps(self, other: "Interval") -> bool:
+    def overlaps(self, other: Interval) -> bool:
         return not (self.end < other.start or other.end < self.start)
 
-    def gap_to(self, other: "Interval") -> int:
+    def gap_to(self, other: Interval) -> int:
         # distance between inclusive intervals; if overlapping, negative/zero
         return other.start - self.end - 1
 
@@ -33,7 +32,7 @@ class Locus:
         return f"{self.seq}:{self.strand}:{self.start}:{self.end}:{self.index}"
 
 
-def _merge_overlaps(intervals: List[Interval]) -> List[Interval]:
+def _merge_overlaps(intervals: list[Interval]) -> list[Interval]:
     if not intervals:
         return []
     intervals.sort(key=lambda x: (x.start, x.end))
@@ -47,7 +46,7 @@ def _merge_overlaps(intervals: List[Interval]) -> List[Interval]:
     return merged
 
 
-def _merge_with_gap(intervals: List[Interval], gap_bp: int) -> List[Interval]:
+def _merge_with_gap(intervals: list[Interval], gap_bp: int) -> list[Interval]:
     if not intervals:
         return []
     intervals.sort(key=lambda x: (x.start, x.end))
@@ -66,7 +65,7 @@ def build_loci(
     core_df: pd.DataFrame,
     layer_df: pd.DataFrame,
     gap_bp: int = 5000,
-) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """Build strict and expanded loci from union of core/layer genes.
 
     Returns (loci_strict_df, loci_expanded_df, gene_to_locus_df).
@@ -95,7 +94,7 @@ def build_loci(
     layer = norm(layer_df)
 
     # Prepare union intervals by (seq, strand)
-    union_key_to_intervals: Dict[Tuple[str, int], List[Interval]] = {}
+    union_key_to_intervals: dict[tuple[str, int], list[Interval]] = {}
     for df in (core, layer):
         for (seq, strand), g in df.groupby(["seq_region_name", "seq_region_strand"]):
             lst = union_key_to_intervals.setdefault((seq, strand), [])
@@ -104,10 +103,10 @@ def build_loci(
                 for s, e in zip(g.seq_region_start, g.seq_region_end)
             ]
 
-    strict_records: List[Tuple[str, int, int, int, int, int, int, str]] = []
-    expanded_records: List[Tuple[str, int, int, int, int, int, int, str]] = []
+    strict_records: list[tuple[str, int, int, int, int, int, int, str]] = []
+    expanded_records: list[tuple[str, int, int, int, int, int, int, str]] = []
     # Map genes → loci
-    gene_map_records: List[Tuple[str, int, str, int, int, str, str]] = []
+    gene_map_records: list[tuple[str, int, str, int, int, str, str]] = []
 
     for (seq, strand), intervals in union_key_to_intervals.items():
         strict_list = _merge_overlaps([Interval(i.start, i.end) for i in intervals])
@@ -125,7 +124,7 @@ def build_loci(
         ]
 
         # Strict loci
-        strict_ids: List[Locus] = [
+        strict_ids: list[Locus] = [
             Locus(seq, strand, it.start, it.end, i) for i, it in enumerate(strict_list)
         ]
         for loc in strict_ids:
@@ -151,7 +150,7 @@ def build_loci(
             )
 
         # Expanded loci
-        expanded_ids: List[Locus] = [
+        expanded_ids: list[Locus] = [
             Locus(seq, strand, it.start, it.end, i)
             for i, it in enumerate(expanded_list)
         ]
@@ -183,7 +182,7 @@ def build_loci(
         ).iterrows():
             iv = Interval(int(row.seq_region_start), int(row.seq_region_end))
 
-            def find_locus(iv_to_find: Interval, loci: List[Locus]) -> str:
+            def find_locus(iv_to_find: Interval, loci: list[Locus]) -> str:
                 for loc in loci:
                     if not (iv_to_find.end < loc.start or iv_to_find.start > loc.end):
                         return loc.locus_id

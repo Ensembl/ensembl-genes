@@ -8,23 +8,23 @@ This module sits upstream of the YAML generation pipeline in `ensembl.genes.proj
 
 ## Modules
 
-| Module | Purpose |
-|---|---|
+| Module                   | Purpose                                                                                                                                                               |
+| ------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `bioproject_tracking.py` | Main CLI script. Discovers assemblies via NCBI or project portals, looks them up in Ensembl metadata, optionally adds FTP and taxonomy info, and writes a TSV report. |
-| `live_tracking.py` | Auxiliary tracking utilities (pre-existing on `main`). |
+| `live_tracking.py`       | Auxiliary tracking utilities (pre-existing on `main`).                                                                                                                |
 
 ## Prerequisites
 
 1. **Python 3.11+** (matching the repository-wide requirement in `pyproject.toml`).
 2. **MySQL** connectivity to the Ensembl metadata database (read-only access via `ensro`).
 3. A valid `bioproject_tracking_config.json` in the working directory, containing:
-   - MySQL connection details for metadata and pre-release servers.
-   - Base URLs for the NCBI Datasets API.
+    - MySQL connection details for metadata and pre-release servers.
+    - Base URLs for the NCBI Datasets API.
 4. **NCBI Datasets CLI** (`datasets`) is optional but recommended — it retrieves all assembly versions, whereas the API fallback only returns the latest.
 5. Dependencies are declared in the repository-level `pyproject.toml`. Install with:
-   ```bash
-   pip install -e .
-   ```
+    ```bash
+    pip install -e .
+    ```
 
 ## Inputs
 
@@ -90,23 +90,24 @@ python -m ensembl.genes.tracking.bioproject_tracking \
 ```
 
 This will:
+
 - Download the HPRC catalog JSON from the HPRC data explorer GitHub repository.
 - Filter to release 2 assemblies with valid GCA accessions.
 - De-duplicate and feed those GCAs into the Ensembl metadata lookup and report flow.
 
 ### CLI Options
 
-| Flag | Description |
-|---|---|
-| `--bioproject_id` | NCBI BioProject ID |
-| `--taxon_id` | Taxonomy ID |
-| `--project_name` | Project-specific discovery (e.g. `hprc`). Mutually exclusive with the above. |
-| `--haploid` | Restrict to haploid assemblies only |
-| `--report_file` | Output TSV path (default: `./report_file.tsv`) |
-| `--classification` | Include taxonomic classification breakdown |
-| `--rank` | Taxonomic rank to retrieve (default: `order`) |
-| `--ftp` | Validate and include FTP links in the report |
-| `--pre_release` | Include pre-release database matches for missing accessions |
+| Flag               | Description                                                                  |
+| ------------------ | ---------------------------------------------------------------------------- |
+| `--bioproject_id`  | NCBI BioProject ID                                                           |
+| `--taxon_id`       | Taxonomy ID                                                                  |
+| `--project_name`   | Project-specific discovery (e.g. `hprc`). Mutually exclusive with the above. |
+| `--haploid`        | Restrict to haploid assemblies only                                          |
+| `--report_file`    | Output TSV path (default: `./report_file.tsv`)                               |
+| `--classification` | Include taxonomic classification breakdown                                   |
+| `--rank`           | Taxonomic rank to retrieve (default: `order`)                                |
+| `--ftp`            | Validate and include FTP links in the report                                 |
+| `--pre_release`    | Include pre-release database matches for missing accessions                  |
 
 ## Assumptions and Limitations
 
@@ -124,6 +125,7 @@ This tracking module and the `projects` YAML generation module serve different p
 - **Projects** (`generate_project_yaml.py`): Takes a list of genome identifiers and produces publishable YAML — answers "what should appear on the project page?"
 
 A typical workflow is:
+
 1. Run `bioproject_tracking.py` to discover assemblies and generate a tracking report.
 2. Extract the genome UUIDs from the report to create an input file.
 3. Run `generate_project_yaml.py` with that input file to produce the final YAML.

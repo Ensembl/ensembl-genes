@@ -3,7 +3,7 @@ Unified state and domain models for the genome tracking and YAML generation pipe
 """
 
 from dataclasses import dataclass, field
-from typing import Optional, List, Dict, Any
+from typing import Any
 
 
 @dataclass
@@ -25,25 +25,25 @@ class GenomeMetadata:  # pylint: disable=too-many-instance-attributes
     assembly_name: str
 
     # Optional Taxonomy
-    common_name: Optional[str] = None
-    strain: Optional[str] = None
-    taxon_id: Optional[int] = None
-    taxonomy_lineage: Optional[List[str]] = None  # leaf→root classification names
+    common_name: str | None = None
+    strain: str | None = None
+    taxon_id: int | None = None
+    taxonomy_lineage: list[str] | None = None  # leaf→root classification names
 
     # Optional relationships
-    assembly_submitter: Optional[str] = None
-    alternate_of: Optional[str] = None  # URL/name string for alternate haplotype
-    parent_of_origin: Optional[str] = None  # maternal or paternal
-    population: Optional[str] = None  # used by HPRC
+    assembly_submitter: str | None = None
+    alternate_of: str | None = None  # URL/name string for alternate haplotype
+    parent_of_origin: str | None = None  # maternal or paternal
+    population: str | None = None  # used by HPRC
 
     # Annotation properties
-    annotation_source: Optional[str] = None
-    annotation_method: Optional[str] = None
-    annotation_date: Optional[str] = None
+    annotation_source: str | None = None
+    annotation_method: str | None = None
+    annotation_date: str | None = None
 
     # Quality metrics
-    busco_score: Optional[str] = None
-    busco_lineage: Optional[str] = None
+    busco_score: str | None = None
+    busco_lineage: str | None = None
 
     # External Server Links (Calculated in the renderer, or boolean presence here)
     is_on_rapid: bool = False
@@ -58,4 +58,4 @@ class GenomeMetadata:  # pylint: disable=too-many-instance-attributes
     has_variants_vep: bool = False
 
     # Extensible payload for unforeseen additions
-    extra: Dict[str, Any] = field(default_factory=dict)
+    extra: dict[str, Any] = field(default_factory=dict)

@@ -5,17 +5,16 @@ Performs web scraping for submitters and HPRC population data.
 
 import logging
 import re
-from typing import Optional
 
 import requests
 
-from ensembl.genes.projects.models import GenomeMetadata
 from ensembl.genes.projects.config import ProjectConfig
+from ensembl.genes.projects.models import GenomeMetadata
 
 logger = logging.getLogger(__name__)
 
 
-def _fetch_assembly_report_type(accession: str, assembly_name: str) -> Optional[str]:
+def _fetch_assembly_report_type(accession: str, assembly_name: str) -> str | None:
     """Download the assembly report from NCBI genomes FTP; parse maternal/paternal."""
     if not accession or not assembly_name:
         return None

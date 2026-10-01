@@ -3,7 +3,6 @@ Project configuration mappings determining data fetch behavior and YAML schema r
 """
 
 from dataclasses import dataclass
-from typing import List, Optional
 
 
 @dataclass
@@ -27,8 +26,8 @@ class ProjectConfig:  # pylint: disable=too-many-instance-attributes
     schema_type: str = "standard"  # "standard", "hprc", "mouse"
 
     # Pre-release Registry Scoping
-    bioproject_scoping: Optional[List[str]] = None
-    custom_group_scoping: Optional[List[str]] = None
+    bioproject_scoping: list[str] | None = None
+    custom_group_scoping: list[str] | None = None
 
     # Base URL prefixes (if customized for project)
     ftp_base_url: str = "https://ftp.ensembl.org/pub"

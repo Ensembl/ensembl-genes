@@ -13,7 +13,6 @@ import sys
 from collections import defaultdict
 from dataclasses import dataclass
 from pathlib import Path
-from typing import List
 
 import yaml
 
@@ -27,10 +26,10 @@ from ensembl.genes.projects.config import get_project_config
 from ensembl.genes.projects.ftp_client import EnsemblFTP
 from ensembl.genes.projects.haplotype_resolver import HaplotypeResolver
 from ensembl.genes.projects.models import GenomeMetadata
-from ensembl.genes.projects.yaml_renderer import YamlRenderer
-from ensembl.genes.projects.registry.metadata_db import MetadataDbClient
 from ensembl.genes.projects.registry.gb_tracker import GbTrackerClient
+from ensembl.genes.projects.registry.metadata_db import MetadataDbClient
 from ensembl.genes.projects.registry.ncbi_entrez import patch_ncbi_data
+from ensembl.genes.projects.yaml_renderer import YamlRenderer
 
 
 @dataclass
@@ -73,7 +72,7 @@ Examples:
       --changelog old_cbp_species.yaml \\
       --changelog-output cbp_changelog.tsv
 
-Note: The input file should primarily contain Genome UUIDs (one per line). 
+Note: The input file should primarily contain Genome UUIDs (one per line).
 For pre-release discovery without UUIDs, you may still rely on the registry tracking.
 """,
     )
@@ -135,11 +134,11 @@ For pre-release discovery without UUIDs, you may still rely on the registry trac
         print(f"Error reading input file: {e}", file=sys.stderr)
         sys.exit(1)
 
-    yaml_docs: List[dict] = []
+    yaml_docs: list[dict] = []
     failed = []
     emitted_accessions = set()
 
-    candidates: List[Candidate] = []
+    candidates: list[Candidate] = []
 
     for idx, identifier in enumerate(identifiers):
         if "-" in identifier and len(identifier) == 36:

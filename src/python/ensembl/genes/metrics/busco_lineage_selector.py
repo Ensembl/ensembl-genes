@@ -15,16 +15,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import urllib.request
 import argparse
-from pathlib import Path
-from typing import Any, Dict, Optional
 
 # import requests
 import json
+import urllib.request
+from pathlib import Path
+from typing import Any
 
 
-def get_dataset_match(ncbi_url: str, dataset: Dict[str, Any]) -> Optional[Any]:
+def get_dataset_match(ncbi_url: str, dataset: dict[str, Any]) -> Any | None:
     """
     Get taxonomy tree from ncbi taxonomy datasets and find the closest match with the input list
 

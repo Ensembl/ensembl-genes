@@ -23,7 +23,7 @@ from __future__ import annotations
 import json
 import logging
 import re
-from typing import TYPE_CHECKING, Dict, List, Optional, Tuple
+from typing import TYPE_CHECKING
 
 import requests
 
@@ -40,8 +40,8 @@ _DATASETS_API_BASE = "https://api.ncbi.nlm.nih.gov/datasets/v2/genome/accession"
 
 
 def _fetch_assembly_metadata_batch(  # pylint: disable=too-many-locals,too-many-nested-blocks
-    accessions: List[str],
-) -> Dict[str, Dict[str, str]]:
+    accessions: list[str],
+) -> dict[str, dict[str, str]]:
     """Fetch BioSample and sample metadata for a batch of accessions.
 
     Uses the NCBI Datasets REST API (POST endpoint for bulk lookup).
@@ -60,7 +60,7 @@ def _fetch_assembly_metadata_batch(  # pylint: disable=too-many-locals,too-many-
     if not accessions:
         return {}
 
-    result: Dict[str, Dict] = {}
+    result: dict[str, dict] = {}
 
     # NCBI Datasets v2 API: POST with {"accessions": [...]}
     url = f"{_DATASETS_API_BASE}"
@@ -140,15 +140,18 @@ def _fetch_assembly_metadata_batch(  # pylint: disable=too-many-locals,too-many-
 
 _HAP_PATTERNS = [
     # hap1 / hap2
-    (re.compile(r"^(.+?)[\._\-]?(hap[12]|haplotype[12])(.*)$", re.I), "hap"),
+    (re.compile(r"^(.+?)[\._\-]?(hap[12]|haplotype[12])(.*)$", re.IGNORECASE), "hap"),
     # pat / mat / paternal / maternal
-    (re.compile(r"^(.+?)[\._\-]?(pat(?:ernal)?|mat(?:ernal)?)(.*)$", re.I), "parent"),
+    (
+        re.compile(r"^(.+?)[\._\-]?(pat(?:ernal)?|mat(?:ernal)?)(.*)$", re.IGNORECASE),
+        "parent",
+    ),
     # primary / alternate
-    (re.compile(r"^(.+?)[\._\-]?(primary|alternate|alt)(.*)$", re.I), "alt"),
+    (re.compile(r"^(.+?)[\._\-]?(primary|alternate|alt)(.*)$", re.IGNORECASE), "alt"),
 ]
 
 
-def _extract_hap_group_key(assembly_name: str) -> Optional[Tuple[str, str]]:
+def _extract_hap_group_key(assembly_name: str) -> tuple[str, str] | None:
     """Extract a grouping key and haplotype label from an assembly name.
 
     Returns (group_key, hap_label) or None if no pattern matches.
@@ -182,8 +185,8 @@ class HaplotypeResolver:  # pylint: disable=too-few-public-methods
 
     def find_alternate_haplotypes(  # pylint: disable=too-many-locals,too-many-branches,too-many-statements
         self,
-        genomes: List["GenomeMetadata"],
-    ) -> Dict[str, str]:
+        genomes: list[GenomeMetadata],
+    ) -> dict[str, str]:
         """Find alternate haplotype pairs among the given genomes.
 
         Parameters
@@ -204,13 +207,13 @@ class HaplotypeResolver:  # pylint: disable=too-few-public-methods
         accessions = [g.accession for g in genomes]
         acc_set = set(accessions)
 
-        pairs: Dict[str, str] = {}
+        pairs: dict[str, str] = {}
 
         # ------ Source 1: BioSample from NCBI Datasets API ------
         ncbi_meta = _fetch_assembly_metadata_batch(accessions)
 
         # Group by BioSample accession
-        biosample_groups: Dict[str, List[str]] = {}
+        biosample_groups: dict[str, list[str]] = {}
         for acc, info in ncbi_meta.items():
             bs = info.get("biosample", "")
             if bs and acc in acc_set:
@@ -232,7 +235,7 @@ class HaplotypeResolver:  # pylint: disable=too-few-public-methods
                 )
 
         # ------ Source 2: Sample name / isolate ------
-        sample_groups: Dict[str, List[str]] = {}
+        sample_groups: dict[str, list[str]] = {}
         for acc, info in ncbi_meta.items():
             sn = info.get("sample_name", "").strip()
             if sn and acc in acc_set and acc not in pairs:
@@ -251,7 +254,7 @@ class HaplotypeResolver:  # pylint: disable=too-few-public-methods
 
         # ------ Source 3: Assembly name heuristics (weak fallback) ------
         # Group by species+taxon_id for safety, then by naming pattern
-        species_groups: Dict[Tuple, List["GenomeMetadata"]] = {}
+        species_groups: dict[tuple, list[GenomeMetadata]] = {}
         for g in genomes:
             if g.accession in pairs:
                 continue
@@ -261,7 +264,7 @@ class HaplotypeResolver:  # pylint: disable=too-few-public-methods
         for sp_key, sp_genomes in species_groups.items():
             if len(sp_genomes) < 2:
                 continue
-            hap_groups: Dict[str, List["GenomeMetadata"]] = {}
+            hap_groups: dict[str, list[GenomeMetadata]] = {}
             for g in sp_genomes:
                 # Use NCBI assembly name if available, fall back to meta
                 asm_name = ""
