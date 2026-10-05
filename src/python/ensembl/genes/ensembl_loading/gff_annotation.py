@@ -168,8 +168,13 @@ def parse_translation_attributes(
             genomic_to_cds_position.get(coordinate)
             for coordinate in genomic_coordinates
         ]
-        if not cds_positions_with_gaps or any(
-            position is None for position in cds_positions_with_gaps
+        # RefSeq can describe an exception as one genomic interval spanning an
+        # intron between CDS segments. Only the interval endpoints need to map
+        # to CDS; coordinates inside the intron are not translated.
+        if (
+            not cds_positions_with_gaps
+            or cds_positions_with_gaps[0] is None
+            or cds_positions_with_gaps[-1] is None
         ):
             raise ValueError(
                 "Could not map RefSeq transl_except genomic coordinates "
