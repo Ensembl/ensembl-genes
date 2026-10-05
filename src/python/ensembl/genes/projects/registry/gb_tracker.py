@@ -53,7 +53,9 @@ class GbTrackerClient:
             JOIN assembly a ON gs.assembly_id = a.assembly_id
             JOIN species s ON a.lowest_taxon_id = s.lowest_taxon_id
             LEFT JOIN annotation_metrics am ON gs.assembly_id = am.assembly_id AND gs.genebuild_status_id = am.genebuild_status_id
-            WHERE gs.gb_status IN ('in_progress', 'pre_released')
+            WHERE gs.gb_status IN ('in_progress', 'pre_released', 'handed_over')
+              AND gs.last_attempt = 1
+              AND gs.release_type = 'not_available'
               AND {where_clause}
             GROUP BY gs.gca_accession, s.scientific_name, s.species_taxon_id, a.asm_name, gs.annotation_method
             LIMIT 1
@@ -157,7 +159,9 @@ class GbTrackerClient:
             JOIN species s ON a.lowest_taxon_id = s.lowest_taxon_id
             {joins}
             LEFT JOIN annotation_metrics am ON gs.assembly_id = am.assembly_id AND gs.genebuild_status_id = am.genebuild_status_id
-            WHERE gs.gb_status = 'pre_released'
+            WHERE gs.gb_status IN ('pre_released', 'handed_over')
+              AND gs.last_attempt = 1
+              AND gs.release_type = 'not_available'
               AND ({where_cond})
             GROUP BY gs.gca_accession, s.scientific_name, s.species_taxon_id, a.asm_name, gs.annotation_method
         """
