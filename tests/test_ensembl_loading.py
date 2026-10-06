@@ -27,6 +27,7 @@ from ensembl.genes.ensembl_loading import (
     gff_repeat_loader,
 )
 from ensembl.genes.ensembl_loading.gff_annotation import (
+    compute_exon_phases,
     has_refseq_translation_discrepancy,
     parse_converted_gff3,
     parse_translation_attributes,
@@ -36,6 +37,7 @@ from ensembl.genes.ensembl_loading.gff_core_database import (
     frameshift_transcript_attributes,
     insert_genes,
     insert_refseq_seq_region_synonyms,
+    insert_translations,
 )
 from ensembl.genes.ensembl_loading.gff_models import (
     CdsSegment,
@@ -628,6 +630,56 @@ def test_refseq_translation_discrepancy_note_accepts_singular_counts() -> None:
         "RefSeq protein has 2 substitutions and 3 frameshifts"
     )
     assert not has_refseq_translation_discrepancy("RefSeq protein has 1 substitution")
+    assert has_refseq_translation_discrepancy(
+        "The sequence of the model RefSeq protein was modified relative to "
+        "this genomic sequence to represent the inferred CDS: inserted 1 base "
+        "in 1 codon; deleted 1 base in 1 codon"
+    )
+    assert not has_refseq_translation_discrepancy(
+        "The sequence of the model RefSeq transcript was modified relative to "
+        "this genomic sequence: inserted 1 base in 1 codon"
+    )
+
+
+def test_partial_cds_phase_excludes_leading_partial_codon() -> None:
+    class TranslationCursor:
+        def __init__(self) -> None:
+            self.lastrowid = 0
+            self.translation_params: tuple[Any, ...] | None = None
+
+        def execute(self, operation: str, params: Sequence[Any] | None = None) -> None:
+            sql = " ".join(operation.lower().split())
+            if sql.startswith("insert into translation"):
+                assert params is not None
+                self.translation_params = tuple(params)
+                self.lastrowid = 1
+            elif not sql.startswith("update transcript set canonical_translation_id"):
+                raise AssertionError(f"Unexpected SQL: {operation}")
+
+        def fetchone(self) -> None:
+            return None
+
+    transcript = TranscriptRecord(
+        gene_id="g1",
+        seq_name="1",
+        start=100,
+        end=200,
+        strand=-1,
+        biotype="protein_coding",
+        stable_id="tx1",
+        exons=[ExonRecord(100, 200, -1)],
+    )
+    annotation = ParsedAnnotation(
+        transcripts={"tx1": transcript},
+        cds_segments={"tx1": [CdsSegment(100, 200, -1, "1")]},
+    )
+    compute_exon_phases(annotation)
+    assert transcript.exons[0].phase == 0
+
+    cursor = TranslationCursor()
+    insert_translations(cursor, annotation, {"tx1": 1}, {("tx1", 1): 10})
+
+    assert cursor.translation_params == (1, 10, 10, 2, 101, "tx1_prot")
 
 
 def test_refseq_discovery_and_conversion_helpers(tmp_path: Path) -> None:

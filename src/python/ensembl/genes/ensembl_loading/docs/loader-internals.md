@@ -308,7 +308,9 @@ For each transcript with CDS:
 4. All transcript exons are initialized to `phase=-1` and `end_phase=-1`.
 5. Each exon is checked for overlap with the ordered CDS segments.
 6. Non-coding exons keep `-1` internally.
-7. The first coding exon uses the first valid CDS phase if one was present.
+7. A non-zero leading CDS phase denotes a partial five-prime codon. Those bases
+   are excluded from the translation and downstream phase accounting; a coding
+   five-prime exon starts with phase `0`.
 8. Later coding exon phases are calculated from the number of coding bases seen
    so far.
 9. `end_phase` is calculated as `coding_bases % 3`.
@@ -319,9 +321,9 @@ Coding phases calculated as `0`, `1`, or `2` are stored as-is.
 `insert_translations()` creates translations from CDS groups:
 
 1. For positive strand transcripts, translation start is the minimum CDS start
-   and translation end is the maximum CDS end.
+   plus the leading CDS phase and translation end is the maximum CDS end.
 2. For negative strand transcripts, translation start is the maximum CDS end
-   and translation end is the minimum CDS start.
+   minus the leading CDS phase and translation end is the minimum CDS start.
 3. The loader finds the exon containing the translation start and the exon
    containing the translation end.
 4. It calculates `seq_start` and `seq_end` offsets inside those exons.

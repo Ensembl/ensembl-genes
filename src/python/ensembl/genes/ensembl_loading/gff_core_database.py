@@ -914,6 +914,26 @@ def unresolved_translation_attributes(
     return sorted(attributes, key=lambda attribute: int(attribute[1].split()[0]))
 
 
+def first_cds_phase(cds_segments: list[Any], strand: int) -> int:
+    """Return the leading GFF phase for a CDS group in transcript order."""
+
+    ordered_cds = sorted(
+        cds_segments,
+        key=lambda cds: cds.end if strand == -1 else cds.start,
+        reverse=(strand == -1),
+    )
+    for cds in ordered_cds:
+        if cds.phase in (None, "."):
+            continue
+        try:
+            phase = int(cds.phase)
+        except ValueError:
+            continue
+        if phase in (0, 1, 2):
+            return phase
+    return 0
+
+
 def insert_transcripts_and_exons(
     cursor: DbCursor,
     annotation: ParsedAnnotation,
@@ -1070,11 +1090,16 @@ def insert_translations(
         if not cds_list or not exons:
             continue
 
+        leading_partial_codon = first_cds_phase(cds_list, strand)
         if strand == 1:
-            translation_start_pos = min(cds.start for cds in cds_list)
+            translation_start_pos = (
+                min(cds.start for cds in cds_list) + leading_partial_codon
+            )
             translation_end_pos = max(cds.end for cds in cds_list)
         else:
-            translation_start_pos = max(cds.end for cds in cds_list)
+            translation_start_pos = (
+                max(cds.end for cds in cds_list) - leading_partial_codon
+            )
             translation_end_pos = min(cds.start for cds in cds_list)
 
         genomic_sorted_exons = sorted(exons, key=lambda exon: exon.start)

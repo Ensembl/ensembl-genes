@@ -248,14 +248,21 @@ def parse_gtf_attributes(raw_attributes: str) -> dict[str, str]:
 
 
 def has_refseq_translation_discrepancy(note: str) -> bool:
-    """Return whether a RefSeq note describes substitutions and frameshifts."""
+    """Return whether a RefSeq note describes an unresolved protein discrepancy."""
 
-    if not re.search(r"RefSeq protein has", note, re.IGNORECASE):
-        return False
-    return bool(
-        re.search(r"\bsubstitution\w*\b", note, re.IGNORECASE)
+    legacy_discrepancy = bool(
+        re.search(r"RefSeq protein has", note, re.IGNORECASE)
+        and re.search(r"\bsubstitution\w*\b", note, re.IGNORECASE)
         and re.search(r"\bframeshift\w*\b", note, re.IGNORECASE)
     )
+    gnomon_discrepancy = bool(
+        re.search(r"\bmodel RefSeq protein\b", note, re.IGNORECASE)
+        and re.search(
+            r"\bmodified relative to this genomic sequence\b", note, re.IGNORECASE
+        )
+        and re.search(r"\b(?:inserted|deleted)\b", note, re.IGNORECASE)
+    )
+    return legacy_discrepancy or gnomon_discrepancy
 
 
 def parse_feature_attributes(
@@ -984,7 +991,13 @@ def compute_exon_phases(annotation: ParsedAnnotation) -> ParsedAnnotation:
             exon.phase = -1
             exon.end_phase = -1
 
-        coding_bases = 0
+        # A non-zero GFF phase on the first CDS denotes a partial codon at the
+        # five-prime boundary. The translation starts after those bases, so
+        # they must not contribute to downstream exon phases.
+        leading_partial_codon = 0
+        if first_phase is not None:
+            leading_partial_codon = first_phase
+        coding_bases = -leading_partial_codon
         coding_exons_seen = 0
         coding_exon_count = sum(
             1
@@ -1031,7 +1044,7 @@ def compute_exon_phases(annotation: ParsedAnnotation) -> ParsedAnnotation:
 
             if coding_exons_seen == 1:
                 if five_prime_is_coding:
-                    exon.phase = first_phase if first_phase is not None else 0
+                    exon.phase = 0
             else:
                 exon.phase = coding_bases % 3
 
