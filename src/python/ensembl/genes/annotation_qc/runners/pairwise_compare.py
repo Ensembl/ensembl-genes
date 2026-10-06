@@ -40,6 +40,9 @@ from ensembl.genes.annotation_qc.metrics.pairwise.classify import (
     classify_loci,
     gene_span_excess,
 )
+from ensembl.genes.annotation_qc.metrics.pairwise.matching import (
+    one_to_one_exact_cds,
+)
 from ensembl.genes.annotation_qc.metrics.pairwise.selection import (
     EVALUATION_MODES,
     TRANSCRIPT_SELECTIONS,
@@ -159,7 +162,12 @@ def _parse(path: str, format_hint: str, label: str):
         f"{diagnostics['exon_rows']} exons, {diagnostics['cds_rows']} CDS "
         f"(format: {diagnostics['format']})"
     )
-    for key in ("namespaced_gene_ids", "synthesised_genes", "multi_parent_children"):
+    for key in (
+        "namespaced_gene_ids",
+        "synthesised_genes",
+        "multi_parent_children",
+        "cds_only_transcripts",
+    ):
         if diagnostics.get(key):
             _log(f"  {label}: {key} = {diagnostics[key]}")
     return annotation, diagnostics
@@ -338,6 +346,9 @@ def run_pairwise_compare(args) -> dict:
     )
     summary = summarise_comparison(ref_results, query_results)
     summary["intron_support"] = summarise_intron_support(ref_models, query_models)
+    summary["cds_exact_one_to_one"], exact_pairs = one_to_one_exact_cds(
+        ref_models, query_models
+    )
     labels = query_transcript_labels(query_results)
     summary["filter_info"] = {
         key: audit[key]
@@ -370,6 +381,7 @@ def run_pairwise_compare(args) -> dict:
     report.write_details(ref_results, query_results, args.outdir)
     report.write_transcript_labels(labels, args.outdir)
     report.write_split_merge(ref_results, query_results, args.outdir)
+    report.write_exact_cds_pairs(exact_pairs, args.outdir)
     unlabelled = None
     if args.evidence_attribution:
         attribution = read_evidence_attribution(args.evidence_attribution)

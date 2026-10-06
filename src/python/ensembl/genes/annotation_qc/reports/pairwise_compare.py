@@ -9,6 +9,8 @@ query annotation):
     consensus_transcript_labels.tsv   one row per query transcript
     gene_splits.tsv                   reference genes with >= 2 query counterparts
     gene_merges.tsv                   query genes with >= 2 reference counterparts
+    cds_exact_one_to_one_pairs.tsv    gene pairs of the one-to-one coordinate-exact
+                                      CDS matching (one-based coordinates)
     reference_filter_audit.json / .tsv
     evidence_attribution_labeled.tsv  only with --evidence-attribution
     comparison_manifest.json          inputs, checksums, options and versions
@@ -65,6 +67,11 @@ SPLIT_MERGE_COLUMNS = [
 ]
 
 
+def _value(value):
+    """Summary TSV value: NA for an undefined (None) rate."""
+    return "NA" if value is None else value
+
+
 def _flag(value) -> str | bool:
     """True/False, or NA for a not-applicable (missing) value."""
     return "NA" if pd.isna(value) else bool(value)
@@ -110,6 +117,29 @@ def write_summary(summary: dict, outdir: str) -> None:
         for kind, values in summary.get("intron_support", {}).items():
             for name, value in values.items():
                 writer.writerow([f"introns_{kind}_{name}", value])
+        for block, prefix in (
+            ("cds_overlap_locus_recovery", "cds_overlap_locus_recovery"),
+            ("cds_exact_one_to_one", "cds_exact_one_to_one"),
+        ):
+            for name, value in summary.get(block, {}).items():
+                if name != "definition":
+                    writer.writerow([f"{prefix}_{name}", _value(value)])
+
+
+def write_exact_cds_pairs(pairs: pd.DataFrame, outdir: str) -> None:
+    """
+    Write cds_exact_one_to_one_pairs.tsv: one row per matched gene pair.
+    Gene and CDS coordinates are converted to one-based inclusive.
+    Args:
+            pairs: Pair table from matching.one_to_one_exact_cds
+            outdir: Output directory
+    """
+    out = pairs.copy()
+    for column in ("reference_start", "query_start", "cds_start"):
+        out[column] = out[column] + 1
+    out.to_csv(
+        os.path.join(outdir, "cds_exact_one_to_one_pairs.tsv"), sep="\t", index=False
+    )
 
 
 def write_details(ref: pd.DataFrame, query: pd.DataFrame, outdir: str) -> None:
@@ -282,6 +312,11 @@ def write_manifest(manifest: dict, outdir: str) -> None:
     _write_json(manifest, os.path.join(outdir, "comparison_manifest.json"))
 
 
+def _percent(value) -> str:
+    """A rate as a percentage, or n/a when it is undefined (None)."""
+    return "n/a" if value is None else f"{value:.1%}"
+
+
 def format_console_summary(summary: dict) -> str:
     """
     Render the headline metrics for the terminal.
@@ -303,6 +338,9 @@ def format_console_summary(summary: dict) -> str:
         return f"{count:>6}  of {denominator} {label} ({pct(count, denominator)})"
 
     cds_chain = cds["cds_intron_chain_recovered"]
+    recovery = summary.get("cds_overlap_locus_recovery", {})
+    one_to_one = summary.get("cds_exact_one_to_one", {})
+
     lines = [
         f"Reference genes (R): {total}    Query genes (Q): {total_query}",
         "Reference-based (denominator R unless stated):",
@@ -313,7 +351,8 @@ def format_console_summary(summary: dict) -> str:
         f"  Exon coordinate-exact:  {sens['exon_coordinate_exact_count']:>6}  ({pct(sens['exon_coordinate_exact_count'])})",
         f"  Exact match (with UTR): {sens['exact_match_count']:>6}  ({pct(sens['exact_match_count'])})",
         f"  Intron chain:           {of(chain['exon_intron_chain_recovered'], chain['multi_exon_reference_genes'], 'multi-exon R')}",
-        f"  Locus detected:         {sens['locus_detected_count']:>6}  ({pct(sens['locus_detected_count'])})",
+        f"  Locus, CDS overlap:     {recovery.get('recovered_count', 0):>6}  ({_percent(recovery.get('rate'))})",
+        f"  Locus detected (span):  {sens['locus_detected_count']:>6}  ({pct(sens['locus_detected_count'])})",
         f"    with exonic overlap:  {exonic['locus_detected_exonic_count']:>6}  ({pct(exonic['locus_detected_exonic_count'])})",
         f"  Missed:                 {sens['missed_count']:>6}  ({pct(sens['missed_count'])})",
         f"  Strand mismatch:        {sens['strand_mismatch_count']:>6}  (CDS {sens['strand_mismatch_cds_count']}, exon {sens['strand_mismatch_exon_count']})",
@@ -329,4 +368,11 @@ def format_console_summary(summary: dict) -> str:
         if count
     ]
     lines.append(f"  Gene merges:            {split_merge['gene_merge_count']:>6}")
+    if one_to_one:
+        lines += [
+            "One-to-one coordinate-exact CDS (maximum matching):",
+            f"  TP: {one_to_one['true_positives']}   recall (TP/R): {_percent(one_to_one['recall'])}"
+            f"   precision (TP/Q): {_percent(one_to_one['precision'])}"
+            f"   F1: {'n/a' if one_to_one['f1'] is None else format(one_to_one['f1'], '.4f')}",
+        ]
     return "\n".join(lines)

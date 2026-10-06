@@ -26,6 +26,10 @@ Identifiers reused on more than one sequence (Tiberius numbers genes g1, g2, ...
 per chromosome) are namespaced as "<seqname>:<id>" in gene_id/transcript_id;
 the file values are kept in original_gene_id/original_transcript_id.
 
+Transcripts with CDS records but no exon records (CDS-only files) get one exon
+per CDS record, with source_feature "inferred_exon_from_CDS", so they take part
+in the comparison; parse diagnostics count them (cds_only_transcripts).
+
 Relationships that cannot be resolved (child without a known parent, transcript
 without a gene, duplicate gene/transcript identifiers on one sequence) raise
 ValueError rather than being guessed from overlapping coordinates.
@@ -53,6 +57,7 @@ TRANSCRIPT_FEATURES = frozenset(
         "RNase_P_RNA",
         "RNase_MRP_RNA",
         "telomerase_RNA",
+        "Y_RNA",
         "scRNA",
         "processed_transcript",
         "V_gene_segment",
@@ -168,9 +173,34 @@ def _namespace_duplicates(df: pd.DataFrame, diagnostics: dict) -> pd.DataFrame:
     return df
 
 
+def _infer_exons_from_cds(df: pd.DataFrame, diagnostics: dict) -> pd.DataFrame:
+    """
+    Give each transcript that has CDS but no exon records one exon per CDS record.
+
+    CDS-only files (no exon lines) describe coding exons only. The inferred exons
+    copy the CDS intervals unchanged (source_feature "inferred_exon_from_CDS").
+    Transcripts with at least one exon record are left as written.
+    """
+    with_exons = set(df.loc[df["Feature"] == "exon", "transcript_id"])
+    cds = df[(df["Feature"] == "CDS") & ~df["transcript_id"].isin(with_exons)]
+    diagnostics["cds_only_transcripts"] = int(cds["transcript_id"].nunique())
+    diagnostics["inferred_exon_rows"] = len(cds)
+    if cds.empty:
+        return df
+    exons = cds.assign(
+        Feature="exon",
+        source_feature="inferred_exon_from_CDS",
+        ID="",
+        # Place each inferred exon just after its CDS record.
+        record_index=cds["record_index"].astype("float64") + 0.25,
+    )
+    return pd.concat([df, exons])
+
+
 def _finish(df: pd.DataFrame, diagnostics: dict) -> pd.DataFrame:
-    """Namespace IDs, propagate biotypes, order rows and record counts."""
+    """Namespace IDs, infer CDS-only exons, propagate biotypes, order rows, count."""
     df = _namespace_duplicates(df, diagnostics)
+    df = _infer_exons_from_cds(df, diagnostics)
     genes = df[df["Feature"] == "gene"]
     transcripts = df[df["Feature"] == "transcript"]
     gene_biotype = genes.set_index("gene_id")["gene_biotype"]
@@ -185,7 +215,8 @@ def _finish(df: pd.DataFrame, diagnostics: dict) -> pd.DataFrame:
     )
 
     df = df.sort_values("record_index", kind="stable").reset_index(drop=True)
-    # Records created for GTF files without gene/transcript lines have no source line.
+    # Records created for GTF files without gene/transcript lines, and exons inferred
+    # for CDS-only transcripts, have no source line.
     synthetic = df["record_index"] % 1 != 0
     df["record_index"] = df["record_index"].where(~synthetic, -1).astype("int64")
     df = df[COMPARISON_COLUMNS]

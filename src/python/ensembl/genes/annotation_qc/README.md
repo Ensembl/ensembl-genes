@@ -43,7 +43,11 @@ Then read, in this order:
    (start, every splice site and stop identical) for at least one eligible isoform.
 2. `specificity.consensus_cds_coordinate_exact_count` / `total_consensus_genes`: the same
    from the query side ("consensus" always means the query).
-3. `sensitivity_cds.cds_intron_chain_recovered` / `multi_segment_cds_reference_genes`,
+3. `cds_exact_one_to_one`: one-to-one coordinate-exact CDS precision, recall and F1
+   (each reference and query gene used once), and `cds_overlap_locus_recovery`: reference
+   loci with any same-strand CDS overlap. See
+   [One-to-one exact-CDS F1 and locus recovery](#one-to-one-exact-cds-f1-and-locus-recovery).
+4. `sensitivity_cds.cds_intron_chain_recovered` / `multi_segment_cds_reference_genes`,
    `intron_support.cds`, `split_merge`, `novel_categories`.
 
 Most ab initio predictors annotate CDS only (no UTRs). For them, use the CDS metrics as the
@@ -121,15 +125,29 @@ annotation-qc pairwise-compare \
   `UnicodeDecodeError`. The FASTA given to `--genome` may be plain, gzip or BGZF under any
   name. No index is written next to it.
 - **Feature types used:** genes (`gene`, `ncRNA_gene`, `pseudogene`), transcripts
-  (`mRNA`, `transcript`, the RNA types, `*_gene_segment`, `pseudogenic_transcript`,
-  `processed_transcript`), `exon` and `CDS`. Other types (UTRs, introns, codons) are
-  ignored. A transcript type outside this list (Ensembl's `unconfirmed_transcript`,
-  `gene_segment`) leaves its exons without a parent, and the run stops: retype it as in
-  the tested example.
+  (`mRNA`, `transcript`, the RNA types including `Y_RNA`, `*_gene_segment`,
+  `pseudogenic_transcript`, `processed_transcript`), `exon` and `CDS`. Other types (UTRs,
+  introns, codons) are ignored. A transcript type outside this list (Ensembl's
+  `unconfirmed_transcript`, `gene_segment`) leaves its exons without a parent, and the run
+  stops: retype it as in the tested example.
+- **CDS-only files.** A transcript with CDS lines but no exon lines (e.g. a GTF holding
+  only `gene` and `CDS` lines) gets one exon per CDS line, with the same coordinates
+  (`source_feature` `inferred_exon_from_CDS`). The run log and the manifest's
+  `parse_diagnostics` report `cds_only_transcripts` and `inferred_exon_rows`. Transcripts
+  with at least one exon line are used as written. Exon metrics then describe coding exons
+  only, as for any predictor without UTRs.
+- **Exon lines that omit UTRs.** Some predictors write `exon` lines for the coding part
+  only and describe UTRs solely with `five_prime_UTR`/`three_prime_UTR` lines (transcript
+  and gene lines then extend beyond the exons). UTR lines are not read, so such files are
+  compared as written: exon metrics see no UTR, while gene spans (used for locus pairing)
+  still include it.
 - **CDS convention:** CDS coordinates are compared as written. Ensembl GFF3, Tiberius,
-  ANNEVO, Helixer and Vipsania all include the stop codon in the CDS. If one file excludes
-  it (e.g. GENCODE/GTF with separate `stop_codon` lines), every gene differs by 3 bp and is
-  never coordinate-exact. Check this before interpreting terminal differences.
+  ANNEVO, Helixer, Vipsania and OrionGene include the stop codon in the CDS. If one file
+  excludes it (e.g. GENCODE/GTF with separate `stop_codon` lines, or a CDS-only GTF whose
+  gene lines end 3 bp after the last CDS), every complete gene differs by 3 bp and is never
+  coordinate-exact, while CDS `Exact_Match` (same intron chain) is unaffected. Check the
+  three genomic bases after each CDS end before interpreting terminal differences, and
+  keep any stop-harmonised re-run separate from the comparison of original coordinates.
 - **Identifiers.** Identity fields are `ID`/`Parent` (GFF3) and `gene_id`/`transcript_id`
   (GTF). Display names (`Name`, `gene_name`) are never used for linking, so repeated
   names are harmless. An identity value reused on **different sequences** (e.g. Tiberius
@@ -202,6 +220,7 @@ name after mapping, the command stops rather than reporting every gene as Missed
 | `comparison_details.tsv` | one row per reference gene and per query gene. `source` is `reference` or `consensus`. Coordinates are one-based inclusive. |
 | `consensus_transcript_labels.tsv` | one row per query transcript: Matched / Strand_Mismatch / Novel, plus the best CDS reference transcript and `novel_category` |
 | `gene_splits.tsv` / `gene_merges.tsv` | reference genes with ≥ 2 query counterparts / query genes with ≥ 2 reference counterparts, with counterpart IDs and one-based loci |
+| `cds_exact_one_to_one_pairs.tsv` | the gene pairs of the one-to-one exact-CDS matching (columns below) |
 | `reference_filter_audit.json` / `.tsv` | reference counts before and after filtering, biotypes, excluded sequences |
 | `evidence_attribution_labeled.tsv` | only with `--evidence-attribution` |
 | `comparison_manifest.json` | query/reference/genome/map paths **with SHA-256**, all options, parse diagnostics, seqname checks, code version, and the GMB finalise manifest and build directory when the query is a GMB output (`query_matches_manifest` confirms the checksum) |
@@ -216,6 +235,8 @@ them, **"consensus" always means the query annotation** (`total_consensus_genes`
 | question | field(s) | denominator |
 |---|---|---|
 | reference coding genes with an exactly reproduced CDS (start, splice sites, stop) | `sensitivity_cds.cds_coordinate_exact_count` | `total_reference_genes` |
+| one-to-one exact-CDS precision, recall, F1 | `cds_exact_one_to_one.precision`, `.recall`, `.f1` (TP = `.true_positives`) | Q, R, R + Q |
+| reference loci recovered by same-strand CDS overlap | `cds_overlap_locus_recovery.recovered_count`, `.rate` | `total_reference_genes` |
 | query genes whose CDS exactly equals an eligible reference isoform | `specificity.consensus_cds_coordinate_exact_count` | `total_consensus_genes` |
 | same CDS intron chain, terminal (start/stop) coordinates may differ | `sensitivity_cds.cds_exact_match_count`; `cds_exact_match_not_coordinate_exact` | `total_reference_genes` |
 | CDS intron chain recovered (best pair) | `sensitivity_cds.cds_intron_chain_recovered` | `multi_segment_cds_reference_genes` (`_sensitivity`) or detected multi-segment genes (`_rate`) |
@@ -283,12 +304,108 @@ counterparts; a merge is a query gene with ≥ 2 reference counterparts.
   `longest_cds`) changes the denominator and which transcripts can match exactly. With
   all reference isoforms, the query only needs to reproduce one of them per gene.
 
+### One-to-one exact-CDS F1 and locus recovery
+
+**Populations.** R = `total_reference_genes` and Q = `total_consensus_genes`: every gene
+left after the evaluation mode, biotype filters, `--*-transcript-selection` and
+`--region`/`--regions-file` scope (and `--genome-mismatch exclude`). Genes without a
+comparable CDS (no transcript with exons and CDS, e.g. a query lncRNA) stay in R and Q.
+They cannot be matched and count as unmatched, so a predictor's non-coding genes lower
+its precision.
+
+**Exact-CDS graph.** A transcript's CDS signature is (sequence, strand, all CDS segment
+coordinates), compared exactly as parsed. Reference gene *r* and query gene *q* are joined
+when some selected transcript of *r* and some transcript of *q* have the same signature.
+Transcripts without CDS have no signature. Every transcript is considered, not only the
+best pairs reported in `comparison_details.tsv`.
+
+**Matching and metrics.** A maximum-cardinality bipartite matching (Kuhn's augmenting
+paths) uses each reference and each query gene at most once:
+
+```
+TP        = number of matched gene pairs
+precision = TP / Q
+recall    = TP / R
+F1        = 2·TP / (R + Q)            (= harmonic mean of precision and recall)
+unmatched_reference_genes = R − TP,   unmatched_query_genes = Q − TP
+```
+
+A value whose denominator is 0 is `null` in JSON and `NA` in the TSV, not 0. The block also
+records how many genes have any exact candidate, the number of edges, and the number of
+connected components with more than one edge.
+
+**Example with competing exact matches.** Reference gene R1 has isoforms with CDS X and Y,
+reference gene R2 has CDS X, query gene Q1 has CDS X and query gene Q2 has CDS Y. The
+edges are R1–Q1, R1–Q2 and R2–Q1.
+
+- Per gene, all four genes are coordinate-exact (`cds_coordinate_exact_count` = 2,
+  `consensus_cds_coordinate_exact_count` = 2).
+- Both reference genes' best CDS pair names Q1, so deduplicating best pairs gives TP = 1,
+  as does a greedy first-come pairing.
+- The maximum matching is R1–Q2 and R2–Q1: TP = 2, precision = recall = F1 = 1.
+
+If instead R1 and R2 had the same CDS and the query had a single gene Q with that CDS,
+both reference genes would be coordinate-exact, but TP = 1: recall 0.5, precision 1.0,
+F1 = 2·1/(2+1) = 0.667. This is why the historical per-gene counts can exceed TP: identical
+models annotated in several genes (duplicated reference genes, or a predictor emitting
+the same model twice).
+
+**Pairs file** (`cds_exact_one_to_one_pairs.tsv`, one row per TP, coordinates one-based):
+
+| column | meaning |
+|---|---|
+| `reference_gene_id`, `query_gene_id` | comparison IDs (`seqname:id` when namespaced) |
+| `reference_original_gene_id`, `query_original_gene_id` | IDs as written in the files |
+| `chrom`, `strand` | shared sequence and strand |
+| `reference_start`/`_end`, `query_start`/`_end` | gene spans |
+| `cds_start`, `cds_end`, `cds_segments` | span and segment count of the shared CDS (the lowest one if several) |
+| `shared_cds_signatures` | number of distinct identical CDS between the two genes |
+| `supporting_reference_transcript_ids`, `supporting_query_transcript_ids` | every transcript of each gene with one of those CDS |
+| `reference_exact_candidates`, `query_exact_candidates` | number of exact partners each gene has |
+| `component_reference_genes`, `component_query_genes` | size of the connected component |
+
+**Ties.** The matching is deterministic. Reference genes are processed in
+(sequence, start, end, gene_id) order, and candidates are tried in the same order. Other
+maximum matchings with the same TP can exist wherever a component has more than one
+edge (`component_*_genes` > 1). They can pair different genes but never change TP,
+precision, recall or F1.
+
+**CDS-overlap locus recovery.** `cds_overlap_locus_recovery.recovered_count` counts
+reference genes with a same-strand query locus partner whose transcripts share at least
+one CDS base. It equals the number of reference rows with `cds_overlap > 0` (the best CDS
+pair's reciprocal overlap is > 0 exactly when some pair shares a base); `rate` divides by
+R. `gene_span_detected_without_cds_overlap` counts genes that gene-span detection
+(`sensitivity.locus_detected_count`) finds without any shared CDS. Limitations:
+- Partners are found through gene-span overlap, so a gene line that does not cover its own
+  CDS can miss a CDS overlap.
+- `comparison_details.tsv` rounds `cds_overlap` to 4 decimals. A one-base overlap between
+  very long CDS can print as `0.0`. The summary count uses the unrounded value.
+
+**Three different questions.**
+
+| metric | asks | strictness |
+|---|---|---|
+| `cds_overlap_locus_recovery` | is the coding locus found at all? | any shared CDS base, same strand |
+| `cds_intron_chain_recovered` | are the CDS splice sites right? | identical CDS intron chain in the best pair; start/stop may differ; multi-segment genes only |
+| `cds_exact_one_to_one` | is the whole coding model right, one prediction per gene? | identical CDS including start and stop; one-to-one |
+
+**Sensitivity of these numbers.**
+- **Reference isoform selection:** with all isoforms, a query gene matches if it reproduces
+  any eligible isoform. `longest_cds` or `canonical` leave one target per gene and lower
+  TP. A correct alternative isoform then counts as a miss.
+- **Reference completeness:** missing or partial reference genes turn correct predictions
+  into unmatched query genes (lower precision). Duplicated reference models cap TP below
+  the per-gene exact counts.
+- **Stop-codon convention:** an annotation that excludes the stop codon from the CDS never
+  matches one that includes it. TP, precision, recall and F1 are then near 0, while CDS
+  intron chains and locus recovery are unaffected. The comparator does not harmonise this.
+  Check it (see "CDS convention" above) and report any stop-harmonised run separately.
+
 ### Limitations to keep in mind
 
 - **Locus pairing uses gene spans.** A same-strand span overlap pairs two genes even without
   shared exons or CDS. `locus_detection_exonic.span_only_detected_count` counts genes
-  detected without exonic overlap. For a coding view, count reference genes with
-  `cds_overlap > 0` in `comparison_details.tsv`.
+  detected without exonic overlap. For a coding view, use `cds_overlap_locus_recovery`.
 - **Intron chains are scored on one best pair.** The best pair ranks ≥ 0.8 reciprocal
   overlap above an identical intron chain with lower overlap. A gene split into pieces, or
   matched by a longer and a shorter prediction, can report `cds_intron_chain_match = False`
@@ -300,10 +417,10 @@ counterparts; a merge is a query gene with ≥ 2 reference counterparts.
 - **Exon/intron sets of the reference grow with its isoforms.** With all isoforms,
   `intron_support.*.reference_introns` includes every isoform's introns, so the
   recovered fraction falls as the reference gets richer. It is not a per-gene measure.
-- **No F1 is reported.** Reference-side and query-side counts use different denominators
-  (`total_reference_genes`, `total_consensus_genes`). They give a gene-level F1 only if
-  you define one-to-one matches yourself, e.g. coordinate-exact pairs with each query gene
-  used once (`cds_matched_id`). No exon-level (CDS segment) precision/recall is computed.
+- **F1 is gene-level and exact-CDS only.** `cds_exact_one_to_one` is the only F1. Do not
+  combine `cds_coordinate_exact_count` and `consensus_cds_coordinate_exact_count` into an
+  F1: they count genes independently and can both exceed the one-to-one TP. No exon-level
+  (CDS segment) precision/recall is computed.
 - **Splits/merges** use a fixed 10 % shared-CDS threshold (not a CLI option).
 - **Novel is relative to the reference.** Predictions at loci the reference lacks or
   annotates as pseudogenes are Novel. `novel_category` says which, but they still lower
@@ -338,7 +455,8 @@ Validated on P. falciparum and T. gondii GMB builds (every gene row compared):
    default (`--genome-mismatch`). `gmb-compare` only warned.
 4. Regions keep whole genes. `gmb-compare` cut exons at the region edge.
 5. Multi-parent exons/CDS are counted for every parent. `gmb-compare` dropped them.
-   GTF files without gene/transcript lines get them inferred from their exons.
+   GTF files without gene/transcript lines get them inferred from their exons, and
+   CDS-only transcripts get exons from their CDS lines.
 6. Audit biotype counts are integers, not strings. Plots show the reference and query
    only; evidence-track plots, `tool_performance_analysis` and `validate_annotation` are
    not ported yet.
