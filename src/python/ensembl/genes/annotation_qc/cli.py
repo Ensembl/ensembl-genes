@@ -16,11 +16,12 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent))
 
 # pylint: disable=wrong-import-position
-from runners import assess_translation_validity
+from runners import assess_translation_validity, pairwise_compare
 from parsers import interpro, parse_agat
 
 RUNNERS = [
     assess_translation_validity,
+    pairwise_compare,
 ]
 
 PARSERS = [
