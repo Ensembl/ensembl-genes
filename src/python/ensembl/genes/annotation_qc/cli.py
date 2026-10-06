@@ -16,11 +16,16 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent))
 
 # pylint: disable=wrong-import-position
-from runners import assess_translation_validity
+from runners import assess_translation_validity, pairwise_compare
 from parsers import interpro, parse_agat
+from ensembl.genes.annotation_qc.benchmark import cli as benchmark_cli
+from ensembl.genes.annotation_qc.dashboard import cli as dashboard_cli
 
 RUNNERS = [
     assess_translation_validity,
+    pairwise_compare,
+    benchmark_cli,
+    dashboard_cli,
 ]
 
 PARSERS = [

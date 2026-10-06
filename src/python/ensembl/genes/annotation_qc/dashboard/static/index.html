@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Annotation QC</title>
+<link rel="stylesheet" href="/static/app.css">
+</head>
+<body>
+<header class="top">
+  <div class="brand">Annotation QC <span class="muted">reference comparison</span></div>
+  <label class="ctl">Experiment <select id="exp"></select></label>
+  <label class="ctl">Reference <select id="ref"></select></label>
+  <div class="ctl">Policy <span id="policy" class="seg" role="radiogroup" aria-label="Transcript policy"></span></div>
+</header>
+<div id="synthetic" class="banner synthetic" hidden>SYNTHETIC DEMONSTRATION DATA — generated fixtures, not real results.</div>
+<section class="runsbar">
+  <span class="muted">Prediction runs</span>
+  <span id="runs"></span>
+</section>
+<div id="policyNote" class="note"></div>
+<nav class="tabs" role="tablist">
+  <button data-tab="overview" class="active">Overview</button>
+  <button data-tab="genes">Genes &amp; loci</button>
+  <button data-tab="predictions">Predictions</button>
+  <button data-tab="provenance">Validation &amp; provenance</button>
+  <button data-tab="dictionary">Metric dictionary</button>
+  <button data-tab="context">Context</button>
+</nav>
+<main>
+  <section id="tab-overview" class="tab active">
+    <div id="scopeLine" class="scope"></div>
+    <div id="statusStrip"></div>
+    <div class="callout">Each column is one prediction <em>run</em> (a file, model and setting) on this reference, scope and policy — not a verdict on the tool in general. There is no combined score: read the trade-offs across rows.</div>
+    <div class="row-between"><h2>CDS headline metrics</h2>
+      <span><button id="dlMetrics" class="btn">Download all metrics (TSV)</button></span></div>
+    <div id="headlineTable"></div>
+    <h2>Policy effect <select id="policyMetric"></select></h2>
+    <p class="muted small">Same reference and runs under each transcript policy. Policies that are unavailable or not run are shown as such, never as zero.</p>
+    <div id="policyChart" class="chart"></div>
+    <h2>CDS structure detail</h2>
+    <div id="structureTable"></div>
+    <div id="partialChart" class="chart"></div>
+    <h2>Missed, unmatched, split, merged</h2>
+    <div id="lociTable"></div>
+    <h2>Novel (unmatched prediction) context</h2>
+    <div id="novelChart" class="chart"></div>
+    <div id="novelTable"></div>
+    <h2>UTR-inclusive agreement <span class="tag warn">not for ranking CDS-only predictors</span></h2>
+    <div id="utrTable"></div>
+    <h2>Scale</h2>
+    <div id="scaleTable"></div>
+  </section>
+
+  <section id="tab-genes" class="tab">
+    <form id="geneFilters" class="filters">
+      <input id="q" type="search" placeholder="Gene ID, name or transcript ID" aria-label="Search genes">
+      <select id="chrom" aria-label="Sequence"><option value="">all sequences</option></select>
+      <select id="multi" aria-label="CDS segments"><option value="">all CDS structures</option><option value="1">multi-segment CDS</option><option value="0">single-segment CDS</option></select>
+      <label>Run <select id="focusRun"></select></label>
+      <span id="statusChecks" class="checks"></span>
+      <label class="inline"><input type="checkbox" id="splitOnly"> split</label>
+      <label>Contrast <select id="contrast">
+        <option value="">—</option><option value="exact_in_focus">exact in run, not exact in</option><option value="missing_in_focus">not exact in run, exact in</option></select></label>
+      <select id="compareRun" aria-label="Comparison run"></select>
+      <button class="btn primary" type="submit">Apply</button>
+      <button class="btn" type="button" id="resetFilters">Reset</button>
+      <button class="btn" type="button" id="dlGenes">Download TSV</button>
+    </form>
+    <div id="geneCount" class="muted small"></div>
+    <div id="geneTable" class="tablewrap"></div>
+    <div id="genePager" class="pager"></div>
+    <div id="locusPanel" class="locus" hidden>
+      <div class="row-between">
+        <h2 id="locusTitle">Locus</h2>
+        <div class="locusctl">
+          <input id="locusInput" aria-label="Locus (seq:start-end)" size="28">
+          <button class="btn" data-move="-0.5">◀</button><button class="btn" data-zoom="0.5">＋</button>
+          <button class="btn" data-zoom="2">－</button><button class="btn" data-move="0.5">▶</button>
+          <select id="isoforms" aria-label="Reference isoforms shown">
+            <option value="partners">reference: compared + canonical isoforms</option>
+            <option value="evaluated">reference: all evaluated isoforms</option>
+            <option value="all">reference: all stored isoforms</option></select>
+        </div>
+      </div>
+      <div id="locusLegend" class="legend"></div>
+      <div id="locusNotes" class="muted small"></div>
+      <div id="locusSvg" class="locussvg"></div>
+      <div id="geneDetail"></div>
+    </div>
+  </section>
+
+  <section id="tab-predictions" class="tab">
+    <form id="predFilters" class="filters">
+      <label>Run <select id="predRun"></select></label>
+      <input id="pq" type="search" placeholder="Prediction ID" aria-label="Search predictions">
+      <select id="pclass" aria-label="Classification"><option value="">all classifications</option><option>Novel</option><option>Strand_Mismatch</option><option>Exact_Match</option><option>Structural_Mismatch</option><option>Partial_Match</option><option>Matched</option></select>
+      <select id="pnovel" aria-label="Novel context"><option value="">any Novel context</option></select>
+      <select id="pexact" aria-label="Coordinate-exact CDS"><option value="">exact or not</option><option value="1">coordinate-exact CDS</option><option value="0">not coordinate-exact</option></select>
+      <label class="inline"><input type="checkbox" id="pmerge"> merges only</label>
+      <button class="btn primary" type="submit">Apply</button>
+      <button class="btn" type="button" id="dlPreds">Download TSV</button>
+    </form>
+    <div id="predCount" class="muted small"></div>
+    <div id="predTable" class="tablewrap"></div>
+    <div id="predPager" class="pager"></div>
+  </section>
+
+  <section id="tab-provenance" class="tab"><div id="provenance"></div></section>
+  <section id="tab-dictionary" class="tab"><div id="dictionary"></div></section>
+  <section id="tab-context" class="tab"><div id="context"></div></section>
+</main>
+<div id="tooltip" class="tooltip" hidden></div>
+<script src="/static/app.js"></script>
+</body>
+</html>

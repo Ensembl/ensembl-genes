@@ -27,6 +27,16 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+plots = [
+    "matplotlib",
+]
+
+# Optional: YAML experiment configurations for `annotation-qc benchmark` / `dashboard`
+# (JSON works with the core dependencies; the dashboard itself needs nothing extra).
+dashboard = [
+    "pyyaml",
+]
+
 docs = [
     "sphinx>=7,<9",
     "myst-parser",
@@ -90,6 +100,10 @@ where = ["src/python"]
 
 [tool.setuptools]
 package-dir = {"" = "src/python"}
+
+[tool.setuptools.package-data]
+"ensembl.genes.annotation_qc.benchmark" = ["*.json", "templates/*.json"]
+"ensembl.genes.annotation_qc.dashboard" = ["static/*"]
 
 [tool.mypy]
 ignore_missing_imports = true

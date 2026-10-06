@@ -1,0 +1,78 @@
+{
+  "_comment": "Experiment configuration template (config_version 1). Copy, rename and edit. Relative paths are resolved against THIS file's directory. Keys starting with '_' are ignored. See annotation_qc/dashboard/README.md.",
+  "config_version": 1,
+  "experiment": {
+    "id": "my_species_predictors_2026",
+    "title": "My species: reference vs predictors",
+    "description": "Which prediction files, which reference, and why.",
+    "synthetic": false
+  },
+  "output_dir": "../qc_workspace/my_species_predictors_2026",
+  "evaluation": {
+    "_comment": "evaluation_mode: all | protein_coding | cds_only | canonical. Biotype lists filter genes / transcripts (empty = no filter). genome_mismatch: error | warn | exclude.",
+    "evaluation_mode": "protein_coding",
+    "reference_gene_biotypes": [],
+    "reference_transcript_biotypes": ["protein_coding"],
+    "genome_mismatch": "error"
+  },
+  "policies": {
+    "_comment_policies": "Policy ids are free identifiers. Selections: all | longest_cds | canonical. 'canonical' uses the Ensembl_canonical tag (longest CDS where a gene has none) and is reported unavailable for references without any tag.",
+    "A": {"label": "Any eligible reference CDS isoform", "reference_transcript_selection": "all", "query_transcript_selection": "all", "plots_per_category": 0},
+    "B": {"label": "Longest CDS per gene", "reference_transcript_selection": "longest_cds", "query_transcript_selection": "longest_cds"},
+    "C": {"label": "Canonical reference transcript", "reference_transcript_selection": "canonical", "query_transcript_selection": "longest_cds", "optional": true}
+  },
+  "references": [
+    {
+      "id": "myspecies_asm1_sourceX_release1",
+      "species": "my species",
+      "assembly": "ASM1.1",
+      "assembly_accession": "GCA_000000000.1",
+      "annotation_source": "e.g. Ensembl / RefSeq / in-house",
+      "annotation_release": "release or date; write 'unknown' if unknown",
+      "annotation": "../references/myspecies.gff3.gz",
+      "annotation_format": "auto",
+      "genome": "../references/myspecies.fa.gz",
+      "annotation_preparation": {
+        "_comment": "Optional, recorded steps: 'decompress' (needed for gzip files not named *.gz) and {'name': 'retype_transcript_types', 'types': [...]} for transcript types the parser does not list (validation tells you). reuse_existing adopts an already prepared file only if re-deriving it from the source gives the same sha256.",
+        "steps": []
+      },
+      "genome_preparation": {"steps": []},
+      "scope": {
+        "_comment": "type: all | reference_sequence_regions (##sequence-region names in the reference) | sequences (list below) | regions_file (path). Decide before comparing tools.",
+        "type": "reference_sequence_regions"
+      },
+      "seqname_map": null,
+      "notes": "How the assembly identity was checked."
+    }
+  ],
+  "runs": [
+    {
+      "run_id": "myspecies_toolA_modelX_2026-01",
+      "reference": "myspecies_asm1_sourceX_release1",
+      "tool": "ToolA",
+      "tool_version": null,
+      "model": null,
+      "annotation": "../predictions/myspecies_toolA_modelX.gtf",
+      "format": "auto",
+      "provenance": "Command, date, model weights, masking, evidence used. Leave fields null when unknown: they are shown as unknown.",
+      "caveats": [],
+      "aliases": []
+    },
+    {
+      "run_id": "myspecies_toolA_modelY_2026-02",
+      "reference": "myspecies_asm1_sourceX_release1",
+      "tool": "ToolA",
+      "model": "modelY",
+      "annotation": "../predictions/myspecies_toolA_modelY.gff3",
+      "provenance": "A second run of the same tool: run_id, not tool, is the identifier."
+    }
+  ],
+  "import": {
+    "_comment": "Optional. Only for registering completed comparisons from an existing benchmark directory without rerunning them.",
+    "benchmark_dir": null,
+    "code_snapshot": [],
+    "independent_tables": null,
+    "context_documents": [],
+    "paper_analogous": []
+  }
+}
