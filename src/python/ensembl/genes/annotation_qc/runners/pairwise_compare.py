@@ -53,6 +53,11 @@ from ensembl.genes.annotation_qc.metrics.pairwise.selection import (
     subset_to_regions,
     summarise_annotation,
 )
+from ensembl.genes.annotation_qc.metrics.pairwise.stop_codons import (
+    GENETIC_CODE_STOPS,
+    harmonise_stop_codons,
+    parse_genetic_code_policy,
+)
 from ensembl.genes.annotation_qc.metrics.pairwise.summary import (
     query_transcript_labels,
     summarise_comparison,
@@ -69,7 +74,10 @@ from ensembl.genes.annotation_qc.parsers.seqnames import (
     build_seqname_mapping,
     check_seqnames_against_genome,
 )
-from ensembl.genes.annotation_qc.parsers.sequence import parse_sequence_lengths
+from ensembl.genes.annotation_qc.parsers.sequence import (
+    iter_sequences,
+    parse_sequence_lengths,
+)
 from ensembl.genes.annotation_qc.parsers.tool_output import (
     find_gmb_handover_manifest,
     read_evidence_attribution,
@@ -268,6 +276,40 @@ def _filter_reference(ref, args) -> tuple:
     return ref, audit
 
 
+def _stop_codon_policy(args):
+    """Validate the stop-codon options; return the genetic-code policy or None."""
+    if not args.add_stop_codon:
+        if args.stop_codon_genetic_code != 1 or args.stop_codon_sequence_code:
+            raise ComparisonInputError(
+                "--stop-codon-genetic-code and --stop-codon-sequence-code need "
+                "--add-stop-codon"
+            )
+        return None
+    if not args.genome:
+        raise ComparisonInputError("--add-stop-codon needs --genome")
+    try:
+        return parse_genetic_code_policy(
+            args.stop_codon_genetic_code, args.stop_codon_sequence_code
+        )
+    except ValueError as error:
+        raise ComparisonInputError(str(error)) from error
+
+
+def _add_stop_codons(query, genome: str, policy) -> tuple:
+    """Harmonise the query's stop-codon convention; returns (query, audit, summary)."""
+    _log("Adding stop codons to the query CDS (--add-stop-codon)...")
+    names = set(query.loc[query["Feature"] == "CDS", "Chromosome"])
+    query, audit, summary = harmonise_stop_codons(
+        query, iter_sequences(genome, names), policy
+    )
+    _log(
+        f"  {summary['transcripts_with_cds']} query transcripts with CDS: "
+        f"{summary['eligible']} with an established frame; {summary['extended']} "
+        f"extended, {summary['unchanged']} unchanged, {summary['skipped']} skipped"
+    )
+    return query, audit, summary
+
+
 def _split(value: str | None) -> list[str] | None:
     return (
         [item.strip() for item in value.split(",") if item.strip()] if value else None
@@ -305,6 +347,7 @@ def run_pairwise_compare(args) -> dict:
                 f"--{option.replace('_', '-')}: file not found: {path}"
             )
     regions = _regions(args)
+    stop_policy = _stop_codon_policy(args)
     if args.plots_per_category:
         from ensembl.genes.annotation_qc.reports import (
             pairwise_plots,
@@ -320,6 +363,11 @@ def run_pairwise_compare(args) -> dict:
     ref, ref_diag = _parse(args.reference, args.reference_format, "Reference")
     query, query_diag = _parse(args.query, args.query_format, "Query")
     ref, query, seqname_checks = _harmonise_seqnames(ref, query, args, mapping)
+    stop_audit, stop_summary = None, {"applied": False, "annotation": "query"}
+    if stop_policy:
+        query, stop_audit, stop_summary = _add_stop_codons(
+            query, args.genome, stop_policy
+        )
 
     _log("Filtering reference...")
     # The unfiltered reference only labels Novel query genes (e.g. pseudogene loci).
@@ -346,6 +394,7 @@ def run_pairwise_compare(args) -> dict:
     )
     summary = summarise_comparison(ref_results, query_results)
     summary["intron_support"] = summarise_intron_support(ref_models, query_models)
+    summary["query_stop_codon_harmonisation"] = stop_summary
     summary["cds_exact_one_to_one"], exact_pairs = one_to_one_exact_cds(
         ref_models, query_models
     )
@@ -382,6 +431,18 @@ def run_pairwise_compare(args) -> dict:
     report.write_transcript_labels(labels, args.outdir)
     report.write_split_merge(ref_results, query_results, args.outdir)
     report.write_exact_cds_pairs(exact_pairs, args.outdir)
+    stop_outputs = None
+    if stop_audit is not None:
+        stop_outputs = {
+            "audit": _file_record(
+                report.write_stop_codon_audit(stop_audit, args.outdir)
+            ),
+            "evaluated_query": _file_record(
+                report.write_annotation_gtf(
+                    query, args.outdir, report.HARMONISED_QUERY_GTF
+                )
+            ),
+        }
     unlabelled = None
     if args.evidence_attribution:
         attribution = read_evidence_attribution(args.evidence_attribution)
@@ -416,6 +477,7 @@ def run_pairwise_compare(args) -> dict:
         "options": {key: value for key, value in vars(args).items() if key != "func"},
         "coordinates": "internally zero-based half-open; reported one-based inclusive",
         "parse_diagnostics": {"reference": ref_diag, "query": query_diag},
+        "stop_codon_harmonisation": {**stop_summary, "outputs": stop_outputs},
         "seqname_checks": seqname_checks,
         "evidence_attribution_unlabelled_rows": unlabelled,
         "code_version": _code_version(),
@@ -500,6 +562,37 @@ def _add_args(parser):
         help="Query transcripts per gene (default: all). Use canonical with "
         "GMB consensus.canonical_annotated.gff3 to score only the "
         "Ensembl_canonical-tagged transcript.",
+    )
+
+    stop = parser.add_argument_group("stop-codon harmonisation (optional; query only)")
+    stop.add_argument(
+        "--add-stop-codon",
+        action="store_true",
+        help="For query annotations whose CDS excludes the stop codon: extend each "
+        "terminal CDS segment by 3 bp when the next three genomic bases are an "
+        "in-frame stop codon and the frame is established from the sequence (ATG "
+        "start, length a multiple of 3, no internal stop). Needs --genome. The "
+        "reference is never changed. Writes stop_codon_harmonisation.tsv and "
+        "query_evaluated.stop_harmonised.gtf. Default: compare original "
+        "coordinates.",
+    )
+    stop.add_argument(
+        "--stop-codon-genetic-code",
+        type=int,
+        default=1,
+        metavar="TABLE",
+        help="NCBI translation table for --add-stop-codon (default: 1, standard). "
+        f"Supported: {', '.join(map(str, sorted(GENETIC_CODE_STOPS)))}. "
+        "Organelle sequences (MT, chrM, Pt, ...) are skipped unless given a code "
+        "with --stop-codon-sequence-code.",
+    )
+    stop.add_argument(
+        "--stop-codon-sequence-code",
+        action="append",
+        default=None,
+        metavar="SEQNAME=TABLE",
+        help="Translation table for one sequence (comparison seqname), e.g. MT=2; "
+        "TABLE none skips the sequence. Repeatable.",
     )
 
     other = parser.add_argument_group("other options")

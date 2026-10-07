@@ -148,6 +148,8 @@ annotation-qc pairwise-compare \
   coordinate-exact, while CDS `Exact_Match` (same intron chain) is unaffected. Check the
   three genomic bases after each CDS end before interpreting terminal differences, and
   keep any stop-harmonised re-run separate from the comparison of original coordinates.
+  `--add-stop-codon` performs that re-run for the query (see
+  [Optional stop-codon harmonisation](#optional-stop-codon-harmonisation---add-stop-codon)).
 - **Identifiers.** Identity fields are `ID`/`Parent` (GFF3) and `gene_id`/`transcript_id`
   (GTF). Display names (`Name`, `gene_name`) are never used for linking, so repeated
   names are harmless. An identity value reused on **different sequences** (e.g. Tiberius
@@ -162,6 +164,81 @@ annotation-qc pairwise-compare \
 - **Sequence names** must match the FASTA. Use `--seqname-map` (or `--assembly-report`)
   otherwise. Matching names and in-bounds coordinates do not prove the same assembly.
   Check the assembly accession of every input.
+
+### Optional stop-codon harmonisation (`--add-stop-codon`)
+
+Some annotations end the CDS before the stop codon (a *stop-excluded* convention);
+Ensembl and most predictors include it. Compared as written, every complete model then
+differs by 3 bp: coordinate-exact CDS, one-to-one TP, precision, recall and F1 drop to
+about 0, while locus recovery and CDS intron chains are unaffected. `--add-stop-codon`
+re-runs the comparison with the **query** converted to the stop-included convention.
+The reference is never changed. Without the option (default) the original coordinates
+are compared; report harmonised runs separately and label them as such. Harmonisation
+aligns a convention: it does not show that an ORF is valid, and it repairs nothing.
+
+```bash
+annotation-qc pairwise-compare --query cds_only.gtf --reference reference.gff3 \
+  --genome genome.fa --evaluation-mode protein_coding \
+  --add-stop-codon --outdir comparison_stop_harmonised
+```
+
+**What changes.** Only the terminal CDS segment of a transcript, extended by 3 bp in
+transcript orientation (+ strand: end + 3; − strand: start − 3), when the next three
+genomic bases, read in transcript orientation, are a stop codon of the sequence's genetic
+code. Exons inferred from CDS (CDS-only files) and transcript/gene records inferred from
+their children are extended with it. Identifiers, parents, other CDS segments and all
+explicit records stay as written. Rules depend only on coordinates and sequence, never on
+tool names, file names or identifiers.
+
+**Frame evidence (eligibility).** CDS phase is not used, so missing phase is fine.
+The frame is taken to start at the first CDS base and must be supported by the sequence.
+Checks, in order, with the first failure reported as the reason:
+1. sequence present in the genome (`sequence_not_available`);
+2. a genetic code assigned (`genetic_code_not_specified`);
+3. `+` or `−` strand (`strand_not_defined`);
+4. no overlapping CDS segments (`overlapping_cds_segments`);
+5. CDS inside the sequence (`cds_outside_sequence`);
+6. only A/C/G/T in the CDS (`ambiguous_bases_in_cds`);
+7. CDS length a multiple of 3 (`cds_length_not_multiple_of_3`);
+8. first codon ATG (`no_start_codon`): 5′-partial models and non-ATG starts are not
+   guessed;
+9. no in-frame stop before the last codon (`internal_stop_codon`).
+
+An adjacent stop triplet after a disrupted frame is therefore never used.
+
+**Outcomes for eligible models.**
+
+| status | reason | meaning |
+|---|---|---|
+| unchanged | `stop_already_in_cds` | last codon is a stop. A second application is therefore a no-op. |
+| unchanged | `no_adjacent_stop` | the next three bases are not a stop codon |
+| skipped | `split_stop_codon_unsupported` | the CDS ends at (or within 2 bp of) its exon end and another exon follows. A stop split by an intron is not added. |
+| skipped | `extension_beyond_explicit_exons`, `cds_outside_explicit_exons` | explicit exon records would not contain the extended CDS. Exons are never rewritten. |
+| skipped | `extension_out_of_bounds`, `ambiguous_bases_after_cds` | the three bases are past the sequence end or not A/C/G/T |
+| skipped | `extension_outside_transcript_record`, `extension_outside_gene_record` | an explicit transcript/gene record does not contain the extended CDS |
+| extended | `stop_codon_added` | terminal CDS (and inferred records) extended by 3 bp |
+
+**Genetic code.** `--stop-codon-genetic-code` sets the NCBI table for all sequences
+(default 1, standard; supported: 1–6, 9–14, 16, 21–26, 29, 30, 33). Tables whose stops
+are context-dependent (27, 28, 31) are not supported. `--stop-codon-sequence-code
+MT=2` sets one sequence's table, and `NAME=none` skips it. Sequences named like organelle
+genomes (`MT`, `M`, `chrM`, `chrMT`, `mito`, `mitochondrion`, `Pt`, `chrC`, `chrPt`,
+`chloroplast`, `plastid`; case-insensitive) never receive the default table: without an
+override their models are skipped (`genetic_code_not_specified`).
+
+**Outputs and provenance.**
+- `stop_codon_harmonisation.tsv`: every query transcript with CDS (status, reason,
+  genetic code and its source, last and next codon, original and new terminal CDS
+  coordinates, records changed).
+- `query_evaluated.stop_harmonised.gtf`: the query as compared. Locus plots
+  (`--plots-per-category`) also draw these coordinates.
+- `comparison_summary.json` → `query_stop_codon_harmonisation`: `applied` (`false` in
+  default runs), counts by status and reason, and the policy.
+- `comparison_manifest.json` → `stop_codon_harmonisation`: the same, plus the SHA-256 of
+  both output files. The query file itself is recorded, unchanged, under `inputs.query`.
+
+Harmonisation runs before query transcript selection, so `longest_cds` sees the
+harmonised lengths.
 
 ### Reference scope and isoform policy
 
@@ -204,6 +281,9 @@ annotation-qc pairwise-compare \
 | `--region`, `--regions-file` | restrict both annotations (and the Novel context) to whole genes overlapping `seqname[:start-end]` (one-based, inclusive, comparison seqnames). A line with only a seqname keeps the whole sequence. `--region` can be repeated. |
 | `--evidence-attribution` | GMB `build/evidence_attribution.tsv`; writes it back with each transcript's label |
 | `--plots-per-category N` | write N locus plots per class to `qc/` with `qc/index.html` (needs matplotlib) |
+| `--add-stop-codon` | query only, needs `--genome`: add an adjacent in-frame stop codon to CDS that end before it (below). Default: original coordinates |
+| `--stop-codon-genetic-code TABLE` | NCBI translation table for `--add-stop-codon` (default 1) |
+| `--stop-codon-sequence-code SEQNAME=TABLE` | per-sequence table (comparison seqname), `none` to skip a sequence; repeatable |
 
 **Seqname map direction.** Column 1 is the name used in an annotation file and column
 2 is the name to compare under (normally the FASTA header), e.g. `Pf3D7_01_v3	1`. The
@@ -221,6 +301,8 @@ name after mapping, the command stops rather than reporting every gene as Missed
 | `consensus_transcript_labels.tsv` | one row per query transcript: Matched / Strand_Mismatch / Novel, plus the best CDS reference transcript and `novel_category` |
 | `gene_splits.tsv` / `gene_merges.tsv` | reference genes with ≥ 2 query counterparts / query genes with ≥ 2 reference counterparts, with counterpart IDs and one-based loci |
 | `cds_exact_one_to_one_pairs.tsv` | the gene pairs of the one-to-one exact-CDS matching (columns below) |
+| `stop_codon_harmonisation.tsv` | only with `--add-stop-codon`: one row per query transcript with CDS (status, reason, genetic code, codons, original/new terminal CDS, one-based) |
+| `query_evaluated.stop_harmonised.gtf` | only with `--add-stop-codon`: the query exactly as compared (after harmonisation, transcript selection and regions), for plots and browsers |
 | `reference_filter_audit.json` / `.tsv` | reference counts before and after filtering, biotypes, excluded sequences |
 | `evidence_attribution_labeled.tsv` | only with `--evidence-attribution` |
 | `comparison_manifest.json` | query/reference/genome/map paths **with SHA-256**, all options, parse diagnostics, seqname checks, code version, and the GMB finalise manifest and build directory when the query is a GMB output (`query_matches_manifest` confirms the checksum) |
@@ -398,8 +480,10 @@ R. `gene_span_detected_without_cds_overlap` counts genes that gene-span detectio
   the per-gene exact counts.
 - **Stop-codon convention:** an annotation that excludes the stop codon from the CDS never
   matches one that includes it. TP, precision, recall and F1 are then near 0, while CDS
-  intron chains and locus recovery are unaffected. The comparator does not harmonise this.
-  Check it (see "CDS convention" above) and report any stop-harmonised run separately.
+  intron chains and locus recovery are unaffected. By default the comparator does not
+  harmonise this. Check it (see "CDS convention" above); `--add-stop-codon` re-runs with
+  the query converted, and that run must be reported separately from the
+  original-coordinate run.
 
 ### Limitations to keep in mind
 

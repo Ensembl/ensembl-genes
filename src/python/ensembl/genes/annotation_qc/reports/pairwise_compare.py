@@ -11,6 +11,12 @@ query annotation):
     gene_merges.tsv                   query genes with >= 2 reference counterparts
     cds_exact_one_to_one_pairs.tsv    gene pairs of the one-to-one coordinate-exact
                                       CDS matching (one-based coordinates)
+    stop_codon_harmonisation.tsv      only with --add-stop-codon: one row per query
+                                      transcript with CDS, status and reason
+    query_evaluated.stop_harmonised.gtf
+                                      only with --add-stop-codon: the query exactly
+                                      as compared (after harmonisation, transcript
+                                      selection and regions), one-based GTF
     reference_filter_audit.json / .tsv
     evidence_attribution_labeled.tsv  only with --evidence-attribution
     comparison_manifest.json          inputs, checksums, options and versions
@@ -25,6 +31,9 @@ import json
 import os
 
 import pandas as pd
+
+HARMONISED_QUERY_GTF = "query_evaluated.stop_harmonised.gtf"
+STOP_AUDIT_TSV = "stop_codon_harmonisation.tsv"
 
 DETAIL_COLUMNS = [
     "source",
@@ -120,10 +129,64 @@ def write_summary(summary: dict, outdir: str) -> None:
         for block, prefix in (
             ("cds_overlap_locus_recovery", "cds_overlap_locus_recovery"),
             ("cds_exact_one_to_one", "cds_exact_one_to_one"),
+            ("query_stop_codon_harmonisation", "query_stop_codon_harmonisation"),
         ):
             for name, value in summary.get(block, {}).items():
-                if name != "definition":
+                if isinstance(value, dict):
+                    if name == "reasons":
+                        for reason, count in value.items():
+                            writer.writerow([f"{prefix}_{reason}", count])
+                elif name != "definition":
                     writer.writerow([f"{prefix}_{name}", _value(value)])
+
+
+def write_stop_codon_audit(audit: pd.DataFrame, outdir: str) -> str:
+    """
+    Write stop_codon_harmonisation.tsv (terminal CDS coordinates one-based).
+    Args:
+            audit: Audit table from stop_codons.harmonise_stop_codons
+            outdir: Output directory
+    Returns:
+            Path of the written file
+    """
+    out = audit.copy()
+    for column in ("terminal_cds_start", "new_terminal_cds_start"):
+        out[column] = out[column] + 1
+    path = os.path.join(outdir, STOP_AUDIT_TSV)
+    out.to_csv(path, sep="\t", index=False)
+    return path
+
+
+def write_annotation_gtf(df: pd.DataFrame, outdir: str, filename: str) -> str:
+    """
+    Write a comparison-schema annotation as GTF (one-based, file IDs).
+
+    Gene, transcript, exon and CDS rows are written in table order with the IDs
+    as they appear in the source file (original_gene_id / original_transcript_id).
+    Records the comparator inferred carry annotation_qc_record "<source_feature>".
+    Args:
+            df: Comparison-schema DataFrame
+            outdir: Output directory
+            filename: Output file name
+    Returns:
+            Path of the written file
+    """
+    path = os.path.join(outdir, filename)
+    with open(path, "w", encoding="utf-8") as handle:
+        handle.write("##gtf written by annotation-qc pairwise-compare\n")
+        for row in df.itertuples(index=False):
+            attributes = f'gene_id "{row.original_gene_id}";'
+            if row.Feature != "gene":
+                attributes += f' transcript_id "{row.original_transcript_id}";'
+            if row.gene_biotype:
+                attributes += f' gene_biotype "{row.gene_biotype}";'
+            if str(row.source_feature).startswith("inferred_"):
+                attributes += f' annotation_qc_record "{row.source_feature}";'
+            handle.write(
+                f"{row.Chromosome}\tannotation-qc\t{row.Feature}\t{int(row.Start) + 1}"
+                f"\t{int(row.End)}\t.\t{row.Strand}\t.\t{attributes}\n"
+            )
+    return path
 
 
 def write_exact_cds_pairs(pairs: pd.DataFrame, outdir: str) -> None:
@@ -317,6 +380,17 @@ def _percent(value) -> str:
     return "n/a" if value is None else f"{value:.1%}"
 
 
+def _stop_codon_lines(summary: dict) -> list[str]:
+    stop = summary.get("query_stop_codon_harmonisation", {})
+    if not stop.get("applied"):
+        return []
+    return [
+        "Query stop codons added (--add-stop-codon; harmonised coordinates "
+        f"compared): {stop['extended']} extended, {stop['unchanged']} unchanged, "
+        f"{stop['skipped']} skipped of {stop['transcripts_with_cds']}"
+    ]
+
+
 def format_console_summary(summary: dict) -> str:
     """
     Render the headline metrics for the terminal.
@@ -368,6 +442,7 @@ def format_console_summary(summary: dict) -> str:
         if count
     ]
     lines.append(f"  Gene merges:            {split_merge['gene_merge_count']:>6}")
+    lines += _stop_codon_lines(summary)
     if one_to_one:
         lines += [
             "One-to-one coordinate-exact CDS (maximum matching):",
