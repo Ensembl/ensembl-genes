@@ -6,6 +6,7 @@ indexed access by sequence name and slicing.
 """
 
 import gzip
+from collections.abc import Iterator
 
 from pyfaidx import Fasta
 
@@ -19,6 +20,37 @@ def parse_fasta(file_path: str) -> Fasta:
             Fasta object (supports indexed access by sequence name and slicing)
     """
     return Fasta(file_path)
+
+
+def iter_sequences(file_path: str, names: set[str]) -> Iterator[tuple[str, str]]:
+    """
+    Yield (name, upper-case sequence) for the requested sequences, one at a time.
+
+    Streams the FASTA (plain, gzip or BGZF) in file order and keeps only one
+    requested sequence in memory; no index is written beside the genome. Names
+    are the first word of each header.
+    Args:
+            file_path: Path to the FASTA file
+            names: Sequence names to return; others are skipped
+    Yields:
+            (name, sequence) tuples
+    """
+    with open(file_path, "rb") as handle:
+        is_gzip = handle.read(2) == b"\x1f\x8b"
+    opener = gzip.open if is_gzip else open
+    name, chunks = None, []
+    with opener(file_path, "rb") as handle:
+        for line in handle:
+            if line.startswith(b">"):
+                if name is not None:
+                    yield name, b"".join(chunks).decode("ascii").upper()
+                header = line[1:].split(maxsplit=1)
+                current = header[0].decode() if header else ""
+                name, chunks = (current, []) if current in names else (None, [])
+            elif name is not None:
+                chunks.append(line.strip())
+    if name is not None:
+        yield name, b"".join(chunks).decode("ascii").upper()
 
 
 def parse_sequence_lengths(file_path: str) -> dict[str, int]:

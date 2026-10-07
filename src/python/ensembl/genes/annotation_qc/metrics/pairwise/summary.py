@@ -10,6 +10,12 @@ after filtering (R), unless stated:
 
     locus detection     reference genes classified Exact_Match, Partial_Match or
                         Structural_Mismatch (a same-strand gene-span overlap) / R
+    CDS-overlap locus   reference genes whose best same-strand CDS pair shares at
+    recovery            least one CDS base (cds_overlap > 0) / R. A pair shares a
+                        base exactly when its reciprocal CDS overlap is > 0, and
+                        the best pair has the largest overlap, so this equals
+                        "some same-strand locus partner shares CDS bases". Rate
+                        is None when R = 0.
     exonic detection    the subset of those with some exonic overlap / R; the
                         difference ("span-only") is detection that rests on gene
                         spans alone
@@ -38,6 +44,9 @@ Query-based (precision-like) rates divide by the number of query genes (Q):
     exact, coordinate   query genes whose best pair is Exact_Match / coordinate
     exact               exact / Q
     merge               query genes with >= 2 reference counterparts (count)
+
+One-to-one coordinate-exact CDS precision/recall/F1 are computed in
+metrics/pairwise/matching.py.
 
 summarise_intron_support compares unique introns: reference introns found in the
 query / reference introns, and query introns found in the reference / query
@@ -87,6 +96,10 @@ RATE_DENOMINATORS = {
         "sensitivity_cds.multi_segment_cds_reference_genes"
     ),
     "specificity.*_rate": "total_consensus_genes (query genes)",
+    "cds_overlap_locus_recovery.rate": "total_reference_genes",
+    "cds_exact_one_to_one.recall": "total_reference_genes",
+    "cds_exact_one_to_one.precision": "total_consensus_genes (query genes)",
+    "cds_exact_one_to_one.f1": "total_reference_genes + total_consensus_genes",
     "intron_support.*.reference_introns_recovered_rate": "reference_introns",
     "intron_support.*.query_introns_supported_rate": "query_introns",
 }
@@ -158,6 +171,7 @@ def summarise_comparison(ref: pd.DataFrame, query: pd.DataFrame) -> dict:
     detected = ref["classification"].isin(DETECTED)
     cds_matched = ref["classification_cds"].isin(DETECTED)
     exonic = detected & (ref["exon_overlap"] > 0)
+    cds_recovered = ref["cds_overlap"].astype(float) > 0
     exon_coord = _is_true(ref["exon_coordinate_exact"])
     cds_coord = _is_true(ref["cds_coordinate_exact"])
     multi_exon = ref["max_exon_count"] > 1
@@ -298,6 +312,21 @@ def summarise_comparison(ref: pd.DataFrame, query: pd.DataFrame) -> dict:
             "locus_detected_exonic_count": int(exonic.sum()),
             "locus_detection_exonic_rate": _rate(int(exonic.sum()), total_ref),
             "span_only_detected_count": int((detected & ~exonic).sum()),
+        },
+        "cds_overlap_locus_recovery": {
+            "recovered_count": int(cds_recovered.sum()),
+            "reference_genes": total_ref,
+            "rate": (
+                round(int(cds_recovered.sum()) / total_ref, 4) if total_ref else None
+            ),
+            "gene_span_detected_without_cds_overlap": int(
+                (detected & ~cds_recovered).sum()
+            ),
+            "definition": (
+                "reference genes with a same-strand query locus partner whose "
+                "transcripts share at least one CDS base (cds_overlap > 0, "
+                "unrounded) / total_reference_genes"
+            ),
         },
         "rate_denominators": RATE_DENOMINATORS,
     }

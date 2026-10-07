@@ -20,6 +20,7 @@ OUTPUTS = [
     "comparison_summary.tsv",
     "comparison_details.tsv",
     "consensus_transcript_labels.tsv",
+    "cds_exact_one_to_one_pairs.tsv",
     "reference_filter_audit.json",
     "reference_filter_audit.tsv",
     "comparison_manifest.json",
@@ -251,4 +252,8 @@ def test_installed_entry_point(inputs, tmp_path):
         check=False,
     )
     assert result.returncode == 0, result.stderr
-    assert (tmp_path / "out" / "comparison_summary.json").is_file()
+    summary = json.loads((tmp_path / "out" / "comparison_summary.json").read_text())
+    assert summary["cds_exact_one_to_one"]["true_positives"] == 1
+    assert summary["cds_overlap_locus_recovery"]["recovered_count"] == 1
+    assert (tmp_path / "out" / "cds_exact_one_to_one_pairs.tsv").is_file()
+    assert "One-to-one coordinate-exact CDS" in result.stdout + result.stderr

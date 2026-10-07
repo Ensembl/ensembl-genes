@@ -3,6 +3,7 @@
 import pandas as pd
 import pytest
 
+from ensembl.genes.annotation_qc.metrics.pairwise.classify import build_gene_models
 from ensembl.genes.annotation_qc.parsers.annotation import (
     detect_annotation_format,
     parse_annotation,
@@ -163,6 +164,82 @@ class TestParentage:
         )
         assert df.attrs["parse_diagnostics"]["synthesised_genes"] == 1
         assert df.attrs["parse_diagnostics"]["synthesised_transcripts"] == 1
+
+    def test_cds_only_gtf_gets_one_exon_per_cds_record(self, write_text):
+        # No transcript or exon lines; gene lines carry transcript_id and may
+        # follow their first CDS line.
+        text = (
+            'c1\t.\tCDS\t100\t150\t.\t+\t.\tgene_id "A"; transcript_id "A.t";\n'
+            'c1\t.\tgene\t100\t403\t.\t+\t.\tgene_id "A"; transcript_id "A.t";\n'
+            'c1\t.\tCDS\t300\t400\t.\t+\t.\tgene_id "A"; transcript_id "A.t";\n'
+            'c1\t.\tgene\t597\t800\t.\t-\t.\tgene_id "B"; transcript_id "B.t";\n'
+            'c1\t.\tCDS\t600\t800\t.\t-\t.\tgene_id "B"; transcript_id "B.t";\n'
+        )
+        df = parse_annotation_for_comparison(write_text("cds_only.gtf", text))
+        diagnostics = df.attrs["parse_diagnostics"]
+        assert diagnostics["cds_only_transcripts"] == 2
+        assert diagnostics["inferred_exon_rows"] == 3
+        assert diagnostics["exon_rows"] == 3
+        assert diagnostics["transcripts_without_exons"] == 0
+        assert diagnostics["synthesised_genes"] == 0
+        for tid in ("A.t", "B.t"):
+            exons = _rows(df, "exon")
+            cds = _rows(df, "CDS")
+            ex = exons[exons["transcript_id"] == tid]
+            assert (ex["source_feature"] == "inferred_exon_from_CDS").all()
+            assert (ex["record_index"] == -1).all()
+            assert sorted(zip(ex["Start"], ex["End"], ex["Strand"])) == sorted(
+                zip(
+                    *(
+                        cds.loc[cds["transcript_id"] == tid, c]
+                        for c in ("Start", "End", "Strand")
+                    )
+                )
+            )
+        # Gene spans are kept as written (the 3 bp beyond the CDS stay).
+        genes = _rows(df, "gene").set_index("gene_id")
+        assert (genes.loc["A", "Start"], genes.loc["A", "End"]) == (99, 403)
+        models = build_gene_models(df)
+        assert models.genes.set_index("gene_id")["max_cds_count"].to_dict() == {
+            "A": 2,
+            "B": 1,
+        }
+
+    def test_cds_only_inference_leaves_transcripts_with_exons_alone(self, write_gff3):
+        # T1 has exons (and UTR), T2 is CDS-only; the same ID "T3" is CDS-only
+        # on c2 but has exons on c1.
+        records = gene_records(
+            "c1", "G1", "+", {"T1": [(10, 50), (80, 120)]}, with_cds={"T1": [(30, 50)]}
+        )
+        records += [
+            ("c1", "mRNA", 200, 260, "+", "ID=T2;Parent=G1"),
+            ("c1", "CDS", 200, 220, "+", "Parent=T2"),
+            ("c1", "CDS", 240, 260, "+", "Parent=T2"),
+        ]
+        records += gene_records("c1", "G3", "-", {"T3": [(400, 500)]})
+        records += [
+            ("c2", "gene", 400, 500, "-", "ID=G3"),
+            ("c2", "mRNA", 400, 500, "-", "ID=T3;Parent=G3"),
+            ("c2", "CDS", 400, 500, "-", "Parent=T3"),
+        ]
+        df = parse_annotation_for_comparison(write_gff3("mixed.gff3", records))
+        exons = _rows(df, "exon")
+        inferred = exons[exons["source_feature"] == "inferred_exon_from_CDS"]
+        assert sorted(set(inferred["transcript_id"])) == ["T2", "c2:T3"]
+        t1 = exons[exons["transcript_id"] == "T1"]
+        assert sorted(zip(t1["Start"], t1["End"])) == [(9, 50), (79, 120)]
+        assert df.attrs["parse_diagnostics"]["cds_only_transcripts"] == 2
+
+    def test_y_rna_is_a_transcript_type(self, write_gff3):
+        records = [
+            ("c1", "ncRNA_gene", 10, 100, "+", "ID=gene:G1;biotype=Y_RNA"),
+            ("c1", "Y_RNA", 10, 100, "+", "ID=transcript:T1;Parent=gene:G1"),
+            ("c1", "exon", 10, 100, "+", "Parent=transcript:T1"),
+        ]
+        df = parse_annotation_for_comparison(write_gff3("y.gff3", records))
+        tx = _rows(df, "transcript")
+        assert list(tx["source_feature"]) == ["Y_RNA"]
+        assert list(_rows(df, "exon")["transcript_id"]) == ["T1"]
 
     def test_orphan_exon_rejected(self, write_gff3):
         records = gene_records("c1", "G1", "+", {"T1": [(10, 50)]})

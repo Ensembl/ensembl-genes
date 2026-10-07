@@ -69,12 +69,11 @@ def _shift(exons, by):
     return [(s + by, e + by) for s, e in exons]
 
 
-def _cds_only_gene(seqid, gene, strand, start, end):
-    """A transcript with CDS but no exon rows: the gene has no comparable transcript."""
+def _gene_without_structure(seqid, gene, strand, start, end):
+    """A transcript without exon or CDS rows: the gene has no comparable transcript."""
     return [
         (seqid, "gene", start, end, strand, f"ID={gene};biotype=protein_coding"),
         (seqid, "mRNA", start, end, strand, f"ID={gene}.1;Parent={gene}"),
-        (seqid, "CDS", start, end, strand, f"Parent={gene}.1"),
     ]
 
 
@@ -83,11 +82,11 @@ def _cds_only_gene(seqid, gene, strand, start, end):
 
 class TestMatchedConsensusCount:
     def test_matched_class_counted_once(self, compare):
-        # Q pairs with R on the same strand but R has no exon rows, so Q is
+        # Q pairs with R on the same strand but R has no exon/CDS rows, so Q is
         # "Matched". gmb-compare's formula, Matched + total - Novel -
         # Strand_Mismatch, gave 2 for this single query gene.
         _, query, summary = compare(
-            _cds_only_gene("1", "R", "+", 100, 600),
+            _gene_without_structure("1", "R", "+", 100, 600),
             gene_records("1", "Q", "+", {"Q.1": MULTI}),
         )
         assert query.loc["Q"].classification == "Matched"
@@ -99,7 +98,7 @@ class TestMatchedConsensusCount:
             gene_records("1", "R1", "+", {"R1.1": MULTI})
             + gene_records("1", "R2", "+", {"R2.1": _shift(MULTI, 2000)})
             + gene_records("1", "R3", "+", {"R3.1": _shift(MULTI, 4000)})
-            + _cds_only_gene("1", "R4", "+", 6100, 6600),
+            + _gene_without_structure("1", "R4", "+", 6100, 6600),
             gene_records("1", "Q1", "+", {"Q1.1": MULTI})  # Exact_Match
             + gene_records("1", "Q2", "+", {"Q2.1": _shift(MULTI, 2000)[:1]})  # Partial
             + gene_records("1", "Q3", "-", {"Q3.1": _shift(MULTI, 4000)})  # Strand
@@ -282,6 +281,50 @@ def test_no_cds_uses_any_coding_isoform(compare):
     assert ref.loc["R"].best_match_transcript_id == "Q.1"
     assert ref.loc["R"].classification_cds == "Exact_Match"
     assert ref.loc["R"].cds_coordinate_exact
+
+
+def _cds_only_records(seqid, gene, strand, cds):
+    """gene + mRNA + CDS rows, no exon rows (as in CDS-only prediction files)."""
+    start, end = min(s for s, _ in cds), max(e for _, e in cds)
+    records = [
+        (seqid, "gene", start, end, strand, f"ID={gene}"),
+        (seqid, "mRNA", start, end, strand, f"ID={gene}.1;Parent={gene}"),
+    ]
+    return records + [(seqid, "CDS", s, e, strand, f"Parent={gene}.1") for s, e in cds]
+
+
+def test_cds_only_query_is_compared(compare):
+    # Before exons were inferred for CDS-only transcripts, such a query gene had
+    # no comparable transcript: its CDS was never compared and every reference
+    # gene it covered was reported without a CDS partner.
+    cds = [(150, 200), (300, 400), (500, 551)]
+    ref, query, summary = compare(
+        gene_records("1", "R", "+", {"R.1": MULTI}, with_cds={"R.1": cds})
+        + gene_records(
+            "1", "S", "-", {"S.1": _shift(MULTI, 2000)}, with_cds={"S.1": []}
+        )
+        + gene_records(
+            "1",
+            "T",
+            "-",
+            {"T.1": _shift(MULTI, 4000)},
+            with_cds={"T.1": [(4147, 4200), (4300, 4400), (4500, 4550)]},
+        ),
+        _cds_only_records("1", "Q", "+", cds)
+        # stop codon excluded: 3 bp shorter at the 3' end (minus strand: Start)
+        + _cds_only_records("1", "QT", "-", [(4150, 4200), (4300, 4400), (4500, 4550)]),
+    )
+    q, r = query.loc["Q"], ref.loc["R"]
+    assert q.classification_cds == "Exact_Match" and q.cds_coordinate_exact
+    assert r.cds_coordinate_exact and r.cds_intron_chain_match
+    assert r.cds_overlap == 1.0
+    # Inferred exons equal the CDS, so the UTR-inclusive comparison sees no UTR.
+    assert not r.exon_coordinate_exact
+    t, qt = ref.loc["T"], query.loc["QT"]
+    assert t.classification_cds == "Exact_Match" and t.cds_intron_chain_match
+    assert not t.cds_coordinate_exact and not qt.cds_coordinate_exact
+    assert summary["sensitivity_cds"]["cds_coordinate_exact_count"] == 1
+    assert summary["sensitivity_cds"]["cds_exact_match_not_coordinate_exact"] == 1
 
 
 # 7-8. feature-aware strand mismatch -----------------------------------------
