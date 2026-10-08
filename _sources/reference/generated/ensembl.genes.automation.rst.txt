@@ -1,0 +1,21 @@
+ensembl.genes.automation
+========================
+
+Source directory: ``src/python/ensembl/genes/automation``
+
+Package Contents
+----------------
+
+.. automodule:: ensembl.genes.automation
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+Folders, Scripts, and Files
+---------------------------
+
+.. toctree::
+   :maxdepth: 2
+
+   README <ensembl.genes.automation.README>
+   pre_release_ftp <ensembl.genes.automation.pre_release_ftp>

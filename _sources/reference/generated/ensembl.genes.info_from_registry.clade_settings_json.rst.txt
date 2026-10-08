@@ -1,0 +1,8 @@
+clade_settings.json
+===================
+
+Source: ``src/python/ensembl/genes/info_from_registry/clade_settings.json``
+
+.. literalinclude:: ../../../src/python/ensembl/genes/info_from_registry/clade_settings.json
+   :language: json
+   :linenos:

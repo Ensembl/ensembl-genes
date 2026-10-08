@@ -1,0 +1,10 @@
+ensembl.genes.tracking.bioproject_tracking
+==========================================
+
+Source: ``src/python/ensembl/genes/tracking/bioproject_tracking.py``
+
+.. note:: This module reads a local JSON configuration file at import time, so Sphinx shows the source instead of importing it.
+
+.. literalinclude:: ../../../src/python/ensembl/genes/tracking/bioproject_tracking.py
+   :language: python
+   :linenos:

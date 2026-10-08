@@ -1,0 +1,29 @@
+ensembl.genes
+=============
+
+Source directory: ``src/python/ensembl/genes``
+
+Package Contents
+----------------
+
+.. automodule:: ensembl.genes
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+Folders, Scripts, and Files
+---------------------------
+
+.. toctree::
+   :maxdepth: 2
+
+   annotation_qc <ensembl.genes.annotation_qc>
+   automation <ensembl.genes.automation>
+   content <ensembl.genes.content>
+   info_from_registry <ensembl.genes.info_from_registry>
+   metadata <ensembl.genes.metadata>
+   metrics <ensembl.genes.metrics>
+   projects <ensembl.genes.projects>
+   stable_id <ensembl.genes.stable_id>
+   tracking <ensembl.genes.tracking>
+   transcriptomic_data <ensembl.genes.transcriptomic_data>

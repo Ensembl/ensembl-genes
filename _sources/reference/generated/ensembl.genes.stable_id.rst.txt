@@ -1,0 +1,20 @@
+ensembl.genes.stable_id
+=======================
+
+Source directory: ``src/python/ensembl/genes/stable_id``
+
+Package Contents
+----------------
+
+.. automodule:: ensembl.genes.stable_id
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+Folders, Scripts, and Files
+---------------------------
+
+.. toctree::
+   :maxdepth: 2
+
+   pid_overlap <ensembl.genes.stable_id.pid_overlap>

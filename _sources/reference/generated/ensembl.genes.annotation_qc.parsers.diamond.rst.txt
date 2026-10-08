@@ -1,0 +1,9 @@
+ensembl.genes.annotation_qc.parsers.diamond
+===========================================
+
+Source: ``src/python/ensembl/genes/annotation_qc/parsers/diamond.py``
+
+.. automodule:: ensembl.genes.annotation_qc.parsers.diamond
+   :members:
+   :show-inheritance:
+   :undoc-members:

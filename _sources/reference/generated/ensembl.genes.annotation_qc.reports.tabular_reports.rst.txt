@@ -1,0 +1,9 @@
+ensembl.genes.annotation_qc.reports.tabular_reports
+===================================================
+
+Source: ``src/python/ensembl/genes/annotation_qc/reports/tabular_reports.py``
+
+.. automodule:: ensembl.genes.annotation_qc.reports.tabular_reports
+   :members:
+   :show-inheritance:
+   :undoc-members:

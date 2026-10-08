@@ -1,0 +1,9 @@
+ensembl.genes.annotation_qc.runners.pairwise_compare
+====================================================
+
+Source: ``src/python/ensembl/genes/annotation_qc/runners/pairwise_compare.py``
+
+.. automodule:: ensembl.genes.annotation_qc.runners.pairwise_compare
+   :members:
+   :show-inheritance:
+   :undoc-members:

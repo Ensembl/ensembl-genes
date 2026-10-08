@@ -1,0 +1,8 @@
+patches_template.csv
+====================
+
+Source: ``src/python/ensembl/genes/metadata/patches_template.csv``
+
+.. literalinclude:: ../../../src/python/ensembl/genes/metadata/patches_template.csv
+   :language: text
+   :linenos:

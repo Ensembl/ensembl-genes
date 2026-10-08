@@ -1,0 +1,14 @@
+ensembl.genes.annotation_qc.config
+==================================
+
+Source directory: ``src/python/ensembl/genes/annotation_qc/config``
+
+Folders, Scripts, and Files
+---------------------------
+
+.. toctree::
+   :maxdepth: 2
+
+   feature_levels.yaml <ensembl.genes.annotation_qc.config.feature_levels_yaml>
+   value_map.json <ensembl.genes.annotation_qc.config.value_map_json>
+   value_mapping.csv <ensembl.genes.annotation_qc.config.value_mapping_csv>

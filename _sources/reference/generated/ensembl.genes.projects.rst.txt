@@ -1,0 +1,24 @@
+ensembl.genes.projects
+======================
+
+Source directory: ``src/python/ensembl/genes/projects``
+
+Package Contents
+----------------
+
+.. automodule:: ensembl.genes.projects
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+Folders, Scripts, and Files
+---------------------------
+
+.. toctree::
+   :maxdepth: 2
+
+   README <ensembl.genes.projects.README>
+   write_yaml <ensembl.genes.projects.write_yaml>
+   icons.txt <ensembl.genes.projects.icons_txt>
+   pyproject.toml <ensembl.genes.projects.pyproject_toml>
+   server_config.json <ensembl.genes.projects.server_config_json>

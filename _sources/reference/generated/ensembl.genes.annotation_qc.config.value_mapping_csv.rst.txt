@@ -1,0 +1,8 @@
+value_mapping.csv
+=================
+
+Source: ``src/python/ensembl/genes/annotation_qc/config/value_mapping.csv``
+
+.. literalinclude:: ../../../src/python/ensembl/genes/annotation_qc/config/value_mapping.csv
+   :language: text
+   :linenos:
