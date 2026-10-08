@@ -355,7 +355,7 @@ For one assembly, the downloader expects these files:
 <ftp_base>_assembly_report.txt
 ```
 
-RepeatMasker files are optional:
+RepeatMasker files are optional unless the --include-repeatmasker option is enabled:
 
 ```text
 <ftp_base>_rm.out.gz

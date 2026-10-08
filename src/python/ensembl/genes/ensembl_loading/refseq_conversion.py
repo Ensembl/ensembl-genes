@@ -6,6 +6,7 @@ import gzip
 import logging
 from collections.abc import Collection, Iterator
 from contextlib import contextmanager
+from dataclasses import dataclass
 from pathlib import Path
 from typing import TextIO
 
@@ -13,6 +14,79 @@ from typing import TextIO
 
 
 LOGGER = logging.getLogger(__name__)
+
+
+@dataclass(frozen=True)
+class _RepeatMaskerRecord:  # pylint: disable=too-many-instance-attributes
+    """Relevant fields from one whitespace-delimited RepeatMasker row."""
+
+    score: str
+    sequence_name: str
+    genomic_start: str
+    genomic_end: str
+    strand: str
+    repeat_name: str
+    repeat_class: str
+    consensus_start: str
+    consensus_end: str
+
+
+def _parse_repeatmasker_row(fields: list[str]) -> _RepeatMaskerRecord | None:
+    """Parse a RepeatMasker row and normalize its strand-specific coordinates."""
+
+    if fields and fields[-1] == "*":
+        fields = fields[:-1]
+    if len(fields) < 15:
+        return None
+
+    (
+        score,
+        _percent_divergence,
+        _percent_deletions,
+        _percent_insertions,
+        sequence_name,
+        genomic_start,
+        genomic_end,
+        _query_left,
+        strand_code,
+        repeat_name,
+        repeat_class,
+        consensus_start_forward,
+        consensus_end,
+        consensus_start_reverse,
+        _repeat_id,
+        *_extra,
+    ) = fields
+
+    strand = "-" if strand_code == "C" else "+"
+    consensus_start = (
+        consensus_start_reverse if strand == "-" else consensus_start_forward
+    )
+    return _RepeatMaskerRecord(
+        score=score,
+        sequence_name=sequence_name,
+        genomic_start=genomic_start,
+        genomic_end=genomic_end,
+        strand=strand,
+        repeat_name=repeat_name,
+        repeat_class=repeat_class,
+        consensus_start=consensus_start,
+        consensus_end=consensus_end,
+    )
+
+
+def _get_repeat_type(repeat_class: str) -> str:
+    """Resolve an Ensembl repeat type without importing ensembl-tools eagerly."""
+
+    try:
+        from ensembl.tools.anno.repeat_annotation.repeatmasker import (  # pylint: disable=import-outside-toplevel
+            get_repeat_type,
+        )
+    except ImportError as error:  # pragma: no cover - environment dependent
+        raise ImportError(
+            "RepeatMasker conversion requires the installed ensembl-tools package"
+        ) from error
+    return get_repeat_type(repeat_class)
 
 
 def default_repeatmasker_output_path(repeatmasker_path: str | Path) -> Path:
@@ -233,15 +307,6 @@ def convert_repeatmasker_to_gtf(
 ) -> Path:
     """Convert NCBI RepeatMasker ``*_rm.out`` output to single-line GTF."""
 
-    try:
-        from ensembl.tools.anno.repeat_annotation.repeatmasker import (  # pylint: disable=import-outside-toplevel
-            get_repeat_type,
-        )
-    except ImportError as error:  # pragma: no cover - environment dependent
-        raise ImportError(
-            "RepeatMasker conversion requires the installed ensembl-tools package"
-        ) from error
-
     log = logger or LOGGER
     output = (
         Path(output_path)
@@ -260,33 +325,29 @@ def convert_repeatmasker_to_gtf(
         for line_number, raw_line in enumerate(input_handle, start=1):
             if not raw_line.strip() or not raw_line.lstrip()[:1].isdigit():
                 continue
-            fields = raw_line.split()
-            if fields and fields[-1] == "*":
-                fields.pop()
-            if len(fields) < 15:
+            record = _parse_repeatmasker_row(raw_line.split())
+            if record is None:
                 log.debug("Skipping short RepeatMasker row %s", line_number)
                 continue
 
-            source_seq_name = fields[4]
+            source_seq_name = record.sequence_name
             seq_name = refseq_to_name.get(source_seq_name, source_seq_name)
             if seq_name == source_seq_name and source_seq_name not in refseq_to_name:
                 unmapped_sequences += 1
             repeat_ids[seq_name] = repeat_ids.get(seq_name, 0) + 1
-            strand = "-" if fields[8] == "C" else "+"
-            repeat_class = fields[10]
-            repeat_type = get_repeat_type(repeat_class)
+            repeat_type = _get_repeat_type(record.repeat_class)
             attributes = (
                 f"repeat_id {repeat_ids[seq_name]}; "
-                f'repeat_name "{fields[9]}"; '
-                f'repeat_class "{repeat_class}"; '
+                f'repeat_name "{record.repeat_name}"; '
+                f'repeat_class "{record.repeat_class}"; '
                 f'repeat_type "{repeat_type}"; '
-                f'repeat_start "{fields[13] if strand == "-" else fields[11]}"; '
-                f'repeat_end "{fields[12]}"; '
-                f'score "{fields[0]}";'
+                f'repeat_start "{record.consensus_start}"; '
+                f'repeat_end "{record.consensus_end}"; '
+                f'score "{record.score}";'
             )
             output_handle.write(
-                f"{seq_name}\tRepeatMasker\trepeat\t{fields[5]}\t{fields[6]}\t.\t"
-                f"{strand}\t.\t{attributes}\n"
+                f"{seq_name}\tRepeatMasker\trepeat\t{record.genomic_start}"
+                f"\t{record.genomic_end}\t.\t{record.strand}\t.\t{attributes}\n"
             )
             converted_records += 1
 

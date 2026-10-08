@@ -25,6 +25,7 @@ from ensembl.genes.ensembl_loading import (
     gff_core_loader,
     gff_metadata,
     gff_repeat_loader,
+    refseq_conversion,
 )
 from ensembl.genes.ensembl_loading.gff_annotation import (
     has_refseq_translation_discrepancy,
@@ -53,6 +54,7 @@ from ensembl.genes.ensembl_loading.gff_source_config import (
 )
 from ensembl.genes.ensembl_loading.refseq_conversion import (
     convert_gff_to_ensembl,
+    convert_repeatmasker_to_gtf,
     default_gff_output_path,
     load_assembly_report_name_maps,
     load_refseq_name_map,
@@ -701,6 +703,37 @@ def test_refseq_discovery_and_conversion_helpers(tmp_path: Path) -> None:
     assert len(records) == 1
     assert records[0].species_name == "Mus musculus"
     assert records[0].paths.gff_url.endswith("_genomic.gff.gz")
+
+
+def test_repeatmasker_conversion_normalizes_reverse_strand_coordinates(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    report = write_lines(
+        tmp_path / "assembly_report.txt",
+        [
+            "chrOne\tassembled-molecule\t1\tChromosome\tCM_000001.11\tna\tNC_000001.11",
+        ],
+    )
+    repeatmasker = write_lines(
+        tmp_path / "input_rm.out",
+        [
+            "100 1.0 2.0 3.0 NC_000001.11 10 20 (1000) + Alu SINE/Alu 3 9 (0) 1",
+            "200 1.0 2.0 3.0 NC_000001.11 30 40 (980) C Alu SINE/Alu (0) 9 3 2 *",
+        ],
+    )
+    monkeypatch.setattr(refseq_conversion, "_get_repeat_type", lambda _: "mock")
+
+    converted = convert_repeatmasker_to_gtf(repeatmasker, report)
+
+    assert converted.read_text(encoding="utf-8") == (
+        "1\tRepeatMasker\trepeat\t10\t20\t.\t+\t.\t"
+        'repeat_id 1; repeat_name "Alu"; repeat_class "SINE/Alu"; '
+        'repeat_type "mock"; repeat_start "3"; repeat_end "9"; score "100";\n'
+        "1\tRepeatMasker\trepeat\t30\t40\t.\t-\t.\t"
+        'repeat_id 2; repeat_name "Alu"; repeat_class "SINE/Alu"; '
+        'repeat_type "mock"; repeat_start "3"; repeat_end "9"; score "200";\n'
+    )
 
 
 def test_insert_refseq_seq_region_synonyms_preserves_multiple_accessions() -> None:
