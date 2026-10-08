@@ -90,8 +90,8 @@ def build_annotation_commands(
     )
 
     anno_commandline_gmb = (
-        anno_commandline_base
-        + " --run_repeats --run_simple_features --run_sncrnas --run_transcriptomic --run_proteins_genblast"
+        anno_commandline_base + " --run_repeats --run_simple_features --run_sncrnas"
+        " --run_transcriptomic --run_proteins_genblast"
     )
 
     # Add both commands back into the params dict

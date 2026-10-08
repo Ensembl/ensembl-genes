@@ -633,7 +633,23 @@ def insert_genes(
             for transcript_id, transcript in transcripts
             if is_coding_transcript(transcript, source_config)
         ]
-        if coding_with_translation:
+        canonical_with_translation = [
+            transcript_id
+            for transcript_id, transcript in transcripts
+            if transcript.is_canonical
+            and is_coding_transcript(transcript, source_config)
+            and annotation.cds_segments.get(transcript_id)
+        ]
+        canonical = [
+            transcript_id
+            for transcript_id, transcript in transcripts
+            if transcript.is_canonical
+        ]
+        if canonical_with_translation:
+            first_transcript_by_gene[gene_id] = canonical_with_translation[0]
+        elif canonical:
+            first_transcript_by_gene[gene_id] = canonical[0]
+        elif coding_with_translation:
             first_transcript_by_gene[gene_id] = coding_with_translation[0]
         elif coding:
             first_transcript_by_gene[gene_id] = coding[0]

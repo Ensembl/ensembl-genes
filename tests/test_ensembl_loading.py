@@ -200,6 +200,26 @@ def test_public_modules_import_and_cli_exposes_new_package() -> None:
 
     assert anno_output_args.func is gff_cli.run_load_anno_output
     assert anno_output_args.output_dir == Path("GCA_000000000.1")
+    assert anno_output_args.gmb_anno is False
+
+    gmb_args = gff_cli.build_parser().parse_args(
+        [
+            "load-anno-output",
+            "GCA_000000000.1",
+            "--gmb-anno",
+            "--db-name",
+            "example_core",
+            "--db-host",
+            "mysql-host",
+            "--db-user",
+            "ensro",
+            "--db-password",
+            "secret",
+            "--db-port",
+            "3306",
+        ]
+    )
+    assert gmb_args.gmb_anno is True
 
 
 def test_source_specific_annotation_parsers(tmp_path: Path) -> None:
@@ -1009,6 +1029,7 @@ class FakeCoreCursor:
         self.fetchall_result: list[tuple[Any, ...]] = []
         self.seq_regions = {"17": 101}
         self.genes: dict[int, tuple[str, str]] = {}
+        self.gene_canonical_transcript_ids: dict[int, int | None] = {}
         self.transcripts: dict[int, tuple[str, str]] = {}
         self.exons: dict[int, tuple[str | None]] = {}
         self.exon_transcripts: set[tuple[int, int]] = set()
@@ -1049,6 +1070,7 @@ class FakeCoreCursor:
         elif sql.startswith("insert into gene"):
             assert params is not None
             self.genes[int(params[0])] = (params[7], params[5])
+            self.gene_canonical_transcript_ids[int(params[0])] = params[9]
         elif sql.startswith("insert into transcript"):
             assert params is not None
             self.transcripts[int(params[0])] = (
@@ -1414,6 +1436,151 @@ def test_load_anno_output_runs_available_loaders(
         ("single_line", "dust_output/annotation.gtf", "dust"),
         ("single_line", "cpg_output/annotation.gtf", "cpg"),
     ]
+
+
+def test_load_gmb_anno_output_uses_canonical_gff3(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    output_dir = tmp_path / "GCA_000000000.1"
+    gmb_path = output_dir / gff_cli.GMB_REQUIRED_GENE_GFF3
+    gmb_path.parent.mkdir(parents=True)
+    write_lines(gmb_path, ["##gff-version 3", "gff3"])
+
+    calls: list[tuple[str, str, str]] = []
+
+    def fake_load_gff_features_to_core(**kwargs: Any) -> dict[str, int]:
+        calls.append(
+            (
+                "feature",
+                str(Path(kwargs["gff_path"]).relative_to(output_dir)),
+                kwargs["source_config"].name,
+            )
+        )
+        return {"genes": 1, "transcripts": 1, "cds_transcript_groups": 1}
+
+    monkeypatch.setattr(
+        gff_cli,
+        "load_gff_features_to_core",
+        fake_load_gff_features_to_core,
+    )
+    monkeypatch.setattr(
+        gff_cli,
+        "load_single_line_features_to_core",
+        lambda **_: {
+            "repeat_features": 0,
+            "repeat_consensus": 0,
+            "simple_features": 0,
+        },
+    )
+
+    args = gff_cli.build_parser().parse_args(
+        [
+            "load-anno-output",
+            str(output_dir),
+            "--gmb-anno",
+            "--db-name",
+            "existing_core",
+            "--db-host",
+            "mysql-host",
+            "--db-user",
+            "ensro",
+            "--db-password",
+            "secret",
+            "--db-port",
+            "3306",
+        ]
+    )
+
+    assert args.func(args) == 0
+    assert calls == [
+        (
+            "feature",
+            "gmb/finalise/canonical/consensus.canonical_annotated.gff3",
+            "gmb_gff3",
+        )
+    ]
+
+
+def test_gmb_parser_preserves_canonical_transcript_tag(tmp_path: Path) -> None:
+    gff = write_lines(
+        tmp_path / "gmb.gff3",
+        [
+            "##gff-version 3",
+            feature_row("1", "gene", 1, 100, "+", "ID=gene1"),
+            feature_row(
+                "1",
+                "mRNA",
+                1,
+                100,
+                "+",
+                "ID=tx1;Parent=gene1;tag=Ensembl_canonical",
+            ),
+            feature_row("1", "exon", 1, 100, "+", "ID=ex1;Parent=tx1"),
+            feature_row("1", "CDS", 10, 90, "+", "ID=cds1;Parent=tx1"),
+        ],
+    )
+
+    annotation = gff_core_loader.prepare_annotation_for_load(
+        gff,
+        source_config=get_source_config("gmb_gff3"),
+    )
+
+    assert annotation.transcripts["tx1"].is_canonical is True
+
+
+def test_gmb_canonical_transcript_is_written_to_gene() -> None:
+    annotation = ParsedAnnotation(
+        genes={
+            "gene1": GeneRecord(
+                seq_name="1",
+                start=1,
+                end=100,
+                strand=1,
+                biotype="protein_coding",
+                stable_id="gene1",
+                name="gene1",
+            )
+        },
+        transcripts={
+            "tx1": TranscriptRecord(
+                gene_id="gene1",
+                seq_name="1",
+                start=1,
+                end=100,
+                strand=1,
+                biotype="protein_coding",
+                stable_id="tx1",
+            ),
+            "tx2": TranscriptRecord(
+                gene_id="gene1",
+                seq_name="1",
+                start=1,
+                end=100,
+                strand=1,
+                biotype="protein_coding",
+                stable_id="tx2",
+                is_canonical=True,
+            ),
+        },
+        cds_segments={
+            "tx1": [CdsSegment(10, 90, 1, "0")],
+            "tx2": [CdsSegment(10, 90, 1, "0")],
+        },
+    )
+    cursor = FakeCoreCursor()
+
+    insert_genes(
+        cursor,
+        annotation,
+        seq_region_ids={"1": 4},
+        gene_id_map={"gene1": 7},
+        transcript_id_map={"tx1": 11, "tx2": 12},
+        analysis_id=9,
+        source_config=get_source_config("gmb_gff3"),
+    )
+
+    assert cursor.gene_canonical_transcript_ids == {7: 12}
 
 
 def test_anno_gtf_loads_into_existing_core_with_quality_check(

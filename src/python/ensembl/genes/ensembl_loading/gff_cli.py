@@ -19,6 +19,9 @@ from .refseq_ncbi import download_annotations, list_available_annotations
 
 LOGGER = logging.getLogger(__name__)
 ANNO_REQUIRED_GENE_GTF = Path("annotation_output") / "annotation.gtf"
+GMB_REQUIRED_GENE_GFF3 = (
+    Path("gmb") / "finalise" / "canonical" / "consensus.canonical_annotated.gff3"
+)
 ANNO_NCRNA_GTF_OUTPUTS = (
     Path("rfam_output") / "annotation.gtf",
     Path("trnascan_output") / "annotation.gtf",
@@ -307,14 +310,16 @@ def run_load_anno_output(  # pylint: disable=too-many-locals,too-many-statements
     """Load all supported feature outputs from one anno pipeline output directory."""
 
     output_dir = Path(args.output_dir)
-    main_gtf = output_dir / ANNO_REQUIRED_GENE_GTF
-    if not has_loadable_content(main_gtf):
+    main_annotation = (
+        GMB_REQUIRED_GENE_GFF3 if args.gmb_anno else ANNO_REQUIRED_GENE_GTF
+    )
+    main_path = output_dir / main_annotation
+    if not has_loadable_content(main_path):
         raise FileNotFoundError(
-            "Could not find a non-empty main anno GTF at "
-            f"{main_gtf}. Expected annotation_output/annotation.gtf"
+            "Could not find a non-empty main anno input at " f"{main_path}"
         )
 
-    anno_config = get_source_config("anno_gtf")
+    anno_config = get_source_config("gmb_gff3" if args.gmb_anno else "anno_gtf")
     ncrna_config = get_source_config("ncrna_gtf")
     db_kwargs: dict[str, Any] = {
         "db_name": args.db_name,
@@ -341,9 +346,9 @@ def run_load_anno_output(  # pylint: disable=too-many-locals,too-many-statements
         "skipped_files": 0,
     }
 
-    LOGGER.info("Loading main anno gene set from %s", main_gtf)
+    LOGGER.info("Loading main anno gene set from %s", main_path)
     feature_summary = load_gff_features_to_core(
-        gff_path=main_gtf,
+        gff_path=main_path,
         source_config=anno_config,
         **feature_db_kwargs,
     )
@@ -603,6 +608,14 @@ def add_load_anno_output_parser(subparsers: argparse._SubParsersAction) -> None:
         "--repeatmasker-analysis",
         default="repeatmask_repbase_human",
         help="Analysis logic_name for repeatmasker_output/annotation.gtf",
+    )
+    parser.add_argument(
+        "--gmb-anno",
+        action="store_true",
+        help=(
+            "Load the GMB canonical GFF3 from "
+            "gmb/finalise/canonical instead of the anno GTF"
+        ),
     )
     add_existing_core_db_options(parser)
     add_exon_deduplication_option(parser)
