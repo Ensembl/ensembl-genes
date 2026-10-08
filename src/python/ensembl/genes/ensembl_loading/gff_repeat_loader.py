@@ -7,8 +7,19 @@ from collections.abc import Mapping
 from dataclasses import dataclass
 from pathlib import Path
 
+from .core_utils.add_prod_tables import (
+    fetch_analysis_metadata,
+    load_default_config,
+)
+from .core_utils.add_prod_tables import (
+    get_connection as get_prod_connection,
+)
 from .gff_annotation import DbCursor
-from .gff_core_database import connect_mysql, get_coord_system_id
+from .gff_core_database import (
+    connect_mysql,
+    ensure_analysis_description,
+    get_coord_system_id,
+)
 from .gff_metadata import open_text_maybe_gzip
 
 LOGGER = logging.getLogger(__name__)
@@ -20,6 +31,7 @@ REPEAT_TYPES = {
     "repeatmasker": "repeatmasker",
     "trf": "Tandem repeats",
 }
+ANALYSIS_LOGIC_NAMES = {"repeatmasker": "repeatmask"}
 SIMPLE_FEATURE_ANALYSES = frozenset({"cpg", "eponine"})
 
 
@@ -38,6 +50,12 @@ def available_single_line_feature_analyses() -> tuple[str, ...]:
     """Return analysis names supported by the old single_line_feature loader."""
 
     return tuple(sorted((*REPEAT_TYPES, *SIMPLE_FEATURE_ANALYSES)))
+
+
+def analysis_logic_name(analysis_name: str) -> str:
+    """Return the production logic name for a single-line feature type."""
+
+    return ANALYSIS_LOGIC_NAMES.get(analysis_name, analysis_name)
 
 
 def parse_gtf_attributes_perl_style(attr_str: str) -> dict[str, str]:
@@ -126,22 +144,49 @@ def load_seq_region_ids_for_feature_names(
     return seq_region_ids
 
 
-def get_or_create_single_line_analysis(cursor: DbCursor, analysis_name: str) -> int:
-    """Return or create the analysis row used by repeat/simple feature loads."""
+def fetch_controlled_analysis_metadata(analysis_name: str) -> dict[str, str]:
+    """Fetch controlled metadata for one repeat or simple-feature analysis."""
 
+    logic_name = analysis_logic_name(analysis_name)
+    config = load_default_config()
+    production_connection = get_prod_connection(
+        host=config.host,
+        port=config.port,
+        user=config.user,
+        password=config.password,
+        db="ensembl_production",
+    )
+    try:
+        return fetch_analysis_metadata(production_connection, logic_name)
+    finally:
+        production_connection.close()
+
+
+def get_or_create_single_line_analysis(
+    cursor: DbCursor,
+    analysis_name: str,
+    controlled_metadata: Mapping[str, str],
+) -> int:
+    """Return or create an analysis and ensure its controlled description."""
+
+    logic_name = analysis_logic_name(analysis_name)
     cursor.execute(
         "SELECT analysis_id FROM analysis WHERE logic_name = %s LIMIT 1",
-        (analysis_name,),
+        (logic_name,),
     )
     row = cursor.fetchone()
     if row is not None:
-        return int(row[0])
+        analysis_id = int(row[0])
+        ensure_analysis_description(cursor, analysis_id, controlled_metadata)
+        return analysis_id
 
     cursor.execute(
-        "INSERT INTO analysis (logic_name,created,module) VALUES (%s,NOW(),%s)",
-        (analysis_name, "Anno"),
+        "INSERT INTO analysis (logic_name,created) VALUES (%s,NOW())",
+        (logic_name,),
     )
-    return int(cursor.lastrowid)
+    analysis_id = int(cursor.lastrowid)
+    ensure_analysis_description(cursor, analysis_id, controlled_metadata)
+    return analysis_id
 
 
 def get_or_create_repeat_consensus(
@@ -172,6 +217,22 @@ def get_or_create_repeat_consensus(
     return int(cursor.lastrowid)
 
 
+def repeat_consensus_range(record: SingleLineFeatureRecord) -> tuple[int, int]:
+    """Return the consensus coordinates carried by a repeat record."""
+
+    repeat_start = int(record.attributes.get("repeat_start", "1"))
+    repeat_end = int(
+        record.attributes.get("repeat_end", str(record.end - record.start + 1))
+    )
+    if repeat_start < 1 or repeat_end < repeat_start:
+        repeat_name = record.attributes.get("repeat_name", "unknown")
+        raise ValueError(
+            f"Invalid repeat consensus range {repeat_start}..{repeat_end} "
+            f"for {repeat_name}"
+        )
+    return repeat_start, repeat_end
+
+
 def load_repeat_records(
     cursor: DbCursor,
     records: list[SingleLineFeatureRecord],
@@ -191,6 +252,7 @@ def load_repeat_records(
         )
         repeat_consensus = record.attributes.get("repeat_consensus", "N")
         repeat_score = float(record.attributes.get("score", "0") or 0)
+        repeat_range = repeat_consensus_range(record)
         consensus_key = (repeat_name, repeat_class, repeat_type, repeat_consensus)
         repeat_consensus_id = consensus_ids.get(consensus_key)
         if repeat_consensus_id is None:
@@ -214,8 +276,8 @@ def load_repeat_records(
                 record.start,
                 record.end,
                 record.strand,
-                1,
-                record.end - record.start + 1,
+                repeat_range[0],
+                repeat_range[1],
                 repeat_consensus_id,
                 analysis_id,
                 repeat_score,
@@ -263,6 +325,7 @@ def load_single_line_features_to_core(  # pylint: disable=too-many-arguments,too
     coord_system_name: str = "primary_assembly",
     coord_system_version: str | None = None,
     logger: logging.Logger | None = None,
+    controlled_metadata: Mapping[str, str] | None = None,
 ) -> dict[str, int]:
     """Load repeat/simple single-line GTF features into an existing core DB."""
 
@@ -291,7 +354,14 @@ def load_single_line_features_to_core(  # pylint: disable=too-many-arguments,too
             coord_system_name=coord_system_name,
             coord_system_version=coord_system_version,
         )
-        analysis_id = get_or_create_single_line_analysis(cursor, analysis_name)
+        metadata = controlled_metadata or fetch_controlled_analysis_metadata(
+            analysis_name
+        )
+        analysis_id = get_or_create_single_line_analysis(
+            cursor,
+            analysis_name,
+            metadata,
+        )
         seq_region_ids = load_seq_region_ids_for_feature_names(
             cursor,
             records,

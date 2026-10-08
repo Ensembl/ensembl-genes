@@ -51,6 +51,8 @@ def build_assembly_paths(
     gff_url = f"{ftp_path}/{ftp_base}_genomic.gff.gz"
     fasta_url = f"{ftp_path}/{ftp_base}_genomic.fna.gz"
     assembly_report_url = f"{ftp_path}/{ftp_base}_assembly_report.txt"
+    repeatmasker_out_url = f"{ftp_path}/{ftp_base}_rm.out.gz"
+    repeatmasker_run_url = f"{ftp_path}/{ftp_base}_rm.run"
     return _refseq_models.AssemblyPaths(
         assembly_accession=assembly_accession,
         ftp_path=ftp_path,
@@ -62,6 +64,10 @@ def build_assembly_paths(
         gff_local=assembly_dir / Path(gff_url).name,
         fasta_local=assembly_dir / Path(fasta_url).name,
         assembly_report_local=assembly_dir / Path(assembly_report_url).name,
+        repeatmasker_out_url=repeatmasker_out_url,
+        repeatmasker_run_url=repeatmasker_run_url,
+        repeatmasker_out_local=assembly_dir / Path(repeatmasker_out_url).name,
+        repeatmasker_run_local=assembly_dir / Path(repeatmasker_run_url).name,
     )
 
 
@@ -321,9 +327,35 @@ def download_file(
     return destination_path
 
 
+def download_repeatmasker(
+    paths: _refseq_models.AssemblyPaths,
+    logger: logging.Logger | None = None,
+) -> _refseq_models.AssemblyPaths:
+    """Download optional RefSeq RepeatMasker output and run metadata."""
+
+    log = logger or LOGGER
+    if not all(
+        (
+            paths.repeatmasker_out_url,
+            paths.repeatmasker_run_url,
+            paths.repeatmasker_out_local,
+            paths.repeatmasker_run_local,
+        )
+    ):
+        raise ValueError("Assembly paths do not contain RepeatMasker file paths")
+    assert paths.repeatmasker_out_url is not None
+    assert paths.repeatmasker_run_url is not None
+    assert paths.repeatmasker_out_local is not None
+    assert paths.repeatmasker_run_local is not None
+    download_file(paths.repeatmasker_out_url, paths.repeatmasker_out_local, logger=log)
+    download_file(paths.repeatmasker_run_url, paths.repeatmasker_run_local, logger=log)
+    return paths
+
+
 def download_assembly(
     record: _refseq_models.AssemblySummaryRecord,
     logger: logging.Logger | None = None,
+    include_repeatmasker: bool = False,
 ) -> _refseq_models.AssemblyPaths:
     """Download GFF3, FASTA, and assembly report files for one assembly."""
 
@@ -333,10 +365,12 @@ def download_assembly(
     download_file(paths.gff_url, paths.gff_local, logger=log)
     download_file(paths.fasta_url, paths.fasta_local, logger=log)
     download_file(paths.assembly_report_url, paths.assembly_report_local, logger=log)
+    if include_repeatmasker:
+        download_repeatmasker(paths, logger=log)
     return paths
 
 
-def download_annotations(
+def download_annotations(  # pylint: disable=too-many-locals
     base_dir: str | Path = "refseq_data",
     species_name: str | None = None,
     assembly_acc: str | None = None,
@@ -344,6 +378,7 @@ def download_annotations(
     max_workers: int = 2,
     session: requests.Session | None = None,
     logger: logging.Logger | None = None,
+    include_repeatmasker: bool = False,
 ) -> list[_refseq_models.AssemblyPaths]:
     """Download RefSeq annotation files selected by accession, species, or group."""
 
@@ -364,7 +399,12 @@ def download_annotations(
     downloaded_paths: list[_refseq_models.AssemblyPaths] = []
     with ThreadPoolExecutor(max_workers=worker_count) as executor:
         future_to_record = {
-            executor.submit(download_assembly, target, log): target
+            executor.submit(
+                download_assembly,
+                target,
+                log,
+                include_repeatmasker,
+            ): target
             for target in targets
         }
         for future in as_completed(future_to_record):
@@ -381,4 +421,41 @@ def download_annotations(
                 )
                 raise
 
+    return downloaded_paths
+
+
+def download_repeatmasker_annotations(  # pylint: disable=too-many-locals
+    base_dir: str | Path = "refseq_data",
+    species_name: str | None = None,
+    assembly_acc: str | None = None,
+    group: str | None = None,
+    max_workers: int = 2,
+    session: requests.Session | None = None,
+    logger: logging.Logger | None = None,
+) -> list[_refseq_models.AssemblyPaths]:
+    """Download only RepeatMasker files for selected RefSeq assemblies."""
+
+    log = logger or LOGGER
+    targets = find_annotation_targets(
+        base_dir=base_dir,
+        species_name=species_name,
+        assembly_acc=assembly_acc,
+        group=group,
+        session=session,
+        logger=log,
+    )
+    worker_count = max(1, min(max_workers, len(targets))) if targets else 1
+    downloaded_paths: list[_refseq_models.AssemblyPaths] = []
+    with ThreadPoolExecutor(max_workers=worker_count) as executor:
+        future_to_record = {
+            executor.submit(download_repeatmasker, target.paths, log): target
+            for target in targets
+        }
+        for future in as_completed(future_to_record):
+            record = future_to_record[future]
+            downloaded_paths.append(future.result())
+            log.info(
+                "Downloaded RepeatMasker files for %s",
+                record.assembly_accession,
+            )
     return downloaded_paths

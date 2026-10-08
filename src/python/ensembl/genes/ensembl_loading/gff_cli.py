@@ -14,8 +14,16 @@ from .gff_repeat_loader import (
     load_single_line_features_to_core,
 )
 from .gff_source_config import available_source_configs, get_source_config
-from .refseq_conversion import convert_fna_headers, convert_gff_to_ensembl
-from .refseq_ncbi import download_annotations, list_available_annotations
+from .refseq_conversion import (
+    convert_fna_headers,
+    convert_gff_to_ensembl,
+    convert_repeatmasker_to_gtf,
+)
+from .refseq_ncbi import (
+    download_annotations,
+    download_repeatmasker_annotations,
+    list_available_annotations,
+)
 
 LOGGER = logging.getLogger(__name__)
 ANNO_REQUIRED_GENE_GTF = Path("annotation_output") / "annotation.gtf"
@@ -452,6 +460,22 @@ def run_refseq_download(args: argparse.Namespace) -> int:
         assembly_acc=args.assembly_acc,
         group=args.group,
         max_workers=args.max_workers,
+        include_repeatmasker=args.include_repeatmasker,
+    )
+    for assembly_paths in paths:
+        LOGGER.info("Assembly directory: %s", assembly_paths.assembly_dir)
+    return 0
+
+
+def run_refseq_download_repeatmasker(args: argparse.Namespace) -> int:
+    """Download only RefSeq RepeatMasker output and run metadata."""
+
+    paths = download_repeatmasker_annotations(
+        base_dir=args.base_dir,
+        species_name=args.species_name,
+        assembly_acc=args.assembly_acc,
+        group=args.group,
+        max_workers=args.max_workers,
     )
     for assembly_paths in paths:
         LOGGER.info("Assembly directory: %s", assembly_paths.assembly_dir)
@@ -483,6 +507,18 @@ def run_refseq_convert_gff(args: argparse.Namespace) -> int:
     return 0
 
 
+def run_refseq_convert_repeatmasker(args: argparse.Namespace) -> int:
+    """Convert RefSeq RepeatMasker output to single-line GTF."""
+
+    output_path = convert_repeatmasker_to_gtf(
+        args.repeatmasker,
+        args.assembly_report,
+        args.output,
+    )
+    LOGGER.info("Converted RepeatMasker output: %s", output_path)
+    return 0
+
+
 def run_refseq_pipeline(args: argparse.Namespace) -> int:
     """Download plus RefSeq FASTA/GFF3 conversion, optionally followed by DB load."""
 
@@ -498,6 +534,7 @@ def run_refseq_pipeline(args: argparse.Namespace) -> int:
         assembly_acc=args.assembly_acc,
         group=args.group,
         max_workers=args.max_workers,
+        include_repeatmasker=args.include_repeatmasker,
     )
     if not paths_list:
         LOGGER.warning("No assemblies downloaded or found")
@@ -629,7 +666,9 @@ def add_create_core_parser(subparsers: argparse._SubParsersAction) -> None:
     parser.set_defaults(func=run_create_core)
 
 
-def add_refseq_parser(subparsers: argparse._SubParsersAction) -> None:
+def add_refseq_parser(  # pylint: disable=too-many-statements
+    subparsers: argparse._SubParsersAction,
+) -> None:
     """Add RefSeq-specific subcommands under the unified CLI."""
 
     parser = subparsers.add_parser(
@@ -659,7 +698,23 @@ def add_refseq_parser(subparsers: argparse._SubParsersAction) -> None:
     download_parser.add_argument("--base-dir", default="refseq_data")
     add_refseq_target_options(download_parser)
     download_parser.add_argument("--max-workers", type=positive_int, default=2)
+    download_parser.add_argument(
+        "--include-repeatmasker",
+        action="store_true",
+        help="Also download *_rm.out.gz and *_rm.run",
+    )
     download_parser.set_defaults(func=run_refseq_download)
+
+    repeatmasker_download_parser = refseq_subparsers.add_parser(
+        "download-repeatmasker",
+        help="Download only RefSeq RepeatMasker output and run metadata",
+    )
+    repeatmasker_download_parser.add_argument("--base-dir", default="refseq_data")
+    add_refseq_target_options(repeatmasker_download_parser)
+    repeatmasker_download_parser.add_argument(
+        "--max-workers", type=positive_int, default=2
+    )
+    repeatmasker_download_parser.set_defaults(func=run_refseq_download_repeatmasker)
 
     fna_parser = refseq_subparsers.add_parser(
         "convert-fna",
@@ -684,6 +739,17 @@ def add_refseq_parser(subparsers: argparse._SubParsersAction) -> None:
     )
     gff_parser.set_defaults(func=run_refseq_convert_gff)
 
+    repeatmasker_parser = refseq_subparsers.add_parser(
+        "convert-repeatmasker",
+        help="Convert RefSeq RepeatMasker output to single-line GTF",
+    )
+    repeatmasker_parser.add_argument(
+        "repeatmasker", help="Input *_rm.out or *_rm.out.gz"
+    )
+    repeatmasker_parser.add_argument("assembly_report", help="NCBI assembly report")
+    repeatmasker_parser.add_argument("--output", help="Output RepeatMasker GTF")
+    repeatmasker_parser.set_defaults(func=run_refseq_convert_repeatmasker)
+
     pipeline_parser = refseq_subparsers.add_parser(
         "run",
         help="Download and convert RefSeq annotations, with optional core DB load",
@@ -697,6 +763,11 @@ def add_refseq_parser(subparsers: argparse._SubParsersAction) -> None:
     )
     pipeline_targets.add_argument("--group")
     pipeline_parser.add_argument("--max-workers", type=positive_int, default=2)
+    pipeline_parser.add_argument(
+        "--include-repeatmasker",
+        action="store_true",
+        help="Also download *_rm.out.gz and *_rm.run",
+    )
     pipeline_parser.add_argument("--converted-fna", type=Path)
     pipeline_parser.add_argument("--converted-gff", type=Path)
     pipeline_parser.add_argument(
