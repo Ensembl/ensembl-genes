@@ -16,7 +16,6 @@ import argparse
 import json
 import re
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
 
 import pandas as pd
 
@@ -26,10 +25,24 @@ def numeric_series(series: pd.Series) -> pd.Series:
     return pd.to_numeric(series, errors="coerce").fillna(0)
 
 
+def require_columns(dataframe: pd.DataFrame, columns: list[str]) -> None:
+    """Raise ValueError if any required metric is missing from the DataFrame."""
+    missing = [column for column in columns if column not in dataframe.columns]
+    if missing:
+        raise ValueError(
+            "AGAT statistics file is missing required metrics: " + ", ".join(missing)
+        )
+
+
 def safe_agg(
-    dataframe: pd.DataFrame, columns: List[str], method: str = "sum"
+    dataframe: pd.DataFrame, columns: list[str], method: str = "sum"
 ) -> pd.Series:
-    """Aggregate only the columns that exist in the DataFrame."""
+    """Aggregate only the columns that exist in the DataFrame.
+
+    Intended for metrics from AGAT biotype sections that may legitimately be
+    absent (e.g. ncRNA types, pseudogenes); an absent section contributes 0.
+    Metrics that must always be present are checked with require_columns.
+    """
     existing = [column for column in columns if column in dataframe.columns]
 
     if not existing:
@@ -51,10 +64,36 @@ def safe_agg(
 
 
 def safe_col(dataframe: pd.DataFrame, col: str) -> pd.Series:
-    """Return column if present, otherwise a Series of zeros aligned to df."""
+    """Return column if present, otherwise a Series of zeros aligned to df.
+
+    Only for metrics from AGAT sections that may legitimately be absent;
+    required metrics are checked with require_columns.
+    """
     if col in dataframe.columns:
         return numeric_series(dataframe[col])
     return pd.Series(0, index=dataframe.index)
+
+
+def optional_ratio(
+    dataframe: pd.DataFrame, numerator: str, denominator: str
+) -> pd.Series | None:
+    """Divide numerator by denominator when both source columns exist.
+
+    Returns None if neither column is present (optional AGAT section absent),
+    so no misleading value is produced. Raises ValueError if only one of the
+    two is present, which indicates a malformed statistics report.
+    """
+    present = [
+        column for column in (numerator, denominator) if column in dataframe.columns
+    ]
+    if len(present) == 1:
+        raise ValueError(
+            "AGAT statistics file contains an incomplete section; expected "
+            f"both '{numerator}' and '{denominator}', found only '{present[0]}'."
+        )
+    if not present:
+        return None
+    return numeric_series(dataframe[numerator]) / numeric_series(dataframe[denominator])
 
 
 def parse_agat_txt_to_df(stats_file: Path) -> pd.DataFrame:
@@ -62,8 +101,8 @@ def parse_agat_txt_to_df(stats_file: Path) -> pd.DataFrame:
     Parse an AGAT statistics text report into a DataFrame with columns
     ['metric', 'value'].
     """
-    rows: List[Tuple[str, str]] = []
-    current_section: Optional[str] = None
+    rows: list[tuple[str, str]] = []
+    current_section: str | None = None
     minus_isoform = False
 
     section_pattern = re.compile(r"-+\s*(.+?)\s*-+")
@@ -108,7 +147,7 @@ def parse_agat_txt_to_df(stats_file: Path) -> pd.DataFrame:
 
 
 def select_and_rename_metrics(
-    input_txt: Path, mapping_json: Optional[Path], output_csv: Path
+    input_txt: Path, mapping_json: Path | None, output_csv: Path
 ) -> None:
     """
     Parse AGAT text, compute derived metrics, and map to Genebuild equivalents.
@@ -126,6 +165,19 @@ def select_and_rename_metrics(
 
     # 2. Pivot to one-row-wide DataFrame with metrics as columns
     metrics_df = original.set_index("metric").T
+
+    # AGAT only prints a section for each biotype present in the annotation,
+    # so biotype sections (ncRNA types, pseudogenes) are optional and treated
+    # as 0 when absent. The mRNA section must always be present; missing core
+    # metrics indicate a malformed stats file, so fail loudly.
+    require_columns(
+        metrics_df,
+        [
+            "mrna_number_of_mrna",
+            "mrna_number_of_gene",
+            "mrna_total_exon_length_(bp)",
+        ],
+    )
 
     # metrics to keep and their new names
     nc_types = [
@@ -150,9 +202,9 @@ def select_and_rename_metrics(
         "y_rna",
     ]
 
-    metrics_df["average_coding_sequence_length"] = safe_col(
-        metrics_df, "mrna_total_exon_length_(bp)"
-    ) / safe_col(metrics_df, "mrna_number_of_mrna")
+    metrics_df["average_coding_sequence_length"] = numeric_series(
+        metrics_df["mrna_total_exon_length_(bp)"]
+    ) / numeric_series(metrics_df["mrna_number_of_mrna"])
 
     metrics_df["nc_small_non_coding_genes"] = safe_agg(
         metrics_df, [f"{nc_type}_number_of_ncrna_gene" for nc_type in small_nc_types]
@@ -210,29 +262,27 @@ def select_and_rename_metrics(
         metrics_df["nc_total_transcript_length"] / metrics_df["nc_non_coding_genes"]
     )
 
-    # Only create ps_average_sequence_length if both columns exist
-    if (
-        "pseudogenic_transcript_total_exon_length_(bp)" in metrics_df.columns
-        and "pseudogenic_transcript_number_of_pseudogenic_transcript"
-        in metrics_df.columns
-    ):
-        metrics_df["ps_average_sequence_length"] = safe_col(
-            metrics_df, "pseudogenic_transcript_total_exon_length_(bp)"
-        ) / safe_col(
-            metrics_df, "pseudogenic_transcript_number_of_pseudogenic_transcript"
-        )
+    # The pseudogenic_transcript section is absent when the annotation has no
+    # pseudogenes; in that case the derived metric is simply not created.
+    ps_average_sequence_length = optional_ratio(
+        metrics_df,
+        "pseudogenic_transcript_total_exon_length_(bp)",
+        "pseudogenic_transcript_number_of_pseudogenic_transcript",
+    )
+    if ps_average_sequence_length is not None:
+        metrics_df["ps_average_sequence_length"] = ps_average_sequence_length
 
     metrics_df["total_transcripts"] = (
-        safe_col(metrics_df, "mrna_number_of_mrna")
-        + safe_col(metrics_df, "nc_total_transcripts")
+        numeric_series(metrics_df["mrna_number_of_mrna"])
+        + metrics_df["nc_total_transcripts"]
         + safe_col(
             metrics_df, "pseudogenic_transcript_number_of_pseudogenic_transcript"
         )
     )
 
     metrics_df["total_genes"] = (
-        safe_col(metrics_df, "mrna_number_of_gene")
-        + safe_col(metrics_df, "nc_non_coding_genes")
+        numeric_series(metrics_df["mrna_number_of_gene"])
+        + metrics_df["nc_non_coding_genes"]
         + safe_col(metrics_df, "pseudogenic_transcript_number_of_pseudogene")
     )
 
@@ -242,7 +292,7 @@ def select_and_rename_metrics(
 
     # 3. Load mapping from JSON (genebuild -> AGAT metric)
     with Path(mapping_json).open(encoding="utf-8") as mapping_handle:
-        new_map: Dict[str, str] = json.load(mapping_handle)
+        new_map: dict[str, str] = json.load(mapping_handle)
 
     # 4. Apply mapping
     df_final = metrics_df.T.reset_index()
