@@ -25,9 +25,10 @@ def build_annotation_commands(
     This function builds two command-line strings based on the provided configuration:
     - `anno_commandline`: full annotation pipeline
     - `anno_red_commandline`: repeat and masking pipeline
+    - `anno_commandline_gmb`: run anno to prep for GMB
 
     The resulting command strings are stored in the `output_params` dictionary under
-    the keys "anno_commandline" and "anno_red_commandline".
+    the keys "anno_commandline", "anno_commandline_gmb" and "anno_red_commandline".
 
     Args:
         core_adaptor (dict): Contains database connection info with keys:
@@ -46,7 +47,7 @@ def build_annotation_commands(
         k, ""
     )
 
-    anno_commandline = (
+    anno_commandline_base = (
         f" --genome_file {get('reheadered_toplevel_genome_file')}"
         f" --db_details {core_adaptor['dbname']},{core_adaptor['host']},"
         f"{core_adaptor['port']},{core_adaptor['user']},{core_adaptor['pass']}"
@@ -61,19 +62,23 @@ def build_annotation_commands(
     )
 
     if settings.get("use_existing_repeatmodeler_library"):
-        anno_commandline += (
+        anno_commandline_base += (
             f" --repeatmasker_library {settings['use_existing_repeatmodeler_library']}"
         )
 
     if anno_settings.get("diamond_validation_db"):
-        anno_commandline += (
+        anno_commandline_base += (
             f" --diamond_validation_db {anno_settings['diamond_validation_db']}"
         )
 
     if anno_settings.get("validation_type"):
-        anno_commandline += f" --validation_type {anno_settings['validation_type']}"
+        anno_commandline_base += (
+            f" --validation_type {anno_settings['validation_type']}"
+        )
 
-    anno_commandline += " --run_full_annotation --load_to_ensembl_db"
+    anno_commandline = (
+        anno_commandline_base + " --run_full_annotation --load_to_ensembl_db"
+    )
 
     anno_red_commandline = (
         f" --genome_file {get('reheadered_toplevel_genome_file')}"
@@ -84,6 +89,12 @@ def build_annotation_commands(
         " --run_masking --run_repeats --run_simple_features --load_to_ensembl_db"
     )
 
+    anno_commandline_gmb = (
+        anno_commandline_base
+        + " --run_repeats --run_simple_features --run_sncrnas --run_transcriptomic --run_proteins_genblast"
+    )
+
     # Add both commands back into the params dict
     output_params["anno_commandline"] = anno_commandline
     output_params["anno_red_commandline"] = anno_red_commandline
+    output_params["anno_commandline_gmb"] = anno_commandline_gmb

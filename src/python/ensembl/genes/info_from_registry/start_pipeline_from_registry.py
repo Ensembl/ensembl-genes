@@ -36,6 +36,7 @@ from pathlib import Path
 from typing import Any
 
 import pymysql  # type: ignore
+
 from ensembl.genes.info_from_registry.assign_species_prefix import get_species_prefix
 from ensembl.genes.info_from_registry.assign_stable_space import get_stable_space
 from ensembl.genes.info_from_registry.build_anno_commands import (
