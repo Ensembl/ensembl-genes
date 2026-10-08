@@ -1,9 +1,0 @@
-ensembl.genes.annotation_qc.parsers.tool_output
-===============================================
-
-Source: ``src/python/ensembl/genes/annotation_qc/parsers/tool_output.py``
-
-.. automodule:: ensembl.genes.annotation_qc.parsers.tool_output
-   :members:
-   :show-inheritance:
-   :undoc-members:

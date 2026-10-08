@@ -1,8 +1,0 @@
-requirements.txt
-================
-
-Source: ``src/python/ensembl/genes/metadata/requirements.txt``
-
-.. literalinclude:: ../../../src/python/ensembl/genes/metadata/requirements.txt
-   :language: text
-   :linenos:

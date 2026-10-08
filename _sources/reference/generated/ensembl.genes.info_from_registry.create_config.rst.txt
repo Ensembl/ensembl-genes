@@ -1,9 +1,0 @@
-ensembl.genes.info_from_registry.create_config
-==============================================
-
-Source: ``src/python/ensembl/genes/info_from_registry/create_config.py``
-
-.. automodule:: ensembl.genes.info_from_registry.create_config
-   :members:
-   :show-inheritance:
-   :undoc-members:

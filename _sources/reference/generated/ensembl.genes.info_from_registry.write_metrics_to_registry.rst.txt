@@ -1,9 +1,0 @@
-ensembl.genes.info_from_registry.write_metrics_to_registry
-==========================================================
-
-Source: ``src/python/ensembl/genes/info_from_registry/write_metrics_to_registry.py``
-
-.. automodule:: ensembl.genes.info_from_registry.write_metrics_to_registry
-   :members:
-   :show-inheritance:
-   :undoc-members:

@@ -1,9 +1,0 @@
-ensembl.genes.annotation_qc.cli
-===============================
-
-Source: ``src/python/ensembl/genes/annotation_qc/cli.py``
-
-.. automodule:: ensembl.genes.annotation_qc.cli
-   :members:
-   :show-inheritance:
-   :undoc-members:

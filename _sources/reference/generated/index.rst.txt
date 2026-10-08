@@ -1,9 +1,0 @@
-Generated Code Reference
-========================
-
-This tree is generated from ``src/python/ensembl/genes`` at Sphinx build time. It includes package folders, README files, Python scripts, and source/config files.
-
-.. toctree::
-   :maxdepth: 4
-
-   ensembl.genes

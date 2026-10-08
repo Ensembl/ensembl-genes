@@ -1,9 +1,0 @@
-ensembl.genes.annotation_qc.metrics.features
-============================================
-
-Source: ``src/python/ensembl/genes/annotation_qc/metrics/features.py``
-
-.. automodule:: ensembl.genes.annotation_qc.metrics.features
-   :members:
-   :show-inheritance:
-   :undoc-members:

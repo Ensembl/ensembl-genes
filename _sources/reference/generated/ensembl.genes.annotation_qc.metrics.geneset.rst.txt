@@ -1,9 +1,0 @@
-ensembl.genes.annotation_qc.metrics.geneset
-===========================================
-
-Source: ``src/python/ensembl/genes/annotation_qc/metrics/geneset.py``
-
-.. automodule:: ensembl.genes.annotation_qc.metrics.geneset
-   :members:
-   :show-inheritance:
-   :undoc-members:
