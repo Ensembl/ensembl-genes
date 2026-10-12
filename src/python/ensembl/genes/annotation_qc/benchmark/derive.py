@@ -11,10 +11,21 @@ numerator, denominator, value, status and source:
     independent         from an independent-analysis table, used only after it has
                         been verified gene-by-gene against the comparator output
 
-Status values: ``ok``, ``not_available`` (input needed is absent; ``note`` says
-which), never a silent zero. One-to-one exact-CDS precision/recall/F1 use pairs
-from the per-gene table (each query gene used once); they are not built from
-summary counts with different denominators.
+Status values, never a silent zero:
+
+    ok              value computed
+    not_available   an input is absent (``note`` says which), e.g. a result that
+                    predates a comparator field
+    undefined       the comparator reports the value as undefined (denominator 0)
+    not_applicable  the metric does not apply to this result (stop-codon counts
+                    for an original-coordinate run)
+    inconsistent    two comparator outputs of the same result disagree (the note
+                    says how); shown, never corrected
+
+One-to-one exact-CDS TP, precision, recall and F1 are the comparator's own
+maximum-matching values (``cds_exact_one_to_one``). Results that predate them
+show those metrics as not_available; the earlier best-pair estimate is kept
+under separate ``historical_*`` metric ids and is never used in their place.
 """
 
 from __future__ import annotations
@@ -32,6 +43,13 @@ NOVEL_CATEGORIES = (
     "Overlaps_unevaluated_protein_coding_reference",
     "Overlaps_evaluated_reference_opposite_strand",
     "Novel_no_reference_overlap",
+)
+
+HISTORICAL_IDS = (
+    "historical_exact_tp_best_pair",
+    "historical_exact_recall_best_pair",
+    "historical_exact_precision_best_pair",
+    "historical_exact_f1_best_pair",
 )
 
 # cds_status values for reference genes (mutually exclusive)
@@ -66,8 +84,145 @@ def _metric(
     }
 
 
-def _na(mid, source, note, den=None):
-    return _metric(mid, den=den, source=source, status="not_available", note=note)
+def _na(mid, source, note, den=None, status="not_available"):
+    return _metric(mid, den=den, source=source, status=status, note=note)
+
+
+ONE_TO_ONE_IDS = (
+    "exact_tp_one_to_one",
+    "exact_recall_one_to_one",
+    "exact_precision_one_to_one",
+    "exact_f1_one_to_one",
+    "exact_unmatched_reference_genes",
+    "exact_unmatched_query_genes",
+    "exact_gene_pairs",
+    "exact_components_with_several_edges",
+)
+STOP_CODON_IDS = (
+    "stop_codon_transcripts_with_cds",
+    "stop_codon_eligible",
+    "stop_codon_extended",
+    "stop_codon_unchanged",
+    "stop_codon_skipped",
+)
+PAIRS_FILE = "cds_exact_one_to_one_pairs.tsv"
+
+
+def one_to_one_metrics(summary: dict, R: int, Q: int) -> list[dict]:
+    """
+    The comparator's one-to-one exact-CDS block, with denominators made explicit.
+
+    Every value is checked against TP, R and Q; a disagreement is reported in the
+    row note (and makes the row not ok), never corrected.
+    """
+    one = summary.get("cds_exact_one_to_one")
+    if not one:
+        note = (
+            "comparison_summary.json has no cds_exact_one_to_one: the result predates the "
+            "comparator's built-in one-to-one matching; see the historical best-pair metrics"
+        )
+        return [_na(mid, "comparator", note) for mid in ONE_TO_ONE_IDS]
+    tp = one["true_positives"]
+    problems = []
+    if one.get("reference_genes") != R or one.get("query_genes") != Q:
+        problems.append(
+            f"block denominators R={one.get('reference_genes')} Q={one.get('query_genes')} "
+            f"differ from the summary totals R={R} Q={Q}"
+        )
+    expected = {
+        "precision": _rate(tp, Q),
+        "recall": _rate(tp, R),
+        "f1": _rate(2 * tp, R + Q),
+    }
+    for key, value in expected.items():
+        if one.get(key) != value:
+            problems.append(f"{key} {one.get(key)} != recomputed {value}")
+    note = "; ".join(problems) or None
+
+    def rate(mid, key, num, den, label):
+        value = one.get(key)
+        if value is None:
+            return _na(
+                mid,
+                "comparator",
+                f"{label} undefined: denominator is 0",
+                den=den,
+                status="undefined",
+            )
+        return _metric(
+            mid,
+            num,
+            den,
+            value=value,
+            status="ok" if not problems else "inconsistent",
+            note=note,
+        )
+
+    return [
+        _metric("exact_tp_one_to_one", tp, note=note),
+        rate("exact_recall_one_to_one", "recall", tp, R, "recall"),
+        rate("exact_precision_one_to_one", "precision", tp, Q, "precision"),
+        rate("exact_f1_one_to_one", "f1", 2 * tp, R + Q, "F1"),
+        _metric("exact_unmatched_reference_genes", one["unmatched_reference_genes"], R),
+        _metric("exact_unmatched_query_genes", one["unmatched_query_genes"], Q),
+        _metric("exact_gene_pairs", one["exact_gene_pairs"]),
+        _metric(
+            "exact_components_with_several_edges",
+            one["exact_components_with_several_edges"],
+            one["exact_components"],
+        ),
+    ]
+
+
+def read_pairs(out_dir: Path) -> pd.DataFrame | None:
+    path = Path(out_dir) / PAIRS_FILE
+    if not path.exists():
+        return None
+    return pd.read_csv(path, sep="\t", dtype=str, keep_default_na=False)
+
+
+def check_pairs(pairs: pd.DataFrame | None, summary: dict) -> dict:
+    """Exported one-to-one pairs against the summary TP (each gene used once)."""
+    one = summary.get("cds_exact_one_to_one")
+    if pairs is None:
+        return {"status": "absent" if not one else "missing", "file": PAIRS_FILE}
+    rows = len(pairs)
+    ok = (
+        one is not None
+        and rows == one["true_positives"]
+        and pairs.reference_gene_id.is_unique
+        and pairs.query_gene_id.is_unique
+    )
+    return {
+        "status": "verified" if ok else "disagrees",
+        "file": PAIRS_FILE,
+        "rows": rows,
+        "true_positives": one["true_positives"] if one else None,
+        "reference_genes_unique": bool(pairs.reference_gene_id.is_unique),
+        "query_genes_unique": bool(pairs.query_gene_id.is_unique),
+    }
+
+
+def stop_codon_metrics(summary: dict) -> list[dict]:
+    """Transcript counts of the comparator's --add-stop-codon audit (query side)."""
+    block = summary.get("query_stop_codon_harmonisation")
+    if block is None:
+        note = "summary predates the stop-codon option; the comparator compared original coordinates"
+        return [_na(mid, "comparator", note) for mid in STOP_CODON_IDS]
+    if not block.get("applied"):
+        note = "original coordinates: the query was compared as written (no --add-stop-codon)"
+        return [
+            _na(mid, "comparator", note, status="not_applicable")
+            for mid in STOP_CODON_IDS
+        ]
+    total = block["transcripts_with_cds"]
+    return [
+        _metric("stop_codon_transcripts_with_cds", total),
+        _metric("stop_codon_eligible", block["eligible"], total),
+        _metric("stop_codon_extended", block["extended"], total),
+        _metric("stop_codon_unchanged", block["unchanged"], total),
+        _metric("stop_codon_skipped", block["skipped"], total),
+    ]
 
 
 def read_details(out_dir: Path) -> pd.DataFrame | None:
@@ -257,13 +412,26 @@ def derive_metrics(
                 "intron_support missing from summary",
             ),
         ]
+    rows += one_to_one_metrics(s, R, Q)
+    rows += stop_codon_metrics(s)
+    recovery = s.get("cds_overlap_locus_recovery")
+    if recovery:
+        rows.append(
+            _metric(
+                "locus_recovery_cds_overlap",
+                recovery["recovered_count"],
+                recovery["reference_genes"],
+                value=recovery["rate"],
+            )
+        )
 
     det = read_details(out_dir)
     if det is None:
         note = "comparison_details.tsv not available (summary-only result)"
+        if not recovery:
+            rows.append(_na("locus_recovery_cds_overlap", "comparator_per_gene", note))
         for mid in (
             "predicted_transcripts",
-            "locus_recovery_cds_overlap",
             "detected_without_cds_overlap",
             "partial_cds",
             "partial_same_chain_terminal_diff",
@@ -272,15 +440,12 @@ def derive_metrics(
             "ref_genes_without_cds_overlap",
             "query_matched_without_cds_overlap",
             "exact_pairs_query_gene_reused",
-            "exact_tp_one_to_one",
-            "exact_recall_one_to_one",
-            "exact_precision_one_to_one",
-            "exact_f1_one_to_one",
             "cds_exact_ref_multi",
             "cds_exact_ref_single",
             "cds_intron_chain_any_pair",
         ):
             rows.append(_na(mid, "comparator_per_gene", note))
+        rows += [_na(mid, "historical", note) for mid in HISTORICAL_IDS]
         return rows, None, None
 
     ref = reference_outcomes(det)
@@ -304,8 +469,20 @@ def derive_metrics(
     exact = ref.cds_exact == 1
     partial = coding & ~exact
     pg = "comparator_per_gene"
+    if recovery:
+        per_gene = int(coding.sum())
+        if per_gene != recovery["recovered_count"]:
+            for row in rows:
+                if row["metric_id"] == "locus_recovery_cds_overlap":
+                    row.update(
+                        status="inconsistent",
+                        note=f"per-gene count {per_gene} (comparison_details.tsv) differs from the summary",
+                    )
+    else:
+        rows.append(
+            _metric("locus_recovery_cds_overlap", int(coding.sum()), R, source=pg)
+        )
     rows += [
-        _metric("locus_recovery_cds_overlap", int(coding.sum()), R, source=pg),
         _metric(
             "detected_without_cds_overlap",
             int((detected & ~coding).sum()),
@@ -344,26 +521,38 @@ def derive_metrics(
             source=pg,
         ),
     ]
+    # Historical estimate (the earlier dashboard derivation, kept for comparison with
+    # older reports): per-gene best-pair exact rows, TP = min(unique reference genes,
+    # unique query genes). Not a maximum matching; never shown as the one-to-one TP.
     pairs = ref.loc[exact, ["gene_id", "cds_matched_id"]]
     tp = min(pairs.gene_id.nunique(), pairs.cds_matched_id.nunique())
     recall, precision = (tp / R if R else None), (tp / Q if Q else None)
     f1 = 2 * recall * precision / (recall + precision) if recall and precision else None
+    hist = "historical best-pair estimate (min of unique genes among per-gene exact pairs); superseded by the comparator's one-to-one matching"
     rows += [
         _metric(
             "exact_pairs_query_gene_reused",
             int(pairs.cds_matched_id.duplicated().sum()),
             source=pg,
         ),
-        _metric("exact_tp_one_to_one", tp, source=pg),
-        _metric("exact_recall_one_to_one", tp, R, source=pg),
-        _metric("exact_precision_one_to_one", tp, Q, source=pg),
+        _metric("historical_exact_tp_best_pair", tp, source="historical", note=hist),
         _metric(
-            "exact_f1_one_to_one",
+            "historical_exact_recall_best_pair", tp, R, source="historical", note=hist
+        ),
+        _metric(
+            "historical_exact_precision_best_pair",
+            tp,
+            Q,
+            source="historical",
+            note=hist,
+        ),
+        _metric(
+            "historical_exact_f1_best_pair",
             tp,
             None,
             value=round(f1, 4) if f1 is not None else None,
-            source=pg,
-            note="harmonic mean of one-to-one recall (TP/R) and precision (TP/Q)",
+            source="historical",
+            note=hist,
         ),
     ]
     if multi_segment is not None:
@@ -504,10 +693,12 @@ HEADLINE_COLUMNS = {
     "strand_mismatch_ref": ("strand_mismatch_ref", "numerator"),
     "strand_mismatch_query": ("strand_mismatch_query", "numerator"),
     "exact_pairs_query_gene_reused": ("exact_pairs_query_gene_reused", "numerator"),
-    "exact_tp_one_to_one": ("exact_tp_one_to_one", "numerator"),
-    "gene_recall_exact_cds": ("exact_recall_one_to_one", "value"),
-    "gene_precision_exact_cds": ("exact_precision_one_to_one", "value"),
-    "gene_f1_exact_cds": ("exact_f1_one_to_one", "value"),
+    # The 2026-10-05 benchmark headline computed these four with the historical
+    # best-pair derivation, so they are verified against the historical metrics.
+    "exact_tp_one_to_one": ("historical_exact_tp_best_pair", "numerator"),
+    "gene_recall_exact_cds": ("historical_exact_recall_best_pair", "value"),
+    "gene_precision_exact_cds": ("historical_exact_precision_best_pair", "value"),
+    "gene_f1_exact_cds": ("historical_exact_f1_best_pair", "value"),
 }
 # The benchmark computed F1 from recall and precision already rounded to 4 dp, so F1
 # may differ from the unrounded harmonic mean in the 4th decimal.

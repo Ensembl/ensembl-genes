@@ -481,9 +481,14 @@ def test_metric_rows_and_missing_values(con, demo):
     rows, ref, qry = derive_metrics(summary_only)
     by_id = {r["metric_id"]: r for r in rows}
     assert ref is None and by_id["cds_exact_ref"]["status"] == "ok"
+    # the comparator's one-to-one block is in the summary; the per-gene estimate is not
     assert (
-        by_id["exact_f1_one_to_one"]["status"] == "not_available"
-        and by_id["exact_f1_one_to_one"]["value"] is None
+        by_id["exact_f1_one_to_one"]["status"],
+        by_id["exact_f1_one_to_one"]["source"],
+    ) == ("ok", "comparator")
+    assert (
+        by_id["historical_exact_f1_best_pair"]["status"] == "not_available"
+        and by_id["historical_exact_f1_best_pair"]["value"] is None
     )
 
 

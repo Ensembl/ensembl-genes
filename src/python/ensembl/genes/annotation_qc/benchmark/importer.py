@@ -6,6 +6,10 @@ directory is matched to a configured (run, policy) by content, not by folder nam
 
     query      manifest query sha256 == prepared query sha256 of a configured run
     reference  manifest reference sha256 == prepared reference annotation sha256
+    settings   manifest stop-codon options == the run's comparator_options, so an
+               original-coordinate and a stop-harmonised result of the same file
+               go to different runs (a manifest without the option predates it
+               and compared original coordinates)
     genome / scope / seqname map   compared through the cache key
     policy     effective comparator options in the manifest == policy parameters
 
@@ -29,6 +33,7 @@ from pathlib import Path
 from ensembl.genes.annotation_qc.benchmark.config import (
     Experiment,
     comparator_parameters,
+    stop_codon_options,
 )
 from ensembl.genes.annotation_qc.benchmark.preparation import (
     prepare_reference,
@@ -40,11 +45,11 @@ from ensembl.genes.annotation_qc.benchmark.provenance import (
     now,
 )
 from ensembl.genes.annotation_qc.benchmark.runs import (
-    EXPECTED_OUTPUTS,
     STATUS_COMPLETE,
     STATUS_STALE,
     cache_key,
     describe_difference,
+    expected_outputs,
     key_components,
 )
 from ensembl.genes.annotation_qc.benchmark.workspace import (
@@ -59,6 +64,19 @@ def _biotypes(value) -> list | None:
         return None
     items = value if isinstance(value, list) else str(value).split(",")
     return sorted(item.strip() for item in items if item.strip()) or None
+
+
+def manifest_stop_codon_options(manifest: dict) -> dict:
+    """Stop-codon parameters recorded in a manifest ({} = original coordinates)."""
+    opts = manifest.get("options", {})
+    try:
+        return stop_codon_options(
+            opts.get("add_stop_codon", False),
+            opts.get("stop_codon_genetic_code"),
+            opts.get("stop_codon_sequence_code"),
+        )
+    except ValueError as error:
+        return {"add_stop_codon": True, "unreadable": str(error)}
 
 
 def manifest_parameters(manifest: dict) -> dict:
@@ -77,6 +95,7 @@ def manifest_parameters(manifest: dict) -> dict:
         "plots_per_category": opts.get("plots_per_category") or 0,
         "region": opts.get("region") or None,
         "assembly_report": opts.get("assembly_report"),
+        **manifest_stop_codon_options(manifest),
     }
 
 
@@ -91,6 +110,22 @@ def manifest_inputs(manifest: dict) -> dict:
         or ("all" if not manifest.get("options", {}).get("region") else None),
         "seqname_map_sha256": sha("seqname_map"),
     }
+
+
+def _incompatibility(out_dir: Path, params: dict) -> str | None:
+    """A summary that contradicts its manifest options cannot be imported as current."""
+    summary = read_json(out_dir / "comparison_summary.json")
+    if summary is None:
+        return "comparison_summary.json unreadable"
+    block = summary.get("query_stop_codon_harmonisation")
+    if params.get("add_stop_codon"):
+        if not (block and block.get("applied")):
+            return "manifest requests --add-stop-codon but the summary records no harmonisation"
+    elif block and block.get("applied"):
+        return (
+            "summary records stop-codon harmonisation that the manifest options do not"
+        )
+    return None
 
 
 def find_manifests(root: Path, max_depth: int = 4) -> list[Path]:
@@ -153,7 +188,23 @@ def import_benchmark(
                 }
             )
             continue
-        run = runs[0]
+        stop = manifest_stop_codon_options(manifest)
+        same_settings = [r for r in runs if r.comparator_options == stop]
+        if len(same_settings) != 1:
+            report["unmatched"].append(
+                {
+                    "dir": rel,
+                    "reason": (
+                        f"stop-codon settings {stop or 'original coordinates'} match no configured run "
+                        f"with this query (runs: {', '.join(r.run_id + ' ' + str(r.comparator_options or 'original coordinates') for r in runs)})"
+                        if not same_settings
+                        else f"several configured runs share this query, reference and settings: "
+                        f"{', '.join(r.run_id for r in same_settings)}"
+                    ),
+                }
+            )
+            continue
+        run = same_settings[0]
         ref = experiment.references[run.reference]
         prep = prepared[ref.id]
         is_pilot = bool(params["region"]) or (
@@ -218,9 +269,12 @@ def import_benchmark(
             current,
         )
         expected_key = cache_key(expected)
-        missing = [n for n in EXPECTED_OUTPUTS if not (out_dir / n).exists()]
+        missing = [n for n in expected_outputs(params) if not (out_dir / n).exists()]
+        incompatible = _incompatibility(out_dir, params)
         status = (
-            STATUS_COMPLETE if key == expected_key and not missing else STATUS_STALE
+            STATUS_COMPLETE
+            if key == expected_key and not missing and not incompatible
+            else STATUS_STALE
         )
         record = {
             "status": status,
@@ -233,9 +287,25 @@ def import_benchmark(
             "key_components": components,
             "expected_key": expected_key,
             "difference": (
-                None
-                if key == expected_key
-                else describe_difference(components, expected)
+                "; ".join(
+                    filter(
+                        None,
+                        [
+                            (
+                                None
+                                if key == expected_key
+                                else describe_difference(components, expected)
+                            ),
+                            (
+                                f"missing outputs: {', '.join(missing)}"
+                                if missing
+                                else None
+                            ),
+                            incompatible,
+                        ],
+                    )
+                )
+                or None
             ),
             "missing_outputs": missing,
             "argv": manifest.get("argv"),

@@ -12,8 +12,10 @@
   <label class="ctl">Experiment <select id="exp"></select></label>
   <label class="ctl">Reference <select id="ref"></select></label>
   <div class="ctl">Policy <span id="policy" class="seg" role="radiogroup" aria-label="Transcript policy"></span></div>
+  <label class="ctl">Scope <select id="scope" aria-label="Sequence scope"></select></label>
 </header>
 <div id="synthetic" class="banner synthetic" hidden>SYNTHETIC DEMONSTRATION DATA — generated fixtures, not real results.</div>
+<div id="legacy" class="banner legacy" hidden></div>
 <section class="runsbar">
   <span class="muted">Prediction runs</span>
   <span id="runs"></span>
@@ -30,26 +32,82 @@
 <main>
   <section id="tab-overview" class="tab active">
     <div id="scopeLine" class="scope"></div>
-    <div id="statusStrip"></div>
-    <div class="callout">Each column is one prediction <em>run</em> (a file, model and setting) on this reference, scope and policy — not a verdict on the tool in general. There is no combined score: read the trade-offs across rows.</div>
-    <div class="row-between"><h2>CDS headline metrics</h2>
-      <span><button id="dlMetrics" class="btn">Download all metrics (TSV)</button></span></div>
-    <div id="headlineTable"></div>
-    <h2>Policy effect <select id="policyMetric"></select></h2>
-    <p class="muted small">Same reference and runs under each transcript policy. Policies that are unavailable or not run are shown as such, never as zero.</p>
-    <div id="policyChart" class="chart"></div>
-    <h2>CDS structure detail</h2>
-    <div id="structureTable"></div>
-    <div id="partialChart" class="chart"></div>
-    <h2>Missed, unmatched, split, merged</h2>
-    <div id="lociTable"></div>
-    <h2>Novel (unmatched prediction) context</h2>
-    <div id="novelChart" class="chart"></div>
-    <div id="novelTable"></div>
-    <h2>UTR-inclusive agreement <span class="tag warn">not for ranking CDS-only predictors</span></h2>
-    <div id="utrTable"></div>
-    <h2>Scale</h2>
-    <div id="scaleTable"></div>
+    <div id="contextBar" class="contextbar"></div>
+    <nav class="subnav" role="tablist" aria-label="Summary views">
+      <button data-view="coverage" class="active">Coverage &amp; exact CDS</button>
+      <button data-view="structure">Structural errors</button>
+      <button data-view="detail">Detailed metrics</button>
+    </nav>
+
+    <div id="view-coverage" class="view active">
+      <div id="resultStatus" class="small"></div>
+      <div id="summaryTable"></div>
+      <div class="explain">
+        <p><b>Loci recovered</b> is a permissive detection measure: a reference gene counts when a prediction on the same strand shares at least one coding base. It says the locus was found, not that the model is right.</p>
+        <p><b>Exact CDS recall and precision</b> require identical CDS segment coordinates — the same start, every splice site and the same stop. Recall is the share of reference genes, precision the share of predicted genes, that are in a coordinate-exact pair.</p>
+        <p><b>F1</b> balances exact-model precision and recall (their harmonic mean, 2TP / (R + Q), on a 0–1 scale). Genes are matched one-to-one: the comparator's maximum matching uses each reference and each predicted gene at most once.</p>
+        <p id="policyExplain" class="muted"></p>
+      </div>
+      <details class="counts"><summary>Counts and denominators</summary><div id="summaryCounts"></div></details>
+    </div>
+
+    <div id="view-structure" class="view">
+      <div id="structureSummary"></div>
+      <div class="explain small">
+        <p><b>CDS intron chain identical</b>: the comparator's best pair has exactly the same CDS introns, over reference genes with a multi-segment CDS. <b>Reference CDS introns recovered</b> / <b>predicted CDS introns supported</b>: unique introns (sequence, strand, start, end) found in the other annotation. <b>Split</b>: a reference gene shares CDS with two or more predicted genes; <b>merge</b>: a predicted gene shares CDS with two or more reference genes (each ≥ 10% shared CDS).</p>
+      </div>
+      <div class="row-between plotctl">
+        <h2>Exploratory: splice sites along reference CDS structures</h2>
+        <span class="ctls">
+          <label>Plot policy <span id="plotPolicy" class="seg small-seg" role="radiogroup" aria-label="Policy for the exploratory plots"></span></label>
+        </span>
+      </div>
+      <p id="plotNote" class="muted small"></p>
+      <div id="plotStatus"></div>
+      <h3>Where are reference CDS splice sites unsupported? <span class="ctls">
+        <span id="posCoord" class="seg small-seg" role="radiogroup" aria-label="Position coordinate"></span>
+        <span id="posMin" class="seg small-seg" role="radiogroup" aria-label="Reference introns included"></span></span></h3>
+      <div id="positionChart" class="chart"></div>
+      <p class="muted small" id="positionNote"></p>
+      <details class="counts"><summary>Counts per position bin</summary><div id="positionTable" class="tablewrap"></div></details>
+      <h3>Does splice recovery change with reference CDS intron length? <span class="ctls">
+        <span id="lenMeasure" class="seg small-seg" role="radiogroup" aria-label="Recovery measure"></span></span></h3>
+      <div id="lengthChart" class="chart"></div>
+      <p class="muted small" id="lengthNote"></p>
+      <details class="counts"><summary>Counts per intron-length bin</summary><div id="lengthTable" class="tablewrap"></div></details>
+      <div id="spliceDownloads" class="downloads"></div>
+    </div>
+
+    <div id="view-detail" class="view">
+      <p id="detailScopeNote" class="callout" hidden></p>
+      <div id="statusStrip"></div>
+      <div class="callout">Each column is one prediction <em>run</em> (a file, model and setting) on this reference, scope and policy — not a verdict on the tool in general. There is no combined score: read the trade-offs across rows.</div>
+      <div class="row-between"><h2>CDS headline metrics</h2>
+        <span><button id="dlMetrics" class="btn">Download all metrics (TSV)</button></span></div>
+      <div id="headlineTable"></div>
+      <div id="downloads" class="downloads"></div>
+      <h2>Policy effect <select id="policyMetric"></select></h2>
+      <p class="muted small">Same reference and runs under each transcript policy. Policies that are unavailable or not run are shown as such, never as zero.</p>
+      <div id="policyChart" class="chart"></div>
+      <h2>CDS structure detail</h2>
+      <div id="structureTable"></div>
+      <div id="partialChart" class="chart"></div>
+      <h2>Missed, unmatched, split, merged</h2>
+      <div id="lociTable"></div>
+      <h2>Novel (unmatched prediction) context</h2>
+      <div id="novelChart" class="chart"></div>
+      <div id="novelTable"></div>
+      <h2>UTR-inclusive agreement <span class="tag warn">not for ranking CDS-only predictors</span></h2>
+      <div id="utrTable"></div>
+      <h2>Stop-codon harmonisation <span class="tag info">query side; --add-stop-codon runs only</span></h2>
+      <p class="muted small">Transcript counts from the comparator's audit. Original-coordinate runs show “—” (not applicable). Harmonisation aligns a CDS convention; it does not establish ORF validity.</p>
+      <div id="stopTable"></div>
+      <h2>Scale</h2>
+      <div id="scaleTable"></div>
+      <h2>Historical estimates <span class="tag warn">comparison with older reports only</span></h2>
+      <p class="muted small">The earlier best-pair estimate of one-to-one exact TP (min of unique genes among per-gene exact pairs). The one-to-one metrics above are the comparator's maximum matching; these rows are never used in their place.</p>
+      <div id="historicalTable"></div>
+    </div>
   </section>
 
   <section id="tab-genes" class="tab">

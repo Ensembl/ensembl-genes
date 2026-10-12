@@ -11,6 +11,7 @@ code; its file hashes were captured separately and can be supplied as a
 
 from __future__ import annotations
 
+import ast
 import hashlib
 import importlib.metadata
 import json
@@ -22,25 +23,81 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 PACKAGE_DIR = Path(__file__).resolve().parent.parent  # .../annotation_qc
-
-# Files whose content determines pairwise-compare results (relative to annotation_qc/).
-# cli.py only dispatches and is excluded, so adding commands does not invalidate results.
-FINGERPRINT_FILES = (
-    "parsers/annotation.py",
-    "parsers/annotation_normalise.py",
-    "parsers/regions.py",
-    "parsers/seqnames.py",
-    "parsers/sequence.py",
-    "parsers/tool_output.py",
-    "metrics/pairwise/__init__.py",
-    "metrics/pairwise/classify.py",
-    "metrics/pairwise/selection.py",
-    "metrics/pairwise/summary.py",
-    "reports/pairwise_compare.py",
-    "reports/pairwise_plots.py",
-    "runners/pairwise_compare.py",
-)
+PACKAGE = "ensembl.genes.annotation_qc"
+# The comparator entry point; every in-package module it imports, directly or
+# transitively, determines pairwise-compare results.
+FINGERPRINT_ENTRY = "runners/pairwise_compare.py"
 FINGERPRINT_PACKAGES = ("pandas", "pyranges1")
+
+
+def _module_file(module: str) -> str | None:
+    """'ensembl.genes.annotation_qc.a.b' -> 'a/b.py' (or 'a/b/__init__.py'); None outside the package."""
+    if module != PACKAGE and not module.startswith(PACKAGE + "."):
+        return None
+    parts = module[len(PACKAGE) + 1 :].split(".") if module != PACKAGE else []
+    for rel in ("/".join(parts) + ".py", "/".join(parts + ["__init__.py"])):
+        if rel != ".py" and (PACKAGE_DIR / rel).is_file():
+            return rel
+    return None
+
+
+def _has_code(rel: str) -> bool:
+    """True unless the file holds nothing but a docstring (empty package markers)."""
+    body = ast.parse((PACKAGE_DIR / rel).read_text()).body
+    if (
+        body
+        and isinstance(body[0], ast.Expr)
+        and isinstance(body[0].value, ast.Constant)
+    ):
+        body = body[1:]
+    return bool(body)
+
+
+def _imports(rel: str) -> set[str]:
+    """In-package files imported by one file (any depth in the file, including lazy imports)."""
+    found = set()
+    for node in ast.walk(ast.parse((PACKAGE_DIR / rel).read_text())):
+        if isinstance(node, ast.Import):
+            names = [alias.name for alias in node.names]
+        elif isinstance(node, ast.ImportFrom) and node.module and not node.level:
+            # "from pkg import mod" may name a submodule or an attribute; try both
+            names = [node.module] + [f"{node.module}.{a.name}" for a in node.names]
+        else:
+            continue
+        for name in names:
+            target = _module_file(name)
+            if target:
+                found.add(target)
+            # importing a.b.c executes the __init__ of a and a.b as well
+            parts = name.split(".")
+            for i in range(len(PACKAGE.split(".")), len(parts)):
+                init = _module_file(".".join(parts[:i]))
+                if init and init.endswith("__init__.py"):
+                    found.add(init)
+    return found
+
+
+def comparator_source_files(entry: str = FINGERPRINT_ENTRY) -> tuple[str, ...]:
+    """
+    Files whose content determines pairwise-compare results (relative to annotation_qc/).
+
+    The transitive closure of in-package imports from the runner, found by parsing
+    the sources, so a new comparator module is covered as soon as the runner (or
+    anything it imports) imports it. Package ``__init__`` files that contain only a
+    docstring are left out: they cannot change results. ``cli.py`` only dispatches
+    and is not imported by the runner, so adding commands does not invalidate results.
+    """
+    seen, todo = set(), [entry]
+    while todo:
+        rel = todo.pop()
+        if rel in seen:
+            continue
+        seen.add(rel)
+        todo.extend(_imports(rel) - seen)
+    return tuple(sorted(rel for rel in seen if _has_code(rel)))
+
+
+FINGERPRINT_FILES = comparator_source_files()
 
 
 def sha256_file(path: str | Path, block: int = 1 << 20) -> str:

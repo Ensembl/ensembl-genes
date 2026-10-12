@@ -60,6 +60,15 @@ annotation-qc benchmark verify-headline --config qc_configs/ensembl2026_human_mo
 ```
 
 Outputs go to `annotations_to_compare/qc_workspace/ensembl2026_human_mouse_ab_initio/`.
+That dataset was built with store version 1, before the comparator's one-to-one
+matching existed; the dashboard shows its one-to-one metrics as not available and its
+earlier best-pair estimate under "Historical estimates" (a banner says so). Under the
+current comparator code its results are stale (implementation changed), so rebuilding
+it needs `benchmark run`, not only `build`.
+
+The pig experiment (`qc_configs/pig_sscrofa11_ab_initio.json`) imports
+`pig_comparison_runs/20261006_195011` (18 results, including supplementary
+stop-harmonised runs) the same way: `import`, `validate`, `build`, `dashboard`.
 
 ## 3. Workflows
 
@@ -97,7 +106,9 @@ commented template is at `benchmark/templates/experiment_template.json`; keys st
 | `references[]` | `id` (unique), `species`, `assembly`, `assembly_accession`, `annotation_source`, `annotation_release`, `annotation`, `annotation_format`, `genome`, `annotation_preparation`, `genome_preparation`, `scope`, `seqname_map`, `notes` |
 | `…preparation` | `steps`: `"decompress"`, `{"name": "retype_transcript_types", "types": [...]}`; `reuse_existing`: adopt an existing prepared file only if re-deriving it from the source gives the same sha256 |
 | `references[].scope.type` | `all`, `reference_sequence_regions` (`##sequence-region` names), `sequences` (list), `regions_file` (path) |
-| `runs[]` | `run_id` (unique identifier), `reference`, `tool` (label only), `tool_version`, `model`, `annotation`, `format`, `preparation`, `provenance`, `caveats`, `aliases`, `color` |
+| `runs[]` | `run_id` (unique identifier), `reference`, `tool` (grouping and colour), `label` (display name; default `tool`), `role` (`primary` / `supplementary`), `comparator_options`, `tool_version`, `model`, `annotation`, `format`, `preparation`, `provenance`, `caveats`, `aliases`, `color` |
+| `runs[].comparator_options` | `add_stop_codon` (default false: original coordinates), `stop_codon_genetic_code` (NCBI table, default 1), `stop_codon_sequence_code` (`{sequence: table or "none"}`); passed to `pairwise-compare` and part of the run's parameters and cache key. Needs a reference genome |
+| `policies.<ID>.role` | `primary` (default) or `supplementary` (shown on the policy selector) |
 | `import` | `benchmark_dir`, `code_snapshot` (sha256sum-style lists of comparator files used then), `independent_tables` (pattern with `{alias}`, `{policy}`), `context_documents`, `paper_analogous` |
 
 Unknown values stay unknown: leave `tool_version`/`model`/`provenance` null and the
@@ -136,6 +147,49 @@ annotation uses other sequence names than the FASTA, give a two-column `seqname_
   MANE Select. A reference with no canonical tag at all makes C **unavailable** (the
   comparator would silently fall back to B for every gene); per-gene fallbacks are flagged.
 
+### Supplementary sequence scopes
+
+`references[].analysis_scopes` adds named sequence subsets, reported beside the whole
+compared scope (`scope.label` names it, e.g. "Whole assembly"):
+
+```json
+"analysis_scopes": [{"id": "chr1_18_X", "label": "Chromosomes 1–18 and X",
+                     "sequences": ["1", "2", "…", "18", "X"], "description": "…"}]
+```
+
+Define a subset from the assembly (sequence names), never from which sequences carry
+predictions: a sequence without predictions may still have been processed. A subset
+is applied to reference **and** predicted genes before any value is calculated
+(`benchmark/scope.py`): R, Q, locus recovery, per-gene exact CDS, splits, merges and
+intron chains from the per-gene outputs on those sequences; one-to-one TP from the
+comparator's pairs on those sequences (exact-CDS edges never join sequences, so the
+maximum matching decomposes by sequence); unique introns from the stored models. Each
+build first repeats the derivation for the whole compared scope and compares it with
+the comparator's own values; a difference marks the subset's rows *inconsistent*. A
+subset naming a sequence that was not compared is reported unavailable. The whole
+compared scope always shows the comparator's values.
+
+### Display order and companion runs
+
+`display.pinned_runs` lists runs shown first, in order; the other primary runs follow
+in descending `display.order_metric` (default one-to-one exact-CDS recall) for the
+selected policy and scope. A supplementary run with `companion_of: <run_id>` (e.g. the
+stop-harmonised run of the same file) is listed directly after that run and is never
+ranked. Without a `display` block the configured order is kept. Presentation only:
+none of this enters a cache key.
+
+### Original and stop-harmonised runs of one file
+
+Configure them as two runs with the same `annotation` and different
+`comparator_options` (and, for the harmonised one, a `label` such as "Tool — stop
+harmonised" and `role: supplementary`). They have different parameters, commands and
+cache keys; `import` assigns each manifest to the run whose stop-codon settings it
+records (a manifest without the option compared original coordinates). For a
+harmonised run the locus tracks show the comparator's own evaluated annotation
+(`query_evaluated.stop_harmonised.gtf` of a complete result), with the per-transcript
+audit in the tooltips, gene detail and a TSV download. Without that output the
+tracks are reported unavailable; the original file is never shown in their place.
+
 ### Import versus run
 
 `import` reuses results whose rebuilt cache key equals the key the configuration and the
@@ -151,15 +205,22 @@ A comparison is reused only when its **cache key** is unchanged. The key hashes:
 - **inputs**: sha256 of the prepared query, reference annotation, genome, scope content and
   seqname map. Prepared files carry the source checksum and recipe.
 - **parameters**: every effective `pairwise-compare` option.
-- **implementation**: a content fingerprint of the comparator source files (parsers,
-  `metrics/pairwise`, runner, reports), plus the python, pandas and pyranges1 versions.
-  Uncommitted edits change the fingerprint.
+- **implementation**: a content fingerprint of the comparator source files, plus the
+  python, pandas and pyranges1 versions. The file list is derived, not maintained by
+  hand: every in-package module that `runners/pairwise_compare.py` imports, directly or
+  transitively (parsed from the sources; docstring-only package `__init__` files are
+  left out). A new comparator module is covered as soon as it is imported. Uncommitted
+  edits change the fingerprint. A code snapshot that lacks one of these files cannot
+  verify a result, which is then imported as stale with the missing files named.
 
 Consequences:
 
 - Adding a run touches nothing else.
 - Changing a policy invalidates only that policy.
 - Changing a reference, the scope or the comparator code invalidates the affected runs.
+
+The dataset build has its own component keys, which include a hash of `store.py`
+and `derive.py`, so a change in a derivation rebuilds the affected rows.
 
 Every attempt is appended to `comparisons/<run_id>/<policy>.attempts.jsonl`, recording the
 argv, environment, exit status, wall time and per-process peak RSS. Output is written to
@@ -180,7 +241,33 @@ failed run therefore never counts as a result and is retried by the next `run`.
 
 ## 6. Using the dashboard
 
-- **Overview.** Choose a reference, policy and runs. The CDS headline table shows every
+- **Overview** has three views. The analysis context (transcript policy, sequence
+  scope, R and the stop-codon treatment) is shown above them; the scope selector is in
+  the header.
+  - **Coverage & exact CDS** (default): one compact row per run — loci recovered
+    (same-strand CDS overlap), exact CDS recall and precision (one-to-one
+    coordinate-exact pairs over R and Q) as percentages, and one-to-one exact-CDS F1 on
+    a 0–1 scale. Counts and denominators are in the tooltips and the expandable
+    *Counts and denominators* table. A built-in F1 that a dataset lacks is "not
+    available" with its reason; the historical best-pair estimate is never shown there.
+  - **Structural errors**: CDS intron-chain identity, unique reference / predicted CDS
+    intron agreement, split and merge flags, each with its denominator in the header;
+    then two exploratory plots (one reference transcript per gene: views B or C, chosen
+    beside the plots):
+    - *unsupported reference CDS splice sites by position* along the reference CDS
+      (transcription direction; 0 = coding start, 1 = coding end; genomic CDS span or
+      coding-sequence coordinate; donors and acceptors in separate panels; optionally
+      leaving out introns < 60 bp);
+    - *splice recovery by reference CDS intron length* (fixed bins, the same for every
+      run; complete intron, donor or acceptor), with the number of reference introns
+      per bin.
+
+    Support is exact: the same sequence, strand and coordinate in any evaluated
+    predicted transcript's CDS introns (the comparator's unique-intron rule). Sites of
+    genes whose locus was not recovered are counted separately as missing-locus sites
+    and excluded from the rates; empty bins are "not available". Binned counts download
+    as TSV. These are associations, not causes.
+  - **Detailed metrics**: every metric as before (whole compared scope). The CDS headline table shows every
   value as a percentage with *numerator / denominator* and its source. Failed, not-run,
   stale and unavailable results are labelled as such, and `n/a` (with the reason) is never
   zero. Further sections cover:
@@ -210,6 +297,9 @@ failed run therefore never counts as a result and is retried by the next `run`.
 - **Metric dictionary** and **Context** (paper-analogous tables and documents, marked
   as supporting context, not a reproduction).
 
+Deep links keep the state: `#exp=…&ref=…&policy=…&scope=…&view=coverage|structure|detail`
+(plus `plot`, `pos`, `posmin`, `len` for the structural plots).
+
 ## 7. Metric interpretation (summary; the full dictionary is in the app)
 
 - Lead with CDS metrics. Exon or UTR agreement is near zero by construction for CDS-only
@@ -225,8 +315,19 @@ failed run therefore never counts as a result and is retried by the next `run`.
   evaluated isoforms. They are not per-gene metrics.
 - Query intron support counts query introns outside the evaluated reference subset as
   unsupported.
-- One-to-one exact-CDS precision, recall and F1 come from per-gene exact pairs, with each
-  gene used once.
+- One-to-one exact-CDS TP, precision, recall and F1 are the comparator's own
+  (`cds_exact_one_to_one`: maximum bipartite matching of genes sharing an identical
+  CDS, each gene used once). Precision = TP/Q, recall = TP/R, F1 = 2TP/(R+Q); the table
+  shows the numerator and denominator. The exported pairs
+  (`cds_exact_one_to_one_pairs.tsv`) are stored, checked against TP and downloadable.
+  The per-gene coordinate-exact counts can exceed TP when exact partners are shared.
+- Results that predate the comparator's matching show these metrics as not available.
+  The earlier best-pair estimate (min of unique genes among per-gene exact pairs) is
+  kept as "historical" metrics and is never used in their place.
+- Status is explicit: `not_available` (input or field absent), `undefined` (denominator
+  0), `not_applicable` (e.g. stop-codon counts of an original-coordinate run),
+  `inconsistent` (two outputs of one result disagree; shown with the reason). None is
+  zero.
 - Every value is for one reference, scope, policy and prediction run. The dashboard never
   pools references or policies and shows no combined "best tool" score.
 - The benchmark's `headline_metrics.tsv` and `headline_metrics_long.tsv` hold the same
@@ -238,7 +339,10 @@ failed run therefore never counts as a result and is retried by the next `run`.
 | capability | needs |
 |---|---|
 | overview metrics from the comparator summary | `comparison_summary.json` |
-| per-gene table, partial buckets, one-to-one F1, Novel lists | `comparison_details.tsv` (+ `consensus_transcript_labels.tsv`) |
+| one-to-one exact-CDS TP/P/R/F1, CDS-overlap locus recovery, stop-codon counts | `comparison_summary.json` (current comparator) |
+| one-to-one pair table and download | `cds_exact_one_to_one_pairs.tsv` |
+| per-gene table, partial buckets, historical estimate, Novel lists | `comparison_details.tsv` (+ `consensus_transcript_labels.tsv`) |
+| stop-harmonised locus tracks and audit | `query_evaluated.stop_harmonised.gtf`, `stop_codon_harmonisation.tsv` |
 | single/multi-segment split, evaluated isoforms, locus browser (reference side) | the prepared reference annotation |
 | prediction tracks in the locus browser | the prediction files |
 | any-pair intron chain | independent tables (`benchmark independent` or imported) |

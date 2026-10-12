@@ -13,6 +13,18 @@ has a key derived from its inputs; unchanged components are skipped.
 Identity: reference and query genes keep the comparator's sequence-scoped
 ``gene_id`` (``seqname:id`` when an ID is reused on several sequences) and the file
 value in ``original_gene_id``. Display names are stored only as labels.
+
+Derived analyses (``build_analysis``, cached per result like every component):
+metrics restricted to the configured sequence scopes (benchmark/scope.py) and
+splice-site / intron recovery along reference CDS structures
+(benchmark/splice.py), each with its policy, scope, rules, bins, input checksums
+and code version recorded in ``analyses``. The dashboard only reads them.
+
+Stop-harmonised runs (``comparator_options.add_stop_codon``): their locus models
+are read from the comparator's own ``query_evaluated.stop_harmonised.gtf`` (the
+coordinates actually compared), never from the original file, together with the
+per-transcript ``stop_codon_harmonisation.tsv`` audit. Without that output the
+run's models are reported unavailable rather than substituted.
 """
 
 from __future__ import annotations
@@ -28,12 +40,32 @@ import pandas as pd
 
 from ensembl.genes.annotation_qc.benchmark.config import Experiment
 from ensembl.genes.annotation_qc.benchmark.derive import (
+    check_pairs,
     derive_metrics,
     load_independent,
+    read_pairs,
 )
-from ensembl.genes.annotation_qc.benchmark.preparation import is_gzip
-from ensembl.genes.annotation_qc.benchmark.provenance import now, stable_hash
-from ensembl.genes.annotation_qc.benchmark.runs import STATUS_COMPLETE, plan
+from ensembl.genes.annotation_qc.benchmark.preparation import (
+    is_gzip,
+    sequence_region_names,
+)
+from ensembl.genes.annotation_qc.benchmark.provenance import (
+    now,
+    sha256_file,
+    stable_hash,
+)
+from ensembl.genes.annotation_qc.benchmark.runs import (
+    STATUS_COMPLETE,
+    STOP_CODON_OUTPUTS,
+    plan,
+)
+from ensembl.genes.annotation_qc.benchmark import splice
+from ensembl.genes.annotation_qc.benchmark.scope import (
+    WHOLE_ASSEMBLY,
+    check_whole_assembly,
+    mark_inconsistent,
+    scoped_metrics,
+)
 from ensembl.genes.annotation_qc.benchmark.workspace import Workspace, read_json
 from ensembl.genes.annotation_qc.metrics.pairwise.classify import build_gene_models
 from ensembl.genes.annotation_qc.metrics.pairwise.selection import (
@@ -51,7 +83,17 @@ from ensembl.genes.annotation_qc.parsers.seqnames import (
     build_seqname_mapping,
 )
 
-STORE_VERSION = "1"
+# 2: comparator one-to-one metrics and pairs, stop-codon audit, run labels/roles.
+# 3: per-policy query model selection, scoped metrics, splice-site analysis.
+STORE_VERSION = "3"
+# Content of the code that turns comparator outputs into dataset rows: a change in
+# a derivation rebuilds the affected components instead of keeping stale rows.
+BUILD_CODE = stable_hash(
+    {
+        name: sha256_file(Path(__file__).with_name(name))
+        for name in ("store.py", "derive.py", "scope.py", "splice.py")
+    }
+)
 METRIC_DICTIONARY = Path(__file__).with_name("metric_dictionary.json")
 PALETTE = [
     "#2a78d6",
@@ -88,6 +130,29 @@ CREATE TABLE IF NOT EXISTS query_outcomes (reference_id TEXT, policy_id TEXT, ru
     chrom TEXT, start INTEGER, end INTEGER, strand TEXT, classification TEXT, classification_cds TEXT, cds_exact INTEGER,
     cds_overlap REAL, cds_matched_id TEXT, best_cds_ref_tx TEXT, best_cds_query_tx TEXT, novel_category TEXT,
     counterpart_count INTEGER, counterpart_ids TEXT, strand_mismatch_basis TEXT);
+CREATE TABLE IF NOT EXISTS exact_pairs (reference_id TEXT, policy_id TEXT, run_id TEXT, reference_gene_id TEXT,
+    query_gene_id TEXT, query_original_gene_id TEXT, chrom TEXT, strand TEXT, cds_start INTEGER, cds_end INTEGER,
+    cds_segments INTEGER, supporting_reference_transcript_ids TEXT, supporting_query_transcript_ids TEXT,
+    reference_exact_candidates INTEGER, query_exact_candidates INTEGER, component_reference_genes INTEGER,
+    component_query_genes INTEGER);
+CREATE TABLE IF NOT EXISTS stop_codon_audit (run_id TEXT, transcript_id TEXT, original_transcript_id TEXT, gene_id TEXT,
+    chrom TEXT, strand TEXT, genetic_code TEXT, genetic_code_source TEXT, status TEXT, reason TEXT, last_codon TEXT,
+    next_codon TEXT, exon_representation TEXT, terminal_cds_start INTEGER, terminal_cds_end INTEGER,
+    new_terminal_cds_start INTEGER, new_terminal_cds_end INTEGER);
+CREATE TABLE IF NOT EXISTS query_gene_policy (run_id TEXT, selection TEXT, gene_id TEXT, evaluated_transcripts TEXT);
+CREATE TABLE IF NOT EXISTS scope_metrics (reference_id TEXT, scope_id TEXT, run_id TEXT, policy_id TEXT, metric_id TEXT,
+    numerator REAL, denominator REAL, value REAL, status TEXT, source TEXT, note TEXT);
+CREATE TABLE IF NOT EXISTS splice_sites (reference_id TEXT, scope_id TEXT, run_id TEXT, policy_id TEXT, min_intron_length INTEGER, coordinate TEXT,
+    kind TEXT, bin INTEGER, lo REAL, hi REAL, assessed INTEGER, supported INTEGER, missing_locus INTEGER);
+CREATE TABLE IF NOT EXISTS intron_lengths (reference_id TEXT, scope_id TEXT, run_id TEXT, policy_id TEXT, bin INTEGER,
+    lo INTEGER, hi INTEGER, label TEXT, eligible INTEGER, exact INTEGER, donor INTEGER, acceptor INTEGER, missing_locus INTEGER);
+CREATE TABLE IF NOT EXISTS analyses (reference_id TEXT, run_id TEXT, policy_id TEXT, status TEXT, reason TEXT, record TEXT);
+CREATE INDEX IF NOT EXISTS ix_qgp ON query_gene_policy (run_id, selection);
+CREATE INDEX IF NOT EXISTS ix_scope_metrics ON scope_metrics (reference_id, scope_id, policy_id, run_id);
+CREATE INDEX IF NOT EXISTS ix_splice ON splice_sites (reference_id, scope_id, policy_id, run_id);
+CREATE INDEX IF NOT EXISTS ix_intron_lengths ON intron_lengths (reference_id, scope_id, policy_id, run_id);
+CREATE INDEX IF NOT EXISTS ix_pairs ON exact_pairs (reference_id, policy_id, run_id, reference_gene_id);
+CREATE INDEX IF NOT EXISTS ix_stop ON stop_codon_audit (run_id, transcript_id);
 CREATE INDEX IF NOT EXISTS ix_ref_genes ON ref_genes (reference_id, chrom, start);
 CREATE INDEX IF NOT EXISTS ix_ref_genes_id ON ref_genes (reference_id, gene_id);
 CREATE INDEX IF NOT EXISTS ix_rgp ON ref_gene_policy (reference_id, policy_id, gene_id);
@@ -111,6 +176,10 @@ def connect(path: Path) -> sqlite3.Connection:
     path.parent.mkdir(parents=True, exist_ok=True)
     con = sqlite3.connect(path)
     con.execute("PRAGMA journal_mode=WAL")
+    columns = {r[1] for r in con.execute("PRAGMA table_info(splice_sites)")}
+    if columns and "min_intron_length" not in columns:  # derived rows: rebuilt
+        con.execute("DROP TABLE splice_sites")
+        con.execute("DELETE FROM components WHERE component LIKE 'analysis:%'")
     con.executescript(SCHEMA)
     return con
 
@@ -215,6 +284,7 @@ def build_reference(
     key = stable_hash(
         {
             "v": STORE_VERSION,
+            "code": BUILD_CODE,
             "annotation": prep["annotation"]["output"]["sha256"],
             "scope": prep["scope"]["sha256"],
             "seqmap": (prep.get("seqname_map") or {}).get("sha256"),
@@ -362,27 +432,99 @@ def build_reference(
     )
 
 
-def build_run_models(
-    con, experiment: Experiment, ws: Workspace, run, prep: dict, log=print
-) -> None:
-    query = ws.run_preparation_record(run.run_id) or {
-        "output": ws.checksums.record(run.annotation)
+AUDIT_COLUMNS = (
+    "transcript_id",
+    "original_transcript_id",
+    "gene_id",
+    "chrom",
+    "strand",
+    "genetic_code",
+    "genetic_code_source",
+    "status",
+    "reason",
+    "last_codon",
+    "next_codon",
+    "exon_representation",
+    "terminal_cds_start",
+    "terminal_cds_end",
+    "new_terminal_cds_start",
+    "new_terminal_cds_end",
+)
+
+
+def evaluated_models_source(ws: Workspace, run, tasks) -> dict:
+    """
+    Where a run's locus models come from.
+
+    Original-coordinate runs: the (prepared) prediction file. Stop-harmonised runs:
+    the comparator's evaluated annotation from a complete result, preferring a
+    policy that keeps every query transcript; None when no such output exists.
+    """
+    if not run.comparator_options.get("add_stop_codon"):
+        query = ws.run_preparation_record(run.run_id) or {
+            "output": ws.checksums.record(run.annotation)
+        }
+        return {
+            "kind": "prediction_file",
+            "path": query["output"]["path"],
+            "sha256": query["output"]["sha256"],
+            "format": run.format,
+        }
+    candidates = sorted(
+        (
+            t
+            for t in tasks
+            if t.run.run_id == run.run_id and t.status == STATUS_COMPLETE
+        ),
+        key=lambda t: (t.policy.query_transcript_selection != "all", t.policy.id),
+    )
+    for task in candidates:
+        out = Path(
+            (ws.run_record(run.run_id, task.policy.id) or {}).get("output_dir", "")
+        )
+        audit, gtf = (out / name for name in STOP_CODON_OUTPUTS)
+        if gtf.exists() and audit.exists():
+            return {
+                "kind": "comparator_evaluated_stop_harmonised",
+                "path": str(gtf),
+                "sha256": ws.checksums.sha256(gtf),
+                "audit": str(audit),
+                "audit_sha256": ws.checksums.sha256(audit),
+                "format": "gtf",
+                "policy_id": task.policy.id,
+                "query_transcript_selection": task.policy.query_transcript_selection,
+            }
+    return {
+        "kind": "unavailable",
+        "reason": "stop-harmonised run without a complete result containing "
+        "query_evaluated.stop_harmonised.gtf; the original annotation is not shown in its place",
     }
-    path = Path(query["output"]["path"])
+
+
+def build_run_models(
+    con, experiment: Experiment, ws: Workspace, run, prep: dict, source: dict, log=print
+) -> None:
+    path = Path(source["path"])
     ref = experiment.references[run.reference]
+    selections = sorted(
+        {p.query_transcript_selection for p in experiment.policies.values()}
+    )
     key = stable_hash(
         {
             "v": STORE_VERSION,
-            "query": query["output"]["sha256"],
+            "code": BUILD_CODE,
+            "query": source["sha256"],
+            "audit": source.get("audit_sha256"),
             "scope": prep["scope"]["sha256"],
             "seqmap": (prep.get("seqname_map") or {}).get("sha256"),
-            "format": run.format,
+            "format": source["format"],
+            "selections": selections,
         }
     )
     component = f"run:{run.run_id}"
     if _component_key(con, component) == key:
         return
-    df = parse_annotation_for_comparison(str(path), run.format)
+    df = parse_annotation_for_comparison(str(path), source["format"])
     mapping = build_seqname_mapping(
         str(ref.seqname_map) if ref.seqname_map else None, None
     )
@@ -417,24 +559,62 @@ def build_run_models(
                 search,
             )
         )
-    source = f"run:{run.run_id}"
-    tx_rows = _transcript_rows(source, df, None)
+    tx_source = f"run:{run.run_id}"
+    tx_rows = _transcript_rows(tx_source, df, None)
+    # The query transcripts each policy evaluates, chosen by the comparator's own
+    # selection and model functions (stop-harmonised runs: on evaluated coordinates).
+    selection_rows = []
+    for mode in selections:
+        models = build_gene_models(select_transcripts(df, mode))
+        selection_rows += [
+            (run.run_id, mode, g.gene_id, ",".join(g.transcript_ids))
+            for g in models.genes.itertuples(index=False)
+        ]
+    audit_rows = []
+    if source.get("audit"):
+        audit = pd.read_csv(source["audit"], sep="\t", dtype=str, keep_default_na=False)
+        audit_rows = [
+            (run.run_id, *row)
+            for row in audit[list(AUDIT_COLUMNS)]
+            .replace({"": None})
+            .astype(object)
+            .values.tolist()
+        ]
     with con:
         con.execute("DELETE FROM query_genes WHERE run_id=?", (run.run_id,))
-        con.execute("DELETE FROM transcripts WHERE source=?", (source,))
-        con.execute("DELETE FROM seq_maxlen WHERE source=?", (source,))
+        con.execute("DELETE FROM transcripts WHERE source=?", (tx_source,))
+        con.execute("DELETE FROM seq_maxlen WHERE source=?", (tx_source,))
+        con.execute("DELETE FROM stop_codon_audit WHERE run_id=?", (run.run_id,))
+        con.execute("DELETE FROM query_gene_policy WHERE run_id=?", (run.run_id,))
+        con.executemany(
+            "INSERT INTO query_gene_policy VALUES (?,?,?,?)", selection_rows
+        )
+        con.executemany(
+            f"INSERT INTO stop_codon_audit VALUES (?,{','.join('?' * len(AUDIT_COLUMNS))})",
+            audit_rows,
+        )
         con.executemany("INSERT INTO query_genes VALUES (?,?,?,?,?,?,?,?,?,?)", rows)
         con.executemany(
             "INSERT INTO transcripts VALUES (?,?,?,?,?,?,?,?,?,?,?,?)", tx_rows
         )
         con.execute(
             "INSERT INTO seq_maxlen SELECT source, chrom, MAX(end-start+1) FROM transcripts WHERE source=? GROUP BY chrom",
-            (source,),
+            (tx_source,),
         )
         _set_component(
-            con, component, key, {"genes": len(rows), "transcripts": len(tx_rows)}
+            con,
+            component,
+            key,
+            {
+                "genes": len(rows),
+                "transcripts": len(tx_rows),
+                "stop_codon_audit_rows": len(audit_rows),
+                "source": source,
+            },
         )
-    log(f"  run {run.run_id}: {len(rows):,} genes stored")
+    log(
+        f"  run {run.run_id}: {len(rows):,} genes stored from {source['kind'].replace('_', ' ')}"
+    )
 
 
 def _independent_table(
@@ -460,6 +640,7 @@ def build_result(con, experiment, ws, task, reference_ready: bool, log=print) ->
     key = stable_hash(
         {
             "v": STORE_VERSION,
+            "code": BUILD_CODE,
             "status": task.status,
             "reason": task.reason,
             "cache_key": task.key,
@@ -472,7 +653,13 @@ def build_result(con, experiment, ws, task, reference_ready: bool, log=print) ->
     if _component_key(con, component) == key:
         return
     with con:
-        for table in ("results", "metrics", "ref_outcomes", "query_outcomes"):
+        for table in (
+            "results",
+            "metrics",
+            "ref_outcomes",
+            "query_outcomes",
+            "exact_pairs",
+        ):
             con.execute(
                 f"DELETE FROM {table} WHERE run_id=? AND policy_id=?",
                 (run.run_id, policy.id),
@@ -538,6 +725,51 @@ def build_result(con, experiment, ws, task, reference_ready: bool, log=print) ->
                     independent_note=f"independent table {ind_check.get('status')}: {ind_check.get('reason', '')}",
                 )
         public["independent"].update(ind_check)
+        summary = read_json(out_dir / "comparison_summary.json") or {}
+        manifest = read_json(out_dir / "comparison_manifest.json") or {}
+        pairs = read_pairs(out_dir)
+        public["pairs_check"] = check_pairs(pairs, summary)
+        public["stop_codon_harmonisation"] = summary.get(
+            "query_stop_codon_harmonisation"
+        )
+        public["comparator_options"] = {
+            k: (manifest.get("options") or {}).get(k)
+            for k in (
+                "add_stop_codon",
+                "stop_codon_genetic_code",
+                "stop_codon_sequence_code",
+                "reference_transcript_selection",
+                "query_transcript_selection",
+                "evaluation_mode",
+                "reference_transcript_biotypes",
+                "regions_file",
+            )
+        }
+        public["manifest_code_version"] = manifest.get("code_version")
+        if pairs is not None:
+            cols = [
+                "reference_gene_id",
+                "query_gene_id",
+                "query_original_gene_id",
+                "chrom",
+                "strand",
+                "cds_start",
+                "cds_end",
+                "cds_segments",
+                "supporting_reference_transcript_ids",
+                "supporting_query_transcript_ids",
+                "reference_exact_candidates",
+                "query_exact_candidates",
+                "component_reference_genes",
+                "component_query_genes",
+            ]
+            con.executemany(
+                f"INSERT INTO exact_pairs VALUES (?,?,?,{','.join('?' * len(cols))})",
+                [
+                    (ref.id, policy.id, run.run_id, *row)
+                    for row in pairs[cols].values.tolist()
+                ],
+            )
         con.execute(
             "UPDATE results SET record=? WHERE run_id=? AND policy_id=?",
             (json.dumps(public, default=str), run.run_id, policy.id),
@@ -627,6 +859,297 @@ def build_result(con, experiment, ws, task, reference_ready: bool, log=print) ->
     log(f"  result {run.run_id}/{policy.id}: {task.status}")
 
 
+def analysis_scopes(ref, prep: dict | None, con) -> list[dict]:
+    """
+    The whole compared scope plus each configured subset, with availability.
+
+    A subset is available only when every one of its sequences was compared;
+    otherwise it is reported unavailable rather than computed on fewer sequences.
+    """
+    compared = set((prep or {}).get("scope", {}).get("sequences") or []) or None
+    known = compared
+    if known is None and prep is not None:
+        # scope "all": every sequence named by the reference or carrying a stored model
+        known = set(
+            sequence_region_names(Path(prep["annotation"]["output"]["path"]))
+        ) | {c for (c,) in con.execute("SELECT DISTINCT chrom FROM seq_maxlen")}
+    with_genes = {
+        chrom: n
+        for chrom, n in con.execute(
+            "SELECT chrom, COUNT(*) FROM ref_genes WHERE reference_id=? AND evaluated=1 GROUP BY chrom",
+            (ref.id,),
+        )
+    }
+    whole = {
+        "id": WHOLE_ASSEMBLY,
+        "label": ref.scope.get("label") or "All compared sequences",
+        "role": "primary",
+        "sequences": None,
+        "sequence_count": len(compared) if compared else None,
+        "available": True,
+        "description": ref.scope.get("note") or "",
+    }
+    out = [whole]
+    for scope in ref.analysis_scopes:
+        seqs = scope["sequences"]
+        outside = sorted(set(seqs) - known) if known is not None else []
+        out.append(
+            {
+                **scope,
+                "sequence_count": len(seqs),
+                "sha256": stable_hash(sorted(seqs)),
+                "sequences_with_reference_genes": sum(1 for x in seqs if x in with_genes),
+                "available": prep is not None and not outside,
+                "reason": (
+                    "reference not prepared"
+                    if prep is None
+                    else f"{len(outside)} sequence(s) were not compared: {', '.join(outside[:5])}"
+                    if outside
+                    else None
+                ),
+            }
+        )
+    return out
+
+
+def _frame(con, sql: str, args) -> pd.DataFrame:
+    cur = con.execute(sql, args)
+    return pd.DataFrame(cur.fetchall(), columns=[d[0] for d in cur.description])
+
+
+def _reference_cds(con, reference_id: str, cache: dict) -> dict:
+    key = ("ref", reference_id)
+    if key not in cache:
+        cache[key] = {
+            t: (c, st, splice.parse_segments(cds))
+            for t, c, st, cds in con.execute(
+                "SELECT transcript_id, chrom, strand, cds FROM transcripts WHERE source=?",
+                (f"ref:{reference_id}",),
+            )
+        }
+    return cache[key]
+
+
+def _query_index(con, run_id: str, selection: str, sequences, cache: dict):
+    key = ("query", run_id, selection)
+    if key not in cache:
+        chosen = set()
+        for (tids,) in con.execute(
+            "SELECT evaluated_transcripts FROM query_gene_policy WHERE run_id=? AND selection=?",
+            (run_id, selection),
+        ):
+            chosen.update(t for t in (tids or "").split(",") if t)
+        if not chosen:
+            cache[key] = None
+        else:
+            cache[key] = splice.SupportIndex.build(
+                (c, st, splice.parse_segments(cds))
+                for t, c, st, cds in con.execute(
+                    "SELECT transcript_id, chrom, strand, cds FROM transcripts WHERE source=?",
+                    (f"run:{run_id}",),
+                )
+                if t in chosen and (sequences is None or c in sequences)
+            )
+    return cache[key]
+
+
+def build_analysis(con, ws, task, scopes, model_errors, cache, log=print) -> None:
+    """Scoped metrics and splice-site analysis of one result (cached component)."""
+    run, policy, ref = task.run, task.policy, task.reference
+    keys = {
+        name: _component_key(con, component)
+        for name, component in (
+            ("result", f"result:{run.run_id}:{policy.id}"),
+            ("reference", f"reference:{ref.id}"),
+            ("run", f"run:{run.run_id}"),
+        )
+    }
+    key = stable_hash(
+        {
+            "v": STORE_VERSION,
+            "code": BUILD_CODE,
+            **keys,
+            "status": task.status,
+            "scopes": scopes,
+            "bins": [
+                splice.POSITION_BINS,
+                splice.INTRON_LENGTH_EDGES,
+                splice.POSITION_MIN_LENGTHS,
+            ],
+        }
+    )
+    component = f"analysis:{run.run_id}:{policy.id}"
+    if _component_key(con, component) == key:
+        return
+    where = (ref.id, run.run_id, policy.id)
+    with con:
+        for table in ("scope_metrics", "splice_sites", "intron_lengths", "analyses"):
+            con.execute(
+                f"DELETE FROM {table} WHERE reference_id=? AND run_id=? AND policy_id=?",
+                where,
+            )
+    one_per_gene = policy.reference_transcript_selection != "all"
+    record = {
+        "policy": policy.id,
+        "reference_transcript_selection": policy.reference_transcript_selection,
+        "query_transcript_selection": policy.query_transcript_selection,
+        "binned": one_per_gene,
+        "scopes": [
+            {k: sc.get(k) for k in ("id", "label", "sequence_count", "sha256", "available", "reason")}
+            for sc in scopes
+        ],
+        "support_rule": splice.SUPPORT_RULE,
+        "detection_rule": splice.DETECTION_RULE,
+        "position_bins": splice.POSITION_BINS,
+        "position_coordinates": list(splice.POSITION_COORDINATES),
+        "position_min_intron_lengths": list(splice.POSITION_MIN_LENGTHS),
+        "intron_length_edges": list(splice.INTRON_LENGTH_EDGES),
+        "code": {
+            "build_code": BUILD_CODE,
+            **{
+                name: sha256_file(Path(__file__).with_name(name))
+                for name in ("scope.py", "splice.py")
+            },
+        },
+        "components": keys,
+    }
+
+    def finish(status, reason=None):
+        with con:
+            con.execute(
+                "INSERT INTO analyses VALUES (?,?,?,?,?,?)",
+                (*where, status, reason, json.dumps(record, default=str)),
+            )
+            _set_component(con, component, key)
+
+    if task.status != STATUS_COMPLETE:
+        return finish("not_available", f"result {task.status}")
+    missing = [n for n in ("reference", "run") if keys[n] is None]
+    if missing or run.run_id in model_errors:
+        return finish(
+            "not_available",
+            model_errors.get(run.run_id)
+            or f"{' and '.join(missing)} models not stored in this dataset",
+        )
+    out_dir = Path((ws.run_record(run.run_id, policy.id) or {}).get("output_dir", ""))
+    record["inputs"] = {
+        name: ws.checksums.sha256(out_dir / name) if (out_dir / name).exists() else None
+        for name in ("comparison_details.tsv", "comparison_summary.json", "cds_exact_one_to_one_pairs.tsv")
+    }
+    record["inputs"]["output_dir"] = str(out_dir)
+    ref_out = _frame(
+        con,
+        "SELECT o.gene_id, g.chrom, o.cds_overlap, o.cds_exact, o.cds_intron_chain_match, "
+        "o.counterpart_count, o.multi_segment FROM ref_outcomes o JOIN ref_genes g "
+        "ON g.reference_id=o.reference_id AND g.gene_id=o.gene_id "
+        "WHERE o.reference_id=? AND o.policy_id=? AND o.run_id=?",
+        (ref.id, policy.id, run.run_id),
+    )
+    if ref_out.empty:
+        return finish("not_available", "no per-gene outcomes (summary-only result)")
+    qry_out = _frame(
+        con,
+        "SELECT gene_id, chrom, cds_exact, counterpart_count FROM query_outcomes "
+        "WHERE reference_id=? AND policy_id=? AND run_id=?",
+        (ref.id, policy.id, run.run_id),
+    )
+    pairs = (
+        _frame(
+            con,
+            "SELECT chrom FROM exact_pairs WHERE reference_id=? AND policy_id=? AND run_id=?",
+            (ref.id, policy.id, run.run_id),
+        )
+        if record["inputs"]["cds_exact_one_to_one_pairs.tsv"]
+        else None
+    )
+    comparator = [
+        dict(zip(("metric_id", "numerator", "denominator", "value", "status"), r))
+        for r in con.execute(
+            "SELECT metric_id, numerator, denominator, value, status FROM metrics "
+            "WHERE reference_id=? AND policy_id=? AND run_id=?",
+            (ref.id, policy.id, run.run_id),
+        )
+    ]
+    compared_seqs = set(
+        (ws.preparation_record(ref.id) or {}).get("scope", {}).get("sequences") or []
+    ) or None
+    index = _query_index(con, run.run_id, policy.query_transcript_selection, compared_seqs, cache)
+    ref_cds = _reference_cds(con, ref.id, cache)
+    genes = [
+        splice.ReferenceGene(
+            gene_id, chrom, strand, [ref_cds[t][2] for t in (tids or "").split(",") if t in ref_cds]
+        )
+        for gene_id, chrom, strand, tids in con.execute(
+            "SELECT p.gene_id, g.chrom, g.strand, p.evaluated_transcripts FROM ref_gene_policy p "
+            "JOIN ref_genes g ON g.reference_id=p.reference_id AND g.gene_id=p.gene_id "
+            "WHERE p.reference_id=? AND p.policy_id=?",
+            (ref.id, policy.id),
+        )
+    ]
+    available = [sc for sc in scopes if sc["available"]]
+    splice_result, splice_error = None, None
+    if index is None:
+        splice_error = "no evaluated query transcripts stored for this policy"
+    else:
+        try:
+            splice_result = splice.analyse(
+                genes,
+                index,
+                dict(zip(ref_out.gene_id, ref_out.cds_overlap > 0)),
+                {sc["id"]: (set(sc["sequences"]) if sc["sequences"] else None) for sc in available},
+                one_per_gene,
+            )
+        except ValueError as error:
+            splice_error = str(error)
+    totals = lambda sid: splice_result[sid] if splice_result else None  # noqa: E731
+    check = check_whole_assembly(
+        scoped_metrics(ref_out, qry_out, pairs, None, totals(WHOLE_ASSEMBLY)), comparator
+    )
+    record["whole_assembly_check"] = check
+    record["splice_error"] = splice_error
+    record["totals"] = {
+        sid: {k: v for k, v in res.items() if k not in ("position", "length")}
+        for sid, res in (splice_result or {}).items()
+    }
+    metric_rows, site_rows, length_rows = [], [], []
+    for sc in available:
+        sid = sc["id"]
+        if sid != WHOLE_ASSEMBLY:
+            rows = mark_inconsistent(
+                scoped_metrics(ref_out, qry_out, pairs, set(sc["sequences"]), totals(sid)),
+                check,
+            )
+            metric_rows += [
+                (ref.id, sid, run.run_id, policy.id, r["metric_id"], r["numerator"],
+                 r["denominator"], r["value"], r["status"], r["source"], r["note"])
+                for r in rows
+            ]
+        if splice_result and one_per_gene:
+            site_rows += [
+                (ref.id, sid, run.run_id, policy.id, r["min_intron_length"], r["coordinate"], r["kind"], r["bin"],
+                 r["lo"], r["hi"], r["assessed"], r["supported"], r["missing_locus"])
+                for r in splice_result[sid]["position"]
+            ]
+            length_rows += [
+                (ref.id, sid, run.run_id, policy.id, r["bin"], r["lo"], r["hi"], r["label"],
+                 r["eligible"], r["exact"], r["donor"], r["acceptor"], r["missing_locus"])
+                for r in splice_result[sid]["length"]
+            ]
+    with con:
+        con.executemany(f"INSERT INTO scope_metrics VALUES ({','.join('?' * 11)})", metric_rows)
+        con.executemany(f"INSERT INTO splice_sites VALUES ({','.join('?' * 13)})", site_rows)
+        con.executemany(f"INSERT INTO intron_lengths VALUES ({','.join('?' * 13)})", length_rows)
+    status = "ok" if check["status"] == "verified" and not splice_error else "inconsistent"
+    reason = splice_error or (
+        None if check["status"] == "verified" else "; ".join(check["differences"][:5])
+    )
+    finish(status, reason)
+    log(
+        f"  analysis {run.run_id}/{policy.id}: whole-assembly reproduction {check['status']}"
+        f" ({check['metrics_compared']} metrics){'; ' + splice_error if splice_error else ''}"
+    )
+
+
 def run_colors(experiment: Experiment) -> dict[str, str]:
     """Colour by tool (stable across references); later runs of the same tool on one reference get lighter tints."""
     tools = []
@@ -680,16 +1203,38 @@ def build_dashboard(experiment: Experiment, ws: Workspace, log=print) -> Path:
         build_reference(con, experiment, ws, ref, prep, log)
         ready[ref.id] = True
     model_errors = {}
+    model_sources = {}
     for run in experiment.runs.values():
         prep = prepared.get(run.reference)
-        annotation = (ws.run_preparation_record(run.run_id) or {}).get(
-            "output", {}
-        ).get("path") or str(run.annotation)
-        if not (prep and Path(annotation).exists()):
+        try:
+            source = evaluated_models_source(ws, run, tasks)
+        except OSError as error:
+            source = {
+                "kind": "unavailable",
+                "reason": f"{type(error).__name__}: {error}",
+            }
+        model_sources[run.run_id] = source
+        if source["kind"] == "unavailable":
+            model_errors[run.run_id] = source["reason"]
+        elif not (prep and Path(source["path"]).exists()):
             model_errors[run.run_id] = "annotation or prepared reference unavailable"
+        if run.run_id in model_errors:
+            with con:
+                for sql in (
+                    "DELETE FROM query_genes WHERE run_id=?",
+                    "DELETE FROM stop_codon_audit WHERE run_id=?",
+                    "DELETE FROM query_gene_policy WHERE run_id=?",
+                ):
+                    con.execute(sql, (run.run_id,))
+                con.execute(
+                    "DELETE FROM transcripts WHERE source=?", (f"run:{run.run_id}",)
+                )
+                con.execute(
+                    "DELETE FROM components WHERE component=?", (f"run:{run.run_id}",)
+                )
             continue
         try:
-            build_run_models(con, experiment, ws, run, prep, log)
+            build_run_models(con, experiment, ws, run, prep, source, log)
         except (
             ValueError,
             OSError,
@@ -697,6 +1242,9 @@ def build_dashboard(experiment: Experiment, ws: Workspace, log=print) -> Path:
             model_errors[run.run_id] = f"{type(error).__name__}: {error}"
             with con:
                 con.execute("DELETE FROM query_genes WHERE run_id=?", (run.run_id,))
+                con.execute(
+                    "DELETE FROM query_gene_policy WHERE run_id=?", (run.run_id,)
+                )
                 con.execute(
                     "DELETE FROM transcripts WHERE source=?", (f"run:{run.run_id}",)
                 )
@@ -710,8 +1258,18 @@ def build_dashboard(experiment: Experiment, ws: Workspace, log=print) -> Path:
         build_result(
             con, experiment, ws, task, ready.get(task.reference.id, False), log
         )
+    scopes = {
+        ref.id: analysis_scopes(ref, prepared.get(ref.id), con)
+        for ref in experiment.references.values()
+    }
+    cache: dict = {}
+    for task in tasks:
+        build_analysis(
+            con, ws, task, scopes[task.reference.id], model_errors, cache, log
+        )
 
     validation = read_json(ws.validation_file())
+    order = list(experiment.runs)
     meta = {
         "store_version": STORE_VERSION,
         "built": now(),
@@ -734,6 +1292,7 @@ def build_dashboard(experiment: Experiment, ws: Workspace, log=print) -> Path:
                 },
                 "models_available": ready.get(r.id, False),
                 "preparation": prepared.get(r.id),
+                "scopes": scopes[r.id],
             }
             for r in experiment.references.values()
         ],
@@ -742,6 +1301,17 @@ def build_dashboard(experiment: Experiment, ws: Workspace, log=print) -> Path:
                 "run_id": r.run_id,
                 "reference": r.reference,
                 "tool": r.tool,
+                "label": r.display_label,
+                "role": r.role,
+                "comparator_options": r.comparator_options,
+                "companion_of": r.companion_of,
+                "config_order": order.index(r.run_id),
+                "query_coordinates": (
+                    "stop_harmonised"
+                    if r.comparator_options.get("add_stop_codon")
+                    else "original"
+                ),
+                "models_source": model_sources.get(r.run_id),
                 "tool_version": r.tool_version,
                 "model": r.model,
                 "annotation": str(r.annotation),
@@ -755,6 +1325,7 @@ def build_dashboard(experiment: Experiment, ws: Workspace, log=print) -> Path:
                 (r, run_colors(experiment)[r.run_id]) for r in experiment.runs.values()
             )
         ],
+        "display": experiment.display,
         "validation": validation,
         "model_errors": model_errors,
         "import_report": read_json(ws.import_report()),

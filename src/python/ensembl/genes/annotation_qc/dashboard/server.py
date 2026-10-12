@@ -11,6 +11,10 @@ Endpoints (all GET):
     /api/overview?exp=&reference=[&format=csv]
     /api/genes?exp=&reference=&policy=&...   reference-gene table (+format=csv)
     /api/predictions?exp=&reference=&policy=&run=&...   prediction table (+format=csv)
+    /api/pairs?exp=&reference=&policy=&run=[&format=csv]   comparator one-to-one exact-CDS pairs
+    /api/stop_audit?exp=&run=[&status=&reason=&format=csv]  stop-codon audit (harmonised runs)
+    /api/splice?exp=&reference=&policy=&scope=[&format=csv&table=sites|lengths]
+                                             binned splice-site / intron-length recovery
     /api/gene?exp=&reference=&policy=&gene_id=
     /api/locus?exp=&reference=&chrom=&start=&end=&policy=&runs=&gene_id=&isoforms=
     /api/chromosomes?exp=&reference=
@@ -74,6 +78,7 @@ def _csv(
                 for key in (
                     "cds_status",
                     "cds_exact",
+                    "one_to_one_partner",
                     "cds_overlap",
                     "cds_matched_id",
                     "counterpart_count",
@@ -195,6 +200,39 @@ def make_handler(datasets: Datasets):
                             _csv(data["rows"]).encode(),
                             "text/tab-separated-values",
                             f"{exp}_{p['run']}_{p['policy']}_predictions.tsv",
+                        )
+                    return self._json(data)
+                if url.path == "/api/pairs":
+                    as_csv = p.get("format") == "csv"
+                    data = queries.pairs(con, p, csv=as_csv)
+                    if as_csv:
+                        return self._send(
+                            200,
+                            _csv(data["rows"]).encode(),
+                            "text/tab-separated-values",
+                            f"{exp}_{p['run']}_{p['policy']}_cds_exact_one_to_one_pairs.tsv",
+                        )
+                    return self._json(data)
+                if url.path == "/api/stop_audit":
+                    as_csv = p.get("format") == "csv"
+                    data = queries.stop_audit(con, p, csv=as_csv)
+                    if as_csv:
+                        return self._send(
+                            200,
+                            _csv(data["rows"]).encode(),
+                            "text/tab-separated-values",
+                            f"{exp}_{p['run']}_stop_codon_audit.tsv",
+                        )
+                    return self._json(data)
+                if url.path == "/api/splice":
+                    data = queries.splice_sites(con, p)
+                    if p.get("format") == "csv":
+                        table = "lengths" if p.get("table") == "lengths" else "sites"
+                        return self._send(
+                            200,
+                            _csv(data[table]).encode(),
+                            "text/tab-separated-values",
+                            f"{exp}_{p['reference']}_{data['policy']}_{data['scope']}_splice_{table}.tsv",
                         )
                     return self._json(data)
                 if url.path == "/api/gene":

@@ -10,6 +10,28 @@ Identity rules:
     reference ``id`` and run ``run_id`` are the unique identifiers. ``tool`` is a
     display/grouping label only, so several runs (models, versions, settings) of
     the same tool can coexist. Policy keys (e.g. "A", "B", "C") are identifiers too.
+
+Comparator options per run (``runs[].comparator_options``):
+    ``add_stop_codon`` (default false: original coordinates),
+    ``stop_codon_genetic_code`` (NCBI table, default 1) and
+    ``stop_codon_sequence_code`` ({sequence: table or "none"}) map to the
+    pairwise-compare options of the same names. They are part of the run's
+    parameters, command and cache key, so an original-coordinate run and a
+    stop-harmonised run of the same file are distinct results.
+
+Presentation only (never part of a cache key or comparison):
+    ``runs[].companion_of``         a supplementary run (e.g. the same file with
+                                    stop-codon harmonisation) is listed directly after
+                                    this run and is excluded from the ordering
+    ``display.pinned_runs``         run ids listed first, in this order; the other
+                                    primary runs follow in descending order of
+                                    ``display.order_metric`` (default: one-to-one
+                                    exact-CDS recall) for the selected policy and scope
+    ``references[].analysis_scopes`` named sequence subsets ({id, label, sequences,
+                                    description}) reported beside the whole compared
+                                    scope; applied to reference and query genes alike
+                                    (benchmark/scope.py). ``scope.label`` names the
+                                    whole compared scope.
 """
 
 from __future__ import annotations
@@ -27,6 +49,19 @@ FORMATS = ("auto", "gff3", "gtf", "tiberius")
 SCOPE_TYPES = ("all", "reference_sequence_regions", "sequences", "regions_file")
 PREPARATION_STEPS = ("decompress", "retype_transcript_types")
 _ID = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_.\-]*$")
+ROLES = ("primary", "supplementary")
+ORDER_METRICS = (
+    "exact_recall_one_to_one",
+    "exact_f1_one_to_one",
+    "exact_precision_one_to_one",
+    "locus_recovery_cds_overlap",
+)
+RESERVED_SCOPE_IDS = ("whole_assembly",)
+COMPARATOR_OPTIONS = (
+    "add_stop_codon",
+    "stop_codon_genetic_code",
+    "stop_codon_sequence_code",
+)
 
 DEFAULT_POLICIES = {
     "A": {
@@ -88,6 +123,7 @@ class Reference:
     scope: dict = field(default_factory=lambda: {"type": "all"})
     seqname_map: Path | None = None
     notes: str | None = None
+    analysis_scopes: list[dict] = field(default_factory=list)
     raw: dict = field(default_factory=dict)
 
 
@@ -106,7 +142,15 @@ class Run:
     aliases: list[str] = field(default_factory=list)
     color: str | None = None
     synthetic: bool = False
+    label: str | None = None  # display label; defaults to the tool name
+    role: str = "primary"  # or "supplementary"
+    comparator_options: dict = field(default_factory=dict)  # normalised, see below
+    companion_of: str | None = None  # presentation: listed after this run
     raw: dict = field(default_factory=dict)
+
+    @property
+    def display_label(self) -> str:
+        return self.label or self.tool
 
 
 @dataclass
@@ -118,6 +162,7 @@ class Policy:
     query_transcript_selection: str
     optional: bool = False
     plots_per_category: int = 0
+    role: str = "primary"  # or "supplementary"
 
 
 @dataclass
@@ -135,6 +180,7 @@ class Experiment:
     runs: dict[str, Run]
     imports: dict
     raw: dict
+    display: dict = field(default_factory=dict)
 
     def runs_for(self, reference_id: str) -> list[Run]:
         return [run for run in self.runs.values() if run.reference == reference_id]
@@ -206,6 +252,125 @@ def _preparation(base: Path, value, problems: list[str], what: str) -> Preparati
     return Preparation(steps=steps, reuse_existing=reuse)
 
 
+def stop_codon_options(add_stop_codon, genetic_code=None, sequence_code=None) -> dict:
+    """
+    Canonical stop-codon parameters, shared by configurations and manifests.
+
+    Returns {} when stop-codon harmonisation is off, so original-coordinate
+    results keep the parameters (and cache keys) they had before the option
+    existed. Otherwise the table and per-sequence overrides as a sorted
+    ``SEQNAME=TABLE`` list ("none" = no table; that sequence is skipped).
+    Raises:
+            ValueError for unsupported tables or malformed overrides
+    """
+    from ensembl.genes.annotation_qc.metrics.pairwise.stop_codons import (
+        parse_genetic_code_policy,
+    )
+
+    if not add_stop_codon:
+        return {}
+    if isinstance(sequence_code, dict):
+        sequence_code = [f"{name}={table}" for name, table in sequence_code.items()]
+    policy = parse_genetic_code_policy(
+        1 if genetic_code is None else genetic_code, list(sequence_code or [])
+    )
+    return {
+        "add_stop_codon": True,
+        "stop_codon_genetic_code": policy.default,
+        "stop_codon_sequence_code": sorted(
+            f"{name}={'none' if table is None else table}"
+            for name, table in policy.overrides.items()
+        )
+        or None,
+    }
+
+
+def _comparator_options(spec, problems: list[str], what: str) -> dict:
+    spec = spec or {}
+    if not isinstance(spec, dict):
+        problems.append(f"{what}: must be an object")
+        return {}
+    unknown = sorted(set(spec) - set(COMPARATOR_OPTIONS))
+    if unknown:
+        problems.append(
+            f"{what}: unknown option(s) {unknown} (allowed: {', '.join(COMPARATOR_OPTIONS)})"
+        )
+    add = spec.get("add_stop_codon", False)
+    if not isinstance(add, bool):
+        problems.append(f"{what}.add_stop_codon must be true or false")
+        return {}
+    if not add and (
+        spec.get("stop_codon_genetic_code") is not None
+        or spec.get("stop_codon_sequence_code")
+    ):
+        problems.append(
+            f"{what}: stop_codon_genetic_code / stop_codon_sequence_code need add_stop_codon: true"
+        )
+    try:
+        return stop_codon_options(
+            add,
+            spec.get("stop_codon_genetic_code"),
+            spec.get("stop_codon_sequence_code"),
+        )
+    except ValueError as error:
+        problems.append(f"{what}: {error}")
+        return {}
+
+
+def _analysis_scopes(spec, problems: list[str], what: str) -> list[dict]:
+    scopes, seen = [], set()
+    for i, raw in enumerate(spec or []):
+        where = f"{what}[{i}]"
+        if not isinstance(raw, dict):
+            problems.append(f"{where}: must be an object")
+            continue
+        sid = raw.get("id", "")
+        if not _ID.match(str(sid)) or sid in RESERVED_SCOPE_IDS:
+            problems.append(
+                f"{where}.id must be an identifier other than {RESERVED_SCOPE_IDS}"
+            )
+            continue
+        if sid in seen:
+            problems.append(f"{where}: duplicate scope id {sid!r}")
+            continue
+        seen.add(sid)
+        seqs = raw.get("sequences")
+        if (
+            not isinstance(seqs, list)
+            or not seqs
+            or not all(isinstance(x, str) and x for x in seqs)
+        ):
+            problems.append(f"{where}.sequences must be a non-empty list of sequence names")
+            continue
+        if len(set(seqs)) != len(seqs):
+            problems.append(f"{where}.sequences lists a sequence twice")
+        scopes.append(
+            {
+                "id": sid,
+                "label": raw.get("label", sid),
+                "sequences": list(seqs),
+                "description": raw.get("description", ""),
+                "role": "supplementary",
+            }
+        )
+    return scopes
+
+
+def _display(spec, runs: dict, problems: list[str]) -> dict:
+    spec = spec or {}
+    if not isinstance(spec, dict):
+        problems.append("display: must be an object")
+        return {}
+    pinned = spec.get("pinned_runs") or []
+    for run_id in pinned:
+        if run_id not in runs:
+            problems.append(f"display.pinned_runs: {run_id!r} is not a configured run_id")
+    order = spec.get("order_metric", "exact_recall_one_to_one")
+    if order not in ORDER_METRICS:
+        problems.append(f"display.order_metric must be one of {ORDER_METRICS}")
+    return {"pinned_runs": list(pinned), "order_metric": order}
+
+
 def load_experiment(path: str | Path) -> Experiment:
     """
     Load and statically validate an experiment configuration.
@@ -273,7 +438,10 @@ def load_experiment(path: str | Path) -> Experiment:
                 )
             ),
             plots_per_category=int(spec.get("plots_per_category", 0)),
+            role=spec.get("role", "primary"),
         )
+        if policies[pid].role not in ROLES:
+            problems.append(f"policies.{pid}.role must be one of {ROLES}")
 
     references = {}
     for i, spec in enumerate(raw.get("references") or []):
@@ -339,6 +507,9 @@ def load_experiment(path: str | Path) -> Experiment:
                 required=False,
             ),
             notes=spec.get("notes"),
+            analysis_scopes=_analysis_scopes(
+                spec.get("analysis_scopes"), problems, f"{what}.analysis_scopes"
+            ),
             raw=spec,
         )
     if not references:
@@ -365,6 +536,17 @@ def load_experiment(path: str | Path) -> Experiment:
         fmt = spec.get("format", "auto")
         if fmt not in FORMATS:
             problems.append(f"{what}.format must be one of {FORMATS}")
+        options = _comparator_options(
+            spec.get("comparator_options"), problems, f"{what}.comparator_options"
+        )
+        reference = references.get(spec.get("reference"))
+        if options.get("add_stop_codon") and reference and reference.genome is None:
+            problems.append(
+                f"{what}: add_stop_codon needs a genome on reference {reference.id}"
+            )
+        role = spec.get("role", "primary")
+        if role not in ROLES:
+            problems.append(f"{what}.role must be one of {ROLES}")
         runs[run_id] = Run(
             run_id=run_id,
             reference=spec.get("reference", ""),
@@ -383,8 +565,22 @@ def load_experiment(path: str | Path) -> Experiment:
             aliases=list(spec.get("aliases") or []),
             color=spec.get("color"),
             synthetic=bool(spec.get("synthetic", meta.get("synthetic", False))),
+            label=spec.get("label"),
+            role=role,
+            comparator_options=options,
+            companion_of=spec.get("companion_of"),
             raw=spec,
         )
+    for run in runs.values():
+        if run.companion_of is None:
+            continue
+        other = runs.get(run.companion_of)
+        if other is None or other.reference != run.reference or other is run:
+            problems.append(
+                f"run {run.run_id}: companion_of must name another run on the same reference"
+            )
+        elif run.role != "supplementary":
+            problems.append(f"run {run.run_id}: companion_of needs role 'supplementary'")
 
     imports = dict(raw.get("import") or {})
     if imports.get("benchmark_dir"):
@@ -395,6 +591,8 @@ def load_experiment(path: str | Path) -> Experiment:
         imports[key] = [
             _path(base, p, problems, f"import.{key}") for p in imports.get(key) or []
         ]
+
+    display = _display(raw.get("display"), runs, problems)
 
     if problems:
         raise ConfigError(problems)
@@ -412,13 +610,19 @@ def load_experiment(path: str | Path) -> Experiment:
         runs=runs,
         imports=imports,
         raw=raw,
+        display=display,
     )
 
 
 def comparator_parameters(
     experiment: Experiment, reference: Reference, run: Run, policy: Policy
 ) -> dict:
-    """Effective pairwise-compare parameters for one (run, policy); used in cache keys."""
+    """
+    Effective pairwise-compare parameters for one (run, policy); used in cache keys.
+
+    Stop-codon keys appear only when harmonisation is on (see stop_codon_options),
+    so the parameters of original-coordinate runs are unchanged.
+    """
     ev = experiment.evaluation
     return {
         "evaluation_mode": ev["evaluation_mode"],
@@ -433,4 +637,5 @@ def comparator_parameters(
         "plots_per_category": policy.plots_per_category,
         "region": None,
         "assembly_report": None,
+        **run.comparator_options,
     }

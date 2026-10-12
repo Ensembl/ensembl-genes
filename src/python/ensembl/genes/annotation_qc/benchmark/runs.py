@@ -7,7 +7,8 @@ A result is reused only when its cache key matches. The key covers:
                     prepared genome, scope regions content and seqname map
     preparation     the recipes that produced those prepared files (via their
                     output checksums and recorded source checksums)
-    parameters      effective pairwise-compare options (config.comparator_parameters)
+    parameters      effective pairwise-compare options (config.comparator_parameters),
+                    including stop-codon harmonisation and genetic-code settings
     implementation  content fingerprint of the comparator source files and the
                     python / pandas / pyranges1 versions
 
@@ -56,6 +57,18 @@ EXPECTED_OUTPUTS = (
     "reference_filter_audit.json",
     "comparison_manifest.json",
 )
+STOP_CODON_OUTPUTS = (
+    "stop_codon_harmonisation.tsv",
+    "query_evaluated.stop_harmonised.gtf",
+)
+
+
+def expected_outputs(parameters: dict) -> tuple[str, ...]:
+    """Files a successful comparison with these parameters must have written."""
+    if parameters.get("add_stop_codon"):
+        return EXPECTED_OUTPUTS + STOP_CODON_OUTPUTS
+    return EXPECTED_OUTPUTS
+
 
 STATUS_COMPLETE = "complete"
 STATUS_FAILED = "failed"
@@ -168,11 +181,15 @@ def plan(
                 record
                 and record.get("status") == STATUS_COMPLETE
                 and record.get("cache_key") == key
-                and _outputs_present(record)
             ):
+                missing = _missing_outputs(record)
                 status, reason = (
-                    STATUS_COMPLETE,
-                    "cached result matches inputs, parameters and implementation",
+                    (
+                        STATUS_COMPLETE,
+                        "cached result matches inputs, parameters and implementation",
+                    )
+                    if not missing
+                    else (STATUS_STALE, "outputs missing: " + ", ".join(missing))
                 )
             elif record and record.get("status") == STATUS_COMPLETE:
                 status, reason = STATUS_STALE, describe_difference(
@@ -207,9 +224,10 @@ def describe_difference(old: dict, new: dict) -> str:
     return "changed: " + (", ".join(changed) if changed else "cache key")
 
 
-def _outputs_present(record: dict) -> bool:
+def _missing_outputs(record: dict) -> list[str]:
     out = Path(record.get("output_dir", ""))
-    return all((out / name).exists() for name in EXPECTED_OUTPUTS)
+    params = (record.get("key_components") or {}).get("parameters") or {}
+    return [name for name in expected_outputs(params) if not (out / name).exists()]
 
 
 def build_argv(inputs: dict, params: dict) -> list[str]:
@@ -256,6 +274,14 @@ def build_argv(inputs: dict, params: dict) -> list[str]:
         argv += ["--regions-file", inputs["scope_path"]]
     if params["plots_per_category"]:
         argv += ["--plots-per-category", str(params["plots_per_category"])]
+    if params.get("add_stop_codon"):
+        argv += [
+            "--add-stop-codon",
+            "--stop-codon-genetic-code",
+            str(params["stop_codon_genetic_code"]),
+        ]
+        for override in params.get("stop_codon_sequence_code") or []:
+            argv += ["--stop-codon-sequence-code", override]
     return argv
 
 
@@ -295,7 +321,11 @@ def execute(ws: Workspace, task: Task, log=print) -> dict:
         "implementation": current_implementation(),
         "source": "computed",
     }
-    missing = [n for n in EXPECTED_OUTPUTS if not (partial / "out" / n).exists()]
+    missing = [
+        n
+        for n in expected_outputs(task.key_components["parameters"])
+        if not (partial / "out" / n).exists()
+    ]
     if proc.returncode != 0 or missing:
         record.update(
             status=STATUS_FAILED,
