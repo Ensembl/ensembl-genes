@@ -27,18 +27,32 @@ Usage:
 import argparse
 import hashlib
 import importlib.metadata
+import json
 import os
 import platform
+import re
 import subprocess
 import sys
 import time
 from datetime import datetime, timezone
 from pathlib import Path
 
+import pandas as pd
+
+from ensembl.genes.annotation_qc.metrics.pairwise import contract
 from ensembl.genes.annotation_qc.metrics.pairwise.classify import (
+    RECIPROCAL_THRESHOLD,
+    SPLIT_MERGE_MIN_SHARED_FRACTION,
     build_gene_models,
     classify_loci,
     gene_span_excess,
+    transcripts_outside_gene,
+)
+from ensembl.genes.annotation_qc.metrics.pairwise.evaluation_audit import (
+    ExclusionTracker,
+    canonical_tag_count,
+    selection_labels,
+    transcript_ids,
 )
 from ensembl.genes.annotation_qc.metrics.pairwise.matching import (
     one_to_one_exact_cds,
@@ -63,6 +77,7 @@ from ensembl.genes.annotation_qc.metrics.pairwise.summary import (
     summarise_comparison,
     summarise_intron_support,
     summarise_span_excess,
+    summarise_transcripts_outside,
 )
 from ensembl.genes.annotation_qc.parsers.annotation import (
     ANNOTATION_FORMATS,
@@ -83,8 +98,11 @@ from ensembl.genes.annotation_qc.parsers.tool_output import (
     read_evidence_attribution,
 )
 from ensembl.genes.annotation_qc.reports import pairwise_compare as report
+from ensembl.genes.annotation_qc.reports import pairwise_contract as contract_report
 
 GENOME_MISMATCH_POLICIES = ("error", "warn", "exclude")
+EXPORT_MODES = ("ids", "full")
+_SCOPE_ID = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_.\-]*$")
 
 
 class ComparisonInputError(ValueError):
@@ -103,6 +121,17 @@ def _sha256(path: str) -> str:
     return digest.hexdigest()
 
 
+def _compression(path: str) -> str:
+    """none, gzip or bgzf (gzip with the BGZF extra field), from the content."""
+    with open(path, "rb") as handle:
+        head = handle.read(18)
+    if head[:2] != b"\x1f\x8b":
+        return "none"
+    return (
+        "bgzf" if len(head) >= 14 and head[3] & 4 and head[12:14] == b"BC" else "gzip"
+    )
+
+
 def _file_record(path: str | None) -> dict | None:
     if not path:
         return None
@@ -110,12 +139,40 @@ def _file_record(path: str | None) -> dict | None:
         "path": str(Path(path).resolve()),
         "size": os.path.getsize(path),
         "sha256": _sha256(path),
+        "compression": _compression(path),
+    }
+
+
+def _implementation() -> dict:
+    """
+    Content fingerprint of the annotation_qc modules this run imported.
+
+    Identifies the code even when it is not a clean Git checkout (uncommitted
+    edits) or not a checkout at all (an installed wheel).
+    """
+    package = Path(__file__).resolve().parent.parent
+    files = {}
+    for name, module in sorted(sys.modules.items()):
+        path = getattr(module, "__file__", None)
+        if not name.startswith("ensembl.genes.annotation_qc") or not path:
+            continue
+        files[str(Path(path).resolve().relative_to(package))] = _sha256(path)
+    versions = {
+        name: importlib.metadata.version(name) for name in ("pandas", "pyranges1")
+    }
+    versions["python"] = platform.python_version()
+    text = json.dumps({"files": files, "versions": versions}, sort_keys=True)
+    return {
+        "fingerprint": hashlib.sha256(text.encode()).hexdigest(),
+        "source_files": files,
+        "versions": versions,
     }
 
 
 def _code_version() -> dict:
     version = {"ensembl_genes": importlib.metadata.version("ensembl-genes")}
-    source = Path(__file__).resolve().parent
+    # The whole annotation_qc package (this runner imports from all of it).
+    source = Path(__file__).resolve().parent.parent
     try:
         commit = subprocess.run(
             ["git", "-C", str(source), "rev-parse", "HEAD"],
@@ -181,7 +238,7 @@ def _parse(path: str, format_hint: str, label: str):
     return annotation, diagnostics
 
 
-def _harmonise_seqnames(ref, query, args, mapping) -> tuple:
+def _harmonise_seqnames(ref, query, args, mapping, lengths) -> tuple:
     """Apply the seqname map and check names/coordinates. Returns (ref, query, report)."""
     ref, ref_map = apply_seqname_mapping(ref, mapping)
     query, query_map = apply_seqname_mapping(query, mapping)
@@ -204,7 +261,6 @@ def _harmonise_seqnames(ref, query, args, mapping) -> tuple:
             )
         return ref, query, checks
 
-    lengths = parse_sequence_lengths(args.genome)
     for label, frame in (("reference", ref), ("query", query)):
         result = check_seqnames_against_genome(frame, lengths)
         checks[f"{label}_genome_check"] = result
@@ -244,14 +300,44 @@ def _harmonise_seqnames(ref, query, args, mapping) -> tuple:
     return ref, query, checks
 
 
-def _filter_reference(ref, args) -> tuple:
+def _select(df, mode: str, label: str, tracker: ExclusionTracker) -> tuple:
+    """Transcript selection with an explicit canonical check and labels."""
+    if mode == "canonical" and canonical_tag_count(df) == 0:
+        raise ComparisonInputError(
+            f"{label}: canonical transcript selection was requested but no "
+            "transcript carries the Ensembl_canonical tag, so every gene would "
+            "silently fall back to the longest CDS. Choose all or longest_cds."
+        )
+    selected = select_transcripts(df, mode)
+    labels = selection_labels(df, transcript_ids(selected), mode)
+    tracker.step(selected, f"not_selected:{mode}")
+    return selected, labels
+
+
+def _filter_reference(ref, args, tracker: ExclusionTracker) -> tuple:
+    """Evaluation mode, biotype filters and selection, each step tracked."""
     before = summarise_annotation(ref)
-    ref = apply_evaluation_mode(ref, args.evaluation_mode)
+    mode_labels = {}
+    if args.evaluation_mode == "canonical":
+        # The canonical preset is a transcript selection.
+        ref, mode_labels = _select(ref, "canonical", "reference", tracker)
+    else:
+        ref = apply_evaluation_mode(ref, args.evaluation_mode)
+        tracker.step(ref, f"evaluation_mode:{args.evaluation_mode}")
     gene_biotypes = _split(args.reference_gene_biotypes)
     transcript_biotypes = _split(args.reference_transcript_biotypes)
-    if gene_biotypes or transcript_biotypes:
-        ref = filter_by_biotype(ref, gene_biotypes, transcript_biotypes)
-    ref = select_transcripts(ref, args.reference_transcript_selection)
+    # filter_by_biotype applies the gene filter, then the transcript filter; the
+    # two calls below give the same table and record which filter dropped what.
+    if gene_biotypes:
+        ref = filter_by_biotype(ref, gene_biotypes, None)
+        tracker.step(ref, "gene_biotype_filter")
+    if transcript_biotypes:
+        ref = filter_by_biotype(ref, None, transcript_biotypes)
+        tracker.step(ref, "transcript_biotype_filter")
+    selection = args.reference_transcript_selection
+    ref, labels = _select(ref, selection, "reference", tracker)
+    if selection == "all" and mode_labels:
+        labels = {tid: mode_labels.get(tid, "all") for tid in labels}
     after = summarise_annotation(ref)
     audit = {
         "evaluation_mode": args.evaluation_mode,
@@ -273,7 +359,7 @@ def _filter_reference(ref, args) -> tuple:
         f"  Reference after filtering: {after['genes']} of {before['genes']} genes, "
         f"{after['transcripts']} of {before['transcripts']} transcripts"
     )
-    return ref, audit
+    return ref, audit, labels
 
 
 def _stop_codon_policy(args):
@@ -323,7 +409,105 @@ def _regions(args) -> list:
     return regions
 
 
-def run_pairwise_compare(args) -> dict:
+def _analysis_scopes(args, ref, query, lengths, regions) -> dict[str, set]:
+    """
+    Named sequence subsets to report beside the whole comparison (scope "all").
+
+    Every sequence must be verifiable: present in the genome FASTA when --genome
+    is given (otherwise in one of the annotations), and inside the regions when
+    the comparison is restricted. Scopes are applied to reference and query
+    genes alike.
+    """
+    scopes: dict[str, list[str]] = {}
+    for text in args.analysis_scope or []:
+        name, _, sequences = text.partition("=")
+        scopes.setdefault(name.strip(), []).extend(
+            s.strip() for s in sequences.split(",") if s.strip()
+        )
+    if args.analysis_scopes_file:
+        table = pd.read_csv(
+            args.analysis_scopes_file, sep="\t", dtype=str, comment="#"
+        ).fillna("")
+        if not {"scope_id", "sequence"} <= set(table.columns):
+            raise ComparisonInputError(
+                "--analysis-scopes-file needs the columns scope_id and sequence"
+            )
+        for name, sequence in zip(table["scope_id"], table["sequence"]):
+            scopes.setdefault(name.strip(), []).append(sequence.strip())
+    known = (
+        set(lengths) if lengths else set(ref["Chromosome"]) | set(query["Chromosome"])
+    )
+    region_names = {region.seqname for region in regions}
+    out = {}
+    for name, sequences in scopes.items():
+        if not _SCOPE_ID.match(name) or name == contract.ALL_SCOPE:
+            raise ComparisonInputError(
+                f"analysis scope id {name!r} must be an identifier other than "
+                f"{contract.ALL_SCOPE!r}"
+            )
+        if not sequences or len(set(sequences)) != len(sequences):
+            raise ComparisonInputError(
+                f"analysis scope {name}: list each sequence once, at least one"
+            )
+        unknown = sorted(set(sequences) - known)
+        if unknown:
+            where = "the genome FASTA" if lengths else "either annotation"
+            raise ComparisonInputError(
+                f"analysis scope {name}: sequences not in {where}: {unknown[:10]}"
+            )
+        outside = sorted(set(sequences) - region_names) if regions else []
+        if outside:
+            raise ComparisonInputError(
+                f"analysis scope {name}: sequences outside --region/--regions-file: "
+                f"{outside[:10]}"
+            )
+        out[name] = set(sequences)
+    return out
+
+
+def _provenance(args) -> dict | None:
+    if not args.provenance_json:
+        return None
+    with open(args.provenance_json, encoding="utf-8") as handle:
+        data = json.load(handle)
+    if not isinstance(data, dict):
+        raise ComparisonInputError("--provenance-json must hold a JSON object")
+    return data
+
+
+def _splice_available(args) -> bool:
+    """Binned splice analyses need one reference transcript per gene."""
+    return (
+        args.reference_transcript_selection in ("longest_cds", "canonical")
+        or args.evaluation_mode == "canonical"
+    )
+
+
+def _load_inputs(args, lengths):
+    """Parse, map sequence names and (optionally) harmonise query stop codons."""
+    _log("Loading annotations...")
+    mapping = build_seqname_mapping(args.seqname_map, args.assembly_report)
+    ref, ref_diag = _parse(args.reference, args.reference_format, "Reference")
+    query, query_diag = _parse(args.query, args.query_format, "Query")
+    parsed = {"reference": ref, "query": query}
+    trackers = {role: ExclusionTracker(frame) for role, frame in parsed.items()}
+    ref, query, seqname_checks = _harmonise_seqnames(ref, query, args, mapping, lengths)
+    trackers["reference"].step(ref, "excluded_seqname")
+    trackers["query"].step(query, "excluded_seqname")
+    return {
+        "mapping": mapping,
+        "parsed": parsed,
+        "trackers": trackers,
+        "ref": ref,
+        "query": query,
+        "diagnostics": {"reference": ref_diag, "query": query_diag},
+        "seqname_checks": seqname_checks,
+    }
+
+
+def run_pairwise_compare(  # pylint: disable=too-many-locals,too-many-statements,too-many-branches
+    args,
+) -> dict:
     """
     Run the comparison described by parsed CLI arguments.
     Args:
@@ -340,6 +524,8 @@ def run_pairwise_compare(args) -> dict:
         "assembly_report",
         "evidence_attribution",
         "regions_file",
+        "analysis_scopes_file",
+        "provenance_json",
     ):
         path = getattr(args, option)
         if path and not os.path.isfile(path):
@@ -348,6 +534,7 @@ def run_pairwise_compare(args) -> dict:
             )
     regions = _regions(args)
     stop_policy = _stop_codon_policy(args)
+    provenance = _provenance(args)
     if args.plots_per_category:
         from ensembl.genes.annotation_qc.reports import (
             pairwise_plots,
@@ -358,25 +545,34 @@ def run_pairwise_compare(args) -> dict:
         except ImportError as error:
             raise ComparisonInputError(str(error)) from error
 
-    _log("Loading annotations...")
-    mapping = build_seqname_mapping(args.seqname_map, args.assembly_report)
-    ref, ref_diag = _parse(args.reference, args.reference_format, "Reference")
-    query, query_diag = _parse(args.query, args.query_format, "Query")
-    ref, query, seqname_checks = _harmonise_seqnames(ref, query, args, mapping)
-    stop_audit, stop_summary = None, {"applied": False, "annotation": "query"}
+    lengths = parse_sequence_lengths(args.genome) if args.genome else None
+    data = _load_inputs(args, lengths)
+    ref, query = data["ref"], data["query"]
+    trackers = data["trackers"]
+    scopes = _analysis_scopes(args, ref, query, lengths, regions)
+    stop: dict = {"audit": None, "transformed": {}}
+    stop_summary = {"applied": False, "annotation": "query"}
     if stop_policy:
-        query, stop_audit, stop_summary = _add_stop_codons(
+        query, audit_table, stop_summary = _add_stop_codons(
             query, args.genome, stop_policy
         )
+        stop["audit"] = audit_table
+        extended = audit_table[audit_table["status"] == "extended"]
+        stop["transformed"] = dict.fromkeys(
+            extended["transcript_id"], "stop_codon_added"
+        )
+    data["compared"] = {"reference": ref, "query": query}
 
     _log("Filtering reference...")
     # The unfiltered reference only labels Novel query genes (e.g. pseudogene loci).
     ref_context = ref
-    ref, audit = _filter_reference(ref, args)
-    if seqname_checks["excluded"].get("reference"):
-        audit["excluded_seqnames"] = seqname_checks["excluded"]["reference"]
+    ref, audit, ref_labels = _filter_reference(ref, args, trackers["reference"])
+    if data["seqname_checks"]["excluded"].get("reference"):
+        audit["excluded_seqnames"] = data["seqname_checks"]["excluded"]["reference"]
+    query, query_labels = _select(
+        query, args.query_transcript_selection, "query", trackers["query"]
+    )
     if args.query_transcript_selection != "all":
-        query = select_transcripts(query, args.query_transcript_selection)
         _log(
             f"  Query transcripts kept ({args.query_transcript_selection}): "
             f"{int((query['Feature'] == 'transcript').sum())}"
@@ -385,19 +581,30 @@ def run_pairwise_compare(args) -> dict:
         ref = subset_to_regions(ref, regions)
         query = subset_to_regions(query, regions)
         ref_context = subset_to_regions(ref_context, regions)
+        trackers["reference"].step(ref, "outside_regions")
+        trackers["query"].step(query, "outside_regions")
         _log(f"  Restricted to {len(regions)} region(s)")
 
     _log("Classifying loci...")
     ref_models, query_models = build_gene_models(ref), build_gene_models(query)
+    trackers["reference"].finish(ref_models)
+    trackers["query"].finish(query_models)
     ref_results, query_results = classify_loci(
         ref_models, query_models, reference_context=build_gene_models(ref_context)
     )
     summary = summarise_comparison(ref_results, query_results)
+    summary["contract"] = {
+        "id": contract.CONTRACT_ID,
+        "version": contract.CONTRACT_VERSION,
+        "definition_version": contract.DEFINITION_VERSION,
+        "metrics_file": contract_report.METRICS_TSV,
+    }
     summary["intron_support"] = summarise_intron_support(ref_models, query_models)
     summary["query_stop_codon_harmonisation"] = stop_summary
     summary["cds_exact_one_to_one"], exact_pairs = one_to_one_exact_cds(
         ref_models, query_models
     )
+    contract.add_contract_columns(ref_results, query_results, exact_pairs, scopes)
     labels = query_transcript_labels(query_results)
     summary["filter_info"] = {
         key: audit[key]
@@ -418,9 +625,16 @@ def run_pairwise_compare(args) -> dict:
             summary["filter_info"][name] = audit[key]
     if regions:
         summary["subset_regions"] = [str(region) for region in regions]
+    if scopes:
+        summary["analysis_scopes"] = {sid: sorted(seqs) for sid, seqs in scopes.items()}
     summary["gene_span_checks"] = {
-        "reference": summarise_span_excess(gene_span_excess(ref_models)),
-        "query": summarise_span_excess(gene_span_excess(query_models)),
+        role: {
+            **summarise_span_excess(gene_span_excess(models)),
+            "transcripts_outside": summarise_transcripts_outside(
+                transcripts_outside_gene(models)
+            ),
+        }
+        for role, models in (("reference", ref_models), ("query", query_models))
     }
 
     _log("Writing reports...")
@@ -432,10 +646,10 @@ def run_pairwise_compare(args) -> dict:
     report.write_split_merge(ref_results, query_results, args.outdir)
     report.write_exact_cds_pairs(exact_pairs, args.outdir)
     stop_outputs = None
-    if stop_audit is not None:
+    if stop["audit"] is not None:
         stop_outputs = {
             "audit": _file_record(
-                report.write_stop_codon_audit(stop_audit, args.outdir)
+                report.write_stop_codon_audit(stop["audit"], args.outdir)
             ),
             "evaluated_query": _file_record(
                 report.write_annotation_gtf(
@@ -443,6 +657,33 @@ def run_pairwise_compare(args) -> dict:
                 )
             ),
         }
+    input_records = {
+        "query": _file_record(args.query),
+        "reference": _file_record(args.reference),
+    }
+    analyses = contract_report.write_contract_outputs(
+        {
+            "outdir": args.outdir,
+            "export_evaluated_models": args.export_evaluated_models,
+            "splice_available": _splice_available(args),
+            "canonical_reference": "canonical"
+            in (args.reference_transcript_selection, args.evaluation_mode),
+        },
+        data,
+        {"reference": ref_models, "query": query_models},
+        {"reference": ref_results, "query": query_results},
+        exact_pairs,
+        scopes,
+        {
+            "reference": {
+                "mode": args.reference_transcript_selection,
+                "labels": ref_labels,
+            },
+            "query": {"mode": args.query_transcript_selection, "labels": query_labels},
+        },
+        stop,
+        input_records,
+    )
     unlabelled = None
     if args.evidence_attribution:
         attribution = read_evidence_attribution(args.evidence_attribution)
@@ -458,30 +699,74 @@ def run_pairwise_compare(args) -> dict:
             ref_results, query_results, ref, query, args.outdir, args.plots_per_category
         )
 
-    query_record = _file_record(args.query)
     manifest = {
+        "contract_id": contract.CONTRACT_ID,
+        "contract_version": contract.CONTRACT_VERSION,
+        "definition_version": contract.DEFINITION_VERSION,
         "command": "annotation-qc pairwise-compare",
         "argv": sys.argv,
         "created": datetime.now(timezone.utc).isoformat(),
         "runtime_seconds": round(time.time() - started, 1),
         "inputs": {
-            "query": query_record,
-            "reference": _file_record(args.reference),
+            **input_records,
             "genome": _file_record(args.genome),
             "seqname_map": _file_record(args.seqname_map),
             "assembly_report": _file_record(args.assembly_report),
             "evidence_attribution": _file_record(args.evidence_attribution),
             "regions_file": _file_record(args.regions_file),
+            "analysis_scopes_file": _file_record(args.analysis_scopes_file),
+            "provenance_json": _file_record(args.provenance_json),
         },
-        "gmb_finalise": _gmb_provenance(args.query, query_record["sha256"]),
+        "provenance": provenance,
+        "gmb_finalise": _gmb_provenance(args.query, input_records["query"]["sha256"]),
         "options": {key: value for key, value in vars(args).items() if key != "func"},
+        "policies": {
+            "evaluation_mode": args.evaluation_mode,
+            "reference_gene_biotypes": _split(args.reference_gene_biotypes),
+            "reference_transcript_biotypes": _split(args.reference_transcript_biotypes),
+            "reference_transcript_selection": args.reference_transcript_selection,
+            "query_transcript_selection": args.query_transcript_selection,
+            "genome_mismatch": args.genome_mismatch,
+            "excluded_seqnames": data["seqname_checks"]["excluded"],
+            "seqname_mapping_applied": {
+                "reference": data["seqname_checks"]["reference_mapping"]["mapped"],
+                "query": data["seqname_checks"]["query_mapping"]["mapped"],
+            },
+        },
+        "transformations": (
+            [
+                {
+                    "id": "stop_codon_added",
+                    "side": "query",
+                    "audit": report.STOP_AUDIT_TSV,
+                    "summary": {k: v for k, v in stop_summary.items() if k != "policy"},
+                    "policy": stop_summary.get("policy"),
+                }
+            ]
+            if stop["audit"] is not None
+            else []
+        ),
+        "scope": {
+            "comparison_regions": [str(region) for region in regions] or None,
+            "analysis_scopes": {sid: sorted(seqs) for sid, seqs in scopes.items()},
+        },
+        "thresholds": {
+            "reciprocal_overlap": RECIPROCAL_THRESHOLD,
+            "split_merge_min_shared_fraction": SPLIT_MERGE_MIN_SHARED_FRACTION,
+        },
+        "analyses": analyses,
+        "metric_definitions": contract.metric_definitions(),
         "coordinates": "internally zero-based half-open; reported one-based inclusive",
-        "parse_diagnostics": {"reference": ref_diag, "query": query_diag},
+        "parse_diagnostics": data["diagnostics"],
         "stop_codon_harmonisation": {**stop_summary, "outputs": stop_outputs},
-        "seqname_checks": seqname_checks,
+        "seqname_checks": data["seqname_checks"],
         "evidence_attribution_unlabelled_rows": unlabelled,
         "code_version": _code_version(),
+        "implementation": _implementation(),
     }
+    manifest["outputs"] = contract_report.outputs_inventory(
+        args.outdir, exclude=("comparison_manifest.json",)
+    )
     report.write_manifest(manifest, args.outdir)
 
     _log("\n" + report.format_console_summary(summary))
@@ -622,6 +907,37 @@ def _add_args(parser):
         "--evidence-attribution",
         default=None,
         help="GMB build/evidence_attribution.tsv to label with query results.",
+    )
+    other.add_argument(
+        "--analysis-scope",
+        action="append",
+        default=None,
+        metavar="ID=SEQ[,SEQ...]",
+        help="Named sequence subset reported beside the whole comparison (scope "
+        "'all') in metrics.tsv, the splice tables and scope_ids columns; applied "
+        "to reference and query genes alike. Sequences must be in the genome "
+        "FASTA (or an annotation without --genome). Repeatable.",
+    )
+    other.add_argument(
+        "--analysis-scopes-file",
+        default=None,
+        help="TSV with columns scope_id and sequence (one row per sequence), "
+        "same meaning as --analysis-scope.",
+    )
+    other.add_argument(
+        "--provenance-json",
+        default=None,
+        help="JSON object copied verbatim into comparison_manifest.json "
+        "('provenance'), e.g. the original source path of a renamed input, a "
+        "predictor label or a run id. Never interpreted.",
+    )
+    other.add_argument(
+        "--export-evaluated-models",
+        choices=EXPORT_MODES,
+        default="ids",
+        help="evaluated_transcripts.tsv.gz content: ids (default) lists every "
+        "transcript with its status and structure counts; full also writes "
+        "one-based exon and CDS segments.",
     )
     other.add_argument(
         "--plots-per-category",

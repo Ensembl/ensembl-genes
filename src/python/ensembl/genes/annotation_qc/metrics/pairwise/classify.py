@@ -59,6 +59,20 @@ Definitions (gmb-compare pairing and thresholds; reporting refined as noted):
     novel        a Novel query gene is further labelled (novel_category) by its
                  exon overlap, on either strand, with the unfiltered reference;
                  see novel_categories.
+    any pair     cds_intron_chain_any_pair / intron_chain_any_pair: True when
+                 ANY own transcript with > 1 CDS segment (exon) and ANY
+                 transcript of a same-strand partner have identical, non-empty
+                 CDS (exon) intron chains; None when no own transcript has an
+                 intron. Unlike the best-pair columns this does not depend on
+                 pair ranking, so any-pair >= best-pair recovery.
+    best CDS pair descriptors (reported from the query's point of view on both
+                 sides): cds_shared_bases (bases shared by the two CDS),
+                 cds_start_diff_bp / cds_stop_diff_bp (> 0: the query CDS
+                 extends further than the reference CDS at the start / stop end,
+                 in the direction of transcription), cds_introns_missing
+                 (reference CDS introns absent from the query transcript) and
+                 cds_introns_extra (query CDS introns absent from the reference
+                 transcript). None when the gene has no best CDS pair.
 
 Coordinates are zero-based half-open, so lengths are End - Start and two
 features overlap when each starts before the other ends. Partners are visited in
@@ -128,6 +142,17 @@ RESULT_COLUMNS = [
     "novel_category",
     "counterpart_count",
     "counterpart_ids",
+    # Appended for output contract 1.0 (see contract.py); earlier columns unchanged.
+    "gene_biotype",
+    "evaluated_transcript_count",
+    "has_cds",
+    "cds_shared_bases",
+    "cds_intron_chain_any_pair",
+    "intron_chain_any_pair",
+    "cds_start_diff_bp",
+    "cds_stop_diff_bp",
+    "cds_introns_missing",
+    "cds_introns_extra",
 ]
 
 Intervals = tuple[tuple[int, int], ...]
@@ -330,10 +355,44 @@ def _unpaired(label: str, max_exons: int, max_cds: int) -> dict:
         "best_match_own_transcript_id": "",
         "best_cds_match_own_transcript_id": "",
         "strand_mismatch_basis": "",
+        "cds_shared_bases": 0,
+        "cds_intron_chain_any_pair": None if max_cds <= 1 else False,
+        "intron_chain_any_pair": None if max_exons <= 1 else False,
+        "cds_start_diff_bp": None,
+        "cds_stop_diff_bp": None,
+        "cds_introns_missing": None,
+        "cds_introns_extra": None,
     }
 
 
-def _best_match(
+def cds_differences(
+    reference_cds: Intervals, query_cds: Intervals, strand: str
+) -> tuple[int, int, int, int]:
+    """
+    Describe how a query CDS differs from a reference CDS.
+    Args:
+            reference_cds, query_cds: Sorted CDS intervals of one transcript each
+            strand: Strand of the reference gene ("-" reverses start and stop)
+    Returns:
+            (start_diff_bp, stop_diff_bp, reference introns missing from the
+            query, query introns absent from the reference). A positive
+            difference means the query CDS extends further at that end, in the
+            direction of transcription.
+    """
+    left = reference_cds[0][0] - query_cds[0][0]
+    right = query_cds[-1][1] - reference_cds[-1][1]
+    start_diff, stop_diff = (right, left) if strand == "-" else (left, right)
+    ref_introns = set(intron_chain(reference_cds))
+    query_introns = set(intron_chain(query_cds))
+    return (
+        start_diff,
+        stop_diff,
+        len(ref_introns - query_introns),
+        len(query_introns - ref_introns),
+    )
+
+
+def _best_match(  # pylint: disable=too-many-locals,too-many-branches
     own_tids: tuple,
     partners: list[int],
     own: GeneModels,
@@ -341,6 +400,8 @@ def _best_match(
     default: str,
     max_exons: int,
     max_cds: int,
+    own_is_reference: bool = True,
+    strand: str = "+",
 ) -> dict:
     """Best exon pair and, independently, best CDS pair over same-strand partners."""
     other_ids = other.genes["gene_id"].tolist()
@@ -348,6 +409,7 @@ def _best_match(
     best = _unpaired(PARTIAL, max_exons, max_cds)
     best["matched_id"] = other_ids[partners[0]]
     exon_key = cds_key = None
+    best_cds_pair: tuple = ()
     for partner in partners:
         for own_tid in own_tids:
             own_exons = own.exons.get(own_tid)
@@ -358,6 +420,10 @@ def _best_match(
                 other_exons = other.exons.get(other_tid)
                 if not other_exons:
                     continue
+                if len(own_exons) > 1 and intron_chain(own_exons) == intron_chain(
+                    other_exons
+                ):
+                    best["intron_chain_any_pair"] = True
                 reciprocal, chain_match, exon_class = compare_structures(
                     own_exons, other_exons
                 )
@@ -377,6 +443,10 @@ def _best_match(
                 other_cds = other.cds.get(other_tid, ())
                 if not (own_cds and other_cds):
                     continue
+                if len(own_cds) > 1 and intron_chain(own_cds) == intron_chain(
+                    other_cds
+                ):
+                    best["cds_intron_chain_any_pair"] = True
                 cds_overlap, cds_chain, cds_class = compare_structures(
                     own_cds, other_cds
                 )
@@ -393,11 +463,24 @@ def _best_match(
                         cds_intron_chain_match=intron_chain_status(own_cds, other_cds),
                         cds_coordinate_exact=identical,
                     )
+                    best_cds_pair = (own_cds, other_cds)
     if exon_key is None:
         # No comparable transcripts: CDS stays Partial_Match, as in gmb-compare.
         best["classification"] = default
     elif cds_key is None:
         best["classification_cds"] = MISSED if max_cds else NO_CDS
+    if best_cds_pair:
+        own_cds, other_cds = best_cds_pair
+        best["cds_shared_bases"] = shared_bases(own_cds, other_cds)
+        ref_cds, query_cds = (
+            (own_cds, other_cds) if own_is_reference else (other_cds, own_cds)
+        )
+        (
+            best["cds_start_diff_bp"],
+            best["cds_stop_diff_bp"],
+            best["cds_introns_missing"],
+            best["cds_introns_extra"],
+        ) = cds_differences(ref_cds, query_cds, strand)
     return best
 
 
@@ -428,7 +511,7 @@ def _opposite_strand_overlap(
     return exon_hit
 
 
-def _classify_side(
+def _classify_side(  # pylint: disable=too-many-locals
     own: GeneModels,
     other: GeneModels,
     pairs: dict[int, list[tuple[int, bool]]],
@@ -436,12 +519,14 @@ def _classify_side(
     no_transcript_label: str,
 ) -> pd.DataFrame:
     other_ids = other.genes["gene_id"].tolist()
+    own_is_reference = unpaired_label == MISSED
     records = []
-    for row, (own_tids, max_exons, max_cds) in enumerate(
+    for row, (own_tids, max_exons, max_cds, strand) in enumerate(
         zip(
             own.genes["transcript_ids"].tolist(),
             own.genes["max_exon_count"].tolist(),
             own.genes["max_cds_count"].tolist(),
+            own.genes["Strand"].astype(str).tolist(),
         )
     ):
         candidates = pairs.get(row, [])
@@ -450,7 +535,15 @@ def _classify_side(
             result = _unpaired(unpaired_label, max_exons, max_cds)
         elif same:
             result = _best_match(
-                own_tids, same, own, other, no_transcript_label, max_exons, max_cds
+                own_tids,
+                same,
+                own,
+                other,
+                no_transcript_label,
+                max_exons,
+                max_cds,
+                own_is_reference,
+                strand,
             )
         else:
             opposite = [partner for partner, _ in candidates]
@@ -475,12 +568,27 @@ def _classify_side(
     classified = pd.DataFrame.from_records(
         records, columns=list(_unpaired(MISSED, 0, 0))
     )
-    for column in ("intron_chain_match", "cds_intron_chain_match"):
+    for column in (
+        "intron_chain_match",
+        "cds_intron_chain_match",
+        "intron_chain_any_pair",
+        "cds_intron_chain_any_pair",
+    ):
         classified[column] = classified[column].astype("boolean")
+    for column in (
+        "cds_start_diff_bp",
+        "cds_stop_diff_bp",
+        "cds_introns_missing",
+        "cds_introns_extra",
+    ):
+        classified[column] = classified[column].astype("Int64")
     classified["novel_category"] = ""
     classified["counterpart_count"] = 0
     classified["counterpart_ids"] = ""
-    return pd.concat([genes.reset_index(drop=True), classified], axis=1)[RESULT_COLUMNS]
+    genes = genes.reset_index(drop=True)
+    genes["evaluated_transcript_count"] = [len(t) for t in genes["transcript_ids"]]
+    genes["has_cds"] = genes["max_cds_count"] > 0
+    return pd.concat([genes, classified], axis=1)[RESULT_COLUMNS]
 
 
 def _best_shared_fraction(
@@ -650,6 +758,33 @@ def classify_loci(
     ).items():
         query_results.at[row, "novel_category"] = category
     return ref_results, query_results
+
+
+def transcripts_outside_gene(models: GeneModels) -> pd.DataFrame:
+    """
+    Transcripts whose exons extend beyond their gene record.
+
+    Locus pairing uses the gene record's span, so such a transcript can share CDS
+    with a gene that is never paired with its own gene (the identical-CDS graph of
+    the one-to-one matching, which does not use spans, still links them).
+    Args:
+            models: GeneModels
+    Returns:
+            DataFrame with gene_id, transcript_id and the bases outside the gene
+            span (outside_bp), one row per such transcript
+    """
+    records = []
+    for gene in models.genes.itertuples(index=False):
+        for tid in gene.transcript_ids:
+            exons = models.exons.get(tid, ())
+            if not exons:
+                continue
+            outside = max(0, gene.Start - exons[0][0]) + max(0, exons[-1][1] - gene.End)
+            if outside:
+                records.append((gene.gene_id, tid, outside))
+    return pd.DataFrame(
+        records, columns=["gene_id", "transcript_id", "outside_bp"]
+    ).astype({"outside_bp": "int64"})
 
 
 def gene_span_excess(models: GeneModels) -> pd.DataFrame:

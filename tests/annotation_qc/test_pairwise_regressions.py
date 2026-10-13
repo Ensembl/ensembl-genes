@@ -194,7 +194,8 @@ class TestSingleExonIntronChain:
         assert chain["exon_intron_chain_evaluated"] == 0
         assert chain["exon_intron_chain_not_applicable_single_exon"] == 2
         assert chain["multi_exon_reference_genes"] == 0
-        assert chain["exon_intron_chain_rate"] == 0.0
+        # No gene was evaluated: the rate is undefined (None), not 0 (contract 1.0).
+        assert chain["exon_intron_chain_rate"] is None
         assert cds["cds_intron_chain_recovered"] == 0
         assert cds["multi_segment_cds_reference_genes"] == 0
 
