@@ -143,26 +143,40 @@ def _file_record(path: str | None) -> dict | None:
     }
 
 
+# Scheme 1 (contract 1.0 before this change) selected modules by import name
+# (ensembl.genes.annotation_qc.*) and so missed modules that the annotation-qc
+# entry point imports under top-level names (cli.py puts its directory on
+# sys.path: runners.pairwise_compare, parsers.interpro, ...), including this
+# runner. Scheme 2 selects every loaded module file inside the package.
+FINGERPRINT_SCHEME = "annotation_qc_loaded_files_by_path/2"
+
+
 def _implementation() -> dict:
     """
-    Content fingerprint of the annotation_qc modules this run imported.
+    Content fingerprint of the annotation_qc module files this run loaded.
 
-    Identifies the code even when it is not a clean Git checkout (uncommitted
-    edits) or not a checkout at all (an installed wheel).
+    Modules are selected by file location (inside the annotation_qc package),
+    whatever name they were imported under. Identifies the code even when it is
+    not a clean Git checkout (uncommitted edits) or not a checkout at all (an
+    installed wheel).
     """
     package = Path(__file__).resolve().parent.parent
     files = {}
-    for name, module in sorted(sys.modules.items()):
+    for module in list(sys.modules.values()):
         path = getattr(module, "__file__", None)
-        if not name.startswith("ensembl.genes.annotation_qc") or not path:
+        if not path:
             continue
-        files[str(Path(path).resolve().relative_to(package))] = _sha256(path)
+        resolved = Path(path).resolve()
+        if resolved.is_relative_to(package):
+            files[str(resolved.relative_to(package))] = _sha256(str(resolved))
+    files = dict(sorted(files.items()))
     versions = {
         name: importlib.metadata.version(name) for name in ("pandas", "pyranges1")
     }
     versions["python"] = platform.python_version()
     text = json.dumps({"files": files, "versions": versions}, sort_keys=True)
     return {
+        "scheme": FINGERPRINT_SCHEME,
         "fingerprint": hashlib.sha256(text.encode()).hexdigest(),
         "source_files": files,
         "versions": versions,

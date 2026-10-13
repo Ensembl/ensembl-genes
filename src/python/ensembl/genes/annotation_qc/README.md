@@ -449,8 +449,14 @@ the manifest.
 - `analyses`: availability of each analysis, with a reason when it is not applicable.
 - `metric_definitions`.
 - `provenance`: verbatim from `--provenance-json`.
-- `implementation`: a SHA-256 of every `annotation_qc` module the run imported, plus
-  package versions. It identifies uncommitted or installed code.
+- `implementation`: `scheme`, `fingerprint` (SHA-256 over `source_files`, the SHA-256 of
+  every `annotation_qc` module file the run loaded, and the pandas, pyranges1 and Python
+  versions). It identifies uncommitted or installed code. Scheme
+  `annotation_qc_loaded_files_by_path/2` selects modules by file location. Manifests
+  without `scheme` used scheme 1, which selected them by import name and so omitted the
+  modules the `annotation-qc` entry point imports under top-level names (including
+  `runners/pairwise_compare.py`); identify such results by their source-file hashes or
+  the wheel that produced them. Fingerprints of different schemes are not comparable.
 
 **Use by other consumers.**
 

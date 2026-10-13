@@ -7,6 +7,8 @@ import gzip
 import hashlib
 import json
 import shutil
+import subprocess
+import sys
 from pathlib import Path
 
 import pandas as pd
@@ -593,3 +595,36 @@ def test_transcript_outside_its_gene_record(write_text, tmp_path):
     outside = summary["gene_span_checks"]["query"]["transcripts_outside"]
     assert outside["transcripts_outside_gene_span"] == 1
     assert outside["examples"] == ["G.t2"]
+
+
+def test_fingerprint_covers_modules_loaded_by_the_cli(two_chromosomes, tmp_path):
+    """Under the annotation-qc entry point the runner is imported as runners.*."""
+    outdir = tmp_path / "cli"
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "ensembl.genes.annotation_qc.cli",
+            "pairwise-compare",
+            "--reference",
+            two_chromosomes[0],
+            "--query",
+            two_chromosomes[1],
+            "--outdir",
+            str(outdir),
+        ],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert result.returncode == 0, result.stderr
+    manifest = json.loads((outdir / "comparison_manifest.json").read_text())
+    implementation = manifest["implementation"]
+    assert implementation["scheme"] == pairwise_compare.FINGERPRINT_SCHEME
+    files = implementation["source_files"]
+    for name in (
+        "runners/pairwise_compare.py",
+        "cli.py",
+        "metrics/pairwise/contract.py",
+    ):
+        assert name in files, name
