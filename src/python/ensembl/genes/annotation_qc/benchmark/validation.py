@@ -327,6 +327,19 @@ def _issue(level: str, where: str, message: str) -> dict:
     return {"level": level, "where": where, "message": message}
 
 
+_BGZ_PROBE: list[bool] = []
+
+
+def _bgz_suffix_unreadable() -> bool:
+    """True while the comparator parser cannot read gzip/BGZF files not named *.gz (probed once)."""
+    if not _BGZ_PROBE:
+        status = next(l for l in parser_limitations() if l["id"] == "bgz_suffix")[
+            "status"
+        ]
+        _BGZ_PROBE.append(status.startswith("present"))
+    return _BGZ_PROBE[0]
+
+
 def check_annotation(
     scan: dict, path: Path, where: str, prepared: bool, issues: list, will_prepare: bool
 ) -> None:
@@ -334,6 +347,7 @@ def check_annotation(
         scan["compressed"]
         and not str(path).lower().endswith(".gz")
         and not will_prepare
+        and _bgz_suffix_unreadable()
     ):
         issues.append(
             _issue(
@@ -532,6 +546,32 @@ def validate_experiment(
             runs[run.run_id] = entry
             continue
         entry["input"] = ws.checksums.record(run.annotation)
+        expected = (run.source or {}).get("sha256")
+        if expected and expected != entry["input"]["sha256"]:
+            issues.append(
+                _issue(
+                    "error",
+                    where,
+                    f"source.sha256 {expected[:12]}… does not match the annotation "
+                    f"({entry['input']['sha256'][:12]}…); provenance would be wrong",
+                )
+            )
+        if run.input_audit is not None:
+            audit = read_json(run.input_audit)
+            if audit is None:
+                issues.append(
+                    _issue(
+                        "warning", where, f"input_audit not readable: {run.input_audit}"
+                    )
+                )
+            elif audit.get("sha256") and audit["sha256"] != entry["input"]["sha256"]:
+                issues.append(
+                    _issue(
+                        "error",
+                        where,
+                        "input_audit describes another file (sha256 differs from the annotation)",
+                    )
+                )
         scan = cached_scan(ws, Path(run.annotation))
         entry["annotation_scan"] = scan
         check_annotation(

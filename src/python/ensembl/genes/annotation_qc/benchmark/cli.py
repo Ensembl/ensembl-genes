@@ -3,12 +3,14 @@
 
     validate         check configuration and inputs (writes validation/validation.json)
     prepare          run recorded input preparation (decompress, retype) and derive scope
-    import           register completed comparisons from an existing benchmark directory
-    run              run missing, stale or failed comparisons, sequentially
+    import           register completed comparator results (results and pilot directories)
+    run              run missing, stale, failed or unverified comparisons, sequentially
     independent      run the independent CDS-signature analysis (optional cross-check)
     build            build or update the dashboard dataset (SQLite)
     status           show every (run, policy) result status without running anything
-    verify-headline  compare dashboard metrics with a headline_metrics.tsv (wide) table
+    provenance       show the implementation identity of every result (registry check)
+    register-build   write a registry entry for the build behind some manifests (git-checked)
+    verify-headline  compare legacy dataset metrics with a headline_metrics.tsv (wide) table
 """
 
 from __future__ import annotations
@@ -29,6 +31,17 @@ def _experiment(args):
     except ConfigError as error:
         sys.exit(str(error))
     return experiment, Workspace(experiment)
+
+
+def _read_only_plan(experiment, ws):
+    """The plan without preparing anything: status and provenance never write records."""
+    from ensembl.genes.annotation_qc.benchmark.preparation import PreparationError
+    from ensembl.genes.annotation_qc.benchmark.runs import plan
+
+    try:
+        return plan(experiment, ws, prepare=False)
+    except (PreparationError, RuntimeError) as error:
+        sys.exit(str(error))
 
 
 def cmd_validate(args):
@@ -108,13 +121,65 @@ def cmd_run(args):
 
 
 def cmd_status(args):
-    from ensembl.genes.annotation_qc.benchmark.runs import plan
-
     experiment, ws = _experiment(args)
-    for task in plan(experiment, ws, prepare=False):
+    for task in _read_only_plan(experiment, ws):
         print(
             f"{task.reference.id:<24} {task.run.run_id:<28} {task.policy.id:<3} {task.status:<11} {task.reason}"
         )
+
+
+def cmd_provenance(args):
+    """Implementation identity of each result: (scheme, fingerprint) against the registries."""
+    experiment, ws = _experiment(args)
+    counts: dict = {}
+    for task in _read_only_plan(experiment, ws):
+        identity = (task.assessment or {}).get("identity") or {}
+        status = identity.get("status", "no result")
+        counts[status] = counts.get(status, 0) + 1
+        print(
+            f"{task.run.run_id:<28} {task.policy.id:<3} {task.status:<11} {status:<17} "
+            f"{identity.get('scheme') or '-':<40} {(identity.get('fingerprint') or '-')[:16]:<16} "
+            f"{identity.get('build_id') or ''} {identity.get('reason') or ''}"
+        )
+    print("; ".join(f"{v} {k}" for k, v in sorted(counts.items())))
+
+
+def cmd_register_build(args):
+    from pathlib import Path
+
+    from ensembl.genes.annotation_qc.benchmark.registry import (
+        RegistryError,
+        register_build,
+    )
+
+    evidence = json.loads(args.evidence) if args.evidence else []
+    try:
+        entry = register_build(
+            [Path(m) for m in args.manifest],
+            Path(args.repo),
+            args.commit,
+            args.build_id,
+            evidence,
+            args.notes,
+        )
+    except RegistryError as error:
+        sys.exit(f"not registered: {error}")
+    out = Path(args.output)
+    data = (
+        json.loads(out.read_text())
+        if out.exists()
+        else {"registry_version": 1, "builds": []}
+    )
+    data["builds"] = [
+        b
+        for b in data["builds"]
+        if (b["scheme"], b["fingerprint"]) != (entry["scheme"], entry["fingerprint"])
+    ] + [entry]
+    out.write_text(json.dumps(data, indent=1, sort_keys=True) + "\n")
+    print(
+        f"registered {entry['build_id']} ({entry['scheme']}, {entry['fingerprint'][:16]}…, "
+        f"{len(entry['source_files'])} files) in {out}"
+    )
 
 
 def cmd_independent(args):
@@ -162,15 +227,19 @@ def cmd_independent(args):
 
 
 def cmd_build(args):
+    from ensembl.genes.annotation_qc.benchmark.preparation import PreparationError
     from ensembl.genes.annotation_qc.benchmark.store import build_dashboard
 
     experiment, ws = _experiment(args)
-    build_dashboard(experiment, ws)
+    try:
+        build_dashboard(experiment, ws)
+    except PreparationError as error:
+        sys.exit(str(error))
 
 
 def cmd_verify_headline(args):
-    """Every column of every row of a headline table must equal the dashboard metric."""
-    from ensembl.genes.annotation_qc.benchmark.derive import (
+    """Every mapped column of every row of a headline table must equal the dashboard metric."""
+    from ensembl.genes.annotation_qc.benchmark.legacy import (
         HEADLINE_COLUMNS,
         compare_headline_value,
     )
@@ -182,11 +251,12 @@ def cmd_verify_headline(args):
     metrics = {
         (r, p, m): (n, d, v, s)
         for r, p, m, n, d, v, s in con.execute(
-            "SELECT run_id, policy_id, metric_id, numerator, denominator, value, status FROM metrics"
+            "SELECT run_id, policy_id, metric_id, numerator, denominator, value, status FROM metrics "
+            "WHERE scope_id='all'"
         )
     }
     runs = set(r for (r, _, _) in metrics)
-    problems, checked, rows = [], 0, 0
+    problems, checked, rows, unavailable = [], 0, 0, {}
     aliases = {
         alias: run.run_id for run in experiment.runs.values() for alias in run.aliases
     }
@@ -207,6 +277,10 @@ def cmd_verify_headline(args):
             if got is None:
                 problems.append(f"{run_id}/{policy_id}: metric {metric_id} missing")
                 continue
+            if got[3] == "not_available":
+                # not in the result's summary (e.g. an earlier dashboard derivation); never compared as 0
+                unavailable[column] = unavailable.get(column, 0) + 1
+                continue
             value = {"numerator": got[0], "denominator": got[1], "value": got[2]}[field]
             expected = row[column]
             checked += 1
@@ -226,6 +300,11 @@ def cmd_verify_headline(args):
     )
     if unmapped:
         print(f"Columns without a dashboard metric: {unmapped}")
+    if unavailable:
+        print(
+            "Mapped columns whose metric is not available for these results (not compared): "
+            + ", ".join(f"{c} ({n} rows)" for c, n in sorted(unavailable.items()))
+        )
     for problem in problems[:50]:
         print("  " + problem)
     sys.exit(0 if not problems and rows == len(headline) else 1)
@@ -290,6 +369,25 @@ def register(subparsers):
             )
     add("build", cmd_build, "Build or update the dashboard dataset.")
     add("status", cmd_status, "Show result status per run and policy.")
+    add(
+        "provenance",
+        cmd_provenance,
+        "Show the implementation identity (registry check) of every result.",
+    )
+    p = sub.add_parser(
+        "register-build",
+        help="Write a registry entry for the build behind manifests (file hashes checked against git).",
+    )
+    p.add_argument("--manifest", nargs="+", required=True)
+    p.add_argument("--repo", required=True, help="Git checkout containing --commit.")
+    p.add_argument("--commit", required=True)
+    p.add_argument("--build-id", required=True)
+    p.add_argument("--output", required=True, help="Registry JSON to create or update.")
+    p.add_argument(
+        "--evidence", default=None, help="JSON list of extra evidence records."
+    )
+    p.add_argument("--notes", default=None)
+    p.set_defaults(func=cmd_register_build)
     p = add(
         "verify-headline",
         cmd_verify_headline,

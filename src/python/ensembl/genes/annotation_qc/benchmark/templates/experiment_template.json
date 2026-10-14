@@ -1,6 +1,6 @@
 {
-  "_comment": "Experiment configuration template (config_version 1). Copy, rename and edit. Relative paths are resolved against THIS file's directory. Keys starting with '_' are ignored. See annotation_qc/dashboard/README.md. Optional presentation keys: 'display': {'pinned_runs': [run ids shown first], 'order_metric': 'exact_recall_one_to_one'} and, per run, 'companion_of': <run_id> for a supplementary run listed after that run.",
-  "config_version": 1,
+  "_comment": "Experiment configuration template (config_version 2; version-1 files still load). Copy, rename and edit. Relative paths are resolved against THIS file's directory. Keys starting with '_' are ignored. See annotation_qc/dashboard/README.md.",
+  "config_version": 2,
   "experiment": {
     "id": "my_species_predictors_2026",
     "title": "My species: reference vs predictors",
@@ -16,8 +16,8 @@
     "genome_mismatch": "error"
   },
   "policies": {
-    "_comment_policies": "Policy ids are free identifiers. Selections: all | longest_cds | canonical. 'canonical' uses the Ensembl_canonical tag (longest CDS where a gene has none) and is reported unavailable for references without any tag.",
-    "A": {"label": "Any eligible reference CDS isoform", "reference_transcript_selection": "all", "query_transcript_selection": "all", "plots_per_category": 0},
+    "_comment_policies": "Policy ids are free identifiers. Selections: all | longest_cds | canonical. 'canonical' uses the Ensembl_canonical tag; a reference without any tag makes the policy unavailable (the comparator refuses it). Splice-position and intron-length tables exist only for policies with one reference transcript per gene.",
+    "A": {"label": "Any eligible reference CDS isoform", "reference_transcript_selection": "all", "query_transcript_selection": "all"},
     "B": {"label": "Longest CDS per gene", "reference_transcript_selection": "longest_cds", "query_transcript_selection": "longest_cds"},
     "C": {"label": "Canonical reference transcript", "reference_transcript_selection": "canonical", "query_transcript_selection": "longest_cds", "optional": true}
   },
@@ -29,47 +29,67 @@
       "assembly_accession": "GCA_000000000.1",
       "annotation_source": "e.g. Ensembl / RefSeq / in-house",
       "annotation_release": "release or date; write 'unknown' if unknown",
-      "annotation": "../references/myspecies.gff3.gz",
+      "annotation": "../references/myspecies.gff3.bgz",
       "annotation_format": "auto",
-      "genome": "../references/myspecies.fa.gz",
-      "annotation_preparation": {
-        "_comment": "Optional, recorded steps: 'decompress' (needed for gzip files not named *.gz) and {'name': 'retype_transcript_types', 'types': [...]} for transcript types the parser does not list (validation tells you). reuse_existing adopts an already prepared file only if re-deriving it from the source gives the same sha256.",
-        "steps": []
-      },
+      "genome": "../references/myspecies.fa.bgz",
+      "annotation_preparation": {"steps": [], "_comment": "Optional recorded steps ('decompress', {'name': 'retype_transcript_types', 'types': [...]}). Compressed annotations are read directly by the comparator; no step is needed for them."},
       "genome_preparation": {"steps": []},
-      "scope": {
-        "_comment": "type: all | reference_sequence_regions (##sequence-region names in the reference) | sequences (list below) | regions_file (path). Decide before comparing tools. Optional 'label' names this whole compared scope in the dashboard. Supplementary subsets go in 'analysis_scopes': [{\"id\", \"label\", \"sequences\": [...], \"description\"}], defined from sequence names (not from where predictions exist) and applied to reference and predicted genes alike.",
-        "type": "reference_sequence_regions"
-      },
+      "scope": {"type": "all", "label": "Whole assembly", "_comment": "type: all | reference_sequence_regions | sequences | regions_file. Decide before comparing tools."},
+      "analysis_scopes": [
+        {"id": "main_chromosomes", "label": "Main chromosomes", "sequences": ["1", "2", "X"], "description": "Defined from sequence names, not from where predictions exist. Reported by the comparator (--analysis-scope) beside the whole comparison."}
+      ],
       "seqname_map": null,
+      "caveats": [],
       "notes": "How the assembly identity was checked."
     }
   ],
   "runs": [
     {
-      "run_id": "myspecies_toolA_modelX_2026-01",
+      "run_id": "myspecies_toolA_run1",
       "reference": "myspecies_asm1_sourceX_release1",
       "tool": "ToolA",
+      "run_label": "ToolA run 1",
       "tool_version": null,
       "model": null,
-      "annotation": "../predictions/myspecies_toolA_modelX.gtf",
+      "annotation": "../predictions/myspecies_toolA_run1.gtf",
       "format": "auto",
+      "source": {"original_path": null, "sha256": null, "recorded_in": null, "_comment": "Provenance of a renamed or copied file: the original path is kept as written; validation checks sha256."},
+      "input_audit": null,
       "provenance": "Command, date, model weights, masking, evidence used. Leave fields null when unknown: they are shown as unknown.",
       "caveats": [],
       "aliases": []
     },
     {
-      "run_id": "myspecies_toolA_modelY_2026-02",
+      "run_id": "myspecies_toolA_run2",
       "reference": "myspecies_asm1_sourceX_release1",
       "tool": "ToolA",
+      "run_label": "ToolA run 2",
       "model": "modelY",
-      "annotation": "../predictions/myspecies_toolA_modelY.gff3",
-      "provenance": "A second run of the same tool: run_id, not tool, is the identifier."
+      "annotation": "../predictions/myspecies_toolA_run2.gff3",
+      "provenance": "A second run of the same tool: run_id, not tool, is the identifier; run_label separates them on screen."
+    },
+    {
+      "run_id": "myspecies_toolA_run1_stop_harmonised",
+      "reference": "myspecies_asm1_sourceX_release1",
+      "tool": "ToolA",
+      "label": "ToolA run 1 — stop-harmonised",
+      "annotation": "../predictions/myspecies_toolA_run1.gtf",
+      "role": "supplementary",
+      "companion_of": "myspecies_toolA_run1",
+      "comparator_options": {"add_stop_codon": true, "stop_codon_genetic_code": 1, "stop_codon_sequence_code": {"MT": 2}},
+      "_comment": "Optional supplementary variant of the same file; listed beside its original and never ranked."
     }
   ],
+  "display": {
+    "preferred_tools": ["ToolA"],
+    "order_metric": "exact_cds_one_to_one_recall",
+    "_comment": "Tools listed first, in this order; the other runs follow by descending order_metric for the selected policy and scope."
+  },
+  "provenance": {"registries": [], "_comment": "Extra implementation registries (annotation-qc benchmark register-build); the packaged registry is always used."},
   "import": {
-    "_comment": "Optional. Only for registering completed comparisons from an existing benchmark directory without rerunning them.",
-    "benchmark_dir": null,
+    "_comment": "Optional. Register completed comparator results without rerunning them. results_dirs: headline results; pilot_dirs: always pilots.",
+    "results_dirs": [],
+    "pilot_dirs": [],
     "code_snapshot": [],
     "independent_tables": null,
     "context_documents": [],

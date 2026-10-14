@@ -3,142 +3,118 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Annotation QC</title>
+<title>Annotation QC · reference comparison</title>
 <link rel="stylesheet" href="/static/app.css">
 </head>
 <body>
-<header class="top">
-  <div class="brand">Annotation QC <span class="muted">reference comparison</span></div>
-  <label class="ctl">Experiment <select id="exp"></select></label>
-  <label class="ctl">Reference <select id="ref"></select></label>
-  <div class="ctl">Policy <span id="policy" class="seg" role="radiogroup" aria-label="Transcript policy"></span></div>
-  <label class="ctl">Scope <select id="scope" aria-label="Sequence scope"></select></label>
+<a class="skip" href="#main">Skip to content</a>
+<header class="masthead">
+  <div class="brand"><span class="brand-name">Annotation QC</span><span class="brand-sub">reference comparison</span></div>
+  <label class="mast-ctl">Experiment <select id="exp" aria-label="Experiment"></select></label>
+  <span class="mast-note" id="contractNote"></span>
 </header>
+<div class="toolbar" role="region" aria-label="Analysis selection">
+  <label class="ctl">Reference <select id="ref"></select></label>
+  <div class="ctl"><span id="policyLabel">Transcript policy</span> <span id="policy" class="seg" role="radiogroup" aria-labelledby="policyLabel"></span></div>
+  <label class="ctl">Sequence scope <select id="scope"></select></label>
+  <label class="ctl check"><input type="checkbox" id="showSupp" checked> show supplementary stop-harmonised variants</label>
+</div>
 <div id="synthetic" class="banner synthetic" hidden>SYNTHETIC DEMONSTRATION DATA — generated fixtures, not real results.</div>
-<div id="legacy" class="banner legacy" hidden></div>
-<section class="runsbar">
-  <span class="muted">Prediction runs</span>
-  <span id="runs"></span>
-</section>
-<div id="policyNote" class="note"></div>
-<nav class="tabs" role="tablist">
-  <button data-tab="overview" class="active">Overview</button>
-  <button data-tab="genes">Genes &amp; loci</button>
-  <button data-tab="predictions">Predictions</button>
-  <button data-tab="provenance">Validation &amp; provenance</button>
-  <button data-tab="dictionary">Metric dictionary</button>
-  <button data-tab="context">Context</button>
+<div id="contextBar" class="contextbar" aria-live="polite"></div>
+<nav class="tabs" role="tablist" aria-label="Sections">
+  <button role="tab" data-tab="overview" aria-selected="true">Overview</button>
+  <button role="tab" data-tab="genes" aria-selected="false">Genes &amp; loci</button>
+  <button role="tab" data-tab="predictions" aria-selected="false">Predictions</button>
+  <button role="tab" data-tab="provenance" aria-selected="false">Provenance &amp; validation</button>
+  <button role="tab" data-tab="dictionary" aria-selected="false">Metric dictionary</button>
 </nav>
-<main>
-  <section id="tab-overview" class="tab active">
-    <div id="scopeLine" class="scope"></div>
-    <div id="contextBar" class="contextbar"></div>
-    <nav class="subnav" role="tablist" aria-label="Summary views">
-      <button data-view="coverage" class="active">Coverage &amp; exact CDS</button>
-      <button data-view="structure">Structural errors</button>
-      <button data-view="detail">Detailed metrics</button>
-    </nav>
+<main id="main" tabindex="-1">
+  <section id="tab-overview" class="tab active" role="tabpanel">
+    <div class="subnav" role="tablist" aria-label="Overview views">
+      <button role="tab" data-view="headline" aria-selected="true">Headline CDS metrics</button>
+      <button role="tab" data-view="structure" aria-selected="false">Structural agreement</button>
+      <button role="tab" data-view="detail" aria-selected="false">All metrics</button>
+    </div>
 
-    <div id="view-coverage" class="view active">
-      <div id="resultStatus" class="small"></div>
+    <div id="view-headline" class="view active">
+      <div id="resultStatus"></div>
       <div id="summaryTable"></div>
-      <div class="explain">
-        <p><b>Loci recovered</b> is a permissive detection measure: a reference gene counts when a prediction on the same strand shares at least one coding base. It says the locus was found, not that the model is right.</p>
-        <p><b>Exact CDS recall and precision</b> require identical CDS segment coordinates — the same start, every splice site and the same stop. Recall is the share of reference genes, precision the share of predicted genes, that are in a coordinate-exact pair.</p>
-        <p><b>F1</b> balances exact-model precision and recall (their harmonic mean, 2TP / (R + Q), on a 0–1 scale). Genes are matched one-to-one: the comparator's maximum matching uses each reference and each predicted gene at most once.</p>
-        <p id="policyExplain" class="muted"></p>
-      </div>
-      <details class="counts"><summary>Counts and denominators</summary><div id="summaryCounts"></div></details>
+      <div id="limitBox"></div>
+      <details class="panel" id="countsPanel"><summary>Counts and denominators</summary><div id="summaryCounts"></div></details>
+      <details class="panel"><summary>How to read these columns</summary>
+        <div class="explain">
+          <p><b>Loci recovered</b>: a reference gene counts when an evaluated transcript of a same-strand prediction locus shares at least one coding base with it. It says the locus was found, not that the model is right.</p>
+          <p><b>One-to-one exact CDS recall / precision</b>: reference and predicted genes that share an identical CDS (same start, every splice site and the same stop) are matched one-to-one (maximum matching; each gene used once). Recall = TP / R, precision = TP / Q.</p>
+          <p><b>One-to-one exact CDS F1</b> = 2 TP / (R + Q), on a 0–1 scale.</p>
+          <p>The <b>per-gene coordinate-exact counts</b> under “Counts and denominators” are a different measure (each gene's best CDS pair, before matching) and can exceed TP.</p>
+          <p id="policyExplain" class="muted"></p>
+        </div>
+      </details>
     </div>
 
     <div id="view-structure" class="view">
       <div id="structureSummary"></div>
-      <div class="explain small">
-        <p><b>CDS intron chain identical</b>: the comparator's best pair has exactly the same CDS introns, over reference genes with a multi-segment CDS. <b>Reference CDS introns recovered</b> / <b>predicted CDS introns supported</b>: unique introns (sequence, strand, start, end) found in the other annotation. <b>Split</b>: a reference gene shares CDS with two or more predicted genes; <b>merge</b>: a predicted gene shares CDS with two or more reference genes (each ≥ 10% shared CDS).</p>
-      </div>
-      <div class="row-between plotctl">
-        <h2>Exploratory: splice sites along reference CDS structures</h2>
-        <span class="ctls">
-          <label>Plot policy <span id="plotPolicy" class="seg small-seg" role="radiogroup" aria-label="Policy for the exploratory plots"></span></label>
-        </span>
-      </div>
-      <p id="plotNote" class="muted small"></p>
+      <p class="muted small">CDS intron chain: multi-segment reference genes whose CDS intron chain is identical in the best CDS pair, or in any transcript pair. Unique introns: (sequence, strand, start, end) sets, so their denominators grow with the number of evaluated isoforms. Split: a reference gene with ≥ 2 predicted counterparts; merge: a prediction with ≥ 2 reference counterparts (≥ 10 % shared CDS).</p>
+      <h2>Splice sites along reference CDS structures</h2>
       <div id="plotStatus"></div>
-      <h3>Where are reference CDS splice sites unsupported? <span class="ctls">
-        <span id="posCoord" class="seg small-seg" role="radiogroup" aria-label="Position coordinate"></span>
-        <span id="posMin" class="seg small-seg" role="radiogroup" aria-label="Reference introns included"></span></span></h3>
-      <div id="positionChart" class="chart"></div>
-      <p class="muted small" id="positionNote"></p>
-      <details class="counts"><summary>Counts per position bin</summary><div id="positionTable" class="tablewrap"></div></details>
-      <h3>Does splice recovery change with reference CDS intron length? <span class="ctls">
-        <span id="lenMeasure" class="seg small-seg" role="radiogroup" aria-label="Recovery measure"></span></span></h3>
-      <div id="lengthChart" class="chart"></div>
-      <p class="muted small" id="lengthNote"></p>
-      <details class="counts"><summary>Counts per intron-length bin</summary><div id="lengthTable" class="tablewrap"></div></details>
-      <div id="spliceDownloads" class="downloads"></div>
+      <div id="plotArea">
+        <h3>Where are reference CDS splice sites unsupported? <span class="ctls">
+          <span id="posCoord" class="seg small-seg" role="radiogroup" aria-label="Position coordinate"></span>
+          <span id="posMin" class="seg small-seg" role="radiogroup" aria-label="Reference introns included"></span></span></h3>
+        <div id="positionChart" class="chart"></div>
+        <p class="muted small" id="positionNote"></p>
+        <details class="panel"><summary>Counts per position bin</summary><div id="positionTable" class="tablewrap"></div></details>
+        <h3>Does splice recovery change with reference CDS intron length? <span class="ctls">
+          <span id="lenMeasure" class="seg small-seg" role="radiogroup" aria-label="Recovery measure"></span></span></h3>
+        <div id="lengthChart" class="chart"></div>
+        <p class="muted small" id="lengthNote"></p>
+        <details class="panel"><summary>Counts per intron-length bin</summary><div id="lengthTable" class="tablewrap"></div></details>
+        <div id="spliceDownloads" class="downloads"></div>
+      </div>
     </div>
 
     <div id="view-detail" class="view">
-      <p id="detailScopeNote" class="callout" hidden></p>
-      <div id="statusStrip"></div>
-      <div class="callout">Each column is one prediction <em>run</em> (a file, model and setting) on this reference, scope and policy — not a verdict on the tool in general. There is no combined score: read the trade-offs across rows.</div>
-      <div class="row-between"><h2>CDS headline metrics</h2>
-        <span><button id="dlMetrics" class="btn">Download all metrics (TSV)</button></span></div>
-      <div id="headlineTable"></div>
-      <div id="downloads" class="downloads"></div>
-      <h2>Policy effect <select id="policyMetric"></select></h2>
-      <p class="muted small">Same reference and runs under each transcript policy. Policies that are unavailable or not run are shown as such, never as zero.</p>
+      <p class="callout">Each column is one prediction run on this reference, policy and scope. There is no combined score. Values are the stored comparator rows; status and reason are shown instead of a value whenever the comparator did not report one.</p>
+      <div class="row-between"><h2>All metrics</h2>
+        <span class="downloads"><a class="btn" id="dlMetricsView">Metric rows: this policy and scope (TSV)</a> <a class="btn" id="dlMetricsAll">All metric rows of this reference (TSV)</a></span></div>
+      <div id="detailTables"></div>
+      <h2>Policy effect</h2>
+      <p class="muted small">The same runs under each transcript policy, for the selected scope. <label>Metric <select id="policyMetric"></select></label></p>
       <div id="policyChart" class="chart"></div>
-      <h2>CDS structure detail</h2>
-      <div id="structureTable"></div>
-      <div id="partialChart" class="chart"></div>
-      <h2>Missed, unmatched, split, merged</h2>
-      <div id="lociTable"></div>
-      <h2>Novel (unmatched prediction) context</h2>
-      <div id="novelChart" class="chart"></div>
-      <div id="novelTable"></div>
-      <h2>UTR-inclusive agreement <span class="tag warn">not for ranking CDS-only predictors</span></h2>
-      <div id="utrTable"></div>
-      <h2>Stop-codon harmonisation <span class="tag info">query side; --add-stop-codon runs only</span></h2>
-      <p class="muted small">Transcript counts from the comparator's audit. Original-coordinate runs show “—” (not applicable). Harmonisation aligns a CDS convention; it does not establish ORF validity.</p>
-      <div id="stopTable"></div>
-      <h2>Scale</h2>
-      <div id="scaleTable"></div>
-      <h2>Historical estimates <span class="tag warn">comparison with older reports only</span></h2>
-      <p class="muted small">The earlier best-pair estimate of one-to-one exact TP (min of unique genes among per-gene exact pairs). The one-to-one metrics above are the comparator's maximum matching; these rows are never used in their place.</p>
-      <div id="historicalTable"></div>
+      <h2>Downloads per result</h2>
+      <div id="downloads" class="downloads"></div>
     </div>
   </section>
 
-  <section id="tab-genes" class="tab">
+  <section id="tab-genes" class="tab" role="tabpanel">
     <form id="geneFilters" class="filters">
-      <input id="q" type="search" placeholder="Gene ID, name or transcript ID" aria-label="Search genes">
+      <input id="q" type="search" placeholder="Gene ID, name or transcript ID" aria-label="Search reference genes">
       <select id="chrom" aria-label="Sequence"><option value="">all sequences</option></select>
-      <select id="multi" aria-label="CDS segments"><option value="">all CDS structures</option><option value="1">multi-segment CDS</option><option value="0">single-segment CDS</option></select>
+      <select id="multi" aria-label="CDS structure"><option value="">all CDS structures</option><option value="1">multi-segment CDS</option><option value="0">single-segment CDS</option></select>
       <label>Run <select id="focusRun"></select></label>
-      <span id="statusChecks" class="checks"></span>
+      <fieldset id="statusChecks" class="checks"><legend class="sr">CDS outcome in the selected run</legend></fieldset>
+      <select id="oneToOne" aria-label="One-to-one exact pair in the selected run"><option value="">1:1 pair: any</option><option value="1">in a 1:1 exact pair</option><option value="0">not in a 1:1 exact pair</option></select>
       <label class="inline"><input type="checkbox" id="splitOnly"> split</label>
-      <label>Contrast <select id="contrast">
-        <option value="">—</option><option value="exact_in_focus">exact in run, not exact in</option><option value="missing_in_focus">not exact in run, exact in</option></select></label>
+      <label>Contrast <select id="contrast"><option value="">—</option><option value="exact_in_focus">exact in run, not exact in</option><option value="missing_in_focus">not exact in run, exact in</option></select></label>
       <select id="compareRun" aria-label="Comparison run"></select>
       <button class="btn primary" type="submit">Apply</button>
       <button class="btn" type="button" id="resetFilters">Reset</button>
       <button class="btn" type="button" id="dlGenes">Download TSV</button>
     </form>
-    <div id="geneCount" class="muted small"></div>
+    <div id="geneCount" class="muted small" aria-live="polite"></div>
     <div id="geneTable" class="tablewrap"></div>
     <div id="genePager" class="pager"></div>
     <div id="locusPanel" class="locus" hidden>
       <div class="row-between">
-        <h2 id="locusTitle">Locus</h2>
+        <h2 id="locusTitle" tabindex="-1">Locus</h2>
         <div class="locusctl">
           <input id="locusInput" aria-label="Locus (seq:start-end)" size="28">
-          <button class="btn" data-move="-0.5">◀</button><button class="btn" data-zoom="0.5">＋</button>
-          <button class="btn" data-zoom="2">－</button><button class="btn" data-move="0.5">▶</button>
-          <select id="isoforms" aria-label="Reference isoforms shown">
-            <option value="partners">reference: compared + canonical isoforms</option>
-            <option value="evaluated">reference: all evaluated isoforms</option>
-            <option value="all">reference: all stored isoforms</option></select>
+          <button class="btn" data-move="-0.5" aria-label="Move left">◀</button><button class="btn" data-zoom="0.5" aria-label="Zoom in">＋</button>
+          <button class="btn" data-zoom="2" aria-label="Zoom out">－</button><button class="btn" data-move="0.5" aria-label="Move right">▶</button>
+          <select id="isoforms" aria-label="Isoforms shown">
+            <option value="partners">compared and selected isoforms</option>
+            <option value="evaluated">all evaluated isoforms</option>
+            <option value="all">evaluated and excluded isoforms</option></select>
         </div>
       </div>
       <div id="locusLegend" class="legend"></div>
@@ -148,27 +124,28 @@
     </div>
   </section>
 
-  <section id="tab-predictions" class="tab">
+  <section id="tab-predictions" class="tab" role="tabpanel">
     <form id="predFilters" class="filters">
       <label>Run <select id="predRun"></select></label>
       <input id="pq" type="search" placeholder="Prediction ID" aria-label="Search predictions">
       <select id="pclass" aria-label="Classification"><option value="">all classifications</option><option>Novel</option><option>Strand_Mismatch</option><option>Exact_Match</option><option>Structural_Mismatch</option><option>Partial_Match</option><option>Matched</option></select>
       <select id="pnovel" aria-label="Novel context"><option value="">any Novel context</option></select>
-      <select id="pexact" aria-label="Coordinate-exact CDS"><option value="">exact or not</option><option value="1">coordinate-exact CDS</option><option value="0">not coordinate-exact</option></select>
+      <select id="pexact" aria-label="Coordinate-exact CDS"><option value="">exact or not</option><option value="1">coordinate-exact CDS (best pair)</option><option value="0">not coordinate-exact</option></select>
+      <select id="pone" aria-label="One-to-one exact pair"><option value="">1:1 pair: any</option><option value="1">in a 1:1 exact pair</option><option value="0">not in a 1:1 exact pair</option></select>
       <label class="inline"><input type="checkbox" id="pmerge"> merges only</label>
       <button class="btn primary" type="submit">Apply</button>
       <button class="btn" type="button" id="dlPreds">Download TSV</button>
     </form>
-    <div id="predCount" class="muted small"></div>
+    <div id="predCount" class="muted small" aria-live="polite"></div>
     <div id="predTable" class="tablewrap"></div>
     <div id="predPager" class="pager"></div>
   </section>
 
-  <section id="tab-provenance" class="tab"><div id="provenance"></div></section>
-  <section id="tab-dictionary" class="tab"><div id="dictionary"></div></section>
-  <section id="tab-context" class="tab"><div id="context"></div></section>
+  <section id="tab-provenance" class="tab" role="tabpanel"><div id="provenance"></div></section>
+  <section id="tab-dictionary" class="tab" role="tabpanel"><div id="dictionary"></div></section>
 </main>
-<div id="tooltip" class="tooltip" hidden></div>
+<footer class="foot muted small">Local, offline dashboard. Values come from the comparator's output files (contract <span id="footContract"></span>); the browser only formats them.</footer>
+<div id="tooltip" class="tooltip" role="tooltip" hidden></div>
 <script src="/static/app.js"></script>
 </body>
 </html>

@@ -97,10 +97,13 @@ def prepare_file(
     out_name: str,
     kind: str,
     force=False,
+    write=True,
 ) -> dict:
     """
     Prepare one file. Returns a record with source/output paths and checksums.
     Unchanged sources and recipes are not prepared again.
+    With ``write=False`` nothing is written: an existing valid record is returned, a file
+    used as-is gets an in-memory record, and a file that would need deriving is an error.
     """
     source = Path(source)
     if not source.exists():
@@ -110,6 +113,13 @@ def prepare_file(
     record_path = out_dir / f"{out_name}.preparation.json"
     previous = _read(record_path)
     if not _needs_output(source, preparation):
+        if (
+            previous
+            and previous.get("method") == "used as-is (no preparation needed)"
+            and previous.get("source") == source_rec
+            and previous.get("recipe") == recipe
+        ):
+            return previous  # unchanged: do not rewrite the record
         record = {
             "kind": kind,
             "source": source_rec,
@@ -119,7 +129,8 @@ def prepare_file(
             "preparation_version": PREPARATION_VERSION,
             "created": now(),
         }
-        write_json(record_path, record)
+        if write:
+            write_json(record_path, record)
         return record
     if (
         not force
@@ -132,6 +143,11 @@ def prepare_file(
         == previous["output"]["sha256"]
     ):
         return previous
+    if not write:
+        raise PreparationError(
+            f"{kind} is not prepared for its current source and recipe; "
+            "run `annotation-qc benchmark prepare`"
+        )
 
     counts: dict = {}
     if preparation.reuse_existing:
@@ -281,7 +297,7 @@ def prepare_reference(ws: Workspace, reference: Reference, force=False) -> dict:
     return record
 
 
-def prepare_run(ws: Workspace, run: Run, force=False) -> dict:
+def prepare_run(ws: Workspace, run: Run, force=False, write=True) -> dict:
     out_dir = ws.prepared_run_dir(run.run_id)
     rec = prepare_file(
         ws,
@@ -291,8 +307,9 @@ def prepare_run(ws: Workspace, run: Run, force=False) -> dict:
         "annotation" + _annotation_suffix(run.annotation),
         f"run {run.run_id} annotation",
         force,
+        write,
     )
-    if rec["method"] != "used as-is (no preparation needed)":
+    if write and rec["method"] != "used as-is (no preparation needed)":
         write_json(out_dir / "preparation.json", rec)
     return rec
 

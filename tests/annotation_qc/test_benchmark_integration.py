@@ -1,4 +1,4 @@
-"""Benchmark/dashboard integration with comparator one-to-one metrics and stop-codon harmonisation (SYNTHETIC fixtures)."""
+"""Benchmark/dashboard integration with comparator contract outputs and stop-codon harmonisation (SYNTHETIC fixtures)."""
 
 import hashlib
 import json
@@ -16,11 +16,9 @@ from ensembl.genes.annotation_qc.benchmark.config import (
     comparator_parameters,
     load_experiment,
 )
-from ensembl.genes.annotation_qc.benchmark.derive import (
-    check_pairs,
-    derive_metrics,
-    one_to_one_metrics,
-)
+from ensembl.genes.annotation_qc.benchmark import results as results_mod
+from ensembl.genes.annotation_qc.benchmark.legacy import legacy_result
+from ensembl.genes.annotation_qc.benchmark.models import ModelsUnavailable, parse_input
 from ensembl.genes.annotation_qc.benchmark.importer import import_benchmark
 from ensembl.genes.annotation_qc.benchmark.provenance import (
     FINGERPRINT_FILES,
@@ -238,37 +236,52 @@ def test_stop_codon_option_needs_a_genome(tmp_path):
 
 
 # --------------------------------------------------------------- computed runs, metrics and dataset
+def _metrics(con):
+    return {
+        (r["run_id"], r["metric_id"]): r
+        for r in queries.overview(con, "SYNTH_R")["metrics"]
+        if r["scope_id"] == "all"
+    }
+
+
 def test_original_and_harmonised_are_distinct_results(computed):
     tasks = {t.run.run_id: t for t in computed["tasks"]}
     assert tasks["SYNTH_pred_original"].key != tasks["SYNTH_pred_stop"].key
     assert runs_mod.plan(computed["experiment"], computed["ws"])[0].status == "complete"
     con = queries.connect(computed["ws"].dashboard_db())
-    m = {
-        (r["run_id"], r["metric_id"]): r
-        for r in queries.overview(con, "SYNTH_R")["metrics"]
-    }
+    m = _metrics(con)
     assert (
-        m[("SYNTH_pred_original", "exact_tp_one_to_one")]["numerator"],
-        m[("SYNTH_pred_stop", "exact_tp_one_to_one")]["numerator"],
+        m[("SYNTH_pred_original", "exact_cds_one_to_one_tp")]["numerator"],
+        m[("SYNTH_pred_stop", "exact_cds_one_to_one_tp")]["numerator"],
     ) == (0, 1)
-    f1 = m[("SYNTH_pred_stop", "exact_f1_one_to_one")]
+    f1 = m[("SYNTH_pred_stop", "exact_cds_one_to_one_f1")]
     assert (f1["numerator"], f1["denominator"], f1["value"], f1["source"]) == (
         2,
         2,
         1.0,
-        "comparator",
+        "contract",
     )
-    zero = m[("SYNTH_pred_original", "exact_f1_one_to_one")]
+    zero = m[("SYNTH_pred_original", "exact_cds_one_to_one_f1")]
     assert (zero["status"], zero["value"]) == ("ok", 0.0)  # a real zero, not missing
-    assert (
-        m[("SYNTH_pred_original", "stop_codon_extended")]["status"] == "not_applicable"
+    na = m[("SYNTH_pred_original", "stop_codon_extended")]
+    assert (na["status"], na["reason"], na["value"]) == (
+        "not_applicable",
+        "transformation_not_applied",
+        None,
     )
     assert (
         m[("SYNTH_pred_stop", "stop_codon_extended")]["numerator"],
         m[("SYNTH_pred_stop", "stop_codon_extended")]["denominator"],
     ) == (1, 1)
     locus = m[("SYNTH_pred_stop", "locus_recovery_cds_overlap")]
-    assert (locus["numerator"], locus["source"]) == (1, "comparator")
+    assert (locus["numerator"], locus["source"]) == (1, "contract")
+    # policy A: the comparator does not write splice tables, and says why
+    results = {r["run_id"]: r for r in queries.overview(con, "SYNTH_R")["results"]}
+    assert results["SYNTH_pred_stop"]["analyses"]["splice_position_length"] == {
+        "status": "not_applicable",
+        "reason": "requires_one_reference_transcript_per_gene",
+    }
+    assert results["SYNTH_pred_stop"]["identity"]["status"] == "current_checkout"
 
 
 def test_harmonised_models_show_evaluated_coordinates(computed):
@@ -279,16 +292,14 @@ def test_harmonised_models_show_evaluated_coordinates(computed):
             "SELECT source, cds FROM transcripts WHERE source LIKE 'run:%'"
         )
     }
+    # rebuilt from the original file plus the audited transformation
     assert cds == {
         "run:SYNTH_pred_original": "101-130,201-230",
         "run:SYNTH_pred_stop": "101-130,201-233",
     }
-    runs = {r["run_id"]: r for r in queries.meta(con)["runs"]}
-    assert (
-        runs["SYNTH_pred_stop"]["models_source"]["kind"]
-        == "comparator_evaluated_stop_harmonised"
-    )
-    assert runs["SYNTH_pred_original"]["models_source"]["kind"] == "prediction_file"
+    meta = queries.meta(con)
+    assert meta["model_components"]["run:SYNTH_pred_stop"]["transformed"] == 1
+    assert meta["model_components"]["run:SYNTH_pred_original"]["transformed"] == 0
     loc = queries.locus(
         con,
         {
@@ -300,7 +311,13 @@ def test_harmonised_models_show_evaluated_coordinates(computed):
             "runs": "SYNTH_pred_stop,SYNTH_pred_original",
         },
     )
-    stop = loc["runs"]["SYNTH_pred_stop"]["transcripts"][0]["stop_codon"]
+    tx = loc["runs"]["SYNTH_pred_stop"]["transcripts"][0]
+    assert (tx["evaluated"], tx["selected_by"], tx["transformed"]) == (
+        True,
+        "all",
+        "stop_codon_added",
+    )
+    stop = tx["stop_codon"]
     assert (
         stop["status"],
         stop["reason"],
@@ -309,9 +326,11 @@ def test_harmonised_models_show_evaluated_coordinates(computed):
         stop["new_terminal_cds_end"],
     ) == ("extended", "stop_codon_added", "TAA", 230, 233)
     assert loc["runs"]["SYNTH_pred_original"]["transcripts"][0]["stop_codon"] is None
-    detail = queries.gene_detail(con, "SYNTH_R", "A", "SYNTH_RG1")["outcomes"]
-    assert detail["SYNTH_pred_stop"]["one_to_one_partner"] == "SYNTH_q1"
-    assert detail["SYNTH_pred_original"]["one_to_one_partner"] is None
+    detail = queries.gene_detail(con, "SYNTH_R", "A", "SYNTH_RG1")
+    assert detail["outcomes"]["SYNTH_pred_stop"]["one_to_one_partner"] == "SYNTH_q1"
+    assert detail["outcomes"]["SYNTH_pred_original"]["one_to_one_partner"] is None
+    assert detail["outcomes"]["SYNTH_pred_original"]["cds_stop_diff_bp"] == -3
+    assert [i["status"] for i in detail["isoforms"]] == ["evaluated"]
     pairs = queries.pairs(
         con, {"reference": "SYNTH_R", "policy": "A", "run": "SYNTH_pred_stop"}
     )
@@ -322,22 +341,17 @@ def test_harmonised_models_show_evaluated_coordinates(computed):
     ]
 
 
-def test_harmonised_run_without_evaluated_annotation_is_not_substituted(
-    computed, tmp_path
-):
+def test_missing_transformation_evidence_is_never_substituted(computed, tmp_path):
     root = tmp_path / "copy"
     shutil.copytree(computed["root"], root)
     experiment = load_experiment(root / "workspace.json")
     ws = Workspace(experiment)
-    record = ws.run_record("SYNTH_pred_stop", "A")
     out = ws.comparison_dir("SYNTH_pred_stop", "A")
+    record = ws.run_record("SYNTH_pred_stop", "A")
     ws.write_run_record("SYNTH_pred_stop", "A", {**record, "output_dir": str(out)})
-    (out / "query_evaluated.stop_harmonised.gtf").unlink()
+    (out / "stop_codon_harmonisation.tsv").unlink()
     task = next(t for t in runs_mod.plan(experiment, ws, run_ids=["SYNTH_pred_stop"]))
-    assert (task.status, task.reason) == (
-        "stale",
-        "outputs missing: query_evaluated.stop_harmonised.gtf",
-    )
+    assert task.status == "stale" and "stop_codon_harmonisation.tsv" in task.reason
     build_dashboard(experiment, ws, log=QUIET)
     con = queries.connect(ws.dashboard_db())
     assert (
@@ -347,20 +361,34 @@ def test_harmonised_run_without_evaluated_annotation_is_not_substituted(
         == 0
     )
     assert (
-        "original annotation is not shown"
-        in queries.meta(con)["model_errors"]["SYNTH_pred_stop"]
+        "no contract result" in queries.meta(con)["model_errors"]["run:SYNTH_pred_stop"]
     )
+    assert not con.execute(
+        "SELECT COUNT(*) FROM metrics WHERE run_id='SYNTH_pred_stop'"
+    ).fetchone()[
+        0
+    ]  # stale: nothing shown, never zeros
+
+
+def test_models_need_the_exact_input(computed, tmp_path):
+    out = computed["ws"].comparison_dir("SYNTH_pred_original", "A")
+    manifest = json.loads((out / "comparison_manifest.json").read_text())
+    changed = tmp_path / "query.gtf"
+    changed.write_text(Path(manifest["inputs"]["query"]["path"]).read_text() + "\n")
+    manifest["inputs"]["query"]["path"] = str(changed)
+    with pytest.raises(ModelsUnavailable, match="sha256"):
+        parse_input(manifest, "query", computed["ws"].checksums)
+    manifest["inputs"]["query"]["path"] = str(tmp_path / "absent.gtf")
+    with pytest.raises(ModelsUnavailable, match="not found"):
+        parse_input(manifest, "query", computed["ws"].checksums)
 
 
 # --------------------------------------------------------------- import
-def test_import_matches_stop_codon_settings_and_flags_incompatible(computed, tmp_path):
+def test_import_matches_stop_codon_settings_and_verifies_outputs(computed, tmp_path):
     bench = tmp_path / "bench"
     for run_id, name in (("SYNTH_pred_original", "orig"), ("SYNTH_pred_stop", "harm")):
         shutil.copytree(computed["ws"].comparison_dir(run_id, "A"), bench / name)
-    snapshot = _snapshot(tmp_path / "code.sha256")
-    imports = {
-        "import": {"benchmark_dir": str(bench), "code_snapshot": [str(snapshot)]}
-    }
+    imports = {"import": {"results_dirs": [str(bench)]}}
     exp = load_experiment(
         _config(computed["root"], [ORIGINAL, HARMONISED], output="import_ws", **imports)
     )
@@ -379,7 +407,7 @@ def test_import_matches_stop_codon_settings_and_flags_incompatible(computed, tmp
         report["unmatched"][0]["dir"] == "harm"
         and "stop-codon settings" in report["unmatched"][0]["reason"]
     )
-    # a summary contradicting its manifest is imported as stale, with the reason
+    # an edited output no longer matches its manifest checksum: stale, with the reason
     summary = bench / "harm" / "comparison_summary.json"
     data = json.loads(summary.read_text())
     data["query_stop_codon_harmonisation"] = {"applied": False, "annotation": "query"}
@@ -391,96 +419,74 @@ def test_import_matches_stop_codon_settings_and_flags_incompatible(computed, tmp
     )
     report = import_benchmark(exp, Workspace(exp), log=QUIET)
     harm = next(m for m in report["matched"] if m["dir"] == "harm")
-    assert (
-        harm["status"] == "stale" and "records no harmonisation" in harm["difference"]
-    )
+    assert harm["status"] == "stale" and "comparison_summary.json" in harm["difference"]
 
 
-# --------------------------------------------------------------- missing, undefined, zero, legacy
-def test_one_to_one_undefined_missing_and_inconsistent():
-    block = lambda tp, r, q, **kw: {
-        "cds_exact_one_to_one": {
-            "true_positives": tp,
-            "reference_genes": r,
-            "query_genes": q,
-            "unmatched_reference_genes": r - tp,
-            "unmatched_query_genes": q - tp,
-            "exact_gene_pairs": tp,
-            "exact_components": tp,
-            "exact_components_with_several_edges": 0,
-            "precision": round(tp / q, 4) if q else None,
-            "recall": round(tp / r, 4) if r else None,
-            "f1": round(2 * tp / (r + q), 4) if r + q else None,
-            **kw,
-        }
-    }
-    rows = {m["metric_id"]: m for m in one_to_one_metrics(block(0, 5, 0), 5, 0)}
-    assert rows["exact_precision_one_to_one"]["status"] == "undefined"  # Q = 0
-    assert (
-        rows["exact_recall_one_to_one"]["status"],
-        rows["exact_recall_one_to_one"]["value"],
-    ) == ("ok", 0.0)
-    rows = {m["metric_id"]: m for m in one_to_one_metrics({}, 5, 4)}
-    assert {m["status"] for m in rows.values()} == {"not_available"}
-    rows = {m["metric_id"]: m for m in one_to_one_metrics(block(2, 5, 4, f1=0.9), 5, 4)}
-    assert (
-        rows["exact_f1_one_to_one"]["status"] == "inconsistent"
-        and "f1 0.9" in rows["exact_f1_one_to_one"]["note"]
-    )
-    import pandas as pd
-
-    dup = pd.DataFrame({"reference_gene_id": ["a", "b"], "query_gene_id": ["q", "q"]})
-    assert check_pairs(dup, block(2, 5, 4))["status"] == "disagrees"
-
-
-def test_legacy_dataset_is_relabelled_not_rewritten(computed, tmp_path):
-    db = tmp_path / "legacy.sqlite"
-    shutil.copy(computed["ws"].dashboard_db(), db)
-    with sqlite3.connect(db) as raw:
-        raw.execute("UPDATE meta SET value='\"1\"' WHERE key='store_version'")
-        raw.execute("DELETE FROM metrics WHERE metric_id LIKE 'exact_%one_to_one'")
-        raw.execute(
-            "UPDATE metrics SET metric_id='exact_tp_one_to_one' WHERE metric_id='historical_exact_tp_best_pair'"
-        )
-        raw.execute("DROP TABLE exact_pairs")
-    con = queries.connect(db)
-    m = {
-        (r["run_id"], r["metric_id"]): r
-        for r in queries.overview(con, "SYNTH_R")["metrics"]
-    }
-    assert m[("SYNTH_pred_stop", "historical_exact_tp_best_pair")]["numerator"] == 1
-    assert m[("SYNTH_pred_stop", "exact_tp_one_to_one")]["status"] == "not_available"
-    assert queries.meta(con)["legacy_dataset"]
-    with pytest.raises(queries.QueryError):
-        queries.pairs(
-            con, {"reference": "SYNTH_R", "policy": "A", "run": "SYNTH_pred_stop"}
-        )
-    assert (
-        sqlite3.connect(db)
-        .execute("SELECT value FROM meta WHERE key='store_version'")
-        .fetchone()[0]
-        == '"1"'
-    )
-
-
-def test_derived_rows_for_a_summary_without_newer_blocks(computed, tmp_path):
+# --------------------------------------------------------------- legacy (pre-contract) results
+def _pre_contract_copy(computed, tmp_path, drop=()):
     out = tmp_path / "old"
     shutil.copytree(computed["ws"].comparison_dir("SYNTH_pred_original", "A"), out)
-    data = json.loads((out / "comparison_summary.json").read_text())
+    manifest = json.loads((out / "comparison_manifest.json").read_text())
     for key in (
-        "cds_exact_one_to_one",
-        "cds_overlap_locus_recovery",
-        "query_stop_codon_harmonisation",
+        "contract_id",
+        "contract_version",
+        "definition_version",
+        "outputs",
+        "implementation",
+        "metric_definitions",
+        "analyses",
+        "scope",
     ):
+        manifest.pop(key, None)
+    (out / "comparison_manifest.json").write_text(json.dumps(manifest))
+    for name in ("metrics.tsv", "evaluated_transcripts.tsv.gz", "per_sequence.tsv"):
+        (out / name).unlink()
+    data = json.loads((out / "comparison_summary.json").read_text())
+    for key in drop:
         data.pop(key)
     (out / "comparison_summary.json").write_text(json.dumps(data))
-    rows = {r["metric_id"]: r for r in derive_metrics(out)[0]}
-    assert rows["exact_f1_one_to_one"]["status"] == "not_available"
-    assert (
-        rows["historical_exact_f1_best_pair"]["status"] == "ok"
-    )  # kept, separately labelled
+    return out
+
+
+def test_pre_contract_result_is_legacy_not_current(computed, tmp_path):
+    out = _pre_contract_copy(computed, tmp_path)
+    task = next(t for t in computed["tasks"] if t.run.run_id == "SYNTH_pred_original")
+    assessment = results_mod.assess(
+        out,
+        task.key_components,
+        runs_mod.load_registry(computed["experiment"]),
+        computed["ws"].checksums,
+    )
+    assert assessment["status"] == "legacy"
+    assert assessment["identity"]["status"] == "unverified"
+    rows = {r["metric_id"]: r for r in legacy_result(out)[0]}
+    assert rows["exact_cds_one_to_one_f1"]["source"] == "legacy_summary"
+    assert rows["cds_outcome_exact"]["status"] == "not_available"
+
+
+def test_summary_without_newer_blocks(computed, tmp_path):
+    out = _pre_contract_copy(
+        computed,
+        tmp_path,
+        drop=(
+            "cds_exact_one_to_one",
+            "cds_overlap_locus_recovery",
+            "query_stop_codon_harmonisation",
+        ),
+    )
+    rows = {r["metric_id"]: r for r in legacy_result(out)[0]}
+    assert rows["exact_cds_one_to_one_f1"]["status"] == "not_available"
+    assert rows["historical_exact_f1_best_pair"]["source"] == "historical"
     assert rows["stop_codon_extended"]["status"] == "not_available"
-    assert (
-        rows["locus_recovery_cds_overlap"]["source"],
-        rows["locus_recovery_cds_overlap"]["numerator"],
-    ) == ("comparator_per_gene", 1)
+    # no per-gene derivation in the dashboard: absent in the summary means not available
+    assert rows["locus_recovery_cds_overlap"]["status"] == "not_available"
+
+
+def test_older_dataset_versions_are_refused(computed, tmp_path):
+    db = tmp_path / "v3.sqlite"
+    shutil.copy(computed["ws"].dashboard_db(), db)
+    with sqlite3.connect(db) as raw:
+        raw.execute("UPDATE meta SET value='\"3\"' WHERE key='store_version'")
+    con = queries.connect(db)
+    with pytest.raises(queries.QueryError, match="not supported"):
+        queries.meta(con)

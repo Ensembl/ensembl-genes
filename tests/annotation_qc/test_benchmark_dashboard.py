@@ -1,6 +1,5 @@
 """Experiment configuration, caching, import, dataset build and dashboard API (SYNTHETIC fixtures)."""
 
-import hashlib
 import json
 import shutil
 import sqlite3
@@ -12,7 +11,7 @@ import pytest
 
 from ensembl.genes.annotation_qc.benchmark import runs as runs_mod
 from ensembl.genes.annotation_qc.benchmark.config import ConfigError, load_experiment
-from ensembl.genes.annotation_qc.benchmark.derive import derive_metrics
+from ensembl.genes.annotation_qc.benchmark.legacy import legacy_result
 from ensembl.genes.annotation_qc.benchmark.examples.synthetic import (
     write_synthetic_demo,
 )
@@ -24,10 +23,6 @@ from ensembl.genes.annotation_qc.benchmark.preparation import (
     PreparationError,
     prepare_reference,
     prepare_run,
-)
-from ensembl.genes.annotation_qc.benchmark.provenance import (
-    FINGERPRINT_FILES,
-    PACKAGE_DIR,
 )
 from ensembl.genes.annotation_qc.benchmark.store import build_dashboard
 from ensembl.genes.annotation_qc.benchmark.validation import validate_experiment
@@ -135,8 +130,13 @@ def test_template_loads():
         Path(config_mod.__file__).with_name("templates") / "experiment_template.json"
     )
     exp = load_experiment(template)
-    assert set(exp.policies) == {"A", "B", "C"} and len(exp.runs) == 2
+    assert set(exp.policies) == {"A", "B", "C"} and len(exp.runs) == 3
     assert {r.tool for r in exp.runs.values()} == {"ToolA"}
+    assert exp.config_version == 2
+    runs = exp.runs
+    assert runs["myspecies_toolA_run2"].display_label == "ToolA run 2"
+    assert runs["myspecies_toolA_run1_stop_harmonised"].variant == "stop_harmonised"
+    assert exp.display["preferred_tools"] == ["ToolA"]
 
 
 def test_validation_reports_and_probes(demo):
@@ -181,6 +181,18 @@ def test_results_failures_and_unavailable_policy(demo):
         and record["peak_rss_bytes"]
         and record["implementation"]["fingerprint"]
     )
+    # computed with this checkout: scheme-2 manifest whose files equal the checkout
+    task = next(
+        t
+        for t in runs_mod.plan(demo["experiment"], ws)
+        if (t.run.run_id, t.policy.id) == ("SYNTH_toolX_m1", "A")
+    )
+    identity = task.assessment["identity"]
+    assert (identity["status"], identity["scheme"]) == (
+        "current_checkout",
+        "annotation_qc_loaded_files_by_path/2",
+    )
+    assert task.assessment["outputs_check"]["status"] == "verified"
 
 
 def test_failed_run_resumes_after_fix(tmp_path):
@@ -219,10 +231,17 @@ def test_cache_reuse_and_invalidation(tmp_path):
     assert all(st[(r, p)] == "complete" for r in keep for p in "ABC")
     # 1. adding a predictor through configuration only: existing runs untouched
     raw = json.loads(config.read_text())
+    added = tmp_path / "inputs" / "SYNTH_toolX_model1_rerun.gff3"
+    added.write_text(
+        "# SYNTHETIC second run of the same tool\n"
+        + (tmp_path / "inputs" / "SYNTH_toolX_model1.gff3").read_text()
+    )
     raw["runs"].append(
         {
             **raw["runs"][0],
             "run_id": "SYNTH_toolX_m1_copy",
+            "annotation": str(added),
+            "run_label": "SYNTH toolX run 2",
             "provenance": "SYNTHETIC: added later",
         }
     )
@@ -275,16 +294,9 @@ def test_import_matches_by_content_and_separates_pilots(demo, tmp_path):
     import subprocess
 
     assert subprocess.run(pilot_argv, capture_output=True).returncode == 0
-    snapshot = tmp_path / "code.sha256"
-    snapshot.write_text(
-        "".join(
-            f"{hashlib.sha256((PACKAGE_DIR / f).read_bytes()).hexdigest()}  src/annotation_qc/{f}\n"
-            for f in FINGERPRINT_FILES
-        )
-    )
     raw = json.loads(demo["config"].read_text())
     raw["output_dir"] = str(tmp_path / "fresh_workspace")
-    raw["import"] = {"benchmark_dir": str(bench), "code_snapshot": [str(snapshot)]}
+    raw["import"] = {"results_dirs": [str(bench)]}
     cfg = demo["root"] / "import_test.json"
     cfg.write_text(json.dumps(raw))
     experiment = load_experiment(cfg)
@@ -302,13 +314,34 @@ def test_import_matches_by_content_and_separates_pilots(demo, tmp_path):
         st[("SYNTH_toolX_m1", "A")] == "complete"
         and st[("SYNTH_toolX_m1", "C")] == "not_run"
     )
-    # without a code snapshot the implementation cannot be verified: imported but stale
+    # a configured pilot directory never becomes a headline result, whatever its scope
+    raw["output_dir"] = str(tmp_path / "fresh_pilots")
+    raw["import"] = {"pilot_dirs": [str(bench / "viewA")]}
+    cfg.write_text(json.dumps(raw))
+    exp_p = load_experiment(cfg)
+    report_p = import_benchmark(exp_p, Workspace(exp_p), log=QUIET)
+    assert report_p["matched"] == [] and len(report_p["pilots"]) == 2
+    # an output that differs from its manifest checksum is not imported as complete
+    details = bench / "viewB" / "x1" / "comparison_details.tsv"
+    details.write_text(details.read_text() + "\n")
+    # a manifest whose implementation is not identifiable is shown, flagged unverified
+    manifest_path = bench / "viewA" / "y" / "comparison_manifest.json"
+    manifest = json.loads(manifest_path.read_text())
+    manifest["implementation"]["fingerprint"] = "0" * 64
+    manifest_path.write_text(json.dumps(manifest))
     raw["output_dir"] = str(tmp_path / "fresh2")
-    raw["import"] = {"benchmark_dir": str(bench)}
+    raw["import"] = {"results_dirs": [str(bench)]}
     cfg.write_text(json.dumps(raw))
     exp2 = load_experiment(cfg)
     report2 = import_benchmark(exp2, Workspace(exp2), log=QUIET)
-    assert {m["status"] for m in report2["matched"]} == {"stale"}
+    status2 = {(m["run_id"], m["policy_id"]): m for m in report2["matched"]}
+    assert status2[("SYNTH_toolX_m1", "B")]["status"] == "stale"
+    assert (
+        "differ from their manifest SHA-256"
+        in status2[("SYNTH_toolX_m1", "B")]["difference"]
+    )
+    assert status2[("SYNTH_toolY_hybrid", "A")]["status"] == "unverified"
+    assert status2[("SYNTH_toolX_m1", "A")]["status"] == "complete"
 
 
 def test_preparation_reuse_is_verified(demo, tmp_path):
@@ -333,6 +366,47 @@ def test_preparation_reuse_is_verified(demo, tmp_path):
         else:
             with pytest.raises(PreparationError):
                 prepare_reference(Workspace(exp), exp.references["SYNTH_A"])
+
+
+def test_status_never_writes_preparation_records(tmp_path, capsys):
+    """`benchmark status` and `provenance` only read: records keep their bytes and mtimes."""
+    from types import SimpleNamespace
+
+    from ensembl.genes.annotation_qc.benchmark import cli
+
+    config = write_synthetic_demo(tmp_path)
+    raw = json.loads(config.read_text())
+    raw["runs"][1]["preparation"] = {
+        "steps": [{"name": "retype_transcript_types", "types": ["mRNA"]}]
+    }  # one derived run; the others are used as-is
+    config.write_text(json.dumps(raw))
+    exp = load_experiment(config)
+    ws = Workspace(exp)
+    for ref in exp.references.values():
+        prepare_reference(ws, ref)
+    methods = {prepare_run(ws, r)["method"] for r in exp.runs.values()}
+    assert methods == {"derived", "used as-is (no preparation needed)"}
+
+    def snapshot():
+        return {
+            p: (p.read_bytes(), p.stat().st_mtime_ns)
+            for p in (ws.root / "prepared").rglob("*")
+            if p.is_file()
+        }
+
+    before = snapshot()
+    args = SimpleNamespace(config=config)
+    cli.cmd_status(args)
+    cli.cmd_provenance(args)
+    assert snapshot() == before
+    assert "not_run" in capsys.readouterr().out
+
+    derived = ws.prepared_run_dir(raw["runs"][1]["run_id"])
+    shutil.rmtree(derived)
+    before = snapshot()
+    with pytest.raises(SystemExit, match="not prepared"):
+        cli.cmd_status(args)  # refuses rather than deriving the missing file
+    assert snapshot() == before and not derived.exists()
 
 
 # --------------------------------------------------------------- dataset and queries
@@ -388,10 +462,9 @@ def test_gene_rows_link_to_locus(con):
         }
         assert len(evaluated) == row["evaluated_transcript_count"]
     detail = queries.gene_detail(con, "SYNTH_A", "A", "SYNTH_G5")
-    assert detail["outcomes"]["SYNTH_toolX_m1"]["cds_status"] == "terminal_diff"
-    assert (
-        detail["outcomes"]["SYNTH_toolX_m1"]["explanation"]["stop_side_diff_bp"] == -50
-    )
+    assert detail["outcomes"]["SYNTH_toolX_m1"]["cds_outcome"] == "terminal_diff"
+    # the comparator's own difference column (no recomputation in the dashboard)
+    assert detail["outcomes"]["SYNTH_toolX_m1"]["cds_stop_diff_bp"] == -50
     assert detail["outcomes"]["SYNTH_toolX_m2"]["counterpart_count"] == 2  # split
     assert queries.locus(
         con, {"reference": "SYNTH_A", "chrom": "chrA1", "start": "1", "end": "9000000"}
@@ -446,20 +519,32 @@ def test_filters_and_policy_semantics(con):
 def test_metric_rows_and_missing_values(con, demo):
     m = {
         (r["run_id"], r["policy_id"], r["metric_id"]): r
-        for r in con.execute("SELECT * FROM metrics")
+        for r in con.execute("SELECT * FROM metrics WHERE scope_id='all'")
     }
-    exact = m[("SYNTH_toolX_m1", "A", "cds_exact_ref")]
+    exact = m[("SYNTH_toolX_m1", "A", "cds_coordinate_exact_reference")]
     assert (
         exact["numerator"],
         exact["denominator"],
         exact["status"],
         exact["source"],
-    ) == (3, 6, "ok", "comparator")
+    ) == (3, 6, "ok", "contract")
+    # every value is a stored metrics.tsv row: same count of rows per (run, policy, scope)
+    ws = demo["ws"]
+    out = Path(ws.run_record("SYNTH_toolX_m1", "A")["output_dir"])
+    written = (out / "metrics.tsv").read_text().splitlines()[1:]
+    stored = con.execute(
+        "SELECT COUNT(*) FROM metrics WHERE run_id='SYNTH_toolX_m1' AND policy_id='A' AND source='contract'"
+    ).fetchone()[0]
+    assert stored == len(written)
     assert (
-        m[("SYNTH_toolX_m1", "A", "cds_intron_chain_any_pair")]["source"]
-        == "independent"
+        m[("SYNTH_toolX_m1", "A", "cds_intron_chain_any_pair")]["source"] == "contract"
     )
-    assert m[("SYNTH_toolX_m1", "A", "cds_exact_ref_multi")]["denominator"] == 5
+    assert (
+        m[("SYNTH_toolX_m1", "A", "cds_coordinate_exact_reference_multi_cds")][
+            "denominator"
+        ]
+        == 5
+    )
     assert not any(
         k[0] == "SYNTH_toolZ_broken" for k in m
     )  # failed: no metrics, never zeros
@@ -478,14 +563,16 @@ def test_metric_rows_and_missing_values(con, demo):
         demo["ws"].comparison_dir("SYNTH_toolX_m1", "A") / "comparison_summary.json",
         summary_only,
     )
-    rows, ref, qry = derive_metrics(summary_only)
+    rows, details = legacy_result(summary_only)
     by_id = {r["metric_id"]: r for r in rows}
-    assert ref is None and by_id["cds_exact_ref"]["status"] == "ok"
-    # the comparator's one-to-one block is in the summary; the per-gene estimate is not
+    assert details is None
+    assert by_id["cds_coordinate_exact_reference"]["status"] == "ok"
+    # identical-definition summary fields only; contract-only analyses not available
     assert (
-        by_id["exact_f1_one_to_one"]["status"],
-        by_id["exact_f1_one_to_one"]["source"],
-    ) == ("ok", "comparator")
+        by_id["exact_cds_one_to_one_f1"]["status"],
+        by_id["exact_cds_one_to_one_f1"]["source"],
+    ) == ("ok", "legacy_summary")
+    assert by_id["cds_outcome_exact"]["status"] == "not_available"
     assert (
         by_id["historical_exact_f1_best_pair"]["status"] == "not_available"
         and by_id["historical_exact_f1_best_pair"]["value"] is None
@@ -523,19 +610,28 @@ def test_http_api(demo):
     try:
         get = lambda path: urllib.request.urlopen(base + path).read().decode()
         assert json.loads(get("/api/experiments"))[0]["synthetic"] is True
-        assert "<title>Annotation QC</title>" in get("/")
+        assert "<title>Annotation QC" in get("/")
         tsv = get(
             "/api/genes?reference=SYNTH_A&policy=A&format=csv&runs=SYNTH_toolX_m1,SYNTH_toolZ_broken"
         )
         header, *rows = tsv.strip().split("\n")
-        assert len(rows) == 6 and "SYNTH_toolX_m1.cds_status" in header
+        assert len(rows) == 6 and "SYNTH_toolX_m1.cds_outcome" in header
         assert all(
-            line.split("\t")[header.split("\t").index("SYNTH_toolZ_broken.cds_status")]
+            line.split("\t")[header.split("\t").index("SYNTH_toolZ_broken.cds_outcome")]
             == "NA"
             for line in rows
         )
         meta = json.loads(get("/api/meta"))
         assert meta["experiment"]["synthetic"] and "metric_dictionary" in meta
+        metrics = get("/api/overview?reference=SYNTH_A&format=csv&policy=A&scope=all")
+        assert metrics.splitlines()[0].split("\t")[:6] == [
+            "reference_id",
+            "run_id",
+            "policy_id",
+            "scope_id",
+            "metric_id",
+            "numerator",
+        ]
         with pytest.raises(urllib.error.HTTPError) as error:
             urllib.request.urlopen(base + "/static/../server.py")
         assert error.value.code == 404

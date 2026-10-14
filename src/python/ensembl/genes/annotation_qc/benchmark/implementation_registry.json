@@ -1,0 +1,128 @@
+{
+ "builds": [
+  {
+   "build_id": "d445054",
+   "commit": "d44505442d6630e395108e8317452edef91719f6",
+   "contract_id": "annotation-qc.pairwise-compare",
+   "contract_version": "1.0",
+   "definition_version": "2026-10",
+   "evidence": [
+    {
+     "detail": "every listed file hash equals the file in commit d44505442d6630e395108e8317452edef91719f6",
+     "manifests_checked": 93,
+     "type": "git_objects"
+    },
+    {
+     "detail": "ensembl_genes-0.1.0-py3-none-any.whl (build 2) used for every result of contract_runs/20261012_151131_comparator_contract_v1; packaged files byte-identical to a wheel rebuilt from d445054",
+     "sha256": "acf021d28d940ce724a82fd43678ce01bd8a443c19cd7848d642e47ba4a327b8",
+     "type": "wheel"
+    },
+    {
+     "detail": "scheme 1 does not cover runners/pairwise_compare.py; the runner of build 2 equals d445054's (sha256 d3c4adbc8a938f12fb704c7b4bf87ed7fe202cdc6256b9e6a10dda416ab34236), checked by wheel content",
+     "sha256": "d3c4adbc8a938f12fb704c7b4bf87ed7fe202cdc6256b9e6a10dda416ab34236",
+     "type": "runner_verification"
+    },
+    {
+     "detail": "contract_runs/20261012_151131_comparator_contract_v1/00_env/PROVENANCE.md and code_provenance_d445054.json (93/93 manifests verified)",
+     "type": "report"
+    }
+   ],
+   "fingerprint": "5c2c70892b8c1adebef7dd7b5d3fadd361382ef9e9f808563076ed543d296956",
+   "notes": "Output contract 1.0, definition 2026-10. Scheme 1 omits the runner, so this fingerprint alone cannot distinguish d445054 from f0f838d (identical 22 files); the runner identity rests on the wheel evidence.",
+   "scheme": "annotation_qc_loaded_modules_by_name/1",
+   "source_files": {
+    "__init__.py": "35173e8615785257b6846d6ed6f9b535ca643c85fa4dabcd378eed8650782992",
+    "cli.py": "193ef1be55e744a56b450a24d90a4ba23731fb518143c53135205bc42bbeb58d",
+    "metrics/__init__.py": "35173e8615785257b6846d6ed6f9b535ca643c85fa4dabcd378eed8650782992",
+    "metrics/pairwise/__init__.py": "4bcb23a080bac70bafe435087907e63e4e5a275c4112c4963f5e3c4d08350f31",
+    "metrics/pairwise/classify.py": "8f9537d11db0e81263a1cc859614bf328faf8863e6186fbaff8ae7761bed894b",
+    "metrics/pairwise/contract.py": "f75603757e3afb2a6dd98ac71a2ea183e1ea493e8c30c85db45501779a3db446",
+    "metrics/pairwise/evaluation_audit.py": "96876fba3056d9ad1a3a30f1e0795f580532e87e534523469e9b3b5788d8eb3c",
+    "metrics/pairwise/matching.py": "1d3e8e11a14888712942a18d0610fdf38ad6c8c0de312e857bef6db7d5b41a15",
+    "metrics/pairwise/selection.py": "5f7cd66058827a1e4d7baa312054fe114648402a51d825cb06fde1069fc1a2a5",
+    "metrics/pairwise/splice.py": "747b4d78629253a4c0429d7e2cbc106c584e742cbbeebf0fb8eb89c49d3917cf",
+    "metrics/pairwise/stop_codons.py": "84217501ad1db51680a7bcbabfef099e186a463a7aa44772367d92e11eef618a",
+    "metrics/pairwise/summary.py": "c1d717948d990611106fa2c9ba6a60879dcc27ae1f2d4776fe01599074e1031c",
+    "parsers/__init__.py": "35173e8615785257b6846d6ed6f9b535ca643c85fa4dabcd378eed8650782992",
+    "parsers/annotation.py": "cc5b485658bf1737315c91c03982c75ad476d98e9c85d999bbd79cafaef3b7fb",
+    "parsers/annotation_normalise.py": "8913784c5b81f6049996d692065c53bbe8b8b5c4767ff3bfcac8e19daae01fcb",
+    "parsers/regions.py": "30a150619e33ef03170dbb95f355ab7a10f2177778fde849565a2ba28375bb54",
+    "parsers/seqnames.py": "0b583b834c52c5074051f1e8383c76a1420289330d216d4bd8c7221096f183b0",
+    "parsers/sequence.py": "f47e63d39b76979b54220c9a88db026b153e8d251d19f8fd5f16ba92040e7335",
+    "parsers/tool_output.py": "fb4d67448cf195299c73ce22c62b723999bfa111af69e56b73d0af5b25f5a9c7",
+    "reports/__init__.py": "35173e8615785257b6846d6ed6f9b535ca643c85fa4dabcd378eed8650782992",
+    "reports/pairwise_compare.py": "ce5cd915206d1cb81911d9311d204c3e924cd165d7a3b7ddd824b6d15766cc4a",
+    "reports/pairwise_contract.py": "c119c8e8bc41729dd3fc93fe4fc02b6874fb5fcb11d99053612384abb7ad5501"
+   },
+   "versions": {
+    "pandas": "3.0.6",
+    "pyranges1": "1.4.5",
+    "python": "3.12.14"
+   }
+  },
+  {
+   "build_id": "f0f838d",
+   "commit": "f0f838d5266a55b113bb315b259b261a940d8e76",
+   "contract_id": "annotation-qc.pairwise-compare",
+   "contract_version": "1.0",
+   "definition_version": "2026-10",
+   "evidence": [
+    {
+     "detail": "every listed file hash equals the file in commit f0f838d5266a55b113bb315b259b261a940d8e76",
+     "manifests_checked": 1,
+     "type": "git_objects"
+    },
+    {
+     "detail": "ensembl_genes-0.1.0-py3-none-any.f0f838d.whl (clean non-editable install, annotation-qc entry point)",
+     "sha256": "5caa697048e41351d9838a899766833f607e74f552ca061e346cc6ce8968c8cb",
+     "type": "wheel"
+    },
+    {
+     "detail": "pilot z_tritici_gmb2__original__C__whole rerun with f0f838d: all 14 outputs other than the manifest byte-identical to the d445054 result (contract_runs/20261012_151131_comparator_contract_v1/00_env/PROVENANCE.md)",
+     "type": "rerun"
+    }
+   ],
+   "fingerprint": "c4de384abf862b256de3459b5dff486870a8959180d1faeb6a41dde6c8dfa88c",
+   "notes": "Scheme 2 fingerprint of f0f838d as loaded by the annotation-qc entry point (29 files incl. runners/pairwise_compare.py). Other entry points load other module sets and therefore other scheme-2 fingerprints.",
+   "scheme": "annotation_qc_loaded_files_by_path/2",
+   "source_files": {
+    "__init__.py": "35173e8615785257b6846d6ed6f9b535ca643c85fa4dabcd378eed8650782992",
+    "cli.py": "193ef1be55e744a56b450a24d90a4ba23731fb518143c53135205bc42bbeb58d",
+    "metrics/__init__.py": "35173e8615785257b6846d6ed6f9b535ca643c85fa4dabcd378eed8650782992",
+    "metrics/events.py": "278ef25ed51d6315fc8e0a5f45ec5d1fc4ee208df8aaf1a63a39fb7bf90a9b0d",
+    "metrics/pairwise/__init__.py": "4bcb23a080bac70bafe435087907e63e4e5a275c4112c4963f5e3c4d08350f31",
+    "metrics/pairwise/classify.py": "8f9537d11db0e81263a1cc859614bf328faf8863e6186fbaff8ae7761bed894b",
+    "metrics/pairwise/contract.py": "f75603757e3afb2a6dd98ac71a2ea183e1ea493e8c30c85db45501779a3db446",
+    "metrics/pairwise/evaluation_audit.py": "96876fba3056d9ad1a3a30f1e0795f580532e87e534523469e9b3b5788d8eb3c",
+    "metrics/pairwise/matching.py": "1d3e8e11a14888712942a18d0610fdf38ad6c8c0de312e857bef6db7d5b41a15",
+    "metrics/pairwise/selection.py": "5f7cd66058827a1e4d7baa312054fe114648402a51d825cb06fde1069fc1a2a5",
+    "metrics/pairwise/splice.py": "747b4d78629253a4c0429d7e2cbc106c584e742cbbeebf0fb8eb89c49d3917cf",
+    "metrics/pairwise/stop_codons.py": "84217501ad1db51680a7bcbabfef099e186a463a7aa44772367d92e11eef618a",
+    "metrics/pairwise/summary.py": "c1d717948d990611106fa2c9ba6a60879dcc27ae1f2d4776fe01599074e1031c",
+    "parsers/__init__.py": "35173e8615785257b6846d6ed6f9b535ca643c85fa4dabcd378eed8650782992",
+    "parsers/annotation.py": "cc5b485658bf1737315c91c03982c75ad476d98e9c85d999bbd79cafaef3b7fb",
+    "parsers/annotation_normalise.py": "8913784c5b81f6049996d692065c53bbe8b8b5c4767ff3bfcac8e19daae01fcb",
+    "parsers/diamond.py": "28f3e91effe5dc5de5dbdae9cfa8235b52cbaf17212c48e5b0c808575f590d1e",
+    "parsers/interpro.py": "df21c526b401ea45c37acdbbfe41a9904e9bddc0957ddc6cc3506be5b134a43a",
+    "parsers/parse_agat.py": "33ef488cde4fb4585f426742974e359eeb432d11dd7d5fbcecdfaa2a282d8c88",
+    "parsers/regions.py": "30a150619e33ef03170dbb95f355ab7a10f2177778fde849565a2ba28375bb54",
+    "parsers/seqnames.py": "0b583b834c52c5074051f1e8383c76a1420289330d216d4bd8c7221096f183b0",
+    "parsers/sequence.py": "f47e63d39b76979b54220c9a88db026b153e8d251d19f8fd5f16ba92040e7335",
+    "parsers/tool_output.py": "fb4d67448cf195299c73ce22c62b723999bfa111af69e56b73d0af5b25f5a9c7",
+    "reports/__init__.py": "35173e8615785257b6846d6ed6f9b535ca643c85fa4dabcd378eed8650782992",
+    "reports/pairwise_compare.py": "ce5cd915206d1cb81911d9311d204c3e924cd165d7a3b7ddd824b6d15766cc4a",
+    "reports/pairwise_contract.py": "c119c8e8bc41729dd3fc93fe4fc02b6874fb5fcb11d99053612384abb7ad5501",
+    "runners/__init__.py": "35173e8615785257b6846d6ed6f9b535ca643c85fa4dabcd378eed8650782992",
+    "runners/assess_translation_validity.py": "fd7863ee5d9b60003d736eba5f451eb0209580d43e04472830a37369e2812a7d",
+    "runners/pairwise_compare.py": "8682580b12a86a0d1380898f1de11acf18e9ea72db3a011a3fd092ddd0f5242a"
+   },
+   "versions": {
+    "pandas": "3.0.6",
+    "pyranges1": "1.4.5",
+    "python": "3.12.14"
+   }
+  }
+ ],
+ "description": "Comparator builds identified by (fingerprint scheme, fingerprint). Generated with annotation-qc benchmark register-build; every file hash checked against the git objects of the commit.",
+ "registry_version": 1
+}

@@ -1,16 +1,22 @@
 """
 Run (or skip) pairwise comparisons with content-based cache keys.
 
-A result is reused only when its cache key matches. The key covers:
+A result is reused when its cache key matches and benchmark/results.py rates it
+complete. The key covers:
 
     inputs          sha256 of the prepared query, prepared reference annotation,
                     prepared genome, scope regions content and seqname map
-    preparation     the recipes that produced those prepared files (via their
-                    output checksums and recorded source checksums)
     parameters      effective pairwise-compare options (config.comparator_parameters),
-                    including stop-codon harmonisation and genetic-code settings
-    implementation  content fingerprint of the comparator source files and the
-                    python / pandas / pyranges1 versions
+                    including stop-codon harmonisation, genetic codes and the
+                    analysis scopes
+    definition      comparator output contract id, major version and definition
+                    version (metrics/pairwise/contract.py)
+
+Code identity is not part of the key: it is assessed per result from the
+manifest's implementation fingerprint (benchmark/registry.py). A result from a
+verified historical build therefore stays complete when only dashboard code
+changes; a result whose implementation cannot be identified is "unverified" and
+is recomputed by ``run``.
 
 Comparisons run one at a time by default (a human whole-genome run needs up to
 ~7 GB RAM). Each attempt writes into ``comparisons/_partial/`` and is promoted to
@@ -29,6 +35,7 @@ import time
 from dataclasses import dataclass
 from pathlib import Path
 
+from ensembl.genes.annotation_qc.benchmark import registry as reg
 from ensembl.genes.annotation_qc.benchmark.config import (
     Experiment,
     Policy,
@@ -44,37 +51,24 @@ from ensembl.genes.annotation_qc.benchmark.provenance import (
     current_implementation,
     environment,
     now,
-    stable_hash,
 )
-from ensembl.genes.annotation_qc.benchmark.workspace import Workspace
-
-EXPECTED_OUTPUTS = (
-    "comparison_summary.json",
-    "comparison_details.tsv",
-    "consensus_transcript_labels.tsv",
-    "gene_splits.tsv",
-    "gene_merges.tsv",
-    "reference_filter_audit.json",
-    "comparison_manifest.json",
+from ensembl.genes.annotation_qc.benchmark.results import (
+    STATUS_COMPLETE,
+    STATUS_FAILED,
+    STATUS_LEGACY,
+    STATUS_NOT_RUN,
+    STATUS_STALE,
+    STATUS_UNAVAILABLE,
+    STATUS_UNVERIFIED,
+    assess,
+    cache_key,
+    current_definition,
+    expected_outputs,
+    key_components,
 )
-STOP_CODON_OUTPUTS = (
-    "stop_codon_harmonisation.tsv",
-    "query_evaluated.stop_harmonised.gtf",
-)
+from ensembl.genes.annotation_qc.benchmark.workspace import Workspace, write_json
 
-
-def expected_outputs(parameters: dict) -> tuple[str, ...]:
-    """Files a successful comparison with these parameters must have written."""
-    if parameters.get("add_stop_codon"):
-        return EXPECTED_OUTPUTS + STOP_CODON_OUTPUTS
-    return EXPECTED_OUTPUTS
-
-
-STATUS_COMPLETE = "complete"
-STATUS_FAILED = "failed"
-STATUS_NOT_RUN = "not_run"
-STATUS_STALE = "stale"
-STATUS_UNAVAILABLE = "unavailable"
+TO_RUN = (STATUS_NOT_RUN, STATUS_STALE, STATUS_FAILED, STATUS_UNVERIFIED)
 
 
 @dataclass
@@ -87,27 +81,11 @@ class Task:
     argv_template: list[str]  # outdir appended at execution
     status: str
     reason: str
+    assessment: dict | None = None
 
 
-def key_components(inputs: dict, parameters: dict, implementation: dict) -> dict:
-    return {
-        "inputs": {
-            k: inputs.get(k)
-            for k in (
-                "query_sha256",
-                "reference_sha256",
-                "genome_sha256",
-                "scope_sha256",
-                "seqname_map_sha256",
-            )
-        },
-        "parameters": parameters,
-        "implementation": {"fingerprint": implementation.get("fingerprint")},
-    }
-
-
-def cache_key(components: dict) -> str:
-    return stable_hash(components)
+def load_registry(experiment: Experiment) -> reg.Registry:
+    return reg.Registry.load(experiment.registries)
 
 
 def policy_available(policy: Policy, canonical_available: bool) -> tuple[bool, str]:
@@ -126,11 +104,32 @@ def canonical_available(ws: Workspace, prepared: dict) -> bool:
     return scan["canonical_tagged_records"] > 0
 
 
+def expected_inputs(ws: Workspace, run: Run, prep: dict, prepare=True) -> dict:
+    query = prepare_run(ws, run, write=prepare)
+    return {
+        "query_sha256": query["output"]["sha256"],
+        "query_path": query["output"]["path"],
+        "reference_sha256": prep["annotation"]["output"]["sha256"],
+        "reference_path": prep["annotation"]["output"]["path"],
+        "genome_sha256": (
+            prep["genome"]["output"]["sha256"] if prep.get("genome") else None
+        ),
+        "genome_path": (
+            prep["genome"]["output"]["path"] if prep.get("genome") else None
+        ),
+        "scope_sha256": prep["scope"]["sha256"],
+        "scope_path": prep["scope"]["regions_file"],
+        "seqname_map_sha256": (prep.get("seqname_map") or {}).get("sha256"),
+        "seqname_map_path": (prep.get("seqname_map") or {}).get("path"),
+    }
+
+
 def plan(
     experiment: Experiment, ws: Workspace, run_ids=None, policy_ids=None, prepare=True
 ) -> list[Task]:
     """Work out, for every (run, policy), whether a valid result exists."""
-    implementation = current_implementation()
+    registry = load_registry(experiment)
+    definition = current_definition()
     tasks = []
     prepared_refs: dict[str, dict] = {}
     for run in experiment.runs.values():
@@ -148,53 +147,29 @@ def plan(
             raise RuntimeError(
                 f"reference {reference.id} is not prepared; run `annotation-qc benchmark prepare`"
             )
-        query = prepare_run(ws, run)
-        inputs = {
-            "query_sha256": query["output"]["sha256"],
-            "query_path": query["output"]["path"],
-            "reference_sha256": prep["annotation"]["output"]["sha256"],
-            "reference_path": prep["annotation"]["output"]["path"],
-            "genome_sha256": (
-                prep["genome"]["output"]["sha256"] if prep.get("genome") else None
-            ),
-            "genome_path": (
-                prep["genome"]["output"]["path"] if prep.get("genome") else None
-            ),
-            "scope_sha256": prep["scope"]["sha256"],
-            "scope_path": prep["scope"]["regions_file"],
-            "seqname_map_sha256": (prep.get("seqname_map") or {}).get("sha256"),
-            "seqname_map_path": (prep.get("seqname_map") or {}).get("path"),
-        }
+        inputs = expected_inputs(ws, run, prep, prepare)
         canonical = canonical_available(ws, prep)
         for policy in experiment.policies.values():
             if policy_ids and policy.id not in policy_ids:
                 continue
             params = comparator_parameters(experiment, reference, run, policy)
-            components = key_components(inputs, params, implementation)
+            components = key_components(inputs, params, definition)
             key = cache_key(components)
             argv = build_argv(inputs, params)
             ok, why = policy_available(policy, canonical)
             record = ws.run_record(run.run_id, policy.id)
+            assessment = None
             if not ok:
                 status, reason = STATUS_UNAVAILABLE, why
-            elif (
-                record
-                and record.get("status") == STATUS_COMPLETE
-                and record.get("cache_key") == key
-            ):
-                missing = _missing_outputs(record)
-                status, reason = (
-                    (
-                        STATUS_COMPLETE,
-                        "cached result matches inputs, parameters and implementation",
-                    )
-                    if not missing
-                    else (STATUS_STALE, "outputs missing: " + ", ".join(missing))
+            elif record and record.get("output_dir"):
+                assessment = assess(
+                    Path(record["output_dir"]),
+                    components,
+                    registry,
+                    ws.checksums,
+                    record.get("snapshot_identity"),
                 )
-            elif record and record.get("status") == STATUS_COMPLETE:
-                status, reason = STATUS_STALE, describe_difference(
-                    record.get("key_components") or {}, components
-                )
+                status, reason = assessment["status"], assessment["reason"]
             else:
                 last = (ws.attempts(run.run_id, policy.id) or [None])[-1]
                 if (
@@ -209,25 +184,19 @@ def plan(
                 else:
                     status, reason = STATUS_NOT_RUN, "no result yet"
             tasks.append(
-                Task(run, reference, policy, key, components, argv, status, reason)
+                Task(
+                    run,
+                    reference,
+                    policy,
+                    key,
+                    components,
+                    argv,
+                    status,
+                    reason,
+                    assessment,
+                )
             )
     return tasks
-
-
-def describe_difference(old: dict, new: dict) -> str:
-    changed = []
-    for section in ("inputs", "parameters", "implementation"):
-        a, b = old.get(section) or {}, new.get(section) or {}
-        for k in sorted(set(a) | set(b)):
-            if a.get(k) != b.get(k):
-                changed.append(f"{section}.{k}")
-    return "changed: " + (", ".join(changed) if changed else "cache key")
-
-
-def _missing_outputs(record: dict) -> list[str]:
-    out = Path(record.get("output_dir", ""))
-    params = (record.get("key_components") or {}).get("parameters") or {}
-    return [name for name in expected_outputs(params) if not (out / name).exists()]
 
 
 def build_argv(inputs: dict, params: dict) -> list[str]:
@@ -274,6 +243,9 @@ def build_argv(inputs: dict, params: dict) -> list[str]:
         argv += ["--regions-file", inputs["scope_path"]]
     if params["plots_per_category"]:
         argv += ["--plots-per-category", str(params["plots_per_category"])]
+    for scope_id, sequences in sorted((params.get("analysis_scopes") or {}).items()):
+        argv += ["--analysis-scope", f"{scope_id}={','.join(sequences)}"]
+    argv += ["--export-evaluated-models", "ids"]
     if params.get("add_stop_codon"):
         argv += [
             "--add-stop-codon",
@@ -285,6 +257,27 @@ def build_argv(inputs: dict, params: dict) -> list[str]:
     return argv
 
 
+def run_provenance(experiment: Experiment, task: Task) -> dict:
+    """Labels passed verbatim to the comparator manifest (never interpreted by it)."""
+    run = task.run
+    return {
+        "experiment": experiment.id,
+        "prediction_id": run.run_id,
+        "predictor": run.tool,
+        "run_label": run.run_label,
+        "display_label": run.display_label,
+        "tool_version": run.tool_version,
+        "model": run.model,
+        "reference_id": task.reference.id,
+        "variant": run.variant,
+        "policy": task.policy.id,
+        "policy_label": task.policy.label,
+        "annotation_path": str(run.annotation),
+        "source": run.source or None,
+        "legacy_ids": run.legacy_ids or None,
+    }
+
+
 def execute(ws: Workspace, task: Task, log=print) -> dict:
     """Run one comparison; promote output only on success."""
     final = ws.comparison_dir(task.run.run_id, task.policy.id)
@@ -292,7 +285,16 @@ def execute(ws: Workspace, task: Task, log=print) -> dict:
         ws.partial_root() / f"{task.run.run_id}__{task.policy.id}__{int(time.time())}"
     )
     partial.mkdir(parents=True, exist_ok=True)
-    argv = task.argv_template + ["--outdir", str(partial / "out")]
+    provenance = ws.comparison_dir(task.run.run_id, task.policy.id).with_suffix(
+        ".provenance.json"
+    )
+    write_json(provenance, run_provenance(ws.experiment, task))
+    argv = task.argv_template + [
+        "--provenance-json",
+        str(provenance),
+        "--outdir",
+        str(partial / "out"),
+    ]
     started = now()
     t0 = time.time()
     with (
@@ -339,7 +341,16 @@ def execute(ws: Workspace, task: Task, log=print) -> dict:
         )
         return record
     if final.exists():
-        shutil.rmtree(final)
+        previous = ws.run_record(task.run.run_id, task.policy.id) or {}
+        if (
+            previous.get("source") == "imported"
+            and Path(previous.get("output_dir", "")).resolve() == final.resolve()
+        ):
+            # imported outputs normally stay where they are; never delete them
+            raise RuntimeError(f"{final} holds imported outputs; not overwritten")
+        shutil.rmtree(
+            final
+        )  # a computed result, or only the pointer to an imported one
     final.parent.mkdir(parents=True, exist_ok=True)
     shutil.move(str(partial / "out"), str(final))
     for name in ("stdout.log", "stderr.log"):
@@ -369,8 +380,8 @@ def run_missing(
     todo = [
         t
         for t in tasks
-        if t.status in (STATUS_NOT_RUN, STATUS_STALE, STATUS_FAILED)
-        or (force and t.status == STATUS_COMPLETE)
+        if t.status in TO_RUN
+        or (force and t.status in (STATUS_COMPLETE, STATUS_LEGACY))
     ]
     for t in tasks:
         marker = "→ run" if t in todo else "  skip"

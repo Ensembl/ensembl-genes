@@ -1,404 +1,312 @@
 # Annotation QC dashboard and locus browser
 
-A local, reproducible way to compare gene predictions with a reference annotation using
-`annotation-qc pairwise-compare`, see where predictors differ, and inspect individual loci.
-Predictors, runs and reference genomes are added through a configuration file; no
-application code changes.
+A local, offline way to compare gene predictions with a reference annotation using the
+results of `annotation-qc pairwise-compare`, see where prediction runs differ, and
+inspect individual loci. Experiments, references, prediction runs (including several
+runs of one tool) and supplementary variants are added through configuration only.
 
 ```
-experiment config ──► benchmark validate / prepare / import / run / independent ──► comparator outputs
-                                                                                       │
-                                     benchmark build (SQLite dataset) ◄────────────────┘
+experiment config ──► benchmark validate ──► benchmark run (pairwise-compare)  ─┐
+                                        └──► benchmark import (existing results) ┴─► comparator outputs (contract 1.0)
+                                                                                          │
+                                 benchmark build (SQLite index, exact models) ◄──────────┘
                                                    │
-                                     annotation-qc dashboard (http://127.0.0.1:8765)
+                                 annotation-qc dashboard (http://127.0.0.1:8765)
 ```
 
 | layer | code | does |
 |---|---|---|
-| comparison | `metrics/pairwise`, `runners/pairwise_compare.py` (unchanged) | all classification and metric semantics |
-| experiment preparation | `benchmark/` | configuration, recorded input preparation, validation, cached sequential runs, import of existing results, metric derivation, independent cross-check, dataset build |
+| comparison | `metrics/pairwise`, `runners/pairwise_compare.py`, `reports/` | every classification, metric, scope, matching and splice table; writes the versioned output contract (package README, "Output contract") |
+| orchestration | `benchmark/` | configuration, validation, cached sequential runs, import of existing results, implementation provenance, legacy import, dataset build |
 | presentation | `dashboard/` | read-only local web server and single-page app |
 
-**Why this design.** The dashboard uses only the Python standard library (`http.server`,
-`sqlite3`) plus the package's existing dependencies; the page is plain HTML/JS/SVG with no
-CDN or hosted service. Gene models are parsed once, with the comparator's own parser and
-selection functions, into an indexed SQLite file, so the browser answers bounded queries
-in milliseconds instead of re-reading 1.4 GB annotations. Nothing new is added to the core
-dependencies; the optional `dashboard` extra only adds PyYAML for YAML configurations
-(JSON works without it).
+**The dashboard computes no metric.** It reads `metrics.tsv` rows verbatim (value,
+numerator, denominator, status, reason, populations, unit), the per-gene and pair tables,
+the splice tables and the evaluated-transcript export; it indexes, filters and formats them.
+Scope values are the comparator's own scope rows (never sums of `per_sequence.tsv`).
+Earlier dashboard-side derivations (outcome categories, partial buckets, scoped metrics,
+splice bins, CDS differences, transcript re-selection) were removed: the comparator
+computes them.
 
-## 1. Install and launch
+Only the Python standard library (`http.server`, `sqlite3`) and the package's existing
+dependencies are used; the page is plain HTML/JS/SVG with no CDN, web font or hosted
+service. The optional `dashboard` extra only adds PyYAML for YAML configurations.
+
+## 1. Install, start and restart
+
+The package needs Python 3.12 or newer (`requires-python = ">=3.12"`; tested with 3.12
+and 3.13). Name the interpreter explicitly: a bare `python`/`python3` may be an older
+system Python (macOS ships 3.9), which pip rejects. A normal (non-editable) install is
+enough, and JSON configurations need no extra:
 
 ```bash
-pip install -e "ensembl-genes"                # core: enough for JSON configs and the dashboard
-pip install -e "ensembl-genes[dashboard]"     # optional: YAML configurations
+python3.12 -m venv ~/venvs/annotation-qc          # or python3.13
+~/venvs/annotation-qc/bin/pip install /path/to/ensembl-genes          # or a built wheel
+~/venvs/annotation-qc/bin/pip install "/path/to/ensembl-genes[dashboard]"   # only for YAML configs
+~/venvs/annotation-qc/bin/annotation-qc dashboard --help              # check the install
 ```
 
-```bash
-annotation-qc dashboard --config experiment.json            # http://127.0.0.1:8765/
-annotation-qc dashboard --config a.json --config b.json --port 8800
-```
+To run the test suite against that install, add `pytest` and run it from a copy of
+`tests/` (outside the source tree, so the installed package is the one imported):
+`~/venvs/annotation-qc/bin/pip install "pytest>=7,<9"`, then
+`~/venvs/annotation-qc/bin/python -m pytest <copy>/annotation_qc`.
 
-The server binds to `127.0.0.1` by default and has no authentication; do not bind it to a
-public interface.
-
-## 2. Open the existing human/mouse benchmark
-
-The populated configuration is
-`annotations_to_compare/qc_configs/ensembl2026_human_mouse.json`. It imports the
-2026‑10‑05 benchmark (24 whole-genome comparisons; the 8 region pilots are recorded
-separately) without rerunning anything.
+Serve one or several experiments (each needs a built dataset, section 3):
 
 ```bash
 cd annotations_to_compare
-annotation-qc benchmark import   --config qc_configs/ensembl2026_human_mouse.json   # ~1 min: verifies prepared inputs, matches 24 results by checksum
-annotation-qc benchmark validate --config qc_configs/ensembl2026_human_mouse.json   # ~1–2 min first time (cached afterwards)
-annotation-qc benchmark build    --config qc_configs/ensembl2026_human_mouse.json   # ~6 min first time, ~10 GB peak; seconds when unchanged
-annotation-qc dashboard          --config qc_configs/ensembl2026_human_mouse.json
-annotation-qc benchmark verify-headline --config qc_configs/ensembl2026_human_mouse.json \
-    --headline benchmark_runs/20261005_145546/headline_metrics.tsv                  # 1,368 values, 24 rows
+~/venvs/annotation-qc/bin/annotation-qc dashboard --config qc_configs/pig_contract_v1.json
+~/venvs/annotation-qc/bin/annotation-qc dashboard \
+    --config qc_configs/cat_contract_v1.json --config qc_configs/dog_contract_v1.json \
+    --config qc_configs/rat_contract_v1.json --config qc_configs/pig_contract_v1.json \
+    --config qc_configs/z_tritici_contract_v1.json --config qc_configs/f_graminearum_contract_v1.json \
+    --port 8765
 ```
 
-Outputs go to `annotations_to_compare/qc_workspace/ensembl2026_human_mouse_ab_initio/`.
-That dataset was built with store version 1, before the comparator's one-to-one
-matching existed; the dashboard shows its one-to-one metrics as not available and its
-earlier best-pair estimate under "Historical estimates" (a banner says so). Under the
-current comparator code its results are stale (implementation changed), so rebuilding
-it needs `benchmark run`, not only `build`.
+Open `http://127.0.0.1:8765/`. The server binds to `127.0.0.1` and has no
+authentication; do not bind it to a public interface. **Restart from a normal terminal:**
+stop it with Ctrl+C (or `kill <pid>`; `lsof -i :8765` shows the process) and run the same
+command again. Nothing is lost: the datasets are files in each workspace. After a
+`benchmark build`, restart the server so it reads the new dataset. Use `--port` when the
+port is taken.
 
-The pig experiment (`qc_configs/pig_sscrofa11_ab_initio.json`) imports
-`pig_comparison_runs/20261006_195011` (18 results, including supplementary
-stop-harmonised runs) the same way: `import`, `validate`, `build`, `dashboard`.
+## 2. Configure an experiment (format version 2)
 
-## 3. Workflows
-
-All commands take `--config EXPERIMENT.json`.
-
-| command | purpose |
-|---|---|
-| `annotation-qc benchmark validate [--prepare]` | check configuration, inputs, formats, sequence names/bounds, scope and the known parser limitations; writes `validation/validation.json`; exit 1 on errors |
-| `annotation-qc benchmark prepare [--force]` | recorded preparation (decompress, retype) and scope derivation |
-| `annotation-qc benchmark import [--benchmark-dir DIR]` | register completed comparisons from an existing directory (no rerun, no copy) |
-| `annotation-qc benchmark status` | status of every (run, policy): complete / stale / failed / not_run / unavailable, with the reason |
-| `annotation-qc benchmark run [--runs …] [--policies …] [--dry-run] [--force]` | run missing, stale or failed comparisons one at a time |
-| `annotation-qc benchmark independent [--runs …]` | optional independent cross-check (any-pair intron chain, exact-CDS agreement) |
-| `annotation-qc benchmark build` | build or update the dashboard dataset (incremental) |
-| `annotation-qc benchmark verify-headline --headline FILE` | compare dataset metrics with a `headline_metrics.tsv` (wide) table |
-| `annotation-qc dashboard --config …` | serve the dashboard |
-
-A new experiment: `validate --prepare` → `run` → (`independent`) → `build` → `dashboard`.
-
-## 4. Configuration (format version 1)
-
-JSON (or YAML with the extra). Relative paths resolve against the configuration file. A
-commented template is at `benchmark/templates/experiment_template.json`; keys starting with
-`_` are ignored.
+JSON (or YAML with the extra). Relative paths resolve against the configuration file.
+Keep source files and folder names as they are (paths may use any spelling, e.g.
+`fungi/z_triciti/`); the comparator reads gzip/BGZF annotations and FASTA directly.
+A commented template is at `benchmark/templates/experiment_template.json`. Version-1
+files still load unchanged.
 
 | key | meaning |
 |---|---|
-| `config_version` | `1` |
-| `experiment.id`, `title`, `description`, `synthetic` | identity; `synthetic: true` shows a warning banner everywhere |
+| `config_version` | `2` (or `1`) |
+| `experiment.id`, `title`, `description`, `synthetic` | identity; `synthetic: true` shows a warning banner |
 | `output_dir` | workspace for every derived file (sources are never written) |
-| `evaluation.evaluation_mode` | comparator preset: `all`, `protein_coding`, `cds_only`, `canonical` |
-| `evaluation.reference_gene_biotypes`, `reference_transcript_biotypes` | extra filters (empty = none) |
-| `evaluation.genome_mismatch` | `error` (default), `warn`, `exclude` |
-| `policies.<ID>` | `label`, `description`, `reference_transcript_selection` and `query_transcript_selection` (`all` / `longest_cds` / `canonical`), `optional`, `plots_per_category` |
-| `references[]` | `id` (unique), `species`, `assembly`, `assembly_accession`, `annotation_source`, `annotation_release`, `annotation`, `annotation_format`, `genome`, `annotation_preparation`, `genome_preparation`, `scope`, `seqname_map`, `notes` |
-| `…preparation` | `steps`: `"decompress"`, `{"name": "retype_transcript_types", "types": [...]}`; `reuse_existing`: adopt an existing prepared file only if re-deriving it from the source gives the same sha256 |
-| `references[].scope.type` | `all`, `reference_sequence_regions` (`##sequence-region` names), `sequences` (list), `regions_file` (path) |
-| `runs[]` | `run_id` (unique identifier), `reference`, `tool` (grouping and colour), `label` (display name; default `tool`), `role` (`primary` / `supplementary`), `comparator_options`, `tool_version`, `model`, `annotation`, `format`, `preparation`, `provenance`, `caveats`, `aliases`, `color` |
-| `runs[].comparator_options` | `add_stop_codon` (default false: original coordinates), `stop_codon_genetic_code` (NCBI table, default 1), `stop_codon_sequence_code` (`{sequence: table or "none"}`); passed to `pairwise-compare` and part of the run's parameters and cache key. Needs a reference genome |
-| `policies.<ID>.role` | `primary` (default) or `supplementary` (shown on the policy selector) |
-| `import` | `benchmark_dir`, `code_snapshot` (sha256sum-style lists of comparator files used then), `independent_tables` (pattern with `{alias}`, `{policy}`), `context_documents`, `paper_analogous` |
+| `evaluation` | `evaluation_mode`, `reference_gene_biotypes`, `reference_transcript_biotypes`, `genome_mismatch` (comparator options) |
+| `policies.<ID>` | `label`, `description`, `reference_transcript_selection`, `query_transcript_selection` (`all` / `longest_cds` / `canonical`) |
+| `references[]` | `id`, `species`, `assembly`, `assembly_accession`, `annotation_source`, `annotation_release`, `annotation`, `genome`, `seqname_map` (applied to both files), `scope` (`type`, `label`), `analysis_scopes` (`id`, `label`, `sequences`, `description`; passed to the comparator as `--analysis-scope`), `caveats`, `notes` |
+| `runs[]` | `run_id` (unique, stable), `reference`, `tool` (grouping and colour), `run_label` (e.g. "GMB run 2"), `label` (display text; default tool + run label), `tool_version`, `model`, `annotation`, `format`, `role` (`primary` / `supplementary`), `companion_of`, `comparator_options`, `source` (`original_path`, `sha256`, `recorded_in`), `legacy_ids`, `input_audit`, `provenance`, `caveats` |
+| `runs[].comparator_options` | `add_stop_codon`, `stop_codon_genetic_code`, `stop_codon_sequence_code` (`{sequence: table}`); part of the run's parameters |
+| `display` | `preferred_tools` (listed first, in order), `order_metric` (default `exact_cds_one_to_one_recall`), `pinned_runs` |
+| `provenance.registries` | extra implementation registries (section 5) |
+| `import` | `results_dirs` (headline results), `pilot_dirs` (always pilots), `independent_tables`, `context_documents`, `paper_analogous`; version-1 `benchmark_dir` and `code_snapshot` still work |
 
-Unknown values stay unknown: leave `tool_version`/`model`/`provenance` null and the
-dashboard shows "unknown".
+Validation of the configuration (`load_experiment`) reports every problem at once:
+duplicate `run_id`s, two runs comparing the same file with the same options (their results
+could not be told apart), a `companion_of` that names another file or the same options,
+unknown tools in `preferred_tools`, malformed checksums, invalid policies, scopes or stop
+options. `benchmark validate` checks the files: missing paths, `source.sha256` against the
+annotation, `input_audit` against the annotation, formats, sequence names and bounds
+against the FASTA (after the seqname map), canonical tags.
 
-### Adding a predictor
+**A new prediction run** (another tool, or another run of the same tool): add one object
+to `runs` with a new `run_id` (and a `run_label` for a further run of a tool). **A new
+reference or experiment:** add a `references[]` entry and its runs, or write a new
+configuration with its own `output_dir`. Only the new comparisons run; complete results
+are reused (section 4).
 
-Append one object to `runs` with a new `run_id`, then:
+**Supplementary variants.** A stop-harmonised variant is a second run on the same
+`annotation` with `comparator_options.add_stop_codon`, `role: supplementary` and
+`companion_of: <original run>`. It is listed beside its original run, labelled
+"supplementary · stop-harmonised", never ranked, and can be hidden. Original coordinates
+stay primary.
 
-```bash
-annotation-qc benchmark run   --config experiment.json     # only the new run's comparisons execute
-annotation-qc benchmark build --config experiment.json     # only the new components are built
-```
+## 3. Workflow
 
-Several runs of one tool (different models, versions, settings) are separate `run_id`s
-with the same `tool`; they share the tool's colour, later runs in lighter tints.
+| step | command (all take `--config EXPERIMENT.json`) |
+|---|---|
+| 1. configure | write the configuration (section 2) |
+| 2. validate inputs | `annotation-qc benchmark validate` (writes `validation/validation.json`; exit 1 on errors) |
+| 3a. generate comparator outputs | `annotation-qc benchmark run [--runs …] [--policies …] [--dry-run]` (one comparison at a time) |
+| 3b. or register existing outputs | `annotation-qc benchmark import` (no rerun, no copy) |
+| check | `annotation-qc benchmark status`, `annotation-qc benchmark provenance` (read only: they never prepare inputs or write records, and stop with a message when a derived input is not prepared yet) |
+| 4. build the dataset | `annotation-qc benchmark build` (incremental; indexes existing comparator outputs into `dashboard/dashboard.sqlite`, never reruns a comparison) |
+| 5. serve | `annotation-qc dashboard --config A.json [--config B.json …] [--port 8765]` |
+| 6. restart | Ctrl+C, then the same `dashboard` command (section 1) |
 
-### Comparing a new genome or reference
+`run` passes the analysis scopes (`--analysis-scope`), the run's labels and source
+provenance (`--provenance-json`, copied verbatim into the manifest) and
+`--export-evaluated-models ids`, writes into `comparisons/_partial/` and promotes output
+only after exit 0 with every expected contract file present.
 
-Add a `references[]` entry and its `runs[]`, then `validate --prepare`, `run`, `build`.
-Validation reports what the parser cannot read yet (compressed annotations not named
-`*.gz`, transcript types it does not list, verbatim duplicated rows, orphan exons, GTF
-transcript IDs reused without transcript lines) and whether canonical tags exist. If the
-annotation uses other sequence names than the FASTA, give a two-column `seqname_map`.
+## 4. Result status and reuse
 
-### Scope and transcript policies
+A result is assessed the same way whether it was computed here or imported
+(`benchmark/results.py`):
 
-- **Scope** is fixed per reference before comparing tools. `reference_sequence_regions`
-  limits both annotations to the sequences the reference annotates; predictions elsewhere
-  (alt haplotypes, patches) are counted as "outside scope" in the provenance view rather
-  than inflating Novel.
-- **Policy A** (`all`/`all`): a reference gene counts once if any eligible isoform is
-  reproduced. **B** (`longest_cds` on both sides). **C** (`canonical`): the
-  `Ensembl_canonical`-tagged transcript, falling back to the longest CDS per gene without a
-  tag. C is *not* labelled MANE: for human Ensembl most, not all, canonical transcripts are
-  MANE Select. A reference with no canonical tag at all makes C **unavailable** (the
-  comparator would silently fall back to B for every gene); per-gene fallbacks are flagged.
+| status | meaning | shown |
+|---|---|---|
+| `complete` | contract result; inputs, parameters and definition version match the configuration; every output file matches the SHA-256 in its manifest; implementation verified or identical to this checkout | yes |
+| `unverified` | as complete, but the implementation cannot be identified (section 5) | yes, flagged "unverified implementation"; `run` recomputes it |
+| `legacy` | written before contract 1.0, matching inputs and parameters | yes, through the legacy importer (section 8) |
+| `stale` | anything else (the reason names it: changed input, parameter or definition; a file that differs from its manifest checksum; a missing output) | no |
+| `failed`, `not_run`, `unavailable` | last attempt failed; no result; policy cannot run (e.g. no canonical tags) | no |
 
-### Supplementary sequence scopes
+The cache key covers inputs (checksums), comparator parameters (including stop options and
+analysis scopes) and the **definition** (contract id, major version, definition version),
+not the code fingerprint: code identity is assessed separately, so a verified historical
+result stays valid when only dashboard or display code changes. Imports never overwrite a
+computed result; `run` never overwrites an imported one.
 
-`references[].analysis_scopes` adds named sequence subsets, reported beside the whole
-compared scope (`scope.label` names it, e.g. "Whole assembly"):
+Pilots: directories listed in `import.pilot_dirs`, and any result restricted with
+`--region` or a different regions file, are listed in the import report and never shown as
+headline results.
 
-```json
-"analysis_scopes": [{"id": "chr1_18_X", "label": "Chromosomes 1–18 and X",
-                     "sequences": ["1", "2", "…", "18", "X"], "description": "…"}]
-```
+## 5. Implementation provenance
 
-Define a subset from the assembly (sequence names), never from which sequences carry
-predictions: a sequence without predictions may still have been processed. A subset
-is applied to reference **and** predicted genes before any value is calculated
-(`benchmark/scope.py`): R, Q, locus recovery, per-gene exact CDS, splits, merges and
-intron chains from the per-gene outputs on those sequences; one-to-one TP from the
-comparator's pairs on those sequences (exact-CDS edges never join sequences, so the
-maximum matching decomposes by sequence); unique introns from the stored models. Each
-build first repeats the derivation for the whole compared scope and compares it with
-the comparator's own values; a difference marks the subset's rows *inconsistent*. A
-subset naming a sequence that was not compared is reported unavailable. The whole
-compared scope always shows the comparator's values.
+Each manifest records `implementation`: a fingerprint **scheme**, the fingerprint, the
+SHA-256 of every covered file and the pandas/pyranges1/Python versions. A build is
+identified by the pair (scheme, fingerprint); fingerprints of different schemes are never
+compared.
 
-### Display order and companion runs
+| identity | rule |
+|---|---|
+| verified implementation `<build>` | (scheme, fingerprint) is in a registry, the fingerprint recomputes from the listed hashes, and the hashes equal the registered build's. The result is attributed to that historical build. |
+| current code (this checkout) | scheme 2, not registered, every listed file identical to this checkout |
+| unverified implementation | no fingerprint, unsupported scheme, fingerprint inconsistent with its file list, unknown pair, or files that differ from the registered build |
 
-`display.pinned_runs` lists runs shown first, in order; the other primary runs follow
-in descending `display.order_metric` (default one-to-one exact-CDS recall) for the
-selected policy and scope. A supplementary run with `companion_of: <run_id>` (e.g. the
-stop-harmonised run of the same file) is listed directly after that run and is never
-ranked. Without a `display` block the configured order is kept. Presentation only:
-none of this enters a cache key.
+The packaged registry `benchmark/implementation_registry.json` holds:
 
-### Original and stop-harmonised runs of one file
+- **d445054** (scheme `annotation_qc_loaded_modules_by_name/1`, the manifests without a
+  `scheme` key; fingerprint `5c2c7089…`): the build behind every result of
+  `contract_runs/20261012_151131_comparator_contract_v1`. Evidence: every file hash equals
+  the git objects of d445054; the wheel used for the runs (sha256 `acf021d2…`) is
+  file-identical to d445054; scheme 1 does not cover the runner, whose identity rests on
+  that wheel check.
+- **f0f838d** (scheme `annotation_qc_loaded_files_by_path/2`, fingerprint `c4de384a…`,
+  29 files including the runner, as loaded by the `annotation-qc` entry point).
 
-Configure them as two runs with the same `annotation` and different
-`comparator_options` (and, for the harmonised one, a `label` such as "Tool — stop
-harmonised" and `role: supplementary`). They have different parameters, commands and
-cache keys; `import` assigns each manifest to the run whose stop-codon settings it
-records (a manifest without the option compared original coordinates). For a
-harmonised run the locus tracks show the comparator's own evaluated annotation
-(`query_evaluated.stop_harmonised.gtf` of a complete result), with the per-transcript
-audit in the tooltips, gene detail and a TSV download. Without that output the
-tracks are reported unavailable; the original file is never shown in their place.
+Add a build with
+`annotation-qc benchmark register-build --manifest M.json … --repo REPO --commit SHA --build-id ID --output registry.json`
+(every file hash is checked against `git show SHA:<file>`), then list the file under
+`provenance.registries`. `benchmark provenance` prints the identity of every result.
+Historical manifests are never rewritten.
 
-### Import versus run
+## 6. Exact evaluated models (locus tracks)
 
-`import` reuses results whose rebuilt cache key equals the key the configuration and the
-current checkout would produce; it needs a `code_snapshot` because the benchmark ran on
-uncommitted code (a Git commit alone does not identify it). Without a matching snapshot,
-imported results are shown as **stale** and `run` recomputes them. Region-restricted runs
-are kept as pilots and never mixed with whole-genome results.
+`benchmark build` rebuilds the models each comparison evaluated, without selecting
+transcripts again (`benchmark/models.py`, the comparator's documented procedure):
 
-## 5. Caching, provenance and resuming
+1. the input recorded in the manifest must exist and match its SHA-256 (and the export's
+   `input_sha256`); otherwise the track is unavailable, never another file;
+2. it is parsed with the comparator parser and the recorded seqname map;
+3. the transcripts of `evaluated_transcripts.tsv.gz` are kept with their per-policy status
+   (`evaluated`, or `excluded` with `exclusion_reason`), `selected_by`, original and
+   comparison IDs;
+4. transcripts marked `stop_codon_added` get the audited terminal CDS from
+   `stop_codon_harmonisation.tsv` (missing audit = unavailable);
+5. exon count, CDS segment count and CDS length of every evaluated transcript must equal
+   the export, and every policy's export must reproduce the same coordinates.
 
-A comparison is reused only when its **cache key** is unchanged. The key hashes:
+The locus view draws evaluated isoforms solid and excluded ones faded and dashed (with the
+reason), marks the compared isoform (◆), canonical tags (★) and audited stop extensions
+(red tick). Pre-contract results have no export, so their tracks are unavailable.
 
-- **inputs**: sha256 of the prepared query, reference annotation, genome, scope content and
-  seqname map. Prepared files carry the source checksum and recipe.
-- **parameters**: every effective `pairwise-compare` option.
-- **implementation**: a content fingerprint of the comparator source files, plus the
-  python, pandas and pyranges1 versions. The file list is derived, not maintained by
-  hand: every in-package module that `runners/pairwise_compare.py` imports, directly or
-  transitively (parsed from the sources; docstring-only package `__init__` files are
-  left out). A new comparator module is covered as soon as it is imported. Uncommitted
-  edits change the fingerprint. A code snapshot that lacks one of these files cannot
-  verify a result, which is then imported as stale with the missing files named.
+## 7. Using the dashboard
 
-Consequences:
+The masthead selects the experiment; the toolbar selects the reference, the transcript
+policy (default **A**, any-isoform recovery; B and C one transcript per gene), the
+sequence scope (pig: whole assembly or chromosomes 1–18 + X) and whether supplementary
+stop-harmonised variants are shown. A context bar repeats the experiment, reference,
+policy, scope (with R), coordinate treatment and implementation identity.
 
-- Adding a run touches nothing else.
-- Changing a policy invalidates only that policy.
-- Changing a reference, the scope or the comparator code invalidates the affected runs.
+- **Headline CDS metrics** (default): one row per run — loci recovered (same-strand CDS
+  overlap), one-to-one coordinate-exact CDS recall and precision, one-to-one exact-CDS F1.
+  Tooltips (also on keyboard focus) give numerator, denominator, populations, status and
+  reason. *Counts and denominators* separates the one-to-one matching (R, Q, TP, edges)
+  from the per-gene best-pair coordinate-exact counts, which are a different measure.
+  Limitations relevant to the rows are listed under the table and marked ⓘ in the row.
+- **Structural agreement**: CDS intron chain (best pair and any pair), unique intron
+  recovery and support, splits and merges; splice-site position and intron-length plots
+  from the comparator's tables. Under policy A they are not available (the manifest
+  records `requires_one_reference_transcript_per_gene`); the page says so and offers B/C.
+- **All metrics**: every contract metric by group, with status and reason; policy-effect
+  chart; downloads of the stored metric rows (verbatim), one-to-one pairs, per-sequence
+  drill-down and stop-codon audits.
+- **Genes & loci**: search, sequence, CDS structure, per-run outcome, split, one-to-one
+  pair and two-run contrast filters; the locus view with exact models and a per-run
+  explanation table from the comparator's per-gene columns (CDS start/stop differences,
+  missing/extra introns, best-pair and any-pair chains).
+- **Predictions**: per run, Novel context, merges, best-pair exactness and one-to-one pairs.
+- **Provenance & validation**: registry builds and evidence, per-result implementation
+  identity and output-checksum check, manifest provenance (prediction id, predictor, run
+  label, original source path), input audits (processing scope), import report with
+  pilots, validation issues.
 
-The dataset build has its own component keys, which include a hash of `store.py`
-and `derive.py`, so a change in a derivation rebuilds the affected rows.
+Run order: `display.preferred_tools` in order (e.g. Internal predictions, Tiberius), then
+the other runs by descending one-to-one exact-CDS recall for the selected policy and scope;
+a supplementary variant follows its original. Deep links keep the state
+(`#exp=…&ref=…&policy=…&scope=…&view=…&tab=…`). Every control is reachable by keyboard
+(Tab; arrow keys in tab lists and segmented controls; Enter opens a gene row).
 
-Every attempt is appended to `comparisons/<run_id>/<policy>.attempts.jsonl`, recording the
-argv, environment, exit status, wall time and per-process peak RSS. Output is written to
-`comparisons/_partial/` and promoted only after exit 0 with every expected file present. A
-failed run therefore never counts as a result and is retried by the next `run`.
+## 8. Missing values and older results
+
+- Comparator statuses are shown as written: `undefined` (`zero_denominator`),
+  `not_applicable` (`transformation_not_applied`, `selection_not_canonical`,
+  `requires_one_reference_transcript_per_gene`). Dashboard-side: `not available` (no row),
+  and the result statuses of section 4. None is displayed as zero.
+- **Legacy importer** (`benchmark/legacy.py`): pre-contract results (e.g. the human/mouse
+  benchmark of 2026-10-05) map only summary fields whose definition is identical to a
+  contract metric; every other contract metric is `not_available`
+  (`pre_contract_result`). The earlier best-pair estimate of one-to-one TP is kept under
+  `historical_*` ids and never fills the one-to-one fields. `benchmark verify-headline`
+  checks a legacy dataset against a `headline_metrics.tsv` on the mapped columns only.
+- Datasets built with store version 1–3 are refused with a message; build into a new
+  workspace (they used dashboard-side derivations).
+
+## 9. Limitations shown beside results
+
+- Transcripts outside their own gene record (`gene_span_checks.query.transcripts_outside`
+  in the summary) make span-paired per-gene exact counts potentially lower than an
+  independent identical-CDS count; one-to-one values are unaffected (e.g. Z. tritici GMB
+  run 2).
+- Under policy A a stop-harmonised variant's best-pair intron-chain count can differ
+  slightly from the original's; any-pair chains, unique introns, R and Q do not.
+- Input audits (`runs[].input_audit`) report how many sequences carry predictions and
+  whether the predictor recorded which sequences it processed; reference genes on
+  sequences without prediction records count as missed, which does not establish that
+  those sequences were not processed.
+- Reference and run `caveats` from the configuration (e.g. F. graminearum: no
+  mitochondrial reference genes, so mitochondrial predictions can only be Novel; GMB
+  mitochondrial genetic-code and genome-FASTA provenance limitations).
+
+## 10. Workspace layout
 
 ```
 <output_dir>/
-  cache/                     checksum cache, annotation scans, FASTA lengths
-  prepared/<reference_id>/   prepared annotation/genome (or verified reused files), scope.regions, *.preparation.json
-  prepared/runs/<run_id>/    prepared queries (only if a run has preparation steps)
+  cache/checksums.json             sha256 cache keyed by path, size, mtime
+  prepared/<reference_id>/         preparation records (sources used as-is unless steps are configured)
   validation/validation.json
-  comparisons/<run_id>/<policy>/   comparator outputs + run_record.json
+  comparisons/<run_id>/<policy>/   computed results + run_record.json (imported: run_record.json points elsewhere)
+  comparisons/<run_id>/<policy>.attempts.jsonl
   imported/import_report.json      matched, pilots, unmatched, conflicts
-  independent/<run_id>/            independent tables (computed) or *.import.json pointers
-  dashboard/dashboard.sqlite
+  dashboard/dashboard.sqlite       the index the server reads (store version 4)
 ```
 
-## 6. Using the dashboard
+## 11. Troubleshooting
 
-- **Overview** has three views. The analysis context (transcript policy, sequence
-  scope, R and the stop-codon treatment) is shown above them; the scope selector is in
-  the header.
-  - **Coverage & exact CDS** (default): one compact row per run — loci recovered
-    (same-strand CDS overlap), exact CDS recall and precision (one-to-one
-    coordinate-exact pairs over R and Q) as percentages, and one-to-one exact-CDS F1 on
-    a 0–1 scale. Counts and denominators are in the tooltips and the expandable
-    *Counts and denominators* table. A built-in F1 that a dataset lacks is "not
-    available" with its reason; the historical best-pair estimate is never shown there.
-  - **Structural errors**: CDS intron-chain identity, unique reference / predicted CDS
-    intron agreement, split and merge flags, each with its denominator in the header;
-    then two exploratory plots (one reference transcript per gene: views B or C, chosen
-    beside the plots):
-    - *unsupported reference CDS splice sites by position* along the reference CDS
-      (transcription direction; 0 = coding start, 1 = coding end; genomic CDS span or
-      coding-sequence coordinate; donors and acceptors in separate panels; optionally
-      leaving out introns < 60 bp);
-    - *splice recovery by reference CDS intron length* (fixed bins, the same for every
-      run; complete intron, donor or acceptor), with the number of reference introns
-      per bin.
+- A result shows **stale**: `benchmark status` names the changed part, or the output file
+  whose checksum differs from its manifest.
+- **unverified implementation**: `benchmark provenance` gives the reason; register the
+  build if it is known (section 5) or rerun with `benchmark run`.
+- Locus tracks unavailable: the reason is shown in the track and in Provenance (input
+  moved or changed, audit missing, pre-contract result).
+- `store version … is not supported`: build into a new `output_dir`.
+- Memory: a human whole-genome comparison peaks at about 7 GB; run one at a time.
 
-    Support is exact: the same sequence, strand and coordinate in any evaluated
-    predicted transcript's CDS introns (the comparator's unique-intron rule). Sites of
-    genes whose locus was not recovered are counted separately as missing-locus sites
-    and excluded from the rates; empty bins are "not available". Binned counts download
-    as TSV. These are associations, not causes.
-  - **Detailed metrics**: every metric as before (whole compared scope). The CDS headline table shows every
-  value as a percentage with *numerator / denominator* and its source. Failed, not-run,
-  stale and unavailable results are labelled as such, and `n/a` (with the reason) is never
-  zero. Further sections cover:
-  - the policy-effect chart (A/B/C for the same reference);
-  - CDS outcome composition, single vs multi-segment genes and partial buckets;
-  - missed / Novel / split / merge and Novel-context categories;
-  - UTR-inclusive metrics, labelled as not for ranking CDS-only predictors.
-
-  Each table can be downloaded as TSV.
-- **Genes & loci.** Search gene IDs, file IDs, names and transcript IDs, and filter by
-  sequence, CDS structure, per-run outcome, splits, or a two-run contrast ("exact in run X,
-  not exact in run Y"). Click a row to open the locus:
-  - shared axis; UTR exons thin and outlined, CDS thick and filled, introns with strand chevrons;
-  - evaluated vs non-evaluated isoforms; canonical ★ and compared-pair ◆ markers per run;
-  - non-coding or pseudogene context hatched.
-
-  The explanation table gives each run's comparator class, the compared isoform and query
-  partner, the best-pair vs any-pair intron chain, and the CDS boundary or splice
-  differences recomputed from the stored models. Windows are capped at 2 Mb and 60
-  transcripts per track (with a note), and the gene table can be downloaded as TSV.
-- **Predictions.** Per run: Novel context, merges, strand mismatch, exactness;
-  namespaced IDs show the file ID.
-- **Validation & provenance.** Validation issues, probed parser limitations,
-  preparation records and checksums, scope, run provenance and caveats, outside-scope
-  counts, per-policy run records (source, independent verification, runtime, memory),
-  and the import report including pilots.
-- **Metric dictionary** and **Context** (paper-analogous tables and documents, marked
-  as supporting context, not a reproduction).
-
-Deep links keep the state: `#exp=…&ref=…&policy=…&scope=…&view=coverage|structure|detail`
-(plus `plot`, `pos`, `posmin`, `len` for the structural plots).
-
-## 7. Metric interpretation (summary; the full dictionary is in the app)
-
-- Lead with CDS metrics. Exon or UTR agreement is near zero by construction for CDS-only
-  predictors.
-- Historical `Exact_Match` is *structural*: same intron chain with ≥ 0.8 reciprocal
-  overlap, and terminal coordinates may differ. Coordinate-exact CDS is the exactness
-  metric.
-- Gene-span locus detection pairs genes whose spans overlap, even without shared CDS.
-  Same-strand CDS-overlap recovery is the coding measure.
-- Intron chain (best pair) is scored on the comparator's single best pair. The independent
-  any-pair value can be slightly higher.
-- Intron-set metrics count unique introns, and their denominators grow with the number of
-  evaluated isoforms. They are not per-gene metrics.
-- Query intron support counts query introns outside the evaluated reference subset as
-  unsupported.
-- One-to-one exact-CDS TP, precision, recall and F1 are the comparator's own
-  (`cds_exact_one_to_one`: maximum bipartite matching of genes sharing an identical
-  CDS, each gene used once). Precision = TP/Q, recall = TP/R, F1 = 2TP/(R+Q); the table
-  shows the numerator and denominator. The exported pairs
-  (`cds_exact_one_to_one_pairs.tsv`) are stored, checked against TP and downloadable.
-  The per-gene coordinate-exact counts can exceed TP when exact partners are shared.
-- Results that predate the comparator's matching show these metrics as not available.
-  The earlier best-pair estimate (min of unique genes among per-gene exact pairs) is
-  kept as "historical" metrics and is never used in their place.
-- Status is explicit: `not_available` (input or field absent), `undefined` (denominator
-  0), `not_applicable` (e.g. stop-codon counts of an original-coordinate run),
-  `inconsistent` (two outputs of one result disagree; shown with the reason). None is
-  zero.
-- Every value is for one reference, scope, policy and prediction run. The dashboard never
-  pools references or policies and shows no combined "best tool" score.
-- The benchmark's `headline_metrics.tsv` and `headline_metrics_long.tsv` hold the same
-  data. The dataset is derived from comparator outputs; only the wide table is used, and
-  only as a verification target.
-
-## 8. What needs more than summary files
-
-| capability | needs |
-|---|---|
-| overview metrics from the comparator summary | `comparison_summary.json` |
-| one-to-one exact-CDS TP/P/R/F1, CDS-overlap locus recovery, stop-codon counts | `comparison_summary.json` (current comparator) |
-| one-to-one pair table and download | `cds_exact_one_to_one_pairs.tsv` |
-| per-gene table, partial buckets, historical estimate, Novel lists | `comparison_details.tsv` (+ `consensus_transcript_labels.tsv`) |
-| stop-harmonised locus tracks and audit | `query_evaluated.stop_harmonised.gtf`, `stop_codon_harmonisation.tsv` |
-| single/multi-segment split, evaluated isoforms, locus browser (reference side) | the prepared reference annotation |
-| prediction tracks in the locus browser | the prediction files |
-| any-pair intron chain | independent tables (`benchmark independent` or imported) |
-| verified reuse of old results | a code snapshot of the comparator files used then |
-
-Missing pieces are reported as `not_available` or "unavailable" with the reason; no gene-level
-detail is invented.
-
-## 9. Troubleshooting
-
-- `UnicodeDecodeError` when parsing: a gzip/BGZF annotation not named `*.gz`. Add a
-  `decompress` step.
-- `Exon/CDS records whose Parent is not a transcript record`: a transcript type the parser
-  does not list (add `retype_transcript_types`) or a genuinely orphaned exon (fix the file).
-- Imported results show **stale**: run `benchmark status`, which lists the changed key part
-  (inputs / parameters / implementation). Supply `import.code_snapshot` for old uncommitted
-  code.
-- Locus view says models unavailable: the reference was not prepared in this workspace, or
-  the prediction file cannot be parsed (shown in Validation & provenance).
-- Memory: a human whole-genome comparison peaks at about 7 GB and the human dataset build at
-  about 10 GB. Run one at a time (the default).
-- Port in use: `--port 8800`.
-
-## 10. Synthetic demonstration
+## 12. Synthetic demonstration
 
 ```bash
 python -m ensembl.genes.annotation_qc.benchmark.examples.synthetic qc_synthetic_demo_NOT_REAL_DATA
 cd qc_synthetic_demo_NOT_REAL_DATA
 annotation-qc benchmark validate --config synthetic_demo.json --prepare   # reports the deliberately broken run (exit 1)
 annotation-qc benchmark run --config synthetic_demo.json
-annotation-qc benchmark independent --config synthetic_demo.json
 annotation-qc benchmark build --config synthetic_demo.json
 annotation-qc dashboard --config synthetic_demo.json
 ```
 
-Every identifier starts with `SYNTH` and the experiment is flagged synthetic. It covers:
-
-- two runs of one tool, and a second genome without canonical tags;
-- a Tiberius-style file reusing gene IDs on two chromosomes;
-- a broken run that fails and is recorded;
-- an out-of-scope prediction and an Ensembl TEC transcript type;
-- every outcome class.
-
-`tests/annotation_qc/test_benchmark_dashboard.py` uses it to test configuration-only
-extension, cache reuse and invalidation, import matching, collision handling, missing and
-failed results, and gene-table ↔ locus linkage.
-
-## 11. Known limitations
-
-- The comparator parser limitations listed in the validation view are reported, not fixed.
-  The dashboard never repairs biological structures. Preparation only decompresses or
-  retypes transcript types, with an audit record.
-- Validation's GTF transcript-reuse check is heuristic: strand or gene conflicts, and
-  inferred transcripts longer than 2 Mb.
-- The locus view shows at most 60 transcripts per track and windows of up to 2 Mb.
-- Peak memory is the process maximum RSS for computed runs. It is not recorded for
-  imported results.
-- Paper-analogous tables are imported context; they are not recomputed for new
-  experiments.
+Every identifier starts with `SYNTH` and the experiment is flagged synthetic. The tests
+`tests/annotation_qc/test_benchmark_*.py` use it for configuration-only extension, cache
+reuse and invalidation, import matching, provenance, missing and failed results and the
+HTTP API.

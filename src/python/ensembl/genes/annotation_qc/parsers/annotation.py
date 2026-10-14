@@ -12,7 +12,10 @@ returns.
 """
 
 import gzip
+import os
 import re
+import tempfile
+from contextlib import contextmanager
 from pathlib import Path
 
 import pandas as pd
@@ -25,15 +28,43 @@ from ensembl.genes.annotation_qc.parsers.annotation_normalise import (
 )
 
 
+def is_gzip_file(file_path: str) -> bool:
+    """True when the file content is gzip (or BGZF) compressed, whatever its name."""
+    with open(file_path, "rb") as handle:
+        return handle.read(2) == b"\x1f\x8b"
+
+
+@contextmanager
+def _reader_path(file_path: str):
+    """
+    Yield a path that PyRanges1 reads with the right decompression.
+
+    PyRanges1 (through pandas) infers compression from the file suffix, so a
+    gzip/BGZF file named e.g. *.gff3.bgz fails and a plain file named *.gz is
+    misread. When content and suffix disagree, a temporary symbolic link whose
+    name matches the content is read instead. The file itself is never copied
+    or changed.
+    """
+    compressed = is_gzip_file(file_path)
+    if compressed == str(file_path).lower().endswith(".gz"):
+        yield file_path
+        return
+    with tempfile.TemporaryDirectory(prefix="annotation_qc_") as tmp:
+        link = Path(tmp) / ("annotation.gz" if compressed else "annotation.txt")
+        os.symlink(Path(file_path).resolve(), link)
+        yield str(link)
+
+
 def parse_gff3(file_path: str):
     """
     Parse a GFF3 file using PyRanges1.
     Args:
-            file_path: Path to the GFF3 file
+            file_path: Path to the GFF3 file, plain or gzip/BGZF (detected from content)
     Returns:
             PyRanges object
     """
-    gff3_file = pr.read_gff3(file_path)
+    with _reader_path(file_path) as path:
+        gff3_file = pr.read_gff3(path)
     return gff3_file
 
 
@@ -41,14 +72,15 @@ def parse_gtf(file_path: str, duplicate_attr: bool = False):
     """
     Parse a GTF file using PyRanges1.
     Args:
-            file_path: Path to the GTF file
+            file_path: Path to the GTF file, plain or gzip/BGZF (detected from content)
             duplicate_attr: Keep every value of a repeated attribute (e.g. several
                     'tag' entries) instead of only the last one
     Returns:
             PyRanges object
     """
 
-    gtf_file = pr.read_gtf(file_path, duplicate_attr=duplicate_attr)
+    with _reader_path(file_path) as path:
+        gtf_file = pr.read_gtf(path, duplicate_attr=duplicate_attr)
     return gtf_file
 
 
@@ -89,9 +121,9 @@ _BARE_ATTR = re.compile(r"^\S+$")
 
 
 def _open_text(file_path: str):
-    with open(file_path, "rb") as handle:
-        is_gzip = handle.read(2) == b"\x1f\x8b"
-    return gzip.open(file_path, "rt") if is_gzip else open(file_path, "rt")
+    if is_gzip_file(file_path):
+        return gzip.open(file_path, "rt")
+    return open(file_path, "rt", encoding="utf-8")
 
 
 def detect_annotation_format(file_path: str, max_records: int = 200) -> str:

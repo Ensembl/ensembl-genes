@@ -1,18 +1,16 @@
 """
-Read-only queries over a dashboard dataset (benchmark/store.py schema).
+Read-only queries over a dashboard dataset (benchmark/store.py, store version 4).
 
-All locus queries are bounded: a window is at most MAX_WINDOW bp, overlap
-searches use the per-sequence maximum feature length so the (source, chrom, start)
-index applies, and each track returns at most a fixed number of records with a
-``truncated`` flag. Nothing here re-reads annotation files.
+Every metric returned is a stored row of the comparator's metrics.tsv (or a
+legacy-import row), selected by (reference, policy, scope, run, metric id); this
+module filters, indexes and formats only. All locus queries are bounded: a window
+is at most MAX_WINDOW bp, overlap searches use the per-sequence maximum feature
+length so the (source, chrom, start) index applies, and each track returns at
+most a fixed number of records with a ``truncated`` flag. Nothing here re-reads
+annotation files.
 
-Datasets built before store version 2 are read without rewriting them: their
-one-to-one exact-CDS rows (a best-pair estimate) are returned under the
-``historical_*`` metric ids, and the comparator's one-to-one metrics are reported
-as not_available with the reason. Datasets built before store version 3 have no
-scoped metrics or splice-site analysis: they offer the whole compared scope only
-and report the exploratory views as not available. Metric semantics come from
-the packaged metric dictionary.
+Datasets of earlier store versions are refused with a message (they used
+dashboard-side metric derivations); build a new workspace instead.
 """
 
 from __future__ import annotations
@@ -21,33 +19,18 @@ import json
 import sqlite3
 from pathlib import Path
 
-from ensembl.genes.annotation_qc.benchmark.derive import HISTORICAL_IDS, ONE_TO_ONE_IDS
-
 METRIC_DICTIONARY = (
     Path(__file__).resolve().parent.parent / "benchmark" / "metric_dictionary.json"
 )
-LEGACY_RENAMES = dict(
-    zip(
-        (
-            "exact_tp_one_to_one",
-            "exact_recall_one_to_one",
-            "exact_precision_one_to_one",
-            "exact_f1_one_to_one",
-        ),
-        HISTORICAL_IDS,
-    )
-)
-LEGACY_NOTE = (
-    "dataset built before the comparator's one-to-one matching was imported (store version 1); "
-    "rebuild from a current comparator result. The earlier best-pair estimate is under the historical metrics."
-)
+SUPPORTED_STORE = "4"
 MAX_WINDOW = 2_000_000
 TRACK_LIMIT = 60
 CONTEXT_LIMIT = 80
 PAGE_LIMIT = 500
 CSV_LIMIT = 1_000_000
+ALL = "all"
 
-REF_STATUSES = (
+CDS_OUTCOMES = (
     "exact",
     "terminal_diff",
     "diff_chain",
@@ -71,162 +54,112 @@ def connect(db: Path) -> sqlite3.Connection:
     return con
 
 
-def _has_table(con, name: str) -> bool:
-    return (
-        con.execute(
-            "SELECT 1 FROM sqlite_master WHERE type='table' AND name=?", (name,)
-        ).fetchone()
-        is not None
-    )
-
-
 def store_version(con) -> str | None:
-    row = con.execute("SELECT value FROM meta WHERE key='store_version'").fetchone()
+    try:
+        row = con.execute("SELECT value FROM meta WHERE key='store_version'").fetchone()
+    except sqlite3.OperationalError:
+        return None
     return json.loads(row[0]) if row else None
 
 
-def is_legacy(con) -> bool:
-    return store_version(con) == "1"
+def check_version(con) -> None:
+    version = store_version(con)
+    if version != SUPPORTED_STORE:
+        raise QueryError(
+            f"dataset store version {version!r} is not supported (needs {SUPPORTED_STORE}); "
+            "rebuild it with `annotation-qc benchmark build` into a new workspace"
+        )
 
 
 def meta(con) -> dict:
+    check_version(con)
     data = {
         row["key"]: json.loads(row["value"])
         for row in con.execute("SELECT key, value FROM meta")
     }
     data["metric_dictionary_at_build"] = data.get("metric_dictionary")
     data["metric_dictionary"] = json.loads(METRIC_DICTIONARY.read_text())
-    data["legacy_dataset"] = is_legacy(con)
-    if data["legacy_dataset"]:
-        data["legacy_note"] = LEGACY_NOTE
-    for i, run in enumerate(data.get("runs") or []):
-        run.setdefault("label", run.get("tool"))
-        run.setdefault("role", "primary")
-        run.setdefault("comparator_options", {})
-        run.setdefault("query_coordinates", "original")
-        run.setdefault("companion_of", None)
-        run.setdefault("config_order", i)
-    data.setdefault("display", {})
-    analysed = _has_table(con, "analyses")
-    for ref in data.get("references") or []:
-        ref.setdefault(
-            "scopes",
-            [
-                {
-                    "id": "whole_assembly",
-                    "label": "All compared sequences",
-                    "role": "primary",
-                    "available": True,
-                }
-            ],
-        )
-        ref["splice_analysis_available"] = analysed
-    for policy in data.get("policies") or []:
-        policy.setdefault("role", "primary")
     return data
 
 
-def _legacy_metrics(metrics: list[dict], results: list[dict]) -> list[dict]:
-    """Store-v1 rows: rename the best-pair estimate; built-in one-to-one not available."""
+def _results(con, reference_id: str) -> list[dict]:
     out = []
-    for m in metrics:
-        if m["metric_id"] in LEGACY_RENAMES:
-            m = {
-                **m,
-                "metric_id": LEGACY_RENAMES[m["metric_id"]],
-                "source": "historical",
-                "note": "historical best-pair estimate (store version 1)",
-            }
-        out.append(m)
-    have = {(m["run_id"], m["policy_id"]) for m in metrics}
-    for r in results:
-        if (r["run_id"], r["policy_id"]) in have:
-            out += [
-                {
-                    "run_id": r["run_id"],
-                    "policy_id": r["policy_id"],
-                    "metric_id": mid,
-                    "numerator": None,
-                    "denominator": None,
-                    "value": None,
-                    "status": "not_available",
-                    "source": "comparator",
-                    "note": LEGACY_NOTE,
-                }
-                for mid in ONE_TO_ONE_IDS
-            ]
+    for r in con.execute(
+        "SELECT run_id, policy_id, status, reason, source, record FROM results WHERE reference_id=?",
+        (reference_id,),
+    ):
+        r = dict(r)
+        record = json.loads(r.pop("record") or "{}")
+        for key in (
+            "identity",
+            "outputs_check",
+            "analyses",
+            "transformations",
+            "provenance",
+            "pairs_check",
+            "independent",
+            "stop_codon_harmonisation",
+            "limitations",
+            "output_dir",
+            "finished",
+            "wall_seconds",
+            "peak_rss_bytes",
+            "difference",
+            "attempts",
+            "contract_version",
+            "definition_version",
+            "legacy",
+            "options",
+            "inputs",
+            "scope",
+            "thresholds",
+            "gene_span_checks",
+            "output_files",
+            "assessment_reason",
+            "imported",
+        ):
+            r[key] = record.get(key)
+        out.append(r)
     return out
 
 
 def overview(con, reference_id: str) -> dict:
-    """Result status and metric rows for every run and policy of one reference."""
-    results = [
-        dict(r)
-        for r in con.execute(
-            "SELECT run_id, policy_id, status, reason, source, record FROM results WHERE reference_id=?",
-            (reference_id,),
-        )
-    ]
-    for r in results:
-        record = json.loads(r.pop("record") or "{}")
-        r["independent"] = record.get("independent")
-        r["wall_seconds"] = record.get("wall_seconds")
-        r["peak_rss_bytes"] = record.get("peak_rss_bytes")
-        r["output_dir"] = record.get("output_dir")
-        r["finished"] = record.get("finished")
-        r["difference"] = record.get("difference")
-        r["attempts"] = record.get("attempts")
-        r["pairs_check"] = record.get("pairs_check")
-        r["stop_codon_harmonisation"] = record.get("stop_codon_harmonisation")
-        r["comparator_options"] = record.get("comparator_options")
-        r["manifest_code_version"] = record.get("manifest_code_version")
+    """Result status and every stored metric row (all scopes) of one reference."""
     metrics = [
         dict(r)
         for r in con.execute(
-            "SELECT run_id, policy_id, metric_id, numerator, denominator, value, status, source, note FROM metrics WHERE reference_id=?",
+            "SELECT run_id, policy_id, scope_id, metric_id, numerator, denominator, value, value_text, "
+            "status, reason, numerator_id, denominator_id, unit, side, source FROM metrics "
+            "WHERE reference_id=?",
             (reference_id,),
         )
     ]
-    if is_legacy(con):
-        metrics = _legacy_metrics(metrics, results)
-    scoped = (
-        [
-            dict(r)
-            for r in con.execute(
-                "SELECT scope_id, run_id, policy_id, metric_id, numerator, denominator, value, status, source, note "
-                "FROM scope_metrics WHERE reference_id=?",
-                (reference_id,),
-            )
-        ]
-        if _has_table(con, "scope_metrics")
-        else []
-    )
-    analyses = (
-        [
-            {**dict(r), "record": json.loads(r["record"] or "{}")}
-            for r in con.execute(
-                "SELECT run_id, policy_id, status, reason, record FROM analyses WHERE reference_id=?",
-                (reference_id,),
-            )
-        ]
-        if _has_table(con, "analyses")
-        else []
-    )
-    return {
-        "results": results,
-        "metrics": metrics,
-        "scope_metrics": scoped,
-        "analyses": analyses,
-    }
+    return {"results": _results(con, reference_id), "metrics": metrics}
+
+
+def metrics_rows(
+    con, reference_id: str, policy: str | None, scope: str | None
+) -> list[dict]:
+    """Metric rows for download (optionally one policy and scope)."""
+    where, args = ["reference_id=?"], [reference_id]
+    for col, value in (("policy_id", policy), ("scope_id", scope)):
+        if value:
+            where.append(f"{col}=?")
+            args.append(value)
+    return [
+        dict(r)
+        for r in con.execute(
+            "SELECT reference_id, run_id, policy_id, scope_id, metric_id, numerator, denominator, value_text AS value, "
+            f"status, reason, numerator_id, denominator_id, unit, side, source FROM metrics WHERE {' AND '.join(where)} "
+            "ORDER BY run_id, policy_id, scope_id, metric_id",
+            args,
+        )
+    ]
 
 
 def splice_sites(con, p: dict) -> dict:
-    """Binned splice-site and intron-length recovery for one reference, policy and scope."""
-    if not _has_table(con, "splice_sites"):
-        raise QueryError(
-            "splice-site analysis is not in this dataset (built before store version 3); rebuild it"
-        )
-    args = (p["reference"], p.get("scope") or "whole_assembly", p["policy"])
+    """The comparator's binned splice-site and intron-length tables for one policy and scope."""
+    args = (p["reference"], p.get("scope") or ALL, p["policy"])
     where = "reference_id=? AND scope_id=? AND policy_id=?"
     sites = [
         dict(r)
@@ -239,12 +172,25 @@ def splice_sites(con, p: dict) -> dict:
     lengths = [
         dict(r)
         for r in con.execute(
-            f"SELECT run_id, bin, lo, hi, label, eligible, exact, donor, acceptor, missing_locus FROM intron_lengths "
-            f"WHERE {where} ORDER BY run_id, bin",
+            f"SELECT run_id, bin, lo, hi, label, eligible, exact, donor, acceptor, missing_locus "
+            f"FROM intron_lengths WHERE {where} ORDER BY run_id, bin",
             args,
         )
     ]
     return {"scope": args[1], "policy": args[2], "sites": sites, "lengths": lengths}
+
+
+def per_sequence(con, p: dict) -> dict:
+    """Per-sequence drill-down rows of one result (never summed into scope values)."""
+    rows = [
+        dict(r)
+        for r in con.execute(
+            f"SELECT * FROM per_sequence WHERE reference_id=? AND policy_id=? AND run_id=? "
+            f"ORDER BY {CHROM_ORDER.format(c='chrom')}",
+            (p["reference"], p["policy"], p["run"]),
+        )
+    ]
+    return {"rows": rows}
 
 
 def _int(value, name, default=None):
@@ -256,11 +202,24 @@ def _int(value, name, default=None):
         raise QueryError(f"{name} must be an integer") from error
 
 
+def _scope_clause(alias: str, scope: str | None) -> tuple[str, list]:
+    if not scope or scope == ALL:
+        return "", []
+    return (
+        f" AND (',' || COALESCE({alias}.scope_ids, '') || ',') LIKE ?",
+        [f"%,{scope},%"],
+    )
+
+
 def genes(con, p: dict, csv=False) -> dict:
-    """Reference-gene table for one reference and policy, with per-run outcomes."""
+    """Evaluated reference genes of one policy (and scope) with per-run outcomes."""
     ref, policy = p["reference"], p["policy"]
-    where = ["g.reference_id=?", "rp.policy_id=?"]
+    where = ["g.reference_id=?", "g.policy_id=?"]
     args: list = [ref, policy]
+    clause, extra = _scope_clause("g", p.get("scope"))
+    if clause:
+        where.append(clause[5:])
+        args += extra
     if p.get("q"):
         where.append("g.search LIKE ?")
         args.append(f"%{p['q'].strip().lower()}%")
@@ -271,99 +230,80 @@ def genes(con, p: dict, csv=False) -> dict:
         if start is not None and end is not None:
             where += ["g.start<=?", "g.end>=?"]
             args += [end, start]
-    if p.get("multi") in ("0", "1"):
-        where.append("rp.multi_segment=?")
-        args.append(int(p["multi"]))
+    if p.get("multi") == "1":
+        where.append("g.max_cds_count>1")
+    elif p.get("multi") == "0":
+        where.append("g.max_cds_count<=1")
     focus = p.get("focus_run")
+    exists = (
+        "EXISTS (SELECT 1 FROM ref_outcomes o WHERE o.reference_id=g.reference_id AND "
+        "o.policy_id=g.policy_id AND o.gene_id=g.gene_id AND o.run_id=? AND {})"
+    )
     if focus and p.get("status"):
-        statuses = [s for s in p["status"].split(",") if s in REF_STATUSES]
+        statuses = [s for s in p["status"].split(",") if s in CDS_OUTCOMES]
         if statuses:
             where.append(
-                f"EXISTS (SELECT 1 FROM ref_outcomes o WHERE o.reference_id=g.reference_id AND o.policy_id=rp.policy_id "
-                f"AND o.gene_id=g.gene_id AND o.run_id=? AND o.cds_status IN ({','.join('?' * len(statuses))}))"
+                exists.format(f"o.cds_outcome IN ({','.join('?' * len(statuses))})")
             )
             args += [focus, *statuses]
     if focus and p.get("split") == "1":
+        where.append(exists.format("o.counterpart_count>=2"))
+        args.append(focus)
+    if focus and p.get("one_to_one") in ("0", "1"):
         where.append(
-            "EXISTS (SELECT 1 FROM ref_outcomes o WHERE o.reference_id=g.reference_id AND o.policy_id=rp.policy_id "
-            "AND o.gene_id=g.gene_id AND o.run_id=? AND o.counterpart_count>=2)"
+            exists.format(
+                "o.one_to_one_partner IS NOT NULL"
+                if p["one_to_one"] == "1"
+                else "o.one_to_one_partner IS NULL"
+            )
         )
         args.append(focus)
     compare = p.get("compare_run")
     if focus and compare and p.get("contrast"):
-        # focus run exact, compare run not exact (or the reverse when contrast=missing_in_focus)
         good, bad = (
             (focus, compare) if p["contrast"] == "exact_in_focus" else (compare, focus)
         )
-        where.append(
-            "EXISTS (SELECT 1 FROM ref_outcomes o WHERE o.reference_id=g.reference_id AND o.policy_id=rp.policy_id "
-            "AND o.gene_id=g.gene_id AND o.run_id=? AND o.cds_exact=1)"
-        )
-        where.append(
-            "EXISTS (SELECT 1 FROM ref_outcomes o WHERE o.reference_id=g.reference_id AND o.policy_id=rp.policy_id "
-            "AND o.gene_id=g.gene_id AND o.run_id=? AND o.cds_exact=0)"
-        )
+        where.append(exists.format("o.cds_exact=1"))
+        where.append(exists.format("o.cds_exact=0"))
         args += [good, bad]
-    clause = " AND ".join(where)
-    base = f"FROM ref_genes g JOIN ref_gene_policy rp ON rp.reference_id=g.reference_id AND rp.gene_id=g.gene_id WHERE {clause}"
+    base = f"FROM ref_gene_policy g WHERE {' AND '.join(where)}"
     total = con.execute(f"SELECT COUNT(*) {base}", args).fetchone()[0]
     limit = CSV_LIMIT if csv else min(_int(p.get("limit"), "limit", 100), PAGE_LIMIT)
     offset = 0 if csv else _int(p.get("offset"), "offset", 0)
     rows = [
         dict(r)
         for r in con.execute(
-            f"SELECT g.gene_id, g.original_gene_id, g.name, g.chrom, g.start, g.end, g.strand, g.biotype, rp.multi_segment, "
-            f"rp.canonical_fallback, rp.evaluated_transcripts {base} ORDER BY {CHROM_ORDER.format(c='g.chrom')}, g.start LIMIT ? OFFSET ?",
+            f"SELECT g.gene_id, g.chrom, g.start, g.end, g.strand, g.biotype, g.max_cds_count, "
+            f"g.max_exon_count, g.evaluated_transcript_count, g.has_cds, g.scope_ids, "
+            f"(SELECT name FROM ref_genes rg WHERE rg.reference_id=g.reference_id AND rg.gene_id=g.gene_id) AS name, "
+            f"(SELECT original_gene_id FROM ref_genes rg WHERE rg.reference_id=g.reference_id AND rg.gene_id=g.gene_id) "
+            f"AS original_gene_id {base} ORDER BY {CHROM_ORDER.format(c='g.chrom')}, g.start LIMIT ? OFFSET ?",
             [*args, limit, offset],
         )
     ]
     ids = [r["gene_id"] for r in rows]
     outcomes: dict = {}
-    pairs = _one_to_one(con, ref, policy, ids)
     for i in range(0, len(ids), 900):
         chunk = ids[i : i + 900]
         for o in con.execute(
-            f"SELECT run_id, gene_id, cds_status, classification, classification_cds, cds_exact, cds_overlap, cds_matched_id, "
-            f"counterpart_count, counterpart_ids, any_pair_chain, cds_intron_chain_match FROM ref_outcomes "
+            f"SELECT run_id, gene_id, cds_outcome, classification, classification_cds, cds_exact, cds_overlap, "
+            f"cds_shared_bases, cds_locus_recovered, cds_matched_id, one_to_one_partner, counterpart_count, "
+            f"counterpart_ids, cds_intron_chain_match, cds_intron_chain_any_pair FROM ref_outcomes "
             f"WHERE reference_id=? AND policy_id=? AND gene_id IN ({','.join('?' * len(chunk))})",
             [ref, policy, *chunk],
         ):
-            o = dict(o)
-            o["one_to_one_partner"] = pairs.get((o["gene_id"], o["run_id"]))
-            outcomes.setdefault(o["gene_id"], {})[o["run_id"]] = o
+            outcomes.setdefault(o["gene_id"], {})[o["run_id"]] = dict(o)
     for r in rows:
-        r["evaluated_transcript_count"] = (
-            len(r.pop("evaluated_transcripts").split(","))
-            if r.get("evaluated_transcripts")
-            else 0
-        )
         r["outcomes"] = outcomes.get(r["gene_id"], {})
     return {"total": total, "offset": offset, "rows": rows}
 
 
-def _one_to_one(con, reference: str, policy: str, gene_ids: list[str]) -> dict:
-    """(reference gene, run) -> query gene of its comparator one-to-one exact pair."""
-    if not gene_ids or not _has_table(con, "exact_pairs"):
-        return {}
-    found = {}
-    for i in range(0, len(gene_ids), 900):
-        chunk = gene_ids[i : i + 900]
-        for r in con.execute(
-            f"SELECT reference_gene_id, run_id, query_gene_id FROM exact_pairs WHERE reference_id=? AND policy_id=? "
-            f"AND reference_gene_id IN ({','.join('?' * len(chunk))})",
-            [reference, policy, *chunk],
-        ):
-            found[(r["reference_gene_id"], r["run_id"])] = r["query_gene_id"]
-    return found
-
-
 def _stop_audit(con, run_id: str, transcript_ids: list[str]) -> dict:
     """transcript id -> stop-codon audit row (stop-harmonised runs only)."""
-    if not transcript_ids or not _has_table(con, "stop_codon_audit"):
-        return {}
     found = {}
-    for i in range(0, len(transcript_ids), 900):
-        chunk = transcript_ids[i : i + 900]
+    ids = [t for t in transcript_ids if t]
+    for i in range(0, len(ids), 900):
+        chunk = ids[i : i + 900]
         for r in con.execute(
             f"SELECT * FROM stop_codon_audit WHERE run_id=? AND transcript_id IN ({','.join('?' * len(chunk))})",
             [run_id, *chunk],
@@ -373,11 +313,7 @@ def _stop_audit(con, run_id: str, transcript_ids: list[str]) -> dict:
 
 
 def pairs(con, p: dict, csv=False) -> dict:
-    """The comparator's one-to-one exact-CDS pairs for one result."""
-    if not _has_table(con, "exact_pairs"):
-        raise QueryError(
-            "one-to-one pairs are not in this dataset (built before store version 2)"
-        )
+    """The comparator's one-to-one exact-CDS pairs for one result (optionally one scope)."""
     where = "reference_id=? AND policy_id=? AND run_id=?"
     args = [p["reference"], p["policy"], p["run"]]
     total = con.execute(
@@ -398,8 +334,6 @@ def pairs(con, p: dict, csv=False) -> dict:
 
 def stop_audit(con, p: dict, csv=False) -> dict:
     """Per-transcript stop-codon audit of a stop-harmonised run (optionally by status/reason)."""
-    if not _has_table(con, "stop_codon_audit"):
-        raise QueryError("no stop-codon audit in this dataset")
     where, args = ["run_id=?"], [p["run"]]
     for key in ("status", "reason"):
         if p.get(key):
@@ -437,8 +371,12 @@ def query_genes(con, p: dict, csv=False) -> dict:
         raise QueryError("run is required")
     where = ["o.reference_id=?", "o.policy_id=?", "o.run_id=?"]
     args: list = [ref, policy, run]
+    clause, extra = _scope_clause("o", p.get("scope"))
+    if clause:
+        where.append(clause[5:])
+        args += extra
     if p.get("q"):
-        where.append("qg.search LIKE ?")
+        where.append("o.search LIKE ?")
         args.append(f"%{p['q'].strip().lower()}%")
     if p.get("chrom"):
         where.append("o.chrom=?")
@@ -454,144 +392,77 @@ def query_genes(con, p: dict, csv=False) -> dict:
     if p.get("exact") in ("0", "1"):
         where.append("o.cds_exact=?")
         args.append(int(p["exact"]))
-    base = (
-        f"FROM query_outcomes o LEFT JOIN query_genes qg ON qg.run_id=o.run_id AND qg.gene_id=o.gene_id "
-        f"WHERE {' AND '.join(where)}"
-    )
+    if p.get("one_to_one") in ("0", "1"):
+        where.append(
+            "o.one_to_one_partner IS NOT NULL"
+            if p["one_to_one"] == "1"
+            else "o.one_to_one_partner IS NULL"
+        )
+    base = f"FROM query_outcomes o WHERE {' AND '.join(where)}"
     total = con.execute(f"SELECT COUNT(*) {base}", args).fetchone()[0]
     limit = CSV_LIMIT if csv else min(_int(p.get("limit"), "limit", 100), PAGE_LIMIT)
     offset = 0 if csv else _int(p.get("offset"), "offset", 0)
     rows = [
         dict(r)
         for r in con.execute(
-            f"SELECT o.gene_id, o.original_gene_id, qg.name, o.chrom, o.start, o.end, o.strand, o.classification, o.classification_cds, "
-            f"o.cds_exact, o.cds_overlap, o.cds_matched_id, o.best_cds_ref_tx, o.novel_category, o.counterpart_count, o.counterpart_ids, "
-            f"o.strand_mismatch_basis {base} ORDER BY {CHROM_ORDER.format(c='o.chrom')}, o.start LIMIT ? OFFSET ?",
+            f"SELECT o.gene_id, o.original_gene_id, o.chrom, o.start, o.end, o.strand, o.classification, "
+            f"o.classification_cds, o.cds_exact, o.cds_overlap, o.cds_matched_id, o.best_cds_ref_tx, "
+            f"o.best_cds_query_tx, o.novel_category, o.counterpart_count, o.counterpart_ids, "
+            f"o.strand_mismatch_basis, o.one_to_one_partner, o.evaluated_transcript_count, o.has_cds, "
+            f"o.scope_ids {base} ORDER BY {CHROM_ORDER.format(c='o.chrom')}, o.start LIMIT ? OFFSET ?",
             [*args, limit, offset],
         )
     ]
     return {"total": total, "offset": offset, "rows": rows}
 
 
-def _parse_iv(text: str) -> list[tuple[int, int]]:
-    return (
-        [tuple(int(x) for x in part.split("-")) for part in text.split(",") if part]
-        if text
-        else []
-    )
-
-
-def _tx(con, source: str, transcript_id: str):
-    row = con.execute(
-        "SELECT * FROM transcripts WHERE source=? AND transcript_id=?",
-        (source, transcript_id),
-    ).fetchone()
-    return dict(row) if row else None
-
-
-def explain_pair(ref_tx: dict | None, q_tx: dict | None) -> dict:
-    """Describe CDS differences between two stored transcripts (one-based inclusive)."""
-    if not ref_tx or not q_tx:
-        return {"available": False}
-    a, b = _parse_iv(ref_tx["cds"]), _parse_iv(q_tx["cds"])
-    if not a or not b:
-        return {"available": False}
-    ia = [(a[i][1] + 1, a[i + 1][0] - 1) for i in range(len(a) - 1)]
-    ib = [(b[i][1] + 1, b[i + 1][0] - 1) for i in range(len(b) - 1)]
-    plus = ref_tx["strand"] != "-"
-    # positive = query CDS extends further than the reference at that end
-    start_diff = (a[0][0] - b[0][0]) if plus else (b[-1][1] - a[-1][1])
-    stop_diff = (b[-1][1] - a[-1][1]) if plus else (a[0][0] - b[0][0])
-    shared = sum(max(0, min(e1, e2) - max(s1, s2) + 1) for s1, e1 in a for s2, e2 in b)
-    la, lb = sum(e - s + 1 for s, e in a), sum(e - s + 1 for s, e in b)
-    out = {
-        "available": True,
-        "identical_cds": a == b,
-        "same_cds_intron_chain": ia == ib,
-        "reference_cds_segments": len(a),
-        "query_cds_segments": len(b),
-        "reference_cds_bp": la,
-        "query_cds_bp": lb,
-        "reciprocal_cds_overlap": (
-            round(min(shared / la, shared / lb), 4) if la and lb else 0
-        ),
-        "start_side_diff_bp": start_diff,
-        "stop_side_diff_bp": stop_diff,
-        "reference_introns_missing_in_query": [
-            f"{s}-{e}" for s, e in ia if (s, e) not in set(ib)
-        ][:10],
-        "query_introns_not_in_reference": [
-            f"{s}-{e}" for s, e in ib if (s, e) not in set(ia)
-        ][:10],
-        "reference_introns_missing_count": sum(1 for x in ia if x not in set(ib)),
-        "query_introns_extra_count": sum(1 for x in ib if x not in set(ia)),
-    }
-    notes = []
-    if out["identical_cds"]:
-        notes.append("CDS identical (start, every splice site and stop)")
-    else:
-        if out["same_cds_intron_chain"]:
-            notes.append("same CDS intron chain")
-        if start_diff:
-            notes.append(
-                f"start side: query CDS {'longer' if start_diff > 0 else 'shorter'} by {abs(start_diff)} bp"
-            )
-        if stop_diff:
-            notes.append(
-                f"stop side: query CDS {'longer' if stop_diff > 0 else 'shorter'} by {abs(stop_diff)} bp"
-            )
-        if out["reference_introns_missing_count"]:
-            notes.append(
-                f"{out['reference_introns_missing_count']} reference CDS intron(s) absent in query"
-            )
-        if out["query_introns_extra_count"]:
-            notes.append(
-                f"{out['query_introns_extra_count']} query CDS intron(s) not in reference"
-            )
-    out["summary"] = "; ".join(notes)
-    return out
+def _tx_status(con, source: str, policy: str, ids: list[str]) -> dict:
+    found = {}
+    for i in range(0, len(ids), 900):
+        chunk = ids[i : i + 900]
+        for r in con.execute(
+            f"SELECT transcript_id, status, exclusion_reason, selected_by, exon_count, cds_segment_count, "
+            f"cds_length, transformed FROM tx_status WHERE source=? AND policy_id=? "
+            f"AND transcript_id IN ({','.join('?' * len(chunk))})",
+            [source, policy, *chunk],
+        ):
+            found[r["transcript_id"]] = dict(r)
+    return found
 
 
 def gene_detail(con, reference: str, policy: str, gene_id: str) -> dict:
+    """One reference gene: per-run comparator outcome, compared isoforms and CDS differences."""
     gene = con.execute(
-        "SELECT * FROM ref_genes WHERE reference_id=? AND gene_id=?",
-        (reference, gene_id),
-    ).fetchone()
-    if gene is None:
-        raise QueryError(f"reference gene {gene_id} not found")
-    gene = dict(gene)
-    gene.pop("search", None)
-    rp = con.execute(
         "SELECT * FROM ref_gene_policy WHERE reference_id=? AND policy_id=? AND gene_id=?",
         (reference, policy, gene_id),
     ).fetchone()
-    gene["policy"] = dict(rp) if rp else None
-    runs = {
-        r["run_id"]
-        for r in con.execute(
-            "SELECT run_id FROM results WHERE reference_id=?", (reference,)
+    if gene is None:
+        raise QueryError(
+            f"reference gene {gene_id} is not evaluated under policy {policy}"
         )
-    }
+    gene = dict(gene)
+    gene.pop("search", None)
+    names = con.execute(
+        "SELECT name, original_gene_id FROM ref_genes WHERE reference_id=? AND gene_id=?",
+        (reference, gene_id),
+    ).fetchone()
+    gene["name"], gene["original_gene_id"] = (
+        (names[0], names[1]) if names else (None, gene_id)
+    )
+    isoforms = [
+        dict(r)
+        for r in con.execute(
+            "SELECT transcript_id, status, exclusion_reason, selected_by, exon_count, cds_segment_count, "
+            "cds_length FROM tx_status WHERE source=? AND policy_id=? AND gene_id=? ORDER BY transcript_id",
+            (f"ref:{reference}", policy, gene_id),
+        )
+    ]
     outcomes = {}
-    partners = _one_to_one(con, reference, policy, [gene_id])
     for o in con.execute(
         "SELECT * FROM ref_outcomes WHERE reference_id=? AND policy_id=? AND gene_id=?",
         (reference, policy, gene_id),
     ):
         o = dict(o)
-        ref_tx = (
-            _tx(con, f"ref:{reference}", o["best_cds_ref_tx"])
-            if o["best_cds_ref_tx"]
-            else None
-        )
-        q_tx = (
-            _tx(con, f"run:{o['run_id']}", o["best_cds_query_tx"])
-            if o["best_cds_query_tx"]
-            else None
-        )
-        o["explanation"] = explain_pair(ref_tx, q_tx)
-        o["partner_query_gene"] = o["cds_matched_id"] or o["matched_id"]
-        o["one_to_one_partner"] = partners.get((gene_id, o["run_id"]))
         o["query_stop_codon"] = (
             _stop_audit(con, o["run_id"], [o["best_cds_query_tx"]]).get(
                 o["best_cds_query_tx"]
@@ -600,11 +471,21 @@ def gene_detail(con, reference: str, policy: str, gene_id: str) -> dict:
             else None
         )
         outcomes[o["run_id"]] = o
-    missing = sorted(runs - set(outcomes))
-    return {"gene": gene, "outcomes": outcomes, "runs_without_outcome": missing}
+    runs = {
+        r["run_id"]
+        for r in con.execute(
+            "SELECT run_id FROM results WHERE reference_id=?", (reference,)
+        )
+    }
+    return {
+        "gene": gene,
+        "isoforms": isoforms,
+        "outcomes": outcomes,
+        "runs_without_outcome": sorted(runs - set(outcomes)),
+    }
 
 
-def locus(con, p: dict) -> dict:
+def locus(con, p: dict) -> dict:  # pylint: disable=too-many-locals
     ref = p["reference"]
     chrom = p.get("chrom")
     start, end = _int(p.get("start"), "start"), _int(p.get("end"), "end")
@@ -612,11 +493,11 @@ def locus(con, p: dict) -> dict:
         raise QueryError("chrom, start and end are required")
     if end < start:
         start, end = end, start
-    truncated_window = False
+    clamped = False
     if end - start + 1 > MAX_WINDOW:
         mid = (start + end) // 2
         start, end = mid - MAX_WINDOW // 2, mid + MAX_WINDOW // 2
-        truncated_window = True
+        clamped = True
     policy = p.get("policy")
     runs = [r for r in (p.get("runs") or "").split(",") if r]
     focus_gene = p.get("gene_id")
@@ -628,70 +509,61 @@ def locus(con, p: dict) -> dict:
         ).fetchone()
         return row[0] if row else 0
 
-    def overlapping(table, source_col, source, limit, extra="", extra_args=()):
-        ml = maxlen(source if table == "transcripts" else f"refgene:{ref}")
-        sql = (
-            f"SELECT * FROM {table} WHERE {source_col}=? AND chrom=? AND start<=? AND start>=? AND end>=? {extra} "
-            f"ORDER BY start LIMIT ?"
-        )
+    def overlapping(table, source_col, source, limit, ml_source):
+        ml = maxlen(ml_source)
         rows = [
             dict(r)
             for r in con.execute(
-                sql, (source, chrom, end, start - ml, start, *extra_args, limit + 1)
+                f"SELECT * FROM {table} WHERE {source_col}=? AND chrom=? AND start<=? AND start>=? AND end>=? "
+                f"ORDER BY start LIMIT ?",
+                (source, chrom, end, start - ml, start, limit + 1),
             )
         ]
         return rows[:limit], len(rows) > limit
 
+    ref_source = f"ref:{ref}"
     ref_genes, genes_trunc = overlapping(
-        "ref_genes", "reference_id", ref, CONTEXT_LIMIT
+        "ref_genes", "reference_id", ref, CONTEXT_LIMIT, f"genes:{ref_source}"
     )
     for g in ref_genes:
         g.pop("search", None)
-    evaluated = {}
-    if policy:
+    partners: dict = {}
+    outcome_by_gene: dict = {}
+    if policy and runs and ref_genes:
         ids = [g["gene_id"] for g in ref_genes]
-        for i in range(0, len(ids), 900):
-            chunk = ids[i : i + 900]
-            for r in con.execute(
-                f"SELECT gene_id, evaluated_transcripts, multi_segment FROM ref_gene_policy WHERE reference_id=? "
-                f"AND policy_id=? AND gene_id IN ({','.join('?' * len(chunk))})",
-                [ref, policy, *chunk],
-            ):
-                evaluated[r["gene_id"]] = set(
-                    (r["evaluated_transcripts"] or "").split(",")
-                )
-    partners = {}  # ref transcript -> [run_ids] ; query transcript -> ref gene
-    outcome_by_gene = {}
-    if policy and runs:
-        ids = [g["gene_id"] for g in ref_genes]
-        for i in range(0, len(ids), 900):
-            chunk = ids[i : i + 900]
-            for o in con.execute(
-                f"SELECT run_id, gene_id, best_cds_ref_tx, best_cds_query_tx, cds_status, cds_matched_id FROM ref_outcomes "
-                f"WHERE reference_id=? AND policy_id=? AND gene_id IN ({','.join('?' * len(chunk))}) "
-                f"AND run_id IN ({','.join('?' * len(runs))})",
-                [ref, policy, *chunk, *runs],
-            ):
-                if o["best_cds_ref_tx"]:
-                    partners.setdefault(o["best_cds_ref_tx"], []).append(o["run_id"])
-                outcome_by_gene.setdefault(o["gene_id"], {})[o["run_id"]] = dict(o)
-    ref_tx_all, ref_tx_trunc = overlapping("transcripts", "source", f"ref:{ref}", 4000)
-    ref_tracks = []
-    hidden = 0
+        for o in con.execute(
+            f"SELECT run_id, gene_id, best_cds_ref_tx, best_cds_query_tx, cds_outcome, cds_matched_id, "
+            f"one_to_one_partner FROM ref_outcomes WHERE reference_id=? AND policy_id=? "
+            f"AND gene_id IN ({','.join('?' * len(ids))}) AND run_id IN ({','.join('?' * len(runs))})",
+            [ref, policy, *ids, *runs],
+        ):
+            if o["best_cds_ref_tx"]:
+                partners.setdefault(o["best_cds_ref_tx"], []).append(o["run_id"])
+            outcome_by_gene.setdefault(o["gene_id"], {})[o["run_id"]] = dict(o)
+    ref_tx_all, ref_tx_trunc = overlapping(
+        "transcripts", "source", ref_source, 4000, ref_source
+    )
+    status = (
+        _tx_status(con, ref_source, policy, [t["transcript_id"] for t in ref_tx_all])
+        if policy
+        else {}
+    )
+    ref_tracks, hidden = [], 0
     for t in ref_tx_all:
-        ev = t["transcript_id"] in evaluated.get(t["gene_id"], set())
-        t["evaluated"] = ev
+        st = status.get(t["transcript_id"]) or {}
+        t["evaluated"] = st.get("status") == "evaluated"
+        t["exclusion_reason"] = st.get("exclusion_reason")
+        t["selected_by"] = st.get("selected_by")
         t["partner_of_runs"] = partners.get(t["transcript_id"], [])
         t["canonical"] = "Ensembl_canonical" in (t["tags"] or "")
         keep = (
             show == "all"
-            or (show == "evaluated" and ev)
+            or (show == "evaluated" and t["evaluated"])
             or (
                 show == "partners"
+                and t["evaluated"]
                 and (
-                    t["partner_of_runs"]
-                    or (ev and t["canonical"])
-                    or (ev and len(evaluated.get(t["gene_id"], ())) == 1)
+                    t["partner_of_runs"] or t["canonical"] or t["selected_by"] != "all"
                 )
             )
         )
@@ -706,27 +578,48 @@ def locus(con, p: dict) -> dict:
     ref_tracks = ref_tracks[:TRACK_LIMIT]
     run_tracks = {}
     for run in runs:
-        txs, trunc = overlapping("transcripts", "source", f"run:{run}", TRACK_LIMIT)
+        source = f"run:{run}"
+        txs, trunc = overlapping(
+            "transcripts", "source", source, TRACK_LIMIT * 4, source
+        )
+        st = (
+            _tx_status(con, source, policy, [t["transcript_id"] for t in txs])
+            if policy
+            else {}
+        )
         q_out = {}
-        if policy:
-            ids = list({t["gene_id"] for t in txs})
-            if ids:
-                for o in con.execute(
-                    f"SELECT gene_id, classification, classification_cds, cds_exact, novel_category, counterpart_count "
-                    f"FROM query_outcomes WHERE run_id=? AND policy_id=? AND gene_id IN ({','.join('?' * len(ids))})",
-                    [run, policy, *ids],
-                ):
-                    q_out[o["gene_id"]] = dict(o)
+        ids = list({t["gene_id"] for t in txs})
+        if policy and ids:
+            for o in con.execute(
+                f"SELECT gene_id, classification, classification_cds, cds_exact, novel_category, counterpart_count, "
+                f"one_to_one_partner FROM query_outcomes WHERE run_id=? AND policy_id=? "
+                f"AND gene_id IN ({','.join('?' * len(ids))})",
+                [run, policy, *ids],
+            ):
+                q_out[o["gene_id"]] = dict(o)
         stops = _stop_audit(con, run, [t["transcript_id"] for t in txs])
+        shown, run_hidden = [], 0
         for t in txs:
+            s = st.get(t["transcript_id"]) or {}
+            t["evaluated"] = s.get("status") == "evaluated"
+            t["exclusion_reason"] = s.get("exclusion_reason")
+            t["selected_by"] = s.get("selected_by")
             t["outcome"] = q_out.get(t["gene_id"])
             t["stop_codon"] = stops.get(t["transcript_id"])
-        run_tracks[run] = {"transcripts": txs, "truncated": trunc}
+            if show == "all" or t["evaluated"]:
+                shown.append(t)
+            else:
+                run_hidden += 1
+        run_tracks[run] = {
+            "transcripts": shown[:TRACK_LIMIT],
+            "truncated": trunc or len(shown) > TRACK_LIMIT,
+            "hidden_excluded": run_hidden,
+        }
     return {
         "chrom": chrom,
         "start": start,
         "end": end,
-        "window_clamped": truncated_window,
+        "window_clamped": clamped,
         "reference_genes": ref_genes,
         "reference_genes_truncated": genes_trunc,
         "reference_transcripts": ref_tracks,
@@ -747,7 +640,8 @@ def chromosomes(con, reference: str) -> list[str]:
     return [
         r[0]
         for r in con.execute(
-            f"SELECT DISTINCT chrom FROM ref_genes WHERE reference_id=? AND evaluated=1 ORDER BY {CHROM_ORDER.format(c='chrom')}",
+            f"SELECT DISTINCT chrom FROM ref_gene_policy WHERE reference_id=? "
+            f"ORDER BY {CHROM_ORDER.format(c='chrom')}",
             (reference,),
         )
     ]

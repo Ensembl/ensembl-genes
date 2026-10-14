@@ -8,13 +8,14 @@ services, no comparison work at request time.
 Endpoints (all GET):
     /api/experiments                         experiments served
     /api/meta?exp=                           configuration, policies, runs, validation, metric dictionary
-    /api/overview?exp=&reference=[&format=csv]
+    /api/overview?exp=&reference=[&format=csv&policy=&scope=]   stored metric rows (TSV: verbatim)
     /api/genes?exp=&reference=&policy=&...   reference-gene table (+format=csv)
     /api/predictions?exp=&reference=&policy=&run=&...   prediction table (+format=csv)
     /api/pairs?exp=&reference=&policy=&run=[&format=csv]   comparator one-to-one exact-CDS pairs
     /api/stop_audit?exp=&run=[&status=&reason=&format=csv]  stop-codon audit (harmonised runs)
     /api/splice?exp=&reference=&policy=&scope=[&format=csv&table=sites|lengths]
                                              binned splice-site / intron-length recovery
+    /api/per_sequence?exp=&reference=&policy=&run=[&format=csv]   per-sequence drill-down
     /api/gene?exp=&reference=&policy=&gene_id=
     /api/locus?exp=&reference=&chrom=&start=&end=&policy=&runs=&gene_id=&isoforms=
     /api/chromosomes?exp=&reference=
@@ -76,13 +77,14 @@ def _csv(
             for run in runs or sorted(r["outcomes"]):
                 o = r["outcomes"].get(run) or {}
                 for key in (
-                    "cds_status",
+                    "cds_outcome",
                     "cds_exact",
                     "one_to_one_partner",
                     "cds_overlap",
+                    "cds_shared_bases",
                     "cds_matched_id",
                     "counterpart_count",
-                    "any_pair_chain",
+                    "cds_intron_chain_any_pair",
                 ):
                     base[f"{run}.{key}"] = o.get(key, "NA" if not o else "")
             flat.append(base)
@@ -166,13 +168,28 @@ def make_handler(datasets: Datasets):
                     doc = docs[int(p.get("index", -1))]
                     return self._json(doc)
                 if url.path == "/api/overview":
-                    data = queries.overview(con, p["reference"])
+                    if p.get("format") == "csv":
+                        rows = queries.metrics_rows(
+                            con, p["reference"], p.get("policy"), p.get("scope")
+                        )
+                        suffix = "_".join(
+                            filter(None, [p.get("policy"), p.get("scope")])
+                        )
+                        return self._send(
+                            200,
+                            _csv(rows).encode(),
+                            "text/tab-separated-values",
+                            f"{exp}_{p['reference']}{'_' + suffix if suffix else ''}_metrics.tsv",
+                        )
+                    return self._json(queries.overview(con, p["reference"]))
+                if url.path == "/api/per_sequence":
+                    data = queries.per_sequence(con, p)
                     if p.get("format") == "csv":
                         return self._send(
                             200,
-                            _csv(data["metrics"]).encode(),
+                            _csv(data["rows"]).encode(),
                             "text/tab-separated-values",
-                            f"{exp}_{p['reference']}_metrics.tsv",
+                            f"{exp}_{p['run']}_{p['policy']}_per_sequence.tsv",
                         )
                     return self._json(data)
                 if url.path == "/api/chromosomes":
@@ -274,6 +291,14 @@ def serve(
         raise SystemExit(
             f"Dashboard dataset not built for {missing}; run `annotation-qc benchmark build --config …` first"
         )
+    for exp, path in dbs.items():
+        con = queries.connect(Path(path))
+        try:
+            queries.check_version(con)
+        except queries.QueryError as error:
+            raise SystemExit(f"{exp} ({path}): {error}") from error
+        finally:
+            con.close()
     httpd = ThreadingHTTPServer((host, port), make_handler(Datasets(dbs)))
     httpd.verbose = verbose
     print(

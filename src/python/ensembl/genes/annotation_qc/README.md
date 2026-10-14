@@ -21,9 +21,14 @@ package's declared dependencies (pandas, pyranges1 ≥ 1.3, pyfaidx). Plots need
 optional `plots` extra (matplotlib).
 
 ```bash
-pip install -e "ensembl-genes"            # core comparison
-pip install -e "ensembl-genes[plots]"     # optional: --plots-per-category
+pip install "ensembl-genes"               # core comparison (an editable install is not needed)
+pip install "ensembl-genes[plots]"        # optional: --plots-per-category
 ```
+
+The comparator is standalone: it needs only the query, the reference and (recommended)
+the genome FASTA, and it writes a versioned set of files (see
+[Output contract](#output-contract-version-10)) that other tools, such as dashboards,
+notebooks or pipelines, can read without importing this package.
 
 Resources: a whole human Ensembl reference (≈ 1.4 GB GFF3, ≈ 650,000 transcripts) takes
 about 3–4 minutes and 3.5–4.5 GB of RAM per run on a laptop, almost all of it spent parsing
@@ -66,8 +71,7 @@ This exact sequence was run on Ensembl GRCh38.p14 / GRCm39 references (genebuild
 is identical with the GRCh38 files.
 
 ```bash
-# 1. Annotations: decompress or name gzip files *.gz. A gzip/BGZF annotation named *.bgz fails
-#    (see "Input formats"). The FASTA may stay BGZF/gzip compressed.
+# 1. Annotations and FASTA may stay gzip/BGZF compressed under any name (detected from content).
 # 2. Current Ensembl GFF3 uses transcript types the parser does not list yet
 #    (unconfirmed_transcript for TEC, gene_segment). Retype them; IDs and Parent links are kept.
 gzip -dc mouse_GRCm39.gff.bgz \
@@ -125,10 +129,10 @@ annotation-qc pairwise-compare \
   (`gene_id`/`transcript_id`; gene and transcript lines may be missing and are then
   inferred from exons) and the Tiberius GTF hybrid (bare IDs on gene/transcript lines).
   Override with `--query-format` / `--reference-format`.
-- **Compression:** annotations may be plain or gzip/BGZF **named `*.gz`**. A compressed
-  annotation with another suffix (e.g. `*.gff.bgz`) currently fails with a
-  `UnicodeDecodeError`. The FASTA given to `--genome` may be plain, gzip or BGZF under any
-  name. No index is written next to it.
+- **Compression:** annotations and the FASTA may be plain, gzip or BGZF under any name
+  (e.g. `*.gff3.bgz`); compression is detected from the file content, and the manifest
+  records it per input (`compression`: `none`, `gzip`, `bgzf`). Nothing is decompressed
+  to disk and no index is written next to the inputs.
 - **Feature types used:** genes (`gene`, `ncRNA_gene`, `pseudogene`), transcripts
   (`mRNA`, `transcript`, the RNA types including `Y_RNA`, `*_gene_segment`,
   `pseudogenic_transcript`, `processed_transcript`), `exon` and `CDS`. Other types (UTRs,
@@ -271,15 +275,15 @@ harmonised lengths.
 
 | argument | meaning |
 |---|---|
-| `--query` (required) | annotation to evaluate: GFF3, GTF or Tiberius hybrid; plain or gzip named `*.gz` |
-| `--reference` (required) | trusted reference: GFF3 or GTF; plain or gzip named `*.gz` |
+| `--query` (required) | annotation to evaluate: GFF3, GTF or Tiberius hybrid; plain, gzip or BGZF |
+| `--reference` (required) | trusted reference: GFF3 or GTF; plain, gzip or BGZF |
 | `--outdir` (required) | output directory |
 | `--genome` | genome FASTA (plain, gzip or BGZF). Checks that every sequence exists and every feature lies within it. Recommended. |
 | `--seqname-map` | two-column TSV/CSV map, see below |
 | `--assembly-report` | NCBI assembly report (GenBank accession → assigned molecule). `--seqname-map` entries win on conflict. |
 | `--genome-mismatch {error,warn,exclude}` | what to do when, with `--genome`, an annotation sequence is missing from the FASTA or has features past its end. `error` (default) stops. `exclude` removes those sequences from **both** annotations and records them in the audit and manifest. `warn` keeps them, which is the old `gmb-compare` behaviour; their reference genes then count as Missed. |
 | `--evaluation-mode {all,protein_coding,cds_only,canonical}` | reference preset (default `all`). `protein_coding` keeps genes with `gene_biotype`/`biotype` `protein_coding` and all their transcripts. |
-| `--reference-transcript-selection {all,longest_cds,canonical}` | reference transcripts per gene (default `all`). `canonical` takes the `Ensembl_canonical`-tagged transcript, falling back to longest CDS. |
+| `--reference-transcript-selection {all,longest_cds,canonical}` | reference transcripts per gene (default `all`). `canonical` takes the `Ensembl_canonical`-tagged transcript; a gene without a tagged transcript falls back to the longest CDS, and every such gene is labelled (`selected_by`) and counted (`reference_canonical_fallback_genes`). If **no** transcript carries the tag the run stops instead of falling back for every gene. |
 | `--reference-gene-biotypes`, `--reference-transcript-biotypes` | extra comma-separated biotype filters |
 | `--query-transcript-selection {all,longest_cds,canonical}` | query transcripts per gene (default `all`) |
 | `--query-format`, `--reference-format` | `auto` (default: detected from content), `gff3`, `gtf`, `tiberius` |
@@ -289,6 +293,10 @@ harmonised lengths.
 | `--add-stop-codon` | query only, needs `--genome`: add an adjacent in-frame stop codon to CDS that end before it (below). Default: original coordinates |
 | `--stop-codon-genetic-code TABLE` | NCBI translation table for `--add-stop-codon` (default 1) |
 | `--stop-codon-sequence-code SEQNAME=TABLE` | per-sequence table (comparison seqname), `none` to skip a sequence; repeatable |
+| `--analysis-scope ID=SEQ[,SEQ…]` | named sequence subset reported beside the whole comparison (scope `all`) in `metrics.tsv`, the splice tables and `scope_ids` columns; applied to reference and query genes alike. Every sequence must exist in the genome FASTA (or in an annotation without `--genome`) and inside `--region`/`--regions-file`. Repeatable. |
+| `--analysis-scopes-file` | TSV with columns `scope_id` and `sequence` (one row per sequence), same meaning |
+| `--provenance-json` | JSON object copied verbatim into the manifest (`provenance`), e.g. the original path of a renamed input or a run label. Never interpreted. |
+| `--export-evaluated-models {ids,full}` | content of `evaluated_transcripts.tsv.gz`: `ids` (default) or `full`, which adds one-based exon and CDS segments |
 
 **Seqname map direction.** Column 1 is the name used in an annotation file and column
 2 is the name to compare under (normally the FASTA header), e.g. `Pf3D7_01_v3	1`. The
@@ -310,12 +318,187 @@ name after mapping, the command stops rather than reporting every gene as Missed
 | `query_evaluated.stop_harmonised.gtf` | only with `--add-stop-codon`: the query exactly as compared (after harmonisation, transcript selection and regions), for plots and browsers |
 | `reference_filter_audit.json` / `.tsv` | reference counts before and after filtering, biotypes, excluded sequences |
 | `evidence_attribution_labeled.tsv` | only with `--evidence-attribution` |
-| `comparison_manifest.json` | query/reference/genome/map paths **with SHA-256**, all options, parse diagnostics, seqname checks, code version, and the GMB finalise manifest and build directory when the query is a GMB output (`query_matches_manifest` confirms the checksum) |
+| `comparison_manifest.json` | query/reference/genome/map paths **with SHA-256** and compression, all options, parse diagnostics, seqname checks, code version and implementation fingerprint, and the GMB finalise manifest and build directory when the query is a GMB output (`query_matches_manifest` confirms the checksum) |
+| `metrics.tsv` | contract 1.0: the canonical metric table, one row per (scope, metric) with numerator, denominator, value and availability |
+| `evaluated_transcripts.tsv.gz` | contract 1.0: every parsed reference and query transcript, evaluated or excluded (with the reason), and how it was selected |
+| `per_sequence.tsv` | contract 1.0: per-sequence gene counts, recovered and exact genes, one-to-one TP |
+| `splice_sites_by_position.tsv`, `cds_introns_by_length.tsv` | contract 1.0, only when the reference selection keeps one transcript per gene: splice-site and intron recovery by position and intron length |
 
 File and key names are kept from `gmb-compare` so existing consumers keep working. In
 them, **"consensus" always means the query annotation** (`total_consensus_genes`,
 `consensus_classification`, `novel_consensus_count`,
 `consensus_transcript_labels.tsv`).
+
+### Output contract (version 1.0)
+
+Every comparison directory is self-describing. `comparison_manifest.json` holds
+`contract_id` (`annotation-qc.pairwise-compare`), `contract_version` (`1.0`),
+`definition_version` (`2026-10`), and `outputs`: every file written, with SHA-256, size,
+data rows and schema id. Versioning rules:
+
+- **Minor contract versions** only add files, columns or metric ids. Readers must ignore what
+  they do not know and read columns by name.
+- **A change of definition, denominator or column meaning** needs a new major version.
+  `definition_version` changes with any scientific definition.
+- **Outputs without `contract_version`** were written before this contract (see
+  "Compatibility" below).
+
+**`metrics.tsv`** is the canonical source for every displayed number. Columns:
+
+| column | meaning |
+|---|---|
+| `scope_id` | `all` (every compared sequence) or an `--analysis-scope` id |
+| `metric_id` | stable id; definitions are in the manifest (`metric_definitions`) and in `metrics/pairwise/contract.py` |
+| `numerator`, `denominator` | integer counts; the denominator is empty for count-only metrics |
+| `value` | count-only metrics: the count; ratios: `numerator / denominator`, unrounded (F1: `2TP / (R + Q)`) |
+| `status`, `reason` | `ok`; `undefined` (`zero_denominator`); `not_applicable` (`transformation_not_applied`, `selection_not_canonical`). `NA` value whenever the status is not `ok`. **A missing metric is never written as 0.** |
+| `numerator_id`, `denominator_id` | the populations: `R`, `R_cds`, `R_multi_cds`, `R_single_cds`, `R_multi_exon`, `Q`, `R_plus_Q`, `*_unique_*_introns`, `query_transcripts_with_cds` |
+| `unit`, `side` | `genes`, `transcripts`, `gene_pairs`, `unique_introns`, `rate`, `score`; `reference`, `query` or `both` |
+
+R and Q are the evaluated reference and query genes in the scope (after evaluation mode,
+biotype filters, transcript selection, `--genome-mismatch exclude` and regions).
+
+| `metric_id` | numerator / denominator |
+|---|---|
+| `locus_recovery_cds_overlap` | reference genes sharing ≥ 1 CDS base with a transcript of a same-strand gene-span partner / R |
+| `cds_coordinate_exact_reference`, `cds_coordinate_exact_query` | genes whose best CDS pair has identical CDS intervals / R, Q |
+| `exact_cds_one_to_one_tp`, `_recall`, `_precision`, `_f1` | maximum one-to-one matching of identical-CDS genes: TP; TP / R; TP / Q; 2TP / (R + Q) |
+| `exact_cds_gene_pairs`, `exact_cds_{reference,query}_with_candidate_unmatched` | identical-CDS gene pairs (edges of the matching graph, any transcript pair); genes with such a partner but not in the matching. The graph does not use gene spans, so a transcript lying outside its own gene record can give a gene an identical-CDS partner that span pairing (and so `cds_coordinate_exact`) never compares; `comparison_summary.json` → `gene_span_checks.<role>.transcripts_outside` counts such transcripts |
+| `cds_intron_chain_best_pair`, `cds_intron_chain_any_pair` | multi-CDS-segment genes with an identical CDS intron chain in the best CDS pair / in any pair / R_multi_cds |
+| `exon_intron_chain_best_pair`, `exon_intron_chain_any_pair` | the same for exons / R_multi_exon |
+| `ref_unique_{cds,exon}_introns_recovered`, `query_unique_{cds,exon}_introns_supported` | shared unique introns / reference, query unique introns |
+| `cds_outcome_{exact,terminal_diff,diff_chain,partial_lt08,span_only,strand_mismatch,missed}` | one mutually exclusive CDS outcome per reference gene / R (they sum to R) |
+| `partial_cds`, `cds_coordinate_exact_reference_{multi,single}_cds`, `cds_structural_exact_match` | CDS structure detail |
+| `locus_detection_gene_span`, `locus_detection_exonic`, `span_only_detection`, `detected_without_cds_overlap`, `ref_genes_without_cds_overlap`, `missed_reference_genes`, `strand_mismatch_reference` | reference loci / R |
+| `query_matched`, `query_matched_without_cds_overlap`, `query_novel`, `query_novel_<category>`, `strand_mismatch_query` | query genes / Q |
+| `split_reference_genes`, `split_query_genes_involved`, `merge_query_genes`, `merge_reference_genes_involved`, `one_counterpart_reference_genes` | counterparts (≥ 10 % shared CDS) |
+| `exon_coordinate_exact_reference`, `exon_structural_exact_match` | UTR-inclusive agreement / R |
+| `reference_genes`, `reference_genes_with_cds`, `reference_multi_cds_genes`, `reference_multi_exon_genes`, `query_genes`, `query_genes_with_cds`, `*_transcripts_evaluated` | populations |
+| `reference_canonical_fallback_genes` | genes scored on the longest-CDS fallback under canonical selection / R (`not_applicable` otherwise) |
+| `stop_codon_transcripts_with_cds`, `_eligible`, `_extended`, `_unchanged`, `_skipped` | `--add-stop-codon` audit (`not_applicable` without it) |
+
+**Scopes.** Classification runs once; `--analysis-scope` subsets are then reported for
+every metric. Locus pairing, exact-CDS edges, counterparts and introns never join two
+sequences, so a scope's values equal those of a run restricted to its sequences with
+`--region` (tested), and count metrics of disjoint scopes add up.
+
+**`comparison_details.tsv` (appended columns).** The 26 earlier columns are unchanged.
+Contract 1.0 appends:
+
+- **Gene description:** `gene_biotype`, `evaluated_transcript_count`, `max_exon_count`,
+  `max_cds_count`, `has_cds`.
+- **Exact CDS overlap:** `cds_shared_bases` (the integer behind the rounded `cds_overlap`)
+  and `cds_locus_recovered`.
+- **Outcome and matching:** `cds_outcome` (reference rows) and `one_to_one_partner`.
+- **Any-pair intron chains:** `cds_intron_chain_any_pair` and `intron_chain_any_pair`
+  (`NA` without an intron).
+- **Best-CDS-pair differences**, from the query's point of view on both sides:
+  - `cds_start_diff_bp`, `cds_stop_diff_bp`: > 0 means the query CDS extends further at
+    that end, in the direction of transcription;
+  - `cds_introns_missing`: reference introns absent from the query transcript;
+  - `cds_introns_extra`: query introns absent from the reference transcript;
+  - all four are `NA` without a best CDS pair.
+- **Scope:** `scope_ids`.
+
+**`evaluated_transcripts.tsv.gz`** has one row for every transcript parsed from either
+file.
+
+| column | meaning |
+|---|---|
+| `role` | `reference` or `query` |
+| `gene_id`, `transcript_id` | comparison IDs (`seqname:id` when the file reuses an ID on several sequences; unique in the file) |
+| `original_gene_id`, `original_transcript_id` | IDs as written in the file |
+| `chrom`, `source_seqname`, `strand`, `start`, `end` | comparison sequence (after `--seqname-map`), sequence as written, strand, one-based transcript span (after any transformation) |
+| `gene_biotype`, `transcript_biotype`, `source_feature`, `record_origin`, `canonical_tag` | as parsed; `record_origin` `inferred` for records built by the parser (CDS-only files) |
+| `selection`, `status`, `exclusion_reason`, `selected_by` | the selection option for this role; `evaluated` or `excluded`; first step that removed it (`excluded_seqname`, `evaluation_mode:<mode>`, `gene_biotype_filter`, `transcript_biotype_filter`, `not_selected:<selection>`, `outside_regions`, `no_exon_records`); how an evaluated transcript was chosen (`all`, `longest_cds`, `longest_exon_length`, `canonical_tag`, `canonical_fallback_longest_cds`) |
+| `exon_count`, `cds_segment_count`, `cds_length` | after any transformation |
+| `transformed`, `transformation_audit` | e.g. `stop_codon_added` and the audit file (`stop_codon_harmonisation.tsv`) holding the old and new coordinates |
+| `input`, `input_sha256` | which manifest input the row comes from, and its checksum |
+| `scope_ids` | analysis scopes containing `chrom` |
+| `exon_segments`, `cds_segments` | only with `--export-evaluated-models full`: one-based `start-end,…` |
+
+**Rebuilding the evaluated models.** Consumers can rebuild exactly the models that were
+compared, without selecting transcripts again (tested):
+
+1. Check the input's SHA-256 against `input_sha256`.
+2. Parse it with the comparator's parser (`parse_annotation_for_comparison`).
+3. Keep the rows of the `evaluated` transcripts (and their genes).
+4. For transcripts with `transformed` set, take the new terminal CDS coordinates from the
+   audit. With `--add-stop-codon`, `query_evaluated.stop_harmonised.gtf` is also written.
+
+`exon_count`, `cds_segment_count` and `cds_length` let a consumer verify the result.
+
+**Splice tables.** Written only when the reference selection keeps one transcript per gene
+(`longest_cds`, `canonical`); otherwise the manifest's `analyses.splice_position_length`
+is `not_applicable` (`requires_one_reference_transcript_per_gene`). Every reference CDS
+intron of the selected transcript is binned:
+
+- **`splice_sites_by_position.tsv`**: by position along the CDS, 10 bins, in two
+  coordinate systems (genomic CDS span or coding bases), for all introns and for introns
+  ≥ 60 bp.
+- **`cds_introns_by_length.tsv`**: by intron length, with fixed bin edges from 0 bp to
+  100 kb.
+
+A site is supported when any evaluated query transcript has the identical CDS intron
+(complete intron) or the same donor/acceptor coordinate, on the same sequence and strand.
+Introns of reference genes whose locus was not recovered (`cds_locus_recovered` false) are
+counted as `missing_locus` and kept out of `assessed`/`eligible`. Rules and bins are in
+the manifest.
+
+**Manifest blocks added in 1.0:**
+
+- `policies`: evaluation mode, filters, selections, excluded and mapped sequence names.
+- `transformations`: e.g. `stop_codon_added`, with its audit file and policy.
+- `scope`: comparison regions and analysis scopes.
+- `thresholds`: 0.8 reciprocal overlap; 0.1 split/merge shared fraction.
+- `analyses`: availability of each analysis, with a reason when it is not applicable.
+- `metric_definitions`.
+- `provenance`: verbatim from `--provenance-json`.
+- `implementation`: `scheme`, `fingerprint` (SHA-256 over `source_files`, the SHA-256 of
+  every `annotation_qc` module file the run loaded, and the pandas, pyranges1 and Python
+  versions). It identifies uncommitted or installed code. Scheme
+  `annotation_qc_loaded_files_by_path/2` selects modules by file location. Manifests
+  without `scheme` used scheme 1, which selected them by import name and so omitted the
+  modules the `annotation-qc` entry point imports under top-level names (including
+  `runners/pairwise_compare.py`); identify such results by their source-file hashes or
+  the wheel that produced them. Fingerprints of different schemes are not comparable.
+
+**Use by other consumers.**
+
+- Read numbers from `metrics.tsv` and gene-level detail from `comparison_details.tsv`.
+- Join on `gene_id` (reference rows: `source = reference`) or on `transcript_id` in
+  `evaluated_transcripts.tsv.gz`.
+- Show `status`/`reason` instead of a value when the status is not `ok`. Do not recompute
+  ratios from rounded summary values.
+- Compare only results with identical `policies`, `scope` and `transformations`. An
+  original-coordinate run and a stop-harmonised run of the same file are different
+  results.
+
+**Compatibility and changed behaviour in 1.0** (scientific definitions are unchanged; see
+also the last item):
+
+- New files and appended detail columns only. File names and existing columns and keys are
+  unchanged.
+- Undefined rates in `comparison_summary.json` are `null` (TSV: `NA`) instead of `0.0`,
+  for example the intron-chain rates when no gene was evaluated and `intron_support` rates
+  without introns. `sensitivity.*_rate` and `sensitivity_cds.cds_{exact,any}_match_rate`
+  are always present (`null` when R = 0); they used to be omitted.
+- Canonical selection with **no** `Ensembl_canonical` tag at all now stops with an error.
+  It used to fall back silently to longest CDS for every gene. Partial tagging still falls
+  back per gene, now labelled and counted.
+- gzip/BGZF annotations with any suffix are parsed (they used to fail unless named `*.gz`).
+- `code_version.git_uncommitted_changes` now covers the whole `annotation_qc` package. It
+  used to cover only `runners/`.
+- The CDS outcome categories, multi/single-segment exact counts and splice analyses were
+  computed by the dashboard branch. They are now computed here, with the same definitions,
+  testing shared CDS bases on the exact integer instead of the rounded `cds_overlap`.
+  `cds_coordinate_exact_reference_single_cds` divides by genes **with** CDS and a single
+  segment (R_cds − R_multi_cds). The dashboard divided by all non-multi-segment genes, which
+  differs only when R includes genes without CDS.
+- `cds_intron_chain_any_pair` used to exist only as an independent re-implementation. It
+  is now a comparator output, and the independent implementation stays a separate check.
+- `gene_span_checks.<role>.transcripts_outside` is new: transcripts whose exons extend
+  beyond their gene record (reporting only).
 
 ### Interpreting the metrics
 
@@ -466,7 +649,8 @@ R. `gene_span_detected_without_cds_overlap` counts genes that gene-span detectio
 - Partners are found through gene-span overlap, so a gene line that does not cover its own
   CDS can miss a CDS overlap.
 - `comparison_details.tsv` rounds `cds_overlap` to 4 decimals. A one-base overlap between
-  very long CDS can print as `0.0`. The summary count uses the unrounded value.
+  very long CDS can print as `0.0`. Use `cds_shared_bases` / `cds_locus_recovered`
+  (contract 1.0), which are exact; the summary count uses the unrounded value.
 
 **Three different questions.**
 
@@ -498,8 +682,13 @@ R. `gene_span_detected_without_cds_overlap` counts genes that gene-span detectio
 - **Intron chains are scored on one best pair.** The best pair ranks ≥ 0.8 reciprocal
   overlap above an identical intron chain with lower overlap. A gene split into pieces, or
   matched by a longer and a shorter prediction, can report `cds_intron_chain_match = False`
-  although some other pair has the identical chain. An "any pair" count can therefore be
-  slightly higher.
+  although some other pair has the identical chain. `cds_intron_chain_any_pair` (contract
+  1.0) reports the pair-independent value, which is ≥ the best-pair value.
+- **Best-pair intron chains depend on terminal coordinates.** Pair ranking uses the 0.8
+  reciprocal-overlap threshold, so a CDS change of a few bases (e.g. `--add-stop-codon`)
+  can lift another reference isoform's pair over it and change `cds_intron_chain_match`
+  under `--reference-transcript-selection all`. Any-pair chains and unique introns do not
+  move.
 - **Query intron support covers the whole query in scope.** Query introns at loci outside
   the evaluated reference (pseudogenes, non-coding or unevaluated genes) count as
   unsupported.

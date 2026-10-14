@@ -1,5 +1,21 @@
 """
-Experiment configuration (format version 1).
+Experiment configuration (format versions 1 and 2).
+
+Version 2 adds optional keys to version 1; every version-1 file loads unchanged.
+Version-2 additions (all optional):
+
+    runs[].run_label        separates several runs of one tool ("GMB run 2")
+    runs[].source           provenance of the compared file: original_path (as
+                            recorded, never resolved or renamed), sha256,
+                            recorded_in; validation checks the sha256
+    runs[].legacy_ids       earlier run ids of the same prediction (linkage only)
+    runs[].input_audit      JSON audit of the prediction file (e.g. which sequences
+                            the predictor recorded as processed); shown, never used
+                            to change a value
+    import.results_dirs     directories of completed comparator results (headline)
+    import.pilot_dirs       directories whose results are always pilots
+    provenance.registries   extra implementation registries (benchmark/registry.py)
+    display.preferred_tools tools listed first, in this order, before the ranked rest
 
 A configuration is a JSON file (or YAML, when PyYAML is installed through the
 ``dashboard`` extra). Relative paths are resolved against the directory that
@@ -19,19 +35,20 @@ Comparator options per run (``runs[].comparator_options``):
     parameters, command and cache key, so an original-coordinate run and a
     stop-harmonised run of the same file are distinct results.
 
-Presentation only (never part of a cache key or comparison):
+Presentation only (never part of a cache key or comparison), except analysis scopes:
     ``runs[].companion_of``         a supplementary run (e.g. the same file with
                                     stop-codon harmonisation) is listed directly after
                                     this run and is excluded from the ordering
-    ``display.pinned_runs``         run ids listed first, in this order; the other
-                                    primary runs follow in descending order of
+    ``display.pinned_runs``         run ids listed first, in this order
+    ``display.preferred_tools``     tools listed next, in this order; the other runs
+                                    follow in descending order of
                                     ``display.order_metric`` (default: one-to-one
                                     exact-CDS recall) for the selected policy and scope
     ``references[].analysis_scopes`` named sequence subsets ({id, label, sequences,
-                                    description}) reported beside the whole compared
-                                    scope; applied to reference and query genes alike
-                                    (benchmark/scope.py). ``scope.label`` names the
-                                    whole compared scope.
+                                    description}); passed to the comparator as
+                                    ``--analysis-scope`` (so part of the parameters and
+                                    cache key) and read back from metrics.tsv.
+                                    ``scope.label`` names the whole compared scope.
 """
 
 from __future__ import annotations
@@ -41,7 +58,8 @@ import re
 from dataclasses import dataclass, field
 from pathlib import Path
 
-CONFIG_VERSION = 1
+CONFIG_VERSION = 2
+CONFIG_VERSIONS = (1, 2)
 SELECTIONS = ("all", "longest_cds", "canonical")
 EVALUATION_MODES = ("all", "protein_coding", "cds_only", "canonical")
 GENOME_MISMATCH = ("error", "warn", "exclude")
@@ -51,12 +69,18 @@ PREPARATION_STEPS = ("decompress", "retype_transcript_types")
 _ID = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_.\-]*$")
 ROLES = ("primary", "supplementary")
 ORDER_METRICS = (
-    "exact_recall_one_to_one",
-    "exact_f1_one_to_one",
-    "exact_precision_one_to_one",
+    "exact_cds_one_to_one_recall",
+    "exact_cds_one_to_one_f1",
+    "exact_cds_one_to_one_precision",
     "locus_recovery_cds_overlap",
 )
-RESERVED_SCOPE_IDS = ("whole_assembly",)
+# Display ids of earlier dashboard versions -> contract metric ids (same definitions).
+ORDER_METRIC_ALIASES = {
+    "exact_recall_one_to_one": "exact_cds_one_to_one_recall",
+    "exact_f1_one_to_one": "exact_cds_one_to_one_f1",
+    "exact_precision_one_to_one": "exact_cds_one_to_one_precision",
+}
+RESERVED_SCOPE_IDS = ("whole_assembly", "all")
 COMPARATOR_OPTIONS = (
     "add_stop_codon",
     "stop_codon_genetic_code",
@@ -142,15 +166,30 @@ class Run:
     aliases: list[str] = field(default_factory=list)
     color: str | None = None
     synthetic: bool = False
-    label: str | None = None  # display label; defaults to the tool name
+    label: str | None = None  # display label; defaults to tool (+ run_label)
     role: str = "primary"  # or "supplementary"
     comparator_options: dict = field(default_factory=dict)  # normalised, see below
     companion_of: str | None = None  # presentation: listed after this run
+    run_label: str | None = None  # e.g. "GMB run 2": several runs of one tool
+    source: dict = field(default_factory=dict)  # original_path, sha256, recorded_in
+    legacy_ids: dict = field(default_factory=dict)
+    input_audit: Path | None = None
     raw: dict = field(default_factory=dict)
 
     @property
     def display_label(self) -> str:
-        return self.label or self.tool
+        if self.label:
+            return self.label
+        if self.run_label:
+            if self.tool.lower() in self.run_label.lower():
+                return self.run_label
+            return f"{self.tool} · {self.run_label}"
+        return self.tool
+
+    @property
+    def variant(self) -> str:
+        """Coordinate treatment of the query: original or stop_harmonised."""
+        return "stop_harmonised" if self.comparator_options.get("add_stop_codon") else "original"
 
 
 @dataclass
@@ -181,6 +220,8 @@ class Experiment:
     imports: dict
     raw: dict
     display: dict = field(default_factory=dict)
+    registries: list[Path] = field(default_factory=list)
+    config_version: int = CONFIG_VERSION
 
     def runs_for(self, reference_id: str) -> list[Run]:
         return [run for run in self.runs.values() if run.reference == reference_id]
@@ -365,10 +406,19 @@ def _display(spec, runs: dict, problems: list[str]) -> dict:
     for run_id in pinned:
         if run_id not in runs:
             problems.append(f"display.pinned_runs: {run_id!r} is not a configured run_id")
-    order = spec.get("order_metric", "exact_recall_one_to_one")
+    tools = spec.get("preferred_tools") or []
+    if not isinstance(tools, list) or not all(isinstance(t, str) for t in tools):
+        problems.append("display.preferred_tools must be a list of tool names")
+        tools = []
+    known = {run.tool for run in runs.values()}
+    for tool in tools:
+        if tool not in known:
+            problems.append(f"display.preferred_tools: {tool!r} is not the tool of any run")
+    order = spec.get("order_metric", "exact_cds_one_to_one_recall")
+    order = ORDER_METRIC_ALIASES.get(order, order)
     if order not in ORDER_METRICS:
         problems.append(f"display.order_metric must be one of {ORDER_METRICS}")
-    return {"pinned_runs": list(pinned), "order_metric": order}
+    return {"pinned_runs": list(pinned), "preferred_tools": list(tools), "order_metric": order}
 
 
 def load_experiment(path: str | Path) -> Experiment:
@@ -386,9 +436,9 @@ def load_experiment(path: str | Path) -> Experiment:
         raise ConfigError([f"{path}: cannot read configuration: {error}"]) from error
     problems: list[str] = []
     base = path.parent
-    if raw.get("config_version") != CONFIG_VERSION:
+    if raw.get("config_version") not in CONFIG_VERSIONS:
         problems.append(
-            f"config_version must be {CONFIG_VERSION} (got {raw.get('config_version')!r})"
+            f"config_version must be one of {CONFIG_VERSIONS} (got {raw.get('config_version')!r})"
         )
 
     meta = raw.get("experiment") or {}
@@ -547,6 +597,16 @@ def load_experiment(path: str | Path) -> Experiment:
         role = spec.get("role", "primary")
         if role not in ROLES:
             problems.append(f"{what}.role must be one of {ROLES}")
+        source = spec.get("source") or {}
+        if not isinstance(source, dict) or (
+            source.get("sha256") and not re.fullmatch(r"[0-9a-f]{64}", str(source["sha256"]))
+        ):
+            problems.append(f"{what}.source must be an object; sha256 must be 64 hex digits")
+            source = {}
+        legacy_ids = spec.get("legacy_ids") or {}
+        if not isinstance(legacy_ids, dict):
+            problems.append(f"{what}.legacy_ids must be an object")
+            legacy_ids = {}
         runs[run_id] = Run(
             run_id=run_id,
             reference=spec.get("reference", ""),
@@ -569,8 +629,15 @@ def load_experiment(path: str | Path) -> Experiment:
             role=role,
             comparator_options=options,
             companion_of=spec.get("companion_of"),
+            run_label=spec.get("run_label"),
+            source=dict(source),
+            legacy_ids=dict(legacy_ids),
+            input_audit=_path(
+                base, spec.get("input_audit"), problems, f"{what}.input_audit", required=False
+            ),
             raw=spec,
         )
+    _check_run_consistency(runs, problems)
     for run in runs.values():
         if run.companion_of is None:
             continue
@@ -587,6 +654,16 @@ def load_experiment(path: str | Path) -> Experiment:
         imports["benchmark_dir"] = _path(
             base, imports["benchmark_dir"], problems, "import.benchmark_dir"
         )
+    for key in ("results_dirs", "pilot_dirs"):
+        values = imports.get(key) or []
+        if not isinstance(values, list):
+            problems.append(f"import.{key} must be a list of directories")
+            values = []
+        imports[key] = [_path(base, p, problems, f"import.{key}") for p in values]
+    registries = [
+        _path(base, p, problems, "provenance.registries")
+        for p in ((raw.get("provenance") or {}).get("registries") or [])
+    ]
     for key in ("code_snapshot", "context_documents", "paper_analogous"):
         imports[key] = [
             _path(base, p, problems, f"import.{key}") for p in imports.get(key) or []
@@ -611,7 +688,44 @@ def load_experiment(path: str | Path) -> Experiment:
         imports=imports,
         raw=raw,
         display=display,
+        registries=[p for p in registries if p],
+        config_version=raw.get("config_version", CONFIG_VERSION),
     )
+
+
+def _check_run_consistency(runs: dict, problems: list[str]) -> None:
+    """Settings that would make two runs indistinguishable or a companion meaningless."""
+    seen: dict[tuple, str] = {}
+    for run in runs.values():
+        key = (
+            run.reference,
+            str(run.annotation),
+            json.dumps(run.comparator_options, sort_keys=True),
+        )
+        if key in seen:
+            problems.append(
+                f"runs {seen[key]} and {run.run_id} compare the same annotation with the same "
+                "settings on the same reference; their results could not be told apart"
+            )
+        else:
+            seen[key] = run.run_id
+        other = runs.get(run.companion_of) if run.companion_of else None
+        if other is not None and other.annotation != run.annotation:
+            problems.append(
+                f"run {run.run_id}: companion_of {other.run_id} must compare the same annotation "
+                "file (a companion is another treatment of the same predictions)"
+            )
+        if other is not None and other.comparator_options == run.comparator_options:
+            problems.append(
+                f"run {run.run_id}: companion_of {other.run_id} has identical comparator options"
+            )
+
+
+def analysis_scope_parameters(reference: Reference) -> dict:
+    """Configured analysis scopes as the comparator records them (sorted sequences)."""
+    return {
+        scope["id"]: sorted(scope["sequences"]) for scope in reference.analysis_scopes
+    }
 
 
 def comparator_parameters(
@@ -637,5 +751,6 @@ def comparator_parameters(
         "plots_per_category": policy.plots_per_category,
         "region": None,
         "assembly_report": None,
+        "analysis_scopes": analysis_scope_parameters(reference),
         **run.comparator_options,
     }

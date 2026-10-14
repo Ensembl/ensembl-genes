@@ -1,87 +1,593 @@
 {
-  "version": 3,
-  "notes": [
-    "R = reference coding genes after evaluation-mode, biotype, transcript-selection and scope filtering (comparator total_reference_genes). Q = query (predicted) genes in scope (total_consensus_genes; 'consensus' means query in comparator keys). Genes without a comparable CDS stay in R and Q.",
-    "Every metric is for one reference, one scope, one transcript policy and one prediction run (including its comparator options, e.g. stop-codon harmonisation). Values from different references, scopes, policies or query coordinates are never pooled.",
-    "Source types: comparator = comparison_summary.json (authoritative); comparator_per_gene = counted from comparison_details.tsv of the same run; reference_models = needs per-gene CDS segment counts computed with the comparator's parser/selection on the reference; independent = independent analysis, used only after per-gene agreement with the comparator; historical = an earlier dashboard derivation kept for comparison with older reports, never used in place of a comparator value; paper_analogous = supporting context, not a reproduction of the Tiberius benchmark.",
-    "Status: not_available = a required input is absent or the result predates the field; undefined = the comparator reports the value as undefined (denominator 0); not_applicable = the metric does not apply (stop-codon counts of an original-coordinate run); inconsistent = two outputs of the same comparator result disagree (shown with the reason, never corrected). None of these is zero.",
-    "Query coordinates: original = the prediction file as written. stop_harmonised = the comparator's --add-stop-codon evaluated annotation, in which a terminal CDS segment is extended by 3 bp only where the frame is established from the sequence and the next codon is an in-frame stop. Stop-harmonised results are supplementary; they align a CDS convention and do not establish ORF validity.",
-    "Sequence scopes: the whole compared scope shows the comparator's own values. A supplementary scope (source 'scope_filter') removes reference and predicted genes on other sequences before every value: per-gene outcomes and one-to-one exact pairs on the scope's sequences, over the scoped R and Q (the maximum matching decomposes by sequence). Each build first reproduces the whole-scope comparator values from the same per-gene data; a disagreement marks the scoped values inconsistent.",
-    "Exploratory splice-site plots (views with one reference transcript per gene): a reference CDS donor/acceptor is supported when any evaluated predicted transcript has a CDS intron with the same donor/acceptor on the same sequence and strand; a reference intron is recovered when the identical CDS intron exists. Rates are over sites/introns of reference genes whose locus was recovered (same-strand CDS overlap); sites of other genes are counted separately as missing-locus sites. Positions are oriented in the direction of transcription (0 = coding start, 1 = coding end). Intron-length bins are fixed and identical for every run. Associations only."
-  ],
-  "groups": [
-    {"id": "headline", "label": "CDS headline metrics", "description": "CDS-focused: predictors may not model UTRs."},
-    {"id": "structure", "label": "CDS structure detail"},
-    {"id": "loci", "label": "Missed, unmatched, split, merged"},
-    {"id": "novel", "label": "Novel (unmatched prediction) context"},
-    {"id": "utr", "label": "UTR-inclusive agreement (not for ranking CDS-only predictors)"},
-    {"id": "stop_codon", "label": "Stop-codon harmonisation (query; --add-stop-codon runs only)"},
-    {"id": "scale", "label": "Scale and denominators"},
-    {"id": "historical", "label": "Historical estimates (comparison with older reports only)"}
-  ],
-  "metrics": [
-    {"id": "locus_recovery_cds_overlap", "group": "headline", "label": "Reference loci recovered (same-strand CDS overlap)", "unit": "reference genes", "numerator": "reference genes with a same-strand query locus partner whose transcripts share at least one CDS base (unrounded cds_overlap > 0)", "denominator": "R", "source": "comparator", "source_fields": ["comparison_summary.json: cds_overlap_locus_recovery.recovered_count", "cross-checked against comparison_details.tsv cds_overlap > 0 (older results: per-gene count only)"], "definition": "Locus found with real coding overlap.", "limitations": ["Differs from gene-span locus detection, which pairs genes whose spans overlap even without shared exons or CDS."]},
-    {"id": "cds_exact_ref", "group": "headline", "label": "Coordinate-exact CDS (reference side)", "unit": "reference genes", "numerator": "reference genes with an evaluated isoform whose CDS intervals (start, every splice site, stop) equal a query transcript's", "denominator": "R", "source": "comparator", "source_fields": ["sensitivity_cds.cds_coordinate_exact_count", "comparison_details.tsv: cds_coordinate_exact"], "definition": "Strictest coding-accuracy measure.", "limitations": ["Under policy A any eligible isoform may match, so the value is more lenient than a single-representative policy (B, C).", "Not the historical Exact_Match class, which tolerates different start/stop coordinates.", "Requires identical stop-codon convention in reference and query (CDS including vs excluding the stop codon).", "Counts reference genes, so it can exceed the one-to-one TP when two reference genes share an exact query partner (or the reverse)."]},
-    {"id": "cds_exact_query", "group": "headline", "label": "Coordinate-exact CDS (query side)", "unit": "query genes", "numerator": "query genes whose best CDS pair is coordinate-identical to an evaluated reference isoform", "denominator": "Q", "source": "comparator", "source_fields": ["specificity.consensus_cds_coordinate_exact_count"], "definition": "Fraction of predictions that are exactly right.", "limitations": ["Predictions at loci outside the evaluated reference (pseudogenes, unannotated genes) count in Q."]},
-    {"id": "exact_recall_one_to_one", "group": "headline", "label": "One-to-one exact-CDS recall", "unit": "rate", "numerator": "TP = matched (reference gene, query gene) pairs in a maximum one-to-one matching of genes that share an identical CDS (same sequence, strand and every CDS interval)", "denominator": "R", "source": "comparator", "source_fields": ["comparison_summary.json: cds_exact_one_to_one", "cds_exact_one_to_one_pairs.tsv (exported pairs; rows = TP)", "cds_exact_one_to_one.recall"], "definition": "TP / R. Each reference and each query gene is used at most once.", "limitations": ["Coordinate-exact: a stop codon included on one side and excluded on the other prevents a match (see query coordinates).", "Results that predate the comparator's matching show not_available; the historical best-pair estimate is listed separately."]},
-    {"id": "exact_precision_one_to_one", "group": "headline", "label": "One-to-one exact-CDS precision", "unit": "rate", "numerator": "TP", "denominator": "Q", "source": "comparator", "source_fields": ["comparison_summary.json: cds_exact_one_to_one", "cds_exact_one_to_one_pairs.tsv (exported pairs; rows = TP)", "cds_exact_one_to_one.precision"], "definition": "TP / Q.", "limitations": ["Q includes predictions at loci outside the evaluated reference subset (pseudogenes, non-coding or unannotated loci)."]},
-    {"id": "exact_f1_one_to_one", "group": "headline", "label": "One-to-one exact-CDS F1", "unit": "rate", "numerator": "2 TP", "denominator": "R + Q", "source": "comparator", "source_fields": ["comparison_summary.json: cds_exact_one_to_one", "cds_exact_one_to_one_pairs.tsv (exported pairs; rows = TP)", "cds_exact_one_to_one.f1"], "definition": "2 TP / (R + Q), the harmonic mean of precision and recall.", "limitations": ["Gene-level coordinate-exact F1; stricter than intron-chain (gffcompare-like) F1 used in publications.", "Not a ranking of tools in general: one prediction run, one reference, one policy."]},
-    {"id": "cds_intron_chain_best_pair", "group": "headline", "label": "CDS intron chain recovered (best pair)", "unit": "reference genes", "numerator": "multi-segment reference genes whose comparator best CDS pair has an identical CDS intron chain", "denominator": "multi-segment CDS reference genes", "source": "comparator", "source_fields": ["sensitivity_cds.cds_intron_chain_recovered", "sensitivity_cds.multi_segment_cds_reference_genes"], "definition": "Splice structure right, ends may differ.", "limitations": ["Evaluated on the single best pair: a ≥ 0.8-overlap pair with a different chain outranks an identical-chain pair with lower overlap.", "A multi-segment gene whose best pair uses a single-segment isoform counts as not recovered."]},
-    {"id": "cds_intron_chain_any_pair", "group": "headline", "label": "CDS intron chain recovered (any pair)", "unit": "reference genes", "numerator": "multi-segment reference genes with an identical CDS intron chain between ANY evaluated isoform and ANY query transcript", "denominator": "multi-segment CDS reference genes", "source": "independent", "source_fields": ["independent reference_genes.tsv: cds_intron_chain_any_pair"], "definition": "Upper bound on chain recovery independent of pair ranking.", "limitations": ["Available only when the independent analysis was run (or imported) and agrees with the comparator per gene."]},
-    {"id": "ref_cds_introns_recovered", "group": "headline", "label": "Reference CDS introns recovered (unique set)", "unit": "unique introns", "numerator": "unique (seq, strand, start, end) CDS introns of evaluated reference transcripts also present in the query", "denominator": "unique evaluated reference CDS introns", "source": "comparator", "source_fields": ["intron_support.cds.shared_introns", "intron_support.cds.reference_introns"], "definition": "Splice-site-level recovery.", "limitations": ["Set-based, not per gene: the denominator grows with the number of evaluated isoforms (policy A much larger than B/C)."]},
-    {"id": "query_cds_introns_supported", "group": "headline", "label": "Query CDS introns supported (unique set)", "unit": "unique introns", "numerator": "unique query CDS introns also present in the evaluated reference", "denominator": "unique query CDS introns in scope", "source": "comparator", "source_fields": ["intron_support.cds.shared_introns", "intron_support.cds.query_introns"], "definition": "Splice-site precision.", "limitations": ["Set-based.", "Includes query introns at loci outside the evaluated reference subset (pseudogenes, non-coding or unevaluated genes), which count as unsupported."]},
-    {"id": "missed_reference_genes", "group": "loci", "label": "Missed reference genes", "unit": "reference genes", "numerator": "reference genes with no same-strand partner and no opposite-strand feature overlap", "denominator": "R", "source": "comparator", "source_fields": ["sensitivity.missed_count"], "definition": "Comparator class Missed.", "limitations": ["A gene with only gene-span contact is not Missed; see 'no CDS overlap'."]},
-    {"id": "ref_genes_without_cds_overlap", "group": "loci", "label": "Reference genes without CDS overlap", "unit": "reference genes", "numerator": "R minus loci recovered by CDS overlap", "denominator": "R", "source": "comparator_per_gene", "source_fields": ["comparison_details.tsv: cds_overlap"], "definition": "Coding-level miss (includes Missed, Strand_Mismatch and span-only detections).", "limitations": []},
-    {"id": "novel_predictions", "group": "loci", "label": "Unmatched predictions (Novel)", "unit": "query genes", "numerator": "query genes with no same-strand reference partner and no opposite-strand feature overlap", "denominator": "Q", "source": "comparator", "source_fields": ["specificity.novel_consensus_count"], "definition": "Comparator class Novel; see Novel-context categories.", "limitations": ["Relative to the evaluated reference: predictions on pseudogenes or unannotated loci are Novel."]},
-    {"id": "splits", "group": "loci", "label": "Splits (reference genes with ≥ 2 query counterparts)", "unit": "reference genes", "numerator": "reference genes with ≥ 2 same-strand query counterparts sharing ≥ 10 % of the shorter CDS", "denominator": "R", "source": "comparator", "source_fields": ["split_merge.gene_split_count"], "definition": "Over-segmentation.", "limitations": ["Fixed 10 % shared-CDS threshold."]},
-    {"id": "merges", "group": "loci", "label": "Merges (query genes with ≥ 2 reference counterparts)", "unit": "query genes", "numerator": "query genes with ≥ 2 reference counterparts", "denominator": "Q", "source": "comparator", "source_fields": ["split_merge.gene_merge_count"], "definition": "Under-segmentation.", "limitations": ["Fixed 10 % shared-CDS threshold."]},
-    {"id": "one_to_one_ref_genes", "group": "loci", "label": "Reference genes with exactly one counterpart", "unit": "reference genes", "numerator": "reference genes with one query counterpart", "denominator": "R", "source": "comparator", "source_fields": ["split_merge.one_to_one_reference_genes"], "definition": "", "limitations": []},
-    {"id": "strand_mismatch_ref", "group": "loci", "label": "Strand mismatch (reference)", "unit": "reference genes", "numerator": "reference genes whose only partners are opposite-strand with CDS (or exon) overlap", "denominator": "R", "source": "comparator", "source_fields": ["sensitivity.strand_mismatch_count"], "definition": "", "limitations": ["A gene with any same-strand partner is never Strand_Mismatch."]},
-    {"id": "strand_mismatch_query", "group": "loci", "label": "Strand mismatch (query)", "unit": "query genes", "numerator": "query genes whose only partners are opposite-strand with feature overlap", "denominator": "Q", "source": "comparator", "source_fields": ["specificity.strand_mismatch_consensus_count"], "definition": "", "limitations": []},
-    {"id": "cds_exact_ref_multi", "group": "structure", "label": "Coordinate-exact CDS, multi-segment genes", "unit": "reference genes", "numerator": "coordinate-exact genes with an evaluated isoform of > 1 CDS segment", "denominator": "multi-segment reference genes", "source": "reference_models", "source_fields": ["comparison_details.tsv: cds_coordinate_exact", "reference models: max CDS segments per gene"], "definition": "", "limitations": ["Needs the prepared reference annotation; the count is checked against the comparator's multi_segment_cds_reference_genes."]},
-    {"id": "cds_exact_ref_single", "group": "structure", "label": "Coordinate-exact CDS, single-segment genes", "unit": "reference genes", "numerator": "coordinate-exact genes whose evaluated isoforms all have one CDS segment", "denominator": "single-segment reference genes", "source": "reference_models", "source_fields": ["comparison_details.tsv", "reference models"], "definition": "", "limitations": ["Needs the prepared reference annotation."]},
-    {"id": "partial_cds", "group": "structure", "label": "Partial CDS recovery", "unit": "reference genes", "numerator": "reference genes whose best CDS pair shares coding bases but is not coordinate-exact", "denominator": "R", "source": "comparator_per_gene", "source_fields": ["comparison_details.tsv: cds_overlap, cds_coordinate_exact"], "definition": "Sum of the three partial buckets below.", "limitations": []},
-    {"id": "partial_same_chain_terminal_diff", "group": "structure", "label": "… same CDS intron chain, start/stop differs", "unit": "reference genes", "numerator": "partial genes with CDS class Exact_Match (historical structural match)", "denominator": "R", "source": "comparator_per_gene", "source_fields": ["classification_cds = Exact_Match, not coordinate-exact"], "definition": "", "limitations": ["Mostly alternative start codons in the benchmark; check stop-codon conventions before interpreting stop-side differences."]},
-    {"id": "partial_ge08_diff_chain", "group": "structure", "label": "… ≥ 0.8 reciprocal CDS overlap, different chain", "unit": "reference genes", "numerator": "partial genes with CDS class Structural_Mismatch", "denominator": "R", "source": "comparator_per_gene", "source_fields": ["classification_cds = Structural_Mismatch"], "definition": "", "limitations": []},
-    {"id": "partial_lt08", "group": "structure", "label": "… < 0.8 reciprocal CDS overlap", "unit": "reference genes", "numerator": "partial genes with CDS class Partial_Match and CDS overlap > 0", "denominator": "R", "source": "comparator_per_gene", "source_fields": ["classification_cds = Partial_Match"], "definition": "", "limitations": []},
-    {"id": "cds_structural_exact_match", "group": "structure", "label": "Historical CDS Exact_Match (structural)", "unit": "reference genes", "numerator": "reference genes with CDS class Exact_Match: identical CDS intron chain and ≥ 0.8 reciprocal overlap", "denominator": "R", "source": "comparator", "source_fields": ["sensitivity_cds.cds_exact_match_count"], "definition": "Kept for compatibility.", "limitations": ["NOT coordinate-exact: terminal coordinates may differ. Use coordinate-exact CDS for exactness."]},
-    {"id": "gene_span_locus_detection", "group": "structure", "label": "Gene-span locus detection", "unit": "reference genes", "numerator": "reference genes classified Exact_Match, Structural_Mismatch or Partial_Match (same-strand gene-span overlap)", "denominator": "R", "source": "comparator", "source_fields": ["sensitivity.locus_detected_count"], "definition": "Comparator locus pairing.", "limitations": ["Gene spans can pair genes without shared exons or CDS; prefer same-strand CDS-overlap recovery."]},
-    {"id": "gene_span_only_no_exon_overlap", "group": "structure", "label": "Span-only detections (no exon overlap)", "unit": "reference genes", "numerator": "detected reference genes without exonic overlap", "denominator": "R", "source": "comparator", "source_fields": ["locus_detection_exonic.span_only_detected_count"], "definition": "", "limitations": []},
-    {"id": "detected_without_cds_overlap", "group": "structure", "label": "Span-detected without CDS overlap", "unit": "reference genes", "numerator": "detected reference genes whose best CDS pair shares no coding base", "denominator": "R", "source": "comparator_per_gene", "source_fields": ["comparison_details.tsv"], "definition": "", "limitations": []},
-    {"id": "query_matched_without_cds_overlap", "group": "structure", "label": "Matched predictions without CDS overlap", "unit": "query genes", "numerator": "query genes with a same-strand partner but no CDS overlap", "denominator": "Q", "source": "comparator_per_gene", "source_fields": ["comparison_details.tsv"], "definition": "", "limitations": []},
-    {"id": "exact_pairs_query_gene_reused", "group": "structure", "label": "Exact pairs reusing a query gene", "unit": "pairs", "numerator": "coordinate-exact reference genes whose query partner is also exact for another reference gene", "denominator": "—", "source": "comparator_per_gene", "source_fields": ["comparison_details.tsv"], "definition": "Per-gene best-pair rows only; the comparator's one-to-one matching resolves reuse exactly.", "limitations": []},
-    {"id": "exact_tp_one_to_one", "group": "structure", "label": "One-to-one exact-CDS pairs (TP)", "unit": "pairs", "numerator": "matched pairs of the comparator's maximum bipartite matching (Kuhn's augmenting paths, deterministic tie order)", "denominator": "—", "source": "comparator", "source_fields": ["cds_exact_one_to_one.true_positives", "cds_exact_one_to_one_pairs.tsv"], "definition": "Each gene used once; other maximum matchings with the same TP can exist inside components with several edges.", "limitations": ["The per-gene coordinate-exact counts (cds_exact_ref, cds_exact_query) can exceed TP when one gene has exact partners in several genes."]},
-    {"id": "exact_unmatched_reference_genes", "group": "structure", "label": "Reference genes without a one-to-one exact pair", "unit": "reference genes", "numerator": "R − TP", "denominator": "R", "source": "comparator", "source_fields": ["cds_exact_one_to_one.unmatched_reference_genes"], "definition": "", "limitations": []},
-    {"id": "exact_unmatched_query_genes", "group": "structure", "label": "Query genes without a one-to-one exact pair", "unit": "query genes", "numerator": "Q − TP", "denominator": "Q", "source": "comparator", "source_fields": ["cds_exact_one_to_one.unmatched_query_genes"], "definition": "", "limitations": []},
-    {"id": "exact_gene_pairs", "group": "structure", "label": "Exact-CDS gene pairs (edges before matching)", "unit": "pairs", "numerator": "(reference gene, query gene) pairs sharing at least one identical CDS", "denominator": "—", "source": "comparator", "source_fields": ["cds_exact_one_to_one.exact_gene_pairs"], "definition": "Edges of the matching graph; TP ≤ this count.", "limitations": []},
-    {"id": "exact_components_with_several_edges", "group": "structure", "label": "Exact-CDS components with several edges", "unit": "components", "numerator": "connected components of the exact-CDS gene graph with more than one edge", "denominator": "all exact-CDS components", "source": "comparator", "source_fields": ["cds_exact_one_to_one.exact_components_with_several_edges", "cds_exact_one_to_one.exact_components"], "definition": "Where tie resolution could choose a different (equally large) matching.", "limitations": []},
-    {"id": "novel_Overlaps_reference_pseudogene", "group": "novel", "label": "Novel: on reference pseudogene", "unit": "query genes", "numerator": "Novel query genes overlapping (either strand, exons) a reference pseudogene removed by filtering", "denominator": "Q", "source": "comparator", "source_fields": ["novel_categories"], "definition": "", "limitations": ["Uses the reference before biotype filtering."]},
-    {"id": "novel_Overlaps_other_non_protein_coding_reference", "group": "novel", "label": "Novel: on other non-coding reference", "unit": "query genes", "numerator": "", "denominator": "Q", "source": "comparator", "source_fields": ["novel_categories"], "definition": "", "limitations": []},
-    {"id": "novel_Overlaps_unevaluated_protein_coding_reference", "group": "novel", "label": "Novel: on unevaluated coding reference", "unit": "query genes", "numerator": "", "denominator": "Q", "source": "comparator", "source_fields": ["novel_categories"], "definition": "e.g. coding genes removed by transcript-biotype filtering", "limitations": []},
-    {"id": "novel_Overlaps_evaluated_reference_opposite_strand", "group": "novel", "label": "Novel: opposite strand of evaluated gene (UTR/exon only)", "unit": "query genes", "numerator": "", "denominator": "Q", "source": "comparator", "source_fields": ["novel_categories"], "definition": "", "limitations": []},
-    {"id": "novel_Novel_no_reference_overlap", "group": "novel", "label": "Novel: no reference overlap", "unit": "query genes", "numerator": "", "denominator": "Q", "source": "comparator", "source_fields": ["novel_categories"], "definition": "", "limitations": []},
-    {"id": "exon_coordinate_exact_ref", "group": "utr", "label": "Exon coordinate-exact (includes UTRs)", "unit": "reference genes", "numerator": "reference genes whose best exon pair has identical exon intervals", "denominator": "R", "source": "comparator", "source_fields": ["sensitivity.exon_coordinate_exact_count"], "definition": "", "limitations": ["Near zero by construction for CDS-only predictors; not a ranking metric for them."]},
-    {"id": "structural_exact_match_with_utr", "group": "utr", "label": "Historical Exact_Match (exon level, structural)", "unit": "reference genes", "numerator": "identical exon intron chain and ≥ 0.8 reciprocal exon overlap", "denominator": "R", "source": "comparator", "source_fields": ["sensitivity.exact_match_count"], "definition": "", "limitations": ["Not coordinate-exact; includes UTRs; not a ranking metric for CDS-only predictors."]},
-    {"id": "reference_coding_genes", "group": "scale", "label": "Reference coding genes (R)", "unit": "genes", "numerator": "R", "denominator": "—", "source": "comparator", "source_fields": ["total_reference_genes"], "definition": "", "limitations": []},
-    {"id": "reference_eligible_transcripts", "group": "scale", "label": "Evaluated reference transcripts", "unit": "transcripts", "numerator": "transcripts after filtering and selection", "denominator": "—", "source": "comparator", "source_fields": ["filter_info.post_filter_transcripts"], "definition": "", "limitations": []},
-    {"id": "predicted_coding_genes", "group": "scale", "label": "Predicted genes in scope (Q)", "unit": "genes", "numerator": "Q", "denominator": "—", "source": "comparator", "source_fields": ["total_consensus_genes"], "definition": "", "limitations": []},
-    {"id": "predicted_transcripts", "group": "scale", "label": "Predicted transcripts in scope", "unit": "transcripts", "numerator": "query transcripts after query selection", "denominator": "—", "source": "comparator_per_gene", "source_fields": ["consensus_transcript_labels.tsv rows"], "definition": "", "limitations": []},
-    {"id": "historical_exact_tp_best_pair", "group": "historical", "label": "Historical best-pair exact TP (estimate)", "unit": "pairs", "numerator": "min(unique reference genes, unique query genes) among per-gene best-pair coordinate-exact rows", "denominator": "—", "source": "historical", "source_fields": ["comparison_details.tsv: cds_coordinate_exact, cds_matched_id"], "definition": "The earlier dashboard derivation (and the 2026-10-05 benchmark headline). Kept for comparison only.", "limitations": ["Not a matching: it can over- or under-count when exact partners are shared or lie outside the per-gene best pair. Use exact_tp_one_to_one."]},
-    {"id": "historical_exact_recall_best_pair", "group": "historical", "label": "Historical best-pair exact recall (estimate)", "unit": "rate", "numerator": "historical TP", "denominator": "R", "source": "historical", "source_fields": ["comparison_details.tsv"], "definition": "", "limitations": ["Superseded by exact_recall_one_to_one."]},
-    {"id": "historical_exact_precision_best_pair", "group": "historical", "label": "Historical best-pair exact precision (estimate)", "unit": "rate", "numerator": "historical TP", "denominator": "Q", "source": "historical", "source_fields": ["comparison_details.tsv"], "definition": "", "limitations": ["Superseded by exact_precision_one_to_one."]},
-    {"id": "historical_exact_f1_best_pair", "group": "historical", "label": "Historical best-pair exact F1 (estimate)", "unit": "rate", "numerator": "harmonic mean of the historical recall and precision", "denominator": "—", "source": "historical", "source_fields": ["comparison_details.tsv"], "definition": "", "limitations": ["Superseded by exact_f1_one_to_one."]},
-    {"id": "stop_codon_transcripts_with_cds", "group": "stop_codon", "label": "Query transcripts with CDS (audited)", "unit": "transcripts", "numerator": "query transcripts with CDS before transcript selection and regions", "denominator": "—", "source": "comparator", "source_fields": ["query_stop_codon_harmonisation.transcripts_with_cds"], "definition": "Applies only to --add-stop-codon runs.", "limitations": []},
-    {"id": "stop_codon_eligible", "group": "stop_codon", "label": "Frame established from sequence", "unit": "transcripts", "numerator": "transcripts passing every frame check (ATG start, length a multiple of 3, no internal stop, only ACGT, inside the sequence, genetic code known)", "denominator": "query transcripts with CDS", "source": "comparator", "source_fields": ["query_stop_codon_harmonisation.eligible"], "definition": "", "limitations": ["Phase is not used."]},
-    {"id": "stop_codon_extended", "group": "stop_codon", "label": "Terminal CDS extended by an adjacent stop", "unit": "transcripts", "numerator": "eligible transcripts whose next 3 bases are an in-frame stop of the genetic code, added to the terminal CDS segment", "denominator": "query transcripts with CDS", "source": "comparator", "source_fields": ["query_stop_codon_harmonisation.extended", "stop_codon_harmonisation.tsv"], "definition": "", "limitations": ["Split stops, extensions beyond explicit exons or the sequence end, and ambiguous bases are skipped, not repaired."]},
-    {"id": "stop_codon_unchanged", "group": "stop_codon", "label": "Unchanged (stop already included, or no adjacent stop)", "unit": "transcripts", "numerator": "eligible transcripts left as written", "denominator": "query transcripts with CDS", "source": "comparator", "source_fields": ["query_stop_codon_harmonisation.unchanged"], "definition": "", "limitations": []},
-    {"id": "stop_codon_skipped", "group": "stop_codon", "label": "Skipped (reason recorded)", "unit": "transcripts", "numerator": "transcripts failing a frame check or whose extension is not allowed", "denominator": "query transcripts with CDS", "source": "comparator", "source_fields": ["query_stop_codon_harmonisation.reasons"], "definition": "Compared with their original coordinates.", "limitations": []}
-  ],
-  "paper_analogous": {
-    "label": "Paper-analogous (supporting context)",
-    "definition": "Gene- and CDS-exon-level recall/precision/F1 computed independently with one transcript per gene on both sides, to set results beside the Tiberius paper.",
-    "limitations": [
-        "Not a reproduction: different reference (Ensembl vs RefSeq), tool (not gffcompare), rules and model versions.",
-        "Mouse was a Tiberius training genome; mouse values are not comparable with the paper."
-    ]
+ "version": 4,
+ "contract": "annotation-qc.pairwise-compare 1.0, definition 2026-10",
+ "notes": [
+  "Every number shown is a row of the comparator's metrics.tsv (contract results) or, for results written before the contract, a field of comparison_summary.json with an identical definition (legacy import). The dashboard computes no metric.",
+  "Numerator and denominator descriptions come from the metric_definitions block of the result manifests; this dictionary adds display labels and explanations only.",
+  "R = evaluated reference genes in the scope (after evaluation mode, biotype filters, transcript selection, genome-mismatch exclusion and regions); Q = evaluated predicted genes in the scope.",
+  "Status: ok; undefined (zero_denominator); not_applicable (transformation_not_applied, selection_not_canonical, requires_one_reference_transcript_per_gene); dashboard-side not_available (e.g. pre_contract_result). None of these is zero.",
+  "One-to-one metrics (TP, recall, precision, F1) come from a maximum matching in which each gene is used once. Per-gene coordinate-exact counts are a different, best-pair measure and can exceed TP.",
+  "Stop-harmonised variants are supplementary: the same predictions after --add-stop-codon. They are listed beside their original-coordinate run and never ranked as separate tools.",
+  "Every value is for one reference, scope, policy and prediction run; values are never pooled across them."
+ ],
+ "groups": [
+  {
+   "id": "headline",
+   "label": "Headline CDS metrics"
+  },
+  {
+   "id": "onetoone",
+   "label": "One-to-one matching detail"
+  },
+  {
+   "id": "pergene",
+   "label": "Per-gene coordinate-exact counts (not one-to-one)"
+  },
+  {
+   "id": "structure",
+   "label": "Structural agreement"
+  },
+  {
+   "id": "outcome",
+   "label": "CDS outcome composition"
+  },
+  {
+   "id": "loci",
+   "label": "Reference loci"
+  },
+  {
+   "id": "predictions",
+   "label": "Predictions"
+  },
+  {
+   "id": "utr",
+   "label": "UTR-inclusive agreement (not for ranking CDS-only predictors)"
+  },
+  {
+   "id": "scale",
+   "label": "Populations and scale"
+  },
+  {
+   "id": "stop_codon",
+   "label": "Stop-codon harmonisation audit"
+  },
+  {
+   "id": "historical",
+   "label": "Historical estimates (older reports only)"
   }
+ ],
+ "metrics": [
+  {
+   "id": "reference_genes",
+   "group": "scale",
+   "label": "R: evaluated reference genes",
+   "definition": "",
+   "limitations": []
+  },
+  {
+   "id": "reference_genes_with_cds",
+   "group": "scale",
+   "label": "R_cds: reference genes with an evaluated CDS",
+   "definition": "",
+   "limitations": []
+  },
+  {
+   "id": "reference_multi_cds_genes",
+   "group": "scale",
+   "label": "R_multi_cds: multi-segment CDS reference genes",
+   "definition": "",
+   "limitations": []
+  },
+  {
+   "id": "reference_multi_exon_genes",
+   "group": "scale",
+   "label": "R_multi_exon: multi-exon reference genes",
+   "definition": "",
+   "limitations": []
+  },
+  {
+   "id": "query_genes",
+   "group": "scale",
+   "label": "Q: evaluated predicted genes",
+   "definition": "",
+   "limitations": []
+  },
+  {
+   "id": "query_genes_with_cds",
+   "group": "scale",
+   "label": "Q_cds: predicted genes with a CDS",
+   "definition": "",
+   "limitations": []
+  },
+  {
+   "id": "reference_transcripts_evaluated",
+   "group": "scale",
+   "label": "Reference transcripts evaluated",
+   "definition": "",
+   "limitations": []
+  },
+  {
+   "id": "query_transcripts_evaluated",
+   "group": "scale",
+   "label": "Predicted transcripts evaluated",
+   "definition": "",
+   "limitations": []
+  },
+  {
+   "id": "reference_canonical_fallback_genes",
+   "group": "scale",
+   "label": "Reference genes on the canonical fallback",
+   "definition": "Under canonical selection: genes without an Ensembl_canonical transcript, scored on their longest CDS. not_applicable for other selections.",
+   "limitations": []
+  },
+  {
+   "id": "locus_recovery_cds_overlap",
+   "group": "headline",
+   "label": "Loci recovered (same-strand CDS overlap)",
+   "definition": "A reference gene counts when an evaluated transcript of a same-strand gene-span partner shares at least one CDS base with it. Detection, not correctness.",
+   "limitations": [
+    "Under policy A any eligible reference isoform may supply the overlap.",
+    "Loci are paired by gene-record spans."
+   ]
+  },
+  {
+   "id": "cds_coordinate_exact_reference",
+   "group": "pergene",
+   "label": "Reference genes coordinate-exact (best CDS pair)",
+   "definition": "Reference genes whose best CDS pair (gene-span partners) has identical CDS intervals. Per gene, before one-to-one matching: can exceed TP when exact partners are shared.",
+   "limitations": [
+    "Not a one-to-one metric.",
+    "Loci are paired by gene-record spans: a transcript outside its own gene record is never compared with genes its gene is not paired with."
+   ]
+  },
+  {
+   "id": "cds_coordinate_exact_query",
+   "group": "pergene",
+   "label": "Predicted genes coordinate-exact (best CDS pair)",
+   "definition": "Predicted genes whose best CDS pair has identical CDS intervals. Per gene, before one-to-one matching.",
+   "limitations": [
+    "Not a one-to-one metric.",
+    "Can differ from an independent identical-CDS count when predicted transcripts lie outside their own gene record (see limitations)."
+   ]
+  },
+  {
+   "id": "exact_cds_one_to_one_tp",
+   "group": "onetoone",
+   "label": "One-to-one exact CDS pairs (TP)",
+   "definition": "Pairs in the maximum bipartite matching of identical-CDS genes; rows of cds_exact_one_to_one_pairs.tsv.",
+   "limitations": [
+    "Other maximum matchings with the same TP can exist inside components with several edges."
+   ]
+  },
+  {
+   "id": "exact_cds_one_to_one_recall",
+   "group": "headline",
+   "label": "One-to-one exact CDS recall",
+   "definition": "TP / R. TP = pairs in the maximum one-to-one matching of reference and predicted genes that share an identical CDS (same sequence, strand and every CDS interval); each gene is used at most once.",
+   "limitations": [
+    "Stop-codon convention: a CDS that includes the stop codon never equals one that excludes it. Compare original-coordinate results; stop-harmonised variants are supplementary."
+   ]
+  },
+  {
+   "id": "exact_cds_one_to_one_precision",
+   "group": "headline",
+   "label": "One-to-one exact CDS precision",
+   "definition": "TP / Q.",
+   "limitations": [
+    "Q includes predictions at loci the evaluated reference does not cover (pseudogenes, non-coding or unannotated loci).",
+    "Stop-codon convention: a CDS that includes the stop codon never equals one that excludes it. Compare original-coordinate results; stop-harmonised variants are supplementary."
+   ]
+  },
+  {
+   "id": "exact_cds_one_to_one_f1",
+   "group": "headline",
+   "label": "One-to-one exact CDS F1",
+   "definition": "2 TP / (R + Q): the harmonic mean of one-to-one precision and recall, on a 0–1 scale.",
+   "limitations": [
+    "Gene-level, coordinate-exact; stricter than intron-chain (gffcompare-like) F1.",
+    "One prediction run, one reference, one policy and scope: not a ranking of tools in general."
+   ]
+  },
+  {
+   "id": "exact_cds_gene_pairs",
+   "group": "onetoone",
+   "label": "Identical-CDS gene pairs (edges before matching)",
+   "definition": "(reference gene, predicted gene) pairs sharing at least one identical CDS, any transcript pair. TP ≤ this count.",
+   "limitations": []
+  },
+  {
+   "id": "exact_cds_reference_with_candidate_unmatched",
+   "group": "onetoone",
+   "label": "Reference genes with an identical-CDS partner but outside the matching",
+   "definition": "The partner was used by another gene in the maximum matching.",
+   "limitations": []
+  },
+  {
+   "id": "exact_cds_query_with_candidate_unmatched",
+   "group": "onetoone",
+   "label": "Predicted genes with an identical-CDS partner but outside the matching",
+   "definition": "",
+   "limitations": []
+  },
+  {
+   "id": "cds_intron_chain_best_pair",
+   "group": "structure",
+   "label": "CDS intron chain identical (best pair)",
+   "definition": "Multi-segment reference genes whose best CDS pair has an identical CDS intron chain; ends may differ.",
+   "limitations": [
+    "Best pair only: a ≥ 0.8-overlap pair with another chain outranks an identical chain at lower overlap.",
+    "Under policy A, stop-harmonised variants can shift this count slightly (pair ranking)."
+   ]
+  },
+  {
+   "id": "cds_intron_chain_any_pair",
+   "group": "structure",
+   "label": "CDS intron chain identical (any pair)",
+   "definition": "Multi-segment reference genes with an identical CDS intron chain between any evaluated transcript and any transcript of a same-strand partner.",
+   "limitations": []
+  },
+  {
+   "id": "exon_intron_chain_best_pair",
+   "group": "utr",
+   "label": "Exon intron chain identical (best pair, UTR-inclusive)",
+   "definition": "",
+   "limitations": []
+  },
+  {
+   "id": "exon_intron_chain_any_pair",
+   "group": "utr",
+   "label": "Exon intron chain identical (any pair, UTR-inclusive)",
+   "definition": "",
+   "limitations": []
+  },
+  {
+   "id": "ref_unique_cds_introns_recovered",
+   "group": "structure",
+   "label": "Reference CDS introns recovered (unique)",
+   "definition": "Unique (sequence, strand, start, end) CDS introns of evaluated reference transcripts also present in the prediction.",
+   "limitations": [
+    "Set-based: the denominator grows with the number of evaluated isoforms (policy A ≫ B, C)."
+   ]
+  },
+  {
+   "id": "query_unique_cds_introns_supported",
+   "group": "structure",
+   "label": "Predicted CDS introns supported (unique)",
+   "definition": "Unique predicted CDS introns also present in the evaluated reference.",
+   "limitations": [
+    "Predicted introns at loci outside the evaluated reference count as unsupported."
+   ]
+  },
+  {
+   "id": "ref_unique_exon_introns_recovered",
+   "group": "utr",
+   "label": "Reference exon introns recovered (unique, UTR-inclusive)",
+   "definition": "",
+   "limitations": []
+  },
+  {
+   "id": "query_unique_exon_introns_supported",
+   "group": "utr",
+   "label": "Predicted exon introns supported (unique, UTR-inclusive)",
+   "definition": "",
+   "limitations": []
+  },
+  {
+   "id": "cds_outcome_missed",
+   "group": "outcome",
+   "label": "CDS outcome: No partner",
+   "definition": "One mutually exclusive outcome per reference gene; the seven outcomes sum to R.",
+   "limitations": []
+  },
+  {
+   "id": "cds_outcome_strand_mismatch",
+   "group": "outcome",
+   "label": "CDS outcome: Opposite-strand overlap only",
+   "definition": "One mutually exclusive outcome per reference gene; the seven outcomes sum to R.",
+   "limitations": []
+  },
+  {
+   "id": "cds_outcome_span_only",
+   "group": "outcome",
+   "label": "CDS outcome: Same-strand gene-span partner, no CDS overlap",
+   "definition": "One mutually exclusive outcome per reference gene; the seven outcomes sum to R.",
+   "limitations": []
+  },
+  {
+   "id": "cds_outcome_partial_lt08",
+   "group": "outcome",
+   "label": "CDS outcome: Shares CDS, < 0.8 reciprocal overlap",
+   "definition": "One mutually exclusive outcome per reference gene; the seven outcomes sum to R.",
+   "limitations": []
+  },
+  {
+   "id": "cds_outcome_diff_chain",
+   "group": "outcome",
+   "label": "CDS outcome: ≥ 0.8 reciprocal CDS overlap, different chain",
+   "definition": "One mutually exclusive outcome per reference gene; the seven outcomes sum to R.",
+   "limitations": []
+  },
+  {
+   "id": "cds_outcome_terminal_diff",
+   "group": "outcome",
+   "label": "CDS outcome: Same CDS intron chain, start/stop differs",
+   "definition": "One mutually exclusive outcome per reference gene; the seven outcomes sum to R.",
+   "limitations": []
+  },
+  {
+   "id": "cds_outcome_exact",
+   "group": "outcome",
+   "label": "CDS outcome: Coordinate-exact CDS",
+   "definition": "One mutually exclusive outcome per reference gene; the seven outcomes sum to R.",
+   "limitations": []
+  },
+  {
+   "id": "partial_cds",
+   "group": "outcome",
+   "label": "Partial CDS recovery",
+   "definition": "Reference genes sharing CDS bases whose best CDS pair is not coordinate-exact.",
+   "limitations": []
+  },
+  {
+   "id": "cds_coordinate_exact_reference_multi_cds",
+   "group": "pergene",
+   "label": "Coordinate-exact, multi-segment reference genes",
+   "definition": "Coordinate-exact genes among R_multi_cds.",
+   "limitations": []
+  },
+  {
+   "id": "cds_coordinate_exact_reference_single_cds",
+   "group": "pergene",
+   "label": "Coordinate-exact, single-segment reference genes",
+   "definition": "Coordinate-exact genes among R_single_cds (genes with CDS but no multi-segment transcript).",
+   "limitations": []
+  },
+  {
+   "id": "cds_structural_exact_match",
+   "group": "outcome",
+   "label": "Historical CDS Exact_Match (structural)",
+   "definition": "Identical CDS intron chain with ≥ 0.8 reciprocal overlap; terminal coordinates may differ.",
+   "limitations": [
+    "Not coordinate-exact."
+   ]
+  },
+  {
+   "id": "exon_coordinate_exact_reference",
+   "group": "utr",
+   "label": "Exon coordinates exact (UTR-inclusive)",
+   "definition": "",
+   "limitations": [
+    "Near zero by construction for CDS-only predictors; not for ranking them."
+   ]
+  },
+  {
+   "id": "exon_structural_exact_match",
+   "group": "utr",
+   "label": "Historical Exact_Match (structural, UTR-inclusive)",
+   "definition": "",
+   "limitations": []
+  },
+  {
+   "id": "locus_detection_gene_span",
+   "group": "loci",
+   "label": "Gene-span locus detection",
+   "definition": "Reference genes with a same-strand gene-span partner (even without shared exons or CDS).",
+   "limitations": []
+  },
+  {
+   "id": "locus_detection_exonic",
+   "group": "loci",
+   "label": "Span-detected with exonic overlap",
+   "definition": "",
+   "limitations": []
+  },
+  {
+   "id": "span_only_detection",
+   "group": "loci",
+   "label": "Span-detected without exonic overlap",
+   "definition": "",
+   "limitations": []
+  },
+  {
+   "id": "detected_without_cds_overlap",
+   "group": "loci",
+   "label": "Span-detected without CDS overlap",
+   "definition": "",
+   "limitations": []
+  },
+  {
+   "id": "ref_genes_without_cds_overlap",
+   "group": "loci",
+   "label": "Reference genes without CDS overlap",
+   "definition": "R minus loci recovered.",
+   "limitations": [
+    "A gene on a sequence without any prediction record counts here; that does not establish that the sequence was processed (see processing scope)."
+   ]
+  },
+  {
+   "id": "missed_reference_genes",
+   "group": "loci",
+   "label": "Missed reference genes",
+   "definition": "No same-strand partner and no opposite-strand feature overlap.",
+   "limitations": [
+    "Includes genes on sequences without prediction records; whether those sequences were processed is often unknown."
+   ]
+  },
+  {
+   "id": "strand_mismatch_reference",
+   "group": "loci",
+   "label": "Strand mismatch (reference)",
+   "definition": "",
+   "limitations": []
+  },
+  {
+   "id": "query_matched",
+   "group": "predictions",
+   "label": "Predictions with a same-strand reference partner",
+   "definition": "",
+   "limitations": []
+  },
+  {
+   "id": "query_matched_without_cds_overlap",
+   "group": "predictions",
+   "label": "Matched predictions without CDS overlap",
+   "definition": "",
+   "limitations": []
+  },
+  {
+   "id": "query_novel",
+   "group": "predictions",
+   "label": "Unmatched predictions (Novel)",
+   "definition": "No same-strand reference partner and no opposite-strand feature overlap, relative to the evaluated reference.",
+   "limitations": [
+    "Not demonstrated false positives: the reference may not annotate that locus (e.g. no mitochondrial reference genes)."
+   ]
+  },
+  {
+   "id": "query_novel_Overlaps_reference_pseudogene",
+   "group": "predictions",
+   "label": "Novel: on a reference pseudogene",
+   "definition": "",
+   "limitations": []
+  },
+  {
+   "id": "query_novel_Overlaps_other_non_protein_coding_reference",
+   "group": "predictions",
+   "label": "Novel: on other non-coding reference",
+   "definition": "",
+   "limitations": []
+  },
+  {
+   "id": "query_novel_Overlaps_unevaluated_protein_coding_reference",
+   "group": "predictions",
+   "label": "Novel: on an unevaluated coding reference gene",
+   "definition": "",
+   "limitations": []
+  },
+  {
+   "id": "query_novel_Overlaps_evaluated_reference_opposite_strand",
+   "group": "predictions",
+   "label": "Novel: on an evaluated gene, opposite strand",
+   "definition": "",
+   "limitations": []
+  },
+  {
+   "id": "query_novel_Novel_no_reference_overlap",
+   "group": "predictions",
+   "label": "Novel: no reference overlap",
+   "definition": "",
+   "limitations": []
+  },
+  {
+   "id": "strand_mismatch_query",
+   "group": "predictions",
+   "label": "Strand mismatch (predictions)",
+   "definition": "",
+   "limitations": []
+  },
+  {
+   "id": "split_reference_genes",
+   "group": "structure",
+   "label": "Reference genes split",
+   "definition": "Reference genes with ≥ 2 predicted counterparts (≥ 10 % shared CDS).",
+   "limitations": []
+  },
+  {
+   "id": "split_query_genes_involved",
+   "group": "structure",
+   "label": "Predicted genes involved in splits",
+   "definition": "",
+   "limitations": []
+  },
+  {
+   "id": "merge_query_genes",
+   "group": "structure",
+   "label": "Predictions merging reference genes",
+   "definition": "Predicted genes with ≥ 2 reference counterparts (≥ 10 % shared CDS).",
+   "limitations": []
+  },
+  {
+   "id": "merge_reference_genes_involved",
+   "group": "structure",
+   "label": "Reference genes involved in merges",
+   "definition": "",
+   "limitations": []
+  },
+  {
+   "id": "one_counterpart_reference_genes",
+   "group": "structure",
+   "label": "Reference genes with exactly one counterpart",
+   "definition": "",
+   "limitations": []
+  },
+  {
+   "id": "stop_codon_transcripts_with_cds",
+   "group": "stop_codon",
+   "label": "Predicted transcripts with CDS (stop-codon audit)",
+   "definition": "--add-stop-codon audit of the query; not_applicable for original-coordinate results.",
+   "limitations": []
+  },
+  {
+   "id": "stop_codon_eligible",
+   "group": "stop_codon",
+   "label": "Frame established",
+   "definition": "--add-stop-codon audit of the query; not_applicable for original-coordinate results.",
+   "limitations": []
+  },
+  {
+   "id": "stop_codon_extended",
+   "group": "stop_codon",
+   "label": "Extended by an adjacent in-frame stop",
+   "definition": "--add-stop-codon audit of the query; not_applicable for original-coordinate results.",
+   "limitations": []
+  },
+  {
+   "id": "stop_codon_unchanged",
+   "group": "stop_codon",
+   "label": "Unchanged",
+   "definition": "--add-stop-codon audit of the query; not_applicable for original-coordinate results.",
+   "limitations": []
+  },
+  {
+   "id": "stop_codon_skipped",
+   "group": "stop_codon",
+   "label": "Skipped",
+   "definition": "--add-stop-codon audit of the query; not_applicable for original-coordinate results.",
+   "limitations": []
+  },
+  {
+   "id": "historical_exact_tp_best_pair",
+   "group": "historical",
+   "label": "Historical estimate: exact TP (best pair)",
+   "definition": "min(unique reference genes, unique predicted genes) among per-gene coordinate-exact best-pair rows. Not a maximum matching.",
+   "limitations": [
+    "Kept only for comparison with older reports; never used as one-to-one TP."
+   ]
+  },
+  {
+   "id": "historical_exact_recall_best_pair",
+   "group": "historical",
+   "label": "Historical estimate: exact recall (best pair)",
+   "definition": "historical TP / R",
+   "limitations": [
+    "Never shown as one-to-one recall."
+   ]
+  },
+  {
+   "id": "historical_exact_precision_best_pair",
+   "group": "historical",
+   "label": "Historical estimate: exact precision (best pair)",
+   "definition": "historical TP / Q",
+   "limitations": []
+  },
+  {
+   "id": "historical_exact_f1_best_pair",
+   "group": "historical",
+   "label": "Historical estimate: exact F1 (best pair)",
+   "definition": "harmonic mean of the historical recall and precision",
+   "limitations": [
+    "Never shown as one-to-one F1."
+   ]
+  }
+ ]
 }

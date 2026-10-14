@@ -105,8 +105,9 @@ RATE_DENOMINATORS = {
 }
 
 
-def _rate(count: int, total: int) -> float:
-    return round(count / total, 4) if total else 0.0
+def _rate(count: int, total: int) -> float | None:
+    """count / total rounded to 4 dp; None (undefined, not 0) when total is 0."""
+    return round(count / total, 4) if total else None
 
 
 def _is_true(values: pd.Series) -> pd.Series:
@@ -331,22 +332,60 @@ def summarise_comparison(ref: pd.DataFrame, query: pd.DataFrame) -> dict:
         "rate_denominators": RATE_DENOMINATORS,
     }
 
-    if total_ref:
-        sens, sens_cds = summary["sensitivity"], summary["sensitivity_cds"]
-        sens["exact_match_rate"] = round(ref_counts.get(EXACT, 0) / total_ref, 4)
-        sens["any_match_rate"] = round(sens["any_match_count"] / total_ref, 4)
-        sens["missed_rate"] = round(ref_counts.get(MISSED, 0) / total_ref, 4)
-        if sens_cds["cds_any_match_count"] + sens_cds["cds_missed_count"] > 0:
-            sens_cds["cds_exact_match_rate"] = round(
-                sens_cds["cds_exact_match_count"] / total_ref, 4
-            )
-            sens_cds["cds_any_match_rate"] = round(
-                sens_cds["cds_any_match_count"] / total_ref, 4
-            )
+    # Always present since output contract 1.0; None when R = 0 (previously the
+    # keys were omitted, and the CDS rates also when no gene had a CDS class).
+    sens, sens_cds = summary["sensitivity"], summary["sensitivity_cds"]
+    sens["exact_match_rate"] = _rate(ref_counts.get(EXACT, 0), total_ref)
+    sens["any_match_rate"] = _rate(sens["any_match_count"], total_ref)
+    sens["missed_rate"] = _rate(ref_counts.get(MISSED, 0), total_ref)
+    sens_cds["cds_exact_match_rate"] = _rate(
+        sens_cds["cds_exact_match_count"], total_ref
+    )
+    sens_cds["cds_any_match_rate"] = _rate(sens_cds["cds_any_match_count"], total_ref)
     return summary
 
 
-def _unique_introns(models: GeneModels, kind: str) -> set:
+# cds_outcome values for reference genes, in order of precedence (last wins),
+# moved unchanged in definition from the dashboard branch (benchmark/derive.py).
+CDS_OUTCOMES = {
+    "missed": "no same-strand partner and no opposite-strand feature overlap",
+    "strand_mismatch": "opposite-strand CDS (or exon) overlap only",
+    "span_only": "same-strand gene-span partner, no shared CDS base",
+    "partial_lt08": "shares CDS bases, < 0.8 reciprocal CDS overlap",
+    "diff_chain": ">= 0.8 reciprocal CDS overlap, different CDS intron chain",
+    "terminal_diff": "same CDS intron chain, start and/or stop differs",
+    "exact": "coordinate-exact CDS (start, every splice site and stop)",
+}
+
+
+def reference_cds_outcomes(ref: pd.DataFrame) -> pd.Series:
+    """
+    One mutually exclusive CDS outcome per reference gene (CDS_OUTCOMES).
+
+    Shared CDS bases are tested on cds_shared_bases (exact integer), not on the
+    rounded cds_overlap written to comparison_details.tsv. Genes without a CDS
+    fall into missed or span_only, as before; has_cds tells them apart.
+    Args:
+            ref: Reference results from classify_loci
+    Returns:
+            Series of CDS_OUTCOMES keys aligned with ref
+    """
+    shares_cds = ref["cds_shared_bases"].astype("int64") > 0
+    outcome = pd.Series("missed", index=ref.index, dtype=object)
+    outcome[ref["classification"] == STRAND_MISMATCH] = "strand_mismatch"
+    outcome[ref["classification"].isin(DETECTED) & ~shares_cds] = "span_only"
+    for cls, label in (
+        (PARTIAL, "partial_lt08"),
+        (STRUCTURAL, "diff_chain"),
+        (EXACT, "terminal_diff"),
+    ):
+        outcome[shares_cds & (ref["classification_cds"] == cls)] = label
+    outcome[_is_true(ref["cds_coordinate_exact"])] = "exact"
+    return outcome
+
+
+def unique_introns(models: GeneModels, kind: str) -> set:
+    """Unique (seqname, strand, start, end) exon or CDS introns of a GeneModels."""
     source = models.exons if kind == "exon" else models.cds
     introns = set()
     for chrom, strand, tids in zip(
@@ -375,8 +414,8 @@ def summarise_intron_support(reference: GeneModels, query: GeneModels) -> dict:
     """
     result = {}
     for kind in ("exon", "cds"):
-        ref_introns = _unique_introns(reference, kind)
-        query_introns = _unique_introns(query, kind)
+        ref_introns = unique_introns(reference, kind)
+        query_introns = unique_introns(query, kind)
         shared = len(ref_introns & query_introns)
         result[kind] = {
             "reference_introns": len(ref_introns),
@@ -402,6 +441,22 @@ def summarise_span_excess(excess: pd.DataFrame) -> dict:
         "genes_wider_than_transcripts": len(wider),
         "max_excess_bp": int(wider["excess_bp"].max()) if len(wider) else 0,
         "examples": wider.nlargest(5, "excess_bp")["gene_id"].tolist(),
+    }
+
+
+def summarise_transcripts_outside(outside: pd.DataFrame) -> dict:
+    """
+    Summarise classify.transcripts_outside_gene output.
+    Args:
+            outside: DataFrame with gene_id, transcript_id and outside_bp
+    Returns:
+            dict with transcript and gene counts, the largest excess and examples
+    """
+    return {
+        "transcripts_outside_gene_span": len(outside),
+        "genes_with_transcripts_outside_span": int(outside["gene_id"].nunique()),
+        "max_outside_bp": int(outside["outside_bp"].max()) if len(outside) else 0,
+        "examples": outside.nlargest(5, "outside_bp")["transcript_id"].tolist(),
     }
 
 

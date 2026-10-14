@@ -1,10 +1,12 @@
 """
 Splice-site and intron recovery along reference CDS structures (exploratory).
 
-Tool-agnostic: works on the stored evaluated models of the reference and of one
-prediction run under one transcript policy (one-based inclusive CDS segments, as
-selected by the comparator's own selection functions). Nothing here reads
-annotation files or knows which predictor produced the models.
+Tool-agnostic: works on the evaluated models of one comparison (one-based
+inclusive CDS segments of the transcripts the comparator selected). Nothing here
+reads annotation files or knows which predictor produced the models. Moved
+unchanged in definition from the dashboard branch (benchmark/splice.py); the
+runner supplies the inputs and writes splice_sites_by_position.tsv and
+cds_introns_by_length.tsv.
 
 Definitions
 
@@ -23,7 +25,8 @@ Definitions
                     prediction matched to the gene: this is the comparator's
                     unique-intron rule (``intron_support``) extended to single sites.
     detected locus  the comparator recovered the reference gene's locus
-                    (same-strand CDS overlap, ``cds_overlap > 0``). Sites of genes
+                    (same-strand CDS overlap: cds_locus_recovered, i.e. at least
+                    one shared CDS base, unrounded). Sites of genes
                     whose locus was not recovered are counted separately as
                     missing-locus sites and are excluded from the recovery rates,
                     so the rates describe structure at loci the predictor found.
@@ -79,11 +82,13 @@ INTRON_LENGTH_EDGES = (
 POSITION_MIN_LENGTHS = (0, 60)
 assert set(POSITION_MIN_LENGTHS) <= set(INTRON_LENGTH_EDGES)
 SUPPORT_RULE = (
-    "exact same-sequence, same-strand support by any evaluated query transcript's CDS intron "
-    "(identical intron for intron recovery; identical donor or acceptor coordinate for a splice site)"
+    "exact same-sequence, same-strand support by any evaluated query transcript's "
+    "CDS intron (identical intron for intron recovery; identical donor or acceptor "
+    "coordinate for a splice site)"
 )
 DETECTION_RULE = (
-    "reference gene locus recovered by the comparator (same-strand CDS overlap, cds_overlap > 0); "
+    "reference gene locus recovered by the comparator (same-strand CDS overlap, "
+    "cds_locus_recovered: at least one shared CDS base); "
     "sites of other genes are counted as missing-locus sites and excluded from rates"
 )
 
@@ -95,13 +100,19 @@ def parse_segments(text: str | None) -> Segments:
     if not text:
         return ()
     return tuple(
-        sorted(tuple(int(x) for x in part.split("-")) for part in text.split(",") if part)
+        sorted(
+            tuple(int(x) for x in part.split("-"))  # type: ignore[misc]
+            for part in text.split(",")
+            if part
+        )
     )
 
 
 def cds_introns(segments: Segments) -> list[tuple[int, int]]:
     """One-based inclusive (lo, hi) of each CDS intron, in coordinate order."""
-    return [(segments[i][1] + 1, segments[i + 1][0] - 1) for i in range(len(segments) - 1)]
+    return [
+        (segments[i][1] + 1, segments[i + 1][0] - 1) for i in range(len(segments) - 1)
+    ]
 
 
 def site_coordinates(strand: str, lo: int, hi: int) -> tuple[int, int]:
@@ -110,6 +121,7 @@ def site_coordinates(strand: str, lo: int, hi: int) -> tuple[int, int]:
 
 
 def length_bin(length: int) -> int:
+    """Index of the INTRON_LENGTH_EDGES bin holding length (bp)."""
     index = 0
     for i, edge in enumerate(INTRON_LENGTH_EDGES):
         if length >= edge:
@@ -118,6 +130,7 @@ def length_bin(length: int) -> int:
 
 
 def length_bin_label(index: int) -> str:
+    """Display label of a length bin, e.g. '60 bp–100 bp'."""
     lo = INTRON_LENGTH_EDGES[index]
     if index + 1 == len(INTRON_LENGTH_EDGES):
         return f"≥ {_bp(lo)}"
@@ -130,11 +143,14 @@ def _bp(n: int) -> str:
 
 
 def position_bin(position: float) -> int:
+    """Index of the POSITION_BINS bin holding a fraction in (0, 1)."""
     return min(int(position * POSITION_BINS), POSITION_BINS - 1)
 
 
 @dataclass
 class Intron:
+    """One CDS intron: bounds, donor/acceptor coordinates and CDS positions."""
+
     lo: int
     hi: int
     donor: int
@@ -143,7 +159,9 @@ class Intron:
     position: dict  # coordinate -> {kind: fraction}
 
 
-def intron_sites(strand: str, segments: Segments) -> list[Intron]:
+def intron_sites(  # pylint: disable=too-many-locals
+    strand: str, segments: Segments
+) -> list[Intron]:
     """CDS introns of one transcript with donor/acceptor and normalised positions."""
     if len(segments) < 2:
         return []
@@ -192,6 +210,7 @@ class SupportIndex:
 
     @classmethod
     def build(cls, transcripts: Iterable[tuple[str, str, Segments]]) -> "SupportIndex":
+        """Index (chrom, strand, CDS segments) of every evaluated query transcript."""
         index = cls()
         for chrom, strand, segments in transcripts:
             for lo, hi in cds_introns(segments):
@@ -204,6 +223,8 @@ class SupportIndex:
 
 @dataclass
 class ReferenceGene:
+    """An evaluated reference gene and its evaluated transcripts' CDS segments."""
+
     gene_id: str
     chrom: str
     strand: str
@@ -211,8 +232,12 @@ class ReferenceGene:
 
 
 def _empty_scope(binned: bool) -> dict:
-    out = {"unique": {"reference": set(), "query": 0}, "genes": 0, "genes_with_introns": 0,
-           "missing_locus_genes_with_introns": 0}
+    out = {
+        "unique": {"reference": set(), "query": 0},
+        "genes": 0,
+        "genes_with_introns": 0,
+        "missing_locus_genes_with_introns": 0,
+    }
     if binned:
         out["position"] = {
             (m, c, k, b): [0, 0, 0]
@@ -225,7 +250,7 @@ def _empty_scope(binned: bool) -> dict:
     return out
 
 
-def analyse(
+def analyse(  # pylint: disable=too-many-locals,too-many-branches,too-many-statements,too-many-nested-blocks
     genes: Iterable[ReferenceGene],
     query: SupportIndex,
     detected: Mapping[str, bool],
@@ -277,7 +302,9 @@ def analyse(
             a["missing_locus_genes_with_introns"] += has_introns and not found
             for introns in introns_by_tx:
                 for intron in introns:
-                    a["unique"]["reference"].add((gene.chrom, gene.strand, intron.lo, intron.hi))
+                    a["unique"]["reference"].add(
+                        (gene.chrom, gene.strand, intron.lo, intron.hi)
+                    )
         if not one_per_gene:
             continue
         for intron in introns_by_tx[0] if introns_by_tx else []:
@@ -300,7 +327,10 @@ def analyse(
                     if intron.length < min_length:
                         continue
                     for coordinate in POSITION_COORDINATES:
-                        for kind, supported in (("donor", donor), ("acceptor", acceptor)):
+                        for kind, supported in (
+                            ("donor", donor),
+                            ("acceptor", acceptor),
+                        ):
                             cell = a["position"][
                                 (
                                     min_length,
@@ -346,7 +376,11 @@ def analyse(
                 {
                     "bin": b,
                     "lo": INTRON_LENGTH_EDGES[b],
-                    "hi": INTRON_LENGTH_EDGES[b + 1] if b + 1 < len(INTRON_LENGTH_EDGES) else None,
+                    "hi": (
+                        INTRON_LENGTH_EDGES[b + 1]
+                        if b + 1 < len(INTRON_LENGTH_EDGES)
+                        else None
+                    ),
                     "label": length_bin_label(b),
                     "eligible": v[0],
                     "exact": v[1],

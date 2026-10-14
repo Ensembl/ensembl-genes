@@ -16,8 +16,9 @@ Reproducible annotation-comparison experiments.
 
 An experiment configuration names references, predictor runs and evaluation
 policies. This package validates and prepares inputs, runs (or imports)
-``pairwise-compare`` results with content-based caching, derives per-gene and
-headline metrics from the comparator outputs, and builds the SQLite dataset that
-the dashboard reads. Comparison semantics live in ``metrics/pairwise`` and are not
-changed here.
+``pairwise-compare`` results with content-based caching, identifies the code that
+produced each result (registry.py), and builds the SQLite dataset that the
+dashboard reads by indexing the comparator's contract outputs verbatim (pre-contract
+results only through the explicit legacy importer). It computes no metric:
+comparison semantics live in ``metrics/pairwise`` and are not changed here.
 """

@@ -21,9 +21,14 @@ query annotation):
     evidence_attribution_labeled.tsv  only with --evidence-attribution
     comparison_manifest.json          inputs, checksums, options and versions
 
+Output contract 1.0 adds metrics.tsv, evaluated_transcripts.tsv.gz,
+per_sequence.tsv and the splice tables (reports/pairwise_contract.py).
+
 Gene coordinates in comparison_details.tsv are one-based inclusive, as in GFF.
-Columns after original_gene_id were added after gmb-compare; intron-chain columns
-are NA where the compared structure has no intron (single exon / CDS segment).
+Columns after original_gene_id were added after gmb-compare, and columns after
+counterpart_ids in output contract 1.0; intron-chain columns are NA where the
+compared structure has no intron (single exon / CDS segment), and best-CDS-pair
+differences are NA where there is no best CDS pair.
 """
 
 import csv
@@ -62,6 +67,23 @@ DETAIL_COLUMNS = [
     "novel_category",
     "counterpart_count",
     "counterpart_ids",
+    # Appended in output contract 1.0; the columns above are unchanged.
+    "gene_biotype",
+    "evaluated_transcript_count",
+    "max_exon_count",
+    "max_cds_count",
+    "has_cds",
+    "cds_shared_bases",
+    "cds_locus_recovered",
+    "cds_outcome",
+    "one_to_one_partner",
+    "cds_intron_chain_any_pair",
+    "intron_chain_any_pair",
+    "cds_start_diff_bp",
+    "cds_stop_diff_bp",
+    "cds_introns_missing",
+    "cds_introns_extra",
+    "scope_ids",
 ]
 SPLIT_MERGE_COLUMNS = [
     "gene_id",
@@ -84,6 +106,11 @@ def _value(value):
 def _flag(value) -> str | bool:
     """True/False, or NA for a not-applicable (missing) value."""
     return "NA" if pd.isna(value) else bool(value)
+
+
+def _count(value) -> str | int:
+    """An integer, or NA for a not-applicable (missing) value."""
+    return "NA" if pd.isna(value) else int(value)
 
 
 def _write_json(data: dict, path: str) -> None:
@@ -112,20 +139,20 @@ def write_summary(summary: dict, outdir: str) -> None:
             writer.writerow([f"cons_{cls}", count])
         for key in ("sensitivity", "sensitivity_cds"):
             for name, value in summary[key].items():
-                writer.writerow([f"sens_{name}", value])
+                writer.writerow([f"sens_{name}", _value(value)])
         for name, value in summary["specificity"].items():
-            writer.writerow([f"spec_{name}", value])
+            writer.writerow([f"spec_{name}", _value(value)])
         for name, value in summary["locus_detection_exonic"].items():
-            writer.writerow([f"exonic_{name}", value])
+            writer.writerow([f"exonic_{name}", _value(value)])
         for name, value in summary["intron_chain"].items():
-            writer.writerow([f"intron_chain_{name}", value])
+            writer.writerow([f"intron_chain_{name}", _value(value)])
         for name, value in summary["novel_categories"].items():
             writer.writerow([f"novel_{name}", value])
         for name, value in summary["split_merge"].items():
             writer.writerow([f"split_merge_{name}", value])
         for kind, values in summary.get("intron_support", {}).items():
             for name, value in values.items():
-                writer.writerow([f"introns_{kind}_{name}", value])
+                writer.writerow([f"introns_{kind}_{name}", _value(value)])
         for block, prefix in (
             ("cds_overlap_locus_recovery", "cds_overlap_locus_recovery"),
             ("cds_exact_one_to_one", "cds_exact_one_to_one"),
@@ -247,6 +274,22 @@ def write_details(ref: pd.DataFrame, query: pd.DataFrame, outdir: str) -> None:
                         row.novel_category,
                         int(row.counterpart_count),
                         row.counterpart_ids,
+                        row.gene_biotype,
+                        int(row.evaluated_transcript_count),
+                        int(row.max_exon_count),
+                        int(row.max_cds_count),
+                        bool(row.has_cds),
+                        int(row.cds_shared_bases),
+                        bool(row.cds_locus_recovered),
+                        row.cds_outcome,
+                        row.one_to_one_partner,
+                        _flag(row.cds_intron_chain_any_pair),
+                        _flag(row.intron_chain_any_pair),
+                        _count(row.cds_start_diff_bp),
+                        _count(row.cds_stop_diff_bp),
+                        _count(row.cds_introns_missing),
+                        _count(row.cds_introns_extra),
+                        row.scope_ids,
                     ]
                 )
 
