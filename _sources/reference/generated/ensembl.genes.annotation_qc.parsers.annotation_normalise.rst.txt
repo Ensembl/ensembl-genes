@@ -1,0 +1,9 @@
+ensembl.genes.annotation_qc.parsers.annotation_normalise
+========================================================
+
+Source: ``src/python/ensembl/genes/annotation_qc/parsers/annotation_normalise.py``
+
+.. automodule:: ensembl.genes.annotation_qc.parsers.annotation_normalise
+   :members:
+   :show-inheritance:
+   :undoc-members:

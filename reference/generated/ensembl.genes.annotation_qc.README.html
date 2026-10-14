@@ -1,0 +1,1836 @@
+<!doctype html>
+<html class="no-js" lang="en" data-content_root="../../">
+  <head><meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="index" title="Index" href="../../genindex.html"><link rel="search" title="Search" href="../../search.html"><link rel="next" title="ensembl.genes.annotation_qc.config" href="ensembl.genes.annotation_qc.config.html"><link rel="prev" title="ensembl.genes.annotation_qc" href="ensembl.genes.annotation_qc.html">
+        <link rel="prefetch" href="../../_static/ebang.png" as="image">
+
+    <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
+        <title>Annotation QC - Ensembl Genes</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=d111a655" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=7bdb33bb" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=8dab3a3b" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f2f2f2;
+  --color-code-foreground: #1e1e1e;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle site navigation sidebar">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc" aria-label="Toggle table of contents sidebar">
+<label class="overlay sidebar-overlay" for="__navigation"></label>
+<label class="overlay toc-overlay" for="__toc"></label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <span class="icon"><svg><use href="#svg-menu"></use></svg></span>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../../index.html"><div class="brand">Ensembl Genes</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
+  <div class="sidebar-logo-container">
+    <img class="sidebar-logo" src="../../_static/ebang.png" alt="Logo"/>
+  </div>
+  
+  <span class="sidebar-brand-text">Ensembl Genes</span>
+  
+</a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../install.html">How to install this repository</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage.html">Usage</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../code_of_conduct.html">Code of Conduct</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../coverage.html">Coverage report</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul class="current">
+<li class="toctree-l1 current has-children"><a class="reference internal" href="../../api.html">API Reference</a><input aria-label="Toggle navigation of API Reference" checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul class="current">
+<li class="toctree-l2 current has-children"><a class="reference internal" href="index.html">Generated Code Reference</a><input aria-label="Toggle navigation of Generated Code Reference" checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul class="current">
+<li class="toctree-l3 current has-children"><a class="reference internal" href="ensembl.genes.html">ensembl.genes</a><input aria-label="Toggle navigation of ensembl.genes" checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul class="current">
+<li class="toctree-l4 current has-children"><a class="reference internal" href="ensembl.genes.annotation_qc.html">annotation_qc</a><input aria-label="Toggle navigation of annotation_qc" checked="" class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul class="current">
+<li class="toctree-l5 current current-page"><a class="current reference internal" href="#">Annotation QC</a></li>
+<li class="toctree-l5"><a class="reference internal" href="#annotation-qc-onboarding-guideline">Annotation QC onboarding guideline</a></li>
+<li class="toctree-l5 has-children"><a class="reference internal" href="ensembl.genes.annotation_qc.config.html">config</a><input aria-label="Toggle navigation of config" class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.config.feature_levels_yaml.html">feature_levels.yaml</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.config.value_map_json.html">value_map.json</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.config.value_mapping_csv.html">value_mapping.csv</a></li>
+</ul>
+</li>
+<li class="toctree-l5 has-children"><a class="reference internal" href="ensembl.genes.annotation_qc.metrics.html">metrics</a><input aria-label="Toggle navigation of metrics" class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.metrics.README.html">README</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.metrics.feature_wide_metrics_README.html">feature_wide_metrics_README</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.metrics.genome_wide_metrics_README.html">genome_wide_metrics_README</a></li>
+<li class="toctree-l6 has-children"><a class="reference internal" href="ensembl.genes.annotation_qc.metrics.pairwise.html">pairwise</a><input aria-label="Toggle navigation of pairwise" class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" role="switch" type="checkbox"/><label for="toctree-checkbox-7"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l7"><a class="reference internal" href="ensembl.genes.annotation_qc.metrics.pairwise.classify.html">classify</a></li>
+<li class="toctree-l7"><a class="reference internal" href="ensembl.genes.annotation_qc.metrics.pairwise.contract.html">contract</a></li>
+<li class="toctree-l7"><a class="reference internal" href="ensembl.genes.annotation_qc.metrics.pairwise.evaluation_audit.html">evaluation_audit</a></li>
+<li class="toctree-l7"><a class="reference internal" href="ensembl.genes.annotation_qc.metrics.pairwise.matching.html">matching</a></li>
+<li class="toctree-l7"><a class="reference internal" href="ensembl.genes.annotation_qc.metrics.pairwise.selection.html">selection</a></li>
+<li class="toctree-l7"><a class="reference internal" href="ensembl.genes.annotation_qc.metrics.pairwise.splice.html">splice</a></li>
+<li class="toctree-l7"><a class="reference internal" href="ensembl.genes.annotation_qc.metrics.pairwise.stop_codons.html">stop_codons</a></li>
+<li class="toctree-l7"><a class="reference internal" href="ensembl.genes.annotation_qc.metrics.pairwise.summary.html">summary</a></li>
+</ul>
+</li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.metrics.events.html">events</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.metrics.feature_wide_metrics.html">feature_wide_metrics</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.metrics.features.html">features</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.metrics.geneset.html">geneset</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.metrics.genome_wide_metrics.html">genome_wide_metrics</a></li>
+</ul>
+</li>
+<li class="toctree-l5 has-children"><a class="reference internal" href="ensembl.genes.annotation_qc.notebooks.html">notebooks</a><input aria-label="Toggle navigation of notebooks" class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.notebooks.Example_ipynb.html">Example.ipynb</a></li>
+</ul>
+</li>
+<li class="toctree-l5 has-children"><a class="reference internal" href="ensembl.genes.annotation_qc.parsers.html">parsers</a><input aria-label="Toggle navigation of parsers" class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" role="switch" type="checkbox"/><label for="toctree-checkbox-9"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.parsers.README.html">parsers</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.parsers.README.html#responsibilities">Responsibilities</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.parsers.README.html#what-does-not-belong-here">What does NOT belong here?</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.parsers.README.html#inputs">Inputs</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.parsers.README.html#outputs">Outputs</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.parsers.README.html#design-principles">Design principles</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.parsers.README.html#adding-a-new-parser">Adding a new parser</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.parsers.README.html#common-mistakes">Common mistakes</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.parsers.README.html#testing">Testing</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.parsers.README.html#related-packages">Related packages</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.parsers.README.html#id1">Parsers</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.parsers.README.html#annotation-parser-gff3-gtf">Annotation Parser (GFF3 / GTF)</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.parsers.annotation.html">annotation</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.parsers.annotation_normalise.html">annotation_normalise</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.parsers.diamond.html">diamond</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.parsers.interpro.html">interpro</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.parsers.parse_agat.html">parse_agat</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.parsers.regions.html">regions</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.parsers.seqnames.html">seqnames</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.parsers.sequence.html">sequence</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.parsers.tool_output.html">tool_output</a></li>
+</ul>
+</li>
+<li class="toctree-l5 has-children"><a class="reference internal" href="ensembl.genes.annotation_qc.reports.html">reports</a><input aria-label="Toggle navigation of reports" class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" role="switch" type="checkbox"/><label for="toctree-checkbox-10"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.reports.README.html">reports</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.reports.README.html#responsibilities">Responsibilities</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.reports.README.html#what-does-not-belong-here">What does NOT belong here?</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.reports.README.html#inputs">Inputs</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.reports.README.html#outputs">Outputs</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.reports.README.html#design-principles">Design principles</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.reports.README.html#adding-a-new-report">Adding a new report</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.reports.README.html#common-mistakes">Common mistakes</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.reports.README.html#testing">Testing</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.reports.README.html#related-packages">Related packages</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.reports.pairwise_compare.html">pairwise_compare</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.reports.pairwise_contract.html">pairwise_contract</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.reports.pairwise_plots.html">pairwise_plots</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.reports.plotting_utils.html">plotting_utils</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.reports.tabular_reports.html">tabular_reports</a></li>
+</ul>
+</li>
+<li class="toctree-l5 has-children"><a class="reference internal" href="ensembl.genes.annotation_qc.runners.html">runners</a><input aria-label="Toggle navigation of runners" class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" role="switch" type="checkbox"/><label for="toctree-checkbox-11"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.runners.README.html">runners</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.runners.README.html#responsibilities">Responsibilities</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.runners.README.html#what-does-not-belong-here">What does NOT belong here?</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.runners.README.html#workflow">Workflow</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.runners.README.html#inputs">Inputs</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.runners.README.html#outputs">Outputs</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.runners.README.html#design-principles">Design principles</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.runners.README.html#example-workflow">Example workflow</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.runners.README.html#adding-a-new-runner">Adding a new runner</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.runners.README.html#common-mistakes">Common mistakes</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.runners.README.html#testing">Testing</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.runners.README.html#related-packages">Related packages</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.runners.assess_translation_validity.html">assess_translation_validity</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.runners.genebuild_stats.html">genebuild_stats</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.runners.pairwise_compare.html">pairwise_compare</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.annotation_qc.cli.html">cli</a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="ensembl.genes.automation.html">automation</a><input aria-label="Toggle navigation of automation" class="toctree-checkbox" id="toctree-checkbox-12" name="toctree-checkbox-12" role="switch" type="checkbox"/><label for="toctree-checkbox-12"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.automation.README.html">README</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.automation.pre_release_ftp.html">pre_release_ftp</a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="ensembl.genes.content.html">content</a><input aria-label="Toggle navigation of content" class="toctree-checkbox" id="toctree-checkbox-13" name="toctree-checkbox-13" role="switch" type="checkbox"/><label for="toctree-checkbox-13"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.content.main_static_content.html">main_static_content</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.content.main_static_murine_content.html">main_static_murine_content</a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="ensembl.genes.info_from_registry.html">info_from_registry</a><input aria-label="Toggle navigation of info_from_registry" class="toctree-checkbox" id="toctree-checkbox-14" name="toctree-checkbox-14" role="switch" type="checkbox"/><label for="toctree-checkbox-14"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.info_from_registry.README.html">README</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.info_from_registry.assign_species_prefix.html">assign_species_prefix</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.info_from_registry.assign_stable_space.html">assign_stable_space</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.info_from_registry.build_anno_commands.html">build_anno_commands</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.info_from_registry.check_if_annotated.html">check_if_annotated</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.info_from_registry.check_stable_space_old_registry.html">check_stable_space_old_registry</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.info_from_registry.create_config.html">create_config</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.info_from_registry.create_pipe_reg.html">create_pipe_reg</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.info_from_registry.genebuild_start_pipeline.html">genebuild_start_pipeline</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.info_from_registry.mysql_helper.html">mysql_helper</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.info_from_registry.registry_helper.html">registry_helper</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.info_from_registry.seed_nonvert.html">seed_nonvert</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.info_from_registry.start_pipeline_from_registry.html">start_pipeline_from_registry</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.info_from_registry.taxonomy_helper.html">taxonomy_helper</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.info_from_registry.update_assembly_registry.html">update_assembly_registry</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.info_from_registry.write_metrics_to_registry.html">write_metrics_to_registry</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.info_from_registry.anno_settings_json.html">anno_settings.json</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.info_from_registry.clade_settings_json.html">clade_settings.json</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.info_from_registry.main_settings_json.html">main_settings.json</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.info_from_registry.projection_source_json.html">projection_source.json</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.info_from_registry.stable_id_special_cases_json.html">stable_id_special_cases.json</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.info_from_registry.user_pipeline_settings_json.html">user_pipeline_settings.json</a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="ensembl.genes.metadata.html">metadata</a><input aria-label="Toggle navigation of metadata" class="toctree-checkbox" id="toctree-checkbox-15" name="toctree-checkbox-15" role="switch" type="checkbox"/><label for="toctree-checkbox-15"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.metadata.README.html">README</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.metadata.beta_patcher.html">beta_patcher</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.metadata.core_meta_data.html">core_meta_data</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.metadata.logging_conf.html">logging.conf</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.metadata.patches_template_csv.html">patches_template.csv</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.metadata.provider_static_txt.html">provider_static.txt</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.metadata.ref_static_txt.html">ref_static.txt</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.metadata.requirements_txt.html">requirements.txt</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.metadata.snp_static_txt.html">snp_static.txt</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.metadata.url_static_txt.html">url_static.txt</a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="ensembl.genes.metrics.html">metrics</a><input aria-label="Toggle navigation of metrics" class="toctree-checkbox" id="toctree-checkbox-16" name="toctree-checkbox-16" role="switch" type="checkbox"/><label for="toctree-checkbox-16"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.metrics.busco_lineage_selector.html">busco_lineage_selector</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.metrics.busco_metakeys_patch.html">busco_metakeys_patch</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.metrics.check_busco_score.html">check_busco_score</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.metrics.busco_lineage_json.html">busco_lineage.json</a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="ensembl.genes.projects.html">projects</a><input aria-label="Toggle navigation of projects" class="toctree-checkbox" id="toctree-checkbox-17" name="toctree-checkbox-17" role="switch" type="checkbox"/><label for="toctree-checkbox-17"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.projects.README.html">README</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.projects.write_yaml.html">write_yaml</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.projects.icons_txt.html">icons.txt</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.projects.pyproject_toml.html">pyproject.toml</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.projects.server_config_json.html">server_config.json</a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="ensembl.genes.stable_id.html">stable_id</a><input aria-label="Toggle navigation of stable_id" class="toctree-checkbox" id="toctree-checkbox-18" name="toctree-checkbox-18" role="switch" type="checkbox"/><label for="toctree-checkbox-18"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.stable_id.pid_overlap.html">pid_overlap</a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="ensembl.genes.tracking.html">tracking</a><input aria-label="Toggle navigation of tracking" class="toctree-checkbox" id="toctree-checkbox-19" name="toctree-checkbox-19" role="switch" type="checkbox"/><label for="toctree-checkbox-19"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.tracking.README.html">README</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.tracking.bioproject_tracking.html">bioproject_tracking</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.tracking.live_tracking.html">live_tracking</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.tracking.bioproject_tracking_config_json.html">bioproject_tracking_config.json</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.tracking.live_tracking_config_json.html">live_tracking_config.json</a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="ensembl.genes.transcriptomic_data.html">transcriptomic_data</a><input aria-label="Toggle navigation of transcriptomic_data" class="toctree-checkbox" id="toctree-checkbox-20" name="toctree-checkbox-20" role="switch" type="checkbox"/><label for="toctree-checkbox-20"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.transcriptomic_data.check_for_transcriptomic.html">check_for_transcriptomic</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.transcriptomic_data.get_transcriptomic_data.html">get_transcriptomic_data</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.transcriptomic_data.select_transcriptomic_data.html">select_transcriptomic_data</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="view-this-page">
+  <a class="muted-link" href="../../_sources/reference/generated/ensembl.genes.annotation_qc.README.md.txt" title="View this page">
+    <svg><use href="#svg-eye"></use></svg>
+    <span class="visually-hidden">View this page</span>
+  </a>
+</div>
+<div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+          </label>
+        </div>
+        <article role="main" id="furo-main-content">
+          <section id="annotation-qc">
+<h1>Annotation QC<a class="headerlink" href="#annotation-qc" title="Link to this heading">¶</a></h1>
+<section id="compare-an-annotation-to-a-reference">
+<h2>Compare an annotation to a reference<a class="headerlink" href="#compare-an-annotation-to-a-reference" title="Link to this heading">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">annotation-qc</span> <span class="pre">pairwise-compare</span></code> compares any <strong>query</strong> annotation (gene predictions from
+Tiberius, ANNEVO, Helixer, Vipsania, AUGUSTUS, a Gene Model Builder build, …) with a
+<strong>trusted reference</strong> annotation of the <em>same assembly</em>. It reports how many reference
+genes the query reproduces (reference-based, recall-like) and how many query genes have
+no reference counterpart (query-based, precision-like). The reference is used for
+evaluation only. The command needs no GMB installation, build directory or metadata.</p>
+<section id="environment">
+<h3>Environment<a class="headerlink" href="#environment" title="Link to this heading">¶</a></h3>
+<p>Install <code class="docutils literal notranslate"><span class="pre">ensembl-genes</span></code> into a Python ≥ 3.12 environment. The command uses only the
+package’s declared dependencies (pandas, pyranges1 ≥ 1.3, pyfaidx). Plots need the
+optional <code class="docutils literal notranslate"><span class="pre">plots</span></code> extra (matplotlib).</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">"ensembl-genes"</span><span class="w">               </span><span class="c1"># core comparison (an editable install is not needed)</span>
+pip<span class="w"> </span>install<span class="w"> </span><span class="s2">"ensembl-genes[plots]"</span><span class="w">        </span><span class="c1"># optional: --plots-per-category</span>
+</pre></div>
+</div>
+<p>The comparator is standalone: it needs only the query, the reference and (recommended)
+the genome FASTA, and it writes a versioned set of files (see
+<a class="reference internal" href="#output-contract-version-1-0">Output contract</a>) that other tools, such as dashboards,
+notebooks or pipelines, can read without importing this package.</p>
+<p>Resources: a whole human Ensembl reference (≈ 1.4 GB GFF3, ≈ 650,000 transcripts) takes
+about 3–4 minutes and 3.5–4.5 GB of RAM per run on a laptop, almost all of it spent parsing
+the reference. Run comparisons one at a time on machines with ≤ 16 GB RAM.</p>
+</section>
+<section id="quick-start-any-prediction-against-any-reference">
+<h3>Quick start: any prediction against any reference<a class="headerlink" href="#quick-start-any-prediction-against-any-reference" title="Link to this heading">¶</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>annotation-qc<span class="w"> </span>pairwise-compare<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--query<span class="w"> </span>predictions.gtf<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--reference<span class="w"> </span>reference.gff3<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--genome<span class="w"> </span>genome.fa<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--evaluation-mode<span class="w"> </span>protein_coding<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--reference-transcript-biotypes<span class="w"> </span>protein_coding<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--outdir<span class="w"> </span>comparison
+</pre></div>
+</div>
+<p>Then read, in this order:</p>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">comparison_summary.json</span></code> → <code class="docutils literal notranslate"><span class="pre">sensitivity_cds.cds_coordinate_exact_count</span></code> /
+<code class="docutils literal notranslate"><span class="pre">total_reference_genes</span></code>: reference coding genes whose CDS the query reproduces exactly
+(start, every splice site and stop identical) for at least one eligible isoform.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">specificity.consensus_cds_coordinate_exact_count</span></code> / <code class="docutils literal notranslate"><span class="pre">total_consensus_genes</span></code>: the same
+from the query side (“consensus” always means the query).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cds_exact_one_to_one</span></code>: one-to-one coordinate-exact CDS precision, recall and F1
+(each reference and query gene used once), and <code class="docutils literal notranslate"><span class="pre">cds_overlap_locus_recovery</span></code>: reference
+loci with any same-strand CDS overlap. See
+<a class="reference internal" href="#one-to-one-exact-cds-f1-and-locus-recovery">One-to-one exact-CDS F1 and locus recovery</a>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">sensitivity_cds.cds_intron_chain_recovered</span></code> / <code class="docutils literal notranslate"><span class="pre">multi_segment_cds_reference_genes</span></code>,
+<code class="docutils literal notranslate"><span class="pre">intron_support.cds</span></code>, <code class="docutils literal notranslate"><span class="pre">split_merge</span></code>, <code class="docutils literal notranslate"><span class="pre">novel_categories</span></code>.</p></li>
+</ol>
+<p>Most ab initio predictors annotate CDS only (no UTRs). For them, use the CDS metrics as the
+headline. Exon-level <code class="docutils literal notranslate"><span class="pre">Exact_Match</span></code> and <code class="docutils literal notranslate"><span class="pre">exon_coordinate_exact</span></code> also require the UTRs to
+agree, so for these predictors they stay near zero by construction.</p>
+</section>
+<section id="tested-example-human-and-mouse-ensembl-references">
+<h3>Tested example: human and mouse Ensembl references<a class="headerlink" href="#tested-example-human-and-mouse-ensembl-references" title="Link to this heading">¶</a></h3>
+<p>This exact sequence was run on Ensembl GRCh38.p14 / GRCm39 references (genebuild
+2026-04) with Tiberius, ANNEVO, Helixer and Vipsania predictions. Shown for mouse; human
+is identical with the GRCh38 files.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># 1. Annotations and FASTA may stay gzip/BGZF compressed under any name (detected from content).</span>
+<span class="c1"># 2. Current Ensembl GFF3 uses transcript types the parser does not list yet</span>
+<span class="c1">#    (unconfirmed_transcript for TEC, gene_segment). Retype them; IDs and Parent links are kept.</span>
+gzip<span class="w"> </span>-dc<span class="w"> </span>mouse_GRCm39.gff.bgz<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="p">|</span><span class="w"> </span>awk<span class="w"> </span><span class="s1">'BEGIN{FS=OFS="\t"} !/^#/ &amp;&amp; ($3=="unconfirmed_transcript" || $3=="gene_segment") {$9=$9";original_type="$3; $3="transcript"} {print}'</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>&gt;<span class="w"> </span>mouse_GRCm39.gff3
+<span class="c1"># 3. Evaluation scope: the sequences the reference annotates (excludes e.g. alt haplotypes</span>
+<span class="c1">#    and patches that a predictor may have annotated but the reference does not).</span>
+grep<span class="w"> </span><span class="s1">'^##sequence-region'</span><span class="w"> </span>mouse_GRCm39.gff3<span class="w"> </span><span class="p">|</span><span class="w"> </span>awk<span class="w"> </span><span class="s1">'{print $2}'</span><span class="w"> </span>&gt;<span class="w"> </span>reference_sequences.txt
+<span class="c1"># 4. Compare. Repeat with identical options for every predictor.</span>
+annotation-qc<span class="w"> </span>pairwise-compare<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--query<span class="w"> </span>mouse_GRCm39_tiberius.gtf<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--reference<span class="w"> </span>mouse_GRCm39.gff3<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--genome<span class="w"> </span>mouse_GRCm39.fa.bgz<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--evaluation-mode<span class="w"> </span>protein_coding<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--reference-transcript-biotypes<span class="w"> </span>protein_coding<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--regions-file<span class="w"> </span>reference_sequences.txt<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--outdir<span class="w"> </span>mouse_tiberius_all_isoforms
+<span class="c1"># 5. Optional second view: one representative isoform per gene on both sides.</span>
+<span class="c1">#    Add  --reference-transcript-selection longest_cds --query-transcript-selection longest_cds</span>
+</pre></div>
+</div>
+<p>Comparing several predictors: keep the reference, <code class="docutils literal notranslate"><span class="pre">--genome</span></code>, map, mode, biotype filters,
+selection options and regions identical. Numbers are only comparable between runs with
+identical options.</p>
+</section>
+<section id="gmb-example-optional-use-case">
+<h3>GMB example (optional use case)<a class="headerlink" href="#gmb-example-optional-use-case" title="Link to this heading">¶</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Run after GMB preflight → build → finalise.</span>
+annotation-qc<span class="w"> </span>pairwise-compare<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--query<span class="w"> </span><span class="s2">"</span><span class="nv">$OUT</span><span class="s2">/finalise/consensus.gff3"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--reference<span class="w"> </span><span class="s2">"</span><span class="nv">$REFERENCE_GFF3</span><span class="s2">"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--genome<span class="w"> </span><span class="s2">"</span><span class="nv">$GENOME_FASTA</span><span class="s2">"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--evaluation-mode<span class="w"> </span>protein_coding<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--outdir<span class="w"> </span><span class="s2">"</span><span class="nv">$OUT</span><span class="s2">/reference_comparison"</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>GMB’s own hard QC (FASTA/UTR/boundary checks) asks whether an annotation is <em>internally
+consistent</em>. This command asks whether it <em>agrees with a reference</em>. Passing one says
+nothing about the other, and nothing computed here feeds back into GMB.</p></li>
+<li><p><strong>All isoforms (default):</strong> <code class="docutils literal notranslate"><span class="pre">finalise/consensus.gff3</span></code> holds every GMB transcript.</p></li>
+<li><p><strong>Canonical output:</strong> use <code class="docutils literal notranslate"><span class="pre">finalise/canonical/consensus.canonical_annotated.gff3</span></code>
+<strong>with <code class="docutils literal notranslate"><span class="pre">--query-transcript-selection</span> <span class="pre">canonical</span></code></strong>. That file still contains every
+isoform and only <em>tags</em> the canonical one. Without the option, the result is the same as
+the all-isoform run.</p></li>
+<li><p><strong>Backbone only:</strong> run again with the ab initio backbone (e.g. the Tiberius GTF) as
+<code class="docutils literal notranslate"><span class="pre">--query</span></code> and every other option unchanged.</p></li>
+<li><p>When the query sits in a GMB <code class="docutils literal notranslate"><span class="pre">finalise/</span></code> directory, the manifest also records the GMB
+<code class="docutils literal notranslate"><span class="pre">handover_manifest.json</span></code> and checks the query’s SHA-256 against it. For other inputs,
+<code class="docutils literal notranslate"><span class="pre">gmb_finalise</span></code> is <code class="docutils literal notranslate"><span class="pre">null</span></code>.</p></li>
+</ul>
+</section>
+<section id="input-formats-compression-and-identifiers">
+<h3>Input formats, compression and identifiers<a class="headerlink" href="#input-formats-compression-and-identifiers" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><strong>Formats</strong> are detected from content, not from the file name: GFF3 (<code class="docutils literal notranslate"><span class="pre">ID</span></code>/<code class="docutils literal notranslate"><span class="pre">Parent</span></code>), GTF
+(<code class="docutils literal notranslate"><span class="pre">gene_id</span></code>/<code class="docutils literal notranslate"><span class="pre">transcript_id</span></code>; gene and transcript lines may be missing and are then
+inferred from exons) and the Tiberius GTF hybrid (bare IDs on gene/transcript lines).
+Override with <code class="docutils literal notranslate"><span class="pre">--query-format</span></code> / <code class="docutils literal notranslate"><span class="pre">--reference-format</span></code>.</p></li>
+<li><p><strong>Compression:</strong> annotations and the FASTA may be plain, gzip or BGZF under any name
+(e.g. <code class="docutils literal notranslate"><span class="pre">*.gff3.bgz</span></code>); compression is detected from the file content, and the manifest
+records it per input (<code class="docutils literal notranslate"><span class="pre">compression</span></code>: <code class="docutils literal notranslate"><span class="pre">none</span></code>, <code class="docutils literal notranslate"><span class="pre">gzip</span></code>, <code class="docutils literal notranslate"><span class="pre">bgzf</span></code>). Nothing is decompressed
+to disk and no index is written next to the inputs.</p></li>
+<li><p><strong>Feature types used:</strong> genes (<code class="docutils literal notranslate"><span class="pre">gene</span></code>, <code class="docutils literal notranslate"><span class="pre">ncRNA_gene</span></code>, <code class="docutils literal notranslate"><span class="pre">pseudogene</span></code>), transcripts
+(<code class="docutils literal notranslate"><span class="pre">mRNA</span></code>, <code class="docutils literal notranslate"><span class="pre">transcript</span></code>, the RNA types including <code class="docutils literal notranslate"><span class="pre">Y_RNA</span></code>, <code class="docutils literal notranslate"><span class="pre">*_gene_segment</span></code>,
+<code class="docutils literal notranslate"><span class="pre">pseudogenic_transcript</span></code>, <code class="docutils literal notranslate"><span class="pre">processed_transcript</span></code>), <code class="docutils literal notranslate"><span class="pre">exon</span></code> and <code class="docutils literal notranslate"><span class="pre">CDS</span></code>. Other types (UTRs,
+introns, codons) are ignored. A transcript type outside this list (Ensembl’s
+<code class="docutils literal notranslate"><span class="pre">unconfirmed_transcript</span></code>, <code class="docutils literal notranslate"><span class="pre">gene_segment</span></code>) leaves its exons without a parent, and the run
+stops: retype it as in the tested example.</p></li>
+<li><p><strong>CDS-only files.</strong> A transcript with CDS lines but no exon lines (e.g. a GTF holding
+only <code class="docutils literal notranslate"><span class="pre">gene</span></code> and <code class="docutils literal notranslate"><span class="pre">CDS</span></code> lines) gets one exon per CDS line, with the same coordinates
+(<code class="docutils literal notranslate"><span class="pre">source_feature</span></code> <code class="docutils literal notranslate"><span class="pre">inferred_exon_from_CDS</span></code>). The run log and the manifest’s
+<code class="docutils literal notranslate"><span class="pre">parse_diagnostics</span></code> report <code class="docutils literal notranslate"><span class="pre">cds_only_transcripts</span></code> and <code class="docutils literal notranslate"><span class="pre">inferred_exon_rows</span></code>. Transcripts
+with at least one exon line are used as written. Exon metrics then describe coding exons
+only, as for any predictor without UTRs.</p></li>
+<li><p><strong>Exon lines that omit UTRs.</strong> Some predictors write <code class="docutils literal notranslate"><span class="pre">exon</span></code> lines for the coding part
+only and describe UTRs solely with <code class="docutils literal notranslate"><span class="pre">five_prime_UTR</span></code>/<code class="docutils literal notranslate"><span class="pre">three_prime_UTR</span></code> lines (transcript
+and gene lines then extend beyond the exons). UTR lines are not read, so such files are
+compared as written: exon metrics see no UTR, while gene spans (used for locus pairing)
+still include it.</p></li>
+<li><p><strong>CDS convention:</strong> CDS coordinates are compared as written. Ensembl GFF3, Tiberius,
+ANNEVO, Helixer, Vipsania and OrionGene include the stop codon in the CDS. If one file
+excludes it (e.g. GENCODE/GTF with separate <code class="docutils literal notranslate"><span class="pre">stop_codon</span></code> lines, or a CDS-only GTF whose
+gene lines end 3 bp after the last CDS), every complete gene differs by 3 bp and is never
+coordinate-exact, while CDS <code class="docutils literal notranslate"><span class="pre">Exact_Match</span></code> (same intron chain) is unaffected. Check the
+three genomic bases after each CDS end before interpreting terminal differences, and
+keep any stop-harmonised re-run separate from the comparison of original coordinates.
+<code class="docutils literal notranslate"><span class="pre">--add-stop-codon</span></code> performs that re-run for the query (see
+<a class="reference internal" href="#optional-stop-codon-harmonisation-add-stop-codon">Optional stop-codon harmonisation</a>).</p></li>
+<li><p><strong>Identifiers.</strong> Identity fields are <code class="docutils literal notranslate"><span class="pre">ID</span></code>/<code class="docutils literal notranslate"><span class="pre">Parent</span></code> (GFF3) and <code class="docutils literal notranslate"><span class="pre">gene_id</span></code>/<code class="docutils literal notranslate"><span class="pre">transcript_id</span></code>
+(GTF). Display names (<code class="docutils literal notranslate"><span class="pre">Name</span></code>, <code class="docutils literal notranslate"><span class="pre">gene_name</span></code>) are never used for linking, so repeated
+names are harmless. An identity value reused on <strong>different sequences</strong> (e.g. Tiberius
+numbering <code class="docutils literal notranslate"><span class="pre">g1,</span> <span class="pre">g2,</span> <span class="pre">…</span></code> per chromosome) is namespaced as <code class="docutils literal notranslate"><span class="pre">seqname:id</span></code> in every occurrence,
+with the file value kept in <code class="docutils literal notranslate"><span class="pre">original_gene_id</span></code>. Unique IDs are left unchanged. An
+identity value reused on the <strong>same sequence</strong> stops the run, as do children without a
+resolvable parent. Exons/CDS with several parents (<code class="docutils literal notranslate"><span class="pre">Parent=t1,t2</span></code>) are counted for each
+parent. Not detected: verbatim duplicated exon/CDS lines (counted twice, which breaks
+coordinate-exact and intron-chain results for that transcript) and, in a GTF <em>without</em>
+transcript lines, one <code class="docutils literal notranslate"><span class="pre">transcript_id</span></code> reused at two loci on one sequence (silently fused
+into one transcript). Deduplicate such files first.</p></li>
+<li><p><strong>Sequence names</strong> must match the FASTA. Use <code class="docutils literal notranslate"><span class="pre">--seqname-map</span></code> (or <code class="docutils literal notranslate"><span class="pre">--assembly-report</span></code>)
+otherwise. Matching names and in-bounds coordinates do not prove the same assembly.
+Check the assembly accession of every input.</p></li>
+</ul>
+</section>
+<section id="optional-stop-codon-harmonisation-add-stop-codon">
+<h3>Optional stop-codon harmonisation (<code class="docutils literal notranslate"><span class="pre">--add-stop-codon</span></code>)<a class="headerlink" href="#optional-stop-codon-harmonisation-add-stop-codon" title="Link to this heading">¶</a></h3>
+<p>Some annotations end the CDS before the stop codon (a <em>stop-excluded</em> convention);
+Ensembl and most predictors include it. Compared as written, every complete model then
+differs by 3 bp: coordinate-exact CDS, one-to-one TP, precision, recall and F1 drop to
+about 0, while locus recovery and CDS intron chains are unaffected. <code class="docutils literal notranslate"><span class="pre">--add-stop-codon</span></code>
+re-runs the comparison with the <strong>query</strong> converted to the stop-included convention.
+The reference is never changed. Without the option (default) the original coordinates
+are compared; report harmonised runs separately and label them as such. Harmonisation
+aligns a convention: it does not show that an ORF is valid, and it repairs nothing.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>annotation-qc<span class="w"> </span>pairwise-compare<span class="w"> </span>--query<span class="w"> </span>cds_only.gtf<span class="w"> </span>--reference<span class="w"> </span>reference.gff3<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--genome<span class="w"> </span>genome.fa<span class="w"> </span>--evaluation-mode<span class="w"> </span>protein_coding<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--add-stop-codon<span class="w"> </span>--outdir<span class="w"> </span>comparison_stop_harmonised
+</pre></div>
+</div>
+<p><strong>What changes.</strong> Only the terminal CDS segment of a transcript, extended by 3 bp in
+transcript orientation (+ strand: end + 3; − strand: start − 3), when the next three
+genomic bases, read in transcript orientation, are a stop codon of the sequence’s genetic
+code. Exons inferred from CDS (CDS-only files) and transcript/gene records inferred from
+their children are extended with it. Identifiers, parents, other CDS segments and all
+explicit records stay as written. Rules depend only on coordinates and sequence, never on
+tool names, file names or identifiers.</p>
+<p><strong>Frame evidence (eligibility).</strong> CDS phase is not used, so missing phase is fine.
+The frame is taken to start at the first CDS base and must be supported by the sequence.
+Checks, in order, with the first failure reported as the reason:</p>
+<ol class="arabic simple">
+<li><p>sequence present in the genome (<code class="docutils literal notranslate"><span class="pre">sequence_not_available</span></code>);</p></li>
+<li><p>a genetic code assigned (<code class="docutils literal notranslate"><span class="pre">genetic_code_not_specified</span></code>);</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">+</span></code> or <code class="docutils literal notranslate"><span class="pre">−</span></code> strand (<code class="docutils literal notranslate"><span class="pre">strand_not_defined</span></code>);</p></li>
+<li><p>no overlapping CDS segments (<code class="docutils literal notranslate"><span class="pre">overlapping_cds_segments</span></code>);</p></li>
+<li><p>CDS inside the sequence (<code class="docutils literal notranslate"><span class="pre">cds_outside_sequence</span></code>);</p></li>
+<li><p>only A/C/G/T in the CDS (<code class="docutils literal notranslate"><span class="pre">ambiguous_bases_in_cds</span></code>);</p></li>
+<li><p>CDS length a multiple of 3 (<code class="docutils literal notranslate"><span class="pre">cds_length_not_multiple_of_3</span></code>);</p></li>
+<li><p>first codon ATG (<code class="docutils literal notranslate"><span class="pre">no_start_codon</span></code>): 5′-partial models and non-ATG starts are not
+guessed;</p></li>
+<li><p>no in-frame stop before the last codon (<code class="docutils literal notranslate"><span class="pre">internal_stop_codon</span></code>).</p></li>
+</ol>
+<p>An adjacent stop triplet after a disrupted frame is therefore never used.</p>
+<p><strong>Outcomes for eligible models.</strong></p>
+<div class="table-wrapper colwidths-auto docutils container">
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>status</p></th>
+<th class="head"><p>reason</p></th>
+<th class="head"><p>meaning</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>unchanged</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">stop_already_in_cds</span></code></p></td>
+<td><p>last codon is a stop. A second application is therefore a no-op.</p></td>
+</tr>
+<tr class="row-odd"><td><p>unchanged</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">no_adjacent_stop</span></code></p></td>
+<td><p>the next three bases are not a stop codon</p></td>
+</tr>
+<tr class="row-even"><td><p>skipped</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">split_stop_codon_unsupported</span></code></p></td>
+<td><p>the CDS ends at (or within 2 bp of) its exon end and another exon follows. A stop split by an intron is not added.</p></td>
+</tr>
+<tr class="row-odd"><td><p>skipped</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">extension_beyond_explicit_exons</span></code>, <code class="docutils literal notranslate"><span class="pre">cds_outside_explicit_exons</span></code></p></td>
+<td><p>explicit exon records would not contain the extended CDS. Exons are never rewritten.</p></td>
+</tr>
+<tr class="row-even"><td><p>skipped</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">extension_out_of_bounds</span></code>, <code class="docutils literal notranslate"><span class="pre">ambiguous_bases_after_cds</span></code></p></td>
+<td><p>the three bases are past the sequence end or not A/C/G/T</p></td>
+</tr>
+<tr class="row-odd"><td><p>skipped</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">extension_outside_transcript_record</span></code>, <code class="docutils literal notranslate"><span class="pre">extension_outside_gene_record</span></code></p></td>
+<td><p>an explicit transcript/gene record does not contain the extended CDS</p></td>
+</tr>
+<tr class="row-even"><td><p>extended</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">stop_codon_added</span></code></p></td>
+<td><p>terminal CDS (and inferred records) extended by 3 bp</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>Genetic code.</strong> <code class="docutils literal notranslate"><span class="pre">--stop-codon-genetic-code</span></code> sets the NCBI table for all sequences
+(default 1, standard; supported: 1–6, 9–14, 16, 21–26, 29, 30, 33). Tables whose stops
+are context-dependent (27, 28, 31) are not supported. <code class="docutils literal notranslate"><span class="pre">--stop-codon-sequence-code</span> <span class="pre">MT=2</span></code> sets one sequence’s table, and <code class="docutils literal notranslate"><span class="pre">NAME=none</span></code> skips it. Sequences named like organelle
+genomes (<code class="docutils literal notranslate"><span class="pre">MT</span></code>, <code class="docutils literal notranslate"><span class="pre">M</span></code>, <code class="docutils literal notranslate"><span class="pre">chrM</span></code>, <code class="docutils literal notranslate"><span class="pre">chrMT</span></code>, <code class="docutils literal notranslate"><span class="pre">mito</span></code>, <code class="docutils literal notranslate"><span class="pre">mitochondrion</span></code>, <code class="docutils literal notranslate"><span class="pre">Pt</span></code>, <code class="docutils literal notranslate"><span class="pre">chrC</span></code>, <code class="docutils literal notranslate"><span class="pre">chrPt</span></code>,
+<code class="docutils literal notranslate"><span class="pre">chloroplast</span></code>, <code class="docutils literal notranslate"><span class="pre">plastid</span></code>; case-insensitive) never receive the default table: without an
+override their models are skipped (<code class="docutils literal notranslate"><span class="pre">genetic_code_not_specified</span></code>).</p>
+<p><strong>Outputs and provenance.</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">stop_codon_harmonisation.tsv</span></code>: every query transcript with CDS (status, reason,
+genetic code and its source, last and next codon, original and new terminal CDS
+coordinates, records changed).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">query_evaluated.stop_harmonised.gtf</span></code>: the query as compared. Locus plots
+(<code class="docutils literal notranslate"><span class="pre">--plots-per-category</span></code>) also draw these coordinates.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">comparison_summary.json</span></code> → <code class="docutils literal notranslate"><span class="pre">query_stop_codon_harmonisation</span></code>: <code class="docutils literal notranslate"><span class="pre">applied</span></code> (<code class="docutils literal notranslate"><span class="pre">false</span></code> in
+default runs), counts by status and reason, and the policy.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">comparison_manifest.json</span></code> → <code class="docutils literal notranslate"><span class="pre">stop_codon_harmonisation</span></code>: the same, plus the SHA-256 of
+both output files. The query file itself is recorded, unchanged, under <code class="docutils literal notranslate"><span class="pre">inputs.query</span></code>.</p></li>
+</ul>
+<p>Harmonisation runs before query transcript selection, so <code class="docutils literal notranslate"><span class="pre">longest_cds</span></code> sees the
+harmonised lengths.</p>
+</section>
+<section id="reference-scope-and-isoform-policy">
+<h3>Reference scope and isoform policy<a class="headerlink" href="#reference-scope-and-isoform-policy" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><strong>Scope.</strong> Pairing is restricted to whatever both annotations contain. A query gene on a
+sequence the reference does not annotate (alternative haplotype, patch, unplaced
+scaffold) is <code class="docutils literal notranslate"><span class="pre">Novel</span></code>, and a reference gene on a sequence the predictor skipped is
+<code class="docutils literal notranslate"><span class="pre">Missed</span></code>. Choose the scope before comparing tools, independently of their results. A
+whole-sequence regions file (one seqname per line) is the simplest way.</p></li>
+<li><p><strong>Reference genes and isoforms.</strong> <code class="docutils literal notranslate"><span class="pre">--evaluation-mode</span> <span class="pre">protein_coding</span></code> keeps
+protein-coding genes with <em>all</em> their transcripts (including NMD and retained-intron
+isoforms). Add <code class="docutils literal notranslate"><span class="pre">--reference-transcript-biotypes</span> <span class="pre">protein_coding</span></code> to keep only
+protein-coding isoforms. Genes that then have no isoform are dropped, which changes
+<code class="docutils literal notranslate"><span class="pre">total_reference_genes</span></code>.</p></li>
+<li><p><strong>Isoforms per gene.</strong> With <code class="docutils literal notranslate"><span class="pre">--reference-transcript-selection</span> <span class="pre">all</span></code> (default), a reference
+gene counts as CDS-exact when <em>any</em> kept isoform is reproduced. Each gene is counted
+once, whatever the number of matching isoforms or query transcripts. With modern
+references (often &gt; 10 coding isoforms per gene) this is much more lenient than scoring
+one representative. <code class="docutils literal notranslate"><span class="pre">longest_cds</span></code> and <code class="docutils literal notranslate"><span class="pre">canonical</span></code> select one isoform per gene (longest
+total CDS, ties → first in file; <code class="docutils literal notranslate"><span class="pre">Ensembl_canonical</span></code> tag, falling back to longest CDS)
+independently of the query. A correct alternative isoform then counts as a miss.
+<code class="docutils literal notranslate"><span class="pre">--query-transcript-selection</span></code> applies the same rules to the query and is a no-op for
+predictors that emit one transcript per gene.</p></li>
+</ul>
+</section>
+<section id="arguments">
+<h3>Arguments<a class="headerlink" href="#arguments" title="Link to this heading">¶</a></h3>
+<div class="table-wrapper colwidths-auto docutils container">
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>argument</p></th>
+<th class="head"><p>meaning</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--query</span></code> (required)</p></td>
+<td><p>annotation to evaluate: GFF3, GTF or Tiberius hybrid; plain, gzip or BGZF</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--reference</span></code> (required)</p></td>
+<td><p>trusted reference: GFF3 or GTF; plain, gzip or BGZF</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--outdir</span></code> (required)</p></td>
+<td><p>output directory</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--genome</span></code></p></td>
+<td><p>genome FASTA (plain, gzip or BGZF). Checks that every sequence exists and every feature lies within it. Recommended.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--seqname-map</span></code></p></td>
+<td><p>two-column TSV/CSV map, see below</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--assembly-report</span></code></p></td>
+<td><p>NCBI assembly report (GenBank accession → assigned molecule). <code class="docutils literal notranslate"><span class="pre">--seqname-map</span></code> entries win on conflict.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--genome-mismatch</span> <span class="pre">{error,warn,exclude}</span></code></p></td>
+<td><p>what to do when, with <code class="docutils literal notranslate"><span class="pre">--genome</span></code>, an annotation sequence is missing from the FASTA or has features past its end. <code class="docutils literal notranslate"><span class="pre">error</span></code> (default) stops. <code class="docutils literal notranslate"><span class="pre">exclude</span></code> removes those sequences from <strong>both</strong> annotations and records them in the audit and manifest. <code class="docutils literal notranslate"><span class="pre">warn</span></code> keeps them, which is the old <code class="docutils literal notranslate"><span class="pre">gmb-compare</span></code> behaviour; their reference genes then count as Missed.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--evaluation-mode</span> <span class="pre">{all,protein_coding,cds_only,canonical}</span></code></p></td>
+<td><p>reference preset (default <code class="docutils literal notranslate"><span class="pre">all</span></code>). <code class="docutils literal notranslate"><span class="pre">protein_coding</span></code> keeps genes with <code class="docutils literal notranslate"><span class="pre">gene_biotype</span></code>/<code class="docutils literal notranslate"><span class="pre">biotype</span></code> <code class="docutils literal notranslate"><span class="pre">protein_coding</span></code> and all their transcripts.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--reference-transcript-selection</span> <span class="pre">{all,longest_cds,canonical}</span></code></p></td>
+<td><p>reference transcripts per gene (default <code class="docutils literal notranslate"><span class="pre">all</span></code>). <code class="docutils literal notranslate"><span class="pre">canonical</span></code> takes the <code class="docutils literal notranslate"><span class="pre">Ensembl_canonical</span></code>-tagged transcript; a gene without a tagged transcript falls back to the longest CDS, and every such gene is labelled (<code class="docutils literal notranslate"><span class="pre">selected_by</span></code>) and counted (<code class="docutils literal notranslate"><span class="pre">reference_canonical_fallback_genes</span></code>). If <strong>no</strong> transcript carries the tag the run stops instead of falling back for every gene.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--reference-gene-biotypes</span></code>, <code class="docutils literal notranslate"><span class="pre">--reference-transcript-biotypes</span></code></p></td>
+<td><p>extra comma-separated biotype filters</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--query-transcript-selection</span> <span class="pre">{all,longest_cds,canonical}</span></code></p></td>
+<td><p>query transcripts per gene (default <code class="docutils literal notranslate"><span class="pre">all</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--query-format</span></code>, <code class="docutils literal notranslate"><span class="pre">--reference-format</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">auto</span></code> (default: detected from content), <code class="docutils literal notranslate"><span class="pre">gff3</span></code>, <code class="docutils literal notranslate"><span class="pre">gtf</span></code>, <code class="docutils literal notranslate"><span class="pre">tiberius</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--region</span></code>, <code class="docutils literal notranslate"><span class="pre">--regions-file</span></code></p></td>
+<td><p>restrict both annotations (and the Novel context) to whole genes overlapping <code class="docutils literal notranslate"><span class="pre">seqname[:start-end]</span></code> (one-based, inclusive, comparison seqnames). A line with only a seqname keeps the whole sequence. <code class="docutils literal notranslate"><span class="pre">--region</span></code> can be repeated.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--evidence-attribution</span></code></p></td>
+<td><p>GMB <code class="docutils literal notranslate"><span class="pre">build/evidence_attribution.tsv</span></code>; writes it back with each transcript’s label</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--plots-per-category</span> <span class="pre">N</span></code></p></td>
+<td><p>write N locus plots per class to <code class="docutils literal notranslate"><span class="pre">qc/</span></code> with <code class="docutils literal notranslate"><span class="pre">qc/index.html</span></code> (needs matplotlib)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--add-stop-codon</span></code></p></td>
+<td><p>query only, needs <code class="docutils literal notranslate"><span class="pre">--genome</span></code>: add an adjacent in-frame stop codon to CDS that end before it (below). Default: original coordinates</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--stop-codon-genetic-code</span> <span class="pre">TABLE</span></code></p></td>
+<td><p>NCBI translation table for <code class="docutils literal notranslate"><span class="pre">--add-stop-codon</span></code> (default 1)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--stop-codon-sequence-code</span> <span class="pre">SEQNAME=TABLE</span></code></p></td>
+<td><p>per-sequence table (comparison seqname), <code class="docutils literal notranslate"><span class="pre">none</span></code> to skip a sequence; repeatable</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--analysis-scope</span> <span class="pre">ID=SEQ[,SEQ…]</span></code></p></td>
+<td><p>named sequence subset reported beside the whole comparison (scope <code class="docutils literal notranslate"><span class="pre">all</span></code>) in <code class="docutils literal notranslate"><span class="pre">metrics.tsv</span></code>, the splice tables and <code class="docutils literal notranslate"><span class="pre">scope_ids</span></code> columns; applied to reference and query genes alike. Every sequence must exist in the genome FASTA (or in an annotation without <code class="docutils literal notranslate"><span class="pre">--genome</span></code>) and inside <code class="docutils literal notranslate"><span class="pre">--region</span></code>/<code class="docutils literal notranslate"><span class="pre">--regions-file</span></code>. Repeatable.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--analysis-scopes-file</span></code></p></td>
+<td><p>TSV with columns <code class="docutils literal notranslate"><span class="pre">scope_id</span></code> and <code class="docutils literal notranslate"><span class="pre">sequence</span></code> (one row per sequence), same meaning</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--provenance-json</span></code></p></td>
+<td><p>JSON object copied verbatim into the manifest (<code class="docutils literal notranslate"><span class="pre">provenance</span></code>), e.g. the original path of a renamed input or a run label. Never interpreted.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--export-evaluated-models</span> <span class="pre">{ids,full}</span></code></p></td>
+<td><p>content of <code class="docutils literal notranslate"><span class="pre">evaluated_transcripts.tsv.gz</span></code>: <code class="docutils literal notranslate"><span class="pre">ids</span></code> (default) or <code class="docutils literal notranslate"><span class="pre">full</span></code>, which adds one-based exon and CDS segments</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>Seqname map direction.</strong> Column 1 is the name used in an annotation file and column
+2 is the name to compare under (normally the FASTA header), e.g. <code class="docutils literal notranslate"><span class="pre">Pf3D7_01_v3	1</span></code>. The
+same map is applied to both annotations. Unlisted names are left unchanged. A header
+row (<code class="docutils literal notranslate"><span class="pre">from_seqname	to_seqname</span></code>) and <code class="docutils literal notranslate"><span class="pre">#</span></code> comments are allowed. A map that merges two
+sequences into one name is rejected. If the reference and query share no sequence
+name after mapping, the command stops rather than reporting every gene as Missed.</p>
+</section>
+<section id="outputs">
+<h3>Outputs<a class="headerlink" href="#outputs" title="Link to this heading">¶</a></h3>
+<div class="table-wrapper colwidths-auto docutils container">
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>file</p></th>
+<th class="head"><p>content</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">comparison_summary.json</span></code> / <code class="docutils literal notranslate"><span class="pre">.tsv</span></code></p></td>
+<td><p>headline metrics (below)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">comparison_details.tsv</span></code></p></td>
+<td><p>one row per reference gene and per query gene. <code class="docutils literal notranslate"><span class="pre">source</span></code> is <code class="docutils literal notranslate"><span class="pre">reference</span></code> or <code class="docutils literal notranslate"><span class="pre">consensus</span></code>. Coordinates are one-based inclusive.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">consensus_transcript_labels.tsv</span></code></p></td>
+<td><p>one row per query transcript: Matched / Strand_Mismatch / Novel, plus the best CDS reference transcript and <code class="docutils literal notranslate"><span class="pre">novel_category</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">gene_splits.tsv</span></code> / <code class="docutils literal notranslate"><span class="pre">gene_merges.tsv</span></code></p></td>
+<td><p>reference genes with ≥ 2 query counterparts / query genes with ≥ 2 reference counterparts, with counterpart IDs and one-based loci</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cds_exact_one_to_one_pairs.tsv</span></code></p></td>
+<td><p>the gene pairs of the one-to-one exact-CDS matching (columns below)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">stop_codon_harmonisation.tsv</span></code></p></td>
+<td><p>only with <code class="docutils literal notranslate"><span class="pre">--add-stop-codon</span></code>: one row per query transcript with CDS (status, reason, genetic code, codons, original/new terminal CDS, one-based)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">query_evaluated.stop_harmonised.gtf</span></code></p></td>
+<td><p>only with <code class="docutils literal notranslate"><span class="pre">--add-stop-codon</span></code>: the query exactly as compared (after harmonisation, transcript selection and regions), for plots and browsers</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">reference_filter_audit.json</span></code> / <code class="docutils literal notranslate"><span class="pre">.tsv</span></code></p></td>
+<td><p>reference counts before and after filtering, biotypes, excluded sequences</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">evidence_attribution_labeled.tsv</span></code></p></td>
+<td><p>only with <code class="docutils literal notranslate"><span class="pre">--evidence-attribution</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">comparison_manifest.json</span></code></p></td>
+<td><p>query/reference/genome/map paths <strong>with SHA-256</strong> and compression, all options, parse diagnostics, seqname checks, code version and implementation fingerprint, and the GMB finalise manifest and build directory when the query is a GMB output (<code class="docutils literal notranslate"><span class="pre">query_matches_manifest</span></code> confirms the checksum)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">metrics.tsv</span></code></p></td>
+<td><p>contract 1.0: the canonical metric table, one row per (scope, metric) with numerator, denominator, value and availability</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">evaluated_transcripts.tsv.gz</span></code></p></td>
+<td><p>contract 1.0: every parsed reference and query transcript, evaluated or excluded (with the reason), and how it was selected</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">per_sequence.tsv</span></code></p></td>
+<td><p>contract 1.0: per-sequence gene counts, recovered and exact genes, one-to-one TP</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">splice_sites_by_position.tsv</span></code>, <code class="docutils literal notranslate"><span class="pre">cds_introns_by_length.tsv</span></code></p></td>
+<td><p>contract 1.0, only when the reference selection keeps one transcript per gene: splice-site and intron recovery by position and intron length</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>File and key names are kept from <code class="docutils literal notranslate"><span class="pre">gmb-compare</span></code> so existing consumers keep working. In
+them, <strong>“consensus” always means the query annotation</strong> (<code class="docutils literal notranslate"><span class="pre">total_consensus_genes</span></code>,
+<code class="docutils literal notranslate"><span class="pre">consensus_classification</span></code>, <code class="docutils literal notranslate"><span class="pre">novel_consensus_count</span></code>,
+<code class="docutils literal notranslate"><span class="pre">consensus_transcript_labels.tsv</span></code>).</p>
+</section>
+<section id="output-contract-version-1-0">
+<h3>Output contract (version 1.0)<a class="headerlink" href="#output-contract-version-1-0" title="Link to this heading">¶</a></h3>
+<p>Every comparison directory is self-describing. <code class="docutils literal notranslate"><span class="pre">comparison_manifest.json</span></code> holds
+<code class="docutils literal notranslate"><span class="pre">contract_id</span></code> (<code class="docutils literal notranslate"><span class="pre">annotation-qc.pairwise-compare</span></code>), <code class="docutils literal notranslate"><span class="pre">contract_version</span></code> (<code class="docutils literal notranslate"><span class="pre">1.0</span></code>),
+<code class="docutils literal notranslate"><span class="pre">definition_version</span></code> (<code class="docutils literal notranslate"><span class="pre">2026-10.1</span></code>), and <code class="docutils literal notranslate"><span class="pre">outputs</span></code>: every file written, with SHA-256, size,
+data rows and schema id. The two versions are independent:</p>
+<ul class="simple">
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">contract_version</span></code> is the output schema version</strong>: which files, columns and metric ids
+exist and what each column and metric id denotes (population, numerator and denominator
+ids, unit). <strong>Minor</strong> versions only add files, columns or metric ids; readers must ignore
+what they do not know and read columns by name. A <strong>major</strong> version removes or renames a
+file, column or metric id, or changes what a metric id counts, its denominator population
+or its unit.</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">definition_version</span></code> is the scientific behaviour version</strong>: how the values within that
+schema are produced (parsing, locus pairing, pair ranking, thresholds, transcript
+selection). It changes whenever a change can alter any value for some input, even when
+the schema is unchanged. Example: <code class="docutils literal notranslate"><span class="pre">2026-10.1</span></code> changed how locus partners are found
+(pairing spans, see “Compatibility”) without changing any file, column, metric id,
+population or unit, so the contract stayed <code class="docutils literal notranslate"><span class="pre">1.0</span></code>.</p></li>
+<li><p><strong>Comparing results:</strong> only when <code class="docutils literal notranslate"><span class="pre">contract_id</span></code>, the major <code class="docutils literal notranslate"><span class="pre">contract_version</span></code> and
+<code class="docutils literal notranslate"><span class="pre">definition_version</span></code> all match. Results of an earlier <code class="docutils literal notranslate"><span class="pre">definition_version</span></code> stay valid
+results of that definition; they are not relabelled.</p></li>
+<li><p><strong>Outputs without <code class="docutils literal notranslate"><span class="pre">contract_version</span></code></strong> were written before this contract (see
+“Compatibility” below).</p></li>
+</ul>
+<p><strong><code class="docutils literal notranslate"><span class="pre">metrics.tsv</span></code></strong> is the canonical source for every displayed number. Columns:</p>
+<div class="table-wrapper colwidths-auto docutils container">
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>column</p></th>
+<th class="head"><p>meaning</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">scope_id</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">all</span></code> (every compared sequence) or an <code class="docutils literal notranslate"><span class="pre">--analysis-scope</span></code> id</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">metric_id</span></code></p></td>
+<td><p>stable id; definitions are in the manifest (<code class="docutils literal notranslate"><span class="pre">metric_definitions</span></code>) and in <code class="docutils literal notranslate"><span class="pre">metrics/pairwise/contract.py</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">numerator</span></code>, <code class="docutils literal notranslate"><span class="pre">denominator</span></code></p></td>
+<td><p>integer counts; the denominator is empty for count-only metrics</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">value</span></code></p></td>
+<td><p>count-only metrics: the count; ratios: <code class="docutils literal notranslate"><span class="pre">numerator</span> <span class="pre">/</span> <span class="pre">denominator</span></code>, unrounded (F1: <code class="docutils literal notranslate"><span class="pre">2TP</span> <span class="pre">/</span> <span class="pre">(R</span> <span class="pre">+</span> <span class="pre">Q)</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">status</span></code>, <code class="docutils literal notranslate"><span class="pre">reason</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">ok</span></code>; <code class="docutils literal notranslate"><span class="pre">undefined</span></code> (<code class="docutils literal notranslate"><span class="pre">zero_denominator</span></code>); <code class="docutils literal notranslate"><span class="pre">not_applicable</span></code> (<code class="docutils literal notranslate"><span class="pre">transformation_not_applied</span></code>, <code class="docutils literal notranslate"><span class="pre">selection_not_canonical</span></code>). <code class="docutils literal notranslate"><span class="pre">NA</span></code> value whenever the status is not <code class="docutils literal notranslate"><span class="pre">ok</span></code>. <strong>A missing metric is never written as 0.</strong></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">numerator_id</span></code>, <code class="docutils literal notranslate"><span class="pre">denominator_id</span></code></p></td>
+<td><p>the populations: <code class="docutils literal notranslate"><span class="pre">R</span></code>, <code class="docutils literal notranslate"><span class="pre">R_cds</span></code>, <code class="docutils literal notranslate"><span class="pre">R_multi_cds</span></code>, <code class="docutils literal notranslate"><span class="pre">R_single_cds</span></code>, <code class="docutils literal notranslate"><span class="pre">R_multi_exon</span></code>, <code class="docutils literal notranslate"><span class="pre">Q</span></code>, <code class="docutils literal notranslate"><span class="pre">R_plus_Q</span></code>, <code class="docutils literal notranslate"><span class="pre">*_unique_*_introns</span></code>, <code class="docutils literal notranslate"><span class="pre">query_transcripts_with_cds</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">unit</span></code>, <code class="docutils literal notranslate"><span class="pre">side</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">genes</span></code>, <code class="docutils literal notranslate"><span class="pre">transcripts</span></code>, <code class="docutils literal notranslate"><span class="pre">gene_pairs</span></code>, <code class="docutils literal notranslate"><span class="pre">unique_introns</span></code>, <code class="docutils literal notranslate"><span class="pre">rate</span></code>, <code class="docutils literal notranslate"><span class="pre">score</span></code>; <code class="docutils literal notranslate"><span class="pre">reference</span></code>, <code class="docutils literal notranslate"><span class="pre">query</span></code> or <code class="docutils literal notranslate"><span class="pre">both</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>R and Q are the evaluated reference and query genes in the scope (after evaluation mode,
+biotype filters, transcript selection, <code class="docutils literal notranslate"><span class="pre">--genome-mismatch</span> <span class="pre">exclude</span></code> and regions).</p>
+<div class="table-wrapper colwidths-auto docutils container">
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p><code class="docutils literal notranslate"><span class="pre">metric_id</span></code></p></th>
+<th class="head"><p>numerator / denominator</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">locus_recovery_cds_overlap</span></code></p></td>
+<td><p>reference genes sharing ≥ 1 CDS base with a transcript of a same-strand locus partner (overlapping pairing spans) / R</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cds_coordinate_exact_reference</span></code>, <code class="docutils literal notranslate"><span class="pre">cds_coordinate_exact_query</span></code></p></td>
+<td><p>genes whose best CDS pair has identical CDS intervals / R, Q</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">exact_cds_one_to_one_tp</span></code>, <code class="docutils literal notranslate"><span class="pre">_recall</span></code>, <code class="docutils literal notranslate"><span class="pre">_precision</span></code>, <code class="docutils literal notranslate"><span class="pre">_f1</span></code></p></td>
+<td><p>maximum one-to-one matching of identical-CDS genes: TP; TP / R; TP / Q; 2TP / (R + Q)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">exact_cds_gene_pairs</span></code>, <code class="docutils literal notranslate"><span class="pre">exact_cds_{reference,query}_with_candidate_unmatched</span></code></p></td>
+<td><p>identical-CDS gene pairs (edges of the matching graph, any transcript pair); genes with such a partner but not in the matching. The graph does not use spans. Since definition <code class="docutils literal notranslate"><span class="pre">2026-10.1</span></code> the pairing span covers every evaluated transcript, so a gene’s identical-CDS partners are always among its locus partners and the candidate counts equal the coordinate-exact flags; <code class="docutils literal notranslate"><span class="pre">comparison_summary.json</span></code> → <code class="docutils literal notranslate"><span class="pre">gene_span_checks.&lt;role&gt;.transcripts_outside</span></code> counts transcripts beyond their gene record</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cds_intron_chain_best_pair</span></code>, <code class="docutils literal notranslate"><span class="pre">cds_intron_chain_any_pair</span></code></p></td>
+<td><p>multi-CDS-segment genes with an identical CDS intron chain in the best CDS pair / in any pair / R_multi_cds</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">exon_intron_chain_best_pair</span></code>, <code class="docutils literal notranslate"><span class="pre">exon_intron_chain_any_pair</span></code></p></td>
+<td><p>the same for exons / R_multi_exon</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ref_unique_{cds,exon}_introns_recovered</span></code>, <code class="docutils literal notranslate"><span class="pre">query_unique_{cds,exon}_introns_supported</span></code></p></td>
+<td><p>shared unique introns / reference, query unique introns</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cds_outcome_{exact,terminal_diff,diff_chain,partial_lt08,span_only,strand_mismatch,missed}</span></code></p></td>
+<td><p>one mutually exclusive CDS outcome per reference gene / R (they sum to R)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">partial_cds</span></code>, <code class="docutils literal notranslate"><span class="pre">cds_coordinate_exact_reference_{multi,single}_cds</span></code>, <code class="docutils literal notranslate"><span class="pre">cds_structural_exact_match</span></code></p></td>
+<td><p>CDS structure detail</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">locus_detection_gene_span</span></code>, <code class="docutils literal notranslate"><span class="pre">locus_detection_exonic</span></code>, <code class="docutils literal notranslate"><span class="pre">span_only_detection</span></code>, <code class="docutils literal notranslate"><span class="pre">detected_without_cds_overlap</span></code>, <code class="docutils literal notranslate"><span class="pre">ref_genes_without_cds_overlap</span></code>, <code class="docutils literal notranslate"><span class="pre">missed_reference_genes</span></code>, <code class="docutils literal notranslate"><span class="pre">strand_mismatch_reference</span></code></p></td>
+<td><p>reference loci / R</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">query_matched</span></code>, <code class="docutils literal notranslate"><span class="pre">query_matched_without_cds_overlap</span></code>, <code class="docutils literal notranslate"><span class="pre">query_novel</span></code>, <code class="docutils literal notranslate"><span class="pre">query_novel_&lt;category&gt;</span></code>, <code class="docutils literal notranslate"><span class="pre">strand_mismatch_query</span></code></p></td>
+<td><p>query genes / Q</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">split_reference_genes</span></code>, <code class="docutils literal notranslate"><span class="pre">split_query_genes_involved</span></code>, <code class="docutils literal notranslate"><span class="pre">merge_query_genes</span></code>, <code class="docutils literal notranslate"><span class="pre">merge_reference_genes_involved</span></code>, <code class="docutils literal notranslate"><span class="pre">one_counterpart_reference_genes</span></code></p></td>
+<td><p>counterparts (≥ 10 % shared CDS)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">exon_coordinate_exact_reference</span></code>, <code class="docutils literal notranslate"><span class="pre">exon_structural_exact_match</span></code></p></td>
+<td><p>UTR-inclusive agreement / R</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">reference_genes</span></code>, <code class="docutils literal notranslate"><span class="pre">reference_genes_with_cds</span></code>, <code class="docutils literal notranslate"><span class="pre">reference_multi_cds_genes</span></code>, <code class="docutils literal notranslate"><span class="pre">reference_multi_exon_genes</span></code>, <code class="docutils literal notranslate"><span class="pre">query_genes</span></code>, <code class="docutils literal notranslate"><span class="pre">query_genes_with_cds</span></code>, <code class="docutils literal notranslate"><span class="pre">*_transcripts_evaluated</span></code></p></td>
+<td><p>populations</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">reference_canonical_fallback_genes</span></code></p></td>
+<td><p>genes scored on the longest-CDS fallback under canonical selection / R (<code class="docutils literal notranslate"><span class="pre">not_applicable</span></code> otherwise)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">stop_codon_transcripts_with_cds</span></code>, <code class="docutils literal notranslate"><span class="pre">_eligible</span></code>, <code class="docutils literal notranslate"><span class="pre">_extended</span></code>, <code class="docutils literal notranslate"><span class="pre">_unchanged</span></code>, <code class="docutils literal notranslate"><span class="pre">_skipped</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">--add-stop-codon</span></code> audit (<code class="docutils literal notranslate"><span class="pre">not_applicable</span></code> without it)</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>Scopes.</strong> Classification runs once; <code class="docutils literal notranslate"><span class="pre">--analysis-scope</span></code> subsets are then reported for
+every metric. Locus pairing, exact-CDS edges, counterparts and introns never join two
+sequences, so a scope’s values equal those of a run restricted to its sequences with
+<code class="docutils literal notranslate"><span class="pre">--region</span></code> (tested), and count metrics of disjoint scopes add up.</p>
+<p><strong><code class="docutils literal notranslate"><span class="pre">comparison_details.tsv</span></code> (appended columns).</strong> The 26 earlier columns are unchanged.
+Contract 1.0 appends:</p>
+<ul class="simple">
+<li><p><strong>Gene description:</strong> <code class="docutils literal notranslate"><span class="pre">gene_biotype</span></code>, <code class="docutils literal notranslate"><span class="pre">evaluated_transcript_count</span></code>, <code class="docutils literal notranslate"><span class="pre">max_exon_count</span></code>,
+<code class="docutils literal notranslate"><span class="pre">max_cds_count</span></code>, <code class="docutils literal notranslate"><span class="pre">has_cds</span></code>.</p></li>
+<li><p><strong>Exact CDS overlap:</strong> <code class="docutils literal notranslate"><span class="pre">cds_shared_bases</span></code> (the integer behind the rounded <code class="docutils literal notranslate"><span class="pre">cds_overlap</span></code>)
+and <code class="docutils literal notranslate"><span class="pre">cds_locus_recovered</span></code>.</p></li>
+<li><p><strong>Outcome and matching:</strong> <code class="docutils literal notranslate"><span class="pre">cds_outcome</span></code> (reference rows) and <code class="docutils literal notranslate"><span class="pre">one_to_one_partner</span></code>.</p></li>
+<li><p><strong>Any-pair intron chains:</strong> <code class="docutils literal notranslate"><span class="pre">cds_intron_chain_any_pair</span></code> and <code class="docutils literal notranslate"><span class="pre">intron_chain_any_pair</span></code>
+(<code class="docutils literal notranslate"><span class="pre">NA</span></code> without an intron).</p></li>
+<li><p><strong>Best-CDS-pair differences</strong>, from the query’s point of view on both sides:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">cds_start_diff_bp</span></code>, <code class="docutils literal notranslate"><span class="pre">cds_stop_diff_bp</span></code>: &gt; 0 means the query CDS extends further at
+that end, in the direction of transcription;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cds_introns_missing</span></code>: reference introns absent from the query transcript;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cds_introns_extra</span></code>: query introns absent from the reference transcript;</p></li>
+<li><p>all four are <code class="docutils literal notranslate"><span class="pre">NA</span></code> without a best CDS pair.</p></li>
+</ul>
+</li>
+<li><p><strong>Scope:</strong> <code class="docutils literal notranslate"><span class="pre">scope_ids</span></code>.</p></li>
+</ul>
+<p><strong><code class="docutils literal notranslate"><span class="pre">evaluated_transcripts.tsv.gz</span></code></strong> has one row for every transcript parsed from either
+file.</p>
+<div class="table-wrapper colwidths-auto docutils container">
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>column</p></th>
+<th class="head"><p>meaning</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">role</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">reference</span></code> or <code class="docutils literal notranslate"><span class="pre">query</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">gene_id</span></code>, <code class="docutils literal notranslate"><span class="pre">transcript_id</span></code></p></td>
+<td><p>comparison IDs (<code class="docutils literal notranslate"><span class="pre">seqname:id</span></code> when the file reuses an ID on several sequences; unique in the file)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">original_gene_id</span></code>, <code class="docutils literal notranslate"><span class="pre">original_transcript_id</span></code></p></td>
+<td><p>IDs as written in the file</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">chrom</span></code>, <code class="docutils literal notranslate"><span class="pre">source_seqname</span></code>, <code class="docutils literal notranslate"><span class="pre">strand</span></code>, <code class="docutils literal notranslate"><span class="pre">start</span></code>, <code class="docutils literal notranslate"><span class="pre">end</span></code></p></td>
+<td><p>comparison sequence (after <code class="docutils literal notranslate"><span class="pre">--seqname-map</span></code>), sequence as written, strand, one-based transcript span (after any transformation)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">gene_biotype</span></code>, <code class="docutils literal notranslate"><span class="pre">transcript_biotype</span></code>, <code class="docutils literal notranslate"><span class="pre">source_feature</span></code>, <code class="docutils literal notranslate"><span class="pre">record_origin</span></code>, <code class="docutils literal notranslate"><span class="pre">canonical_tag</span></code></p></td>
+<td><p>as parsed; <code class="docutils literal notranslate"><span class="pre">record_origin</span></code> <code class="docutils literal notranslate"><span class="pre">inferred</span></code> for records built by the parser (CDS-only files)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">selection</span></code>, <code class="docutils literal notranslate"><span class="pre">status</span></code>, <code class="docutils literal notranslate"><span class="pre">exclusion_reason</span></code>, <code class="docutils literal notranslate"><span class="pre">selected_by</span></code></p></td>
+<td><p>the selection option for this role; <code class="docutils literal notranslate"><span class="pre">evaluated</span></code> or <code class="docutils literal notranslate"><span class="pre">excluded</span></code>; first step that removed it (<code class="docutils literal notranslate"><span class="pre">excluded_seqname</span></code>, <code class="docutils literal notranslate"><span class="pre">evaluation_mode:&lt;mode&gt;</span></code>, <code class="docutils literal notranslate"><span class="pre">gene_biotype_filter</span></code>, <code class="docutils literal notranslate"><span class="pre">transcript_biotype_filter</span></code>, <code class="docutils literal notranslate"><span class="pre">not_selected:&lt;selection&gt;</span></code>, <code class="docutils literal notranslate"><span class="pre">outside_regions</span></code>, <code class="docutils literal notranslate"><span class="pre">no_exon_records</span></code>); how an evaluated transcript was chosen (<code class="docutils literal notranslate"><span class="pre">all</span></code>, <code class="docutils literal notranslate"><span class="pre">longest_cds</span></code>, <code class="docutils literal notranslate"><span class="pre">longest_exon_length</span></code>, <code class="docutils literal notranslate"><span class="pre">canonical_tag</span></code>, <code class="docutils literal notranslate"><span class="pre">canonical_fallback_longest_cds</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">exon_count</span></code>, <code class="docutils literal notranslate"><span class="pre">cds_segment_count</span></code>, <code class="docutils literal notranslate"><span class="pre">cds_length</span></code></p></td>
+<td><p>after any transformation</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">transformed</span></code>, <code class="docutils literal notranslate"><span class="pre">transformation_audit</span></code></p></td>
+<td><p>e.g. <code class="docutils literal notranslate"><span class="pre">stop_codon_added</span></code> and the audit file (<code class="docutils literal notranslate"><span class="pre">stop_codon_harmonisation.tsv</span></code>) holding the old and new coordinates</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">input</span></code>, <code class="docutils literal notranslate"><span class="pre">input_sha256</span></code></p></td>
+<td><p>which manifest input the row comes from, and its checksum</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">scope_ids</span></code></p></td>
+<td><p>analysis scopes containing <code class="docutils literal notranslate"><span class="pre">chrom</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">exon_segments</span></code>, <code class="docutils literal notranslate"><span class="pre">cds_segments</span></code></p></td>
+<td><p>only with <code class="docutils literal notranslate"><span class="pre">--export-evaluated-models</span> <span class="pre">full</span></code>: one-based <code class="docutils literal notranslate"><span class="pre">start-end,…</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>Rebuilding the evaluated models.</strong> Consumers can rebuild exactly the models that were
+compared, without selecting transcripts again (tested):</p>
+<ol class="arabic simple">
+<li><p>Check the input’s SHA-256 against <code class="docutils literal notranslate"><span class="pre">input_sha256</span></code>.</p></li>
+<li><p>Parse it with the comparator’s parser (<code class="docutils literal notranslate"><span class="pre">parse_annotation_for_comparison</span></code>).</p></li>
+<li><p>Keep the rows of the <code class="docutils literal notranslate"><span class="pre">evaluated</span></code> transcripts (and their genes).</p></li>
+<li><p>For transcripts with <code class="docutils literal notranslate"><span class="pre">transformed</span></code> set, take the new terminal CDS coordinates from the
+audit. With <code class="docutils literal notranslate"><span class="pre">--add-stop-codon</span></code>, <code class="docutils literal notranslate"><span class="pre">query_evaluated.stop_harmonised.gtf</span></code> is also written.</p></li>
+</ol>
+<p><code class="docutils literal notranslate"><span class="pre">exon_count</span></code>, <code class="docutils literal notranslate"><span class="pre">cds_segment_count</span></code> and <code class="docutils literal notranslate"><span class="pre">cds_length</span></code> let a consumer verify the result.</p>
+<p><strong>Splice tables.</strong> Written only when the reference selection keeps one transcript per gene
+(<code class="docutils literal notranslate"><span class="pre">longest_cds</span></code>, <code class="docutils literal notranslate"><span class="pre">canonical</span></code>); otherwise the manifest’s <code class="docutils literal notranslate"><span class="pre">analyses.splice_position_length</span></code>
+is <code class="docutils literal notranslate"><span class="pre">not_applicable</span></code> (<code class="docutils literal notranslate"><span class="pre">requires_one_reference_transcript_per_gene</span></code>). Every reference CDS
+intron of the selected transcript is binned:</p>
+<ul class="simple">
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">splice_sites_by_position.tsv</span></code></strong>: by position along the CDS, 10 bins, in two
+coordinate systems (genomic CDS span or coding bases), for all introns and for introns
+≥ 60 bp.</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">cds_introns_by_length.tsv</span></code></strong>: by intron length, with fixed bin edges from 0 bp to
+100 kb.</p></li>
+</ul>
+<p>A site is supported when any evaluated query transcript has the identical CDS intron
+(complete intron) or the same donor/acceptor coordinate, on the same sequence and strand.
+Introns of reference genes whose locus was not recovered (<code class="docutils literal notranslate"><span class="pre">cds_locus_recovered</span></code> false) are
+counted as <code class="docutils literal notranslate"><span class="pre">missing_locus</span></code> and kept out of <code class="docutils literal notranslate"><span class="pre">assessed</span></code>/<code class="docutils literal notranslate"><span class="pre">eligible</span></code>. Rules and bins are in
+the manifest.</p>
+<p><strong>Manifest blocks added in 1.0:</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">policies</span></code>: evaluation mode, filters, selections, excluded and mapped sequence names.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">transformations</span></code>: e.g. <code class="docutils literal notranslate"><span class="pre">stop_codon_added</span></code>, with its audit file and policy.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">scope</span></code>: comparison regions and analysis scopes.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">thresholds</span></code>: 0.8 reciprocal overlap; 0.1 split/merge shared fraction.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">analyses</span></code>: availability of each analysis, with a reason when it is not applicable.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">metric_definitions</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">provenance</span></code>: verbatim from <code class="docutils literal notranslate"><span class="pre">--provenance-json</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">implementation</span></code>: <code class="docutils literal notranslate"><span class="pre">scheme</span></code>, <code class="docutils literal notranslate"><span class="pre">fingerprint</span></code> (SHA-256 over <code class="docutils literal notranslate"><span class="pre">source_files</span></code>, the SHA-256 of
+every <code class="docutils literal notranslate"><span class="pre">annotation_qc</span></code> module file the run loaded, and the pandas, pyranges1 and Python
+versions). It identifies uncommitted or installed code. Scheme
+<code class="docutils literal notranslate"><span class="pre">annotation_qc_loaded_files_by_path/2</span></code> selects modules by file location. Manifests
+without <code class="docutils literal notranslate"><span class="pre">scheme</span></code> used scheme 1, which selected them by import name and so omitted the
+modules the <code class="docutils literal notranslate"><span class="pre">annotation-qc</span></code> entry point imports under top-level names (including
+<code class="docutils literal notranslate"><span class="pre">runners/pairwise_compare.py</span></code>); identify such results by their source-file hashes or
+the wheel that produced them. Fingerprints of different schemes are not comparable.</p></li>
+</ul>
+<p><strong>Use by other consumers.</strong></p>
+<ul class="simple">
+<li><p>Read numbers from <code class="docutils literal notranslate"><span class="pre">metrics.tsv</span></code> and gene-level detail from <code class="docutils literal notranslate"><span class="pre">comparison_details.tsv</span></code>.</p></li>
+<li><p>Join on <code class="docutils literal notranslate"><span class="pre">gene_id</span></code> (reference rows: <code class="docutils literal notranslate"><span class="pre">source</span> <span class="pre">=</span> <span class="pre">reference</span></code>) or on <code class="docutils literal notranslate"><span class="pre">transcript_id</span></code> in
+<code class="docutils literal notranslate"><span class="pre">evaluated_transcripts.tsv.gz</span></code>.</p></li>
+<li><p>Show <code class="docutils literal notranslate"><span class="pre">status</span></code>/<code class="docutils literal notranslate"><span class="pre">reason</span></code> instead of a value when the status is not <code class="docutils literal notranslate"><span class="pre">ok</span></code>. Do not recompute
+ratios from rounded summary values.</p></li>
+<li><p>Compare only results with identical <code class="docutils literal notranslate"><span class="pre">policies</span></code>, <code class="docutils literal notranslate"><span class="pre">scope</span></code> and <code class="docutils literal notranslate"><span class="pre">transformations</span></code>. An
+original-coordinate run and a stop-harmonised run of the same file are different
+results.</p></li>
+</ul>
+<p><strong>Compatibility and changed behaviour in 1.0</strong> (scientific definitions are unchanged; see
+also the last item):</p>
+<ul class="simple">
+<li><p>New files and appended detail columns only. File names and existing columns and keys are
+unchanged.</p></li>
+<li><p>Undefined rates in <code class="docutils literal notranslate"><span class="pre">comparison_summary.json</span></code> are <code class="docutils literal notranslate"><span class="pre">null</span></code> (TSV: <code class="docutils literal notranslate"><span class="pre">NA</span></code>) instead of <code class="docutils literal notranslate"><span class="pre">0.0</span></code>,
+for example the intron-chain rates when no gene was evaluated and <code class="docutils literal notranslate"><span class="pre">intron_support</span></code> rates
+without introns. <code class="docutils literal notranslate"><span class="pre">sensitivity.*_rate</span></code> and <code class="docutils literal notranslate"><span class="pre">sensitivity_cds.cds_{exact,any}_match_rate</span></code>
+are always present (<code class="docutils literal notranslate"><span class="pre">null</span></code> when R = 0); they used to be omitted.</p></li>
+<li><p>Canonical selection with <strong>no</strong> <code class="docutils literal notranslate"><span class="pre">Ensembl_canonical</span></code> tag at all now stops with an error.
+It used to fall back silently to longest CDS for every gene. Partial tagging still falls
+back per gene, now labelled and counted.</p></li>
+<li><p>gzip/BGZF annotations with any suffix are parsed (they used to fail unless named <code class="docutils literal notranslate"><span class="pre">*.gz</span></code>).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">code_version.git_uncommitted_changes</span></code> now covers the whole <code class="docutils literal notranslate"><span class="pre">annotation_qc</span></code> package. It
+used to cover only <code class="docutils literal notranslate"><span class="pre">runners/</span></code>.</p></li>
+<li><p>The CDS outcome categories, multi/single-segment exact counts and splice analyses were
+computed by the dashboard branch. They are now computed here, with the same definitions,
+testing shared CDS bases on the exact integer instead of the rounded <code class="docutils literal notranslate"><span class="pre">cds_overlap</span></code>.
+<code class="docutils literal notranslate"><span class="pre">cds_coordinate_exact_reference_single_cds</span></code> divides by genes <strong>with</strong> CDS and a single
+segment (R_cds − R_multi_cds). The dashboard divided by all non-multi-segment genes, which
+differs only when R includes genes without CDS.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cds_intron_chain_any_pair</span></code> used to exist only as an independent re-implementation. It
+is now a comparator output, and the independent implementation stays a separate check.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">gene_span_checks.&lt;role&gt;.transcripts_outside</span></code> is new: transcripts whose exons extend
+beyond their gene record (reporting only).</p></li>
+<li><p><strong>Definition <code class="docutils literal notranslate"><span class="pre">2026-10.1</span></code></strong> (contract still 1.0; files, columns, metric ids and
+denominators unchanged): locus pairing uses each gene’s <strong>pairing span</strong>, the gene
+record extended to cover the exons and CDS of its evaluated transcripts, instead of the
+gene record alone. The two are identical when every transcript lies within its gene
+record, as GFF3/GTF require; <code class="docutils literal notranslate"><span class="pre">gene_span_checks.&lt;role&gt;.pairing_span_beyond_gene_record</span></code>
+(<code class="docutils literal notranslate"><span class="pre">genes</span></code>, <code class="docutils literal notranslate"><span class="pre">max_beyond_bp</span></code>, <code class="docutils literal notranslate"><span class="pre">examples</span></code>) counts the genes where they differ, and results
+of definition <code class="docutils literal notranslate"><span class="pre">2026-10</span></code> are unchanged whenever that count is 0 on both sides. Where it is
+not 0, transcripts beyond their gene record are now compared with the genes they
+overlap: pairing, classification, coordinate-exact flags, locus recovery, intron-chain
+pairs, split/merge counterparts and Novel categories can change; the one-to-one
+matching (identical-CDS graph) cannot. Reported gene coordinates remain the gene
+record’s.</p></li>
+</ul>
+</section>
+<section id="interpreting-the-metrics">
+<h3>Interpreting the metrics<a class="headerlink" href="#interpreting-the-metrics" title="Link to this heading">¶</a></h3>
+<div class="table-wrapper colwidths-auto docutils container">
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>question</p></th>
+<th class="head"><p>field(s)</p></th>
+<th class="head"><p>denominator</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>reference coding genes with an exactly reproduced CDS (start, splice sites, stop)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">sensitivity_cds.cds_coordinate_exact_count</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">total_reference_genes</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>one-to-one exact-CDS precision, recall, F1</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">cds_exact_one_to_one.precision</span></code>, <code class="docutils literal notranslate"><span class="pre">.recall</span></code>, <code class="docutils literal notranslate"><span class="pre">.f1</span></code> (TP = <code class="docutils literal notranslate"><span class="pre">.true_positives</span></code>)</p></td>
+<td><p>Q, R, R + Q</p></td>
+</tr>
+<tr class="row-even"><td><p>reference loci recovered by same-strand CDS overlap</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">cds_overlap_locus_recovery.recovered_count</span></code>, <code class="docutils literal notranslate"><span class="pre">.rate</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">total_reference_genes</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>query genes whose CDS exactly equals an eligible reference isoform</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">specificity.consensus_cds_coordinate_exact_count</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">total_consensus_genes</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>same CDS intron chain, terminal (start/stop) coordinates may differ</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">sensitivity_cds.cds_exact_match_count</span></code>; <code class="docutils literal notranslate"><span class="pre">cds_exact_match_not_coordinate_exact</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">total_reference_genes</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>CDS intron chain recovered (best pair)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">sensitivity_cds.cds_intron_chain_recovered</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">multi_segment_cds_reference_genes</span></code> (<code class="docutils literal notranslate"><span class="pre">_sensitivity</span></code>) or detected multi-segment genes (<code class="docutils literal notranslate"><span class="pre">_rate</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>unique CDS introns recovered / supported</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">intron_support.cds</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">reference_introns</span></code> / <code class="docutils literal notranslate"><span class="pre">query_introns</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>locus detected (same-strand <strong>pairing-span</strong> overlap; can rest on span contact alone)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">sensitivity.locus_detected_count</span></code>; <code class="docutils literal notranslate"><span class="pre">locus_detection_exonic</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">total_reference_genes</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>missed / unmatched predictions</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">sensitivity.missed_count</span></code>; <code class="docutils literal notranslate"><span class="pre">specificity.novel_consensus_count</span></code>, <code class="docutils literal notranslate"><span class="pre">novel_categories</span></code></p></td>
+<td><p>R / Q</p></td>
+</tr>
+<tr class="row-odd"><td><p>splits, merges, strand mismatches</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">split_merge</span></code>, <code class="docutils literal notranslate"><span class="pre">sensitivity.strand_mismatch_count</span></code>, <code class="docutils literal notranslate"><span class="pre">specificity.strand_mismatch_consensus_count</span></code></p></td>
+<td><p>counts</p></td>
+</tr>
+<tr class="row-even"><td><p>UTR-inclusive agreement</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">sensitivity.exact_match_count</span></code> (structural), <code class="docutils literal notranslate"><span class="pre">exon_coordinate_exact_count</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">total_reference_genes</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Every reference gene gets one class, and every query gene gets one class:</p>
+<div class="table-wrapper colwidths-auto docutils container">
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>class</p></th>
+<th class="head"><p>meaning</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Exact_Match</p></td>
+<td><p><em>structural</em> exact: best transcript pair has ≥ 0.8 reciprocal exonic overlap <strong>and</strong> an identical intron chain. Terminal coordinates may differ.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Structural_Mismatch</p></td>
+<td><p>≥ 0.8 reciprocal overlap, different intron chain</p></td>
+</tr>
+<tr class="row-even"><td><p>Partial_Match</p></td>
+<td><p>same-strand pairing spans overlap, but the pair is below 0.8 overlap (can be 0 exonic overlap, see below)</p></td>
+</tr>
+<tr class="row-odd"><td><p>Strand_Mismatch</p></td>
+<td><p>no same-strand partner, and an opposite-strand gene shares <strong>CDS</strong> bases (exon bases when either gene lacks CDS). <code class="docutils literal notranslate"><span class="pre">strand_mismatch_basis</span></code> says which.</p></td>
+</tr>
+<tr class="row-even"><td><p>Missed / Novel</p></td>
+<td><p>no same-strand partner and no opposite-strand feature overlap (reference / query). Opposite-strand contact through spans, introns or UTRs only is recorded as <code class="docutils literal notranslate"><span class="pre">strand_mismatch_basis</span> <span class="pre">=</span> <span class="pre">no_feature_overlap</span></code>.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>The CDS class applies the same rules to the <strong>best CDS pair</strong>, which is chosen
+independently of the best exon pair (<code class="docutils literal notranslate"><span class="pre">cds_matched_id</span></code>, <code class="docutils literal notranslate"><span class="pre">best_cds_match_transcript_id</span></code>).
+<code class="docutils literal notranslate"><span class="pre">No_CDS</span></code> means none of the gene’s transcripts has CDS. For a reference gene, CDS
+<code class="docutils literal notranslate"><span class="pre">Missed</span></code> means no query partner transcript has CDS.</p>
+<p>Coordinate-exact columns: <code class="docutils literal notranslate"><span class="pre">cds_coordinate_exact</span></code> is True only when the best CDS pair
+has identical CDS intervals, start and stop included; <code class="docutils literal notranslate"><span class="pre">exon_coordinate_exact</span></code> is the
+same for exons. CDS <code class="docutils literal notranslate"><span class="pre">Exact_Match</span></code> without <code class="docutils literal notranslate"><span class="pre">cds_coordinate_exact</span></code> usually means a
+different start codon.</p>
+<p>Novel query genes keep the <code class="docutils literal notranslate"><span class="pre">Novel</span></code> class (they never count as matches) and get a
+<code class="docutils literal notranslate"><span class="pre">novel_category</span></code> from exon overlap, on either strand, with the reference <strong>before</strong>
+mode/biotype filtering: <code class="docutils literal notranslate"><span class="pre">Overlaps_reference_pseudogene</span></code>,
+<code class="docutils literal notranslate"><span class="pre">Overlaps_other_non_protein_coding_reference</span></code>,
+<code class="docutils literal notranslate"><span class="pre">Overlaps_unevaluated_protein_coding_reference</span></code>,
+<code class="docutils literal notranslate"><span class="pre">Overlaps_evaluated_reference_opposite_strand</span></code> or <code class="docutils literal notranslate"><span class="pre">Novel_no_reference_overlap</span></code>.</p>
+<p>Splits and merges: a reference and a query gene are <em>counterparts</em> when they are
+same-strand locus partners and some transcript pair shares ≥ 10% of the shorter CDS
+(exons when either gene lacks CDS). A split is a reference gene with ≥ 2 query
+counterparts; a merge is a query gene with ≥ 2 reference counterparts.</p>
+<ul class="simple">
+<li><p><strong>Denominators.</strong> <code class="docutils literal notranslate"><span class="pre">rate_denominators</span></code> in <code class="docutils literal notranslate"><span class="pre">comparison_summary.json</span></code> lists them.
+Reference-based (sensitivity-like) rates divide by the reference genes after
+filtering (<code class="docutils literal notranslate"><span class="pre">total_reference_genes</span></code>). Query-based (precision-like) rates in
+<code class="docutils literal notranslate"><span class="pre">specificity</span></code> divide by <code class="docutils literal notranslate"><span class="pre">total_consensus_genes</span></code>. <code class="docutils literal notranslate"><span class="pre">intron_support</span></code> gives reference
+introns recovered / reference introns and query introns supported / query introns.</p></li>
+<li><p><strong>Intron chains</strong> apply only to structures with an intron. <code class="docutils literal notranslate"><span class="pre">intron_chain_match</span></code> and
+<code class="docutils literal notranslate"><span class="pre">cds_intron_chain_match</span></code> are <code class="docutils literal notranslate"><span class="pre">NA</span></code> for single-exon / single-CDS-segment structures.
+<code class="docutils literal notranslate"><span class="pre">exon_intron_chain_sensitivity</span></code> divides by all multi-exon reference genes;
+<code class="docutils literal notranslate"><span class="pre">exon_intron_chain_rate</span></code> (and <code class="docutils literal notranslate"><span class="pre">exon_intron_chain_matched</span></code>) uses detected reference
+genes whose compared transcript has an intron. The CDS keys work the same way.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">matched_consensus_count</span></code> is the number of query genes with a same-strand reference
+partner (Exact/Partial/Structural/Matched), each counted once.</p></li>
+<li><p><strong>CDS coordinate-exact</strong> is the strictest measure of coding accuracy. <strong>Exact_Match</strong>
+also requires UTR extent to agree, so it drops when the reference has longer UTRs
+than the query.</p></li>
+<li><p><strong>Locus detection</strong> counts Exact + Structural + Partial. Pairing uses pairing spans
+(the gene record, extended over any evaluated transcript lying beyond it), so a
+query gene wider than its transcripts can “detect” a reference gene without sharing
+any exon with it. <code class="docutils literal notranslate"><span class="pre">locus_detection_exonic</span></code> gives the count with real exonic overlap
+and the span-only difference. <code class="docutils literal notranslate"><span class="pre">gene_span_checks</span></code> lists genes whose span extends
+beyond their exons.</p></li>
+<li><p><strong>Reference completeness and selection change the numbers.</strong> Missing or partial
+reference genes inflate Novel and deflate precision. Genes the reference doesn’t have
+count against the query. Restricting the reference (<code class="docutils literal notranslate"><span class="pre">protein_coding</span></code>, <code class="docutils literal notranslate"><span class="pre">canonical</span></code>,
+<code class="docutils literal notranslate"><span class="pre">longest_cds</span></code>) changes the denominator and which transcripts can match exactly. With
+all reference isoforms, the query only needs to reproduce one of them per gene.</p></li>
+</ul>
+</section>
+<section id="one-to-one-exact-cds-f1-and-locus-recovery">
+<h3>One-to-one exact-CDS F1 and locus recovery<a class="headerlink" href="#one-to-one-exact-cds-f1-and-locus-recovery" title="Link to this heading">¶</a></h3>
+<p><strong>Populations.</strong> R = <code class="docutils literal notranslate"><span class="pre">total_reference_genes</span></code> and Q = <code class="docutils literal notranslate"><span class="pre">total_consensus_genes</span></code>: every gene
+left after the evaluation mode, biotype filters, <code class="docutils literal notranslate"><span class="pre">--*-transcript-selection</span></code> and
+<code class="docutils literal notranslate"><span class="pre">--region</span></code>/<code class="docutils literal notranslate"><span class="pre">--regions-file</span></code> scope (and <code class="docutils literal notranslate"><span class="pre">--genome-mismatch</span> <span class="pre">exclude</span></code>). Genes without a
+comparable CDS (no transcript with exons and CDS, e.g. a query lncRNA) stay in R and Q.
+They cannot be matched and count as unmatched, so a predictor’s non-coding genes lower
+its precision.</p>
+<p><strong>Exact-CDS graph.</strong> A transcript’s CDS signature is (sequence, strand, all CDS segment
+coordinates), compared exactly as parsed. Reference gene <em>r</em> and query gene <em>q</em> are joined
+when some selected transcript of <em>r</em> and some transcript of <em>q</em> have the same signature.
+Transcripts without CDS have no signature. Every transcript is considered, not only the
+best pairs reported in <code class="docutils literal notranslate"><span class="pre">comparison_details.tsv</span></code>.</p>
+<p><strong>Matching and metrics.</strong> A maximum-cardinality bipartite matching (Kuhn’s augmenting
+paths) uses each reference and each query gene at most once:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>TP        = number of matched gene pairs
+precision = TP / Q
+recall    = TP / R
+F1        = 2·TP / (R + Q)            (= harmonic mean of precision and recall)
+unmatched_reference_genes = R − TP,   unmatched_query_genes = Q − TP
+</pre></div>
+</div>
+<p>A value whose denominator is 0 is <code class="docutils literal notranslate"><span class="pre">null</span></code> in JSON and <code class="docutils literal notranslate"><span class="pre">NA</span></code> in the TSV, not 0. The block also
+records how many genes have any exact candidate, the number of edges, and the number of
+connected components with more than one edge.</p>
+<p><strong>Example with competing exact matches.</strong> Reference gene R1 has isoforms with CDS X and Y,
+reference gene R2 has CDS X, query gene Q1 has CDS X and query gene Q2 has CDS Y. The
+edges are R1–Q1, R1–Q2 and R2–Q1.</p>
+<ul class="simple">
+<li><p>Per gene, all four genes are coordinate-exact (<code class="docutils literal notranslate"><span class="pre">cds_coordinate_exact_count</span></code> = 2,
+<code class="docutils literal notranslate"><span class="pre">consensus_cds_coordinate_exact_count</span></code> = 2).</p></li>
+<li><p>Both reference genes’ best CDS pair names Q1, so deduplicating best pairs gives TP = 1,
+as does a greedy first-come pairing.</p></li>
+<li><p>The maximum matching is R1–Q2 and R2–Q1: TP = 2, precision = recall = F1 = 1.</p></li>
+</ul>
+<p>If instead R1 and R2 had the same CDS and the query had a single gene Q with that CDS,
+both reference genes would be coordinate-exact, but TP = 1: recall 0.5, precision 1.0,
+F1 = 2·1/(2+1) = 0.667. This is why the historical per-gene counts can exceed TP: identical
+models annotated in several genes (duplicated reference genes, or a predictor emitting
+the same model twice).</p>
+<p><strong>Pairs file</strong> (<code class="docutils literal notranslate"><span class="pre">cds_exact_one_to_one_pairs.tsv</span></code>, one row per TP, coordinates one-based):</p>
+<div class="table-wrapper colwidths-auto docutils container">
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>column</p></th>
+<th class="head"><p>meaning</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">reference_gene_id</span></code>, <code class="docutils literal notranslate"><span class="pre">query_gene_id</span></code></p></td>
+<td><p>comparison IDs (<code class="docutils literal notranslate"><span class="pre">seqname:id</span></code> when namespaced)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">reference_original_gene_id</span></code>, <code class="docutils literal notranslate"><span class="pre">query_original_gene_id</span></code></p></td>
+<td><p>IDs as written in the files</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">chrom</span></code>, <code class="docutils literal notranslate"><span class="pre">strand</span></code></p></td>
+<td><p>shared sequence and strand</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">reference_start</span></code>/<code class="docutils literal notranslate"><span class="pre">_end</span></code>, <code class="docutils literal notranslate"><span class="pre">query_start</span></code>/<code class="docutils literal notranslate"><span class="pre">_end</span></code></p></td>
+<td><p>gene spans</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cds_start</span></code>, <code class="docutils literal notranslate"><span class="pre">cds_end</span></code>, <code class="docutils literal notranslate"><span class="pre">cds_segments</span></code></p></td>
+<td><p>span and segment count of the shared CDS (the lowest one if several)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">shared_cds_signatures</span></code></p></td>
+<td><p>number of distinct identical CDS between the two genes</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">supporting_reference_transcript_ids</span></code>, <code class="docutils literal notranslate"><span class="pre">supporting_query_transcript_ids</span></code></p></td>
+<td><p>every transcript of each gene with one of those CDS</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">reference_exact_candidates</span></code>, <code class="docutils literal notranslate"><span class="pre">query_exact_candidates</span></code></p></td>
+<td><p>number of exact partners each gene has</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">component_reference_genes</span></code>, <code class="docutils literal notranslate"><span class="pre">component_query_genes</span></code></p></td>
+<td><p>size of the connected component</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>Ties.</strong> The matching is deterministic. Reference genes are processed in
+(sequence, start, end, gene_id) order, and candidates are tried in the same order. Other
+maximum matchings with the same TP can exist wherever a component has more than one
+edge (<code class="docutils literal notranslate"><span class="pre">component_*_genes</span></code> &gt; 1). They can pair different genes but never change TP,
+precision, recall or F1.</p>
+<p><strong>CDS-overlap locus recovery.</strong> <code class="docutils literal notranslate"><span class="pre">cds_overlap_locus_recovery.recovered_count</span></code> counts
+reference genes with a same-strand query locus partner whose transcripts share at least
+one CDS base. It equals the number of reference rows with <code class="docutils literal notranslate"><span class="pre">cds_overlap</span> <span class="pre">&gt;</span> <span class="pre">0</span></code> (the best CDS
+pair’s reciprocal overlap is &gt; 0 exactly when some pair shares a base); <code class="docutils literal notranslate"><span class="pre">rate</span></code> divides by
+R. Partners are <em>found</em> through pairing-span overlap, but a gene counts as recovered only
+when a same-strand partner transcript actually shares a CDS base, so span contact alone
+never counts. <code class="docutils literal notranslate"><span class="pre">gene_span_detected_without_cds_overlap</span></code> counts genes that span-based
+detection (<code class="docutils literal notranslate"><span class="pre">sensitivity.locus_detected_count</span></code>) finds without any shared CDS. Limitations:</p>
+<ul class="simple">
+<li><p>Before definition <code class="docutils literal notranslate"><span class="pre">2026-10.1</span></code>, partners were found through gene-record overlap only, so a
+gene line that did not cover its own CDS could miss a CDS overlap; pairing spans now
+cover every evaluated transcript.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">comparison_details.tsv</span></code> rounds <code class="docutils literal notranslate"><span class="pre">cds_overlap</span></code> to 4 decimals. A one-base overlap between
+very long CDS can print as <code class="docutils literal notranslate"><span class="pre">0.0</span></code>. Use <code class="docutils literal notranslate"><span class="pre">cds_shared_bases</span></code> / <code class="docutils literal notranslate"><span class="pre">cds_locus_recovered</span></code>
+(contract 1.0), which are exact; the summary count uses the unrounded value.</p></li>
+</ul>
+<p><strong>Three different questions.</strong></p>
+<div class="table-wrapper colwidths-auto docutils container">
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>metric</p></th>
+<th class="head"><p>asks</p></th>
+<th class="head"><p>strictness</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cds_overlap_locus_recovery</span></code></p></td>
+<td><p>is the coding locus found at all?</p></td>
+<td><p>any shared CDS base, same strand</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cds_intron_chain_recovered</span></code></p></td>
+<td><p>are the CDS splice sites right?</p></td>
+<td><p>identical CDS intron chain in the best pair; start/stop may differ; multi-segment genes only</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cds_exact_one_to_one</span></code></p></td>
+<td><p>is the whole coding model right, one prediction per gene?</p></td>
+<td><p>identical CDS including start and stop; one-to-one</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>Sensitivity of these numbers.</strong></p>
+<ul class="simple">
+<li><p><strong>Reference isoform selection:</strong> with all isoforms, a query gene matches if it reproduces
+any eligible isoform. <code class="docutils literal notranslate"><span class="pre">longest_cds</span></code> or <code class="docutils literal notranslate"><span class="pre">canonical</span></code> leave one target per gene and lower
+TP. A correct alternative isoform then counts as a miss.</p></li>
+<li><p><strong>Reference completeness:</strong> missing or partial reference genes turn correct predictions
+into unmatched query genes (lower precision). Duplicated reference models cap TP below
+the per-gene exact counts.</p></li>
+<li><p><strong>Stop-codon convention:</strong> an annotation that excludes the stop codon from the CDS never
+matches one that includes it. TP, precision, recall and F1 are then near 0, while CDS
+intron chains and locus recovery are unaffected. By default the comparator does not
+harmonise this. Check it (see “CDS convention” above); <code class="docutils literal notranslate"><span class="pre">--add-stop-codon</span></code> re-runs with
+the query converted, and that run must be reported separately from the
+original-coordinate run.</p></li>
+</ul>
+</section>
+<section id="limitations-to-keep-in-mind">
+<h3>Limitations to keep in mind<a class="headerlink" href="#limitations-to-keep-in-mind" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><strong>Locus pairing uses spans.</strong> A same-strand pairing-span overlap pairs two genes even
+without shared exons or CDS (the pairing span is the gene record, extended over any
+evaluated transcript lying beyond it). Span contact alone counts in the legacy detection
+measures: Partial_Match / <code class="docutils literal notranslate"><span class="pre">sensitivity.locus_detected_count</span></code>
+(<code class="docutils literal notranslate"><span class="pre">locus_detection_gene_span</span></code>), <code class="docutils literal notranslate"><span class="pre">span_only_detected_count</span></code> (<code class="docutils literal notranslate"><span class="pre">span_only_detection</span></code>),
+<code class="docutils literal notranslate"><span class="pre">gene_span_detected_without_cds_overlap</span></code> (<code class="docutils literal notranslate"><span class="pre">detected_without_cds_overlap</span></code>),
+<code class="docutils literal notranslate"><span class="pre">cds_outcome_span_only</span></code>, query-side <code class="docutils literal notranslate"><span class="pre">matched_consensus_count</span></code> / Matched labels, and it
+keeps a gene out of Missed/Novel (<code class="docutils literal notranslate"><span class="pre">missed_reference_genes</span></code>, <code class="docutils literal notranslate"><span class="pre">novel_consensus_count</span></code>).
+It never counts in <code class="docutils literal notranslate"><span class="pre">cds_overlap_locus_recovery</span></code>, coordinate-exact, one-to-one or
+split/merge measures, which need shared CDS (or exon) bases. For a coding view, use
+<code class="docutils literal notranslate"><span class="pre">cds_overlap_locus_recovery</span></code>.</p></li>
+<li><p><strong>Intron chains are scored on one best pair.</strong> The best pair ranks ≥ 0.8 reciprocal
+overlap above an identical intron chain with lower overlap. A gene split into pieces, or
+matched by a longer and a shorter prediction, can report <code class="docutils literal notranslate"><span class="pre">cds_intron_chain_match</span> <span class="pre">=</span> <span class="pre">False</span></code>
+although some other pair has the identical chain. <code class="docutils literal notranslate"><span class="pre">cds_intron_chain_any_pair</span></code> (contract
+1.0) reports the pair-independent value, which is ≥ the best-pair value.</p></li>
+<li><p><strong>Best-pair intron chains depend on terminal coordinates.</strong> Pair ranking uses the 0.8
+reciprocal-overlap threshold, so a CDS change of a few bases (e.g. <code class="docutils literal notranslate"><span class="pre">--add-stop-codon</span></code>)
+can lift another reference isoform’s pair over it and change <code class="docutils literal notranslate"><span class="pre">cds_intron_chain_match</span></code>
+under <code class="docutils literal notranslate"><span class="pre">--reference-transcript-selection</span> <span class="pre">all</span></code>. Any-pair chains and unique introns do not
+move.</p></li>
+<li><p><strong>Query intron support covers the whole query in scope.</strong> Query introns at loci outside
+the evaluated reference (pseudogenes, non-coding or unevaluated genes) count as
+unsupported.</p></li>
+<li><p><strong>Exon/intron sets of the reference grow with its isoforms.</strong> With all isoforms,
+<code class="docutils literal notranslate"><span class="pre">intron_support.*.reference_introns</span></code> includes every isoform’s introns, so the
+recovered fraction falls as the reference gets richer. It is not a per-gene measure.</p></li>
+<li><p><strong>F1 is gene-level and exact-CDS only.</strong> <code class="docutils literal notranslate"><span class="pre">cds_exact_one_to_one</span></code> is the only F1. Do not
+combine <code class="docutils literal notranslate"><span class="pre">cds_coordinate_exact_count</span></code> and <code class="docutils literal notranslate"><span class="pre">consensus_cds_coordinate_exact_count</span></code> into an
+F1: they count genes independently and can both exceed the one-to-one TP. No exon-level
+(CDS segment) precision/recall is computed.</p></li>
+<li><p><strong>Splits/merges</strong> use a fixed 10 % shared-CDS threshold (not a CLI option).</p></li>
+<li><p><strong>Novel is relative to the reference.</strong> Predictions at loci the reference lacks or
+annotates as pseudogenes are Novel. <code class="docutils literal notranslate"><span class="pre">novel_category</span></code> says which, but they still lower
+query-based rates.</p></li>
+<li><p><strong>Same-strand partners take precedence.</strong> A gene with any same-strand partner is never
+Strand_Mismatch, even with opposite-strand CDS overlap.</p></li>
+</ul>
+</section>
+<section id="coordinates-and-parsing">
+<h3>Coordinates and parsing<a class="headerlink" href="#coordinates-and-parsing" title="Link to this heading">¶</a></h3>
+<p>Annotations are parsed with pyranges1 and converted once, at the parser boundary, to
+zero-based half-open intervals (<code class="docutils literal notranslate"><span class="pre">Start</span> <span class="pre">=</span> <span class="pre">GFF</span> <span class="pre">start</span> <span class="pre">−</span> <span class="pre">1</span></code>, <code class="docutils literal notranslate"><span class="pre">End</span> <span class="pre">=</span> <span class="pre">GFF</span> <span class="pre">end</span></code>). Overlap
+fractions use true lengths, and features sharing a single base count as overlapping.
+Reports convert back to one-based inclusive. Gene → transcript → exon/CDS links come
+from explicit <code class="docutils literal notranslate"><span class="pre">Parent</span></code>/<code class="docutils literal notranslate"><span class="pre">gene_id</span></code>/<code class="docutils literal notranslate"><span class="pre">transcript_id</span></code> values. Children with several parents
+are counted once per parent. Unresolvable links (orphan exons, transcripts without a
+gene, duplicate gene IDs on one sequence) stop the run. IDs reused on different
+sequences (Tiberius <code class="docutils literal notranslate"><span class="pre">g1</span></code>, <code class="docutils literal notranslate"><span class="pre">g2</span></code>, … per chromosome) are namespaced as <code class="docutils literal notranslate"><span class="pre">seqname:id</span></code>, and
+the original IDs are kept in <code class="docutils literal notranslate"><span class="pre">original_gene_id</span></code>.</p>
+</section>
+<section id="differences-from-gmb-compare">
+<h3>Differences from <code class="docutils literal notranslate"><span class="pre">gmb-compare</span></code><a class="headerlink" href="#differences-from-gmb-compare" title="Link to this heading">¶</a></h3>
+<p>Validated on P. falciparum and T. gondii GMB builds (every gene row compared):</p>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">gmb-compare</span></code> kept GFF one-based starts in half-open arithmetic, so each exon was
+1 bp short and genes sharing only their boundary base did not pair. Correcting this
+moves overlap values by at most ±0.004, reclassifies a handful of genes near the 0.8
+threshold or at touching boundaries, and never changed an Exact_Match or CDS-exact
+count in validation.</p></li>
+<li><p>When a reference gene ties between query genes with byte-identical spans, the
+earlier file record wins. <code class="docutils literal notranslate"><span class="pre">gmb-compare</span></code>’s choice there depended on an unstable sort.</p></li>
+<li><p>A sequence absent from the genome, or a feature past its end, stops the run by
+default (<code class="docutils literal notranslate"><span class="pre">--genome-mismatch</span></code>). <code class="docutils literal notranslate"><span class="pre">gmb-compare</span></code> only warned.</p></li>
+<li><p>Regions keep whole genes. <code class="docutils literal notranslate"><span class="pre">gmb-compare</span></code> cut exons at the region edge.</p></li>
+<li><p>Multi-parent exons/CDS are counted for every parent. <code class="docutils literal notranslate"><span class="pre">gmb-compare</span></code> dropped them.
+GTF files without gene/transcript lines get them inferred from their exons, and
+CDS-only transcripts get exons from their CDS lines.</p></li>
+<li><p>Audit biotype counts are integers, not strings. Plots show the reference and query
+only; evidence-track plots, <code class="docutils literal notranslate"><span class="pre">tool_performance_analysis</span></code> and <code class="docutils literal notranslate"><span class="pre">validate_annotation</span></code> are
+not ported yet.</p></li>
+<li><p>Correctness and reporting fixes from the P. falciparum Vipsania/Tiberius
+evaluation (pairing thresholds unchanged): <code class="docutils literal notranslate"><span class="pre">matched_consensus_count</span></code> no longer
+counts <code class="docutils literal notranslate"><span class="pre">Matched</span></code> query genes twice; the CDS pair is chosen independently of the exon
+pair; Strand_Mismatch needs CDS (or exon) overlap, not gene-span contact; single-exon
+intron chains are <code class="docutils literal notranslate"><span class="pre">NA</span></code> rather than a match; coordinate-exact, split/merge,
+Novel-context and query-based rates are new. The <code class="docutils literal notranslate"><span class="pre">comparison_details.tsv</span></code> columns
+up to <code class="docutils literal notranslate"><span class="pre">original_gene_id</span></code> are unchanged, and new columns are appended after it.</p></li>
+</ol>
+</section>
+</section>
+</section>
+<hr class="docutils" />
+<section id="annotation-qc-onboarding-guideline">
+<h1>Annotation QC onboarding guideline<a class="headerlink" href="#annotation-qc-onboarding-guideline" title="Link to this heading">¶</a></h1>
+<p>This guide explains how to structure code inside <code class="docutils literal notranslate"><span class="pre">annotation_qc/</span></code></p>
+<section id="core-rule">
+<h2>1. Core rule<a class="headerlink" href="#core-rule" title="Link to this heading">¶</a></h2>
+<p>The package follows a single flow:</p>
+<p><code class="docutils literal notranslate"><span class="pre">input</span> <span class="pre">file</span> <span class="pre">-&gt;</span> <span class="pre">parser</span> <span class="pre">-&gt;</span> <span class="pre">standardized</span> <span class="pre">pandas</span> <span class="pre">DataFrame</span> <span class="pre">-&gt;</span> <span class="pre">runner</span> <span class="pre">-&gt;</span> <span class="pre">metric</span> <span class="pre">functions</span> <span class="pre">-&gt;</span> <span class="pre">report</span> <span class="pre">output</span></code></p>
+<p>The important rule is:</p>
+<ul class="simple">
+<li><p><strong>parsers</strong> normalize input;</p></li>
+<li><p><strong>metrics</strong> compute QC logic;</p></li>
+<li><p><strong>runners</strong> connect everything for CLI use;</p></li>
+<li><p><strong>reports</strong> format results for export;</p></li>
+<li><p><strong>metadata</strong> provides external reference data when needed.</p></li>
+</ul>
+<p>Do not create a second annotation object model unless there is a strong reason.</p>
+</section>
+<section id="folder-responsibilities">
+<h2>2. Folder responsibilities<a class="headerlink" href="#folder-responsibilities" title="Link to this heading">¶</a></h2>
+<section id="parsers">
+<h3><code class="docutils literal notranslate"><span class="pre">parsers/</span></code><a class="headerlink" href="#parsers" title="Link to this heading">¶</a></h3>
+<p>Use this folder for code that reads files and converts them into a standard internal representation.</p>
+<p>Put here:</p>
+<ul class="simple">
+<li><p>GFF3/GTF parsing</p></li>
+<li><p>FASTA parsing</p></li>
+<li><p>DIAMOND/STAR/BUSCO/prediction TSV parsing</p></li>
+<li><p>attribute normalization</p></li>
+<li><p>ID cleanup</p></li>
+<li><p>structural normalization such as <code class="docutils literal notranslate"><span class="pre">gene_id</span></code>, <code class="docutils literal notranslate"><span class="pre">transcript_id</span></code>, <code class="docutils literal notranslate"><span class="pre">Parent</span></code>, <code class="docutils literal notranslate"><span class="pre">biotype</span></code></p></li>
+</ul>
+<p>Do not put here:</p>
+<ul class="simple">
+<li><p>QC decisions</p></li>
+<li><p>statistics calculation</p></li>
+<li><p>report writing</p></li>
+<li><p>CLI parsing</p></li>
+</ul>
+</section>
+<section id="metrics">
+<h3><code class="docutils literal notranslate"><span class="pre">metrics/</span></code><a class="headerlink" href="#metrics" title="Link to this heading">¶</a></h3>
+<p>Use this folder for pure QC calculations.</p>
+<p>Put here:</p>
+<ul class="simple">
+<li><p>feature-level metrics</p></li>
+<li><p>gene/transcript/exon summary calculations</p></li>
+<li><p>distribution checks</p></li>
+<li><p>classification logic</p></li>
+<li><p>tolerance-based scoring</p></li>
+<li><p>parity-safe refactors of old scripts</p></li>
+</ul>
+<p>Rules for this folder:</p>
+<ul class="simple">
+<li><p>accept DataFrames or already parsed evidence objects</p></li>
+<li><p>return dicts or DataFrames</p></li>
+<li><p>avoid file I/O</p></li>
+<li><p>avoid CLI logic</p></li>
+<li><p>avoid parsing raw file formats again</p></li>
+</ul>
+</section>
+<section id="runners">
+<h3><code class="docutils literal notranslate"><span class="pre">runners/</span></code><a class="headerlink" href="#runners" title="Link to this heading">¶</a></h3>
+<p>Use this folder for workflow orchestration.</p>
+<p>Put here:</p>
+<ul class="simple">
+<li><p>CLI entry points</p></li>
+<li><p>input selection</p></li>
+<li><p>filtering slices from the parsed table</p></li>
+<li><p>calling metric functions in the right order</p></li>
+<li><p>passing results to reports</p></li>
+</ul>
+<p>A runner should be the place where the workflow is assembled, not where the QC logic lives.</p>
+</section>
+<section id="reports">
+<h3><code class="docutils literal notranslate"><span class="pre">reports/</span></code><a class="headerlink" href="#reports" title="Link to this heading">¶</a></h3>
+<p>Use this folder for turning metric results into output.</p>
+<p>Put here:</p>
+<ul class="simple">
+<li><p>TSV export</p></li>
+<li><p>JSON export</p></li>
+<li><p>text summaries</p></li>
+<li><p>plots</p></li>
+<li><p>tables</p></li>
+<li><p>any reusable presentation layer</p></li>
+</ul>
+<p>Do not recompute metrics here.</p>
+</section>
+<section id="notebook">
+<h3><code class="docutils literal notranslate"><span class="pre">notebook/</span></code><a class="headerlink" href="#notebook" title="Link to this heading">¶</a></h3>
+<p>Use this folder for visualising and investigating result.</p>
+<p>Put here any reusable notebook ideally one for each type of metrics.</p>
+</section>
+<section id="config">
+<h3><code class="docutils literal notranslate"><span class="pre">config/</span></code><a class="headerlink" href="#config" title="Link to this heading">¶</a></h3>
+<p>Use this folder for configuration definitions and defaults.</p>
+<p>Put here:</p>
+<ul class="simple">
+<li><p>thresholds</p></li>
+<li><p>constants</p></li>
+<li><p>runtime settings</p></li>
+<li><p>feature lists</p></li>
+<li><p>shared configuration values</p></li>
+</ul>
+</section>
+</section>
+<section id="practical-rule-for-deciding-where-code-goes">
+<h2>3. Practical rule for deciding where code goes<a class="headerlink" href="#practical-rule-for-deciding-where-code-goes" title="Link to this heading">¶</a></h2>
+<p>Use this decision rule:</p>
+<ul class="simple">
+<li><p>If it <strong>reads a file</strong> → <code class="docutils literal notranslate"><span class="pre">parsers/</span></code></p></li>
+<li><p>If it <strong>calculates QC values</strong> → <code class="docutils literal notranslate"><span class="pre">metrics/</span></code></p></li>
+<li><p>If it <strong>connects steps together</strong> → <code class="docutils literal notranslate"><span class="pre">runners/</span></code></p></li>
+<li><p>If it <strong>formats output</strong> → <code class="docutils literal notranslate"><span class="pre">reports/</span></code></p></li>
+<li><p>If it <strong>stores constants or thresholds</strong> → <code class="docutils literal notranslate"><span class="pre">config/</span></code></p></li>
+<li><p>If it <strong>retrieves external reference data</strong> → <code class="docutils literal notranslate"><span class="pre">metadata/</span></code></p></li>
+</ul>
+</section>
+<section id="adding-a-new-qc">
+<h2>4. Adding a new QC<a class="headerlink" href="#adding-a-new-qc" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>When implementing a new QC:</p></li>
+<li><p>Identify the required input.</p></li>
+<li><p>Reuse an existing parser where possible.</p></li>
+<li><p>Implement the calculation inside metrics/.</p></li>
+<li><p>Call the metric from a runner.</p></li>
+<li><p>Export the result through a report.</p></li>
+<li><p>Add tests.</p></li>
+<li><p>Update the relevant package documentation.</p></li>
+</ul>
+</section>
+<section id="template-for-a-new-metric-module">
+<h2>7. Template for a new metric module<a class="headerlink" href="#template-for-a-new-metric-module" title="Link to this heading">¶</a></h2>
+<p>Use this template for new files inside <code class="docutils literal notranslate"><span class="pre">metrics/</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">"""</span>
+<span class="sd">feature_wide.py</span>
+
+<span class="sd">Purpose:</span>
+<span class="sd">    Compute feature-wide annotation QC metrics from a standardized DataFrame.</span>
+
+<span class="sd">Inputs:</span>
+<span class="sd">    annotation_df: pandas.DataFrame</span>
+<span class="sd">        Parsed and normalized annotation data.</span>
+
+<span class="sd">Outputs:</span>
+<span class="sd">    dict | pandas.DataFrame</span>
+<span class="sd">        Metric summary suitable for reporting.</span>
+<span class="sd">"""</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_feature_wide_metrics</span><span class="p">(</span><span class="n">annotation_df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Compute feature-wide QC statistics.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    annotation_df</span>
+<span class="sd">        Standardized annotation table produced by parsers/.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict</span>
+<span class="sd">        Feature-wide metric values.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    This function must not read files, write files, or perform CLI logic.</span>
+<span class="sd">    """</span>
+    <span class="c1"># 1. validate required columns</span>
+    <span class="c1"># 2. derive slices if needed</span>
+    <span class="c1"># 3. calculate metrics</span>
+    <span class="c1"># 4. return plain Python data</span>
+    <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+</pre></div>
+</div>
+</section>
+<section id="template-for-a-runner">
+<h2>8. Template for a runner<a class="headerlink" href="#template-for-a-runner" title="Link to this heading">¶</a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">ensembl.genes.annotation_qc.parsers.annotation</span><span class="w"> </span><span class="kn">import</span> <span class="n">parse_annotation</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ensembl.genes.annotation_qc.metrics.feature_wide</span><span class="w"> </span><span class="kn">import</span> <span class="n">compute_feature_wide_metrics</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ensembl.genes.annotation_qc.reports.feature_wide</span><span class="w"> </span><span class="kn">import</span> <span class="n">write_feature_wide_report</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">run_feature_wide</span><span class="p">(</span><span class="n">annotation_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">output_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">annotation_df</span> <span class="o">=</span> <span class="n">parse_annotation</span><span class="p">(</span><span class="n">annotation_path</span><span class="p">)</span>
+    <span class="n">metrics</span> <span class="o">=</span> <span class="n">compute_feature_wide_metrics</span><span class="p">(</span><span class="n">annotation_df</span><span class="p">)</span>
+    <span class="n">write_feature_wide_report</span><span class="p">(</span><span class="n">metrics</span><span class="p">,</span> <span class="n">output_path</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="definition-of-done">
+<h2>12. Definition of done<a class="headerlink" href="#definition-of-done" title="Link to this heading">¶</a></h2>
+<p>The refactor is complete when:</p>
+<ul class="simple">
+<li><p>the metric module has no file I/O</p></li>
+<li><p>the runner owns workflow orchestration</p></li>
+<li><p>the parser owns normalization</p></li>
+<li><p>the report layer owns formatting</p></li>
+<li><p>tests cover the metric logic</p></li>
+<li><p>the documentation says exactly where new code should go</p></li>
+<li><p>a new starter can add a feature without guessing folder responsibilities</p></li>
+</ul>
+</section>
+<section id="one-line-summary-for-contributors">
+<h2>13. One-line summary for contributors<a class="headerlink" href="#one-line-summary-for-contributors" title="Link to this heading">¶</a></h2>
+<p><strong>Put parsing in <code class="docutils literal notranslate"><span class="pre">parsers/</span></code>, calculations in <code class="docutils literal notranslate"><span class="pre">metrics/</span></code>, orchestration in <code class="docutils literal notranslate"><span class="pre">runners/</span></code>, output in <code class="docutils literal notranslate"><span class="pre">reports/</span></code>, and configuration in <code class="docutils literal notranslate"><span class="pre">config/</span></code>.</strong></p>
+</section>
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="ensembl.genes.annotation_qc.config.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">ensembl.genes.annotation_qc.config</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="ensembl.genes.annotation_qc.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">ensembl.genes.annotation_qc</div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2016-2026, EMBL-European Bioinformatics Institute
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">Annotation QC</a><ul>
+<li><a class="reference internal" href="#compare-an-annotation-to-a-reference">Compare an annotation to a reference</a><ul>
+<li><a class="reference internal" href="#environment">Environment</a></li>
+<li><a class="reference internal" href="#quick-start-any-prediction-against-any-reference">Quick start: any prediction against any reference</a></li>
+<li><a class="reference internal" href="#tested-example-human-and-mouse-ensembl-references">Tested example: human and mouse Ensembl references</a></li>
+<li><a class="reference internal" href="#gmb-example-optional-use-case">GMB example (optional use case)</a></li>
+<li><a class="reference internal" href="#input-formats-compression-and-identifiers">Input formats, compression and identifiers</a></li>
+<li><a class="reference internal" href="#optional-stop-codon-harmonisation-add-stop-codon">Optional stop-codon harmonisation (<code class="docutils literal notranslate"><span class="pre">--add-stop-codon</span></code>)</a></li>
+<li><a class="reference internal" href="#reference-scope-and-isoform-policy">Reference scope and isoform policy</a></li>
+<li><a class="reference internal" href="#arguments">Arguments</a></li>
+<li><a class="reference internal" href="#outputs">Outputs</a></li>
+<li><a class="reference internal" href="#output-contract-version-1-0">Output contract (version 1.0)</a></li>
+<li><a class="reference internal" href="#interpreting-the-metrics">Interpreting the metrics</a></li>
+<li><a class="reference internal" href="#one-to-one-exact-cds-f1-and-locus-recovery">One-to-one exact-CDS F1 and locus recovery</a></li>
+<li><a class="reference internal" href="#limitations-to-keep-in-mind">Limitations to keep in mind</a></li>
+<li><a class="reference internal" href="#coordinates-and-parsing">Coordinates and parsing</a></li>
+<li><a class="reference internal" href="#differences-from-gmb-compare">Differences from <code class="docutils literal notranslate"><span class="pre">gmb-compare</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#annotation-qc-onboarding-guideline">Annotation QC onboarding guideline</a><ul>
+<li><a class="reference internal" href="#core-rule">1. Core rule</a></li>
+<li><a class="reference internal" href="#folder-responsibilities">2. Folder responsibilities</a><ul>
+<li><a class="reference internal" href="#parsers"><code class="docutils literal notranslate"><span class="pre">parsers/</span></code></a></li>
+<li><a class="reference internal" href="#metrics"><code class="docutils literal notranslate"><span class="pre">metrics/</span></code></a></li>
+<li><a class="reference internal" href="#runners"><code class="docutils literal notranslate"><span class="pre">runners/</span></code></a></li>
+<li><a class="reference internal" href="#reports"><code class="docutils literal notranslate"><span class="pre">reports/</span></code></a></li>
+<li><a class="reference internal" href="#notebook"><code class="docutils literal notranslate"><span class="pre">notebook/</span></code></a></li>
+<li><a class="reference internal" href="#config"><code class="docutils literal notranslate"><span class="pre">config/</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#practical-rule-for-deciding-where-code-goes">3. Practical rule for deciding where code goes</a></li>
+<li><a class="reference internal" href="#adding-a-new-qc">4. Adding a new QC</a></li>
+<li><a class="reference internal" href="#template-for-a-new-metric-module">7. Template for a new metric module</a></li>
+<li><a class="reference internal" href="#template-for-a-runner">8. Template for a runner</a></li>
+<li><a class="reference internal" href="#definition-of-done">12. Definition of done</a></li>
+<li><a class="reference internal" href="#one-line-summary-for-contributors">13. One-line summary for contributors</a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script src="../../_static/documentation_options.js?v=01f34227"></script>
+    <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../_static/scripts/furo.js?v=46bd48cc"></script>
+    </body>
+</html>

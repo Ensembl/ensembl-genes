@@ -1,0 +1,8 @@
+icons.txt
+=========
+
+Source: ``src/python/ensembl/genes/projects/icons.txt``
+
+.. literalinclude:: ../../../src/python/ensembl/genes/projects/icons.txt
+   :language: text
+   :linenos:

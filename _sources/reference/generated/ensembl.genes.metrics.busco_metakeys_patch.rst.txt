@@ -1,0 +1,9 @@
+ensembl.genes.metrics.busco_metakeys_patch
+==========================================
+
+Source: ``src/python/ensembl/genes/metrics/busco_metakeys_patch.py``
+
+.. automodule:: ensembl.genes.metrics.busco_metakeys_patch
+   :members:
+   :show-inheritance:
+   :undoc-members:

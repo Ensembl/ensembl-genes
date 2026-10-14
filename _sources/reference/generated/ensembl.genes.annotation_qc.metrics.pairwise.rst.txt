@@ -1,0 +1,27 @@
+ensembl.genes.annotation_qc.metrics.pairwise
+============================================
+
+Source directory: ``src/python/ensembl/genes/annotation_qc/metrics/pairwise``
+
+Package Contents
+----------------
+
+.. automodule:: ensembl.genes.annotation_qc.metrics.pairwise
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+Folders, Scripts, and Files
+---------------------------
+
+.. toctree::
+   :maxdepth: 2
+
+   classify <ensembl.genes.annotation_qc.metrics.pairwise.classify>
+   contract <ensembl.genes.annotation_qc.metrics.pairwise.contract>
+   evaluation_audit <ensembl.genes.annotation_qc.metrics.pairwise.evaluation_audit>
+   matching <ensembl.genes.annotation_qc.metrics.pairwise.matching>
+   selection <ensembl.genes.annotation_qc.metrics.pairwise.selection>
+   splice <ensembl.genes.annotation_qc.metrics.pairwise.splice>
+   stop_codons <ensembl.genes.annotation_qc.metrics.pairwise.stop_codons>
+   summary <ensembl.genes.annotation_qc.metrics.pairwise.summary>

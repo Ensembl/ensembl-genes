@@ -1,0 +1,9 @@
+ensembl.genes.annotation_qc.parsers.regions
+===========================================
+
+Source: ``src/python/ensembl/genes/annotation_qc/parsers/regions.py``
+
+.. automodule:: ensembl.genes.annotation_qc.parsers.regions
+   :members:
+   :show-inheritance:
+   :undoc-members:

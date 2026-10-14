@@ -1,0 +1,9 @@
+ensembl.genes.info_from_registry.genebuild_start_pipeline
+=========================================================
+
+Source: ``src/python/ensembl/genes/info_from_registry/genebuild_start_pipeline.py``
+
+.. automodule:: ensembl.genes.info_from_registry.genebuild_start_pipeline
+   :members:
+   :show-inheritance:
+   :undoc-members:

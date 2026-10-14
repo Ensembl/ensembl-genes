@@ -1,0 +1,9 @@
+ensembl.genes.info_from_registry.assign_species_prefix
+======================================================
+
+Source: ``src/python/ensembl/genes/info_from_registry/assign_species_prefix.py``
+
+.. automodule:: ensembl.genes.info_from_registry.assign_species_prefix
+   :members:
+   :show-inheritance:
+   :undoc-members:

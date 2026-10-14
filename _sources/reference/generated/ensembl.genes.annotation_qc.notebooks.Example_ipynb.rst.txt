@@ -1,0 +1,8 @@
+Example.ipynb
+=============
+
+Source: ``src/python/ensembl/genes/annotation_qc/notebooks/Example.ipynb``
+
+.. literalinclude:: ../../../src/python/ensembl/genes/annotation_qc/notebooks/Example.ipynb
+   :language: json
+   :linenos:

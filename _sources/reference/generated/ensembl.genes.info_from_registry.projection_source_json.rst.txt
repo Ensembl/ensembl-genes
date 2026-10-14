@@ -1,0 +1,8 @@
+projection_source.json
+======================
+
+Source: ``src/python/ensembl/genes/info_from_registry/projection_source.json``
+
+.. literalinclude:: ../../../src/python/ensembl/genes/info_from_registry/projection_source.json
+   :language: json
+   :linenos:

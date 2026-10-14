@@ -1,0 +1,9 @@
+ensembl.genes.annotation_qc.parsers.annotation
+==============================================
+
+Source: ``src/python/ensembl/genes/annotation_qc/parsers/annotation.py``
+
+.. automodule:: ensembl.genes.annotation_qc.parsers.annotation
+   :members:
+   :show-inheritance:
+   :undoc-members:
