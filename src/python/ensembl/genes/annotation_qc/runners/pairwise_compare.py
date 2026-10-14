@@ -45,8 +45,6 @@ from ensembl.genes.annotation_qc.metrics.pairwise.classify import (
     SPLIT_MERGE_MIN_SHARED_FRACTION,
     build_gene_models,
     classify_loci,
-    gene_span_excess,
-    transcripts_outside_gene,
 )
 from ensembl.genes.annotation_qc.metrics.pairwise.evaluation_audit import (
     ExclusionTracker,
@@ -75,9 +73,8 @@ from ensembl.genes.annotation_qc.metrics.pairwise.stop_codons import (
 from ensembl.genes.annotation_qc.metrics.pairwise.summary import (
     query_transcript_labels,
     summarise_comparison,
+    summarise_gene_spans,
     summarise_intron_support,
-    summarise_span_excess,
-    summarise_transcripts_outside,
 )
 from ensembl.genes.annotation_qc.parsers.annotation import (
     ANNOTATION_FORMATS,
@@ -642,13 +639,8 @@ def run_pairwise_compare(  # pylint: disable=too-many-locals,too-many-statements
     if scopes:
         summary["analysis_scopes"] = {sid: sorted(seqs) for sid, seqs in scopes.items()}
     summary["gene_span_checks"] = {
-        role: {
-            **summarise_span_excess(gene_span_excess(models)),
-            "transcripts_outside": summarise_transcripts_outside(
-                transcripts_outside_gene(models)
-            ),
-        }
-        for role, models in (("reference", ref_models), ("query", query_models))
+        "reference": summarise_gene_spans(ref_models),
+        "query": summarise_gene_spans(query_models),
     }
 
     _log("Writing reports...")

@@ -658,3 +658,89 @@ def test_runner_writes_refined_outputs(write_gff3, tmp_path):
     assert json.loads((outdir / "comparison_summary.json").read_text())[
         "rate_denominators"
     ]
+
+
+# Transcripts beyond their gene record ----------------------------------------
+def _outside_transcript_fixture():
+    """
+    Query gene G's record spans 3000-3500, but its transcript G.t2 lies at
+    2000-2600 with the CDS of reference gene R2 (as in an input whose transcript
+    extends beyond its gene line). H is a second query gene carrying the same CDS
+    and starts first in gene-record order.
+    """
+    r2 = [(2000, 2100), (2300, 2400), (2500, 2600)]
+    reference = gene_records("1", "R1", "-", {"R1.1": _shift(MULTI, 2900)})
+    reference += gene_records("1", "R2", "-", {"R2.1": r2})
+    g_t1 = [(3000, 3100), (3200, 3300), (3420, 3500)]
+    query = [("1", "gene", 3000, 3500, "-", "ID=G;biotype=protein_coding")]
+    for tid, exons in (("G.t1", g_t1), ("G.t2", r2)):
+        query.append(
+            ("1", "mRNA", exons[0][0], exons[-1][1], "-", f"ID={tid};Parent=G")
+        )
+        for kind in ("exon", "CDS"):
+            query += [("1", kind, s, e, "-", f"Parent={tid}") for s, e in exons]
+    return reference, query + gene_records("1", "H", "-", {"H.1": r2})
+
+
+def test_pairing_span_covers_transcripts_outside_their_gene(compare, write_gff3):
+    reference, query = _outside_transcript_fixture()
+    ref, qry, summary = compare(reference, query)
+
+    # G is now paired with R2 through G.t2: its identical CDS is found
+    assert qry.loc["G", "cds_coordinate_exact"]
+    assert qry.loc["G", "cds_matched_id"] == "R2"
+    assert qry.loc["G", "best_cds_match_own_transcript_id"] == "G.t2"
+    assert qry.loc["G", "classification_cds"] == "Exact_Match"
+    assert summary["specificity"]["consensus_cds_coordinate_exact_count"] == 2
+    # reported gene coordinates stay those of the gene record (zero-based start)
+    assert (qry.loc["G", "start"], qry.loc["G", "end"]) == (2999, 3500)
+
+    # the reference side: R2 was already exact through H; R1 is not exact
+    assert ref.loc["R2", "cds_coordinate_exact"]
+    assert not ref.loc["R1", "cds_coordinate_exact"]
+    # ties keep gene-record order: H (record at 2000) before G (record at 3000)
+    assert ref.loc["R2", "cds_matched_id"] == "H"
+    assert summary["sensitivity_cds"]["cds_coordinate_exact_count"] == 1
+
+    # G's transcripts share CDS with R1 and R2: a merge; R2 has two query counterparts
+    assert set(qry.loc["G", "counterpart_ids"].split(",")) == {"R1", "R2"}
+    assert set(ref.loc["R2", "counterpart_ids"].split(",")) == {"G", "H"}
+    assert summary["split_merge"]["gene_merge_count"] == 1
+    assert summary["split_merge"]["gene_split_count"] == 1
+
+    # pairing spans: widened only where a transcript lies beyond its gene record
+    models = build_gene_models(
+        parse_annotation_for_comparison(write_gff3("q2.gff3", query))
+    ).genes.set_index("gene_id")
+    assert (models.loc["G", "pair_start"], models.loc["G", "pair_end"]) == (1999, 3500)
+    assert (models.loc["H", "pair_start"], models.loc["H", "pair_end"]) == (
+        models.loc["H", "Start"],
+        models.loc["H", "End"],
+    )
+
+
+def test_one_to_one_matching_ignores_pairing_spans(write_gff3, tmp_path):
+    """The identical-CDS graph never used spans: TP is the same before and after."""
+    reference, query = _outside_transcript_fixture()
+    outdir = tmp_path / "out"
+    summary = _run(
+        [
+            "--query",
+            write_gff3("q.gff3", query),
+            "--reference",
+            write_gff3("r.gff3", reference),
+            "--outdir",
+            str(outdir),
+        ]
+    )
+    one = summary["cds_exact_one_to_one"]
+    assert one["true_positives"] == 1
+    assert one["query_genes_with_exact_candidate"] == 2
+    assert one["query_genes_with_exact_candidate_unmatched"] == 1
+    spans = summary["gene_span_checks"]["query"]
+    assert spans["transcripts_outside"]["transcripts_outside_gene_span"] == 1
+    assert spans["pairing_span_beyond_gene_record"] == {
+        "genes": 1,
+        "max_beyond_bp": 1000,
+        "examples": ["G"],
+    }

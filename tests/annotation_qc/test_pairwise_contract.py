@@ -557,7 +557,7 @@ def test_unknown_scope_sequence_is_rejected(two_chromosomes, write_text, tmp_pat
 
 
 def test_transcript_outside_its_gene_record(write_text, tmp_path):
-    """A query transcript beyond its gene line: span pairing misses, the CDS graph does not."""
+    """A query transcript beyond its gene line is paired through the gene's pairing span."""
     ref = write_text(
         "r.gff3",
         "##gff-version 3\n"
@@ -585,8 +585,10 @@ def test_transcript_outside_its_gene_record(write_text, tmp_path):
         ["--reference", ref, "--query", query, "--outdir", str(tmp_path / "o")]
     )
     table = _metrics(tmp_path / "o")
-    # span pairing: R1 is never compared with G; the identical-CDS graph links both
-    assert _num(table, "cds_coordinate_exact_reference") == 1
+    # G's pairing span covers G.t2, so R1 is compared with G (definition 2026-10.1;
+    # with gene-record spans R1 was never paired and this count was 1)
+    assert _num(table, "cds_coordinate_exact_reference") == 2
+    assert _num(table, "cds_coordinate_exact_query") == 1
     assert _num(table, "exact_cds_gene_pairs") == 2
     assert _num(table, "exact_cds_one_to_one_tp") == 1
     assert _num(table, "exact_cds_reference_with_candidate_unmatched") == 1
@@ -595,6 +597,54 @@ def test_transcript_outside_its_gene_record(write_text, tmp_path):
     outside = summary["gene_span_checks"]["query"]["transcripts_outside"]
     assert outside["transcripts_outside_gene_span"] == 1
     assert outside["examples"] == ["G.t2"]
+    beyond = summary["gene_span_checks"]["query"]["pairing_span_beyond_gene_record"]
+    assert (beyond["genes"], beyond["max_beyond_bp"]) == (1, 900)
+
+
+def test_span_only_pairing_is_not_cds_locus_recovery(write_text, tmp_path):
+    """A gene inside a widened pairing span but untouched by its transcripts is span-only."""
+    ref = write_text(
+        "r.gff3",
+        "##gff-version 3\n"
+        "1\tt\tgene\t2000\t2100\t.\t+\t.\tID=R1;biotype=protein_coding\n"
+        "1\tt\tmRNA\t2000\t2100\t.\t+\t.\tID=R1.1;Parent=R1\n"
+        "1\tt\texon\t2000\t2100\t.\t+\t.\tParent=R1.1\n"
+        "1\tt\tCDS\t2000\t2100\t.\t+\t0\tParent=R1.1\n"
+        "1\tt\tgene\t2700\t2800\t.\t+\t.\tID=R4;biotype=protein_coding\n"
+        "1\tt\tmRNA\t2700\t2800\t.\t+\t.\tID=R4.1;Parent=R4\n"
+        "1\tt\texon\t2700\t2800\t.\t+\t.\tParent=R4.1\n"
+        "1\tt\tCDS\t2700\t2800\t.\t+\t0\tParent=R4.1\n",
+    )
+    query = write_text(
+        "q.gff3",
+        "##gff-version 3\n"
+        "1\tt\tgene\t3000\t3500\t.\t+\t.\tID=G\n"
+        "1\tt\tmRNA\t3000\t3500\t.\t+\t.\tID=G.t1;Parent=G\n"
+        "1\tt\texon\t3000\t3500\t.\t+\t.\tParent=G.t1\n"
+        "1\tt\tCDS\t3000\t3500\t.\t+\t0\tParent=G.t1\n"
+        "1\tt\tmRNA\t2000\t2100\t.\t+\t.\tID=G.t2;Parent=G\n"
+        "1\tt\texon\t2000\t2100\t.\t+\t.\tParent=G.t2\n"
+        "1\tt\tCDS\t2000\t2100\t.\t+\t0\tParent=G.t2\n",
+    )
+    outdir = tmp_path / "o"
+    _run(["--reference", ref, "--query", query, "--outdir", str(outdir)])
+    table = _metrics(outdir)
+    # G's pairing span (2000-3500) covers R4, but no G transcript touches it
+    assert _num(table, "locus_detection_gene_span") == 2
+    assert _num(table, "span_only_detection") == 1
+    assert _num(table, "detected_without_cds_overlap") == 1
+    assert _num(table, "cds_outcome_span_only") == 1
+    # recovery needs a shared same-strand CDS base: R1 only
+    assert _num(table, "locus_recovery_cds_overlap") == 1
+    assert _num(table, "cds_coordinate_exact_reference") == 1
+    assert _num(table, "exact_cds_one_to_one_tp") == 1
+    details = pd.read_csv(outdir / "comparison_details.tsv", sep="\t").set_index(
+        "gene_id"
+    )
+    assert details.loc["R4", "classification"] == "Partial_Match"
+    assert details.loc["R4", "cds_shared_bases"] == 0
+    assert not details.loc["R4", "cds_locus_recovered"]
+    assert details.loc["R4", "counterpart_count"] == 0
 
 
 def test_fingerprint_covers_modules_loaded_by_the_cli(two_chromosomes, tmp_path):

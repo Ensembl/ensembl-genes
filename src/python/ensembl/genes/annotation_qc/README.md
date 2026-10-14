@@ -328,13 +328,24 @@ them, **"consensus" always means the query annotation** (`total_consensus_genes`
 
 Every comparison directory is self-describing. `comparison_manifest.json` holds
 `contract_id` (`annotation-qc.pairwise-compare`), `contract_version` (`1.0`),
-`definition_version` (`2026-10`), and `outputs`: every file written, with SHA-256, size,
-data rows and schema id. Versioning rules:
+`definition_version` (`2026-10.1`), and `outputs`: every file written, with SHA-256, size,
+data rows and schema id. The two versions are independent:
 
-- **Minor contract versions** only add files, columns or metric ids. Readers must ignore what
-  they do not know and read columns by name.
-- **A change of definition, denominator or column meaning** needs a new major version.
-  `definition_version` changes with any scientific definition.
+- **`contract_version` is the output schema version**: which files, columns and metric ids
+  exist and what each column and metric id denotes (population, numerator and denominator
+  ids, unit). **Minor** versions only add files, columns or metric ids; readers must ignore
+  what they do not know and read columns by name. A **major** version removes or renames a
+  file, column or metric id, or changes what a metric id counts, its denominator population
+  or its unit.
+- **`definition_version` is the scientific behaviour version**: how the values within that
+  schema are produced (parsing, locus pairing, pair ranking, thresholds, transcript
+  selection). It changes whenever a change can alter any value for some input, even when
+  the schema is unchanged. Example: `2026-10.1` changed how locus partners are found
+  (pairing spans, see "Compatibility") without changing any file, column, metric id,
+  population or unit, so the contract stayed `1.0`.
+- **Comparing results:** only when `contract_id`, the major `contract_version` and
+  `definition_version` all match. Results of an earlier `definition_version` stay valid
+  results of that definition; they are not relabelled.
 - **Outputs without `contract_version`** were written before this contract (see
   "Compatibility" below).
 
@@ -355,10 +366,10 @@ biotype filters, transcript selection, `--genome-mismatch exclude` and regions).
 
 | `metric_id` | numerator / denominator |
 |---|---|
-| `locus_recovery_cds_overlap` | reference genes sharing ≥ 1 CDS base with a transcript of a same-strand gene-span partner / R |
+| `locus_recovery_cds_overlap` | reference genes sharing ≥ 1 CDS base with a transcript of a same-strand locus partner (overlapping pairing spans) / R |
 | `cds_coordinate_exact_reference`, `cds_coordinate_exact_query` | genes whose best CDS pair has identical CDS intervals / R, Q |
 | `exact_cds_one_to_one_tp`, `_recall`, `_precision`, `_f1` | maximum one-to-one matching of identical-CDS genes: TP; TP / R; TP / Q; 2TP / (R + Q) |
-| `exact_cds_gene_pairs`, `exact_cds_{reference,query}_with_candidate_unmatched` | identical-CDS gene pairs (edges of the matching graph, any transcript pair); genes with such a partner but not in the matching. The graph does not use gene spans, so a transcript lying outside its own gene record can give a gene an identical-CDS partner that span pairing (and so `cds_coordinate_exact`) never compares; `comparison_summary.json` → `gene_span_checks.<role>.transcripts_outside` counts such transcripts |
+| `exact_cds_gene_pairs`, `exact_cds_{reference,query}_with_candidate_unmatched` | identical-CDS gene pairs (edges of the matching graph, any transcript pair); genes with such a partner but not in the matching. The graph does not use spans. Since definition `2026-10.1` the pairing span covers every evaluated transcript, so a gene's identical-CDS partners are always among its locus partners and the candidate counts equal the coordinate-exact flags; `comparison_summary.json` → `gene_span_checks.<role>.transcripts_outside` counts transcripts beyond their gene record |
 | `cds_intron_chain_best_pair`, `cds_intron_chain_any_pair` | multi-CDS-segment genes with an identical CDS intron chain in the best CDS pair / in any pair / R_multi_cds |
 | `exon_intron_chain_best_pair`, `exon_intron_chain_any_pair` | the same for exons / R_multi_exon |
 | `ref_unique_{cds,exon}_introns_recovered`, `query_unique_{cds,exon}_introns_supported` | shared unique introns / reference, query unique introns |
@@ -494,6 +505,18 @@ also the last item):
   is now a comparator output, and the independent implementation stays a separate check.
 - `gene_span_checks.<role>.transcripts_outside` is new: transcripts whose exons extend
   beyond their gene record (reporting only).
+- **Definition `2026-10.1`** (contract still 1.0; files, columns, metric ids and
+  denominators unchanged): locus pairing uses each gene's **pairing span**, the gene
+  record extended to cover the exons and CDS of its evaluated transcripts, instead of the
+  gene record alone. The two are identical when every transcript lies within its gene
+  record, as GFF3/GTF require; `gene_span_checks.<role>.pairing_span_beyond_gene_record`
+  (`genes`, `max_beyond_bp`, `examples`) counts the genes where they differ, and results
+  of definition `2026-10` are unchanged whenever that count is 0 on both sides. Where it is
+  not 0, transcripts beyond their gene record are now compared with the genes they
+  overlap: pairing, classification, coordinate-exact flags, locus recovery, intron-chain
+  pairs, split/merge counterparts and Novel categories can change; the one-to-one
+  matching (identical-CDS graph) cannot. Reported gene coordinates remain the gene
+  record's.
 
 ### Interpreting the metrics
 
@@ -506,7 +529,7 @@ also the last item):
 | same CDS intron chain, terminal (start/stop) coordinates may differ | `sensitivity_cds.cds_exact_match_count`; `cds_exact_match_not_coordinate_exact` | `total_reference_genes` |
 | CDS intron chain recovered (best pair) | `sensitivity_cds.cds_intron_chain_recovered` | `multi_segment_cds_reference_genes` (`_sensitivity`) or detected multi-segment genes (`_rate`) |
 | unique CDS introns recovered / supported | `intron_support.cds` | `reference_introns` / `query_introns` |
-| locus detected (same-strand **gene-span** overlap) | `sensitivity.locus_detected_count`; `locus_detection_exonic` | `total_reference_genes` |
+| locus detected (same-strand **pairing-span** overlap; can rest on span contact alone) | `sensitivity.locus_detected_count`; `locus_detection_exonic` | `total_reference_genes` |
 | missed / unmatched predictions | `sensitivity.missed_count`; `specificity.novel_consensus_count`, `novel_categories` | R / Q |
 | splits, merges, strand mismatches | `split_merge`, `sensitivity.strand_mismatch_count`, `specificity.strand_mismatch_consensus_count` | counts |
 | UTR-inclusive agreement | `sensitivity.exact_match_count` (structural), `exon_coordinate_exact_count` | `total_reference_genes` |
@@ -517,7 +540,7 @@ Every reference gene gets one class, and every query gene gets one class:
 |---|---|
 | Exact_Match | *structural* exact: best transcript pair has ≥ 0.8 reciprocal exonic overlap **and** an identical intron chain. Terminal coordinates may differ. |
 | Structural_Mismatch | ≥ 0.8 reciprocal overlap, different intron chain |
-| Partial_Match | same-strand gene spans overlap, but the pair is below 0.8 overlap (can be 0 exonic overlap, see below) |
+| Partial_Match | same-strand pairing spans overlap, but the pair is below 0.8 overlap (can be 0 exonic overlap, see below) |
 | Strand_Mismatch | no same-strand partner, and an opposite-strand gene shares **CDS** bases (exon bases when either gene lacks CDS). `strand_mismatch_basis` says which. |
 | Missed / Novel | no same-strand partner and no opposite-strand feature overlap (reference / query). Opposite-strand contact through spans, introns or UTRs only is recorded as `strand_mismatch_basis = no_feature_overlap`. |
 
@@ -558,7 +581,8 @@ counterparts; a merge is a query gene with ≥ 2 reference counterparts.
 - **CDS coordinate-exact** is the strictest measure of coding accuracy. **Exact_Match**
   also requires UTR extent to agree, so it drops when the reference has longer UTRs
   than the query.
-- **Locus detection** counts Exact + Structural + Partial. Pairing uses gene spans, so a
+- **Locus detection** counts Exact + Structural + Partial. Pairing uses pairing spans
+  (the gene record, extended over any evaluated transcript lying beyond it), so a
   query gene wider than its transcripts can "detect" a reference gene without sharing
   any exon with it. `locus_detection_exonic` gives the count with real exonic overlap
   and the span-only difference. `gene_span_checks` lists genes whose span extends
@@ -639,10 +663,13 @@ precision, recall or F1.
 reference genes with a same-strand query locus partner whose transcripts share at least
 one CDS base. It equals the number of reference rows with `cds_overlap > 0` (the best CDS
 pair's reciprocal overlap is > 0 exactly when some pair shares a base); `rate` divides by
-R. `gene_span_detected_without_cds_overlap` counts genes that gene-span detection
-(`sensitivity.locus_detected_count`) finds without any shared CDS. Limitations:
-- Partners are found through gene-span overlap, so a gene line that does not cover its own
-  CDS can miss a CDS overlap.
+R. Partners are *found* through pairing-span overlap, but a gene counts as recovered only
+when a same-strand partner transcript actually shares a CDS base, so span contact alone
+never counts. `gene_span_detected_without_cds_overlap` counts genes that span-based
+detection (`sensitivity.locus_detected_count`) finds without any shared CDS. Limitations:
+- Before definition `2026-10.1`, partners were found through gene-record overlap only, so a
+  gene line that did not cover its own CDS could miss a CDS overlap; pairing spans now
+  cover every evaluated transcript.
 - `comparison_details.tsv` rounds `cds_overlap` to 4 decimals. A one-base overlap between
   very long CDS can print as `0.0`. Use `cds_shared_bases` / `cds_locus_recovered`
   (contract 1.0), which are exact; the summary count uses the unrounded value.
@@ -671,9 +698,17 @@ R. `gene_span_detected_without_cds_overlap` counts genes that gene-span detectio
 
 ### Limitations to keep in mind
 
-- **Locus pairing uses gene spans.** A same-strand span overlap pairs two genes even without
-  shared exons or CDS. `locus_detection_exonic.span_only_detected_count` counts genes
-  detected without exonic overlap. For a coding view, use `cds_overlap_locus_recovery`.
+- **Locus pairing uses spans.** A same-strand pairing-span overlap pairs two genes even
+  without shared exons or CDS (the pairing span is the gene record, extended over any
+  evaluated transcript lying beyond it). Span contact alone counts in the legacy detection
+  measures: Partial_Match / `sensitivity.locus_detected_count`
+  (`locus_detection_gene_span`), `span_only_detected_count` (`span_only_detection`),
+  `gene_span_detected_without_cds_overlap` (`detected_without_cds_overlap`),
+  `cds_outcome_span_only`, query-side `matched_consensus_count` / Matched labels, and it
+  keeps a gene out of Missed/Novel (`missed_reference_genes`, `novel_consensus_count`).
+  It never counts in `cds_overlap_locus_recovery`, coordinate-exact, one-to-one or
+  split/merge measures, which need shared CDS (or exon) bases. For a coding view, use
+  `cds_overlap_locus_recovery`.
 - **Intron chains are scored on one best pair.** The best pair ranks ≥ 0.8 reciprocal
   overlap above an identical intron chain with lower overlap. A gene split into pieces, or
   matched by a longer and a shorter prediction, can report `cds_intron_chain_match = False`

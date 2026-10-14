@@ -1,11 +1,22 @@
 """
 Output contract of annotation-qc pairwise-compare and its canonical metric table.
 
-CONTRACT_ID / CONTRACT_VERSION identify the set of files a comparison writes and
-their columns (documented in the package README, "Output contract"). Minor
-versions only add files, columns or metric ids; a changed definition, denominator
-or column meaning needs a new major version. DEFINITION_VERSION changes whenever
-the scientific definition of any metric changes.
+Two independent versions (documented in the package README, "Output contract"):
+
+    CONTRACT_VERSION    the output schema: which files, columns and metric ids
+                        exist, and what each column and metric id denotes (its
+                        population, numerator and denominator ids, unit). Minor
+                        versions only add files, columns or metric ids; removing
+                        or renaming one, or changing what a metric id counts,
+                        its denominator population or its unit, is a new major
+                        version.
+    DEFINITION_VERSION  the scientific behaviour that produces the values within
+                        that schema (parsing, pairing, ranking, thresholds,
+                        selection). It changes whenever a change can alter any
+                        value for some input, even when the schema is identical.
+
+Two results are comparable only when CONTRACT_ID, the major CONTRACT_VERSION and
+DEFINITION_VERSION are all equal.
 
 metrics.tsv has one row per (scope, metric). Every value is a count or an
 unrounded ratio of two counts written in the same row, with a status:
@@ -60,7 +71,7 @@ from ensembl.genes.annotation_qc.metrics.pairwise.summary import (
 
 CONTRACT_ID = "annotation-qc.pairwise-compare"
 CONTRACT_VERSION = "1.0"
-DEFINITION_VERSION = "2026-10"
+DEFINITION_VERSION = "2026-10.1"
 ALL_SCOPE = "all"
 
 STATUS_OK = "ok"
@@ -113,7 +124,7 @@ METRICS: dict[str, tuple[str, str, str, str]] = {
         "reference",
         "genes",
         "reference genes sharing >= 1 CDS base with an evaluated transcript of a "
-        "same-strand gene-span partner (cds_locus_recovered)",
+        "same-strand locus partner (overlapping pairing spans; cds_locus_recovered)",
         "R",
     ),
     "cds_coordinate_exact_reference": (
@@ -252,7 +263,7 @@ METRICS: dict[str, tuple[str, str, str, str]] = {
     "locus_detection_gene_span": (
         "reference",
         "genes",
-        "reference genes with a same-strand gene-span partner",
+        "reference genes with a same-strand locus partner (overlapping pairing spans)",
         "R",
     ),
     "locus_detection_exonic": (
@@ -543,9 +554,9 @@ def scope_metric_rows(  # pylint: disable=too-many-arguments,too-many-locals
                 reason="selection_not_canonical",
             )
         )
-    # Candidates come from the identical-CDS graph that the matching uses. They
-    # equal the per-gene coordinate-exact flags unless a transcript lies outside
-    # its gene record, so that its gene-span partners miss the identical gene.
+    # Candidates come from the identical-CDS graph that the matching uses. Since
+    # definition 2026-10.1 pairing spans cover every evaluated transcript, so they
+    # equal the per-gene coordinate-exact flags.
     scoped_edges = [e for e in edges if sequences is None or e[2] in sequences]
     candidates_ref = len({e[0] for e in scoped_edges})
     candidates_query = len({e[1] for e in scoped_edges})

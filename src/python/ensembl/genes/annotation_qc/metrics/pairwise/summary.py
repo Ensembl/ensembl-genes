@@ -9,7 +9,7 @@ Reference-based (sensitivity-like) rates divide by the number of reference genes
 after filtering (R), unless stated:
 
     locus detection     reference genes classified Exact_Match, Partial_Match or
-                        Structural_Mismatch (a same-strand gene-span overlap) / R
+                        Structural_Mismatch (a same-strand pairing-span overlap) / R
     CDS-overlap locus   reference genes whose best same-strand CDS pair shares at
     recovery            least one CDS base (cds_overlap > 0) / R. A pair shares a
                         base exactly when its reciprocal CDS overlap is > 0, and
@@ -17,8 +17,8 @@ after filtering (R), unless stated:
                         "some same-strand locus partner shares CDS bases". Rate
                         is None when R = 0.
     exonic detection    the subset of those with some exonic overlap / R; the
-                        difference ("span-only") is detection that rests on gene
-                        spans alone
+                        difference ("span-only") is detection that rests on
+                        pairing spans alone
     Exact_Match         structural: identical intron chain and >= 0.8 reciprocal
                         overlap, terminal coordinates may differ / R
     coordinate exact    identical exon (or CDS) intervals, terminal coordinates
@@ -72,7 +72,10 @@ from ensembl.genes.annotation_qc.metrics.pairwise.classify import (
     STRAND_MISMATCH,
     STRUCTURAL,
     GeneModels,
+    gene_span_excess,
     intron_chain,
+    pairing_span_beyond_record,
+    transcripts_outside_gene,
 )
 
 DETECTED = (EXACT, PARTIAL, STRUCTURAL)
@@ -350,7 +353,7 @@ def summarise_comparison(ref: pd.DataFrame, query: pd.DataFrame) -> dict:
 CDS_OUTCOMES = {
     "missed": "no same-strand partner and no opposite-strand feature overlap",
     "strand_mismatch": "opposite-strand CDS (or exon) overlap only",
-    "span_only": "same-strand gene-span partner, no shared CDS base",
+    "span_only": "same-strand pairing-span partner, no shared CDS base",
     "partial_lt08": "shares CDS bases, < 0.8 reciprocal CDS overlap",
     "diff_chain": ">= 0.8 reciprocal CDS overlap, different CDS intron chain",
     "terminal_diff": "same CDS intron chain, start and/or stop differs",
@@ -457,6 +460,41 @@ def summarise_transcripts_outside(outside: pd.DataFrame) -> dict:
         "genes_with_transcripts_outside_span": int(outside["gene_id"].nunique()),
         "max_outside_bp": int(outside["outside_bp"].max()) if len(outside) else 0,
         "examples": outside.nlargest(5, "outside_bp")["transcript_id"].tolist(),
+    }
+
+
+def summarise_pairing_span(beyond: pd.DataFrame) -> dict:
+    """
+    Summarise classify.pairing_span_beyond_record output.
+    Args:
+            beyond: DataFrame with gene_id and beyond_bp
+    Returns:
+            dict with the gene count, the largest extension and examples
+    """
+    return {
+        "genes": len(beyond),
+        "max_beyond_bp": int(beyond["beyond_bp"].max()) if len(beyond) else 0,
+        "examples": beyond.nlargest(5, "beyond_bp")["gene_id"].tolist(),
+    }
+
+
+def summarise_gene_spans(models: GeneModels) -> dict:
+    """
+    Gene-record span checks of one side (gene_span_checks.<role>).
+    Args:
+            models: GeneModels
+    Returns:
+            span excess summary, plus transcripts_outside and
+            pairing_span_beyond_gene_record
+    """
+    return {
+        **summarise_span_excess(gene_span_excess(models)),
+        "transcripts_outside": summarise_transcripts_outside(
+            transcripts_outside_gene(models)
+        ),
+        "pairing_span_beyond_gene_record": summarise_pairing_span(
+            pairing_span_beyond_record(models)
+        ),
     }
 
 

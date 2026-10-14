@@ -3,8 +3,15 @@ Locus pairing and transcript-structure classification.
 
 Definitions (gmb-compare pairing and thresholds; reporting refined as noted):
 
-    pairing      genes are paired when their spans overlap by at least 1 bp,
-                 ignoring strand. A gene with a same-strand partner is compared
+    pairing      genes are paired when their pairing spans overlap by at least
+                 1 bp, ignoring strand. A gene's pairing span is its gene record
+                 extended to cover the exons and CDS of its evaluated
+                 transcripts; it equals the gene record whenever those
+                 transcripts lie within it, as GFF3 and GTF require. (Before
+                 definition 2026-10.1 the gene record alone was used, so a
+                 transcript beyond its gene record was never compared with the
+                 genes it overlaps.) Reported gene coordinates are always the
+                 gene record's. A gene with a same-strand partner is compared
                  with its same-strand partners only. A gene whose only partners
                  are on the other strand is Strand_Mismatch when it shares
                  feature bases with one of them: CDS bases when both genes have
@@ -76,7 +83,7 @@ Definitions (gmb-compare pairing and thresholds; reporting refined as noted):
 
 Coordinates are zero-based half-open, so lengths are End - Start and two
 features overlap when each starts before the other ends. Partners are visited in
-order of partner gene Start (ascending), End (descending), then file order;
+order of partner gene record Start (ascending), End (descending), then file order;
 transcripts in order of their first exon in the file.
 """
 
@@ -221,7 +228,31 @@ def build_gene_models(df: pd.DataFrame) -> GeneModels:
         max((len(cds.get(t, ())) for t in tids), default=0)
         for tids in genes["transcript_ids"]
     ]
+    genes["pair_start"], genes["pair_end"] = _pairing_spans(
+        genes, first_exons, exons, cds
+    )
     return GeneModels(genes, exons, cds)
+
+
+def _pairing_spans(
+    genes: pd.DataFrame,
+    first_exons: pd.DataFrame,
+    exons: dict[str, Intervals],
+    cds: dict[str, Intervals],
+) -> tuple[np.ndarray, np.ndarray]:
+    """Gene record spans extended to the exons and CDS of the gene's transcripts."""
+    starts = genes["Start"].to_numpy(copy=True)
+    ends = genes["End"].to_numpy(copy=True)
+    row_of = dict(zip(genes["gene_id"], range(len(genes))))
+    for gene_id, tid in zip(first_exons["gene_id"], first_exons["transcript_id"]):
+        row = row_of.get(gene_id)
+        if row is None:
+            continue
+        for intervals in (exons.get(tid, ()), cds.get(tid, ())):
+            if intervals:
+                starts[row] = min(starts[row], intervals[0][0])
+                ends[row] = max(ends[row], max(end for _, end in intervals))
+    return starts, ends
 
 
 def shared_bases(a: Intervals, b: Intervals) -> int:
@@ -287,25 +318,31 @@ def pair_loci(
     own: pd.DataFrame, other: pd.DataFrame
 ) -> dict[int, list[tuple[int, bool]]]:
     """
-    Find overlapping gene spans, ignoring strand.
+    Find overlapping pairing spans (gene record spans for tables without
+    pair_start/pair_end), ignoring strand.
     Args:
             own, other: Gene tables from build_gene_models
     Returns:
-            own row -> [(other row, same strand)], ordered by other Start, End
-            (descending), row
+            own row -> [(other row, same strand)], ordered by other gene
+            record Start, End (descending), row
     """
     if own.empty or other.empty:
         return {}
 
     def ranges(genes: pd.DataFrame) -> pr.PyRanges:
+        start, end = (
+            ("pair_start", "pair_end") if "pair_start" in genes else ("Start", "End")
+        )
         return pr.PyRanges(
             pd.DataFrame(
                 {
                     "Chromosome": genes["Chromosome"].to_numpy(),
-                    "Start": genes["Start"].to_numpy(),
-                    "End": genes["End"].to_numpy(),
+                    "Start": genes[start].to_numpy(),
+                    "End": genes[end].to_numpy(),
                     "Strand": genes["Strand"].to_numpy(),
                     "row": np.arange(len(genes)),
+                    "record_start": genes["Start"].to_numpy(),
+                    "record_end": genes["End"].to_numpy(),
                 }
             )
         )
@@ -317,10 +354,11 @@ def pair_loci(
     )
     if joined.empty:
         return {}
-    # Partner order decides ties: Start ascending, End descending (as gmb-compare's
-    # pyranges 0.x join), then file order where gmb-compare's order was arbitrary.
+    # Partner order decides ties: gene record Start ascending, End descending (as
+    # gmb-compare's pyranges 0.x join), then file order where gmb-compare's order
+    # was arbitrary. Pairing spans only decide which genes overlap.
     joined = joined.sort_values(
-        ["row", "Start_other", "End_other", "row_other"],
+        ["row", "record_start_other", "record_end_other", "row_other"],
         ascending=[True, True, False, True],
     )
     same = (joined["Strand"].astype(str) == joined["Strand_other"].astype(str)).tolist()
@@ -764,9 +802,9 @@ def transcripts_outside_gene(models: GeneModels) -> pd.DataFrame:
     """
     Transcripts whose exons extend beyond their gene record.
 
-    Locus pairing uses the gene record's span, so such a transcript can share CDS
-    with a gene that is never paired with its own gene (the identical-CDS graph of
-    the one-to-one matching, which does not use spans, still links them).
+    Input diagnostic: GFF3/GTF require transcripts within their gene. Locus
+    pairing covers such transcripts through the gene's pairing span (see
+    pairing_span_beyond_record).
     Args:
             models: GeneModels
     Returns:
@@ -787,12 +825,30 @@ def transcripts_outside_gene(models: GeneModels) -> pd.DataFrame:
     ).astype({"outside_bp": "int64"})
 
 
+def pairing_span_beyond_record(models: GeneModels) -> pd.DataFrame:
+    """
+    Genes whose pairing span extends beyond their gene record.
+    Args:
+            models: GeneModels
+    Returns:
+            DataFrame with gene_id and beyond_bp (bases of the pairing span
+            outside the gene record), one row per such gene
+    """
+    genes = models.genes
+    beyond = (genes["Start"] - genes["pair_start"]) + (genes["pair_end"] - genes["End"])
+    wider = beyond > 0
+    return pd.DataFrame(
+        {"gene_id": genes.loc[wider, "gene_id"], "beyond_bp": beyond[wider]}
+    ).astype({"beyond_bp": "int64"})
+
+
 def gene_span_excess(models: GeneModels) -> pd.DataFrame:
     """
     Measure how far each gene span extends beyond its transcripts' exons.
 
-    Locus pairing uses gene spans, so a gene wider than its transcripts can
-    pair with reference genes it shares no sequence with.
+    Locus pairing uses pairing spans, never narrower than the gene record, so a
+    gene wider than its transcripts can pair with reference genes it shares no
+    sequence with.
     Args:
             models: GeneModels
     Returns:
