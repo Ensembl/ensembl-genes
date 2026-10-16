@@ -44,6 +44,7 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install ".[docs]"
           python -m pip check
+          python -m pip show mkdocs mkdocstrings mkdocstrings-python pymdown-extensions
 
       - name: Build MkDocs site
         env:
