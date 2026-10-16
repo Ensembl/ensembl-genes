@@ -46,6 +46,28 @@ fetch_bioproject_names = _load_bioproject_names_getter()
 logger: logging.Logger = logging.getLogger(__name__)
 
 
+BIOSAMPLE_ID_FALLBACKS_BY_GCA_CHAIN: dict[str, str] = {
+    "GCA_000002985": "SAMN04256190",
+    "GCA_000224145": "SAMD00414333",
+    "GCA_000001405": "SAMN12121739",
+    "GCA_000146045": "SAMEA3184125",
+    "GCA_000001635": "SAMN26853311",
+    "GCA_002263795": "SAMN03145444",
+}
+
+
+def normalize_assembly_accession_chain(accession: str) -> str:
+    """Return an assembly accession without its version suffix."""
+    return accession.strip().split(".", maxsplit=1)[0]
+
+
+def fallback_biosample_id_from_gca_chain(accession: str) -> str:
+    """Return the configured BioSample ID for an assembly's GCA chain."""
+    return BIOSAMPLE_ID_FALLBACKS_BY_GCA_CHAIN.get(
+        normalize_assembly_accession_chain(accession), ""
+    )
+
+
 def mysql_fetch_data(
     query: str, database: str, host: str, port: int, user: str
 ) -> list[tuple[Any, ...]]:
@@ -147,10 +169,6 @@ def get_ena_metadata(accession: str, truth_dict: dict[str, Any]) -> dict[str, st
         )
         if biosample_id:
             return_dict["organism.biosample_id"] = biosample_id
-        else:
-            logger.critical(
-                " | BIOSAMPLE_ID | organism.biosample_id could not be found in the ENA metadata, this is a required key!"
-            )
 
     # taxonomy id (workaround for bad records)
     if accession in ("GCA_944452655.1", "GCA_944452715.1"):
@@ -489,20 +507,6 @@ def main() -> None:
         core_dict["assembly.accession"] = core_dict["assembly.accession_refseq"]
         truth_dict["assembly.accession_body"] = "RefSeq"
 
-    # Some goddamn ENA assembly records do not have the BioSample ID, so I'm hardcoding them, I swear to jaysus, I'm so done with metadata!!!
-    if db == "caenorhabditis_elegans_core_57_110_282":
-        truth_dict["organism.biosample_id"] = "SAMN04256190"
-    elif db == "ciona_intestinalis_core_110_3":
-        truth_dict["organism.biosample_id"] = "SAMD00414333"
-    elif db in ("homo_sapiens_37_core_110_37", "homo_sapiens_core_110_38"):
-        truth_dict["organism.biosample_id"] = "SAMN12121739"
-    elif db == "saccharomyces_cerevisiae_core_57_110_4":
-        truth_dict["organism.biosample_id"] = "SAMEA3184125"
-    elif db == "mus_musculus_core_110_39":
-        truth_dict["organism.biosample_id"] = "SAMN26853311"
-    elif db == "bos_taurus_core_110_1":
-        truth_dict["organism.biosample_id"] = "SAMN03145444"
-
     bioproject_names = fetch_bioproject_names(
         gca_accession, user=server_info["meta"]["db_user"]
     )
@@ -512,6 +516,18 @@ def main() -> None:
         truth_dict.update(get_ena_metadata(gca_accession, truth_dict))
     except KeyError:
         logger.critical("No assembly accession found, cannot process any further")
+
+    # Some ENA and NCBI records do not expose a BioSample ID. Use the stable
+    # GCA accession chain as the final fallback for known assemblies.
+    if not truth_dict.get("organism.biosample_id"):
+        fallback_biosample_id = fallback_biosample_id_from_gca_chain(gca_accession)
+        if fallback_biosample_id:
+            truth_dict["organism.biosample_id"] = fallback_biosample_id
+        else:
+            logger.critical(
+                " | BIOSAMPLE_ID | organism.biosample_id could not be found "
+                "in the ENA metadata or GCA fallback; this is a required key!"
+            )
 
     # get common and scientific names from NCBI taxonomy (seems inefficient to query the db twice, but I don't think it returns ordered results and I don't want to risk mixing them up)
     try:
@@ -580,7 +596,7 @@ def main() -> None:
     )
 
     # get metadata from BioSample records
-    if truth_dict["organism.biosample_id"] != "":
+    if truth_dict.get("organism.biosample_id", "") != "":
         truth_dict.update(
             get_biosample_metadata(
                 truth_dict["organism.biosample_id"],
@@ -614,7 +630,7 @@ def main() -> None:
         if truth_dict["organism.scientific_name"] in line:
             ref_accession = line.split("\t")[1].strip()
             if gca_accession == ref_accession:
-                truth_dict["assembly.is_reference"] = 1
+                truth_dict["assembly.is_reference"] = "1"
 
     # now to create some values
     # assembly provider and url - if not in core already, set to default provider,"ENA"
@@ -647,7 +663,7 @@ def main() -> None:
             truth_dict["genebuild.annotation_source"] = "braker"
             truth_dict["genebuild.provider_name"] = "Ensembl"
             truth_dict["genebuild.provider_url"] = (
-                "https://ensembl.org/help/articles/braker-2-genome-annotation"
+                "https://www.ensembl.org/help/articles/braker-2-genome-annotation"
             )
         elif "HELIXER" in core_dict["sample.gene_text"]:
             truth_dict["genebuild.version"] = "HLX01"
@@ -656,7 +672,7 @@ def main() -> None:
             truth_dict["genebuild.annotation_source"] = "helixer"
             truth_dict["genebuild.provider_name"] = "Ensembl"
             truth_dict["genebuild.provider_url"] = (
-                "https://ensembl.org/help/articles/helixer-genome-annotation"
+                "https://www.ensembl.org/help/articles/helixer-genome-annotation"
             )
         # otherwise check the genebuild.method for annotation key updates/additions
         elif core_dict["genebuild.method"] == "full_genebuild":
@@ -665,7 +681,7 @@ def main() -> None:
             truth_dict["genebuild.annotation_source"] = "ensembl"
             truth_dict["genebuild.provider_name"] = "Ensembl"
             truth_dict["genebuild.provider_url"] = (
-                "https://ensembl.org/help/articles/vertebrate-genome-annotation"
+                "https://www.ensembl.org/help/articles/vertebrate-genome-annotation"
             )
         elif core_dict["genebuild.method"] == "anno":
             truth_dict["genebuild.version"] = "ENS01"
@@ -673,7 +689,7 @@ def main() -> None:
             truth_dict["genebuild.annotation_source"] = "ensembl"
             truth_dict["genebuild.provider_name"] = "Ensembl"
             truth_dict["genebuild.provider_url"] = (
-                "https://ensembl.org/help/articles/non-vertebrate-genome-annotation"
+                "https://www.ensembl.org/help/articles/non-vertebrate-genome-annotation"
             )
         elif core_dict["genebuild.method"] == "projection_build":
             truth_dict["genebuild.version"] = "ENS01"
@@ -681,12 +697,12 @@ def main() -> None:
             truth_dict["genebuild.provider_name"] = "Ensembl"
             if core_dict["species.scientific_name"] == "homo sapiens":
                 truth_dict["genebuild.provider_url"] = (
-                    "https://ensembl.org/help/articles/human-genome-automated-annotation"
+                    "https://www.ensembl.org/help/articles/human-genome-automated-annotation"
                 )
                 truth_dict["genebuild.method_display"] = "Mapping from GRCh38"
             else:
                 truth_dict["genebuild.provider_url"] = (
-                    "https://ensembl.org/help/articles/vertebrate-genome-annotation"
+                    "https://www.ensembl.org/help/articles/vertebrate-genome-annotation"
                 )
                 truth_dict["genebuild.method_display"] = "Mapping from reference"
         # for non-genebuilds, I don't have a set of rules (as above), so I rely on the core meta keys and the static
@@ -756,7 +772,7 @@ def main() -> None:
         truth_dict["genebuild.annotation_source"] = "ensembl"
         truth_dict["genebuild.provider_name"] = "Ensembl"
         truth_dict["genebuild.provider_url"] = (
-            "https://ensembl.org/help/articles/vertebrate-genome-annotation"
+            "https://www.ensembl.org/help/articles/vertebrate-genome-annotation"
         )
 
     # if the genebuild.version already exists in the core db, I'll just leave that value
