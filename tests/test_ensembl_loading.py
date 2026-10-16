@@ -25,6 +25,7 @@ from ensembl.genes.ensembl_loading import (
     gff_core_loader,
     gff_metadata,
     gff_repeat_loader,
+    refseq_conversion,
 )
 from ensembl.genes.ensembl_loading.gff_annotation import (
     compute_exon_phases,
@@ -55,6 +56,7 @@ from ensembl.genes.ensembl_loading.gff_source_config import (
 )
 from ensembl.genes.ensembl_loading.refseq_conversion import (
     convert_gff_to_ensembl,
+    convert_repeatmasker_to_gtf,
     default_gff_output_path,
     load_assembly_report_name_maps,
     load_refseq_name_map,
@@ -763,6 +765,37 @@ def test_refseq_discovery_and_conversion_helpers(tmp_path: Path) -> None:
     assert records[0].paths.gff_url.endswith("_genomic.gff.gz")
 
 
+def test_repeatmasker_conversion_normalizes_reverse_strand_coordinates(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    report = write_lines(
+        tmp_path / "assembly_report.txt",
+        [
+            "chrOne\tassembled-molecule\t1\tChromosome\tCM_000001.11\tna\tNC_000001.11",
+        ],
+    )
+    repeatmasker = write_lines(
+        tmp_path / "input_rm.out",
+        [
+            "100 1.0 2.0 3.0 NC_000001.11 10 20 (1000) + Alu SINE/Alu 3 9 (0) 1",
+            "200 1.0 2.0 3.0 NC_000001.11 30 40 (980) C Alu SINE/Alu (0) 9 3 2 *",
+        ],
+    )
+    monkeypatch.setattr(refseq_conversion, "_get_repeat_type", lambda _: "mock")
+
+    converted = convert_repeatmasker_to_gtf(repeatmasker, report)
+
+    assert converted.read_text(encoding="utf-8") == (
+        "1\tRepeatMasker\trepeat\t10\t20\t.\t+\t.\t"
+        'repeat_id 1; repeat_name "Alu"; repeat_class "SINE/Alu"; '
+        'repeat_type "mock"; repeat_start "3"; repeat_end "9"; score "100";\n'
+        "1\tRepeatMasker\trepeat\t30\t40\t.\t-\t.\t"
+        'repeat_id 2; repeat_name "Alu"; repeat_class "SINE/Alu"; '
+        'repeat_type "mock"; repeat_start "3"; repeat_end "9"; score "200";\n'
+    )
+
+
 def test_insert_refseq_seq_region_synonyms_preserves_multiple_accessions() -> None:
     class SynonymCursor:
         def __init__(self) -> None:
@@ -1125,6 +1158,7 @@ class FakeSingleLineFeatureCursor:
         self.fetchone_result: tuple[Any, ...] | None = None
         self.seq_regions = {"17": 101}
         self.analysis_inserted: tuple[Any, ...] | None = None
+        self.analysis_descriptions: list[tuple[Any, ...]] = []
         self.repeat_consensus: dict[int, tuple[Any, ...]] = {}
         self.repeat_features: list[tuple[Any, ...]] = []
         self.simple_features: list[tuple[Any, ...]] = []
@@ -1135,10 +1169,13 @@ class FakeSingleLineFeatureCursor:
             self.fetchone_result = (1,)
         elif sql.startswith("select analysis_id from analysis"):
             self.fetchone_result = None
-        elif sql.startswith("insert into analysis"):
+        elif sql.startswith("insert into analysis "):
             assert params is not None
             self.analysis_inserted = tuple(params)
             self.lastrowid = 7
+        elif sql.startswith("insert into analysis_description"):
+            assert params is not None
+            self.analysis_descriptions.append(tuple(params))
         elif sql.startswith("select seq_region_id from seq_region"):
             assert params is not None
             seq_region_id = self.seq_regions.get(params[0])
@@ -1196,12 +1233,22 @@ def test_single_line_feature_loader_loads_repeats_and_simple_features(
                 20,
                 "+",
                 'repeat_name "Low_complexity"; repeat_class "dust"; '
-                'repeat_type "Dust"; repeat_consensus "NNN"; score "42";',
+                'repeat_type "Dust"; repeat_consensus "NNN"; '
+                'repeat_start "3"; repeat_end "9"; score "42";',
                 source="dust",
             ),
         ],
     )
     repeat_connection = FakeSingleLineFeatureConnection()
+    monkeypatch.setattr(
+        gff_repeat_loader,
+        "fetch_controlled_analysis_metadata",
+        lambda _: {
+            "description": "controlled description",
+            "display_label": "controlled label",
+            "web_data": "{}",
+        },
+    )
     monkeypatch.setattr(
         gff_repeat_loader,
         "connect_mysql",
@@ -1226,12 +1273,15 @@ def test_single_line_feature_loader_loads_repeats_and_simple_features(
     assert repeat_connection.committed is True
     assert repeat_connection.rolled_back is False
     assert repeat_connection.closed is True
-    assert repeat_connection.cursor_instance.analysis_inserted == ("dust", "Anno")
+    assert repeat_connection.cursor_instance.analysis_inserted == ("dust",)
+    assert repeat_connection.cursor_instance.analysis_descriptions == [
+        (7, "controlled description", "controlled label", "{}")
+    ]
     assert repeat_connection.cursor_instance.repeat_consensus == {
         1: ("Low_complexity", "dust", "Dust", "NNN")
     }
     assert repeat_connection.cursor_instance.repeat_features == [
-        (101, 10, 20, 1, 1, 11, 1, 7, 42.0)
+        (101, 10, 20, 1, 3, 9, 1, 7, 42.0)
     ]
 
     simple_gtf = write_lines(
@@ -1271,10 +1321,15 @@ def test_single_line_feature_loader_loads_repeats_and_simple_features(
         "simple_features": 1,
     }
     assert simple_connection.committed is True
-    assert simple_connection.cursor_instance.analysis_inserted == ("cpg", "Anno")
+    assert simple_connection.cursor_instance.analysis_inserted == ("cpg",)
     assert simple_connection.cursor_instance.simple_features == [
         (101, 30, 40, -1, "", 7, 0.0)
     ]
+
+
+def test_repeatmasker_uses_production_logic_name() -> None:
+    assert gff_repeat_loader.analysis_logic_name("repeatmasker") == "repeatmask"
+    assert gff_repeat_loader.analysis_logic_name("dust") == "dust"
 
 
 def test_load_anno_output_runs_available_loaders(

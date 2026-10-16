@@ -22,6 +22,10 @@ class AssemblyPaths:
     gff_local: Path
     fasta_local: Path
     assembly_report_local: Path
+    repeatmasker_out_url: str | None = None
+    repeatmasker_run_url: str | None = None
+    repeatmasker_out_local: Path | None = None
+    repeatmasker_run_local: Path | None = None
 
 
 @dataclass(frozen=True)
@@ -60,5 +64,9 @@ class AssemblySummaryRecord:
             "gff3_local": str(self.paths.gff_local),
             "fasta_local": str(self.paths.fasta_local),
             "assembly_report_local": str(self.paths.assembly_report_local),
+            "repeatmasker_out_ftp": self.paths.repeatmasker_out_url or "",
+            "repeatmasker_run_ftp": self.paths.repeatmasker_run_url or "",
+            "repeatmasker_out_local": str(self.paths.repeatmasker_out_local or ""),
+            "repeatmasker_run_local": str(self.paths.repeatmasker_run_local or ""),
             "downloaded": "Downloaded" if self.downloaded else "Not downloaded",
         }
