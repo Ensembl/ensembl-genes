@@ -5,7 +5,7 @@ Converts internal GenomeMetadata objects into specific project YAML schemas.
 import logging
 import posixpath
 import re
-from typing import Any
+from typing import Any, Dict, List, Optional
 
 
 from ensembl.genes.projects.accession_utils import accession_to_ftp_path
