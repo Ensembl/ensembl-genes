@@ -25,14 +25,13 @@ structure with standardized naming and MD5 checksums.
 """
 
 import argparse
-import os
-import sys
 import glob
-import logging
-import shutil
 import hashlib
+import logging
+import os
 import re
-from typing import Dict, List, Optional, Tuple
+import shutil
+import sys
 
 
 def setup_logging() -> logging.Logger:
@@ -50,7 +49,7 @@ def setup_logging() -> logging.Logger:
     return logging.getLogger(__name__)
 
 
-def parse_gca_id(gca_string: str) -> Tuple[str, str]:
+def parse_gca_id(gca_string: str) -> tuple[str, str]:
     """
     Parse GCA ID to extract accession number and version information.
 
@@ -100,7 +99,7 @@ def find_reheadered_fasta(output_path: str) -> str:
     return fasta_matches[0]
 
 
-def find_2bit(output_path: str) -> Optional[str]:
+def find_2bit(output_path: str) -> str | None:
     """
     Find the 2bit file in the output directory.
 
@@ -116,7 +115,7 @@ def find_2bit(output_path: str) -> Optional[str]:
     return None
 
 
-def find_annotation_files(output_path: str) -> Dict[str, Optional[str]]:
+def find_annotation_files(output_path: str) -> dict[str, str | None]:
     """
     Find GFF3 and GTF annotation files in the clade directory structure.
     Prefers sorted files over unsorted. Excludes abinitio, primary_assembly,
@@ -129,7 +128,7 @@ def find_annotation_files(output_path: str) -> Dict[str, Optional[str]]:
         Dict[str, Optional[str]]: Dictionary with 'gff3' and 'gtf' keys mapping
                                   to file paths or None if not found
     """
-    annotation_files: Dict[str, Optional[str]] = {"gff3": None, "gtf": None}
+    annotation_files: dict[str, str | None] = {"gff3": None, "gtf": None}
 
     for file_type in ("gff3", "gtf"):
         pattern = os.path.join(output_path, "*", file_type, "**", f"*.{file_type}.gz*")
@@ -182,7 +181,7 @@ def is_compressed_file(filepath: str) -> bool:
                 and magic_bytes[0] == 0x1F
                 and magic_bytes[1] == 0x8B
             )
-    except (IOError, OSError):
+    except OSError:
         # If we can't read the file, assume it's not compressed
         return False
 
@@ -287,11 +286,11 @@ def create_ftp_directory_structure(  # pylint: disable=too-many-locals, too-many
     output_path: str,
     species_name: str,
     gca_string: str,
-    annotation_files: Dict[str, Optional[str]],
+    annotation_files: dict[str, str | None],
     fasta_file: str,
-    two_bit_file: Optional[str],
+    two_bit_file: str | None,
     logger: logging.Logger,
-) -> Tuple[str, List[str]]:
+) -> tuple[str, list[str]]:
     """
     Create FTP directory structure and copy files with standardized naming.
 
@@ -327,7 +326,7 @@ def create_ftp_directory_structure(  # pylint: disable=too-many-locals, too-many
     os.makedirs(ftp_final_dir, exist_ok=True)
     logger.info(f"Created FTP directory: {ftp_final_dir}")
 
-    copied_files: List[str] = []
+    copied_files: list[str] = []
 
     # Copy and rename annotation files
     for file_type, source_file in annotation_files.items():
@@ -378,7 +377,7 @@ def create_ftp_directory_structure(  # pylint: disable=too-many-locals, too-many
 
 
 def generate_md5_checksums(
-    directory: str, files: List[str], logger: logging.Logger
+    directory: str, files: list[str], logger: logging.Logger
 ) -> str:
     """
     Generate MD5 checksums for files and write to CHECKSUMS file.
@@ -454,7 +453,7 @@ Examples:
 
     output_path: str = args.path
     gca_string: str = args.gca
-    species_name: Optional[str] = args.species
+    species_name: str | None = args.species
 
     # Validate input path
     if not os.path.exists(output_path):
@@ -525,7 +524,7 @@ Examples:
         logger.info("Pre-release FTP processing completed successfully")
 
     except Exception as err:  # pylint: disable=broad-exception-caught
-        logger.error(f"Error during processing: {str(err)}")
+        logger.error(f"Error during processing: {err!s}")
         sys.exit(1)
 
 

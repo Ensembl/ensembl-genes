@@ -18,14 +18,16 @@ import argparse
 import json
 import re
 from pathlib import Path
-from typing import Dict, Optional, Union
+
 import pymysql
+
+from ensembl.genes.mysql_helper import get_mysql_connection
 
 
 def parse_busco_file(  # pylint: disable=too-many-locals, too-many-statements, unspecified-encoding
     file_path: str,
-) -> Dict[
-    str, Union[str, int, float]
+) -> dict[
+    str, str | int | float
 ]:  # pylint: disable =too-many-locals, too-many-statements
     """
     Parses a BUSCO result file and extracts relevant data into a dictionary.
@@ -40,40 +42,40 @@ def parse_busco_file(  # pylint: disable=too-many-locals, too-many-statements, u
     """
 
     # Declare the dictionary to accept str as keys and str or float as values
-    data: Dict[str, Union[str, int, float]] = {}
+    data: dict[str, str | int | float] = {}
     # data["core_db"] = db
     # Open and read the file
     with open(file_path, "r") as file:  # pylint: disable =unspecified-encoding
         content = file.read()
 
     # Define regular expressions to match the relevant numbers
-    version_pattern: Optional[re.Match[str]] = re.search(
+    version_pattern: re.Match[str] | None = re.search(
         r"BUSCO version is: ((\d+\.\d+.\d+))", content
     )
-    dataset_pattern: Optional[re.Match[str]] = re.search(
+    dataset_pattern: re.Match[str] | None = re.search(
         r"The lineage dataset is: ([\w_]+)", content
     )
-    mode_pattern: Optional[re.Match[str]] = re.search(
+    mode_pattern: re.Match[str] | None = re.search(
         r"BUSCO was run in mode: ([\w_]+)", content
     )
-    completeness_pattern: Optional[re.Match[str]] = re.search(
+    completeness_pattern: re.Match[str] | None = re.search(
         r"(\d+)\s+Complete BUSCOs \(C\)", content
     )
-    single_copy_pattern: Optional[re.Match[str]] = re.search(
+    single_copy_pattern: re.Match[str] | None = re.search(
         r"(\d+)\s+Complete and single-copy BUSCOs \(S\)", content
     )
-    duplicates_pattern: Optional[re.Match[str]] = re.search(
+    duplicates_pattern: re.Match[str] | None = re.search(
         r"(\d+)\s+Complete and duplicated BUSCOs \(D\)", content
     )
-    fragmented_pattern: Optional[re.Match[str]] = re.search(
+    fragmented_pattern: re.Match[str] | None = re.search(
         r"(\d+)\s+Fragmented BUSCOs \(F\)", content
     )
-    missing_pattern: Optional[re.Match[str]] = re.search(
+    missing_pattern: re.Match[str] | None = re.search(
         r"(\d+)\s+Missing BUSCOs \(M\)", content
     )
 
     # Initialize mode_match as None or str
-    mode_match: Optional[str] = None
+    mode_match: str | None = None
 
     # If match is not None, extract the group and assign it to mode_match
     if mode_pattern is not None:
@@ -157,7 +159,7 @@ def parse_busco_file(  # pylint: disable=too-many-locals, too-many-statements, u
 # Function to generate SQL patches
 def generate_sql_patches(
     db_name: str,
-    json_data: Dict[str, Union[str, int, float]],
+    json_data: dict[str, str | int | float],
     species_id: int = 1,
     table_name: str = "meta",
 ) -> str:  # pylint: disable=line-too-long
@@ -267,7 +269,7 @@ def execute_sql_patches(  # pylint: disable=too-many-arguments, too-many-locals
     connection = None  # Initialize connection variable
     # Connect to the database and execute the SQL statements
     try:
-        connection = pymysql.connect(
+        connection = get_mysql_connection(
             host=host, user=user, password=password, database=db_name, port=int(port)
         )
         with connection.cursor() as cursor:

@@ -18,13 +18,14 @@ Usage:
 
 # pylint: disable=logging-fstring-interpolation, unspecified-encoding, broad-exception-caught, unused-variable, too-many-lines, too-many-locals, too-many-return-statements
 import argparse
-import os
 import csv
 import logging
+import os
 import sys
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import Optional
+
 from sqlalchemy import create_engine, text
 
 NULL_SENTINEL = r"\N"  # Use \N in CSV desired_meta_value to set NULL
@@ -128,7 +129,7 @@ def _get_metadata_connection():
         return None
 
 
-def get_genome_by_uuid(genome_uuid: str) -> Optional[Dict]:
+def get_genome_by_uuid(genome_uuid: str) -> dict | None:
     """
     Fetch genome details by UUID using ensembl-metadata-api.
 
@@ -161,7 +162,7 @@ def get_genome_by_uuid(genome_uuid: str) -> Optional[Dict]:
 
 def get_team_responsible_for_genome(
     genome_uuid: str, dataset_type: str = "genebuild"
-) -> Optional[str]:
+) -> str | None:
     """
     Fetch genebuild.team_responsible attribute for a genome.
 
@@ -208,7 +209,7 @@ def get_team_responsible_for_genome(
 
 def get_affected_genomes_and_teams(
     genome_uuid: str, table_location: str, dataset_type: str = "genebuild"
-) -> List[Dict]:
+) -> list[dict]:
     """
     Get all genomes that share the same organism or assembly, and their team_responsible values.
 
@@ -347,12 +348,12 @@ def get_current_metadata_value(
         return _VALUE_UNKNOWN
 
 
-_core_db_cache: Dict[str, Optional[Tuple[str, str]]] = {}
+_core_db_cache: dict[str, tuple[str, str] | None] = {}
 
 
 def find_core_db(
-    production_name: str, server_uris: Dict[str, str]
-) -> Optional[Tuple[str, str]]:
+    production_name: str, server_uris: dict[str, str]
+) -> tuple[str, str] | None:
     """
     Find the core database for a production_name by searching server_uris.
 
@@ -436,14 +437,14 @@ def _log_team_warnings(  # pylint: disable=too-many-locals, too-many-arguments
     validate_file,
     patch_file,
     genome_uuid: str,
-    affected_genomes: List[Dict],
-    team_filter: Optional[str],
-    logger: Optional[logging.Logger],
+    affected_genomes: list[dict],
+    team_filter: str | None,
+    logger: logging.Logger | None,
 ):
     """
     Logs warnings about affected genomes and team ownership.
     """
-    teams_map: Dict[str, List[str]] = {}
+    teams_map: dict[str, list[str]] = {}
     for genome_data in affected_genomes:
         team = genome_data["team_responsible"]
         teams_map.setdefault(team, []).append(
@@ -543,7 +544,7 @@ def _write_validation_sql(  # pylint: disable= too-many-arguments
 
 def get_existing_dataset_attribute_ids(
     genome_uuid: str, dataset_type: str, attribute_name: str
-) -> List[int]:
+) -> list[int]:
     """
     Fetch existing dataset_attribute_id primary keys for a genome+dataset+attribute.
 
@@ -603,7 +604,7 @@ def _write_patch_sql(  # pylint: disable=too-many-arguments
     sql_literal: str,
     table_location: str,
     dataset_type: str,
-    existing_attribute_ids: Optional[List[int]] = None,
+    existing_attribute_ids: list[int] | None = None,
 ):
     """Writes the patch UPDATE/INSERT statements for a patch."""
     patch_file.write(f"-- {genome_uuid} | {attribute_name} (table: {table_location})\n")
@@ -665,10 +666,10 @@ def write_metadata_patch_for_genome(  # pylint: disable=too-many-arguments
     validate_file,
     patch_file,
     genome_uuid: str,
-    patches: List[Tuple[str, str, str]],
+    patches: list[tuple[str, str, str]],
     dataset_type: str = "genebuild",
-    logger: Optional[logging.Logger] = None,
-    team_filter: Optional[str] = "Genebuild",
+    logger: logging.Logger | None = None,
+    team_filter: str | None = "Genebuild",
 ):
     """
     Write validation and patch SQL for a single genome.
@@ -727,7 +728,7 @@ def write_metadata_patch_for_genome(  # pylint: disable=too-many-arguments
         # For dataset_attribute, look up existing primary keys so the patch can use
         # entry-specific UPDATE statements rather than DELETE+INSERT (which breaks the
         # UNIQUE constraint when a genome is linked to multiple releases).
-        existing_attribute_ids: Optional[List[int]] = None
+        existing_attribute_ids: list[int] | None = None
         if table_location == "dataset_attribute":
             existing_attribute_ids = get_existing_dataset_attribute_ids(
                 genome_uuid, dataset_type, attribute_name
@@ -762,7 +763,7 @@ def write_core_patch_for_genome(
     validate_file,
     patch_file,
     database: str,
-    patches: List[Tuple[str, str, str]],
+    patches: list[tuple[str, str, str]],
     species_id: int = 1,
 ):
     """
@@ -801,7 +802,7 @@ def write_core_patch_for_genome(
         patch_file.write(f"VALUES ({species_id}, '{meta_key}', {sql_literal});\n\n")
 
 
-def read_csv_patches(csv_file: Path, core_suffix: str = "_core_114_1") -> List[Dict]:
+def read_csv_patches(csv_file: Path, core_suffix: str = "_core_114_1") -> list[dict]:
     """
     Read patches from CSV file.
 
@@ -879,7 +880,7 @@ def read_csv_patches(csv_file: Path, core_suffix: str = "_core_114_1") -> List[D
     return patches
 
 
-def check_thoas_requirements(patches: List[Dict], logger: logging.Logger) -> bool:
+def check_thoas_requirements(patches: list[dict], logger: logging.Logger) -> bool:
     """
     Check if any patches require THOAS (taxonomic heritage) updates.
 
@@ -913,8 +914,8 @@ def check_thoas_requirements(patches: List[Dict], logger: logging.Logger) -> boo
 
 
 def resolve_genome_info(
-    patch: Dict, logger: logging.Logger, server_uris: Optional[Dict[str, str]] = None
-) -> Optional[Dict]:
+    patch: dict, logger: logging.Logger, server_uris: dict[str, str] | None = None
+) -> dict | None:
     """
     Resolve production name from genome UUID, and locate the core database.
 
@@ -936,7 +937,7 @@ def resolve_genome_info(
     logger.info(
         f"Row {row_num}: Fetching production_name for genome_uuid: {genome_uuid}"
     )
-    production_name: Optional[str] = None
+    production_name: str | None = None
     if not offline:
         genome_info = get_genome_by_uuid(genome_uuid)
         if not genome_info:
@@ -975,11 +976,11 @@ def resolve_genome_info(
 
 
 def group_patches_by_genome(
-    patches: List[Dict],
+    patches: list[dict],
     logger: logging.Logger,
     jira_ticket: str = "",
-    server_uris: Optional[Dict[str, str]] = None,
-) -> Dict[str, Dict]:
+    server_uris: dict[str, str] | None = None,
+) -> dict[str, dict]:
     """
     Group patches by genome UUID.
 
@@ -1030,7 +1031,7 @@ def group_patches_by_genome(
 
 
 def generate_all_patches(  # pylint: disable=too-many-locals
-    grouped_patches: Dict[str, Dict],
+    grouped_patches: dict[str, dict],
     output_dir: Path,
     jira_ticket: str,
     logger: logging.Logger,
@@ -1089,7 +1090,7 @@ def generate_all_patches(  # pylint: disable=too-many-locals
                 )
 
         # Group core patches by server label (None → "core" for the legacy single-file case)
-        by_server: Dict[str, List[Dict]] = {}
+        by_server: dict[str, list[dict]] = {}
         for genome_data in grouped_patches.values():
             if not genome_data["core_db_name"]:
                 continue
@@ -1292,7 +1293,7 @@ See patches_template.csv for a complete example.
         return 1
 
     # st6 first — it's the primary staging server for 114 cores
-    server_uris: Dict[str, str] = {}
+    server_uris: dict[str, str] = {}
     if args.st6_uri:
         server_uris["st6"] = args.st6_uri
     if args.st5_uri:

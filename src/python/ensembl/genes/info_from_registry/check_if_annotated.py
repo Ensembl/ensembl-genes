@@ -23,8 +23,9 @@ an error if any assembly has already been annotated.
 
 # pylint: disable=logging-fstring-interpolation
 import logging
-from typing import Dict, Any
-from ensembl.genes.info_from_registry.mysql_helper import mysql_fetch_data
+from typing import Any
+
+from ensembl.genes.mysql_helper import mysql_fetch_data
 
 # Configure logging
 logging.basicConfig(
@@ -36,7 +37,7 @@ logger = logging.getLogger(__name__)
 
 
 def check_if_annotated(
-    assembly_accession: str, server_info: Dict[str, Dict[str, Any]]
+    assembly_accession: str, server_info: dict[str, dict[str, Any]]
 ) -> None:
     """
     Check if a genome assembly is already annotated in the genebuild registry.
@@ -65,11 +66,11 @@ def check_if_annotated(
     """
 
     registry_query = """
-        SELECT 
-            gca_accession, 
-            gb_status, 
+        SELECT
+            gca_accession,
+            gb_status,
             genebuilder
-        FROM genebuild_status 
+        FROM genebuild_status
         WHERE gca_accession =  %s
     """  # pylint: disable=f-string-without-interpolation
 

@@ -29,15 +29,12 @@ from __future__ import annotations
 import argparse
 import sys
 
-from ensembl.genes.info_from_registry.mysql_helper import (
-    RegistryConnection,
-    mysql_get_connection,
-)
-from ensembl.genes.info_from_registry.registry_helper import fetch_registry_ids
+from ensembl.genes.mysql_helper import MySQLConnection, mysql_get_connection
+from ensembl.genes.registry_helper import fetch_registry_ids
 
 
 def fetch_core_metrics(
-    core_connection: RegistryConnection, species_id: int
+    core_connection: MySQLConnection, species_id: int
 ) -> list[dict[str, str]]:
     """
     Fetch metrics from core database meta table.
@@ -95,7 +92,7 @@ def partition_metrics(
 
 
 def write_assembly_metrics(
-    registry_connection: RegistryConnection,
+    registry_connection: MySQLConnection,
     assembly_id: int,
     rows: list[tuple[str, str]],
     dev: bool,
@@ -154,7 +151,7 @@ def write_assembly_metrics(
 
 
 def write_genebuild_metrics(
-    registry_connection: RegistryConnection,
+    registry_connection: MySQLConnection,
     genebuild_status_id: int | None,
     assembly_id: int,
     rows: list[tuple[str, str]],

@@ -25,13 +25,14 @@ Functions:
 """
 
 # pylint:disable=logging-fstring-interpolation, unspecified-encoding, too-many-locals
-import os
 import json
 import logging
-from typing import Any, Optional
+import os
+from typing import Any
+
 import pymysql
 
-from ensembl.genes.info_from_registry.mysql_helper import mysql_fetch_data
+from ensembl.genes.mysql_helper import mysql_fetch_data
 
 # Configure logging
 logging.basicConfig(
@@ -126,7 +127,7 @@ def load_clade_data() -> dict[str, dict[str, Any]]:
 
 def assign_clade(
     server_info: dict, registry_info: dict
-) -> tuple[str, Optional[int], Optional[dict[str, Any]]]:
+) -> tuple[str, int | None, dict[str, Any] | None]:
     """
     Assign a clade to a given taxon based on clade data and taxonomy hierarchy.
 
@@ -208,10 +209,8 @@ def assign_clade(
                 )
 
                 logging.info(
-                    (
-                        f"Hierarchy match: Assigned clade '{internal_clade}' "
-                        f"via {taxon_class} taxon_id {current_taxon_id}"
-                    )
+                    f"Hierarchy match: Assigned clade '{internal_clade}' "
+                    f"via {taxon_class} taxon_id {current_taxon_id}"
                 )
                 return internal_clade, genus_taxon_id, clade_details
 
@@ -224,7 +223,7 @@ def assign_clade(
     )
 
 
-def assign_clade_info_custom_loading(registry_info: dict) -> Optional[dict[str, Any]]:
+def assign_clade_info_custom_loading(registry_info: dict) -> dict[str, Any] | None:
     """
     Look for a specific clade in the JSON data and return all values except for taxon_id.
 

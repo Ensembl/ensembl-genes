@@ -15,9 +15,10 @@
 # limitations under the License.
 """Check the availability for short and long read data from ENA website given a taxon id"""
 
+import argparse
 import csv
 from pathlib import Path
-import argparse
+
 import requests
 
 

@@ -6,7 +6,7 @@ import json
 import os
 import re
 from datetime import datetime
-from typing import Any, Dict
+from typing import Any
 
 
 def now_utc_stamp() -> str:
@@ -31,7 +31,7 @@ def sha256_of_text(text: str) -> str:
     return hashlib.sha256(text.encode("utf-8")).hexdigest()
 
 
-def write_json(obj: Dict[str, Any], path: str) -> None:
+def write_json(obj: dict[str, Any], path: str) -> None:
     ensure_dir(os.path.dirname(path))
     with open(path, "w", encoding="utf-8") as fh:
         json.dump(obj, fh, indent=2, sort_keys=True)

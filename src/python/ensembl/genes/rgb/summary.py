@@ -1,7 +1,7 @@
 # pylint: disable=missing-module-docstring, missing-function-docstring, broad-exception-caught, import-outside-toplevel, too-many-arguments, too-many-locals, too-many-statements, unnecessary-comprehension, invalid-name, unused-argument, unused-variable, line-too-long
 from __future__ import annotations
 
-from typing import Dict, List, Optional, Sequence, Tuple
+from collections.abc import Sequence
 
 import numpy as np
 import pandas as pd
@@ -9,11 +9,11 @@ import pandas as pd
 
 def _merge_intervals(
     starts: Sequence[int], ends: Sequence[int]
-) -> List[Tuple[int, int]]:
+) -> list[tuple[int, int]]:
     if len(starts) == 0:
         return []
     ivs = sorted(zip(map(int, starts), map(int, ends)))
-    out: List[Tuple[int, int]] = []
+    out: list[tuple[int, int]] = []
     s, e = ivs[0]
     for s2, e2 in ivs[1:]:
         if s2 <= e + 0:  # overlap/touch
@@ -25,11 +25,11 @@ def _merge_intervals(
     return out
 
 
-def _total_span(ivs: List[Tuple[int, int]]) -> int:
+def _total_span(ivs: list[tuple[int, int]]) -> int:
     return int(sum(e - s + 1 for s, e in ivs))
 
 
-def _intersect_bp(a: List[Tuple[int, int]], b: List[Tuple[int, int]]) -> int:
+def _intersect_bp(a: list[tuple[int, int]], b: list[tuple[int, int]]) -> int:
     i = j = 0
     cov = 0
     while i < len(a) and j < len(b):
@@ -57,7 +57,7 @@ def _safe_ratio(n: int, d: int) -> float:
     return float(n) / float(d if d != 0 else 1)
 
 
-def load_mapping(path: Optional[str]) -> Dict[str, str]:
+def load_mapping(path: str | None) -> dict[str, str]:
     if not path:
         return {}
     try:
@@ -71,7 +71,7 @@ def load_mapping(path: Optional[str]) -> Dict[str, str]:
             except Exception:
                 pass
         # TSV fallback: logic_name\tclass
-        m: Dict[str, str] = {}
+        m: dict[str, str] = {}
         with open(path, "r", encoding="utf-8") as fh:
             for line in fh:
                 line = line.strip()
@@ -92,7 +92,7 @@ def summarize_loci(
     layer_genes: pd.DataFrame,
     core_tx: pd.DataFrame,
     layer_tx: pd.DataFrame,
-    evidence_map: Optional[Dict[str, str]] = None,
+    evidence_map: dict[str, str] | None = None,
     locus_gap_bp: int = 5000,
 ) -> pd.DataFrame:
     evidence_map = evidence_map or {}
@@ -149,7 +149,7 @@ def summarize_loci(
         ivs = _merge_intervals(df.seq_region_start.values, df.seq_region_end.values)
         return _total_span(ivs)
 
-    def cover_bp(layer_df: pd.DataFrame, core_df: pd.DataFrame) -> Tuple[int, int, int]:
+    def cover_bp(layer_df: pd.DataFrame, core_df: pd.DataFrame) -> tuple[int, int, int]:
         la = _merge_intervals(
             layer_df.seq_region_start.values, layer_df.seq_region_end.values
         )
@@ -195,7 +195,7 @@ def summarize_loci(
         # Diversity
         logic_names = set(ltx.logic_name.dropna().astype(str).tolist())
         logic_name_count = len(logic_names)
-        classes = set((evidence_map.get(ln, "unknown") for ln in logic_names))
+        classes = set(evidence_map.get(ln, "unknown") for ln in logic_names)
         class_count = len(classes)
 
         # Compression

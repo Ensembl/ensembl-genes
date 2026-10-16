@@ -18,14 +18,14 @@
 import argparse
 import os.path
 import re
-from pathlib import Path
 import sys
-from typing import List, Tuple
+from pathlib import Path
+
 import requests
-from requests.exceptions import RequestException, HTTPError, Timeout
+from requests.exceptions import HTTPError, RequestException, Timeout
 
 
-def get_sample_info(accession: str) -> Tuple[str, str]:
+def get_sample_info(accession: str) -> tuple[str, str]:
     """
     Get info about sample name and description for the run accession
 
@@ -78,14 +78,14 @@ def get_sample_info(accession: str) -> Tuple[str, str]:
         return (sample, description)
 
     except (RequestException, HTTPError, ConnectionError, Timeout) as e:
-        print(f"An error occurred while fetching data from {biosample_url}: {str(e)}")
+        print(f"An error occurred while fetching data from {biosample_url}: {e!s}")
         # Handle the error here, you can log it or take other appropriate actions.
         return ("unknown", "unknown")
 
 
 def get_data_from_ena(  # pylint: disable=too-many-locals, too-many-branches
     taxon_id: int, read_type: str, tree: bool
-) -> List[Tuple[str, ...]]:
+) -> list[tuple[str, ...]]:
     """
     Query ENA API to get short or long read data
 
@@ -97,7 +97,7 @@ def get_data_from_ena(  # pylint: disable=too-many-locals, too-many-branches
     Returns:
         List[Tuple[str, ...]]: list of tuples with data for csv file
     """
-    csv_data: List[Tuple[str, ...]] = []
+    csv_data: list[tuple[str, ...]] = []
 
     if tree:
         query = f"tax_tree({taxon_id})"
@@ -249,10 +249,9 @@ def main() -> None:
                 csv_data = csv_data[: (args.limit * 2)]
 
             with open(Path(args.csv_file), "w", encoding="utf8") as csv_file:
-                for row in csv_data:
-                    csv_file.write("\t".join(row) + "\n")
+                csv_file.writelines("\t".join(row) + "\n" for row in csv_data)
         except (RequestException, HTTPError, ConnectionError, Timeout) as e:
-            print(f"An error occurred during the data retrieval process: {str(e)}")
+            print(f"An error occurred during the data retrieval process: {e!s}")
             # Handle the error here, you can log it or take other appropriate actions.
 
 

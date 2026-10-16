@@ -1,40 +1,40 @@
 {
-  "rapid": {
-    "db_host": "mysql-ens-sta-5.ebi.ac.uk",
-    "db_port": 4684,
-    "db_user": "ensro",
-    "db_pass": ""
-  },
-  "main": {
-    "db_host": "mysql-ens-mirror-1.ebi.ac.uk",
-    "db_port": 4240,
-    "db_user": "ensro",
-    "db_pass": ""
-  },
-  "meta_beta": {
-    "db_host": "mysql-ens-production-1.ebi.ac.uk",
-    "db_port": 4721,
-    "db_user": "ensro",
-    "db_pass": "",
-    "db_name": "ensembl_genome_metadata"
-  },
-  "st5": {
-      "db_host": "mysql-ens-sta-5.ebi.ac.uk",
-      "db_port": 4684,
-      "db_user": "ensro",
-      "db_pass": ""
-  },
-  "st6": {
-      "db_host": "mysql-ens-sta-6.ebi.ac.uk",
-      "db_port": 4695,
-      "db_user": "ensro",
-      "db_pass": ""
-  },
-  "gb1": {
-      "db_host": "mysql-ens-genebuild-prod-1.ebi.ac.uk",
-      "db_port": 4527,
-      "db_user": "ensro",
-      "db_pass": "",
-      "db_name": "gb_assembly_metadata"
-   }
+    "rapid": {
+        "db_host": "mysql-ens-sta-5.ebi.ac.uk",
+        "db_port": 4684,
+        "db_user": "ensro",
+        "db_pass": ""
+    },
+    "main": {
+        "db_host": "mysql-ens-mirror-1.ebi.ac.uk",
+        "db_port": 4240,
+        "db_user": "ensro",
+        "db_pass": ""
+    },
+    "meta_beta": {
+        "db_host": "mysql-ens-production-1.ebi.ac.uk",
+        "db_port": 4721,
+        "db_user": "ensro",
+        "db_pass": "",
+        "db_name": "ensembl_genome_metadata"
+    },
+    "st5": {
+        "db_host": "mysql-ens-sta-5.ebi.ac.uk",
+        "db_port": 4684,
+        "db_user": "ensro",
+        "db_pass": ""
+    },
+    "st6": {
+        "db_host": "mysql-ens-sta-6.ebi.ac.uk",
+        "db_port": 4695,
+        "db_user": "ensro",
+        "db_pass": ""
+    },
+    "gb1": {
+        "db_host": "mysql-ens-genebuild-prod-1.ebi.ac.uk",
+        "db_port": 4527,
+        "db_user": "ensro",
+        "db_pass": "",
+        "db_name": "gb_assembly_metadata"
+    }
 }

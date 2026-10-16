@@ -23,10 +23,14 @@ import logging
 import os
 import random
 import string
-from typing import Optional
+
 import pymysql  # pylint: disable=import-error  # type: ignore
 
-from ensembl.genes.info_from_registry.mysql_helper import mysql_fetch_data
+from ensembl.genes.mysql_helper import (
+    MySQLConnection,
+    get_mysql_connection,
+    mysql_fetch_data,
+)
 
 # Configure logging
 logging.basicConfig(
@@ -44,7 +48,7 @@ def get_special_cases() -> dict[str, str]:
     """
     enscode = os.environ.get("ENSCODE")
     if not enscode:
-        raise EnvironmentError("Environment variable ENSCODE is not set")
+        raise OSError("Environment variable ENSCODE is not set")
     json_path = os.path.join(
         enscode,
         "ensembl-genes",
@@ -73,7 +77,7 @@ def existing_prefix(server_info: dict) -> list[str]:
     Returns:
         list[str]: A list of existing species prefixes.
     """
-    prefix_metadata_query = f"SELECT DISTINCT prefix FROM species_prefix ;"  # pylint: disable=f-string-without-interpolation
+    prefix_metadata_query = "SELECT DISTINCT prefix FROM species_prefix ;"  # pylint: disable=f-string-without-interpolation
     output_metadata = mysql_fetch_data(
         prefix_metadata_query,
         host=server_info["registry"]["db_host"],
@@ -113,7 +117,7 @@ def generate_random_prefix(existing_prefix_list: list[str]) -> str:
 def insert_prefix_into_db(
     prefix: str,
     taxon_id: int,
-    conn: pymysql.connections.Connection,
+    conn: MySQLConnection,
     store_new_registry: bool = False,
 ) -> bool:
     """Insert a new species prefix into the database.
@@ -166,7 +170,7 @@ def create_prefix(
         str: The newly created species prefix.
     """
     logger.info(f"Creating new prefix for taxon ID: {taxon_id}")
-    conn = pymysql.connect(
+    conn = get_mysql_connection(
         host=server_info["registry"]["db_host"],
         user=server_info["registry"]["db_user_w"],
         port=int(server_info["registry"]["db_port"]),
@@ -186,7 +190,7 @@ def create_prefix(
     raise RuntimeError("Failed to generate unique prefix after many attempts.")
 
 
-def get_species_prefix(taxon_id: int, server_info: dict) -> Optional[str]:
+def get_species_prefix(taxon_id: int, server_info: dict) -> str | None:
     """
     This function retrieves the species prefix from the metadata database.
     If the prefix is not found, it creates a new one. There are special cases
@@ -248,7 +252,7 @@ def get_species_prefix(taxon_id: int, server_info: dict) -> Optional[str]:
             species_prefix = str(prefix_list[0])
             logger.info(f"Saving exting prefix {species_prefix} in new registry")
             # Open a new connection
-            conn = pymysql.connect(
+            conn = get_mysql_connection(
                 host=server_info["registry"]["db_host"],
                 user=server_info["registry"]["db_user_w"],
                 port=int(server_info["registry"]["db_port"]),
