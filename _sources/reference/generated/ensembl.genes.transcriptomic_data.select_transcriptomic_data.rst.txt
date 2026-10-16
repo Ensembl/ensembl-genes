@@ -1,9 +1,0 @@
-ensembl.genes.transcriptomic_data.select_transcriptomic_data
-============================================================
-
-Source: ``src/python/ensembl/genes/transcriptomic_data/select_transcriptomic_data.py``
-
-.. automodule:: ensembl.genes.transcriptomic_data.select_transcriptomic_data
-   :members:
-   :show-inheritance:
-   :undoc-members:

@@ -1,9 +1,0 @@
-ensembl.genes.annotation_qc.metrics.pairwise.splice
-===================================================
-
-Source: ``src/python/ensembl/genes/annotation_qc/metrics/pairwise/splice.py``
-
-.. automodule:: ensembl.genes.annotation_qc.metrics.pairwise.splice
-   :members:
-   :show-inheritance:
-   :undoc-members:

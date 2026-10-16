@@ -1,9 +1,0 @@
-ensembl.genes.projects.write_yaml
-=================================
-
-Source: ``src/python/ensembl/genes/projects/write_yaml.py``
-
-.. automodule:: ensembl.genes.projects.write_yaml
-   :members:
-   :show-inheritance:
-   :undoc-members:

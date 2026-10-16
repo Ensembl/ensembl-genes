@@ -1,8 +1,0 @@
-user_pipeline_settings.json
-===========================
-
-Source: ``src/python/ensembl/genes/info_from_registry/user_pipeline_settings.json``
-
-.. literalinclude:: ../../../src/python/ensembl/genes/info_from_registry/user_pipeline_settings.json
-   :language: json
-   :linenos:

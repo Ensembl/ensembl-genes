@@ -1,9 +1,0 @@
-ensembl.genes.annotation_qc.metrics.pairwise.evaluation_audit
-=============================================================
-
-Source: ``src/python/ensembl/genes/annotation_qc/metrics/pairwise/evaluation_audit.py``
-
-.. automodule:: ensembl.genes.annotation_qc.metrics.pairwise.evaluation_audit
-   :members:
-   :show-inheritance:
-   :undoc-members:

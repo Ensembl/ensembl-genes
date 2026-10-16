@@ -1,9 +1,0 @@
-ensembl.genes.automation.pre_release_ftp
-========================================
-
-Source: ``src/python/ensembl/genes/automation/pre_release_ftp.py``
-
-.. automodule:: ensembl.genes.automation.pre_release_ftp
-   :members:
-   :show-inheritance:
-   :undoc-members:

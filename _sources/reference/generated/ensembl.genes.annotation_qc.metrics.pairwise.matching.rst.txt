@@ -1,9 +1,0 @@
-ensembl.genes.annotation_qc.metrics.pairwise.matching
-=====================================================
-
-Source: ``src/python/ensembl/genes/annotation_qc/metrics/pairwise/matching.py``
-
-.. automodule:: ensembl.genes.annotation_qc.metrics.pairwise.matching
-   :members:
-   :show-inheritance:
-   :undoc-members:

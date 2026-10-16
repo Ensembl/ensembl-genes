@@ -1,9 +1,0 @@
-ensembl.genes.annotation_qc.metrics.pairwise.classify
-=====================================================
-
-Source: ``src/python/ensembl/genes/annotation_qc/metrics/pairwise/classify.py``
-
-.. automodule:: ensembl.genes.annotation_qc.metrics.pairwise.classify
-   :members:
-   :show-inheritance:
-   :undoc-members:

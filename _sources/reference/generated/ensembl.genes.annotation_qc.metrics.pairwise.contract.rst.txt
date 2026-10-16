@@ -1,9 +1,0 @@
-ensembl.genes.annotation_qc.metrics.pairwise.contract
-=====================================================
-
-Source: ``src/python/ensembl/genes/annotation_qc/metrics/pairwise/contract.py``
-
-.. automodule:: ensembl.genes.annotation_qc.metrics.pairwise.contract
-   :members:
-   :show-inheritance:
-   :undoc-members:

@@ -1,9 +1,0 @@
-ensembl.genes.annotation_qc.metrics.pairwise.selection
-======================================================
-
-Source: ``src/python/ensembl/genes/annotation_qc/metrics/pairwise/selection.py``
-
-.. automodule:: ensembl.genes.annotation_qc.metrics.pairwise.selection
-   :members:
-   :show-inheritance:
-   :undoc-members:

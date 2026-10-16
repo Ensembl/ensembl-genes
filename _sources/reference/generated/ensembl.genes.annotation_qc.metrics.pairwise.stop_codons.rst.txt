@@ -1,9 +1,0 @@
-ensembl.genes.annotation_qc.metrics.pairwise.stop_codons
-========================================================
-
-Source: ``src/python/ensembl/genes/annotation_qc/metrics/pairwise/stop_codons.py``
-
-.. automodule:: ensembl.genes.annotation_qc.metrics.pairwise.stop_codons
-   :members:
-   :show-inheritance:
-   :undoc-members:

@@ -1,8 +1,0 @@
-anno_settings.json
-==================
-
-Source: ``src/python/ensembl/genes/info_from_registry/anno_settings.json``
-
-.. literalinclude:: ../../../src/python/ensembl/genes/info_from_registry/anno_settings.json
-   :language: json
-   :linenos:
