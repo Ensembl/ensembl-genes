@@ -1,0 +1,9 @@
+ensembl.genes.projects.models
+=============================
+
+Source: ``src/python/ensembl/genes/projects/models.py``
+
+.. automodule:: ensembl.genes.projects.models
+   :members:
+   :show-inheritance:
+   :undoc-members:

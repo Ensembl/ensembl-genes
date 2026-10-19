@@ -1,0 +1,9 @@
+ensembl.genes.projects.registry.ncbi_entrez
+===========================================
+
+Source: ``src/python/ensembl/genes/projects/registry/ncbi_entrez.py``
+
+.. automodule:: ensembl.genes.projects.registry.ncbi_entrez
+   :members:
+   :show-inheritance:
+   :undoc-members:

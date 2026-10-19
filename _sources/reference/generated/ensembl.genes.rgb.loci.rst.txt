@@ -1,0 +1,9 @@
+ensembl.genes.rgb.loci
+======================
+
+Source: ``src/python/ensembl/genes/rgb/loci.py``
+
+.. automodule:: ensembl.genes.rgb.loci
+   :members:
+   :show-inheritance:
+   :undoc-members:

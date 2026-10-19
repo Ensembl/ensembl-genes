@@ -1,0 +1,9 @@
+ensembl.genes.rgb.summary
+=========================
+
+Source: ``src/python/ensembl/genes/rgb/summary.py``
+
+.. automodule:: ensembl.genes.rgb.summary
+   :members:
+   :show-inheritance:
+   :undoc-members:

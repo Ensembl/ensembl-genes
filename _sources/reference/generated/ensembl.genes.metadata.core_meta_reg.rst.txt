@@ -1,0 +1,9 @@
+ensembl.genes.metadata.core_meta_reg
+====================================
+
+Source: ``src/python/ensembl/genes/metadata/core_meta_reg.py``
+
+.. automodule:: ensembl.genes.metadata.core_meta_reg
+   :members:
+   :show-inheritance:
+   :undoc-members:

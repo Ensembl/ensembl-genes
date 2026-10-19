@@ -1,0 +1,28 @@
+ensembl.genes.rgb
+=================
+
+Source directory: ``src/python/ensembl/genes/rgb``
+
+Package Contents
+----------------
+
+.. automodule:: ensembl.genes.rgb
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+Folders, Scripts, and Files
+---------------------------
+
+.. toctree::
+   :maxdepth: 2
+
+   docs <ensembl.genes.rgb.docs>
+   examples <ensembl.genes.rgb.examples>
+   cli <ensembl.genes.rgb.cli>
+   db <ensembl.genes.rgb.db>
+   io <ensembl.genes.rgb.io>
+   loci <ensembl.genes.rgb.loci>
+   summary <ensembl.genes.rgb.summary>
+   utils <ensembl.genes.rgb.utils>
+   version <ensembl.genes.rgb.version>

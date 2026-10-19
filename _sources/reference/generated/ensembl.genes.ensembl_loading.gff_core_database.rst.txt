@@ -1,0 +1,9 @@
+ensembl.genes.ensembl_loading.gff_core_database
+===============================================
+
+Source: ``src/python/ensembl/genes/ensembl_loading/gff_core_database.py``
+
+.. automodule:: ensembl.genes.ensembl_loading.gff_core_database
+   :members:
+   :show-inheritance:
+   :undoc-members:

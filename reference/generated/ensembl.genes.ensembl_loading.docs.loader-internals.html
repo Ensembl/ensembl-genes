@@ -1,0 +1,971 @@
+<!doctype html>
+<html class="no-js" lang="en" data-content_root="../../">
+  <head><meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="index" title="Index" href="../../genindex.html"><link rel="search" title="Search" href="../../search.html"><link rel="next" title="Python API And Boundaries" href="ensembl.genes.ensembl_loading.docs.python-api-and-boundaries.html"><link rel="prev" title="ensembl.genes.ensembl_loading.docs" href="ensembl.genes.ensembl_loading.docs.html">
+        <link rel="prefetch" href="../../_static/ebang.png" as="image">
+
+    <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
+        <title>Loader Internals - Ensembl Genes</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=d111a655" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=7bdb33bb" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=8dab3a3b" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f2f2f2;
+  --color-code-foreground: #1e1e1e;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle site navigation sidebar">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc" aria-label="Toggle table of contents sidebar">
+<label class="overlay sidebar-overlay" for="__navigation"></label>
+<label class="overlay toc-overlay" for="__toc"></label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <span class="icon"><svg><use href="#svg-menu"></use></svg></span>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../../index.html"><div class="brand">Ensembl Genes</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
+  <div class="sidebar-logo-container">
+    <img class="sidebar-logo" src="../../_static/ebang.png" alt="Logo"/>
+  </div>
+  
+  <span class="sidebar-brand-text">Ensembl Genes</span>
+  
+</a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../install.html">How to install this repository</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage.html">Usage</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../code_of_conduct.html">Code of Conduct</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../coverage.html">Coverage report</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul class="current">
+<li class="toctree-l1 current has-children"><a class="reference internal" href="../../api.html">API Reference</a><input aria-label="Toggle navigation of API Reference" checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul class="current">
+<li class="toctree-l2 current has-children"><a class="reference internal" href="index.html">Generated Code Reference</a><input aria-label="Toggle navigation of Generated Code Reference" checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul class="current">
+<li class="toctree-l3 current has-children"><a class="reference internal" href="ensembl.genes.html">ensembl.genes</a><input aria-label="Toggle navigation of ensembl.genes" checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul class="current">
+<li class="toctree-l4 has-children"><a class="reference internal" href="ensembl.genes.annotation_qc.html">annotation_qc</a><input aria-label="Toggle navigation of annotation_qc" class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.annotation_qc.README.html">README</a></li>
+<li class="toctree-l5 has-children"><a class="reference internal" href="ensembl.genes.annotation_qc.config.html">config</a><input aria-label="Toggle navigation of config" class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.config.feature_levels_yaml.html">feature_levels.yaml</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.config.value_map_json.html">value_map.json</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.config.value_mapping_csv.html">value_mapping.csv</a></li>
+</ul>
+</li>
+<li class="toctree-l5 has-children"><a class="reference internal" href="ensembl.genes.annotation_qc.metrics.html">metrics</a><input aria-label="Toggle navigation of metrics" class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.metrics.README.html">README</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.metrics.feature_wide_metrics_README.html">feature_wide_metrics_README</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.metrics.genome_wide_metrics_README.html">genome_wide_metrics_README</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.metrics.events.html">events</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.metrics.feature_wide_metrics.html">feature_wide_metrics</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.metrics.features.html">features</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.metrics.geneset.html">geneset</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.metrics.genome_wide_metrics.html">genome_wide_metrics</a></li>
+</ul>
+</li>
+<li class="toctree-l5 has-children"><a class="reference internal" href="ensembl.genes.annotation_qc.notebooks.html">notebooks</a><input aria-label="Toggle navigation of notebooks" class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" role="switch" type="checkbox"/><label for="toctree-checkbox-7"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.notebooks.Example_ipynb.html">Example.ipynb</a></li>
+</ul>
+</li>
+<li class="toctree-l5 has-children"><a class="reference internal" href="ensembl.genes.annotation_qc.parsers.html">parsers</a><input aria-label="Toggle navigation of parsers" class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.parsers.README.html">parsers</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.parsers.README.html#responsibilities">Responsibilities</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.parsers.README.html#what-does-not-belong-here">What does NOT belong here?</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.parsers.README.html#inputs">Inputs</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.parsers.README.html#outputs">Outputs</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.parsers.README.html#design-principles">Design principles</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.parsers.README.html#adding-a-new-parser">Adding a new parser</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.parsers.README.html#common-mistakes">Common mistakes</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.parsers.README.html#testing">Testing</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.parsers.README.html#related-packages">Related packages</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.parsers.README.html#id1">Parsers</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.parsers.README.html#annotation-parser-gff3-gtf">Annotation Parser (GFF3 / GTF)</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.parsers.annotation.html">annotation</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.parsers.diamond.html">diamond</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.parsers.interpro.html">interpro</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.parsers.parse_agat.html">parse_agat</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.parsers.sequence.html">sequence</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.parsers.tool_output.html">tool_output</a></li>
+</ul>
+</li>
+<li class="toctree-l5 has-children"><a class="reference internal" href="ensembl.genes.annotation_qc.reports.html">reports</a><input aria-label="Toggle navigation of reports" class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" role="switch" type="checkbox"/><label for="toctree-checkbox-9"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.reports.README.html">reports</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.reports.README.html#responsibilities">Responsibilities</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.reports.README.html#what-does-not-belong-here">What does NOT belong here?</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.reports.README.html#inputs">Inputs</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.reports.README.html#outputs">Outputs</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.reports.README.html#design-principles">Design principles</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.reports.README.html#adding-a-new-report">Adding a new report</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.reports.README.html#common-mistakes">Common mistakes</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.reports.README.html#testing">Testing</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.reports.README.html#related-packages">Related packages</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.reports.plotting_utils.html">plotting_utils</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.reports.tabular_reports.html">tabular_reports</a></li>
+</ul>
+</li>
+<li class="toctree-l5 has-children"><a class="reference internal" href="ensembl.genes.annotation_qc.runners.html">runners</a><input aria-label="Toggle navigation of runners" class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" role="switch" type="checkbox"/><label for="toctree-checkbox-10"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.runners.README.html">runners</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.runners.README.html#responsibilities">Responsibilities</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.runners.README.html#what-does-not-belong-here">What does NOT belong here?</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.runners.README.html#workflow">Workflow</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.runners.README.html#inputs">Inputs</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.runners.README.html#outputs">Outputs</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.runners.README.html#design-principles">Design principles</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.runners.README.html#example-workflow">Example workflow</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.runners.README.html#adding-a-new-runner">Adding a new runner</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.runners.README.html#common-mistakes">Common mistakes</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.runners.README.html#testing">Testing</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.runners.README.html#related-packages">Related packages</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.runners.assess_translation_validity.html">assess_translation_validity</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.runners.genebuild_stats.html">genebuild_stats</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.runners.pairwise_compare.html">pairwise_compare</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.annotation_qc.cli.html">cli</a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="ensembl.genes.automation.html">automation</a><input aria-label="Toggle navigation of automation" class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" role="switch" type="checkbox"/><label for="toctree-checkbox-11"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.automation.README.html">README</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.automation.pre_release_ftp.html">pre_release_ftp</a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="ensembl.genes.content.html">content</a><input aria-label="Toggle navigation of content" class="toctree-checkbox" id="toctree-checkbox-12" name="toctree-checkbox-12" role="switch" type="checkbox"/><label for="toctree-checkbox-12"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.content.main_static_content.html">main_static_content</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.content.main_static_murine_content.html">main_static_murine_content</a></li>
+</ul>
+</li>
+<li class="toctree-l4 current has-children"><a class="reference internal" href="ensembl.genes.ensembl_loading.html">ensembl_loading</a><input aria-label="Toggle navigation of ensembl_loading" checked="" class="toctree-checkbox" id="toctree-checkbox-13" name="toctree-checkbox-13" role="switch" type="checkbox"/><label for="toctree-checkbox-13"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul class="current">
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.ensembl_loading.README.html">README</a></li>
+<li class="toctree-l5 has-children"><a class="reference internal" href="ensembl.genes.ensembl_loading.config.html">config</a><input aria-label="Toggle navigation of config" class="toctree-checkbox" id="toctree-checkbox-14" name="toctree-checkbox-14" role="switch" type="checkbox"/><label for="toctree-checkbox-14"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.ensembl_loading.config.production_db_conf_json.html">production_db_conf.json</a></li>
+</ul>
+</li>
+<li class="toctree-l5 has-children"><a class="reference internal" href="ensembl.genes.ensembl_loading.core_utils.html">core_utils</a><input aria-label="Toggle navigation of core_utils" class="toctree-checkbox" id="toctree-checkbox-15" name="toctree-checkbox-15" role="switch" type="checkbox"/><label for="toctree-checkbox-15"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.ensembl_loading.core_utils.add_prod_tables.html">add_prod_tables</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.ensembl_loading.core_utils.external_db.html">external_db</a></li>
+</ul>
+</li>
+<li class="toctree-l5 current has-children"><a class="reference internal" href="ensembl.genes.ensembl_loading.docs.html">docs</a><input aria-label="Toggle navigation of docs" checked="" class="toctree-checkbox" id="toctree-checkbox-16" name="toctree-checkbox-16" role="switch" type="checkbox"/><label for="toctree-checkbox-16"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul class="current">
+<li class="toctree-l6 current current-page"><a class="current reference internal" href="#">loader-internals</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.ensembl_loading.docs.python-api-and-boundaries.html">python-api-and-boundaries</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.ensembl_loading.docs.quickstart.html">quickstart</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.ensembl_loading.docs.refseq-import.html">refseq-import</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.ensembl_loading.docs.source-configs.html">source-configs</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.ensembl_loading.convert_repearmasker.html">convert_repearmasker</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.ensembl_loading.gff_annotation.html">gff_annotation</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.ensembl_loading.gff_cli.html">gff_cli</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.ensembl_loading.gff_core_database.html">gff_core_database</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.ensembl_loading.gff_core_loader.html">gff_core_loader</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.ensembl_loading.gff_metadata.html">gff_metadata</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.ensembl_loading.gff_models.html">gff_models</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.ensembl_loading.gff_quality_check.html">gff_quality_check</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.ensembl_loading.gff_repeat_loader.html">gff_repeat_loader</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.ensembl_loading.gff_source_config.html">gff_source_config</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.ensembl_loading.ncbi_annotation_report.html">ncbi_annotation_report</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.ensembl_loading.refseq_constants.html">refseq_constants</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.ensembl_loading.refseq_conversion.html">refseq_conversion</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.ensembl_loading.refseq_models.html">refseq_models</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.ensembl_loading.refseq_ncbi.html">refseq_ncbi</a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="ensembl.genes.info_from_registry.html">info_from_registry</a><input aria-label="Toggle navigation of info_from_registry" class="toctree-checkbox" id="toctree-checkbox-17" name="toctree-checkbox-17" role="switch" type="checkbox"/><label for="toctree-checkbox-17"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.info_from_registry.README.html">README</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.info_from_registry.assign_species_prefix.html">assign_species_prefix</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.info_from_registry.assign_stable_space.html">assign_stable_space</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.info_from_registry.build_anno_commands.html">build_anno_commands</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.info_from_registry.check_if_annotated.html">check_if_annotated</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.info_from_registry.check_stable_space_old_registry.html">check_stable_space_old_registry</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.info_from_registry.create_config.html">create_config</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.info_from_registry.create_pipe_reg.html">create_pipe_reg</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.info_from_registry.genebuild_start_pipeline.html">genebuild_start_pipeline</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.info_from_registry.seed_nonvert.html">seed_nonvert</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.info_from_registry.start_pipeline_from_registry.html">start_pipeline_from_registry</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.info_from_registry.taxonomy_helper.html">taxonomy_helper</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.info_from_registry.update_assembly_registry.html">update_assembly_registry</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.info_from_registry.write_metrics_to_registry.html">write_metrics_to_registry</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.info_from_registry.anno_settings_json.html">anno_settings.json</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.info_from_registry.clade_settings_json.html">clade_settings.json</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.info_from_registry.main_settings_json.html">main_settings.json</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.info_from_registry.projection_source_json.html">projection_source.json</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.info_from_registry.server_settings_json.html">server_settings.json</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.info_from_registry.stable_id_special_cases_json.html">stable_id_special_cases.json</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.info_from_registry.user_pipeline_settings_json.html">user_pipeline_settings.json</a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="ensembl.genes.metadata.html">metadata</a><input aria-label="Toggle navigation of metadata" class="toctree-checkbox" id="toctree-checkbox-18" name="toctree-checkbox-18" role="switch" type="checkbox"/><label for="toctree-checkbox-18"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.metadata.README.html">README</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.metadata.beta_patcher.html">beta_patcher</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.metadata.bioproject_from_registry.html">bioproject_from_registry</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.metadata.core_meta_data.html">core_meta_data</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.metadata.core_meta_reg.html">core_meta_reg</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.metadata.truth_checker.html">truth_checker</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.metadata.logging_conf.html">logging.conf</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.metadata.patches_template_csv.html">patches_template.csv</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.metadata.provider_static_txt.html">provider_static.txt</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.metadata.ref_static_txt.html">ref_static.txt</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.metadata.requirements_txt.html">requirements.txt</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.metadata.snp_static_txt.html">snp_static.txt</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.metadata.url_static_txt.html">url_static.txt</a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="ensembl.genes.metrics.html">metrics</a><input aria-label="Toggle navigation of metrics" class="toctree-checkbox" id="toctree-checkbox-19" name="toctree-checkbox-19" role="switch" type="checkbox"/><label for="toctree-checkbox-19"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.metrics.busco_lineage_selector.html">busco_lineage_selector</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.metrics.busco_metakeys_patch.html">busco_metakeys_patch</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.metrics.check_busco_score.html">check_busco_score</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.metrics.busco_lineage_json.html">busco_lineage.json</a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="ensembl.genes.projects.html">projects</a><input aria-label="Toggle navigation of projects" class="toctree-checkbox" id="toctree-checkbox-20" name="toctree-checkbox-20" role="switch" type="checkbox"/><label for="toctree-checkbox-20"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.projects.README.html">README</a></li>
+<li class="toctree-l5 has-children"><a class="reference internal" href="ensembl.genes.projects.registry.html">registry</a><input aria-label="Toggle navigation of registry" class="toctree-checkbox" id="toctree-checkbox-21" name="toctree-checkbox-21" role="switch" type="checkbox"/><label for="toctree-checkbox-21"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.projects.registry.gb_tracker.html">gb_tracker</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.projects.registry.metadata_db.html">metadata_db</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.projects.registry.ncbi_entrez.html">ncbi_entrez</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.projects.accession_utils.html">accession_utils</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.projects.changelog.html">changelog</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.projects.config.html">config</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.projects.ftp_client.html">ftp_client</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.projects.ftp_manifest.html">ftp_manifest</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.projects.generate_project_yaml.html">generate_project_yaml</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.projects.haplotype_resolver.html">haplotype_resolver</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.projects.icon_resolver.html">icon_resolver</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.projects.legacy_vep_manifest.html">legacy_vep_manifest</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.projects.models.html">models</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.projects.yaml_renderer.html">yaml_renderer</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.projects.icons_txt.html">icons.txt</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.projects.server_config_json.html">server_config.json</a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="ensembl.genes.rgb.html">rgb</a><input aria-label="Toggle navigation of rgb" class="toctree-checkbox" id="toctree-checkbox-22" name="toctree-checkbox-22" role="switch" type="checkbox"/><label for="toctree-checkbox-22"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5 has-children"><a class="reference internal" href="ensembl.genes.rgb.docs.html">docs</a><input aria-label="Toggle navigation of docs" class="toctree-checkbox" id="toctree-checkbox-23" name="toctree-checkbox-23" role="switch" type="checkbox"/><label for="toctree-checkbox-23"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.rgb.docs.reverse-gene-builder.html">reverse-gene-builder</a></li>
+</ul>
+</li>
+<li class="toctree-l5 has-children"><a class="reference internal" href="ensembl.genes.rgb.examples.html">examples</a><input aria-label="Toggle navigation of examples" class="toctree-checkbox" id="toctree-checkbox-24" name="toctree-checkbox-24" role="switch" type="checkbox"/><label for="toctree-checkbox-24"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.rgb.examples.evidence_class_map_example_yaml.html">evidence_class_map.example.yaml</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.rgb.examples.rgb_config_example_yaml.html">rgb_config_example.yaml</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.rgb.cli.html">cli</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.rgb.db.html">db</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.rgb.io.html">io</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.rgb.loci.html">loci</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.rgb.summary.html">summary</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.rgb.utils.html">utils</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.rgb.version.html">version</a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="ensembl.genes.stable_id.html">stable_id</a><input aria-label="Toggle navigation of stable_id" class="toctree-checkbox" id="toctree-checkbox-25" name="toctree-checkbox-25" role="switch" type="checkbox"/><label for="toctree-checkbox-25"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.stable_id.pid_overlap.html">pid_overlap</a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="ensembl.genes.tracking.html">tracking</a><input aria-label="Toggle navigation of tracking" class="toctree-checkbox" id="toctree-checkbox-26" name="toctree-checkbox-26" role="switch" type="checkbox"/><label for="toctree-checkbox-26"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.tracking.README.html">README</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.tracking.bioproject_tracking.html">bioproject_tracking</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.tracking.live_tracking.html">live_tracking</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.tracking.bioproject_tracking_config_json.html">bioproject_tracking_config.json</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.tracking.live_tracking_config_json.html">live_tracking_config.json</a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="ensembl.genes.transcriptomic_data.html">transcriptomic_data</a><input aria-label="Toggle navigation of transcriptomic_data" class="toctree-checkbox" id="toctree-checkbox-27" name="toctree-checkbox-27" role="switch" type="checkbox"/><label for="toctree-checkbox-27"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.transcriptomic_data.check_for_transcriptomic.html">check_for_transcriptomic</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.transcriptomic_data.get_transcriptomic_data.html">get_transcriptomic_data</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.transcriptomic_data.select_transcriptomic_data.html">select_transcriptomic_data</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="ensembl.genes.mysql_helper.html">mysql_helper</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ensembl.genes.registry_helper.html">registry_helper</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="view-this-page">
+  <a class="muted-link" href="../../_sources/reference/generated/ensembl.genes.ensembl_loading.docs.loader-internals.md.txt" title="View this page">
+    <svg><use href="#svg-eye"></use></svg>
+    <span class="visually-hidden">View this page</span>
+  </a>
+</div>
+<div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+          </label>
+        </div>
+        <article role="main" id="furo-main-content">
+          <section id="loader-internals">
+<h1>Loader Internals<a class="headerlink" href="#loader-internals" title="Link to this heading">¶</a></h1>
+<section id="generic-feature-flow">
+<h2>Generic Feature Flow<a class="headerlink" href="#generic-feature-flow" title="Link to this heading">¶</a></h2>
+<p>The loader converts GFF rows into a normalized in-memory annotation before any
+database inserts happen.</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>GFF3/GTF
+  -&gt; parse_converted_gff3()
+  -&gt; ParsedAnnotation
+  -&gt; reconcile_annotation()
+  -&gt; compute_exon_phases()
+  -&gt; apply_biotype_overrides()
+  -&gt; database inserts
+</pre></div>
+</div>
+</section>
+<section id="module-boundaries">
+<h2>Module Boundaries<a class="headerlink" href="#module-boundaries" title="Link to this heading">¶</a></h2>
+<p>The implementation is split by responsibility:</p>
+<p><code class="docutils literal notranslate"><span class="pre">gff_metadata.py</span></code>
+: Reads assembly-report headers, normalizes assembly dates and accession
+tokens, derives species database-name tokens, and opens plain or gzip text
+files.</p>
+<p><code class="docutils literal notranslate"><span class="pre">gff_annotation.py</span></code>
+: Parses GFF3/GTF feature rows into <code class="docutils literal notranslate"><span class="pre">ParsedAnnotation</span></code> records, reconciles
+missing gene/transcript/exon relationships, computes exon phases, and applies
+biotype overrides.</p>
+<p><code class="docutils literal notranslate"><span class="pre">gff_core_database.py</span></code>
+: Handles schema loading, core metadata insertion, FASTA/<code class="docutils literal notranslate"><span class="pre">seq_region</span></code> loading,
+numeric ID allocation, and feature-row inserts.</p>
+<p><code class="docutils literal notranslate"><span class="pre">gff_core_loader.py</span></code>
+: Provides the public loading functions and coordinates the database
+transactions and quality checks.</p>
+<p><code class="docutils literal notranslate"><span class="pre">ncbi_annotation_report.py</span></code>
+: Temporary isolated helper that queries NCBI Datasets for the official
+annotation-report URL of a GCF accession. It is called by
+<code class="docutils literal notranslate"><span class="pre">gff_metadata.py</span></code> and can be removed later without changing the core loader.</p>
+</section>
+<section id="assembly-report-metadata">
+<h2>Assembly-Report Metadata<a class="headerlink" href="#assembly-report-metadata" title="Link to this heading">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">parse_assembly_report_metadata()</span></code> in <code class="docutils literal notranslate"><span class="pre">gff_metadata.py</span></code> reads the leading
+comment headers from an NCBI assembly report. It populates species metadata,
+assembly metadata, and genebuild dates before the core tables are initialized.</p>
+<p>The production name is generated as:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>&lt;normalized scientific name&gt;_&lt;compact assembly accession&gt;
+</pre></div>
+</div>
+<p>For example, <code class="docutils literal notranslate"><span class="pre">Bradysia</span> <span class="pre">coprophila</span></code> and <code class="docutils literal notranslate"><span class="pre">GCF_014529535.1</span></code> become
+<code class="docutils literal notranslate"><span class="pre">bradysia_coprophila_gcf014529535v1</span></code>.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">species.url</span></code> metadata uses the same compact accession but preserves the
+capitalized genus, for example <code class="docutils literal notranslate"><span class="pre">Bradysia_coprophila_gca014529535v1</span></code>.</p>
+<section id="mitochondrial-refseq-features">
+<h3>Mitochondrial RefSeq Features<a class="headerlink" href="#mitochondrial-refseq-features" title="Link to this heading">¶</a></h3>
+<p>When a RefSeq FASTA contains <code class="docutils literal notranslate"><span class="pre">MT</span></code>, the loader adds the same core sequence
+attributes used by the mitochondrial Perl loader: <code class="docutils literal notranslate"><span class="pre">sequence_location</span></code> with
+value <code class="docutils literal notranslate"><span class="pre">mitochondrial_chromosome</span></code> and <code class="docutils literal notranslate"><span class="pre">codon_table</span></code> from the mitochondrial GFF
+CDS <code class="docutils literal notranslate"><span class="pre">transl_table</span></code> attribute. The MT sequence and its RefSeq gene, transcript,
+exon, CDS, tRNA, and rRNA features are loaded through the normal core path.</p>
+<p>For RefSeq accessions beginning with <code class="docutils literal notranslate"><span class="pre">GCF</span></code>, the GenBank accession from the
+assembly report is stored as <code class="docutils literal notranslate"><span class="pre">assembly.alt_accession</span></code>. The web accession source
+and type default to <code class="docutils literal notranslate"><span class="pre">NCBI</span></code> and <code class="docutils literal notranslate"><span class="pre">INSDC</span> <span class="pre">Assembly</span> <span class="pre">ID</span></code> respectively.</p>
+</section>
+<section id="attribute-parsing-and-id-normalization">
+<h3>Attribute Parsing And ID Normalization<a class="headerlink" href="#attribute-parsing-and-id-normalization" title="Link to this heading">¶</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">parse_gff3_attributes()</span></code> converts the ninth GFF column into a dictionary:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>ID=gene1;Name=GeneOne;gene_biotype=protein_coding
+</pre></div>
+</div>
+<p>becomes:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="s2">"ID"</span><span class="p">:</span> <span class="s2">"gene1"</span><span class="p">,</span>
+    <span class="s2">"Name"</span><span class="p">:</span> <span class="s2">"GeneOne"</span><span class="p">,</span>
+    <span class="s2">"gene_biotype"</span><span class="p">:</span> <span class="s2">"protein_coding"</span><span class="p">,</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">normalize_id()</span></code> then strips each configured prefix from IDs. The generic config
+does not strip anything. The RefSeq config strips <code class="docutils literal notranslate"><span class="pre">gene-</span></code>, <code class="docutils literal notranslate"><span class="pre">rna-</span></code>, <code class="docutils literal notranslate"><span class="pre">cds-</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">exon-</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">parent_ids()</span></code> splits comma-separated GFF3 <code class="docutils literal notranslate"><span class="pre">Parent</span></code> values and applies the same
+normalization to every parent. Exon and CDS rows are attached to every listed
+transcript. A transcript with multiple gene parents is rejected because the
+Ensembl core schema stores one gene per transcript.</p>
+</section>
+<section id="gene-rows">
+<h3>Gene Rows<a class="headerlink" href="#gene-rows" title="Link to this heading">¶</a></h3>
+<p>A GFF row with <code class="docutils literal notranslate"><span class="pre">type</span> <span class="pre">==</span> <span class="pre">gene</span></code> becomes a <code class="docutils literal notranslate"><span class="pre">GeneRecord</span></code>.</p>
+<p>The loader sets:</p>
+<p><code class="docutils literal notranslate"><span class="pre">seq_name</span></code>
+: GFF column 1 after any upstream conversion.</p>
+<p><code class="docutils literal notranslate"><span class="pre">start</span></code>, <code class="docutils literal notranslate"><span class="pre">end</span></code>
+: GFF columns 4 and 5.</p>
+<p><code class="docutils literal notranslate"><span class="pre">strand</span></code>
+: <code class="docutils literal notranslate"><span class="pre">1</span></code> for <code class="docutils literal notranslate"><span class="pre">+</span></code>, <code class="docutils literal notranslate"><span class="pre">-1</span></code> otherwise.</p>
+<p><code class="docutils literal notranslate"><span class="pre">stable_id</span></code>
+: Normalized <code class="docutils literal notranslate"><span class="pre">ID</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">name</span></code>
+: First configured gene name attribute that exists. By default this is <code class="docutils literal notranslate"><span class="pre">Name</span></code>
+then <code class="docutils literal notranslate"><span class="pre">gene</span></code>. If neither exists, the normalized gene ID is used.</p>
+<p><code class="docutils literal notranslate"><span class="pre">xref_geneid</span></code>
+: The value after the configured <code class="docutils literal notranslate"><span class="pre">gene_xref_prefix</span></code> inside <code class="docutils literal notranslate"><span class="pre">Dbxref</span></code>, if present.
+The current insert path stores the value in memory only; it does not populate
+<code class="docutils literal notranslate"><span class="pre">xref</span></code> or <code class="docutils literal notranslate"><span class="pre">display_xref_id</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">biotype</span></code>
+: Resolved by <code class="docutils literal notranslate"><span class="pre">resolve_biotype()</span></code>, then possibly rewritten by
+<code class="docutils literal notranslate"><span class="pre">apply_biotype_overrides()</span></code>.</p>
+</section>
+<section id="transcript-rows">
+<h3>Transcript Rows<a class="headerlink" href="#transcript-rows" title="Link to this heading">¶</a></h3>
+<p>A GFF row becomes a <code class="docutils literal notranslate"><span class="pre">TranscriptRecord</span></code> if its feature type is present in
+<code class="docutils literal notranslate"><span class="pre">source_config.parsed_transcript_feature_types</span></code>.</p>
+<p>The loader sets:</p>
+<p><code class="docutils literal notranslate"><span class="pre">gene_id</span></code>
+: Normalized <code class="docutils literal notranslate"><span class="pre">Parent</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">stable_id</span></code>
+: First configured transcript stable ID attribute that exists. By default this
+is <code class="docutils literal notranslate"><span class="pre">Name</span></code>. If it is missing, the normalized transcript ID is used.</p>
+<p><code class="docutils literal notranslate"><span class="pre">biotype</span></code>
+: Resolved from attributes and source config.</p>
+<p>The transcript is linked to its parent gene by normalized IDs. If the parent
+gene was not present in the GFF, reconciliation creates a synthetic gene later.</p>
+</section>
+<section id="exon-rows">
+<h3>Exon Rows<a class="headerlink" href="#exon-rows" title="Link to this heading">¶</a></h3>
+<p>A GFF row with <code class="docutils literal notranslate"><span class="pre">type</span> <span class="pre">==</span> <span class="pre">exon</span></code> is attached to the transcript identified by the
+normalized <code class="docutils literal notranslate"><span class="pre">Parent</span></code>.</p>
+<p>If the transcript already exists, the exon is appended to that transcript.</p>
+<p>If the transcript does not exist, the loader creates a synthetic relationship:</p>
+<ol class="arabic simple">
+<li><p>It treats the normalized exon parent as a gene ID.</p></li>
+<li><p>If that gene does not exist, it creates a synthetic <code class="docutils literal notranslate"><span class="pre">GeneRecord</span></code> at the exon
+coordinates.</p></li>
+<li><p>It creates or reuses a dummy transcript named <code class="docutils literal notranslate"><span class="pre">&lt;parent&gt;_dTx</span></code>.</p></li>
+<li><p>It attaches the exon to that dummy transcript.</p></li>
+</ol>
+<p>This preserves exon-only or gene-exon structures well enough for insertion into
+the Ensembl core schema, which requires transcript and exon_transcript rows.</p>
+</section>
+<section id="cds-rows">
+<h3>CDS Rows<a class="headerlink" href="#cds-rows" title="Link to this heading">¶</a></h3>
+<p>A GFF row with <code class="docutils literal notranslate"><span class="pre">type</span> <span class="pre">==</span> <span class="pre">CDS</span></code> becomes a <code class="docutils literal notranslate"><span class="pre">CdsSegment</span></code>. CDS rows are grouped by
+normalized <code class="docutils literal notranslate"><span class="pre">Parent</span></code>.</p>
+<p>CDS rows are used for:</p>
+<ol class="arabic simple">
+<li><p>Computing exon <code class="docutils literal notranslate"><span class="pre">phase</span></code> and <code class="docutils literal notranslate"><span class="pre">end_phase</span></code>.</p></li>
+<li><p>Creating <code class="docutils literal notranslate"><span class="pre">translation</span></code> rows.</p></li>
+<li><p>Updating <code class="docutils literal notranslate"><span class="pre">transcript.canonical_translation_id</span></code>.</p></li>
+</ol>
+<p>NCBI <code class="docutils literal notranslate"><span class="pre">transl_except</span></code> attributes are URL-decoded, mapped from genomic
+coordinates through the strand-aware spliced CDS, and converted to
+peptide-relative core attribute rows. Selenocysteine and amino-acid substitutions use the translation-level
+<code class="docutils literal notranslate"><span class="pre">_selenocysteine</span></code> and <code class="docutils literal notranslate"><span class="pre">amino_acid_sub</span></code> codes. Termination edits, non-AUG starts,
+and ribosomal slippage are retained as Ensembl-compatible SeqEdit attributes.
+Stop-codon completion notes such as <code class="docutils literal notranslate"><span class="pre">addition</span> <span class="pre">of</span> <span class="pre">3'</span> <span class="pre">A</span> <span class="pre">residues</span></code> are converted
+to <code class="docutils literal notranslate"><span class="pre">_rna_edit</span></code> values with the inserted bases. Ribosomal-slippage gaps and
+overlaps are converted to transcript-level <code class="docutils literal notranslate"><span class="pre">_rna_edit</span></code> values using the loaded
+DNA sequence, with <code class="docutils literal notranslate"><span class="pre">_rib_frameshift</span></code> retained as a marker.</p>
+<p>When loading RefSeq into an existing core, MT genes and dependent MT feature
+rows are removed in the same transaction before the replacement annotation is
+inserted. Non-MT features are left untouched.</p>
+<p>CDS rows do not create genes or transcripts by themselves. If a CDS parent does
+not match a parsed transcript, that CDS group is ignored during phase and
+translation insertion.</p>
+</section>
+<section id="ignored-features">
+<h3>Ignored Features<a class="headerlink" href="#ignored-features" title="Link to this heading">¶</a></h3>
+<p>The parser ignores feature types that are not:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>gene
+exon
+CDS
+&lt;configured transcript feature type&gt;
+</pre></div>
+</div>
+<p>For example, UTR, start_codon, stop_codon, region, match, and repeat features
+are ignored unless support is added to the parser or represented through the
+existing model.</p>
+</section>
+</section>
+<section id="generic-biotype-handling">
+<h2>Generic Biotype Handling<a class="headerlink" href="#generic-biotype-handling" title="Link to this heading">¶</a></h2>
+<p>Biotype resolution happens in two steps:</p>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">resolve_biotype()</span></code> chooses an initial biotype while parsing each feature.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">apply_biotype_overrides()</span></code> performs final gene and transcript rewrites.</p></li>
+</ol>
+<section id="initial-biotype-resolution">
+<h3>Initial Biotype Resolution<a class="headerlink" href="#initial-biotype-resolution" title="Link to this heading">¶</a></h3>
+<p>The initial rule order is:</p>
+<ol class="arabic simple">
+<li><p>Read <code class="docutils literal notranslate"><span class="pre">gbkey</span></code>, <code class="docutils literal notranslate"><span class="pre">pseudo</span></code>, <code class="docutils literal notranslate"><span class="pre">transcript_biotype</span></code>, and <code class="docutils literal notranslate"><span class="pre">gene_biotype</span></code> from the
+configured attribute names.</p></li>
+<li><p>If <code class="docutils literal notranslate"><span class="pre">gbkey</span></code> ends with the configured segment suffix, create a segment biotype
+from the first character of <code class="docutils literal notranslate"><span class="pre">gbkey</span></code>. With the RefSeq defaults, <code class="docutils literal notranslate"><span class="pre">V_segment</span></code>
+becomes <code class="docutils literal notranslate"><span class="pre">IG_V_gene</span></code>.</p></li>
+<li><p>If <code class="docutils literal notranslate"><span class="pre">gbkey</span></code> contains the configured transcribed-pseudogene token, return
+<code class="docutils literal notranslate"><span class="pre">transcribed_pseudogene</span></code>.</p></li>
+<li><p>If <code class="docutils literal notranslate"><span class="pre">pseudo=true</span></code>, return <code class="docutils literal notranslate"><span class="pre">pseudogene</span></code>.</p></li>
+<li><p>If <code class="docutils literal notranslate"><span class="pre">transcript_biotype</span></code> exists, return that value.</p></li>
+<li><p>If the feature type is in <code class="docutils literal notranslate"><span class="pre">biotype_transcript_feature_types</span></code>, return an
+explicit mapped biotype if configured; otherwise return the feature type.</p></li>
+<li><p>If the feature is an exon and <code class="docutils literal notranslate"><span class="pre">gbkey</span></code> is in <code class="docutils literal notranslate"><span class="pre">exon_gbkey_biotype_map</span></code>, return
+that mapped biotype.</p></li>
+<li><p>If <code class="docutils literal notranslate"><span class="pre">gene_biotype</span></code> exists, return that value.</p></li>
+<li><p>Fall back to <code class="docutils literal notranslate"><span class="pre">default_biotype</span></code>.</p></li>
+</ol>
+<p>This order matters. For example, <code class="docutils literal notranslate"><span class="pre">pseudo=true</span></code> is handled before
+<code class="docutils literal notranslate"><span class="pre">transcript_biotype</span></code>, and configured transcript feature maps are handled before
+<code class="docutils literal notranslate"><span class="pre">gene_biotype</span></code>.</p>
+</section>
+<section id="final-biotype-overrides">
+<h3>Final Biotype Overrides<a class="headerlink" href="#final-biotype-overrides" title="Link to this heading">¶</a></h3>
+<p>After parsing, reconciliation, and phase calculation, the loader applies final
+overrides:</p>
+<ol class="arabic simple">
+<li><p>If a gene biotype is in <code class="docutils literal notranslate"><span class="pre">gene_biotype_overrides</span></code>, the gene biotype is
+rewritten.</p></li>
+<li><p>If a transcript’s parent gene biotype is in
+<code class="docutils literal notranslate"><span class="pre">transcript_biotype_overrides</span></code>, the transcript biotype is rewritten to the
+configured value.</p></li>
+</ol>
+<p>This is how a source can parse one raw value and then normalize it to the final
+Ensembl biotype expected by downstream core consumers.</p>
+</section>
+</section>
+<section id="reconciliation-and-edge-cases">
+<h2>Reconciliation And Edge Cases<a class="headerlink" href="#reconciliation-and-edge-cases" title="Link to this heading">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">reconcile_annotation()</span></code> makes sure every parsed object can be inserted into an
+Ensembl core schema.</p>
+<p>Transcript without exons:
+: A synthetic exon is added covering the full transcript coordinates.</p>
+<p>Transcript whose parent gene is missing:
+: A synthetic gene is created using the transcript coordinates and biotype.</p>
+<p>Gene without transcripts:
+: A dummy transcript named <code class="docutils literal notranslate"><span class="pre">&lt;gene_id&gt;_dTx</span></code> is created. It contains one synthetic
+exon covering the full gene coordinates.</p>
+<p>Exon whose parent transcript is missing:
+: The parser creates a dummy transcript named <code class="docutils literal notranslate"><span class="pre">&lt;parent&gt;_dTx</span></code>. If needed, it also
+creates a synthetic gene named <code class="docutils literal notranslate"><span class="pre">&lt;parent&gt;</span></code>.</p>
+<p>CDS whose parent transcript is missing:
+: The CDS group remains in memory but is skipped for phase and translation
+creation because there is no transcript to attach it to.</p>
+<p>Missing seq_regions:
+: <code class="docutils literal notranslate"><span class="pre">load-features</span></code> fails before committing if any parsed gene or transcript
+seqid is not present in the target core database for the selected coord_system.</p>
+<p>Duplicate IDs:
+: The in-memory annotation stores genes and transcripts in dictionaries keyed by
+normalized ID. Later rows with the same normalized ID replace earlier gene or
+transcript records.</p>
+<p>Multiple Parent values:
+: The current parser does not split comma-separated <code class="docutils literal notranslate"><span class="pre">Parent</span></code> values. A value
+such as <code class="docutils literal notranslate"><span class="pre">Parent=tx1,tx2</span></code> is treated as one literal parent ID. Pre-normalize such
+GFFs if multi-parent features need to be loaded separately.</p>
+</section>
+<section id="exon-phase-and-translation-handling">
+<h2>Exon Phase And Translation Handling<a class="headerlink" href="#exon-phase-and-translation-handling" title="Link to this heading">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">compute_exon_phases()</span></code> calculates exon phase information from CDS segments.</p>
+<p>For each transcript with CDS:</p>
+<ol class="arabic simple">
+<li><p>Exons are sorted in transcript order. Positive-strand transcripts sort by
+start ascending. Negative-strand transcripts sort by start descending.</p></li>
+<li><p>CDS segments are sorted in coding order. Positive-strand CDS segments sort
+by start ascending. Negative-strand CDS segments sort by end descending.</p></li>
+<li><p>The first valid CDS phase is read from the GFF phase column.</p></li>
+<li><p>All transcript exons are initialized to <code class="docutils literal notranslate"><span class="pre">phase=-1</span></code> and <code class="docutils literal notranslate"><span class="pre">end_phase=-1</span></code>.</p></li>
+<li><p>Each exon is checked for overlap with the ordered CDS segments.</p></li>
+<li><p>Non-coding exons keep <code class="docutils literal notranslate"><span class="pre">-1</span></code> internally.</p></li>
+<li><p>A non-zero leading CDS phase denotes a partial five-prime codon. Those bases
+are excluded from the translation and downstream phase accounting; a coding
+five-prime exon starts with phase <code class="docutils literal notranslate"><span class="pre">0</span></code>.</p></li>
+<li><p>Later coding exon phases are calculated from the number of coding bases seen
+so far.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">end_phase</span></code> is calculated as <code class="docutils literal notranslate"><span class="pre">coding_bases</span> <span class="pre">%</span> <span class="pre">3</span></code>.</p></li>
+</ol>
+<p>When exons are inserted into the database, unset phases are stored as <code class="docutils literal notranslate"><span class="pre">-1</span></code>.
+Coding phases calculated as <code class="docutils literal notranslate"><span class="pre">0</span></code>, <code class="docutils literal notranslate"><span class="pre">1</span></code>, or <code class="docutils literal notranslate"><span class="pre">2</span></code> are stored as-is.</p>
+<p><code class="docutils literal notranslate"><span class="pre">insert_translations()</span></code> creates translations from CDS groups:</p>
+<ol class="arabic simple">
+<li><p>For positive strand transcripts, translation start is the minimum CDS start
+plus the leading CDS phase and translation end is the maximum CDS end.</p></li>
+<li><p>For negative strand transcripts, translation start is the maximum CDS end
+minus the leading CDS phase and translation end is the minimum CDS start.</p></li>
+<li><p>The loader finds the exon containing the translation start and the exon
+containing the translation end.</p></li>
+<li><p>It calculates <code class="docutils literal notranslate"><span class="pre">seq_start</span></code> and <code class="docutils literal notranslate"><span class="pre">seq_end</span></code> offsets inside those exons.</p></li>
+<li><p>It inserts a <code class="docutils literal notranslate"><span class="pre">translation</span></code> row with stable ID <code class="docutils literal notranslate"><span class="pre">&lt;transcript_id&gt;_prot</span></code>.</p></li>
+<li><p>It updates <code class="docutils literal notranslate"><span class="pre">transcript.canonical_translation_id</span></code>.</p></li>
+</ol>
+<p>If the translation start or end cannot be placed inside an exon, no translation
+row is inserted for that transcript.</p>
+</section>
+<section id="database-insert-details">
+<h2>Database Insert Details<a class="headerlink" href="#database-insert-details" title="Link to this heading">¶</a></h2>
+<p>The database insert flow is shared by <code class="docutils literal notranslate"><span class="pre">load-features</span></code> and <code class="docutils literal notranslate"><span class="pre">create-core</span></code> after
+input preparation.</p>
+<p><code class="docutils literal notranslate"><span class="pre">analysis</span></code>
+: The loader uses <code class="docutils literal notranslate"><span class="pre">source_config.analysis_logic_name</span></code>. Existing analysis rows
+are reused in <code class="docutils literal notranslate"><span class="pre">load-features</span></code>; <code class="docutils literal notranslate"><span class="pre">create-core</span></code> inserts one during bootstrap.</p>
+<p><code class="docutils literal notranslate"><span class="pre">gene</span></code>
+: Inserts one row per <code class="docutils literal notranslate"><span class="pre">GeneRecord</span></code>. <code class="docutils literal notranslate"><span class="pre">stable_id</span></code> is the normalized gene ID.
+The parsed gene name and NCBI GeneID are inserted as a RefSeq <code class="docutils literal notranslate"><span class="pre">xref</span></code>, linked
+through <code class="docutils literal notranslate"><span class="pre">object_xref</span></code>, and assigned to <code class="docutils literal notranslate"><span class="pre">gene.display_xref_id</span></code>.
+<code class="docutils literal notranslate"><span class="pre">source</span></code> is <code class="docutils literal notranslate"><span class="pre">source_config.source_label</span></code>. <code class="docutils literal notranslate"><span class="pre">canonical_transcript_id</span></code> is the first
+transcript found for that gene in parsed insertion order. <code class="docutils literal notranslate"><span class="pre">display_xref_id</span></code> is
+currently <code class="docutils literal notranslate"><span class="pre">NULL</span></code>.
+The GFF <code class="docutils literal notranslate"><span class="pre">description</span></code> attribute is written to <code class="docutils literal notranslate"><span class="pre">gene.description</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">transcript</span></code>
+: Inserts one row per <code class="docutils literal notranslate"><span class="pre">TranscriptRecord</span></code>. <code class="docutils literal notranslate"><span class="pre">stable_id</span></code> comes from configured
+attributes, usually <code class="docutils literal notranslate"><span class="pre">Name</span></code>, then falls back to normalized transcript ID.
+<code class="docutils literal notranslate"><span class="pre">source</span></code> is <code class="docutils literal notranslate"><span class="pre">source_config.source_label</span></code>. <code class="docutils literal notranslate"><span class="pre">display_xref_id</span></code> is currently
+<code class="docutils literal notranslate"><span class="pre">NULL</span></code>.
+RefSeq transcript accessions are inserted into <code class="docutils literal notranslate"><span class="pre">xref</span></code> and linked through
+<code class="docutils literal notranslate"><span class="pre">object_xref</span></code> with <code class="docutils literal notranslate"><span class="pre">ensembl_object_type</span> <span class="pre">=</span> <span class="pre">'Transcript'</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">exon</span></code>
+: Inserts exon rows and reuses an existing exon from the current load when
+seq_region, start, end, strand, phase, end_phase, and stable_id match. This
+matches the old Ensembl GTF loading behavior where exon frame is part of exon
+identity. Positive-strand exons are ranked by start ascending; negative strand
+exons are ranked by start descending. <code class="docutils literal notranslate"><span class="pre">stable_id</span></code> is currently <code class="docutils literal notranslate"><span class="pre">NULL</span></code> unless
+the selected source config captures exon stable IDs.</p>
+<p><code class="docutils literal notranslate"><span class="pre">exon_transcript</span></code>
+: Links each inserted exon to its transcript with the calculated rank.</p>
+<p><code class="docutils literal notranslate"><span class="pre">translation</span></code>
+: Inserted only when a matching transcript and CDS group allow start and end
+placement inside exons.
+RefSeq protein accessions are inserted into <code class="docutils literal notranslate"><span class="pre">xref</span></code> and linked through
+<code class="docutils literal notranslate"><span class="pre">object_xref</span></code> with <code class="docutils literal notranslate"><span class="pre">ensembl_object_type</span> <span class="pre">=</span> <span class="pre">'Translation'</span></code>.</p>
+<p>Numeric ID allocation differs by mode:</p>
+<p><code class="docutils literal notranslate"><span class="pre">create-core</span></code>
+: Gene and transcript numeric IDs start at <code class="docutils literal notranslate"><span class="pre">1</span></code> and are allocated
+deterministically from sorted stable IDs.</p>
+<p><code class="docutils literal notranslate"><span class="pre">load-features</span></code>
+: Gene, transcript, and exon numeric IDs start at current table max plus one in
+the existing core database.</p>
+<p>All database writes run with <code class="docutils literal notranslate"><span class="pre">autocommit=False</span></code>. Any exception rolls back the
+transaction and is logged.</p>
+</section>
+<section id="post-load-quality-check">
+<h2>Post-Load Quality Check<a class="headerlink" href="#post-load-quality-check" title="Link to this heading">¶</a></h2>
+<p>Every load path runs a post-load quality check after feature rows have been
+inserted and before the transaction is committed. This applies to:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>gff-loader load-features
+gff-loader create-core
+gff-loader refseq run --load-core
+</pre></div>
+</div>
+<p>The check compares the parsed GFF model against the rows inserted into the core
+database during that load. It uses the exact numeric IDs allocated by the loader,
+so existing rows in the target core do not affect the result.</p>
+<p>Checked counts:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>gene
+transcript
+exon
+exon_transcript
+translation
+</pre></div>
+</div>
+<p>Checked integrity:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>gene stable_id and biotype
+transcript stable_id and biotype
+exon stable_id when the selected source config captures one
+exon_transcript links
+translation stable_id
+gene biotype distribution
+transcript biotype distribution
+</pre></div>
+</div>
+<p>The report is printed at the end of the load and also sent through the logger.
+Use <code class="docutils literal notranslate"><span class="pre">--log-file</span></code> if the report should be written to a file:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>gff-loader<span class="w"> </span>--log-file<span class="w"> </span>import.log<span class="w"> </span>load-features<span class="w"> </span>annotations.gff3<span class="w"> </span>...
+</pre></div>
+</div>
+<p>Successful report shape:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>GFF core quality check: PASS
+source: ensembl
+expected vs core rows:
+  genes: expected=48958 observed=48958 missing=0 unexpected=0 mismatched=0
+  transcripts: expected=76019 observed=76019 missing=0 unexpected=0 mismatched=0
+  exons: expected=365661 observed=365661 missing=0 unexpected=0 mismatched=0
+  exon_transcript_links: expected=365661 observed=365661 missing=0 unexpected=0 mismatched=0
+  translations: expected=39824 observed=39824 missing=0 unexpected=0 mismatched=0
+</pre></div>
+</div>
+<p>If anything is missing, unexpected, or mismatched, the report is printed and
+logged, then the loader raises an error and rolls back the transaction.</p>
+</section>
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="ensembl.genes.ensembl_loading.docs.python-api-and-boundaries.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">Python API And Boundaries</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="ensembl.genes.ensembl_loading.docs.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">ensembl.genes.ensembl_loading.docs</div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2016-2026, EMBL-European Bioinformatics Institute
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">Loader Internals</a><ul>
+<li><a class="reference internal" href="#generic-feature-flow">Generic Feature Flow</a></li>
+<li><a class="reference internal" href="#module-boundaries">Module Boundaries</a></li>
+<li><a class="reference internal" href="#assembly-report-metadata">Assembly-Report Metadata</a><ul>
+<li><a class="reference internal" href="#mitochondrial-refseq-features">Mitochondrial RefSeq Features</a></li>
+<li><a class="reference internal" href="#attribute-parsing-and-id-normalization">Attribute Parsing And ID Normalization</a></li>
+<li><a class="reference internal" href="#gene-rows">Gene Rows</a></li>
+<li><a class="reference internal" href="#transcript-rows">Transcript Rows</a></li>
+<li><a class="reference internal" href="#exon-rows">Exon Rows</a></li>
+<li><a class="reference internal" href="#cds-rows">CDS Rows</a></li>
+<li><a class="reference internal" href="#ignored-features">Ignored Features</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#generic-biotype-handling">Generic Biotype Handling</a><ul>
+<li><a class="reference internal" href="#initial-biotype-resolution">Initial Biotype Resolution</a></li>
+<li><a class="reference internal" href="#final-biotype-overrides">Final Biotype Overrides</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#reconciliation-and-edge-cases">Reconciliation And Edge Cases</a></li>
+<li><a class="reference internal" href="#exon-phase-and-translation-handling">Exon Phase And Translation Handling</a></li>
+<li><a class="reference internal" href="#database-insert-details">Database Insert Details</a></li>
+<li><a class="reference internal" href="#post-load-quality-check">Post-Load Quality Check</a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script src="../../_static/documentation_options.js?v=01f34227"></script>
+    <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../_static/scripts/furo.js?v=46bd48cc"></script>
+    </body>
+</html>

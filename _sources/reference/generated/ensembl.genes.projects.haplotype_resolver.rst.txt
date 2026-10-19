@@ -1,0 +1,9 @@
+ensembl.genes.projects.haplotype_resolver
+=========================================
+
+Source: ``src/python/ensembl/genes/projects/haplotype_resolver.py``
+
+.. automodule:: ensembl.genes.projects.haplotype_resolver
+   :members:
+   :show-inheritance:
+   :undoc-members:
