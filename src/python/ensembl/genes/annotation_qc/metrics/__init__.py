@@ -11,17 +11,4 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-"""Top-level ``ensembl`` namespace for Ensembl Python packages.
-
-This package is shared with other distributions such as
-``ensembl-metadata-api``. Extend the package search path so
-``ensembl.genes`` and ``ensembl.production`` can coexist in one
-environment.
-"""
-
-from pkgutil import extend_path
-
-__path__ = extend_path(__path__, __name__)
-
-__all__ = []
+"""Utilities for initializing and maintaining Ensembl core databases."""
