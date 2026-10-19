@@ -19,6 +19,7 @@ Script to compare protein IDs between two GFF3 files and generate a report
 
 import csv
 import re
+
 import pandas as pd
 
 

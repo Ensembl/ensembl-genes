@@ -4,7 +4,6 @@ from __future__ import annotations
 import argparse
 import os
 import sys
-from typing import Optional
 
 import pandas as pd
 
@@ -18,8 +17,8 @@ from .db import (
 )
 from .io import write_df, write_manifest
 from .loci import build_loci
+from .summary import load_mapping, summarize_loci
 from .utils import ensure_dir, make_run_id
-from .summary import summarize_loci, load_mapping
 
 
 def _add_common_db_args(p: argparse.ArgumentParser) -> None:
@@ -286,7 +285,7 @@ def cmd_export(args: argparse.Namespace) -> int:
     return 0
 
 
-def main(argv: Optional[list[str]] = None) -> int:
+def main(argv: list[str] | None = None) -> int:
     argv = list(sys.argv[1:] if argv is None else argv)
     p = argparse.ArgumentParser(
         prog="rgb", description="Reverse Gene Builder CLI (Phase 1–2)"

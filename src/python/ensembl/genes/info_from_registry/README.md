@@ -157,13 +157,13 @@ Main script that initialises (and seeds anno pipeline) after gathering all infor
 `main_settings.json`
 Contains basic settings for the vertebrate pipeline.
 
-`mysql_helper.py`
+`ensembl.genes.mysql_helper`
 Script to access and edit information in the registry.
 
 `projection_source.json`
 Specifies the projection source DB details for the main pipeline.
 
-`registry_helper.py`
+`ensembl.genes.registry_helper`
 Helper to add information about status and metrics to the registry.
 
 `seed_nonvert.py`

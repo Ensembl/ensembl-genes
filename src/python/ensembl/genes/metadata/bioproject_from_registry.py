@@ -17,9 +17,10 @@
 
 import logging
 import os
-from typing import List, Optional
 
 import pymysql
+
+from ensembl.genes.mysql_helper import get_mysql_connection
 
 logger = logging.getLogger(__name__)
 
@@ -34,10 +35,10 @@ def normalise_genome_group_name(genome_group_name: str) -> str:
 def get_bioproject_names(
     assembly_accession: str,
     user: str,
-    host: Optional[str] = None,
-    port: Optional[int] = None,
+    host: str | None = None,
+    port: int | None = None,
     database: str = DEFAULT_REGISTRY_DB,
-) -> List[str]:
+) -> list[str]:
     """Return main BioProject genome group names for an assembly accession.
 
     Args:
@@ -84,7 +85,7 @@ def get_bioproject_names(
 
     conn = None
     try:
-        conn = pymysql.connect(
+        conn = get_mysql_connection(
             host=registry_host,
             user=user,
             port=registry_port,
@@ -132,8 +133,8 @@ def get_bioproject_names(
 def get_bioproject_name(
     assembly_accession: str,
     user: str,
-    host: Optional[str] = None,
-    port: Optional[int] = None,
+    host: str | None = None,
+    port: int | None = None,
     database: str = DEFAULT_REGISTRY_DB,
 ) -> str:
     """Return the first main BioProject genome group name for an assembly accession."""

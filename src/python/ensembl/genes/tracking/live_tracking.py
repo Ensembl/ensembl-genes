@@ -17,9 +17,12 @@
 
 import argparse
 import json
-from typing import List, Tuple, Any
 from pathlib import Path
+from typing import Any
+
 import pymysql
+
+from ensembl.genes.mysql_helper import get_mysql_connection
 
 with open(  # pylint:disable=unspecified-encoding
     Path(__file__).parent / "./live_tracking_config.json", "r"
@@ -29,7 +32,7 @@ with open(  # pylint:disable=unspecified-encoding
 
 def mysql_fetch_data(
     query: str, database: str, host: str, port: int, user: str
-) -> List[Tuple[Any, ...]]:
+) -> list[tuple[Any, ...]]:
     """
     Executes a given SQL query on a MySQL database and fetches the result.
 
@@ -60,7 +63,7 @@ def mysql_fetch_data(
         from the given host.
     """
     try:
-        conn = pymysql.connect(
+        conn = get_mysql_connection(
             host=host, user=user, port=port, database=database.strip()
         )
 
@@ -99,7 +102,7 @@ def check_database_on_server(
         bool: True if the database exists, False otherwise.
     """
     try:
-        conn = pymysql.connect(
+        conn = get_mysql_connection(
             host=config["server_details"]["staging"][server_key]["db_host"],
             user=config["server_details"]["staging"][server_key]["db_user"],
             passwd=config["server_details"]["staging"][server_key]["db_pass"],
@@ -124,7 +127,7 @@ def check_database_on_server(
 
 def clean_server(
     config: dict, mode: str  # pylint:disable=redefined-outer-name
-) -> List:
+) -> list:
     """
     Fetches a list of core databases that are both current in the \
         rapid database and present on the MySQL server.
@@ -135,10 +138,10 @@ def clean_server(
     2. Executes a query on the MySQL server to fetch all core databases.
     3. Compares the results from both queries and compiles a list of\
         core databases that are present in both.
-        
+
     Args:
         config (dict): Configuration dictionary containing server connection details.
-        mode (str): Mode of operation, either "rapid" or "beta".    
+        mode (str): Mode of operation, either "rapid" or "beta".
 
     Returns:
         list: A list of core databases that are current in the rapid \

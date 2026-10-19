@@ -2,11 +2,13 @@
 from __future__ import annotations
 
 import contextlib
+from collections.abc import Iterable
 from dataclasses import dataclass
-from typing import Iterable, List, Optional, Tuple
 
 import pandas as pd
 import pymysql
+
+from ensembl.genes.mysql_helper import get_mysql_connection
 
 
 @dataclass
@@ -20,7 +22,7 @@ class DBParams:
 
 @contextlib.contextmanager
 def connect(params: DBParams):
-    conn = pymysql.connect(
+    conn = get_mysql_connection(
         host=params.host,
         port=params.port,
         user=params.user,
@@ -40,14 +42,14 @@ def connect(params: DBParams):
 
 def list_seq_regions(
     conn,
-    coord_system_name: Optional[str] = None,
-    allowlist: Optional[Iterable[str]] = None,
-) -> List[str]:
+    coord_system_name: str | None = None,
+    allowlist: Iterable[str] | None = None,
+) -> list[str]:
     sql = [
         "SELECT sr.name AS name",
         "FROM seq_region sr",
     ]
-    params: Tuple = ()
+    params: tuple = ()
     if coord_system_name:
         sql.append("JOIN coord_system cs ON sr.coord_system_id = cs.coord_system_id")
         sql.append("WHERE cs.name = %s")
@@ -62,7 +64,7 @@ def list_seq_regions(
     return rows
 
 
-def _gene_query(coord_system_name: Optional[str]) -> str:
+def _gene_query(coord_system_name: str | None) -> str:
     where_cs = (
         "JOIN coord_system cs ON sr.coord_system_id = cs.coord_system_id AND cs.name = %s"
         if coord_system_name
@@ -89,7 +91,7 @@ ORDER BY g.seq_region_start, g.seq_region_end;
 
 
 def fetch_genes_for_region(
-    conn, seq_region_name: str, coord_system_name: Optional[str]
+    conn, seq_region_name: str, coord_system_name: str | None
 ) -> pd.DataFrame:
     sql = _gene_query(coord_system_name)
     params = (
@@ -120,7 +122,7 @@ def fetch_genes_for_region(
 def extract_all_genes(
     conn,
     seq_regions: Iterable[str],
-    coord_system_name: Optional[str],
+    coord_system_name: str | None,
 ) -> pd.DataFrame:
     dfs = []
     for sr in seq_regions:
@@ -132,7 +134,7 @@ def extract_all_genes(
     return pd.concat(dfs, ignore_index=True)
 
 
-def _transcript_query(coord_system_name: Optional[str]) -> str:
+def _transcript_query(coord_system_name: str | None) -> str:
     where_cs = (
         "JOIN coord_system cs ON sr.coord_system_id = cs.coord_system_id AND cs.name = %s"
         if coord_system_name
@@ -158,7 +160,7 @@ ORDER BY t.seq_region_start, t.seq_region_end;
 
 
 def fetch_transcripts_for_region(
-    conn, seq_region_name: str, coord_system_name: Optional[str]
+    conn, seq_region_name: str, coord_system_name: str | None
 ) -> pd.DataFrame:
     sql = _transcript_query(coord_system_name)
     params = (
@@ -188,7 +190,7 @@ def fetch_transcripts_for_region(
 def extract_all_transcripts(
     conn,
     seq_regions: Iterable[str],
-    coord_system_name: Optional[str],
+    coord_system_name: str | None,
 ) -> pd.DataFrame:
     dfs = []
     for sr in seq_regions:

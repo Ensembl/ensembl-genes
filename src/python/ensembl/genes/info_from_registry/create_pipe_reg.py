@@ -33,14 +33,13 @@ Functions:
 - create_registry_entry: Adds new DBAdaptor entries into the local registry file.
 """
 
+import logging
+import os
 import shutil
 from pathlib import Path
-import os
-import logging
-from typing import Dict, Any
+from typing import Any
 
-
-from ensembl.genes.info_from_registry.mysql_helper import mysql_update
+from ensembl.genes.mysql_helper import mysql_update
 
 # Configure logging
 logging.basicConfig(
@@ -52,7 +51,7 @@ logger = logging.getLogger(__name__)
 
 
 def update_registry_path_in_pipedb(
-    parent_dir: str, server_info: Dict[str, Dict[str, Any]]
+    parent_dir: str, server_info: dict[str, dict[str, Any]]
 ) -> None:
     """
     Updates the resource_description table in the pipeline database by replacing
@@ -96,7 +95,7 @@ def update_registry_path_in_pipedb(
     )
 
     update_resources_query = """
-		UPDATE resource_description 
+		UPDATE resource_description
 		SET worker_cmd_args = REPLACE(worker_cmd_args, %s, %s);
 	"""
 
@@ -117,9 +116,9 @@ def update_registry_path_in_pipedb(
 
 
 def create_registry_entry(
-    settings: Dict[str, Any],
-    server_info: Dict[str, Dict[str, Any]],  # pylint: disable=unused-argument
-    core_adaptor: Dict[str, str],
+    settings: dict[str, Any],
+    server_info: dict[str, dict[str, Any]],  # pylint: disable=unused-argument
+    core_adaptor: dict[str, str],
 ) -> Path:
     """
     Updates the local registry file with new DBAdaptor connection details for a
