@@ -1602,7 +1602,7 @@ def test_gmb_canonical_transcript_is_written_to_gene() -> None:
         source_config=get_source_config("gmb_gff3"),
     )
 
-    assert cursor.transcript_attributes == [(12, "is_canonical", "1")]
+    assert cursor.transcript_attributes == [(12, 9, "1")]
 
 
 def test_anno_gtf_loads_into_existing_core_with_quality_check(
