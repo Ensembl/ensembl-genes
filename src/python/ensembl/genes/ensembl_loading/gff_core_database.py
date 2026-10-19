@@ -1008,12 +1008,21 @@ def insert_transcripts_and_exons(
             annotation.cds_segments.get(transcript_id, []),
             seq_region_id,
         )
+        canonical_attributes = (
+            [("is_canonical", "1")]
+            if source_config.name == "gmb_gff3" and transcript.is_canonical
+            else []
+        )
         insert_attributes(
             cursor,
             "transcript_attrib",
             "transcript_id",
             transcript_id_map[transcript_id],
-            [*transcript.transcript_attributes, *frameshift_attributes],
+            [
+                *transcript.transcript_attributes,
+                *frameshift_attributes,
+                *canonical_attributes,
+            ],
         )
 
         sorted_exons = sorted(

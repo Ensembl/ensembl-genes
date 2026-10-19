@@ -37,6 +37,7 @@ from ensembl.genes.ensembl_loading.gff_core_database import (
     frameshift_transcript_attributes,
     insert_genes,
     insert_refseq_seq_region_synonyms,
+    insert_transcripts_and_exons,
     insert_translations,
 )
 from ensembl.genes.ensembl_loading.gff_models import (
@@ -1031,6 +1032,8 @@ class FakeCoreCursor:
         self.genes: dict[int, tuple[str, str]] = {}
         self.gene_canonical_transcript_ids: dict[int, int | None] = {}
         self.transcripts: dict[int, tuple[str, str]] = {}
+        self.transcript_attributes: list[tuple[int, str, str]] = []
+        self.attrib_types = {"is_canonical": 9}
         self.exons: dict[int, tuple[str | None]] = {}
         self.exon_transcripts: set[tuple[int, int]] = set()
         self.translations: dict[int, str | None] = {}
@@ -1071,12 +1074,19 @@ class FakeCoreCursor:
             assert params is not None
             self.genes[int(params[0])] = (params[7], params[5])
             self.gene_canonical_transcript_ids[int(params[0])] = params[9]
-        elif sql.startswith("insert into transcript"):
+        elif sql.startswith("insert into transcript "):
             assert params is not None
             self.transcripts[int(params[0])] = (
                 params[8],
                 params[6],
             )
+        elif sql.startswith("select attrib_type_id from attrib_type"):
+            assert params is not None
+            attrib_type_id = self.attrib_types.get(params[0])
+            self.fetchone_result = (attrib_type_id,) if attrib_type_id else None
+        elif sql.startswith("insert into transcript_attrib"):
+            assert params is not None
+            self.transcript_attributes.append((int(params[0]), params[1], params[2]))
         elif sql.startswith("insert into exon "):
             assert params is not None
             self.exons[int(params[0])] = (params[7],)
@@ -1581,6 +1591,18 @@ def test_gmb_canonical_transcript_is_written_to_gene() -> None:
     )
 
     assert cursor.gene_canonical_transcript_ids == {7: 12}
+
+    insert_transcripts_and_exons(
+        cursor,
+        annotation,
+        seq_region_ids={"1": 4},
+        gene_id_map={"gene1": 7},
+        transcript_id_map={"tx1": 11, "tx2": 12},
+        analysis_id=9,
+        source_config=get_source_config("gmb_gff3"),
+    )
+
+    assert cursor.transcript_attributes == [(12, "is_canonical", "1")]
 
 
 def test_anno_gtf_loads_into_existing_core_with_quality_check(
