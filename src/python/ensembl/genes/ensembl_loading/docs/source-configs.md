@@ -260,6 +260,15 @@ This config only covers the main `annotation_output/annotation.gtf` file.
 Rfam and tRNAscan ncRNA genes are produced as separate pipeline outputs and
 must be loaded separately with `--source ncrna_gtf`.
 
+### GMB GFF3 Source Config
+
+The combined anno loader accepts `--gmb-anno` for the GMB output at
+`gmb/finalise/canonical/consensus.canonical_annotated.gff3`. This uses the
+`gmb_gff3` source config, which reads `gene`, `mRNA`, `exon`, and `CDS` rows as
+GFF3 features. Transcripts with `tag=Ensembl_canonical` are preferred when
+populating `gene.canonical_transcript_id`; if no such tag is present, the
+loader retains its normal coding-transcript fallback.
+
 ### ncRNA GTF Source Config
 
 Use `--source ncrna_gtf` for the anno pipeline's Rfam and tRNAscan GTF files,

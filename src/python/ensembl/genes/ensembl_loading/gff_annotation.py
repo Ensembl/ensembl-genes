@@ -696,6 +696,13 @@ def parse_converted_gff3(
                         source_config=source_config,
                     ),
                     stable_id=stable_id,
+                    is_canonical=(
+                        source_config.canonical_transcript_attribute is not None
+                        and source_config.canonical_transcript_value
+                        in attributes.get(
+                            source_config.canonical_transcript_attribute, ""
+                        ).split(",")
+                    ),
                     translation_coords=(
                         attributes.get(source_config.translation_coords_attribute)
                         if source_config.translation_coords_attribute
