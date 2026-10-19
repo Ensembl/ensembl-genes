@@ -13,5 +13,10 @@
         "projection_source_db_name": "danio_rerio_core_110_11",
         "projection_source_db_host": "mysql-ens-sta-5",
         "projection_source_db_port": 4684
+    },
+    "danio_rerio_zebrafish": {
+        "projection_source_db_name": "danio_rerio_core_80_10_curated",
+        "projection_source_db_host": "mysql-ens-genebuild-prod-1",
+        "projection_source_db_port": 4527
     }
 }

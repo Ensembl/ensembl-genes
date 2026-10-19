@@ -25,14 +25,13 @@ structure with standardized naming and MD5 checksums.
 """
 
 import argparse
-import os
-import sys
 import glob
-import logging
-import shutil
 import hashlib
+import logging
+import os
 import re
-from typing import Dict, List, Optional, Tuple
+import shutil
+import sys
 
 
 def setup_logging() -> logging.Logger:
@@ -50,7 +49,7 @@ def setup_logging() -> logging.Logger:
     return logging.getLogger(__name__)
 
 
-def parse_gca_id(gca_string: str) -> Tuple[str, str]:
+def parse_gca_id(gca_string: str) -> tuple[str, str]:
     """
     Parse GCA ID to extract accession number and version information.
 
@@ -100,7 +99,7 @@ def find_reheadered_fasta(output_path: str) -> str:
     return fasta_matches[0]
 
 
-def find_2bit(output_path: str) -> Optional[str]:
+def find_2bit(output_path: str) -> str | None:
     """
     Find the 2bit file in the output directory.
 
@@ -116,86 +115,49 @@ def find_2bit(output_path: str) -> Optional[str]:
     return None
 
 
-def find_annotation_files(output_path: str) -> Dict[str, Optional[str]]:
+def find_annotation_files(output_path: str) -> dict[str, str | None]:
     """
-    Find GFF3 and GTF annotation files in the clade (vertabrates/ etc) directory structure.
-    Prioritizes main annotation files over specialized variants like abinitio.
+    Find GFF3 and GTF annotation files in the clade directory structure.
+    Prefers sorted files over unsorted. Excludes abinitio, primary_assembly,
+    and chr-only toplevel files. Fails loudly if the result is ambiguous.
 
     Args:
         output_path: Path to the base output directory
 
     Returns:
         Dict[str, Optional[str]]: Dictionary with 'gff3' and 'gtf' keys mapping
-                                to file paths or None if not found
+                                  to file paths or None if not found
     """
-    annotation_files: Dict[str, Optional[str]] = {"gff3": None, "gtf": None}
+    annotation_files: dict[str, str | None] = {"gff3": None, "gtf": None}
 
-    # Look for GFF3 files
-    gff3_pattern = os.path.join(output_path, "*", "gff3", "**", "*.gff3.gz")
-    gff3_matches = glob.glob(gff3_pattern, recursive=True)
-    if gff3_matches:
-        # Prioritize main GFF3 files over specialized variants
-        main_gff3 = _select_main_annotation_file(gff3_matches, "gff3")
-        annotation_files["gff3"] = main_gff3
+    for file_type in ("gff3", "gtf"):
+        pattern = os.path.join(output_path, "*", file_type, "**", f"*.{file_type}.gz*")
+        matches = glob.glob(pattern, recursive=True)
 
-    # Look for GTF files
-    gtf_pattern = os.path.join(output_path, "*", "gtf", "**", "*.gtf.gz")
-    gtf_matches = glob.glob(gtf_pattern, recursive=True)
-    if gtf_matches:
-        # Prioritize main GTF files over specialized variants
-        main_gtf = _select_main_annotation_file(gtf_matches, "gtf")
-        annotation_files["gtf"] = main_gtf
+        candidates = [
+            f
+            for f in matches
+            if "abinitio" not in os.path.basename(f).lower()
+            and "primary_assembly" not in os.path.basename(f)
+            and f".chr.{file_type}" not in os.path.basename(f)
+        ]
+
+        # Prefer sorted over unsorted
+        sorted_candidates = [f for f in candidates if f.endswith(".sorted.gz")]
+        candidates = sorted_candidates if sorted_candidates else candidates
+
+        if not candidates:
+            raise FileNotFoundError(
+                f"No main {file_type} annotation file found in {output_path}"
+            )
+        if len(candidates) > 1:
+            raise ValueError(
+                f"Multiple main {file_type} candidates found: {candidates}"
+            )
+
+        annotation_files[file_type] = candidates[0]
 
     return annotation_files
-
-
-def _select_main_annotation_file(file_list: List[str], file_type: str) -> str:
-    """
-    Select the main annotation file from a list of candidates.
-
-    Prioritizes files in this order:
-    1. Files ending with .{file_type}.gz (main annotation)
-    2. Files ending with .chr.{file_type}.gz (chromosome-level)
-    3. Any other files (avoiding abinitio, which are typically minimal)
-
-    Args:
-        file_list: List of file paths to choose from
-        file_type: Type of file ('gtf' or 'gff3')
-
-    Returns:
-        str: Path to the selected main annotation file
-    """
-    if not file_list:
-        raise ValueError("Empty file list provided")
-
-    # Sort files by priority
-    main_files = []
-    chr_files = []
-    other_files = []
-    abinitio_files = []
-
-    for filepath in file_list:
-        filename = os.path.basename(filepath)
-
-        if "abinitio" in filename.lower():
-            abinitio_files.append(filepath)
-        elif filename.endswith(f".{file_type}.gz"):
-            main_files.append(filepath)
-        elif filename.endswith(f".chr.{file_type}.gz"):
-            chr_files.append(filepath)
-        else:
-            other_files.append(filepath)
-
-    # Return in order of preference
-    if main_files:  # pylint: disable=no-else-return
-        return main_files[0]
-    elif chr_files:  # pylint: disable:no-else-return
-        return chr_files[0]
-    elif other_files:
-        return other_files[0]
-    else:
-        # Only abinitio files found - return first one but this might not be ideal
-        return abinitio_files[0]
 
 
 def is_compressed_file(filepath: str) -> bool:
@@ -219,7 +181,7 @@ def is_compressed_file(filepath: str) -> bool:
                 and magic_bytes[0] == 0x1F
                 and magic_bytes[1] == 0x8B
             )
-    except (IOError, OSError):
+    except OSError:
         # If we can't read the file, assume it's not compressed
         return False
 
@@ -324,11 +286,11 @@ def create_ftp_directory_structure(  # pylint: disable=too-many-locals, too-many
     output_path: str,
     species_name: str,
     gca_string: str,
-    annotation_files: Dict[str, Optional[str]],
+    annotation_files: dict[str, str | None],
     fasta_file: str,
-    two_bit_file: Optional[str],
+    two_bit_file: str | None,
     logger: logging.Logger,
-) -> Tuple[str, List[str]]:
+) -> tuple[str, list[str]]:
     """
     Create FTP directory structure and copy files with standardized naming.
 
@@ -364,7 +326,7 @@ def create_ftp_directory_structure(  # pylint: disable=too-many-locals, too-many
     os.makedirs(ftp_final_dir, exist_ok=True)
     logger.info(f"Created FTP directory: {ftp_final_dir}")
 
-    copied_files: List[str] = []
+    copied_files: list[str] = []
 
     # Copy and rename annotation files
     for file_type, source_file in annotation_files.items():
@@ -415,7 +377,7 @@ def create_ftp_directory_structure(  # pylint: disable=too-many-locals, too-many
 
 
 def generate_md5_checksums(
-    directory: str, files: List[str], logger: logging.Logger
+    directory: str, files: list[str], logger: logging.Logger
 ) -> str:
     """
     Generate MD5 checksums for files and write to CHECKSUMS file.
@@ -491,7 +453,7 @@ Examples:
 
     output_path: str = args.path
     gca_string: str = args.gca
-    species_name: Optional[str] = args.species
+    species_name: str | None = args.species
 
     # Validate input path
     if not os.path.exists(output_path):
@@ -562,7 +524,7 @@ Examples:
         logger.info("Pre-release FTP processing completed successfully")
 
     except Exception as err:  # pylint: disable=broad-exception-caught
-        logger.error(f"Error during processing: {str(err)}")
+        logger.error(f"Error during processing: {err!s}")
         sys.exit(1)
 
 

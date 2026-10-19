@@ -1,0 +1,6 @@
+# logic_name → evidence_class
+rnaseq_cufflinks: transcriptomic
+cdna_rnaseq: transcriptomic
+wu_protein: homology
+gene_builder_projection: projection
+genscan: ab_initio

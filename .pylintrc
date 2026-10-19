@@ -9,4 +9,4 @@ disable =
 ignore=site,build,.venv
 
 # Python version used
-py-version=3.11
+py-version=3.10

@@ -18,13 +18,13 @@ Utility to update the status of a genebuild in the registry db
 """
 
 # pylint: disable=f-string-without-interpolation, broad-exception-raised, broad-exception-caught
+from __future__ import annotations
+
 import argparse
 from datetime import datetime
-import sys
-from typing import Optional
-import pymysql
-from ensembl.genes.info_from_registry.mysql_helper import mysql_get_connection
-from ensembl.genes.info_from_registry.registry_helper import (
+
+from ensembl.genes.mysql_helper import MySQLConnection, mysql_get_connection
+from ensembl.genes.registry_helper import (
     fetch_assembly_id,
     fetch_current_genebuild_record,
     fetch_highest_genebuild_version,
@@ -32,9 +32,7 @@ from ensembl.genes.info_from_registry.registry_helper import (
 )
 
 
-def ensure_genebuilder_exists(
-    connection: pymysql.connections.Connection, genebuilder: str
-) -> None:
+def ensure_genebuilder_exists(connection: MySQLConnection, genebuilder: str) -> None:
     """
     Ensure genebuilder exists in the genebuilder table.
 
@@ -55,7 +53,7 @@ def ensure_genebuilder_exists(
 
 # fetch_current_record is now fetch_current_genebuild_record imported from registry_helper
 def insert_new_record(  # pylint:disable=too-many-arguments
-    connection: pymysql.connections.Connection,
+    connection: MySQLConnection,
     assembly_id: int,
     assembly: str,
     genebuilder: str,
@@ -89,7 +87,7 @@ def insert_new_record(  # pylint:disable=too-many-arguments
     # Add not avaialable for release type
     query = """
     INSERT INTO genebuild_status (
-        assembly_id, gca_accession, gb_status, last_attempt, 
+        assembly_id, gca_accession, gb_status, last_attempt,
         genebuilder, annotation_source, annotation_method,
         date_started, date_status_update, release_type,
         genebuild_version
@@ -120,14 +118,14 @@ def insert_new_record(  # pylint:disable=too-many-arguments
 
 
 def update_existing_record(  # pylint:disable=too-many-arguments
-    connection: pymysql.connections.Connection,
+    connection: MySQLConnection,
     record_id: int,
     status: str,
     current_date: str,
     dev: bool,
-    annotation_method: Optional[str] = None,
-    annotation_source: Optional[str] = None,
-    genebuild_version: Optional[str] = None,
+    annotation_method: str | None = None,
+    annotation_source: str | None = None,
+    genebuild_version: str | None = None,
 ) -> None:
     """
     Update an existing genebuild status record.
@@ -170,7 +168,7 @@ WHERE genebuild_status_id = %s
 
 
 def set_old_record_historical(
-    connection: pymysql.connections.Connection, record_id: int, dev: bool
+    connection: MySQLConnection, record_id: int, dev: bool
 ) -> None:
     """
     Set an existing record to historical (last_attempt = 0).
@@ -202,10 +200,10 @@ def main(  # pylint:disable=too-many-arguments, too-many-statements, too-many-br
     assembly: str,
     status: str,
     genebuilder: str,
-    annotation_source: Optional[str],
-    annotation_method: Optional[str],
+    annotation_source: str | None,
+    annotation_method: str | None,
     release_type: str,
-    genebuild_version: Optional[str],
+    genebuild_version: str | None,
     dev: bool = False,
 ) -> None:
     """
@@ -266,19 +264,13 @@ def main(  # pylint:disable=too-many-arguments, too-many-statements, too-many-br
                 highest_version = fetch_highest_genebuild_version(connection, assembly)
                 if highest_version:
                     if genebuild_version <= highest_version:
-                        print(
-                            f"ERROR: Genebuild version '{genebuild_version}' already exists \
-                                or is lower than existing version '{highest_version}' \
-                                    for assembly {assembly}"
+                        raise ValueError(
+                            f"Genebuild version '{genebuild_version}' already exists or is lower "
+                            f"than existing version '{highest_version}' for assembly {assembly}. "
+                            f"Versions must be unique per assembly across all genebuilders. "
+                            f"Please use a version higher than '{highest_version}' "
+                            f"or omit --genebuild_version to auto-increment."
                         )
-                        print(
-                            f"Versions must be unique per assembly across all genebuilders."
-                        )
-                        print(
-                            f"Please use a version higher than '{highest_version}' \
-                                or omit --genebuild_version to auto-increment."
-                        )
-                        sys.exit(1)
                 version_to_insert = genebuild_version
             else:
                 # Auto-determine version: check if ANY version exists for this assembly
@@ -322,7 +314,13 @@ def main(  # pylint:disable=too-many-arguments, too-many-statements, too-many-br
             print(f"Current status: '{current_status}', requested status: '{status}'")
 
             # Status categories
-            terminal_statuses = ["live", "pre_released", "handed_over", "archive"]
+            terminal_statuses = [
+                "live",
+                "pre_released",
+                "handed_over",
+                "archive",
+                "coming_soon",
+            ]
             active_statuses = ["insufficient_data", "in_progress", "check_busco"]
             completed_status = "completed"  # terminal-like status
 
@@ -387,16 +385,75 @@ def main(  # pylint:disable=too-many-arguments, too-many-statements, too-many-br
                     )
                 else:
                     print(f"Status is already '{status}'. No changes needed.")
-                    sys.exit(0)
+                    return
 
-            # Block backwards transitions from completed
+            # Block backwards transitions from completed (unless new version provided)
             elif current_status == completed_status and status in active_statuses:
-                print(f"ERROR: Cannot move backwards from 'completed' to '{status}'")
-                print(
-                    f"Completed is a terminal-like status. To restart work, \
-                        use a new genebuild_version."
+                # Check if version changed - if so, allow new attempt
+                effective_version = (
+                    genebuild_version if genebuild_version else current_version
                 )
-                sys.exit(1)
+
+                if effective_version != current_version:
+                    if effective_version is None:
+                        raise ValueError("genebuild_version is required")
+
+                    # Validate the new version against ALL existing versions for this assembly
+                    highest_version = fetch_highest_genebuild_version(
+                        connection, assembly
+                    )
+                    if highest_version and effective_version <= highest_version:
+                        raise ValueError(
+                            f"Genebuild version '{effective_version}' already exists or is lower "
+                            f"than existing version '{highest_version}' for assembly {assembly}. "
+                            f"Versions must be unique per assembly across all genebuilders. "
+                            f"Please use a version higher than '{highest_version}'."
+                        )
+
+                    print(
+                        f"Moving from 'completed' to '{status}' "
+                        f"with new version {effective_version}"
+                    )
+                    print("Creating new attempt.")
+
+                    method_to_insert = (
+                        annotation_method if annotation_method else "pending"
+                    )
+                    source_to_insert = (
+                        annotation_source
+                        if annotation_source
+                        else current_source or "pending"
+                    )
+
+                    set_old_record_historical(connection, record_id, dev)
+                    insert_new_record(
+                        connection,
+                        assembly_id,
+                        assembly,
+                        genebuilder,
+                        status,
+                        source_to_insert,
+                        method_to_insert,
+                        current_date,
+                        release_type,
+                        effective_version,
+                        dev,
+                    )
+                else:
+                    # No version provided or same as current - reject
+                    highest_version = fetch_highest_genebuild_version(
+                        connection, assembly
+                    )
+                    suggested_version = (
+                        increment_genebuild_version(highest_version)
+                        if highest_version
+                        else "ENS02"
+                    )
+                    raise ValueError(
+                        f"Cannot move backwards from 'completed' to '{status}'. "
+                        f"To restart work, provide a new --genebuild_version higher "
+                        f"than '{highest_version}' (e.g., {suggested_version})."
+                    )
 
             # Block backwards transitions from terminal statuses
             elif current_status in terminal_statuses and status in (
@@ -409,32 +466,33 @@ def main(  # pylint:disable=too-many-arguments, too-many-statements, too-many-br
                 )
 
                 if effective_version != current_version:
+                    if effective_version is None:
+                        raise ValueError("genebuild_version is required")
+
                     # Validate the new version against ALL existing versions for this assembly
                     highest_version = fetch_highest_genebuild_version(
                         connection, assembly
                     )
                     if highest_version and effective_version <= highest_version:
-                        print(
-                            f"ERROR: Genebuild version '{effective_version}' already exists \
-                                or is lower than existing version '{highest_version}' \
-                                    for assembly {assembly}"
+                        raise ValueError(
+                            f"Genebuild version '{effective_version}' already exists or is lower "
+                            f"than existing version '{highest_version}' for assembly {assembly}. "
+                            f"Versions must be unique per assembly across all genebuilders. "
+                            f"Please use a version higher than '{highest_version}'."
                         )
-                        print(
-                            f"Versions must be unique per assembly across all genebuilders."
-                        )
-                        print(f"Please use a version higher than '{highest_version}'.")
-                        sys.exit(1)
                     print(
                         f"Moving from terminal status '{current_status}' to \
                             '{status}' with new version {effective_version}"
                     )
-                    print(f"Creating new attempt.")
+                    print("Creating new attempt.")
 
                     method_to_insert = (
                         annotation_method if annotation_method else "pending"
                     )
                     source_to_insert = (
-                        annotation_source if annotation_source else current_source
+                        annotation_source
+                        if annotation_source
+                        else current_source or "pending"
                     )
 
                     set_old_record_historical(connection, record_id, dev)
@@ -461,22 +519,19 @@ def main(  # pylint:disable=too-many-arguments, too-many-statements, too-many-br
                         if highest_version
                         else "ENS02"
                     )
-                    print(
-                        f"ERROR: Cannot move from terminal status '{current_status}' \
-                            to '{status}' with same genebuild_version '{current_version}'"
+                    raise ValueError(
+                        f"Cannot move from terminal status '{current_status}' to '{status}' "
+                        f"with same genebuild_version '{current_version}'. "
+                        f"To restart work, provide a new --genebuild_version higher "
+                        f"than '{highest_version}' (e.g., {suggested_version})."
                     )
-                    print(
-                        f"To restart work, you must provide a new --genebuild_version higher \
-                            than '{highest_version}' (e.g., {suggested_version})"
-                    )
-                    sys.exit(1)
 
             # Terminal to terminal transition - UPDATE same record
             elif current_status in terminal_statuses and status in terminal_statuses:
                 print(
                     f"Moving from terminal status '{current_status}' to terminal status '{status}'"
                 )
-                print(f"Updating existing record.")
+                print("Updating existing record.")
                 update_existing_record(
                     connection,
                     record_id,
@@ -491,7 +546,7 @@ def main(  # pylint:disable=too-many-arguments, too-many-statements, too-many-br
             # Completed to terminal transition - UPDATE same record
             elif current_status == completed_status and status in terminal_statuses:
                 print(f"Moving from 'completed' to terminal status '{status}'")
-                print(f"Updating existing record.")
+                print("Updating existing record.")
                 update_existing_record(
                     connection,
                     record_id,
@@ -526,7 +581,7 @@ def main(  # pylint:disable=too-many-arguments, too-many-statements, too-many-br
                 print(
                     f"Moving from active status '{current_status}' to terminal status '{status}'"
                 )
-                print(f"Updating existing record.")
+                print("Updating existing record.")
                 update_existing_record(
                     connection,
                     record_id,
@@ -550,17 +605,14 @@ def main(  # pylint:disable=too-many-arguments, too-many-statements, too-many-br
         else:
             print("DEV MODE: No changes were made to the database")
 
-    except Exception as e:
+    except Exception:
         if connection:
             connection.rollback()
-        print(f"ERROR: {str(e)}", file=sys.stderr)
-        sys.exit(1)
+        raise
 
     finally:
         if connection:
             connection.close()
-
-    sys.exit(0)
 
 
 if __name__ == "__main__":
@@ -569,14 +621,14 @@ if __name__ == "__main__":
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
             Status values should match the gb_status enum:
-            in_progress, insufficient_data, check_busco, completed, 
+            in_progress, insufficient_data, check_busco, completed,
             pre_released, handed_over, archive
 
             Examples:
-            %(prog)s --host localhost --user myuser --password mypass --database registry 
+            %(prog)s --host localhost --user myuser --password mypass --database registry
                     --assembly GCA_123456789.1 --status completed --genebuilder john_doe
 
-            %(prog)s --host localhost --user myuser --password mypass --database registry 
+            %(prog)s --host localhost --user myuser --password mypass --database registry
                     --assembly GCA_123456789.1 --status in_progress --genebuilder jane_smith --dev
         """,
     )

@@ -24,16 +24,17 @@ Uses DELETE then INSERT pattern to avoid stale/duplicated metrics.
 """
 
 # pylint:disable=f-string-without-interpolation, broad-exception-raised
+from __future__ import annotations
+
 import argparse
 import sys
-from typing import Optional
-import pymysql
-from ensembl.genes.info_from_registry.mysql_helper import mysql_get_connection
-from ensembl.genes.info_from_registry.registry_helper import fetch_registry_ids
+
+from ensembl.genes.mysql_helper import MySQLConnection, mysql_get_connection
+from ensembl.genes.registry_helper import fetch_registry_ids
 
 
 def fetch_core_metrics(
-    core_connection: pymysql.connections.Connection, species_id: int
+    core_connection: MySQLConnection, species_id: int
 ) -> list[dict[str, str]]:
     """
     Fetch metrics from core database meta table.
@@ -91,7 +92,7 @@ def partition_metrics(
 
 
 def write_assembly_metrics(
-    registry_connection: pymysql.connections.Connection,
+    registry_connection: MySQLConnection,
     assembly_id: int,
     rows: list[tuple[str, str]],
     dev: bool,
@@ -150,8 +151,8 @@ def write_assembly_metrics(
 
 
 def write_genebuild_metrics(
-    registry_connection: pymysql.connections.Connection,
-    genebuild_status_id: Optional[int],
+    registry_connection: MySQLConnection,
+    genebuild_status_id: int | None,
     assembly_id: int,
     rows: list[tuple[str, str]],
     dev: bool,
@@ -224,7 +225,7 @@ def main(  # pylint:disable=too-many-arguments, too-many-locals
     core_host: str,
     core_port: int,
     core_user: str,
-    core_password: Optional[str],
+    core_password: str | None,
     core_db: str,
     assembly: str,
     species_id: int,
@@ -263,7 +264,7 @@ def main(  # pylint:disable=too-many-arguments, too-many-locals
             host=core_host,
             port=core_port,
             user=core_user,
-            password=core_password,
+            password=core_password or "",
         )
 
         if not core_connection:
@@ -282,7 +283,7 @@ def main(  # pylint:disable=too-many-arguments, too-many-locals
             f"Found assembly_id: {assembly_id}, genebuild_status_id: {genebuild_status_id}"
         )
 
-        print(f"Fetching metrics from core database...")
+        print("Fetching metrics from core database...")
         meta_rows = fetch_core_metrics(core_connection, species_id)
         if not meta_rows:
             print("No metrics found in core database")
@@ -311,7 +312,7 @@ def main(  # pylint:disable=too-many-arguments, too-many-locals
     except Exception as e:  # pylint:disable=broad-exception-caught
         if registry_connection:
             registry_connection.rollback()
-        print(f"ERROR: {str(e)}", file=sys.stderr)
+        print(f"ERROR: {e!s}", file=sys.stderr)
         sys.exit(1)
 
     finally:

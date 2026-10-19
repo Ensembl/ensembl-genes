@@ -1,0 +1,11 @@
+# Reverse Gene Builder example config
+host: mysql-ens-prod.example
+port: 3306
+user: ensro
+password: ""
+core_db: species_core_114_1
+layer_db: species_layer_114_1
+coord_system_name: chromosome
+locus_gap_bp: 5000
+output_dir: /absolute/path/to/out
+format: tsv

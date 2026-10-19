@@ -38,6 +38,7 @@ mkdocs = [
     "mkdocs-material",
     "mkdocs-gen-files",
     "mkdocstrings[python]",
+    "pymdown-extensions==12.1",
     "mkdocs-literate-nav",
     "mkdocs-section-index",
     "mkdocs-coverage",
@@ -46,10 +47,11 @@ mkdocs = [
 cicd = [
     "black>=24,<25",
     "pylint>=3,<5",
-    "pytest>=7,<9",
+    "pytest>=7,<10",
     "mypy",
     "types-PyMySQL",
     "types-requests",
+    "types-PyYAML",
     "coverage>=7,<8",
 ]
 
@@ -62,10 +64,11 @@ main_static_content = "ensembl.genes.content.main_static_content:main"
 start_pipeline_from_registry = "ensembl.genes.info_from_registry.start_pipeline_from_registry:main"
 beta_patcher = "ensembl.genes.metadata.beta_patcher:main"
 core_meta_data = "ensembl.genes.metadata.core_meta_data:main"
+core_meta_registry = "ensembl.genes.metadata.core_meta_reg:main"
+truth_checker = "ensembl.genes.metadata.truth_checker:main"
 busco_lineage_selector = "ensembl.genes.metrics.busco_lineage_selector:main"
 busco_metakeys_patch = "ensembl.genes.metrics.busco_metakeys_patch:main"
 check_busco_score = "ensembl.genes.metrics.check_busco_score:main"
-write_yaml = "ensembl.genes.projects.write_yaml:main"
 pid_overlap = "ensembl.genes.stable_id.pid_overlap:main"
 bioproject_tracking = "ensembl.genes.tracking.bioproject_tracking:main"
 live_tracking = "ensembl.genes.tracking.live_tracking:main"
@@ -90,6 +93,17 @@ where = ["src/python"]
 
 [tool.setuptools]
 package-dir = {"" = "src/python"}
+include-package-data = true
+
+[tool.setuptools.package-data]
+"ensembl.genes.rgb" = [
+    "docs/*.md",
+    "examples/*.yaml",
+]
+"ensembl.genes.projects" = [
+    "icons.txt",
+    "server_config.json",
+]
 
 [tool.mypy]
 ignore_missing_imports = true

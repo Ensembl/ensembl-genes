@@ -15,8 +15,7 @@
 # limitations under the License.
 # pylint: disable=logging-fstring-interpolation
 """This module handles the assignment of unique species prefixes
-based on taxon IDs by interacting with the assembly registry and
-metadata databases.
+based on taxon IDs by interacting with the metadata database.
 """
 
 import json
@@ -24,10 +23,14 @@ import logging
 import os
 import random
 import string
-from typing import Optional
-import pymysql  # type: ignore
 
-from ensembl.genes.info_from_registry.mysql_helper import mysql_fetch_data
+import pymysql  # pylint: disable=import-error  # type: ignore
+
+from ensembl.genes.mysql_helper import (
+    MySQLConnection,
+    get_mysql_connection,
+    mysql_fetch_data,
+)
 
 # Configure logging
 logging.basicConfig(
@@ -45,7 +48,7 @@ def get_special_cases() -> dict[str, str]:
     """
     enscode = os.environ.get("ENSCODE")
     if not enscode:
-        raise EnvironmentError("Environment variable ENSCODE is not set")
+        raise OSError("Environment variable ENSCODE is not set")
     json_path = os.path.join(
         enscode,
         "ensembl-genes",
@@ -54,15 +57,19 @@ def get_special_cases() -> dict[str, str]:
         "ensembl",
         "genes",
         "info_from_registry",
-        "anno_settings.json",
+        "stable_id_special_cases.json",
     )
+
+    logger.info(
+        f"Loading special-cases from: {json_path}"
+    )  # pylint: disable=f-string-without-interpolation
     with open(json_path, "r") as file:  # pylint: disable=unspecified-encoding
         special_cases = json.load(file)
     return special_cases
 
 
-def exiting_prefix(server_info: dict) -> list[str]:
-    """Get a list of existing species prefixes from the gb assembly registry and metadata databases.
+def existing_prefix(server_info: dict) -> list[str]:
+    """Get a list of existing species prefixes from the metadata database.
 
     Args:
         server_info (dict): Information about the database server.
@@ -70,18 +77,7 @@ def exiting_prefix(server_info: dict) -> list[str]:
     Returns:
         list[str]: A list of existing species prefixes.
     """
-    # Getting existing prefix from registry db. To be removed when the registry is updated.
-    prefix_registry_query = f"SELECT DISTINCT species_prefix FROM assembly ;"  # pylint: disable=f-string-without-interpolation
-    output_registry = mysql_fetch_data(
-        prefix_registry_query,
-        host=server_info["registry"]["db_host"],
-        user=server_info["registry"]["db_user"],
-        port=server_info["registry"]["db_port"],
-        database=server_info["registry"]["db_name"],
-        password="",
-    )
-    # Getting existing prefix from metadata db
-    prefix_metadata_query = f"SELECT DISTINCT prefix FROM species_prefix ;"  # pylint: disable=f-string-without-interpolation
+    prefix_metadata_query = "SELECT DISTINCT prefix FROM species_prefix ;"  # pylint: disable=f-string-without-interpolation
     output_metadata = mysql_fetch_data(
         prefix_metadata_query,
         host=server_info["registry"]["db_host"],
@@ -90,25 +86,23 @@ def exiting_prefix(server_info: dict) -> list[str]:
         database=server_info["registry"]["db_name"],
         password="",
     )
-    prefix_list = [
-        list(item.values())[0] for item in list(output_registry) + list(output_metadata)
-    ]
-    existing_prefix = list(set(prefix_list))
-    logger.debug(f"Num Existing prefix: {len(existing_prefix)}")
-    return existing_prefix
+    prefix_list = [list(item.values())[0] for item in output_metadata]
+    existing_prefix_list = list(set(prefix_list))
+    logger.debug(f"Num Existing prefix: {len(existing_prefix_list)}")
+    return existing_prefix_list
 
 
-def generate_random_prefix(existing_prefix: list[str]) -> str:
+def generate_random_prefix(existing_prefix_list: list[str]) -> str:
     """Generate a random species prefix that does not already exist in the provided list.
 
     Args:
-        existing_prefix (list[str]): A list of existing species prefixes.
+        existing_prefix_list (list[str]): A list of existing species prefixes.
 
     Returns:
         str: A random three/four letter prefix.
     """
     letters = string.ascii_uppercase
-    if len(existing_prefix) >= 26**3:
+    if len(existing_prefix_list) >= 26**3:
         logger.info("Creating prefix: four random letters")
         length = 4
     else:
@@ -116,14 +110,14 @@ def generate_random_prefix(existing_prefix: list[str]) -> str:
         length = 3
     while True:
         candidate = "ENS" + "".join(random.choices(letters, k=length))
-        if candidate not in existing_prefix:
+        if candidate not in existing_prefix_list:
             return candidate
 
 
 def insert_prefix_into_db(
     prefix: str,
     taxon_id: int,
-    conn: pymysql.connections.Connection,
+    conn: MySQLConnection,
     store_new_registry: bool = False,
 ) -> bool:
     """Insert a new species prefix into the database.
@@ -158,12 +152,14 @@ def insert_prefix_into_db(
         raise
 
 
-def create_prefix(existing_prefix: list[str], taxon_id: int, server_info: dict) -> str:
+def create_prefix(
+    existing_prefix_list: list[str], taxon_id: int, server_info: dict
+) -> str:
     """Create a new species prefix for a given taxon ID and insert it into the database.
     It will retry up to 10,000 times to ensure uniqueness.
 
     Args:
-        existing_prefix (list[str]): A list of existing species prefixes.
+        existing_prefix_list (list[str]): A list of existing species prefixes.
         taxon_id (int): The taxon ID for the new prefix.
         server_info (dict): Information about the database server.
 
@@ -174,7 +170,7 @@ def create_prefix(existing_prefix: list[str], taxon_id: int, server_info: dict) 
         str: The newly created species prefix.
     """
     logger.info(f"Creating new prefix for taxon ID: {taxon_id}")
-    conn = pymysql.connect(
+    conn = get_mysql_connection(
         host=server_info["registry"]["db_host"],
         user=server_info["registry"]["db_user_w"],
         port=int(server_info["registry"]["db_port"]),
@@ -184,18 +180,19 @@ def create_prefix(existing_prefix: list[str], taxon_id: int, server_info: dict) 
 
     with conn:
         for _ in range(10):  # max attempts
-            prefix = generate_random_prefix(existing_prefix)
+            prefix = generate_random_prefix(existing_prefix_list)
             if insert_prefix_into_db(prefix, taxon_id, conn):
                 logger.info(f"Successfully inserted: {prefix}")
                 return prefix
-            existing_prefix.append(prefix)  # optimize by adding to "existing prefixes"
+            existing_prefix_list.append(
+                prefix
+            )  # optimize by adding to "existing prefixes"
     raise RuntimeError("Failed to generate unique prefix after many attempts.")
 
 
-def get_species_prefix(taxon_id: int, server_info: dict) -> Optional[str]:
+def get_species_prefix(taxon_id: int, server_info: dict) -> str | None:
     """
-    This function retrieves the species prefix from the assembly registry
-    and metadata databases.
+    This function retrieves the species prefix from the metadata database.
     If the prefix is not found, it creates a new one. There are special cases
     where the prefix is predefined.
     - Canis lupus (wolf) -> ENSCAF
@@ -214,6 +211,8 @@ def get_species_prefix(taxon_id: int, server_info: dict) -> Optional[str]:
 
     # Special cases
     special_cases = get_special_cases()
+    logger.info(f"{special_cases}")
+    logger.info(f"Loaded {len(special_cases)} special-cases")
 
     if str(taxon_id) in special_cases:
         logger.info(f"The prefix is a special case for taxon ID: {taxon_id}")
@@ -222,22 +221,10 @@ def get_species_prefix(taxon_id: int, server_info: dict) -> Optional[str]:
 
         logger.info(f"Searching for prefix for taxon ID: {taxon_id}")
 
-        prefix_registry_query = (
-            f"SELECT DISTINCT species_prefix FROM assembly WHERE taxonomy = {taxon_id}"
+        prefix_metadata_query = (
+            "SELECT DISTINCT prefix FROM species_prefix "
+            f"WHERE lowest_taxon_id = {taxon_id}"
         )
-        output_registry = mysql_fetch_data(
-            prefix_registry_query,
-            host=server_info["registry"]["db_host"],
-            user=server_info["registry"]["db_user"],
-            port=int(server_info["registry"]["db_port"]),
-            database="gb_assembly_registry",
-            password="",
-        )
-        if output_registry:
-            logger.info(f"Prefix found in old registry: {output_registry}")
-
-        prefix_metadata_query = f"SELECT DISTINCT prefix FROM species_prefix \
-            WHERE lowest_taxon_id = {taxon_id}"
         output_metadata = mysql_fetch_data(
             prefix_metadata_query,
             host=server_info["registry"]["db_host"],
@@ -249,18 +236,15 @@ def get_species_prefix(taxon_id: int, server_info: dict) -> Optional[str]:
         if output_metadata:
             logger.info(f"Prefix found in new metadata registry: {output_metadata}")
 
-        # Combine output and get list of unique values
-        output = [
-            list(item.values())[0]
-            for item in list(output_registry) + list(output_metadata)
-        ]
+        # Get list of unique values
+        output = [list(item.values())[0] for item in output_metadata]
         prefix_list = list(set(output))
 
         # no prefix, create new prefix
         if len(prefix_list) == 0:
             logger.info(f"Creating a new prefix for taxon ID: {taxon_id}")
-            existing_prefix = exiting_prefix(server_info)
-            species_prefix = create_prefix(existing_prefix, taxon_id, server_info)
+            existing_prefix_list = existing_prefix(server_info)
+            species_prefix = create_prefix(existing_prefix_list, taxon_id, server_info)
 
         # unique prefix detected
         elif len(prefix_list) == 1:
@@ -268,7 +252,7 @@ def get_species_prefix(taxon_id: int, server_info: dict) -> Optional[str]:
             species_prefix = str(prefix_list[0])
             logger.info(f"Saving exting prefix {species_prefix} in new registry")
             # Open a new connection
-            conn = pymysql.connect(
+            conn = get_mysql_connection(
                 host=server_info["registry"]["db_host"],
                 user=server_info["registry"]["db_user_w"],
                 port=int(server_info["registry"]["db_port"]),

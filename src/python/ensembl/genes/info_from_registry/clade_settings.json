@@ -35,6 +35,24 @@
         "species_division": "EnsemblProtists",
         "busco_group": "plasmodium_odb12"
     },
+    "apicomplexa": {
+        "taxon_id": 5794,
+        "max_intron_length": 100000,
+        "protein_file": "/nfs/production/flicek/ensembl/genebuild/genebuild_virtual_user/protein_sets/apicomplexa_uniprot_proteins.fa",
+        "busco_protein_file": "/nfs/production/flicek/ensembl/genebuild/genebuild_virtual_user/protein_sets/apicomplexa_orthodb_proteins.fa",
+        "rfam_accessions_file": "/hps/nobackup/flicek/ensembl/genebuild/blastdb/ncrna/Rfam_14.1/clade_accessions/rfam_apicomplexa_ids.txt",
+        "species_division": "EnsemblProtists",
+        "busco_group": "apicomplexa_odb12"
+    },
+    "vitrellaceae": {
+        "taxon_id": 2605696,
+        "max_intron_length": 100000,
+        "protein_file": "/nfs/production/flicek/ensembl/genebuild/genebuild_virtual_user/protein_sets/vitrellaceae_uniprot_proteins.fa",
+        "busco_protein_file": "/nfs/production/flicek/ensembl/genebuild/genebuild_virtual_user/protein_sets/vitrellaceae_orthodb_proteins.fa",
+        "rfam_accessions_file": "/hps/nobackup/flicek/ensembl/genebuild/blastdb/ncrna/Rfam_14.1/clade_accessions/rfam_alveolata_ids.txt",
+        "species_division": "EnsemblProtists",
+        "busco_group": "apicomplexa_odb12"
+    },
     "hymenoptera": {
         "taxon_id": 7399,
         "max_intron_length": 100000,
@@ -62,8 +80,8 @@
         "species_division": "EnsemblMetazoa",
         "busco_group": "endopterygota_odb12"
     },
-    "crustacea": {
-        "taxon_id": 6657,
+    "malacostraca": {
+        "taxon_id": 6681,
         "max_intron_length": 100000,
         "protein_file": "/nfs/production/flicek/ensembl/genebuild/genebuild_virtual_user/protein_sets/crustacea_uniprot_proteins.fa",
         "busco_protein_file": "/nfs/production/flicek/ensembl/genebuild/genebuild_virtual_user/protein_sets/crustacea_orthodb_proteins.fa",
@@ -153,6 +171,15 @@
         "rfam_accessions_file": "/hps/nobackup/flicek/ensembl/genebuild/blastdb/ncrna/Rfam_14.1/clade_accessions/rfam_metazoa_ids.txt",
         "species_division": "EnsemblMetazoa",
         "busco_group": "arachnida_odb12"
+    },
+	"orthoptera": {
+        "taxon_id": 6993,
+        "max_intron_length": 100000,
+        "protein_file": "/nfs/production/flicek/ensembl/genebuild/genebuild_virtual_user/protein_sets/orthoptera_uniprot_proteins.fa",
+        "busco_protein_file": "/nfs/production/flicek/ensembl/genebuild/genebuild_virtual_user/protein_sets/insecta_orthodb_proteins.fa",
+        "rfam_accessions_file": "/hps/nobackup/flicek/ensembl/genebuild/blastdb/ncrna/Rfam_14.1/clade_accessions/rfam_insecta_ids.txt",
+        "species_division": "EnsemblMetazoa",
+        "busco_group": "insecta_odb12"
     },
     "collembola": {
         "taxon_id": 30001,
@@ -335,6 +362,18 @@
         "helixer_lineage": "fungi",
         "helixer_param": "--subsequence-length 21384 --overlap-offset 10692 --overlap-core-length 16038"
     },
+
+    "microsporidia": {
+        "taxon_id": 6029,
+        "max_intron_length": 1000,
+        "protein_file": "/nfs/production/flicek/ensembl/genebuild/genebuild_virtual_user/protein_sets/microsporidia_uniprot_proteins.fa",
+        "busco_protein_file": "/nfs/production/flicek/ensembl/genebuild/genebuild_virtual_user/protein_sets/microsporidia_orthodb_proteins.fa",
+        "rfam_accessions_file": "/hps/nobackup/flicek/ensembl/genebuild/blastdb/ncrna/Rfam_14.1/clade_accessions/rfam_fungi_ids.txt",
+        "species_division": "EnsemblFungi",
+        "busco_group": "microsporidia_odb12",
+        "helixer_lineage": "fungi",
+        "helixer_param": "--subsequence-length 21384 --overlap-offset 10692 --overlap-core-length 16038"
+    },
     "primates": {
         "taxon_id": 1758,
         "repbase_library": "primates",
@@ -379,17 +418,6 @@
         "ig_tr_fasta_file": "imgt_mammals_aves_ig_tr.fa",
         "projection_source_production_name": "homo_sapiens"
     },
-    "lepidosauria": {
-        "taxon_id": 8504,
-        "repbase_library": "vertebrates",
-        "repbase_logic_name": "vertebrates",
-        "uniprot_set": "reptiles_basic",
-        "sanity_set": "reptiles_basic",
-        "ig_tr_fasta_file": "imgt_mammals_aves_ig_tr.fa",
-        "masking_timer_long": "6h",
-        "masking_timer_short": "3h",
-        "projection_source_production_name": "homo_sapiens"
-    },
 
     "lepidosauria": {
         "taxon_id": 8504,
@@ -426,18 +454,6 @@
         "masking_timer_short": "3h",
         "projection_source_production_name": "homo_sapiens"
     },
-
-	"crocodylia": {
-        "taxon_id": 1294634,
-        "repbase_library": "vertebrates",
-        "repbase_logic_name": "vertebrates",
-        "uniprot_set": "reptiles_basic",
-        "sanity_set": "reptiles_basic",
-        "ig_tr_fasta_file": "imgt_mammals_aves_ig_tr.fa",
-        "masking_timer_long": "6h",
-        "masking_timer_short": "3h",
-        "projection_source_production_name": "homo_sapiens"
-    },
     "amphibians": {
         "taxon_id": 8292,
         "repbase_library": "vertebrates",
@@ -447,7 +463,21 @@
         "ig_tr_fasta_file": "imgt_mammals_aves_ig_tr.fa",
         "masking_timer_long": "6h",
         "masking_timer_short": "3h",
-        "projection_source_production_name": "danio_rerio"
+        "projection_source_production_name": "homo_sapiens"
+    },
+    "zebrafish": {
+        "taxon_id": 7955,
+        "repbase_library": "Teleostei",
+        "repbase_logic_name": "teleost",
+        "uniprot_set": "zebrafish_basic",
+        "sanity_set": "zebrafish_basic",
+        "ig_tr_fasta_file": "fish_ig_tr.fa",
+        "masking_timer_long": "6h",
+        "masking_timer_short": "3h",
+        "skip_projection": 0,
+        "skip_lastz": 0,
+        "projection_source_production_name": "danio_rerio_zebrafish",
+        "repeatmasker_slice_size": 500000
     },
     "teleostei": {
         "taxon_id": 186623,
