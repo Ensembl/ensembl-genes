@@ -82,13 +82,18 @@ async function init() {
   const params = new URLSearchParams(location.hash.slice(1));
   S.exp = exps.some((e) => e.id === params.get("exp")) ? params.get("exp") : exps[0].id;
   $("#exp").value = S.exp;
-  $("#exp").onchange = () => { S.exp = $("#exp").value; loadExperiment(); };
+  // switching species keeps the policy, scope (when the new species reports it), view, tab and plot settings
+  $("#exp").onchange = () => { S.exp = $("#exp").value; loadExperiment(currentState()); };
   $$(".tabs button").forEach((b) => (b.onclick = () => selectTab(b.dataset.tab)));
   $$(".subnav button").forEach((b) => (b.onclick = () => selectView(b.dataset.view)));
   arrowNav($(".tabs"), "button", (b) => selectTab(b.dataset.tab));
   arrowNav($(".subnav"), "button", (b) => selectView(b.dataset.view));
   $("#showSupp").onchange = () => { S.showSupp = $("#showSupp").checked; renderAll(); };
   await loadExperiment(params);
+}
+function currentState() {
+  return new URLSearchParams({ policy: S.policy || "", scope: S.scope || "", view: S.view, tab: $(".tabs button[aria-selected=true]")?.dataset.tab || "overview",
+    pos: S.posCoord, posmin: String(S.posMin), len: S.lenMeasure });
 }
 function selectView(name) {
   S.view = name; setTabs($(".subnav"), "view", name);
