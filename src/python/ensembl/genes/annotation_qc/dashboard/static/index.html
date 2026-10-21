@@ -10,11 +10,10 @@
 <a class="skip" href="#main">Skip to content</a>
 <header class="masthead">
   <div class="brand"><span class="brand-name">Annotation QC</span><span class="brand-sub">reference comparison</span></div>
-  <label class="mast-ctl">Experiment <select id="exp" aria-label="Experiment"></select></label>
+  <label class="mast-ctl">Experiment <select id="exp" aria-label="Experiment (species)"></select></label>
   <span class="mast-note" id="contractNote"></span>
 </header>
 <div class="toolbar" role="region" aria-label="Analysis selection">
-  <label class="ctl">Reference <select id="ref"></select></label>
   <div class="ctl"><span id="policyLabel">Transcript policy</span> <span id="policy" class="seg" role="radiogroup" aria-labelledby="policyLabel"></span></div>
   <label class="ctl">Sequence scope <select id="scope"></select></label>
   <label class="ctl check"><input type="checkbox" id="showSupp" checked> show supplementary stop-harmonised variants</label>
@@ -39,6 +38,9 @@
     <div id="view-headline" class="view active">
       <div id="resultStatus"></div>
       <div id="summaryTable"></div>
+      <h2>Reference genes by CDS outcome <span class="small muted" id="outcomeContext"></span></h2>
+      <div id="outcomeChart" class="chart"></div>
+      <p class="muted small">Each bar is one prediction run; segments are the comparator's per-gene CDS outcome counts (<span class="mono">cds_outcome_*</span> rows of metrics.tsv), which partition the evaluated reference genes R. Exact = coordinate-exact CDS in the gene's best CDS pair (not the one-to-one matching); ends ≠ and splice ≠ are partial agreement with the same or a different CDS intron chain; &lt; 0.8 shares CDS with lower reciprocal overlap; span = locus found without CDS overlap.</p>
       <div id="limitBox"></div>
       <details class="panel" id="countsPanel"><summary>Counts and denominators</summary><div id="summaryCounts"></div></details>
       <details class="panel"><summary>How to read these columns</summary>
@@ -95,7 +97,7 @@
       <fieldset id="statusChecks" class="checks"><legend class="sr">CDS outcome in the selected run</legend></fieldset>
       <select id="oneToOne" aria-label="One-to-one exact pair in the selected run"><option value="">1:1 pair: any</option><option value="1">in a 1:1 exact pair</option><option value="0">not in a 1:1 exact pair</option></select>
       <label class="inline"><input type="checkbox" id="splitOnly"> split</label>
-      <label>Contrast <select id="contrast"><option value="">—</option><option value="exact_in_focus">exact in run, not exact in</option><option value="missing_in_focus">not exact in run, exact in</option></select></label>
+      <label>Contrast <select id="contrast"><option value="">—</option><option value="exact_in_focus">exact in run, not exact in</option><option value="missing_in_focus">not exact in run, exact in</option><option value="exact_in_both">exact in run and in</option><option value="exact_in_neither">exact in neither run nor</option></select></label>
       <select id="compareRun" aria-label="Comparison run"></select>
       <button class="btn primary" type="submit">Apply</button>
       <button class="btn" type="button" id="resetFilters">Reset</button>

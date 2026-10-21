@@ -126,3 +126,13 @@ td.runcell .swatch { margin-right: 6px; vertical-align: -1px; }
 .limits li { margin: 3px 0; font-size: 13px; }
 @media (max-width: 760px) { .mast-note { margin-left: 0; } main { padding: 10px; } .toolbar, .masthead, .contextbar { padding: 8px 10px; } .ctl { flex-wrap: wrap; } }
 .xscroll { overflow-x: auto; max-width: 100%; }
+/* Display roles (configuration runs[].display_role): presentation only. The focus run and the
+   primary comparison carry a text tag, a left accent in their run colour and their own marker shape,
+   so they are distinguishable without colour. */
+svg.mark { vertical-align: -2px; margin-right: 4px; flex: none; overflow: visible; }
+.tag.role { border-color: transparent; }
+.tag.role-focus { background: #fbe4d6; color: #7a2f00; }
+.tag.role-primary_comparator { background: #dceefa; color: #00466e; }
+td.runcell.role-focus, td.runcell.role-primary_comparator { box-shadow: inset 4px 0 0 var(--run); }
+.legend .legend-role { color: var(--text); font-weight: 600; }
+.legend > span { display: inline-flex; align-items: center; gap: 2px; }

@@ -77,7 +77,8 @@ function setTabs(container, attr, value) {
 // ---------------------------------------------------------------- setup
 async function init() {
   const exps = await api("/api/experiments");
-  $("#exp").innerHTML = exps.map((e) => `<option value="${esc(e.id)}">${esc(e.title || e.id)}${e.synthetic ? " [SYNTHETIC]" : ""}</option>`).join("");
+  const species = (e) => (e.species ? e.species.charAt(0).toUpperCase() + e.species.slice(1) : e.title || e.id);
+  $("#exp").innerHTML = exps.map((e) => `<option value="${esc(e.id)}" title="${esc(e.title || e.id)}">${esc(species(e))}${e.synthetic ? " [SYNTHETIC]" : ""}</option>`).join("");
   const params = new URLSearchParams(location.hash.slice(1));
   S.exp = exps.some((e) => e.id === params.get("exp")) ? params.get("exp") : exps[0].id;
   $("#exp").value = S.exp;
@@ -108,11 +109,8 @@ async function loadExperiment(params = new URLSearchParams()) {
   const c = S.meta.contract || {};
   $("#contractNote").textContent = `comparator output contract ${c.contract_version || "?"} · definitions ${c.definition_version || "?"}`;
   $("#footContract").textContent = `${c.contract_id || ""} ${c.contract_version || ""}`;
-  const refs = S.meta.references;
-  $("#ref").innerHTML = refs.map((r) => `<option value="${esc(r.id)}">${esc(r.species)} · ${esc(r.assembly)}</option>`).join("");
-  S.ref = refs.some((r) => r.id === params.get("ref")) ? params.get("ref") : refs[0].id;
-  $("#ref").value = S.ref;
-  $("#ref").onchange = () => { S.ref = $("#ref").value; loadReference(); };
+  // One species reference per experiment (`annotation-qc dashboard` refuses other configurations).
+  S.ref = S.meta.references[0].id;
   const pols = S.meta.policies.map((p) => p.id);
   S.policy = pols.includes(params.get("policy")) ? params.get("policy") : pols.includes("A") ? "A" : pols[0];
   S.scope = params.get("scope") || ALL;
@@ -136,25 +134,42 @@ function result(run, policy = S.policy) { return S.ov.results.find((r) => r.run_
 function shown(res) { return res && DISPLAYED.includes(res.status); }
 function metric(run, id, policy = S.policy, scope = S.scope) { return S.idx.get(`${run}|${policy}|${scope}|${id}`); }
 function runName(r) { return r.label || r.tool; }
+// Display roles (configuration runs[].display_role): presentation only, never a value.
+const ROLE_STYLE = {
+  focus: { rank: 0, tag: "focus", width: 3.5, r: 5, shape: "circle" },
+  primary_comparator: { rank: 1, tag: "primary comparison", width: 2.75, r: 4.5, shape: "square" },
+};
+const OTHER_STYLE = { rank: 2, tag: "", width: 1.5, r: 3.5, shape: "ring" };
+function roleStyle(r) { return ROLE_STYLE[r.display_role] || OTHER_STYLE; }
+function marker(shape, x, y, r, color, tip) {
+  const t = tip ? ` data-tip="${esc(tip)}"` : "";
+  if (shape === "square") return `<rect x="${(x - r).toFixed(1)}" y="${(y - r).toFixed(1)}" width="${2 * r}" height="${2 * r}" fill="${color}" stroke="#fff" stroke-width="1"${t}/>`;
+  if (shape === "ring") return `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${r}" fill="#fff" stroke="${color}" stroke-width="1.75"${t}/>`;
+  return `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${r}" fill="${color}" stroke="#fff" stroke-width="1.25"${t}/>`;
+}
+function swatch(r) { const st = roleStyle(r); return `<svg class="mark" width="14" height="14" viewBox="0 0 14 14" aria-hidden="true">${marker(st.shape, 7, 7, st.shape === "ring" ? 4.5 : 5.5, r.color)}</svg>`; }
+function roleTag(r) { const st = ROLE_STYLE[r.display_role]; return st ? `<span class="tag role role-${esc(r.display_role)}">${esc(st.tag)}</span>` : ""; }
 function isSupp(r) { return r.role === "supplementary" || !!r.companion_of; }
 function harmonised(r) { return r.variant === "stop_harmonised"; }
 
-// Order: pinned runs, then preferred tools (configured order), then the other primary runs by descending
-// one-to-one exact-CDS recall in the selected policy and scope. A supplementary companion follows its run
-// and is never ranked.
+// Order: runs with a display role (focus, then primary comparator), pinned runs, preferred tools (configured
+// order), then the other primary runs by descending display.order_metric (default one-to-one exact-CDS recall)
+// in the selected policy and scope. A supplementary companion follows its run and is never ranked.
 function orderRuns(runs) {
   const d = S.meta.display || {};
   const byConfig = (a, b) => a.config_order - b.config_order;
   const value = (r) => { const m = metric(r.run_id, d.order_metric || "exact_cds_one_to_one_recall"); return m && m.status === "ok" && shown(result(r.run_id)) ? m.value : -1; };
   const companion = (r) => r.companion_of && runs.some((x) => x.run_id === r.companion_of);
   const leaders = runs.filter((r) => !companion(r));
-  const pinned = (d.pinned_runs || []).map((id) => leaders.find((r) => r.run_id === id)).filter(Boolean);
+  const roled = leaders.filter((r) => ROLE_STYLE[r.display_role] && !isSupp(r))
+    .sort((a, b) => roleStyle(a).rank - roleStyle(b).rank || value(b) - value(a) || byConfig(a, b));
+  const pinned = (d.pinned_runs || []).map((id) => leaders.find((r) => r.run_id === id)).filter((r) => r && !roled.includes(r));
   const preferred = [];
-  for (const tool of d.preferred_tools || []) leaders.filter((r) => r.tool === tool && !pinned.includes(r)).sort((a, b) => value(b) - value(a) || byConfig(a, b)).forEach((r) => preferred.push(r));
-  const rest = leaders.filter((r) => !pinned.includes(r) && !preferred.includes(r))
+  for (const tool of d.preferred_tools || []) leaders.filter((r) => r.tool === tool && !roled.includes(r) && !pinned.includes(r)).sort((a, b) => value(b) - value(a) || byConfig(a, b)).forEach((r) => preferred.push(r));
+  const rest = leaders.filter((r) => !roled.includes(r) && !pinned.includes(r) && !preferred.includes(r))
     .sort((a, b) => (isSupp(a) - isSupp(b)) || value(b) - value(a) || byConfig(a, b));
   const out = [];
-  for (const r of [...pinned, ...preferred, ...rest]) {
+  for (const r of [...roled, ...pinned, ...preferred, ...rest]) {
     out.push(r);
     runs.filter((c) => companion(c) && c.companion_of === r.run_id).sort(byConfig).forEach((c) => out.push(c));
   }
@@ -181,7 +196,7 @@ function renderView() {
 }
 function writeHash() {
   const tab = $(".tabs button[aria-selected=true]")?.dataset.tab || "overview";
-  history.replaceState(null, "", `#exp=${encodeURIComponent(S.exp)}&ref=${encodeURIComponent(S.ref)}&policy=${encodeURIComponent(S.policy)}`
+  history.replaceState(null, "", `#exp=${encodeURIComponent(S.exp)}&policy=${encodeURIComponent(S.policy)}`
     + `&scope=${encodeURIComponent(S.scope)}&view=${S.view}&tab=${tab}${S.showSupp ? "" : "&supp=0"}`
     + (S.view === "structure" ? `&pos=${S.posCoord}&posmin=${S.posMin}&len=${S.lenMeasure}` : ""));
 }
@@ -220,6 +235,10 @@ function identitySummary() {
   }
   return Object.entries(counts).map(([k, n]) => `${n} × ${k}`).join("; ") || "no results";
 }
+function definitionSummary() {
+  const v = [...new Set(S.ov.results.filter(shown).map((r) => r.definition_version || (r.status === "legacy" ? "pre-contract" : "?")))];
+  return v.join(", ") || "—";
+}
 function renderContextBar() {
   const p = policyInfo(), sc = scopeInfo(), ref = refMeta();
   const R = configRuns().map((r) => metric(r.run_id, "reference_genes")).find((m) => m && m.status === "ok");
@@ -228,7 +247,8 @@ function renderContextBar() {
     <span class="ctx"><b>Reference</b>${esc(ref.species)} · ${esc(ref.assembly)}${ref.assembly_accession ? " (" + esc(ref.assembly_accession) + ")" : ""} · ${esc(ref.annotation_release || "")}</span>
     <span class="ctx" data-tip="${esc(p.description || "")}" tabindex="0"><b>Transcript policy</b>${esc(p.id)} · ${esc(p.label)}</span>
     <span class="ctx" data-tip="${esc(sc.description || "")}" tabindex="0"><b>Sequence scope</b>${esc(sc.label)}${sc.sequence_count ? ` (${fmtInt(sc.sequence_count)} sequences)` : ""} · R = ${R ? fmtInt(R.numerator) : "—"}</span>
-    <span class="ctx"><b>Coordinates</b>original for every primary run${supp.length ? `; ${supp.length} supplementary stop-harmonised variant${supp.length > 1 ? "s" : ""} ${S.showSupp ? "shown beside its original" : "hidden"}` : ""}</span>
+    ${supp.length ? `<span class="ctx"><b>Supplementary variants</b>${supp.length} ${S.showSupp ? "shown beside their run" : "hidden"}</span>` : ""}
+    <span class="ctx" data-tip="${esc(`Comparator output contract ${S.meta.contract?.contract_version || "?"}; definitions of the displayed results: ${definitionSummary()}`)}" tabindex="0"><b>Comparison</b>definitions ${esc(definitionSummary())}</span>
     <span class="ctx"><b>Implementation</b>${esc(identitySummary())}</span>`;
 }
 
@@ -291,14 +311,16 @@ function runCell(r, extra = "") {
   const lim = runLimitations(r);
   const tags = [
     isSupp(r) ? `<span class="tag info" data-tip="${esc("Supplementary variant of " + (runById(r.companion_of) ? runName(runById(r.companion_of)) : "the original run") + ": not ranked as a separate tool")}">supplementary</span>` : "",
-    harmonised(r) ? `<span class="tag warn" data-tip="${esc("query compared after --add-stop-codon (genetic code " + (r.comparator_options?.stop_codon_genetic_code ?? "?") + (r.comparator_options?.stop_codon_sequence_code ? ", " + r.comparator_options.stop_codon_sequence_code.join(", ") : "") + "): terminal CDS extended by an adjacent in-frame stop where the frame is established from the sequence")}">stop-harmonised</span>` : "",
+    roleTag(r),
+    harmonised(r) && isSupp(r) ? `<span class="tag warn" data-tip="${esc("query compared after --add-stop-codon (genetic code " + (r.comparator_options?.stop_codon_genetic_code ?? "?") + (r.comparator_options?.stop_codon_sequence_code ? ", " + r.comparator_options.stop_codon_sequence_code.join(", ") : "") + "): terminal CDS extended by an adjacent in-frame stop where the frame is established from the sequence")}">stop-harmonised</span>` : "",
     res?.status === "unverified" ? `<span class="tag bad" data-tip="${esc(res.reason || "")}">unverified implementation</span>` : "",
     res?.status === "legacy" ? `<span class="tag warn" data-tip="${esc(res.reason || "")}">pre-contract</span>` : "",
   ].join(" ");
   const detail = [`run id ${r.run_id}`, r.tool !== runName(r) ? `tool ${r.tool}` : "", r.model ? `model ${r.model}` : "", r.tool_version ? `version ${r.tool_version}` : "",
-    `annotation ${r.annotation.split("/").slice(-1)[0]}`].filter(Boolean).join("\n");
+    `annotation ${r.annotation.split("/").slice(-1)[0]}`, harmonised(r) ? `comparator option --add-stop-codon (genetic code ${r.comparator_options?.stop_codon_genetic_code ?? "?"}): terminal stop codon added where the file's CDS excludes it (audited)` : "",
+    ROLE_STYLE[r.display_role] ? `display role: ${ROLE_STYLE[r.display_role].tag} (presentation only)` : ""].filter(Boolean).join("\n");
   const cav = lim.length ? ` <span class="caveat" tabindex="0" data-tip="${esc("Limitations:\n• " + lim.join("\n• "))}" aria-label="limitations">ⓘ</span>` : "";
-  return `<td class="runcell">${isSupp(r) ? '<span class="muted" aria-hidden="true">↳ </span>' : ""}<span class="swatch" style="background:${r.color}"></span><span tabindex="0" data-tip="${esc(detail)}"><b>${esc(runName(r))}</b></span>${cav} ${tags}${extra}</td>`;
+  return `<td class="runcell${ROLE_STYLE[r.display_role] ? " role-" + esc(r.display_role) : ""}" style="--run:${r.color}">${isSupp(r) ? '<span class="muted" aria-hidden="true">↳ </span>' : ""}${swatch(r)}<span tabindex="0" data-tip="${esc(detail)}"><b>${esc(runName(r))}</b></span>${cav} ${tags}${extra}</td>`;
 }
 
 // ---------------------------------------------------------------- headline
@@ -312,7 +334,8 @@ function renderHeadline() {
   const tagged = (r, c) => valueCell(r, c.id, c.fmt).replace("<td ", `<td data-run="${esc(r.run_id)}" data-metric="${c.id}" `);
   const body = runs.map((r) => `<tr class="${isSupp(r) ? "supp" : ""}" data-run="${esc(r.run_id)}">${runCell(r)}${HEADLINE.map((c) => tagged(r, c)).join("")}</tr>`).join("");
   $("#summaryTable").innerHTML = runs.length ? `<div class="xscroll"><table class="grid summary"><caption class="sr">Headline CDS metrics, policy ${esc(S.policy)}, scope ${esc(scopeInfo().label)}</caption>${head}${body}</table></div>
-    <p class="muted small">Order: ${(S.meta.display?.preferred_tools || []).length ? `${esc(S.meta.display.preferred_tools.join(", "))} first, then the other runs` : "runs"} by one-to-one exact CDS recall under this policy and scope. Supplementary variants follow their original run and are not ranked.</p>` : '<p class="na">No prediction runs configured for this reference.</p>';
+    <p class="muted small">${esc(orderText(runs))}</p>` : '<p class="na">No prediction runs configured for this reference.</p>';
+  renderOutcomes(runs);
   renderLimitBox(runs);
   const tpCols = [["reference_genes", "R reference genes"], ["query_genes", "Q predicted genes"], ["locus_recovery_cds_overlap", "loci recovered"], ["exact_cds_one_to_one_tp", "TP one-to-one pairs"],
     ["exact_cds_gene_pairs", "identical-CDS gene pairs (edges)"]];
@@ -326,6 +349,42 @@ function renderHeadline() {
   $("#policyExplain").textContent = p.reference_transcript_selection === "all"
     ? `Policy ${p.id}: a reference gene counts when any of its eligible isoforms is reproduced (any-isoform recovery).`
     : `Policy ${p.id}: one transcript per reference gene (${p.reference_transcript_selection.replace("_", " ")}) and per predicted gene (${p.query_transcript_selection.replace("_", " ")}); a correct model of another isoform counts as a miss.`;
+}
+function orderText(runs) {
+  const d = S.meta.display || {}, metricLabel = S.dict[d.order_metric || "exact_cds_one_to_one_recall"]?.label || "one-to-one exact CDS recall";
+  const first = [...runs.filter((r) => ROLE_STYLE[r.display_role] && !isSupp(r)).map((r) => `${runName(r)} (${ROLE_STYLE[r.display_role].tag})`),
+    ...(d.preferred_tools || []).filter((t) => runs.some((r) => r.tool === t && !ROLE_STYLE[r.display_role]))];
+  return `Order: ${first.length ? first.join(", ") + " first, then the other runs" : "runs"} by ${metricLabel} under this policy and scope (display order only).${runs.some(isSupp) ? " Supplementary variants follow their run and are not ranked." : ""}`;
+}
+// Reference genes by CDS outcome: the comparator's cds_outcome_* rows (they partition R); drawn, not recomputed.
+const OUTCOME_ORDER = ["exact", "terminal_diff", "diff_chain", "partial_lt08", "span_only", "strand_mismatch", "missed"];
+const OUTCOME_FILL = { exact: ["#1b7837", "#fff"], terminal_diff: ["#7fbc41", "#10290a"], diff_chain: ["#d9c45a", "#2b2405"], partial_lt08: ["#e08214", "#2b1500"],
+  span_only: ["#c2b5d6", "#21173a"], strand_mismatch: ["#8c510a", "#fff"], missed: ["#b2182b", "#fff"] };
+function renderOutcomes(runs) {
+  const el = $("#outcomeChart");
+  $("#outcomeContext").textContent = `(policy ${S.policy}, ${scopeInfo().label})`;
+  const W = Math.min(1100, el.clientWidth || 1000), L = 230, R = 12, bh = 22, gap = 8;
+  const x = (f) => L + f * (W - L - R);
+  let y = 4, out = "";
+  for (const r of runs) {
+    const st = roleStyle(r), gate = resultGate(r), mid = y + bh / 2;
+    out += marker(st.shape, 10, mid, st.shape === "ring" ? 4 : 5, r.color) + `<text x="22" y="${mid + 4}" font-weight="${st.rank < 2 ? 700 : 400}">${esc(runName(r).slice(0, 30))}</text>`;
+    const rows = OUTCOME_ORDER.map((k) => [k, metric(r.run_id, "cds_outcome_" + k)]);
+    if (!gate.ok) out += `<text x="${L}" y="${mid + 4}" class="lbl-muted" font-style="italic">${esc(gate.text)}${gate.why ? " — " + esc(gate.why.slice(0, 90)) : ""}</text>`;
+    else if (rows.some(([, m]) => !m || m.status !== "ok")) out += `<text x="${L}" y="${mid + 4}" class="lbl-muted" font-style="italic">not available: the comparator reported no CDS outcome rows for this result${result(r.run_id)?.status === "legacy" ? " (pre-contract)" : ""}</text>`;
+    else {
+      let acc = 0;
+      for (const [k, m] of rows) {
+        const [fill, ink] = OUTCOME_FILL[k], w = x(acc + m.value) - x(acc);
+        out += `<rect x="${x(acc).toFixed(1)}" y="${y}" width="${Math.max(0, w).toFixed(1)}" height="${bh}" fill="${fill}" data-tip="${esc(`${runName(r)} · ${OUTCOME[k][1]}\n${fmtInt(m.numerator)} of ${fmtInt(m.denominator)} reference genes (${fmtPct(m.value)})\nmetric cds_outcome_${k}`)}"/>`;
+        if (w > 38) out += `<text x="${(x(acc) + w / 2).toFixed(1)}" y="${mid + 4}" text-anchor="middle" style="fill:${ink}" font-size="10.5" pointer-events="none">${fmtPct(m.value, 0)}</text>`;
+        acc += m.value;
+      }
+    }
+    y += bh + gap;
+  }
+  const legend = `<div class="legend">${OUTCOME_ORDER.map((k) => `<span><span class="swatch" style="background:${OUTCOME_FILL[k][0]}"></span> ${esc(OUTCOME[k][0])} <span class="small">(${esc(OUTCOME[k][1])})</span></span>`).join("")}</div>`;
+  el.innerHTML = runs.length ? legend + svg(W, y, out, "reference genes by CDS outcome") : "";
 }
 function renderLimitBox(runs) {
   const byText = new Map();  // one entry per limitation, naming every run it applies to
@@ -343,10 +402,13 @@ function renderStructure() {
   $("#structureSummary").innerHTML = `<h2>Structural agreement <span class="small muted">(policy ${esc(S.policy)}, ${esc(scopeInfo().label)})</span></h2><div class="xscroll"><table class="grid summary">${head}${body}</table></div>`;
 }
 const LEN_SHORT = ["< 10", "10–30", "30–60", "60–100", "100–200", "200–500", "0.5–1k", "1–2k", "2–5k", "5–10k", "10–20k", "20–50k", "50–100k", "≥ 100k"];
+// A segmented control: picking a button marks it selected (aria-checked, styled like the other active
+// controls) before onPick runs, so the visible state always matches the state the plots use.
 function seg(el, options, value, onPick) {
   el.innerHTML = options.map(([v, label, t]) => `<button type="button" role="radio" aria-checked="${v === value}" tabindex="${v === value ? 0 : -1}" data-v="${esc(v)}" ${t ? `data-tip="${esc(t)}"` : ""}>${esc(label)}</button>`).join("");
-  $$("button", el).forEach((b) => (b.onclick = () => onPick(b.dataset.v)));
-  if (!el.dataset.nav) { arrowNav(el, "button", (b) => onPick(b.dataset.v)); el.dataset.nav = "1"; }
+  el._pick = (v) => { $$("button", el).forEach((b) => { const on = b.dataset.v === v; b.setAttribute("aria-checked", on); b.tabIndex = on ? 0 : -1; }); onPick(v); };
+  $$("button", el).forEach((b) => (b.onclick = () => el._pick(b.dataset.v)));
+  if (!el.dataset.nav) { arrowNav(el, "button", (b) => el._pick(b.dataset.v)); el.dataset.nav = "1"; }
 }
 function spliceAvailability() {
   const rs = visibleRuns().map((r) => result(r.run_id)).filter(shown);
@@ -367,7 +429,8 @@ async function renderPlots() {
     $("#plotArea").hidden = true; return;
   }
   $("#plotArea").hidden = false; $("#plotStatus").innerHTML = "";
-  seg($("#posCoord"), [["cds_span", "genomic CDS span", "position of the junction along the genomic span from coding start to coding end"], ["coding", "coding sequence", "fraction of coding bases upstream of the junction"]], S.posCoord, (v) => { S.posCoord = v; drawPlots(); });
+  seg($("#posCoord"), [["cds_span", "genomic CDS", "genomic CDS span: genomic bases from the coding start to the junction (introns included) over the span from coding start to coding end, in the direction of transcription"],
+    ["coding", "coding sequence", "spliced coding sequence: CDS bases upstream of the junction over the CDS length (introns excluded); a donor and the acceptor of the same intron share one position"]], S.posCoord, (v) => { S.posCoord = v; drawPlots(); });
   seg($("#posMin"), [["0", "all CDS introns", "every reference CDS intron"], ["60", "introns ≥ 60 bp", "leave out reference CDS introns shorter than 60 bp"]], String(S.posMin), (v) => { S.posMin = Number(v); drawPlots(); });
   seg($("#lenMeasure"), [["exact", "complete intron", "both boundaries match"], ["donor", "donor site", "the 5' splice site matches"], ["acceptor", "acceptor site", "the 3' splice site matches"]], S.lenMeasure, (v) => { S.lenMeasure = v; drawPlots(); });
   const key = `${S.ref}|${S.policy}|${S.scope}`;
@@ -406,15 +469,18 @@ function lineChart({ width, height, labels, series, yMax, yTitle, xTitle, footer
   if (footer) footer.forEach((f, i) => (out += `<text x="${x(i)}" y="${T + ph + 32}" text-anchor="middle" class="lbl-muted" font-size="10">${esc(f)}</text>`));
   out += `<text x="${L + pw / 2}" y="${height - 4}" text-anchor="middle" class="lbl-muted">${esc(xTitle)}</text>`;
   out += `<text transform="translate(12 ${T + ph / 2}) rotate(-90)" text-anchor="middle" class="lbl-muted">${esc(yTitle)}</text>`;
-  for (const s of series) {
+  // Others first, then the primary comparator, then the focus run, so the focus is never hidden.
+  for (const s of [...series].sort((a, b) => (b.style?.rank ?? 2) - (a.style?.rank ?? 2))) {
+    const st = s.style || OTHER_STYLE;
     let path = "", pen = false;
     s.points.forEach((p, i) => { if (p.v === null) { pen = false; return; } path += `${pen ? "L" : "M"}${x(i).toFixed(1)},${y(p.v).toFixed(1)}`; pen = true; });
-    out += `<path d="${path}" fill="none" stroke="${s.color}" stroke-width="2" ${s.dash ? 'stroke-dasharray="5 3"' : ""}/>`;
-    s.points.forEach((p, i) => { if (p.v !== null) out += `<circle cx="${x(i)}" cy="${y(p.v)}" r="3.5" fill="${s.color}" data-tip="${esc(p.tip)}"/>`; });
+    if (st.rank < 2) out += `<path d="${path}" fill="none" stroke="#fff" stroke-width="${st.width + 3}" stroke-linejoin="round" opacity="0.9"/>`;
+    out += `<path d="${path}" fill="none" stroke="${s.color}" stroke-width="${st.width}" stroke-linejoin="round" ${s.dash ? 'stroke-dasharray="5 3"' : ""}/>`;
+    s.points.forEach((p, i) => { if (p.v !== null) out += marker(st.shape, x(i), y(p.v), st.r, s.color, p.tip); });
   }
   return svg(width, height, out, label);
 }
-function legendHtml(runs) { return `<div class="legend">${runs.map((r) => `<span><span class="swatch" style="background:${r.color}"></span> ${esc(runName(r))}${isSupp(r) ? " (supplementary, dashed)" : ""}</span>`).join("")}</div>`; }
+function legendHtml(runs) { return `<div class="legend">${runs.map((r) => `<span class="${ROLE_STYLE[r.display_role] ? "legend-role" : ""}">${swatch(r)} ${esc(runName(r))}${roleTag(r) ? " " + roleTag(r) : ""}${isSupp(r) ? " (supplementary, dashed)" : ""}</span>`).join("")}</div>`; }
 function rate(num, den) { return den ? num / den : null; }
 function drawPositionChart(data, runs) {
   const el = $("#positionChart");
@@ -425,11 +491,11 @@ function drawPositionChart(data, runs) {
   for (const r of runs) for (const k of ["donor", "acceptor"]) for (const b of rows(r.run_id, k)) { const v = rate(b.assessed - b.supported, b.assessed); if (v !== null) max = Math.max(max, v); }
   const yMax = niceMax(max);
   const panel = (kind) => lineChart({ width: half, height: 250, labels, yMax, label: `unsupported ${kind} sites by position`, yTitle: "unsupported (% of assessed)",
-    xTitle: `${kind} sites · position along the reference CDS (0 = coding start)`, edgeLabels: (i) => (i / 10).toFixed(1),
-    series: runs.map((r) => ({ color: r.color, dash: isSupp(r), points: rows(r.run_id, kind).map((b) => ({ v: rate(b.assessed - b.supported, b.assessed),
+    xTitle: `${kind} sites · ${S.posCoord === "coding" ? "position in the spliced coding sequence (CDS bases only)" : "position on the genomic CDS span (introns included)"}`, edgeLabels: (i) => (i / 10).toFixed(1),
+    series: runs.map((r) => ({ color: r.color, dash: isSupp(r), style: roleStyle(r), points: rows(r.run_id, kind).map((b) => ({ v: rate(b.assessed - b.supported, b.assessed),
       tip: `${runName(r)} · ${kind} sites, position ${labels[b.bin]}\nunsupported ${fmtInt(b.assessed - b.supported)} of ${fmtInt(b.assessed)} assessed\n${fmtInt(b.missing_locus)} further sites in genes whose locus was not recovered (excluded)` })) })) });
   el.innerHTML = legendHtml(runs) + `<div class="panels">${panel("donor")}${panel("acceptor")}</div>`;
-  $("#positionNote").innerHTML = `A reference donor (acceptor) is <b>unsupported</b> when no evaluated predicted transcript on the same sequence and strand has a CDS intron with that coordinate (comparator support rule). Rates exclude sites of genes whose locus was not recovered (missing-locus sites, counted in the table). Empty bins are not drawn. ${S.posMin ? `Introns shorter than ${S.posMin} bp are left out.` : ""}`;
+  $("#positionNote").innerHTML = `${S.posCoord === "coding" ? "<b>Coding sequence</b>: CDS bases upstream of the junction ÷ CDS length, in the direction of transcription (introns excluded; a donor and its acceptor share one position)." : "<b>Genomic CDS</b>: genomic bases from the coding start to the junction ÷ genomic span from coding start to coding end, in the direction of transcription (introns included, so long introns move later sites towards 1)."} 0 = coding start, 1 = coding end; both are computed by the comparator for one reference transcript per gene. A reference donor (acceptor) is <b>unsupported</b> when no evaluated predicted transcript on the same sequence and strand has a CDS intron with that coordinate (comparator support rule). Rates exclude sites of genes whose locus was not recovered (missing-locus sites, counted in the table). Empty bins are not drawn. ${S.posMin ? `Introns shorter than ${S.posMin} bp are left out.` : ""}`;
   const head = `<tr><th>Prediction run</th><th>site</th>${labels.map((l) => `<th class="num">${l}</th>`).join("")}<th class="num">missing-locus sites</th></tr>`;
   const body = runs.flatMap((r) => ["donor", "acceptor"].map((k) => { const b = rows(r.run_id, k);
     return `<tr><td>${esc(runName(r))}</td><td>${k}</td>${b.map((x) => x.assessed ? `<td class="num">${fmtPct((x.assessed - x.supported) / x.assessed)}<div class="cell-sub">${fmtInt(x.assessed - x.supported)} / ${fmtInt(x.assessed)}</div></td>` : '<td class="num"><span class="na">not available</span><div class="cell-sub">0 assessed</div></td>').join("")}
@@ -445,7 +511,7 @@ function drawLengthChart(data, runs) {
   const m = S.lenMeasure, word = { exact: "complete introns recovered", donor: "donor sites supported", acceptor: "acceptor sites supported" }[m];
   el.innerHTML = legendHtml(runs) + lineChart({ width: W, height: 290, labels: first.map((b) => LEN_SHORT[b.bin] || b.label), yMax: 1, label: word, yTitle: `${word} (% of eligible)`,
     xTitle: "reference CDS intron length (bp, fixed bins)", footer: refTotals.map((n) => `n=${fmtInt(n)}`),
-    series: runs.map((r) => ({ color: r.color, dash: isSupp(r), points: rows(r.run_id).map((b) => ({ v: rate(b[m], b.eligible),
+    series: runs.map((r) => ({ color: r.color, dash: isSupp(r), style: roleStyle(r), points: rows(r.run_id).map((b) => ({ v: rate(b[m], b.eligible),
       tip: `${runName(r)} · introns ${b.label}\n${word}: ${fmtInt(b[m])} of ${fmtInt(b.eligible)}\n${fmtInt(b.missing_locus)} introns in genes whose locus was not recovered (excluded)` })) })) });
   $("#lengthNote").innerHTML = "n = reference CDS introns per bin (one transcript per gene). Associations, not causes: bins hold different genes and different numbers of introns.";
   const head = `<tr><th>Prediction run</th>${first.map((b) => `<th class="num">${esc(b.label)}</th>`).join("")}</tr>`;
@@ -490,7 +556,8 @@ function renderPolicyChart() {
     out += `<text x="4" y="${y + 12}" font-weight="700">${esc(p.id)} · ${esc(p.label)}</text>`; y += 18;
     for (const r of runs) {
       const res = result(r.run_id, p.id), m = metric(r.run_id, id, p.id);
-      out += `<text x="14" y="${y + 12}" class="lbl-muted">${esc(runName(r).slice(0, 36))}</text>`;
+      const st = roleStyle(r);
+      out += marker(st.shape, 20, y + 8, st.shape === "ring" ? 3.5 : 4.5, r.color) + `<text x="30" y="${y + 12}" ${st.rank < 2 ? 'font-weight="700"' : 'class="lbl-muted"'}>${esc(runName(r).slice(0, 34))}</text>`;
       if (!shown(res)) out += `<text x="${L}" y="${y + 12}" class="lbl-muted" font-style="italic">${esc(res ? RESULT_LABEL[res.status] : "no result")}</text>`;
       else if (!m || m.status !== "ok") out += `<text x="${L}" y="${y + 12}" class="lbl-muted" font-style="italic">${esc(m ? `${NA_TEXT[m.status] || m.status} (${m.reason})` : "not available")}</text>`;
       else {
@@ -552,7 +619,7 @@ function outcomeChip(o, run) {
 function renderGeneTable(data) {
   const runs = visibleRuns();
   $("#geneCount").textContent = `${fmtInt(data.total)} evaluated reference genes match (policy ${S.policy}, ${scopeInfo().label}); showing ${data.total ? data.offset + 1 : 0}–${data.offset + data.rows.length}. ⇉ split · ≠1:1 exact but outside the one-to-one matching. Enter or click opens the locus.`;
-  const head = `<tr><th>Reference gene</th><th>Name</th><th>Location</th><th>CDS</th>${runs.map((r) => `<th><span class="swatch" style="background:${r.color}"></span> ${esc(runName(r))}</th>`).join("")}</tr>`;
+  const head = `<tr><th>Reference gene</th><th>Name</th><th>Location</th><th>CDS</th>${runs.map((r) => `<th>${swatch(r)} ${esc(runName(r))}</th>`).join("")}</tr>`;
   const body = data.rows.map((g) => `<tr class="click ${S.selectedGene === g.gene_id ? "selected" : ""}" tabindex="0" data-gene="${esc(g.gene_id)}">
       <td class="mono">${esc(g.gene_id)}${g.original_gene_id && g.original_gene_id !== g.gene_id ? `<div class="cell-sub">file ID ${esc(g.original_gene_id)}</div>` : ""}</td>
       <td>${esc(g.name || "")}</td><td class="mono">${esc(g.chrom)}:${fmtInt(g.start)}-${fmtInt(g.end)} ${esc(g.strand)}</td>
@@ -689,7 +756,7 @@ async function drawLocus() {
   for (const r of runs) {
     const tr = data.runs[r.run_id];
     y += 6;
-    out += `<rect x="4" y="${y + 3}" width="10" height="10" fill="${r.color}"/><text x="18" y="${y + 12}" font-weight="700">${esc(runName(r))} <tspan class="lbl-muted" font-weight="400">${harmonised(r) ? "stop-harmonised coordinates (audited)" : ""}</tspan></text>`;
+    out += `<rect x="4" y="${y + 3}" width="10" height="10" fill="${r.color}"/><text x="18" y="${y + 12}" font-weight="700">${esc(runName(r))} <tspan class="lbl-muted" font-weight="400">${harmonised(r) ? "terminal stop codons added by the comparator in red (audited)" : ""}</tspan></text>`;
     y += 18;
     const err = S.meta.model_errors?.["run:" + r.run_id];
     if (err || !tr || !tr.transcripts.length) {
@@ -817,7 +884,6 @@ function renderDictionary() {
 window.addEventListener("hashchange", () => {
   const p = new URLSearchParams(location.hash.slice(1));
   if (p.get("exp") && p.get("exp") !== S.exp) { S.exp = p.get("exp"); $("#exp").value = S.exp; loadExperiment(p); return; }
-  if (p.get("ref") && p.get("ref") !== S.ref && S.meta.references.some((r) => r.id === p.get("ref"))) { S.ref = p.get("ref"); $("#ref").value = S.ref; loadReference(); return; }
   let changed = false;
   if (p.get("policy") && p.get("policy") !== S.policy && S.meta.policies.some((x) => x.id === p.get("policy"))) { S.policy = p.get("policy"); changed = true; }
   if (p.get("scope") && p.get("scope") !== S.scope && scopes().some((x) => x.id === p.get("scope") && x.available)) { S.scope = p.get("scope"); changed = true; }
