@@ -103,7 +103,10 @@ def cmd_import(args):
     from ensembl.genes.annotation_qc.benchmark.importer import import_benchmark
 
     experiment, ws = _experiment(args)
-    import_benchmark(experiment, ws, args.benchmark_dir)
+    try:
+        import_benchmark(experiment, ws, args.benchmark_dir)
+    except FileNotFoundError as error:
+        sys.exit(f"{args.config}: {error}")
 
 
 def cmd_run(args):
