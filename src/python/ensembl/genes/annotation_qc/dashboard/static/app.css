@@ -12,6 +12,7 @@
   font-size: 14px; color: var(--text); background: var(--bg);
 }
 * { box-sizing: border-box; }
+[hidden] { display: none !important; }
 body { margin: 0; background: var(--bg); line-height: 1.4; }
 a { color: var(--link); } a:hover { color: var(--link-hover); }
 :focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }

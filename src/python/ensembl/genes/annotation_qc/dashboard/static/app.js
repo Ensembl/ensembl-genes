@@ -243,8 +243,7 @@ function renderContextBar() {
   const p = policyInfo(), sc = scopeInfo(), ref = refMeta();
   const R = configRuns().map((r) => metric(r.run_id, "reference_genes")).find((m) => m && m.status === "ok");
   const supp = configRuns().filter(isSupp);
-  $("#contextBar").innerHTML = `<span class="ctx"><b>Experiment</b>${esc(S.meta.experiment.title)}</span>
-    <span class="ctx"><b>Reference</b>${esc(ref.species)} · ${esc(ref.assembly)}${ref.assembly_accession ? " (" + esc(ref.assembly_accession) + ")" : ""} · ${esc(ref.annotation_release || "")}</span>
+  $("#contextBar").innerHTML = `<span class="ctx" data-tip="${esc(`${S.meta.experiment.title}\n${S.meta.experiment.description || ""}`)}" tabindex="0"><b>Reference</b>${esc(ref.species)} · ${esc(ref.assembly)}${ref.assembly_accession ? " (" + esc(ref.assembly_accession) + ")" : ""} · ${esc(ref.annotation_release || "")}</span>
     <span class="ctx" data-tip="${esc(p.description || "")}" tabindex="0"><b>Transcript policy</b>${esc(p.id)} · ${esc(p.label)}</span>
     <span class="ctx" data-tip="${esc(sc.description || "")}" tabindex="0"><b>Sequence scope</b>${esc(sc.label)}${sc.sequence_count ? ` (${fmtInt(sc.sequence_count)} sequences)` : ""} · R = ${R ? fmtInt(R.numerator) : "—"}</span>
     ${supp.length ? `<span class="ctx"><b>Supplementary variants</b>${supp.length} ${S.showSupp ? "shown beside their run" : "hidden"}</span>` : ""}
@@ -351,7 +350,8 @@ function renderHeadline() {
     : `Policy ${p.id}: one transcript per reference gene (${p.reference_transcript_selection.replace("_", " ")}) and per predicted gene (${p.query_transcript_selection.replace("_", " ")}); a correct model of another isoform counts as a miss.`;
 }
 function orderText(runs) {
-  const d = S.meta.display || {}, metricLabel = S.dict[d.order_metric || "exact_cds_one_to_one_recall"]?.label || "one-to-one exact CDS recall";
+  const d = S.meta.display || {}, label = S.dict[d.order_metric || "exact_cds_one_to_one_recall"]?.label || "one-to-one exact CDS recall";
+  const metricLabel = label.charAt(0).toLowerCase() + label.slice(1);
   const first = [...runs.filter((r) => ROLE_STYLE[r.display_role] && !isSupp(r)).map((r) => `${runName(r)} (${ROLE_STYLE[r.display_role].tag})`),
     ...(d.preferred_tools || []).filter((t) => runs.some((r) => r.tool === t && !ROLE_STYLE[r.display_role]))];
   return `Order: ${first.length ? first.join(", ") + " first, then the other runs" : "runs"} by ${metricLabel} under this policy and scope (display order only).${runs.some(isSupp) ? " Supplementary variants follow their run and are not ranked." : ""}`;
@@ -887,7 +887,16 @@ window.addEventListener("hashchange", () => {
   let changed = false;
   if (p.get("policy") && p.get("policy") !== S.policy && S.meta.policies.some((x) => x.id === p.get("policy"))) { S.policy = p.get("policy"); changed = true; }
   if (p.get("scope") && p.get("scope") !== S.scope && scopes().some((x) => x.id === p.get("scope") && x.available)) { S.scope = p.get("scope"); changed = true; }
+  // plot settings and the selected view/tab, so a pasted link restores the same state
+  if (["cds_span", "coding"].includes(p.get("pos")) && p.get("pos") !== S.posCoord) { S.posCoord = p.get("pos"); changed = true; }
+  if (["0", "60"].includes(p.get("posmin")) && Number(p.get("posmin")) !== S.posMin) { S.posMin = Number(p.get("posmin")); changed = true; }
+  if (["exact", "donor", "acceptor"].includes(p.get("len")) && p.get("len") !== S.lenMeasure) { S.lenMeasure = p.get("len"); changed = true; }
   if (changed) { S.genesLoaded = S.predsLoaded = false; renderAll(); }
+  if (["headline", "structure", "detail"].includes(p.get("view")) && p.get("view") !== S.view) selectView(p.get("view"));
+  const tab = $(".tabs button[aria-selected=true]")?.dataset.tab;
+  if (["overview", "genes", "predictions", "provenance", "dictionary"].includes(p.get("tab")) && p.get("tab") !== tab) selectTab(p.get("tab"));
+  if (changed && $(".tabs button[aria-selected=true]")?.dataset.tab === "genes") loadGenes();
+  if (changed && $(".tabs button[aria-selected=true]")?.dataset.tab === "predictions") loadPredictions();
 });
 
 init().catch((e) => { document.body.insertAdjacentHTML("afterbegin", `<div class="issue error">${esc(e.message)}</div>`); });

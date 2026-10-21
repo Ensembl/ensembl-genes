@@ -5,6 +5,14 @@ results of `annotation-qc pairwise-compare`, see where prediction runs differ, a
 inspect individual loci. Experiments, references, prediction runs (including several
 runs of one tool) and supplementary variants are added through configuration only.
 
+**One experiment per species.** Each configuration served by `annotation-qc dashboard`
+has exactly one reference (one species, one assembly, one reference annotation) and any
+number of prediction runs; the masthead selector lists the experiments by species and
+every tab, table and plot follows it. Species may have different prediction tools: the
+runs, metrics and available scopes come from each configuration and its comparator
+outputs. A configuration with several references is refused with a message asking to
+split it (one configuration per reference).
+
 ```
 experiment config ──► benchmark validate ──► benchmark run (pairwise-compare)  ─┐
                                         └──► benchmark import (existing results) ┴─► comparator outputs (contract 1.0)
@@ -57,9 +65,9 @@ Serve one or several experiments (each needs a built dataset, section 3):
 cd annotations_to_compare
 ~/venvs/annotation-qc/bin/annotation-qc dashboard --config qc_configs/pig_contract_v1.json
 ~/venvs/annotation-qc/bin/annotation-qc dashboard \
-    --config qc_configs/cat_contract_v1.json --config qc_configs/dog_contract_v1.json \
-    --config qc_configs/rat_contract_v1.json --config qc_configs/pig_contract_v1.json \
-    --config qc_configs/z_tritici_contract_v1.json --config qc_configs/f_graminearum_contract_v1.json \
+    --config qc_configs/mammal_dashboard/cat.json --config qc_configs/mammal_dashboard/dog.json \
+    --config qc_configs/mammal_dashboard/rat.json --config qc_configs/mammal_dashboard/pig.json \
+    --config qc_configs/mammal_dashboard/human.json --config qc_configs/mammal_dashboard/mouse.json \
     --port 8765
 ```
 
@@ -86,7 +94,8 @@ files still load unchanged.
 | `evaluation` | `evaluation_mode`, `reference_gene_biotypes`, `reference_transcript_biotypes`, `genome_mismatch` (comparator options) |
 | `policies.<ID>` | `label`, `description`, `reference_transcript_selection`, `query_transcript_selection` (`all` / `longest_cds` / `canonical`) |
 | `references[]` | `id`, `species`, `assembly`, `assembly_accession`, `annotation_source`, `annotation_release`, `annotation`, `genome`, `seqname_map` (applied to both files), `scope` (`type`, `label`), `analysis_scopes` (`id`, `label`, `sequences`, `description`; passed to the comparator as `--analysis-scope`), `caveats`, `notes` |
-| `runs[]` | `run_id` (unique, stable), `reference`, `tool` (grouping and colour), `run_label` (e.g. "GMB run 2"), `label` (display text; default tool + run label), `tool_version`, `model`, `annotation`, `format`, `role` (`primary` / `supplementary`), `companion_of`, `comparator_options`, `source` (`original_path`, `sha256`, `recorded_in`), `legacy_ids`, `input_audit`, `provenance`, `caveats` |
+| `runs[]` | `run_id` (unique, stable), `reference`, `tool` (grouping and colour), `run_label` (e.g. "GMB run 2"), `label` (display text; default tool + run label), `tool_version`, `model`, `annotation`, `format`, `role` (`primary` / `supplementary`), `companion_of`, `comparator_options`, `display_role`, `source` (`original_path`, `sha256`, `recorded_in`), `legacy_ids`, `input_audit`, `provenance`, `caveats` |
+| `runs[].display_role` | optional, presentation only: `focus` (the dataset of interest) or `primary_comparator`. Listed first (focus, then primary comparator), reserved colours (vermilion, blue), a text tag, their own marker shapes (filled circle, square; other runs open circles), heavier lines, drawn on top of the other runs. Never part of a comparison, cache key or metric; a species without such a run simply shows none |
 | `runs[].comparator_options` | `add_stop_codon`, `stop_codon_genetic_code`, `stop_codon_sequence_code` (`{sequence: table}`); part of the run's parameters |
 | `display` | `preferred_tools` (listed first, in order), `order_metric` (default `exact_cds_one_to_one_recall`), `pinned_runs` |
 | `provenance.registries` | extra implementation registries (section 5) |
@@ -205,14 +214,19 @@ reason), marks the compared isoform (◆), canonical tags (★) and audited stop
 
 ## 7. Using the dashboard
 
-The masthead selects the experiment; the toolbar selects the reference, the transcript
-policy (default **A**, any-isoform recovery; B and C one transcript per gene), the
-sequence scope (pig: whole assembly or chromosomes 1–18 + X) and whether supplementary
-stop-harmonised variants are shown. A context bar repeats the experiment, reference,
-policy, scope (with R), coordinate treatment and implementation identity.
+The masthead selects the experiment (species; its reference is fixed); the toolbar selects
+the transcript policy (default **A**, any-isoform recovery; B and C one transcript per
+gene), the sequence scope (whole assembly, or the analysis scopes the comparator reported,
+e.g. pig chromosomes 1–18 + X, human/mouse assembled chromosomes) and, when a
+configuration has supplementary variants, whether they are shown. A context bar repeats
+the reference (assembly, accession, annotation release), policy, scope (with R),
+comparator definition version and implementation identity.
 
 - **Headline CDS metrics** (default): one row per run — loci recovered (same-strand CDS
-  overlap), one-to-one coordinate-exact CDS recall and precision, one-to-one exact-CDS F1.
+  overlap), one-to-one coordinate-exact CDS recall and precision, one-to-one exact-CDS F1;
+  below it, *reference genes by CDS outcome*: one bar per run from the comparator's
+  `cds_outcome_*` rows (exact, ends ≠, splice ≠, < 0.8, span, strand, missed), which
+  partition R, so exact, partial and missed genes are compared side by side.
   Tooltips (also on keyboard focus) give numerator, denominator, populations, status and
   reason. *Counts and denominators* separates the one-to-one matching (R, Q, TP, edges)
   from the per-gene best-pair coordinate-exact counts, which are a different measure.
@@ -221,6 +235,11 @@ policy, scope (with R), coordinate treatment and implementation identity.
   recovery and support, splits and merges; splice-site position and intron-length plots
   from the comparator's tables. Under policy A they are not available (the manifest
   records `requires_one_reference_transcript_per_gene`); the page says so and offers B/C.
+  Splice-site positions have two coordinates, both computed by the comparator in the
+  direction of transcription (0 = coding start, 1 = coding end): **genomic CDS**
+  (genomic bases from the coding start to the junction over the genomic CDS span, introns
+  included) and **coding sequence** (CDS bases upstream of the junction over the CDS
+  length; a donor and the acceptor of the same intron share a position).
 - **All metrics**: every contract metric by group, with status and reason; policy-effect
   chart; downloads of the stored metric rows (verbatim), one-to-one pairs, per-sequence
   drill-down and stop-codon audits.
@@ -234,10 +253,11 @@ policy, scope (with R), coordinate treatment and implementation identity.
   label, original source path), input audits (processing scope), import report with
   pilots, validation issues.
 
-Run order: `display.preferred_tools` in order (e.g. Internal predictions, Tiberius), then
-the other runs by descending one-to-one exact-CDS recall for the selected policy and scope;
-a supplementary variant follows its original. Deep links keep the state
-(`#exp=…&ref=…&policy=…&scope=…&view=…&tab=…`). Every control is reachable by keyboard
+Run order: runs with a `display_role` (focus, then primary comparator), then
+`display.pinned_runs` and `display.preferred_tools` in order, then the other runs by
+descending `display.order_metric` (default one-to-one exact-CDS recall) for the selected
+policy and scope; a supplementary variant follows its original. Deep links keep the state
+(`#exp=…&policy=…&scope=…&view=…&tab=…`, plus `pos`, `posmin`, `len` for the splice plots). Every control is reachable by keyboard
 (Tab; arrow keys in tab lists and segmented controls; Enter opens a gene row).
 
 ## 8. Missing values and older results
