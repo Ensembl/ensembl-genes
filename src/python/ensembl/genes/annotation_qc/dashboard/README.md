@@ -118,8 +118,13 @@ are reused (section 4).
 **Supplementary variants.** A stop-harmonised variant is a second run on the same
 `annotation` with `comparator_options.add_stop_codon`, `role: supplementary` and
 `companion_of: <original run>`. It is listed beside its original run, labelled
-"supplementary · stop-harmonised", never ranked, and can be hidden. Original coordinates
-stay primary.
+"supplementary · stop-harmonised", never ranked, and can be hidden.
+
+**A primary run with comparator preprocessing.** When only the corrected comparison of a
+file should be shown (e.g. a prediction file whose CDS excludes the stop codon), configure
+one primary run with `comparator_options.add_stop_codon` and no original-coordinate run.
+It appears under its tool name like any other run; the option is listed in its tooltip,
+in Provenance & validation, and the added stop codons are marked in the locus view.
 
 ## 3. Workflow
 
