@@ -121,6 +121,59 @@
     "pyranges1": "1.4.5",
     "python": "3.12.14"
    }
+  },
+  {
+   "build_id": "febc0ca",
+   "commit": "febc0ca6aed743d5d1b24f598a1b691059cd59ea",
+   "contract_id": "annotation-qc.pairwise-compare",
+   "contract_version": "1.0",
+   "definition_version": "2026-10.1",
+   "evidence": [
+    {
+     "detail": "every listed file hash equals the file in commit febc0ca6aed743d5d1b24f598a1b691059cd59ea",
+     "manifests_checked": 1,
+     "type": "git_objects"
+    }
+   ],
+   "fingerprint": "69f2821f2f8da5328b1612d3d311ffca762f378ab52050e0b949cdab575e4bf9",
+   "notes": "Comparator febc0ca (output contract 1.0, definition 2026-10.1): feature/annotation-qc-pairwise-compare. Wheel ensembl_genes-0.1.0 sha256 6f58975e3e89d1f2995267339d74456518f3ff4f051c690e82144b9122d2d727 (contract_runs/20261014_pairing_span_definition_2026-10.1/00_env), byte-identical to the commit's package files.",
+   "scheme": "annotation_qc_loaded_files_by_path/2",
+   "source_files": {
+    "__init__.py": "35173e8615785257b6846d6ed6f9b535ca643c85fa4dabcd378eed8650782992",
+    "cli.py": "193ef1be55e744a56b450a24d90a4ba23731fb518143c53135205bc42bbeb58d",
+    "metrics/__init__.py": "35173e8615785257b6846d6ed6f9b535ca643c85fa4dabcd378eed8650782992",
+    "metrics/events.py": "278ef25ed51d6315fc8e0a5f45ec5d1fc4ee208df8aaf1a63a39fb7bf90a9b0d",
+    "metrics/pairwise/__init__.py": "4bcb23a080bac70bafe435087907e63e4e5a275c4112c4963f5e3c4d08350f31",
+    "metrics/pairwise/classify.py": "c197689f9567e45db944fde7787b45138c59085c53b12ea237f12489395f9446",
+    "metrics/pairwise/contract.py": "86c64bd997f6f491fa104b2d697737268e1d07cb53563d402618df09bc316290",
+    "metrics/pairwise/evaluation_audit.py": "96876fba3056d9ad1a3a30f1e0795f580532e87e534523469e9b3b5788d8eb3c",
+    "metrics/pairwise/matching.py": "1d3e8e11a14888712942a18d0610fdf38ad6c8c0de312e857bef6db7d5b41a15",
+    "metrics/pairwise/selection.py": "5f7cd66058827a1e4d7baa312054fe114648402a51d825cb06fde1069fc1a2a5",
+    "metrics/pairwise/splice.py": "747b4d78629253a4c0429d7e2cbc106c584e742cbbeebf0fb8eb89c49d3917cf",
+    "metrics/pairwise/stop_codons.py": "84217501ad1db51680a7bcbabfef099e186a463a7aa44772367d92e11eef618a",
+    "metrics/pairwise/summary.py": "56f35a173e7d1e57a6128b63efe6495f9338042d228d4d973f2a1ed983adc2d3",
+    "parsers/__init__.py": "35173e8615785257b6846d6ed6f9b535ca643c85fa4dabcd378eed8650782992",
+    "parsers/annotation.py": "cc5b485658bf1737315c91c03982c75ad476d98e9c85d999bbd79cafaef3b7fb",
+    "parsers/annotation_normalise.py": "8913784c5b81f6049996d692065c53bbe8b8b5c4767ff3bfcac8e19daae01fcb",
+    "parsers/diamond.py": "28f3e91effe5dc5de5dbdae9cfa8235b52cbaf17212c48e5b0c808575f590d1e",
+    "parsers/interpro.py": "df21c526b401ea45c37acdbbfe41a9904e9bddc0957ddc6cc3506be5b134a43a",
+    "parsers/parse_agat.py": "33ef488cde4fb4585f426742974e359eeb432d11dd7d5fbcecdfaa2a282d8c88",
+    "parsers/regions.py": "30a150619e33ef03170dbb95f355ab7a10f2177778fde849565a2ba28375bb54",
+    "parsers/seqnames.py": "0b583b834c52c5074051f1e8383c76a1420289330d216d4bd8c7221096f183b0",
+    "parsers/sequence.py": "f47e63d39b76979b54220c9a88db026b153e8d251d19f8fd5f16ba92040e7335",
+    "parsers/tool_output.py": "fb4d67448cf195299c73ce22c62b723999bfa111af69e56b73d0af5b25f5a9c7",
+    "reports/__init__.py": "35173e8615785257b6846d6ed6f9b535ca643c85fa4dabcd378eed8650782992",
+    "reports/pairwise_compare.py": "ce5cd915206d1cb81911d9311d204c3e924cd165d7a3b7ddd824b6d15766cc4a",
+    "reports/pairwise_contract.py": "c119c8e8bc41729dd3fc93fe4fc02b6874fb5fcb11d99053612384abb7ad5501",
+    "runners/__init__.py": "35173e8615785257b6846d6ed6f9b535ca643c85fa4dabcd378eed8650782992",
+    "runners/assess_translation_validity.py": "fd7863ee5d9b60003d736eba5f451eb0209580d43e04472830a37369e2812a7d",
+    "runners/pairwise_compare.py": "a250cd0548204a95e3b52d26c34b16d8bdc9893a3a50dcac9c0d2fedacec5f71"
+   },
+   "versions": {
+    "pandas": "3.0.6",
+    "pyranges1": "1.4.5",
+    "python": "3.12.14"
+   }
   }
  ],
  "description": "Comparator builds identified by (fingerprint scheme, fingerprint). Generated with annotation-qc benchmark register-build; every file hash checked against the git objects of the commit.",
