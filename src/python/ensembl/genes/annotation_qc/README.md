@@ -9,6 +9,11 @@ genes the query reproduces (reference-based, recall-like) and how many query gen
 no reference counterpart (query-based, precision-like). The reference is used for
 evaluation only. The command needs no GMB installation, build directory or metadata.
 
+> **Comparing several predictors or references?** `annotation-qc benchmark` (versioned
+> experiment configuration, cached sequential runs, import of existing results) and
+> `annotation-qc dashboard` (local overview and locus browser) are described in
+> [`dashboard/README.md`](dashboard/README.md).
+
 ### Environment
 
 Install `ensembl-genes` into a Python ≥ 3.12 environment. The command uses only the
