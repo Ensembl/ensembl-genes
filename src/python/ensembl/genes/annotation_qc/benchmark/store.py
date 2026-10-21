@@ -699,13 +699,10 @@ def build_result(con, ws: Workspace, task, log=print) -> None:
         rows, det = legacy.legacy_result(out_dir)
         public["legacy"] = True
     else:
+        # contract results: metrics.tsv rows only (no dashboard-side estimates; the
+        # historical best-pair rows belong to the legacy importer)
         rows = cr.metrics(out_dir)
         det = cr.details(out_dir)
-        rows += legacy.historical_rows(
-            det,
-            summary.get("total_reference_genes"),
-            summary.get("total_consensus_genes"),
-        )
         site_rows, length_rows, seq_rows, audit_rows = _contract_tables(out_dir, where)
     public["pairs_check"] = _pairs_check(pairs, rows)
     public["independent"] = _independent_check(ws, run.run_id, policy.id, det)

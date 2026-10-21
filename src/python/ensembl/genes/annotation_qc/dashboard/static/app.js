@@ -526,8 +526,10 @@ function renderDetail() {
   const byGroup = {};
   for (const m of S.meta.metric_dictionary.metrics) (byGroup[m.group] = byGroup[m.group] || []).push(m);
   const defs = S.meta.metric_definitions ? Object.values(S.meta.metric_definitions)[0] || {} : {};
+  // only metrics some loaded result reports; a metric missing for one run shows its unavailable state
+  const present = new Set(S.ov.metrics.map((m) => m.metric_id));
   $("#detailTables").innerHTML = groups.map((g) => {
-    const ms = byGroup[g.id] || [];
+    const ms = (byGroup[g.id] || []).filter((d) => present.has(d.id));
     if (!ms.length) return "";
     const head = `<tr><th>Metric</th><th>Denominator</th>${runs.map((r) => `<th class="num">${esc(runName(r))}${isSupp(r) ? '<div class="cell-sub">supplementary</div>' : ""}</th>`).join("")}</tr>`;
     const body = ms.map((d) => {

@@ -132,3 +132,19 @@ def test_experiment_list_names_the_species(demo):  # noqa: F811
         assert entry["species"] == first.species and entry["assembly"] == first.assembly
     finally:
         httpd.shutdown()
+
+
+def test_contract_results_carry_only_comparator_metric_rows(con):  # noqa: F811
+    """Every metric row of a contract result comes from metrics.tsv: no dashboard-side estimates."""
+    sources = {
+        source
+        for (source,) in con.execute(
+            "SELECT DISTINCT m.source FROM metrics m JOIN results r ON r.reference_id=m.reference_id "
+            "AND r.run_id=m.run_id AND r.policy_id=m.policy_id WHERE r.status IN ('complete', 'unverified')"
+        )
+    }
+    assert sources and "historical" not in sources
+    assert not con.execute(
+        "SELECT COUNT(*) FROM metrics m JOIN results r ON r.reference_id=m.reference_id AND "
+        "r.run_id=m.run_id AND r.policy_id=m.policy_id WHERE r.status='complete' AND m.metric_id LIKE 'historical_%'"
+    ).fetchone()[0]
