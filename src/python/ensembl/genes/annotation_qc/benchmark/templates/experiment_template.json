@@ -57,7 +57,9 @@
       "input_audit": null,
       "provenance": "Command, date, model weights, masking, evidence used. Leave fields null when unknown: they are shown as unknown.",
       "caveats": [],
-      "aliases": []
+      "aliases": [],
+      "display_role": "focus",
+      "_display_role": "Optional, presentation only: \"focus\" (the dataset of interest) or \"primary_comparator\". Listed first, reserved colours, drawn on top."
     },
     {
       "run_id": "myspecies_toolA_run2",

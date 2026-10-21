@@ -21,6 +21,12 @@ def cmd_dashboard(args):
             sys.exit(str(error))
         if experiment.id in dbs:
             sys.exit(f"experiment id {experiment.id!r} is configured twice")
+        if len(experiment.references) != 1:
+            sys.exit(
+                f"{path}: experiment {experiment.id!r} has {len(experiment.references)} references; "
+                "the dashboard shows one species experiment per configuration (one reference, "
+                "any number of prediction runs). Split it into one configuration per reference."
+            )
         dbs[experiment.id] = Workspace(experiment).dashboard_db()
     serve(dbs, args.host, args.port, args.verbose)
 

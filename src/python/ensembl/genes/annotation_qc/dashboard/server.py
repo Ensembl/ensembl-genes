@@ -6,7 +6,7 @@ JSON/CSV API over one or more dashboard datasets (read-only SQLite). No hosted
 services, no comparison work at request time.
 
 Endpoints (all GET):
-    /api/experiments                         experiments served
+    /api/experiments                         experiments served (with species and assembly)
     /api/meta?exp=                           configuration, policies, runs, validation, metric dictionary
     /api/overview?exp=&reference=[&format=csv&policy=&scope=]   stored metric rows (TSV: verbatim)
     /api/genes?exp=&reference=&policy=&...   reference-gene table (+format=csv)
@@ -144,6 +144,10 @@ def make_handler(datasets: Datasets):
                                 **{
                                     k: datasets.meta(e)["experiment"].get(k)
                                     for k in ("title", "description", "synthetic")
+                                },
+                                **{
+                                    k: (datasets.meta(e)["references"] or [{}])[0].get(k)
+                                    for k in ("species", "assembly")
                                 },
                             }
                             for e in datasets.dbs

@@ -72,15 +72,18 @@ BUILD_CODE = stable_hash(
 )
 METRIC_DICTIONARY = Path(__file__).with_name("metric_dictionary.json")
 ALL = contract.ALL_SCOPE
+# Reserved colours for runs with a display role (Okabe-Ito vermilion and blue: distinct
+# for common colour-vision deficiencies); the palette for the other tools avoids both.
+ROLE_COLORS = {"focus": "#d55e00", "primary_comparator": "#0072b2"}
 PALETTE = [
-    "#0b6fb8",
-    "#c4511f",
     "#1d8a5a",
-    "#a8780a",
     "#b5407a",
     "#5b4bb7",
+    "#a8780a",
     "#2e8a99",
     "#7a5230",
+    "#6b7a86",
+    "#8f3b3b",
 ]
 
 SCHEMA = """
@@ -1128,10 +1131,18 @@ def refresh_gene_policy(con) -> None:
 
 
 def run_colors(experiment: Experiment) -> dict[str, str]:
-    """Colour by tool; later runs of a tool and supplementary companions get lighter tints."""
+    """
+    Colour by tool; later runs of a tool and supplementary companions get lighter tints.
+    A tool with a display role (focus / primary comparator) takes the role's reserved
+    colour; the other tools share PALETTE in configuration order.
+    """
+    role_of: dict[str, str] = {}
+    for run in experiment.runs.values():
+        if run.display_role and run.tool not in role_of:
+            role_of[run.tool] = run.display_role
     tools: list[str] = []
     for run in experiment.runs.values():
-        if run.tool not in tools:
+        if run.tool not in tools and run.tool not in role_of:
             tools.append(run.tool)
     seen: dict[tuple, int] = {}
     colors = {}
@@ -1139,7 +1150,11 @@ def run_colors(experiment: Experiment) -> dict[str, str]:
         if run.color:
             colors[run.run_id] = run.color
             continue
-        base = PALETTE[tools.index(run.tool) % len(PALETTE)]
+        base = (
+            ROLE_COLORS[role_of[run.tool]]
+            if run.tool in role_of
+            else PALETTE[tools.index(run.tool) % len(PALETTE)]
+        )
         if run.companion_of:
             colors[run.run_id] = _tint(base, 0.45)
             continue
@@ -1249,6 +1264,7 @@ def _run_meta(experiment: Experiment) -> list[dict]:
             "variant": r.variant,
             "comparator_options": r.comparator_options,
             "companion_of": r.companion_of,
+            "display_role": r.display_role,
             "config_order": order.index(r.run_id),
             "query_coordinates": r.variant,
             "tool_version": r.tool_version,

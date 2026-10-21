@@ -16,6 +16,8 @@ Version-2 additions (all optional):
     import.pilot_dirs       directories whose results are always pilots
     provenance.registries   extra implementation registries (benchmark/registry.py)
     display.preferred_tools tools listed first, in this order, before the ranked rest
+    runs[].display_role     "focus" or "primary_comparator": the dataset of interest
+                            and the main dataset it is compared with (presentation)
 
 A configuration is a JSON file (or YAML, when PyYAML is installed through the
 ``dashboard`` extra). Relative paths are resolved against the directory that
@@ -39,6 +41,12 @@ Presentation only (never part of a cache key or comparison), except analysis sco
     ``runs[].companion_of``         a supplementary run (e.g. the same file with
                                     stop-codon harmonisation) is listed directly after
                                     this run and is excluded from the ordering
+    ``runs[].display_role``         ``focus`` (the dataset of interest) or
+                                    ``primary_comparator``; such runs are listed
+                                    first (focus, then primary comparator), get
+                                    reserved colours and are drawn on top, with
+                                    heavier lines and their own marker shapes. A role
+                                    whose run is absent is simply not shown
     ``display.pinned_runs``         run ids listed first, in this order
     ``display.preferred_tools``     tools listed next, in this order; the other runs
                                     follow in descending order of
@@ -68,6 +76,7 @@ SCOPE_TYPES = ("all", "reference_sequence_regions", "sequences", "regions_file")
 PREPARATION_STEPS = ("decompress", "retype_transcript_types")
 _ID = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_.\-]*$")
 ROLES = ("primary", "supplementary")
+DISPLAY_ROLES = ("focus", "primary_comparator")
 ORDER_METRICS = (
     "exact_cds_one_to_one_recall",
     "exact_cds_one_to_one_f1",
@@ -171,6 +180,7 @@ class Run:
     comparator_options: dict = field(default_factory=dict)  # normalised, see below
     companion_of: str | None = None  # presentation: listed after this run
     run_label: str | None = None  # e.g. "GMB run 2": several runs of one tool
+    display_role: str | None = None  # presentation: focus / primary_comparator
     source: dict = field(default_factory=dict)  # original_path, sha256, recorded_in
     legacy_ids: dict = field(default_factory=dict)
     input_audit: Path | None = None
@@ -597,6 +607,9 @@ def load_experiment(path: str | Path) -> Experiment:
         role = spec.get("role", "primary")
         if role not in ROLES:
             problems.append(f"{what}.role must be one of {ROLES}")
+        display_role = spec.get("display_role")
+        if display_role is not None and display_role not in DISPLAY_ROLES:
+            problems.append(f"{what}.display_role must be one of {DISPLAY_ROLES}")
         source = spec.get("source") or {}
         if not isinstance(source, dict) or (
             source.get("sha256") and not re.fullmatch(r"[0-9a-f]{64}", str(source["sha256"]))
@@ -630,6 +643,7 @@ def load_experiment(path: str | Path) -> Experiment:
             comparator_options=options,
             companion_of=spec.get("companion_of"),
             run_label=spec.get("run_label"),
+            display_role=display_role,
             source=dict(source),
             legacy_ids=dict(legacy_ids),
             input_audit=_path(

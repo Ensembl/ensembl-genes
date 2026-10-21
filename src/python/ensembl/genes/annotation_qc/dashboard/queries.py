@@ -39,6 +39,9 @@ CDS_OUTCOMES = (
     "strand_mismatch",
     "missed",
 )
+# Gene-table contrasts between the selected run and a comparison run (coordinate-exact
+# CDS, best pair, as stored per gene by the comparator).
+CONTRASTS = ("exact_in_focus", "missing_in_focus", "exact_in_both", "exact_in_neither")
 CHROM_ORDER = (
     "(CASE WHEN {c} GLOB '[0-9]*' THEN CAST({c} AS INTEGER) ELSE 100000 END), {c}"
 )
@@ -259,13 +262,19 @@ def genes(con, p: dict, csv=False) -> dict:
         )
         args.append(focus)
     compare = p.get("compare_run")
-    if focus and compare and p.get("contrast"):
-        good, bad = (
-            (focus, compare) if p["contrast"] == "exact_in_focus" else (compare, focus)
-        )
+    contrast = p.get("contrast")
+    if contrast and contrast not in CONTRASTS:
+        raise QueryError(f"unknown contrast {contrast!r}")
+    if focus and compare and contrast in ("exact_in_focus", "missing_in_focus"):
+        good, bad = (focus, compare) if contrast == "exact_in_focus" else (compare, focus)
         where.append(exists.format("o.cds_exact=1"))
         where.append(exists.format("o.cds_exact=0"))
         args += [good, bad]
+    elif focus and compare and contrast in ("exact_in_both", "exact_in_neither"):
+        flag = 1 if contrast == "exact_in_both" else 0
+        where.append(exists.format(f"o.cds_exact={flag}"))
+        where.append(exists.format(f"o.cds_exact={flag}"))
+        args += [focus, compare]
     base = f"FROM ref_gene_policy g WHERE {' AND '.join(where)}"
     total = con.execute(f"SELECT COUNT(*) {base}", args).fetchone()[0]
     limit = CSV_LIMIT if csv else min(_int(p.get("limit"), "limit", 100), PAGE_LIMIT)
