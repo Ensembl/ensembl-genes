@@ -1,0 +1,19 @@
+##gff-version 3
+1	other	gene	101	600	.	+	.	ID=O1;biotype=protein_coding
+1	other	mRNA	101	600	.	+	.	ID=O1.1;Parent=O1;biotype=protein_coding
+1	other	exon	101	200	.	+	.	Parent=O1.1
+1	other	exon	301	400	.	+	.	Parent=O1.1
+1	other	exon	501	600	.	+	.	Parent=O1.1
+1	other	CDS	101	200	.	+	.	Parent=O1.1
+1	other	CDS	301	400	.	+	.	Parent=O1.1
+1	other	CDS	501	600	.	+	.	Parent=O1.1
+1	other	gene	1101	1401	.	-	.	ID=O2;biotype=protein_coding
+1	other	mRNA	1101	1401	.	-	.	ID=O2.1;Parent=O2;biotype=protein_coding
+1	other	exon	1101	1180	.	-	.	Parent=O2.1
+1	other	exon	1301	1401	.	-	.	Parent=O2.1
+1	other	CDS	1101	1180	.	-	.	Parent=O2.1
+1	other	CDS	1301	1401	.	-	.	Parent=O2.1
+1	other	gene	2001	2300	.	+	.	ID=O3;biotype=protein_coding
+1	other	mRNA	2001	2300	.	+	.	ID=O3.1;Parent=O3;biotype=protein_coding
+1	other	exon	2001	2300	.	+	.	Parent=O3.1
+1	other	CDS	2001	2300	.	+	.	Parent=O3.1

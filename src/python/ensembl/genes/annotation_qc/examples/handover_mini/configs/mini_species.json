@@ -1,0 +1,61 @@
+{
+ "config_version": 2,
+ "_comment": "SYNTHETIC handover example: one species experiment built from existing comparator outputs (results/). Paths are relative to this file. Same structure as the mammalian configurations.",
+ "experiment": {
+  "id": "mini_species",
+  "title": "Mini species · SYN1 (synthetic handover example)",
+  "description": "Generated inputs; not real data.",
+  "synthetic": true
+ },
+ "output_dir": "../workspace",
+ "evaluation": {
+  "evaluation_mode": "protein_coding",
+  "reference_gene_biotypes": [],
+  "reference_transcript_biotypes": ["protein_coding"],
+  "genome_mismatch": "error"
+ },
+ "policies": {
+  "A": {"label": "Any eligible reference CDS isoform", "reference_transcript_selection": "all", "query_transcript_selection": "all"},
+  "B": {"label": "Longest CDS per gene", "reference_transcript_selection": "longest_cds", "query_transcript_selection": "longest_cds"},
+  "C": {"label": "Canonical reference transcript", "reference_transcript_selection": "canonical", "query_transcript_selection": "longest_cds", "optional": true}
+ },
+ "references": [
+  {
+   "id": "mini_ref",
+   "species": "mini species (synthetic)",
+   "assembly": "SYN1",
+   "annotation_source": "generated",
+   "annotation_release": "example",
+   "annotation": "../inputs/reference.gff3",
+   "genome": "../inputs/genome.fa",
+   "scope": {"type": "all", "label": "Whole assembly"},
+   "analysis_scopes": [
+    {"id": "chromosomes", "label": "Chromosome 1", "sequences": ["1"], "description": "Reported by the comparator (--analysis-scope)."}
+   ]
+  }
+ ],
+ "runs": [
+  {
+   "run_id": "mini_internal",
+   "reference": "mini_ref",
+   "tool": "Internal predictions",
+   "annotation": "../inputs/focus.gff3",
+   "comparator_options": {"add_stop_codon": true, "stop_codon_genetic_code": 1},
+   "display_role": "focus"
+  },
+  {
+   "run_id": "mini_other",
+   "reference": "mini_ref",
+   "tool": "Other predictor",
+   "annotation": "../inputs/other.gff3",
+   "display_role": "primary_comparator"
+  }
+ ],
+ "display": {"order_metric": "exact_cds_one_to_one_recall"},
+ "import": {
+  "results_dirs": [
+   "../results/mini_internal/stop_harmonised",
+   "../results/mini_other/original"
+  ]
+ }
+}

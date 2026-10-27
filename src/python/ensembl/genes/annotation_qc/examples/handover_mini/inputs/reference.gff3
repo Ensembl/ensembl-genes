@@ -1,0 +1,23 @@
+##gff-version 3
+1	example	gene	101	600	.	+	.	ID=R1;biotype=protein_coding
+1	example	mRNA	101	600	.	+	.	ID=R1.1;Parent=R1;biotype=protein_coding
+1	example	exon	101	200	.	+	.	Parent=R1.1
+1	example	exon	301	400	.	+	.	Parent=R1.1
+1	example	exon	501	600	.	+	.	Parent=R1.1
+1	example	CDS	101	200	.	+	.	Parent=R1.1
+1	example	CDS	301	400	.	+	.	Parent=R1.1
+1	example	CDS	501	600	.	+	.	Parent=R1.1
+1	example	gene	1101	1401	.	-	.	ID=R2;biotype=protein_coding
+1	example	mRNA	1101	1401	.	-	.	ID=R2.1;Parent=R2;biotype=protein_coding
+1	example	exon	1101	1200	.	-	.	Parent=R2.1
+1	example	exon	1301	1401	.	-	.	Parent=R2.1
+1	example	CDS	1101	1200	.	-	.	Parent=R2.1
+1	example	CDS	1301	1401	.	-	.	Parent=R2.1
+1	example	gene	2001	2300	.	+	.	ID=R3;biotype=protein_coding
+1	example	mRNA	2001	2300	.	+	.	ID=R3.1;Parent=R3;biotype=protein_coding
+1	example	exon	2001	2300	.	+	.	Parent=R3.1
+1	example	CDS	2001	2300	.	+	.	Parent=R3.1
+2	example	gene	101	400	.	+	.	ID=R4;biotype=protein_coding
+2	example	mRNA	101	400	.	+	.	ID=R4.1;Parent=R4;biotype=protein_coding
+2	example	exon	101	400	.	+	.	Parent=R4.1
+2	example	CDS	101	400	.	+	.	Parent=R4.1

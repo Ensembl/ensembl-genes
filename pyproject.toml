@@ -105,6 +105,7 @@ package-dir = {"" = "src/python"}
 [tool.setuptools.package-data]
 "ensembl.genes.annotation_qc.benchmark" = ["*.json", "templates/*.json"]
 "ensembl.genes.annotation_qc.dashboard" = ["static/*"]
+"ensembl.genes.annotation_qc" = ["constraints-mammal-v1.txt", "examples/handover_mini/*", "examples/handover_mini/*/*"]
 
 [tool.mypy]
 ignore_missing_imports = true

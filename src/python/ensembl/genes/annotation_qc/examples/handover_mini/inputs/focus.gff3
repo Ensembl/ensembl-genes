@@ -1,0 +1,19 @@
+##gff-version 3
+1	focus	gene	101	600	.	+	.	ID=F1;biotype=protein_coding
+1	focus	mRNA	101	600	.	+	.	ID=F1.1;Parent=F1;biotype=protein_coding
+1	focus	exon	101	200	.	+	.	Parent=F1.1
+1	focus	exon	301	400	.	+	.	Parent=F1.1
+1	focus	exon	501	600	.	+	.	Parent=F1.1
+1	focus	CDS	101	200	.	+	.	Parent=F1.1
+1	focus	CDS	301	400	.	+	.	Parent=F1.1
+1	focus	CDS	501	597	.	+	.	Parent=F1.1
+1	focus	gene	1101	1401	.	-	.	ID=F2;biotype=protein_coding
+1	focus	mRNA	1101	1401	.	-	.	ID=F2.1;Parent=F2;biotype=protein_coding
+1	focus	exon	1101	1200	.	-	.	Parent=F2.1
+1	focus	exon	1301	1401	.	-	.	Parent=F2.1
+1	focus	CDS	1101	1200	.	-	.	Parent=F2.1
+1	focus	CDS	1301	1401	.	-	.	Parent=F2.1
+2	focus	gene	101	400	.	+	.	ID=F4;biotype=protein_coding
+2	focus	mRNA	101	400	.	+	.	ID=F4.1;Parent=F4;biotype=protein_coding
+2	focus	exon	101	400	.	+	.	Parent=F4.1
+2	focus	CDS	101	400	.	+	.	Parent=F4.1
