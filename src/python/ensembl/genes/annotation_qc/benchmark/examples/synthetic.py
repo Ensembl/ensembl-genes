@@ -458,6 +458,24 @@ def write_synthetic_demo(target: str | Path) -> Path:
     }
     path = t / "synthetic_demo.json"
     path.write_text(json.dumps(config, indent=2) + "\n")
+    # The dashboard shows one species experiment per configuration: the same inputs as a
+    # one-reference experiment (SYNTH_A) with display roles, for `annotation-qc dashboard`.
+    species = json.loads(json.dumps(config))
+    species["experiment"] = {
+        **species["experiment"],
+        "id": "SYNTHETIC_species_A",
+        "title": "SYNTHETIC species A (generated fixtures, not real results)",
+    }
+    species["output_dir"] = "workspace_species_A"
+    species["references"] = [r for r in species["references"] if r["id"] == "SYNTH_A"]
+    species["runs"] = [r for r in species["runs"] if r["reference"] == "SYNTH_A"]
+    for run in species["runs"]:
+        run["display_role"] = {"SYNTH_toolX_m1": "focus", "SYNTH_toolY_hybrid": "primary_comparator"}.get(
+            run["run_id"]
+        )
+        if run["display_role"] is None:
+            del run["display_role"]
+    (t / "synthetic_species_A.json").write_text(json.dumps(species, indent=2) + "\n")
     return path
 
 

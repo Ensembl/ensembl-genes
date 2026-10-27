@@ -325,11 +325,15 @@ policy and scope; a supplementary variant follows its original. Deep links keep 
 ```bash
 python -m ensembl.genes.annotation_qc.benchmark.examples.synthetic qc_synthetic_demo_NOT_REAL_DATA
 cd qc_synthetic_demo_NOT_REAL_DATA
-annotation-qc benchmark validate --config synthetic_demo.json --prepare   # reports the deliberately broken run (exit 1)
-annotation-qc benchmark run --config synthetic_demo.json
-annotation-qc benchmark build --config synthetic_demo.json
-annotation-qc dashboard --config synthetic_demo.json
+annotation-qc benchmark validate --config synthetic_species_A.json --prepare   # reports the deliberately broken run (exit 1)
+annotation-qc benchmark run --config synthetic_species_A.json                  # ToolZ fails on purpose
+annotation-qc benchmark build --config synthetic_species_A.json
+annotation-qc dashboard --config synthetic_species_A.json
 ```
+
+`synthetic_species_A.json` is the one-species experiment the dashboard serves (reference
+SYNTH_A, display roles on ToolX model 1 and ToolY). `synthetic_demo.json` has two
+references; the tests use it, and `annotation-qc dashboard` refuses it with a message.
 
 Every identifier starts with `SYNTH` and the experiment is flagged synthetic. The tests
 `tests/annotation_qc/test_benchmark_*.py` use it for configuration-only extension, cache
