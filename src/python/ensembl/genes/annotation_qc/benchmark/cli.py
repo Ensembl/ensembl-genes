@@ -235,9 +235,32 @@ def cmd_build(args):
 
     experiment, ws = _experiment(args)
     try:
-        build_dashboard(experiment, ws)
+        db = build_dashboard(experiment, ws)
     except PreparationError as error:
         sys.exit(str(error))
+    if not checkpoint_dataset(db):
+        print(
+            f"WARNING: {db} still has data in {db.name}-wal (a dashboard is reading it). "
+            "Stop the dashboards that use it and run `annotation-qc benchmark build` "
+            "again before copying the dataset."
+        )
+
+
+def checkpoint_dataset(db) -> bool:
+    """
+    Move the dataset's write-ahead log into the database file, so dashboard.sqlite is
+    self-contained and can be copied on its own. False when a reader prevented it.
+    """
+    import sqlite3
+
+    con = sqlite3.connect(db)
+    try:
+        busy, log_pages, moved = con.execute(
+            "PRAGMA wal_checkpoint(TRUNCATE)"
+        ).fetchone()
+    finally:
+        con.close()
+    return not busy and moved >= log_pages
 
 
 def cmd_verify_headline(args):
