@@ -303,7 +303,13 @@ def serve(
             raise SystemExit(f"{exp} ({path}): {error}") from error
         finally:
             con.close()
-    httpd = ThreadingHTTPServer((host, port), make_handler(Datasets(dbs)))
+    try:
+        httpd = ThreadingHTTPServer((host, port), make_handler(Datasets(dbs)))
+    except OSError as error:
+        raise SystemExit(
+            f"Cannot listen on {host}:{port} ({error.strerror}); is another dashboard "
+            "running there? Choose another port with --port."
+        ) from error
     httpd.verbose = verbose
     print(
         f"Annotation QC dashboard: http://{host}:{port}/  (Ctrl+C to stop)", flush=True

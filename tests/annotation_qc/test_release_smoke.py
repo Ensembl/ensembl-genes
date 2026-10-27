@@ -238,3 +238,20 @@ def test_dashboard_refuses_a_missing_dataset(project):
     assert done.returncode != 0
     assert "Dashboard dataset not built" in done.stderr + done.stdout
     assert "Traceback" not in done.stderr
+
+
+def test_port_in_use_is_reported(project):
+    import socket
+
+    config = project["root"] / "configs" / "mini_species.json"
+    with socket.socket() as busy:
+        busy.bind(("127.0.0.1", 0))
+        busy.listen()
+        port = busy.getsockname()[1]
+        done = subprocess.run(
+            CLI + ["dashboard", "--config", str(config), "--port", str(port)],
+            capture_output=True, text=True, check=False, timeout=60,
+        )  # fmt: skip
+    assert done.returncode != 0
+    assert f"Cannot listen on 127.0.0.1:{port}" in done.stderr and "--port" in done.stderr
+    assert "Traceback" not in done.stderr
