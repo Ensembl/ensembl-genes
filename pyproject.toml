@@ -20,6 +20,7 @@ dependencies = [
     "requests",
     "sqlalchemy >=1.4.16",
     "xmltodict",
+    "numpy",
     "pandas",
     "pyfaidx",
     "pyranges1 >= 1.3",
