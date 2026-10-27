@@ -42,6 +42,20 @@ def species(request):
     con.close()
 
 
+def _bundle(experiment, recorded: Path) -> Path:
+    """
+    A result's output directory: as recorded when the dataset was built, or, when the data
+    were moved, the same <variant>/<policy> folder under the configuration's results_dirs.
+    """
+    if recorded.is_dir():
+        return recorded
+    for results_dir in experiment.imports.get("results_dirs") or []:
+        results_dir = Path(results_dir)
+        if (results_dir.name, results_dir.parent.name) == (recorded.parent.name, recorded.parent.parent.name):
+            return results_dir / recorded.name
+    return recorded
+
+
 def test_one_reference_and_the_configured_runs(species):
     experiment, con = species
     meta = queries.meta(con)
@@ -86,7 +100,7 @@ def test_served_metrics_equal_metrics_tsv(species):
     served = {(m["run_id"], m["policy_id"], m["scope_id"], m["metric_id"]): m for m in ov["metrics"]}
     compared = 0
     for r in ov["results"]:
-        metrics = Path(r["output_dir"]) / "metrics.tsv"
+        metrics = _bundle(experiment, Path(r["output_dir"])) / "metrics.tsv"
         if not metrics.is_file():
             continue
         with open(metrics) as handle:
