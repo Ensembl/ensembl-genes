@@ -1,0 +1,9 @@
+ensembl.genes.projects.ftp_manifest
+===================================
+
+Source: ``src/python/ensembl/genes/projects/ftp_manifest.py``
+
+.. automodule:: ensembl.genes.projects.ftp_manifest
+   :members:
+   :show-inheritance:
+   :undoc-members:

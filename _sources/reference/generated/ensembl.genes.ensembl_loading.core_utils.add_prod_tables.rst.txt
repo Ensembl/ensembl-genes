@@ -1,0 +1,9 @@
+ensembl.genes.ensembl_loading.core_utils.add_prod_tables
+========================================================
+
+Source: ``src/python/ensembl/genes/ensembl_loading/core_utils/add_prod_tables.py``
+
+.. automodule:: ensembl.genes.ensembl_loading.core_utils.add_prod_tables
+   :members:
+   :show-inheritance:
+   :undoc-members:

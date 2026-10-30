@@ -1,0 +1,16 @@
+ensembl.genes.ensembl_loading.docs
+==================================
+
+Source directory: ``src/python/ensembl/genes/ensembl_loading/docs``
+
+Folders, Scripts, and Files
+---------------------------
+
+.. toctree::
+   :maxdepth: 2
+
+   loader-internals <ensembl.genes.ensembl_loading.docs.loader-internals>
+   python-api-and-boundaries <ensembl.genes.ensembl_loading.docs.python-api-and-boundaries>
+   quickstart <ensembl.genes.ensembl_loading.docs.quickstart>
+   refseq-import <ensembl.genes.ensembl_loading.docs.refseq-import>
+   source-configs <ensembl.genes.ensembl_loading.docs.source-configs>

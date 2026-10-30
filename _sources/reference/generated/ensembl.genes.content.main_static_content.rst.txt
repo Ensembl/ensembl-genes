@@ -1,0 +1,9 @@
+ensembl.genes.content.main_static_content
+=========================================
+
+Source: ``src/python/ensembl/genes/content/main_static_content.py``
+
+.. automodule:: ensembl.genes.content.main_static_content
+   :members:
+   :show-inheritance:
+   :undoc-members:

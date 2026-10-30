@@ -1,0 +1,918 @@
+<!doctype html>
+<html class="no-js" lang="en" data-content_root="../../">
+  <head><meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="index" title="Index" href="../../genindex.html"><link rel="search" title="Search" href="../../search.html"><link rel="next" title="ensembl.genes.projects.registry" href="ensembl.genes.projects.registry.html"><link rel="prev" title="ensembl.genes.projects" href="ensembl.genes.projects.html">
+        <link rel="prefetch" href="../../_static/ebang.png" as="image">
+
+    <!-- Generated with Sphinx 9.1.1 and Furo 2025.12.19 -->
+        <title>Projects Pages - Ensembl Genes</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=d111a655" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=7bdb33bb" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=8dab3a3b" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f2f2f2;
+  --color-code-foreground: #1e1e1e;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle site navigation sidebar">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc" aria-label="Toggle table of contents sidebar">
+<label class="overlay sidebar-overlay" for="__navigation"></label>
+<label class="overlay toc-overlay" for="__toc"></label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <span class="icon"><svg><use href="#svg-menu"></use></svg></span>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../../index.html"><div class="brand">Ensembl Genes</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
+  <div class="sidebar-logo-container">
+    <img class="sidebar-logo" src="../../_static/ebang.png" alt="Logo"/>
+  </div>
+  
+  <span class="sidebar-brand-text">Ensembl Genes</span>
+  
+</a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../install.html">How to install this repository</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage.html">Usage</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../code_of_conduct.html">Code of Conduct</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../coverage.html">Coverage report</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul class="current">
+<li class="toctree-l1 current has-children"><a class="reference internal" href="../../api.html">API Reference</a><input aria-label="Toggle navigation of API Reference" checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul class="current">
+<li class="toctree-l2 current has-children"><a class="reference internal" href="index.html">Generated Code Reference</a><input aria-label="Toggle navigation of Generated Code Reference" checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul class="current">
+<li class="toctree-l3 current has-children"><a class="reference internal" href="ensembl.genes.html">ensembl.genes</a><input aria-label="Toggle navigation of ensembl.genes" checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul class="current">
+<li class="toctree-l4 has-children"><a class="reference internal" href="ensembl.genes.annotation_qc.html">annotation_qc</a><input aria-label="Toggle navigation of annotation_qc" class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.annotation_qc.README.html">README</a></li>
+<li class="toctree-l5 has-children"><a class="reference internal" href="ensembl.genes.annotation_qc.config.html">config</a><input aria-label="Toggle navigation of config" class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.config.feature_levels_yaml.html">feature_levels.yaml</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.config.value_map_json.html">value_map.json</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.config.value_mapping_csv.html">value_mapping.csv</a></li>
+</ul>
+</li>
+<li class="toctree-l5 has-children"><a class="reference internal" href="ensembl.genes.annotation_qc.metrics.html">metrics</a><input aria-label="Toggle navigation of metrics" class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.metrics.README.html">README</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.metrics.feature_wide_metrics_README.html">feature_wide_metrics_README</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.metrics.genome_wide_metrics_README.html">genome_wide_metrics_README</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.metrics.events.html">events</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.metrics.feature_wide_metrics.html">feature_wide_metrics</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.metrics.features.html">features</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.metrics.geneset.html">geneset</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.metrics.genome_wide_metrics.html">genome_wide_metrics</a></li>
+</ul>
+</li>
+<li class="toctree-l5 has-children"><a class="reference internal" href="ensembl.genes.annotation_qc.notebooks.html">notebooks</a><input aria-label="Toggle navigation of notebooks" class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" role="switch" type="checkbox"/><label for="toctree-checkbox-7"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.notebooks.Example_ipynb.html">Example.ipynb</a></li>
+</ul>
+</li>
+<li class="toctree-l5 has-children"><a class="reference internal" href="ensembl.genes.annotation_qc.parsers.html">parsers</a><input aria-label="Toggle navigation of parsers" class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.parsers.README.html">parsers</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.parsers.README.html#responsibilities">Responsibilities</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.parsers.README.html#what-does-not-belong-here">What does NOT belong here?</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.parsers.README.html#inputs">Inputs</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.parsers.README.html#outputs">Outputs</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.parsers.README.html#design-principles">Design principles</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.parsers.README.html#adding-a-new-parser">Adding a new parser</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.parsers.README.html#common-mistakes">Common mistakes</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.parsers.README.html#testing">Testing</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.parsers.README.html#related-packages">Related packages</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.parsers.README.html#id1">Parsers</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.parsers.README.html#annotation-parser-gff3-gtf">Annotation Parser (GFF3 / GTF)</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.parsers.annotation.html">annotation</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.parsers.diamond.html">diamond</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.parsers.interpro.html">interpro</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.parsers.parse_agat.html">parse_agat</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.parsers.sequence.html">sequence</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.parsers.tool_output.html">tool_output</a></li>
+</ul>
+</li>
+<li class="toctree-l5 has-children"><a class="reference internal" href="ensembl.genes.annotation_qc.reports.html">reports</a><input aria-label="Toggle navigation of reports" class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" role="switch" type="checkbox"/><label for="toctree-checkbox-9"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.reports.README.html">reports</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.reports.README.html#responsibilities">Responsibilities</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.reports.README.html#what-does-not-belong-here">What does NOT belong here?</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.reports.README.html#inputs">Inputs</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.reports.README.html#outputs">Outputs</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.reports.README.html#design-principles">Design principles</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.reports.README.html#adding-a-new-report">Adding a new report</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.reports.README.html#common-mistakes">Common mistakes</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.reports.README.html#testing">Testing</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.reports.README.html#related-packages">Related packages</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.reports.plotting_utils.html">plotting_utils</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.reports.tabular_reports.html">tabular_reports</a></li>
+</ul>
+</li>
+<li class="toctree-l5 has-children"><a class="reference internal" href="ensembl.genes.annotation_qc.runners.html">runners</a><input aria-label="Toggle navigation of runners" class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" role="switch" type="checkbox"/><label for="toctree-checkbox-10"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.runners.README.html">runners</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.runners.README.html#responsibilities">Responsibilities</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.runners.README.html#what-does-not-belong-here">What does NOT belong here?</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.runners.README.html#workflow">Workflow</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.runners.README.html#inputs">Inputs</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.runners.README.html#outputs">Outputs</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.runners.README.html#design-principles">Design principles</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.runners.README.html#example-workflow">Example workflow</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.runners.README.html#adding-a-new-runner">Adding a new runner</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.runners.README.html#common-mistakes">Common mistakes</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.runners.README.html#testing">Testing</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.runners.README.html#related-packages">Related packages</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.runners.assess_translation_validity.html">assess_translation_validity</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.runners.genebuild_stats.html">genebuild_stats</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.annotation_qc.runners.pairwise_compare.html">pairwise_compare</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.annotation_qc.cli.html">cli</a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="ensembl.genes.automation.html">automation</a><input aria-label="Toggle navigation of automation" class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" role="switch" type="checkbox"/><label for="toctree-checkbox-11"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.automation.README.html">README</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.automation.pre_release_ftp.html">pre_release_ftp</a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="ensembl.genes.content.html">content</a><input aria-label="Toggle navigation of content" class="toctree-checkbox" id="toctree-checkbox-12" name="toctree-checkbox-12" role="switch" type="checkbox"/><label for="toctree-checkbox-12"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.content.main_static_content.html">main_static_content</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.content.main_static_murine_content.html">main_static_murine_content</a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="ensembl.genes.ensembl_loading.html">ensembl_loading</a><input aria-label="Toggle navigation of ensembl_loading" class="toctree-checkbox" id="toctree-checkbox-13" name="toctree-checkbox-13" role="switch" type="checkbox"/><label for="toctree-checkbox-13"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.ensembl_loading.README.html">README</a></li>
+<li class="toctree-l5 has-children"><a class="reference internal" href="ensembl.genes.ensembl_loading.config.html">config</a><input aria-label="Toggle navigation of config" class="toctree-checkbox" id="toctree-checkbox-14" name="toctree-checkbox-14" role="switch" type="checkbox"/><label for="toctree-checkbox-14"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.ensembl_loading.config.production_db_conf_json.html">production_db_conf.json</a></li>
+</ul>
+</li>
+<li class="toctree-l5 has-children"><a class="reference internal" href="ensembl.genes.ensembl_loading.core_utils.html">core_utils</a><input aria-label="Toggle navigation of core_utils" class="toctree-checkbox" id="toctree-checkbox-15" name="toctree-checkbox-15" role="switch" type="checkbox"/><label for="toctree-checkbox-15"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.ensembl_loading.core_utils.add_prod_tables.html">add_prod_tables</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.ensembl_loading.core_utils.external_db.html">external_db</a></li>
+</ul>
+</li>
+<li class="toctree-l5 has-children"><a class="reference internal" href="ensembl.genes.ensembl_loading.docs.html">docs</a><input aria-label="Toggle navigation of docs" class="toctree-checkbox" id="toctree-checkbox-16" name="toctree-checkbox-16" role="switch" type="checkbox"/><label for="toctree-checkbox-16"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.ensembl_loading.docs.loader-internals.html">loader-internals</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.ensembl_loading.docs.python-api-and-boundaries.html">python-api-and-boundaries</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.ensembl_loading.docs.quickstart.html">quickstart</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.ensembl_loading.docs.refseq-import.html">refseq-import</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.ensembl_loading.docs.source-configs.html">source-configs</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.ensembl_loading.convert_repearmasker.html">convert_repearmasker</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.ensembl_loading.gff_annotation.html">gff_annotation</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.ensembl_loading.gff_cli.html">gff_cli</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.ensembl_loading.gff_core_database.html">gff_core_database</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.ensembl_loading.gff_core_loader.html">gff_core_loader</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.ensembl_loading.gff_metadata.html">gff_metadata</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.ensembl_loading.gff_models.html">gff_models</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.ensembl_loading.gff_quality_check.html">gff_quality_check</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.ensembl_loading.gff_repeat_loader.html">gff_repeat_loader</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.ensembl_loading.gff_source_config.html">gff_source_config</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.ensembl_loading.ncbi_annotation_report.html">ncbi_annotation_report</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.ensembl_loading.refseq_constants.html">refseq_constants</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.ensembl_loading.refseq_conversion.html">refseq_conversion</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.ensembl_loading.refseq_models.html">refseq_models</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.ensembl_loading.refseq_ncbi.html">refseq_ncbi</a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="ensembl.genes.info_from_registry.html">info_from_registry</a><input aria-label="Toggle navigation of info_from_registry" class="toctree-checkbox" id="toctree-checkbox-17" name="toctree-checkbox-17" role="switch" type="checkbox"/><label for="toctree-checkbox-17"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.info_from_registry.README.html">README</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.info_from_registry.assign_species_prefix.html">assign_species_prefix</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.info_from_registry.assign_stable_space.html">assign_stable_space</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.info_from_registry.build_anno_commands.html">build_anno_commands</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.info_from_registry.check_if_annotated.html">check_if_annotated</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.info_from_registry.check_stable_space_old_registry.html">check_stable_space_old_registry</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.info_from_registry.create_config.html">create_config</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.info_from_registry.create_pipe_reg.html">create_pipe_reg</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.info_from_registry.genebuild_start_pipeline.html">genebuild_start_pipeline</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.info_from_registry.seed_nonvert.html">seed_nonvert</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.info_from_registry.start_pipeline_from_registry.html">start_pipeline_from_registry</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.info_from_registry.taxonomy_helper.html">taxonomy_helper</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.info_from_registry.update_assembly_registry.html">update_assembly_registry</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.info_from_registry.write_metrics_to_registry.html">write_metrics_to_registry</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.info_from_registry.anno_settings_json.html">anno_settings.json</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.info_from_registry.clade_settings_json.html">clade_settings.json</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.info_from_registry.main_settings_json.html">main_settings.json</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.info_from_registry.projection_source_json.html">projection_source.json</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.info_from_registry.server_settings_json.html">server_settings.json</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.info_from_registry.stable_id_special_cases_json.html">stable_id_special_cases.json</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.info_from_registry.user_pipeline_settings_json.html">user_pipeline_settings.json</a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="ensembl.genes.metadata.html">metadata</a><input aria-label="Toggle navigation of metadata" class="toctree-checkbox" id="toctree-checkbox-18" name="toctree-checkbox-18" role="switch" type="checkbox"/><label for="toctree-checkbox-18"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.metadata.README.html">README</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.metadata.beta_patcher.html">beta_patcher</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.metadata.bioproject_from_registry.html">bioproject_from_registry</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.metadata.core_meta_data.html">core_meta_data</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.metadata.core_meta_reg.html">core_meta_reg</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.metadata.truth_checker.html">truth_checker</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.metadata.logging_conf.html">logging.conf</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.metadata.patches_template_csv.html">patches_template.csv</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.metadata.provider_static_txt.html">provider_static.txt</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.metadata.ref_static_txt.html">ref_static.txt</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.metadata.requirements_txt.html">requirements.txt</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.metadata.snp_static_txt.html">snp_static.txt</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.metadata.url_static_txt.html">url_static.txt</a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="ensembl.genes.metrics.html">metrics</a><input aria-label="Toggle navigation of metrics" class="toctree-checkbox" id="toctree-checkbox-19" name="toctree-checkbox-19" role="switch" type="checkbox"/><label for="toctree-checkbox-19"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.metrics.busco_lineage_selector.html">busco_lineage_selector</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.metrics.busco_metakeys_patch.html">busco_metakeys_patch</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.metrics.check_busco_score.html">check_busco_score</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.metrics.busco_lineage_json.html">busco_lineage.json</a></li>
+</ul>
+</li>
+<li class="toctree-l4 current has-children"><a class="reference internal" href="ensembl.genes.projects.html">projects</a><input aria-label="Toggle navigation of projects" checked="" class="toctree-checkbox" id="toctree-checkbox-20" name="toctree-checkbox-20" role="switch" type="checkbox"/><label for="toctree-checkbox-20"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul class="current">
+<li class="toctree-l5 current current-page"><a class="current reference internal" href="#">README</a></li>
+<li class="toctree-l5 has-children"><a class="reference internal" href="ensembl.genes.projects.registry.html">registry</a><input aria-label="Toggle navigation of registry" class="toctree-checkbox" id="toctree-checkbox-21" name="toctree-checkbox-21" role="switch" type="checkbox"/><label for="toctree-checkbox-21"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.projects.registry.gb_tracker.html">gb_tracker</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.projects.registry.metadata_db.html">metadata_db</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.projects.registry.ncbi_entrez.html">ncbi_entrez</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.projects.accession_utils.html">accession_utils</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.projects.changelog.html">changelog</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.projects.config.html">config</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.projects.ftp_client.html">ftp_client</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.projects.ftp_manifest.html">ftp_manifest</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.projects.generate_project_yaml.html">generate_project_yaml</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.projects.haplotype_resolver.html">haplotype_resolver</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.projects.icon_resolver.html">icon_resolver</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.projects.legacy_vep_manifest.html">legacy_vep_manifest</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.projects.models.html">models</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.projects.yaml_renderer.html">yaml_renderer</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.projects.icons_txt.html">icons.txt</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.projects.server_config_json.html">server_config.json</a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="ensembl.genes.rgb.html">rgb</a><input aria-label="Toggle navigation of rgb" class="toctree-checkbox" id="toctree-checkbox-22" name="toctree-checkbox-22" role="switch" type="checkbox"/><label for="toctree-checkbox-22"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5 has-children"><a class="reference internal" href="ensembl.genes.rgb.docs.html">docs</a><input aria-label="Toggle navigation of docs" class="toctree-checkbox" id="toctree-checkbox-23" name="toctree-checkbox-23" role="switch" type="checkbox"/><label for="toctree-checkbox-23"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.rgb.docs.reverse-gene-builder.html">reverse-gene-builder</a></li>
+</ul>
+</li>
+<li class="toctree-l5 has-children"><a class="reference internal" href="ensembl.genes.rgb.examples.html">examples</a><input aria-label="Toggle navigation of examples" class="toctree-checkbox" id="toctree-checkbox-24" name="toctree-checkbox-24" role="switch" type="checkbox"/><label for="toctree-checkbox-24"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.rgb.examples.evidence_class_map_example_yaml.html">evidence_class_map.example.yaml</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ensembl.genes.rgb.examples.rgb_config_example_yaml.html">rgb_config_example.yaml</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.rgb.cli.html">cli</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.rgb.db.html">db</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.rgb.io.html">io</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.rgb.loci.html">loci</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.rgb.summary.html">summary</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.rgb.utils.html">utils</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.rgb.version.html">version</a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="ensembl.genes.stable_id.html">stable_id</a><input aria-label="Toggle navigation of stable_id" class="toctree-checkbox" id="toctree-checkbox-25" name="toctree-checkbox-25" role="switch" type="checkbox"/><label for="toctree-checkbox-25"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.stable_id.pid_overlap.html">pid_overlap</a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="ensembl.genes.tracking.html">tracking</a><input aria-label="Toggle navigation of tracking" class="toctree-checkbox" id="toctree-checkbox-26" name="toctree-checkbox-26" role="switch" type="checkbox"/><label for="toctree-checkbox-26"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.tracking.README.html">README</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.tracking.bioproject_tracking.html">bioproject_tracking</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.tracking.live_tracking.html">live_tracking</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.tracking.bioproject_tracking_config_json.html">bioproject_tracking_config.json</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.tracking.live_tracking_config_json.html">live_tracking_config.json</a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="ensembl.genes.transcriptomic_data.html">transcriptomic_data</a><input aria-label="Toggle navigation of transcriptomic_data" class="toctree-checkbox" id="toctree-checkbox-27" name="toctree-checkbox-27" role="switch" type="checkbox"/><label for="toctree-checkbox-27"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.transcriptomic_data.check_for_transcriptomic.html">check_for_transcriptomic</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.transcriptomic_data.get_transcriptomic_data.html">get_transcriptomic_data</a></li>
+<li class="toctree-l5"><a class="reference internal" href="ensembl.genes.transcriptomic_data.select_transcriptomic_data.html">select_transcriptomic_data</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="ensembl.genes.mysql_helper.html">mysql_helper</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ensembl.genes.registry_helper.html">registry_helper</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="view-this-page">
+  <a class="muted-link" href="../../_sources/reference/generated/ensembl.genes.projects.README.md.txt" title="View this page">
+    <svg><use href="#svg-eye"></use></svg>
+    <span class="visually-hidden">View this page</span>
+  </a>
+</div>
+<div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+          </label>
+        </div>
+        <article role="main" id="furo-main-content">
+          <section id="projects-pages">
+<h1>Projects Pages<a class="headerlink" href="#projects-pages" title="Link to this heading">¶</a></h1>
+<p>Code for updating the Ensembl projects pages.</p>
+<p>This repository handles the extraction of metadata from Ensembl tracking databases to generate publishable <code class="docutils literal notranslate"><span class="pre">species.yaml</span></code> files used by the various Ensembl project portals.</p>
+<section id="quick-start">
+<h2>Quick Start<a class="headerlink" href="#quick-start" title="Link to this heading">¶</a></h2>
+<p>The supported command for generating project-page YAML is
+<code class="docutils literal notranslate"><span class="pre">generate_project_yaml</span></code>.</p>
+<p>After installing the package:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">generate_project_yaml</span> <span class="o">./</span><span class="n">cbp_guuids</span><span class="o">.</span><span class="n">txt</span> \
+  <span class="o">--</span><span class="n">project</span> <span class="n">cbp</span> \
+  <span class="o">--</span><span class="n">output</span> <span class="n">cbp_species</span><span class="o">.</span><span class="n">yaml</span> \
+  <span class="o">--</span><span class="n">audit</span><span class="o">-</span><span class="n">file</span> <span class="n">cbp_audit</span><span class="o">.</span><span class="n">tsv</span>
+</pre></div>
+</div>
+</section>
+<section id="environment-requirements">
+<h2>Environment Requirements<a class="headerlink" href="#environment-requirements" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><strong>Python Version</strong>: Python 3.10+ is required.</p></li>
+<li><p><strong>PYTHONPATH</strong>: Must include the <code class="docutils literal notranslate"><span class="pre">src/python</span></code> directory of this repository so modules can be resolved (<code class="docutils literal notranslate"><span class="pre">export</span> <span class="pre">PYTHONPATH=$PWD/src/python</span></code>).</p></li>
+<li><p><strong>Required Packages</strong>:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">PyMySQL</span></code> (for DB connections)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">PyYAML</span></code> (for YAML generation)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">requests</span></code> (for FTP checks)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">xmltodict</span></code> (for NCBI taxonomy parsing)</p></li>
+</ul>
+</li>
+<li><p><strong>Cluster Notes</strong>: Database passwords may be omitted if you are running this from a cluster that has standard <code class="docutils literal notranslate"><span class="pre">.my.cnf</span></code> or generic Ensembl read-only credentials configured.</p></li>
+</ul>
+</section>
+<section id="configuration">
+<h2>Configuration<a class="headerlink" href="#configuration" title="Link to this heading">¶</a></h2>
+<p>Configuration is managed via <code class="docutils literal notranslate"><span class="pre">config.py</span></code> and <code class="docutils literal notranslate"><span class="pre">server_config.json</span></code>:</p>
+<ul class="simple">
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">server_config.json</span></code></strong>: Lives in <code class="docutils literal notranslate"><span class="pre">src/python/ensembl/genes/projects/</span></code> and contains the DB connection details.</p></li>
+<li><p><strong>Metadata DB</strong>: Configured under the <code class="docutils literal notranslate"><span class="pre">meta_beta</span></code> key in <code class="docutils literal notranslate"><span class="pre">server_config.json</span></code>. This tracks fully released genomes via their Genome UUIDs.</p></li>
+<li><p><strong>GB Registry DB</strong>: Configured under the <code class="docutils literal notranslate"><span class="pre">gb1</span></code> key. This tracks pre-release genomes.</p></li>
+<li><p><strong>Updating Config</strong>: Update the hosts or ports in <code class="docutils literal notranslate"><span class="pre">server_config.json</span></code> if servers are migrated.</p></li>
+</ul>
+</section>
+<section id="input-file-format">
+<h2>Input File Format<a class="headerlink" href="#input-file-format" title="Link to this heading">¶</a></h2>
+<p>The script requires a positional input file (<code class="docutils literal notranslate"><span class="pre">input_guuids.txt</span></code>).</p>
+<ul class="simple">
+<li><p><strong>Format</strong>: One identifier per line.</p></li>
+<li><p><strong>Identifiers</strong>: Primarily, these should be Genome UUIDs (GUUIDs), which are standard UUID strings (e.g., <code class="docutils literal notranslate"><span class="pre">123e4567-e89b-12d3-a456-426614174000</span></code>).</p></li>
+<li><p><strong>Pre-release</strong>: Core DB names may still be accepted for explicit pre-release handling, but this fallback mechanism is deprecated in favor of automated discovery.</p></li>
+<li><p><strong>Discovery</strong>: Pre-release genomes that don’t have GUUIDs yet are automatically discovered from the GB registry if the project is configured for scoping (e.g., <code class="docutils literal notranslate"><span class="pre">bioproject_scoping</span></code> in <code class="docutils literal notranslate"><span class="pre">config.py</span></code>).</p></li>
+</ul>
+</section>
+<section id="supported-projects">
+<h2>Supported Projects<a class="headerlink" href="#supported-projects" title="Link to this heading">¶</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">--project</span></code> flag maps to configurations defined in <code class="docutils literal notranslate"><span class="pre">config.py</span></code>. Supported projects include:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">cbp</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">vgp</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">dtol</span></code> (Darwin Tree of Life)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bge</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">asg</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">erga</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">hprc</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">mouse_genomes</span></code> (or <code class="docutils literal notranslate"><span class="pre">mouse</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">aquafaang</span></code></p></li>
+</ul>
+</section>
+<section id="output">
+<h2>Output<a class="headerlink" href="#output" title="Link to this heading">¶</a></h2>
+<p>The script generates two main outputs:</p>
+<ol class="arabic simple">
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">species.yaml</span></code></strong>: The rendered YAML file containing all genomes that successfully passed validation and FTP existence checks.</p></li>
+<li><p><strong>Audit TSV (<code class="docutils literal notranslate"><span class="pre">--audit-file</span></code>)</strong>: A highly recommended log file that records the decision for every candidate genome.</p>
+<ul class="simple">
+<li><p>Decisions include: <code class="docutils literal notranslate"><span class="pre">included_released</span></code>, <code class="docutils literal notranslate"><span class="pre">included_prerelease</span></code>, <code class="docutils literal notranslate"><span class="pre">excluded</span></code>, <code class="docutils literal notranslate"><span class="pre">excluded_duplicate</span></code>, or <code class="docutils literal notranslate"><span class="pre">kept_duplicate</span></code>.</p></li>
+</ul>
+</li>
+</ol>
+</section>
+<section id="publishability-rules-and-ftp-resolution">
+<h2>Publishability Rules and FTP Resolution<a class="headerlink" href="#publishability-rules-and-ftp-resolution" title="Link to this heading">¶</a></h2>
+<p>A genome is only included in the final YAML if it has valid FTP assets. A GUUID alone is not enough.</p>
+<ul class="simple">
+<li><p><strong>Accession-Based FTP Structure</strong>: Released genesets, genome sequences, homologies, and variant files are resolved via the authoritative manifest <code class="docutils literal notranslate"><span class="pre">species.json</span></code>. The layout uses GCA/GCF accession triplets (e.g. <code class="docutils literal notranslate"><span class="pre">GCA/922/984/935/2/</span></code>). Manifest paths are used verbatim.</p></li>
+<li><p><strong>VEP Fallback (HPRC only)</strong>: Where VEP annotation directories are not yet present in the manifest, HPRC project pages fall back to the species-name-based FTP hierarchy (<code class="docutils literal notranslate"><span class="pre">use_legacy_vep_fallback:</span> <span class="pre">True</span></code> in <code class="docutils literal notranslate"><span class="pre">config.py</span></code>).</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">variants_vep</span></code> links to the containing dated VEP directory (e.g. <code class="docutils literal notranslate"><span class="pre">https://ftp.ebi.ac.uk/pub/ensemblorganisms/Homo_sapiens/GCA_009914755.4/vep/ensembl/geneset/2022_07/</span></code>), not directly to <code class="docutils literal notranslate"><span class="pre">genes.gff3.bgz</span></code>.</p></li>
+<li><p>The actual <code class="docutils literal notranslate"><span class="pre">genes.gff3.bgz</span></code> file URL is validated via HTTP before the directory URL is emitted.</p></li>
+<li><p>Failure to load the legacy manifest or resolve a VEP URL does not exclude an HPRC genome; <code class="docutils literal notranslate"><span class="pre">variants_vep</span></code> is simply omitted and recorded in the audit TSV.</p></li>
+</ul>
+</li>
+<li><p><strong>Pre-release Fallback</strong>: If released FTP assets are not found in the manifest, the script attempts the pre-release FTP fallback. A failure of either manifest does not prevent valid pre-release fallback.</p></li>
+<li><p><strong>Exclusion</strong>: If neither released nor pre-release assets exist, the genome is excluded from the YAML.</p></li>
+</ul>
+</section>
+<section id="images-and-icons">
+<h2>Images and Icons<a class="headerlink" href="#images-and-icons" title="Link to this heading">¶</a></h2>
+<p>Icons are resolved from taxonomy lineage data via <code class="docutils literal notranslate"><span class="pre">icon_resolver.py</span></code>, using multiple data sources for robustness.</p>
+<p><strong>Lineage data sources (tried in priority order):</strong></p>
+<ol class="arabic simple">
+<li><p><strong>Metadata DB lineage</strong> — taxonomy classification pre-fetched from the Ensembl metadata database during data gathering (<code class="docutils literal notranslate"><span class="pre">GenomeMetadata.taxonomy_lineage</span></code>). This is the fastest and most reliable source.</p></li>
+<li><p><strong>NCBI Entrez lineage</strong> — live lookup by <code class="docutils literal notranslate"><span class="pre">taxon_id</span></code> via the NCBI Entrez API. Results are cached per <code class="docutils literal notranslate"><span class="pre">taxon_id</span></code> during a run.</p></li>
+<li><p><strong>BUSCO lineage hint</strong> — weak but reliable fallback parsing the <code class="docutils literal notranslate"><span class="pre">busco_lineage</span></code> string (e.g. <code class="docutils literal notranslate"><span class="pre">&quot;insecta_odb10&quot;</span></code> → Arthropods.png, <code class="docutils literal notranslate"><span class="pre">&quot;mammalia_odb10&quot;</span></code> → Mammals.png). Used when both metadata and NCBI sources fail.</p></li>
+</ol>
+<p>The first source that produces a usable lineage is walked from most specific to broadest classification. The first taxonomy name that matches a configured rule determines the icon.</p>
+<p><strong>Rule sources (in priority order):</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">icons.txt</span></code> provides project-specific overrides or additions. Entries here win over built-in defaults for the same taxonomy name.</p></li>
+<li><p>Built-in default rules in <code class="docutils literal notranslate"><span class="pre">icon_resolver.py</span></code> cover all available icon files with broad taxonomy anchors (e.g. <code class="docutils literal notranslate"><span class="pre">Arthropoda</span> <span class="pre">-&gt;</span> <span class="pre">Arthropods.png</span></code>, <code class="docutils literal notranslate"><span class="pre">Mammalia</span> <span class="pre">-&gt;</span> <span class="pre">Mammals.png</span></code>, <code class="docutils literal notranslate"><span class="pre">Fungi</span> <span class="pre">-&gt;</span> <span class="pre">Fungi.png</span></code>).</p></li>
+</ul>
+<p><strong>Most-specific match wins:</strong></p>
+<ul class="simple">
+<li><p>Lepidoptera beats Arthropoda (→ <code class="docutils literal notranslate"><span class="pre">Lepidoptera.png</span></code>, not <code class="docutils literal notranslate"><span class="pre">Arthropods.png</span></code>)</p></li>
+<li><p>Mammalia beats Chordata (→ <code class="docutils literal notranslate"><span class="pre">Mammals.png</span></code>, not <code class="docutils literal notranslate"><span class="pre">Chordates.png</span></code>)</p></li>
+<li><p>Aves beats Chordata (→ <code class="docutils literal notranslate"><span class="pre">Birds.png</span></code>)</p></li>
+<li><p>Actinopterygii / Chondrichthyes beat Chordata (→ <code class="docutils literal notranslate"><span class="pre">Fish.png</span></code>)</p></li>
+<li><p>Amphibia beats Chordata (→ <code class="docutils literal notranslate"><span class="pre">Amphibians.png</span></code>)</p></li>
+<li><p>Testudines / Squamata / Serpentes / Crocodylia beat Chordata (→ <code class="docutils literal notranslate"><span class="pre">Reptiles.png</span></code>)</p></li>
+</ul>
+<p><strong>Fallback behaviour:</strong></p>
+<ul class="simple">
+<li><p>If no specific rule matches but the lineage contains Chordata → <code class="docutils literal notranslate"><span class="pre">Chordates.png</span></code></p></li>
+<li><p>If nothing matches at all → <code class="docutils literal notranslate"><span class="pre">Metazoa.png</span></code></p></li>
+<li><p>If all lineage sources fail, a warning is logged and <code class="docutils literal notranslate"><span class="pre">Metazoa.png</span></code> is used.</p></li>
+</ul>
+<p><strong>Audit/debugging:</strong></p>
+<ul class="simple">
+<li><p>The audit TSV includes an <code class="docutils literal notranslate"><span class="pre">image_source</span></code> column showing which lineage source was used and which taxonomy term matched (e.g. <code class="docutils literal notranslate"><span class="pre">metadata_lineage:Lepidoptera</span></code>, <code class="docutils literal notranslate"><span class="pre">busco_lineage:Insecta</span></code>).</p></li>
+<li><p>Debug-level logging shows the resolution path for each genome.</p></li>
+</ul>
+<p><strong>Important constraints:</strong></p>
+<ul class="simple">
+<li><p>Icon selection must <strong>never</strong> use species-name parsing, sample descriptions, or any free-text metadata field.</p></li>
+<li><p>The species display name must always be the scientific name. It must not be polluted by strain, sample descriptions, or habitat text.</p></li>
+</ul>
+</section>
+<section id="hprc-and-mouse-differences">
+<h2>HPRC and Mouse Differences<a class="headerlink" href="#hprc-and-mouse-differences" title="Link to this heading">¶</a></h2>
+<p>Different projects map to different underlying YAML schemas (<code class="docutils literal notranslate"><span class="pre">standard</span></code>, <code class="docutils literal notranslate"><span class="pre">hprc</span></code>, or <code class="docutils literal notranslate"><span class="pre">mouse</span></code>):</p>
+<ul class="simple">
+<li><p><strong>HPRC (<code class="docutils literal notranslate"><span class="pre">--project</span> <span class="pre">hprc</span></code>)</strong>:</p>
+<ul>
+<li><p>Adds HPRC-specific columns such as <code class="docutils literal notranslate"><span class="pre">assembly_submitter</span></code> and <code class="docutils literal notranslate"><span class="pre">assembly_link</span></code>.</p></li>
+<li><p>Determines <code class="docutils literal notranslate"><span class="pre">parent_of_origin</span></code> from the assembly report.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">variants_vep</span></code> — links to the dated VEP annotation directory (containing <code class="docutils literal notranslate"><span class="pre">genes.gff3.bgz</span></code>) when available. Resolved via the species-name-based FTP hierarchy.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">variation_vcf</span></code> — links to the dated variation directory (containing <code class="docutils literal notranslate"><span class="pre">variation.vcf.gz</span></code>) when available. Resolved from variation entries in the <code class="docutils literal notranslate"><span class="pre">species.json</span></code> manifest.</p></li>
+<li><p>These two fields are <strong>independent</strong>: a genome may have one, both, or neither. The actual file URL (<code class="docutils literal notranslate"><span class="pre">genes.gff3.bgz</span></code> or <code class="docutils literal notranslate"><span class="pre">variation.vcf.gz</span></code>) is validated via HTTP; the emitted link points to the containing directory. Manifest paths — including any nested or duplicated date components — are used verbatim.</p></li>
+</ul>
+</li>
+<li><p><strong>Mouse Genomes (<code class="docutils literal notranslate"><span class="pre">--project</span> <span class="pre">mouse_genomes</span></code>)</strong>:</p>
+<ul>
+<li><p>Automatically incorporates the <code class="docutils literal notranslate"><span class="pre">strain</span></code> metadata explicitly as a separate display field.</p></li>
+<li><p>Includes <code class="docutils literal notranslate"><span class="pre">alternate</span></code> linkage if it is an alternate haplotype.</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="alternate-haplotype-detection">
+<h2>Alternate Haplotype Detection<a class="headerlink" href="#alternate-haplotype-detection" title="Link to this heading">¶</a></h2>
+<p>The pipeline automatically identifies alternate haplotype pairs among assemblies in the same project dataset. After deduplication, the <code class="docutils literal notranslate"><span class="pre">HaplotypeResolver</span></code> inspects all kept genomes and links pairs using:</p>
+<ol class="arabic simple">
+<li><p><strong>BioSample accession</strong> (primary) — assemblies sharing the same NCBI BioSample are from the same individual and are haplotype pairs.</p></li>
+<li><p><strong>Sample name / isolate</strong> (secondary) — if BioSample is unavailable, assemblies with the same sample_name or isolate attribute (within the same taxon) are paired.</p></li>
+<li><p><strong>Assembly name heuristics</strong> (weak fallback) — naming patterns like <code class="docutils literal notranslate"><span class="pre">hap1</span></code>/<code class="docutils literal notranslate"><span class="pre">hap2</span></code>, <code class="docutils literal notranslate"><span class="pre">maternal</span></code>/<code class="docutils literal notranslate"><span class="pre">paternal</span></code>, <code class="docutils literal notranslate"><span class="pre">primary</span></code>/<code class="docutils literal notranslate"><span class="pre">alternate</span></code> within the same species.</p></li>
+</ol>
+<p>Only assemblies that are <em>both present</em> in the generated dataset are linked. No external URLs are invented. If an assembly already has an <code class="docutils literal notranslate"><span class="pre">alternate</span></code> field from the metadata DB, it is preserved.</p>
+<p>The output field is <code class="docutils literal notranslate"><span class="pre">alternate:</span> <span class="pre">https://www.ensembl.org/species/&lt;alternate_genome_uuid&gt;</span></code>. The alternate accession is resolved to its genome UUID (from the in-run cache first, then a batch metadata-DB lookup). If no genome UUID can be found for the alternate assembly, the <code class="docutils literal notranslate"><span class="pre">alternate</span></code> field is <strong>omitted entirely</strong> rather than emitting a raw accession or a broken link.</p>
+</section>
+<section id="beta-link-validation">
+<h2>Beta Link Validation<a class="headerlink" href="#beta-link-validation" title="Link to this heading">¶</a></h2>
+<p>A genome can have a valid genome UUID and valid FTP assets while its ensembl.org species page is not yet live. Visiting such a UUID shows a “We do not recognise the species identified…” error page (which still returns HTTP 200).</p>
+<p>To avoid emitting broken <code class="docutils literal notranslate"><span class="pre">beta_link</span></code> values, the renderer validates each released genome’s beta page before emitting a link (<code class="docutils literal notranslate"><span class="pre">check_beta_species_status</span></code> in <code class="docutils literal notranslate"><span class="pre">ftp_client.py</span></code>):</p>
+<ul class="simple">
+<li><p>The page body is fetched and inspected — a status-code check alone is insufficient because the error page returns HTTP 200.</p></li>
+<li><p>A page is treated as <strong>unavailable</strong> if the status is non-200, or the body contains <code class="docutils literal notranslate"><span class="pre">&quot;We</span> <span class="pre">do</span> <span class="pre">not</span> <span class="pre">recognise</span> <span class="pre">the</span> <span class="pre">species</span> <span class="pre">identified&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;Find</span> <span class="pre">available</span> <span class="pre">species</span> <span class="pre">in</span> <span class="pre">the</span> <span class="pre">Species</span> <span class="pre">selector&quot;</span></code>.</p></li>
+<li><p>Only a confirmed-usable page yields a real <code class="docutils literal notranslate"><span class="pre">beta_link:</span> <span class="pre">https://www.ensembl.org/species/&lt;uuid&gt;</span></code>.</p></li>
+<li><p>Otherwise <code class="docutils literal notranslate"><span class="pre">beta_link:</span> <span class="pre">Coming</span> <span class="pre">soon!</span></code> is emitted. <strong>The genome is never excluded</strong> for this reason — FTP links and all other fields are unchanged.</p></li>
+<li><p>Pre-release genomes skip the check and emit <code class="docutils literal notranslate"><span class="pre">Coming</span> <span class="pre">soon!</span></code> directly (no wasted network call).</p></li>
+<li><p>Availability is cached per genome UUID for the duration of a run.</p></li>
+</ul>
+<p><strong>Audit:</strong> the audit TSV records two extra columns — <code class="docutils literal notranslate"><span class="pre">beta_link_status</span></code> (one of <code class="docutils literal notranslate"><span class="pre">available</span></code>, <code class="docutils literal notranslate"><span class="pre">unavailable</span></code>, <code class="docutils literal notranslate"><span class="pre">error</span></code>, <code class="docutils literal notranslate"><span class="pre">skipped_prerelease</span></code>, <code class="docutils literal notranslate"><span class="pre">skipped_no_uuid</span></code>, <code class="docutils literal notranslate"><span class="pre">skipped_rapid</span></code>) and the final <code class="docutils literal notranslate"><span class="pre">beta_link</span></code> value emitted.</p>
+</section>
+<section id="file-roles">
+<h2>File Roles<a class="headerlink" href="#file-roles" title="Link to this heading">¶</a></h2>
+<p>Understanding the codebase organization:</p>
+<ul class="simple">
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">generate_project_yaml.py</span></code></strong>: <strong>The supported production CLI entrypoint.</strong> Coordinates finding candidates and rendering them.</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">config.py</span></code></strong>: Project configuration definitions (<code class="docutils literal notranslate"><span class="pre">ProjectConfig</span></code> dataclass) and factory function mapping project names to their data-fetch and schema rules.</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">models.py</span></code></strong>: Shared data model (<code class="docutils literal notranslate"><span class="pre">GenomeMetadata</span></code> dataclass) used as the internal representation across all pipeline stages.</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">yaml_renderer.py</span></code></strong>: Handles rendering <code class="docutils literal notranslate"><span class="pre">GenomeMetadata</span></code> models into validated dicts and performs actual FTP publishability checks.</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">icon_resolver.py</span></code></strong>: Taxonomy-lineage-based icon resolver. Maps taxon IDs to icon filenames using NCBI lineage data, with per-run caching and <code class="docutils literal notranslate"><span class="pre">icons.txt</span></code> override support.</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">haplotype_resolver.py</span></code></strong>: Identifies alternate haplotype pairs among assemblies in the project dataset using NCBI BioSample metadata, sample names, and assembly naming conventions.</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">ftp_client.py</span></code></strong>: Core logic for querying the EBI/Ensembl FTP servers.</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">ftp_manifest.py</span></code></strong>: Reads the accession-based <code class="docutils literal notranslate"><span class="pre">species.json</span></code> manifest and indexes released annotation, genome, homology, and variation file paths per assembly.</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">legacy_vep_manifest.py</span></code></strong>: Indexes VEP annotation file paths from the <code class="docutils literal notranslate"><span class="pre">species.json</span></code> manifest and provides the URL-joining utility used for both VEP and variation VCF link construction.</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">accession_utils.py</span></code></strong>: Converts GCA/GCF accession strings to the NCBI triplet directory layout used on the EBI FTP.</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">changelog.py</span></code></strong>: Compares old and new YAML outputs and generates human-readable and TSV changelogs.</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">registry/gb_tracker.py</span></code></strong>: Client for GB registry pre-release discovery.</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">registry/metadata_db.py</span></code></strong>: Client for the metadata DB to look up released GUUIDs.</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">registry/ncbi_entrez.py</span></code></strong>: NCBI web scraping for assembly submitters, population data, and parent-of-origin.</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">bioproject_tracking.py</span></code></strong> (in <code class="docutils literal notranslate"><span class="pre">ensembl.genes.tracking</span></code>): An auxiliary tool for candidate discovery (to generate the input file), but <em>not</em> for final YAML eligibility.</p></li>
+</ul>
+</section>
+<section id="tests">
+<h2>Tests<a class="headerlink" href="#tests" title="Link to this heading">¶</a></h2>
+<p>Project-page tests live under the repository test tree (mirroring the package layout):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">tests</span><span class="o">/</span><span class="n">ensembl</span><span class="o">/</span><span class="n">genes</span><span class="o">/</span><span class="n">projects</span><span class="o">/</span>
+  <span class="n">test_changelog</span><span class="o">.</span><span class="n">py</span>              <span class="c1"># changelog diff/compare logic</span>
+  <span class="n">test_icon_resolver</span><span class="o">.</span><span class="n">py</span>          <span class="c1"># taxonomy → icon resolution (incl. BUSCO fallback)</span>
+  <span class="n">test_haplotype_resolver</span><span class="o">.</span><span class="n">py</span>     <span class="c1"># alternate haplotype pairing</span>
+  <span class="n">test_ensembl_link</span><span class="o">.</span><span class="n">py</span>           <span class="c1"># ensembl.org availability checking</span>
+  <span class="n">test_accession_utils</span><span class="o">.</span><span class="n">py</span>        <span class="c1"># GCA/GCF → FTP triplet-path conversion</span>
+  <span class="n">test_ftp_manifest</span><span class="o">.</span><span class="n">py</span>           <span class="c1"># accession-based species.json manifest reader</span>
+  <span class="n">test_ftp_resolution</span><span class="o">.</span><span class="n">py</span>         <span class="c1"># released-file FTP URL resolution end-to-end</span>
+  <span class="n">test_ftp_retry</span><span class="o">.</span><span class="n">py</span>              <span class="c1"># complete-operation FTP retry behaviour</span>
+  <span class="n">test_gb_tracker_discovery</span><span class="o">.</span><span class="n">py</span>   <span class="c1"># pre-release discovery via GB registry</span>
+  <span class="n">test_hprc_vep_resolution</span><span class="o">.</span><span class="n">py</span>    <span class="c1"># HPRC VEP URL resolution (manifest + probe fallback)</span>
+  <span class="n">test_legacy_vep_manifest</span><span class="o">.</span><span class="n">py</span>    <span class="c1"># legacy species.json VEP index reader</span>
+  <span class="n">test_variation_vcf</span><span class="o">.</span><span class="n">py</span>          <span class="c1"># HPRC variation VCF URL discovery and YAML output</span>
+</pre></div>
+</div>
+<p>All tests mock network/DB access, so they run offline:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">PYTHONPATH</span><span class="o">=</span><span class="nv">$PWD</span>/src/python<span class="w">   </span><span class="c1"># only needed if the package is not pip-installed</span>
+pytest<span class="w"> </span>tests/ensembl/genes/projects<span class="w"> </span>-v
+</pre></div>
+</div>
+</section>
+<section id="further-reading">
+<h2>Further Reading<a class="headerlink" href="#further-reading" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">docs/metadata_source_map.md</span></code> (repo root): maps each output YAML field to its exact metadata-DB / GB-schema source.</p></li>
+</ul>
+</section>
+<section id="troubleshooting">
+<h2>Troubleshooting<a class="headerlink" href="#troubleshooting" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">ModuleNotFoundError:</span> <span class="pre">No</span> <span class="pre">module</span> <span class="pre">named</span> <span class="pre">'ensembl'</span></code></strong>: Ensure <code class="docutils literal notranslate"><span class="pre">PYTHONPATH</span></code> is set correctly (<code class="docutils literal notranslate"><span class="pre">export</span> <span class="pre">PYTHONPATH=$PWD/src/python</span></code>).</p></li>
+<li><p><strong>Python Type Hint Issues</strong>: The code requires Python 3.10+. Upgrade your Python version if you see syntax errors around type annotations.</p></li>
+<li><p><strong>DB Connection Errors</strong>: Check <code class="docutils literal notranslate"><span class="pre">server_config.json</span></code> hosts and your VPN/network connection. If on a cluster, ensure read-only MySQL permissions are loaded.</p></li>
+<li><p><strong>Missing FTP Assets</strong>: If a genome is excluded, check the audit TSV. Usually, the files haven’t been synchronized to the public EBI FTP yet.</p></li>
+<li><p><strong>Duplicate GUUID/Accession</strong>: The script deduplicates automatically based on accession, species name, and date, keeping the most recent released copy. The excluded ones will show <code class="docutils literal notranslate"><span class="pre">excluded_duplicate</span></code> in the audit TSV.</p></li>
+<li><p><strong>Wrong Image Mapping</strong>: Check that the NCBI taxonomy matches an entry in <code class="docutils literal notranslate"><span class="pre">icons.txt</span></code>. Add a new mapping if the lineage isn’t covered.</p></li>
+<li><p><strong>Unexpected Species Names</strong>: Check the core tracking database; the script strictly uses <code class="docutils literal notranslate"><span class="pre">species.scientific_name</span></code> to prevent formatting pollution.</p></li>
+</ul>
+</section>
+<section id="example-commands">
+<h2>Example Commands<a class="headerlink" href="#example-commands" title="Link to this heading">¶</a></h2>
+<section id="cbp">
+<h3>CBP<a class="headerlink" href="#cbp" title="Link to this heading">¶</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>generate_project_yaml<span class="w"> </span>./cbp_guuids.txt<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--project<span class="w"> </span>cbp<span class="w"> </span>--output<span class="w"> </span>cbp_species.yaml<span class="w"> </span>--audit-file<span class="w"> </span>cbp_audit.tsv
+</pre></div>
+</div>
+</section>
+<section id="hprc">
+<h3>HPRC<a class="headerlink" href="#hprc" title="Link to this heading">¶</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>generate_project_yaml<span class="w"> </span>./hprc_guuids.txt<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--project<span class="w"> </span>hprc<span class="w"> </span>--output<span class="w"> </span>hprc_species.yaml<span class="w"> </span>--audit-file<span class="w"> </span>hprc_audit.tsv
+</pre></div>
+</div>
+</section>
+<section id="mouse-genomes">
+<h3>Mouse Genomes<a class="headerlink" href="#mouse-genomes" title="Link to this heading">¶</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>generate_project_yaml<span class="w"> </span>./mouse_guuids.txt<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--project<span class="w"> </span>mouse_genomes<span class="w"> </span>--output<span class="w"> </span>mouse_species.yaml<span class="w"> </span>--audit-file<span class="w"> </span>mouse_audit.tsv
+</pre></div>
+</div>
+</section>
+<section id="dry-run-sanity-validation">
+<h3>Dry Run / Sanity Validation<a class="headerlink" href="#dry-run-sanity-validation" title="Link to this heading">¶</a></h3>
+<p>To check what will be included without committing the YAML immediately, you can run the pipeline and inspect the audit file:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>generate_project_yaml<span class="w"> </span>./cbp_guuids.txt<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--project<span class="w"> </span>cbp<span class="w"> </span>--output<span class="w"> </span>/dev/null<span class="w"> </span>--audit-file<span class="w"> </span>cbp_audit.tsv
+
+<span class="c1"># See what was dropped because FTP files are missing:</span>
+grep<span class="w"> </span>excluded<span class="w"> </span>cbp_audit.tsv
+
+<span class="c1"># See what genomes successfully fell back to pre-release FTP:</span>
+grep<span class="w"> </span>included_prerelease<span class="w"> </span>cbp_audit.tsv
+</pre></div>
+</div>
+</section>
+<section id="changelog-regression-detection">
+<h3>Changelog / Regression Detection<a class="headerlink" href="#changelog-regression-detection" title="Link to this heading">¶</a></h3>
+<p>Compare a newly generated YAML against a previous version to detect added, removed, or modified entries:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>generate_project_yaml<span class="w"> </span>./cbp_guuids.txt<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--project<span class="w"> </span>cbp<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--output<span class="w"> </span>cbp_species.yaml<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--changelog<span class="w"> </span>old_cbp_species.yaml
+</pre></div>
+</div>
+<p>This prints a human-readable diff summary to stdout, for example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">===</span> <span class="n">CHANGELOG</span> <span class="n">SUMMARY</span> <span class="o">===</span>
+
+<span class="n">Added</span> <span class="p">(</span><span class="mi">3</span><span class="p">):</span>
+  <span class="o">-</span> <span class="n">GCA_XXXXX</span> <span class="p">(</span><span class="n">Drosophila</span> <span class="n">melanogaster</span><span class="p">)</span>
+
+<span class="n">Removed</span> <span class="p">(</span><span class="mi">2</span><span class="p">):</span>
+  <span class="o">-</span> <span class="n">GCA_YYYYY</span> <span class="p">(</span><span class="n">Bombus</span> <span class="n">terrestris</span><span class="p">)</span>
+
+<span class="n">Modified</span> <span class="p">(</span><span class="mi">4</span><span class="p">):</span>
+  <span class="o">-</span> <span class="n">GCA_ZZZZZ</span> <span class="p">(</span><span class="n">Papilio</span> <span class="n">machaon</span><span class="p">)</span>
+    <span class="o">-</span> <span class="n">annotation_gtf</span><span class="p">:</span>
+        <span class="n">OLD</span><span class="p">:</span> <span class="o">.../</span><span class="mi">2025_09</span><span class="o">/</span><span class="n">genes</span><span class="o">.</span><span class="n">gtf</span><span class="o">.</span><span class="n">gz</span>
+        <span class="n">NEW</span><span class="p">:</span> <span class="o">.../</span><span class="mi">2025_10</span><span class="o">/</span><span class="n">genes</span><span class="o">.</span><span class="n">gtf</span><span class="o">.</span><span class="n">gz</span>
+    <span class="o">-</span> <span class="n">image</span><span class="p">:</span>
+        <span class="n">OLD</span><span class="p">:</span> <span class="n">Lepidoptera</span><span class="o">.</span><span class="n">png</span>
+        <span class="n">NEW</span><span class="p">:</span> <span class="n">Arthropods</span><span class="o">.</span><span class="n">png</span>
+
+<span class="n">Total</span><span class="p">:</span> <span class="mi">3</span> <span class="n">added</span><span class="p">,</span> <span class="mi">2</span> <span class="n">removed</span><span class="p">,</span> <span class="mi">4</span> <span class="n">modified</span><span class="o">.</span>
+</pre></div>
+</div>
+<p>To also write a machine-readable TSV changelog:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>generate_project_yaml<span class="w"> </span>./cbp_guuids.txt<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--project<span class="w"> </span>cbp<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--output<span class="w"> </span>cbp_species.yaml<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--changelog<span class="w"> </span>old_cbp_species.yaml<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--changelog-output<span class="w"> </span>cbp_changelog.tsv
+</pre></div>
+</div>
+<p>The TSV contains columns: <code class="docutils literal notranslate"><span class="pre">status</span></code>, <code class="docutils literal notranslate"><span class="pre">accession</span></code>, <code class="docutils literal notranslate"><span class="pre">species</span></code>, <code class="docutils literal notranslate"><span class="pre">field</span></code>, <code class="docutils literal notranslate"><span class="pre">old_value</span></code>, <code class="docutils literal notranslate"><span class="pre">new_value</span></code>.</p>
+<p><strong>Comparison details:</strong></p>
+<ul class="simple">
+<li><p>The comparison key is the <code class="docutils literal notranslate"><span class="pre">accession</span></code> field (or <code class="docutils literal notranslate"><span class="pre">assembly_accession</span></code> for HPRC, or <code class="docutils literal notranslate"><span class="pre">species</span></code>/<code class="docutils literal notranslate"><span class="pre">assembly</span></code> as fallback).</p></li>
+<li><p>URL trailing slashes and date format differences (<code class="docutils literal notranslate"><span class="pre">YYYY-MM</span></code> vs <code class="docutils literal notranslate"><span class="pre">YYYY_MM</span></code>) are normalised before comparison.</p></li>
+<li><p>Internal audit fields are excluded from the diff.</p></li>
+<li><p>The changelog is purely informational — it never alters the generated YAML or fails the run.</p></li>
+</ul>
+</section>
+</section>
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="ensembl.genes.projects.registry.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">ensembl.genes.projects.registry</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="ensembl.genes.projects.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">ensembl.genes.projects</div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2016-2026, EMBL-European Bioinformatics Institute
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">Projects Pages</a><ul>
+<li><a class="reference internal" href="#quick-start">Quick Start</a></li>
+<li><a class="reference internal" href="#environment-requirements">Environment Requirements</a></li>
+<li><a class="reference internal" href="#configuration">Configuration</a></li>
+<li><a class="reference internal" href="#input-file-format">Input File Format</a></li>
+<li><a class="reference internal" href="#supported-projects">Supported Projects</a></li>
+<li><a class="reference internal" href="#output">Output</a></li>
+<li><a class="reference internal" href="#publishability-rules-and-ftp-resolution">Publishability Rules and FTP Resolution</a></li>
+<li><a class="reference internal" href="#images-and-icons">Images and Icons</a></li>
+<li><a class="reference internal" href="#hprc-and-mouse-differences">HPRC and Mouse Differences</a></li>
+<li><a class="reference internal" href="#alternate-haplotype-detection">Alternate Haplotype Detection</a></li>
+<li><a class="reference internal" href="#beta-link-validation">Beta Link Validation</a></li>
+<li><a class="reference internal" href="#file-roles">File Roles</a></li>
+<li><a class="reference internal" href="#tests">Tests</a></li>
+<li><a class="reference internal" href="#further-reading">Further Reading</a></li>
+<li><a class="reference internal" href="#troubleshooting">Troubleshooting</a></li>
+<li><a class="reference internal" href="#example-commands">Example Commands</a><ul>
+<li><a class="reference internal" href="#cbp">CBP</a></li>
+<li><a class="reference internal" href="#hprc">HPRC</a></li>
+<li><a class="reference internal" href="#mouse-genomes">Mouse Genomes</a></li>
+<li><a class="reference internal" href="#dry-run-sanity-validation">Dry Run / Sanity Validation</a></li>
+<li><a class="reference internal" href="#changelog-regression-detection">Changelog / Regression Detection</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script src="../../_static/documentation_options.js?v=01f34227"></script>
+    <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../_static/scripts/furo.js?v=46bd48cc"></script>
+    </body>
+</html>

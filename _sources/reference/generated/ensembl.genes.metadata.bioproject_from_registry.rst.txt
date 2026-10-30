@@ -1,0 +1,9 @@
+ensembl.genes.metadata.bioproject_from_registry
+===============================================
+
+Source: ``src/python/ensembl/genes/metadata/bioproject_from_registry.py``
+
+.. automodule:: ensembl.genes.metadata.bioproject_from_registry
+   :members:
+   :show-inheritance:
+   :undoc-members:

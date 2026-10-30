@@ -1,0 +1,9 @@
+ensembl.genes.projects.changelog
+================================
+
+Source: ``src/python/ensembl/genes/projects/changelog.py``
+
+.. automodule:: ensembl.genes.projects.changelog
+   :members:
+   :show-inheritance:
+   :undoc-members:

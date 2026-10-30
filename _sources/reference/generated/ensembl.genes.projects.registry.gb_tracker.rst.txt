@@ -1,0 +1,9 @@
+ensembl.genes.projects.registry.gb_tracker
+==========================================
+
+Source: ``src/python/ensembl/genes/projects/registry/gb_tracker.py``
+
+.. automodule:: ensembl.genes.projects.registry.gb_tracker
+   :members:
+   :show-inheritance:
+   :undoc-members:

@@ -1,0 +1,9 @@
+ensembl.genes.registry_helper
+=============================
+
+Source: ``src/python/ensembl/genes/registry_helper.py``
+
+.. automodule:: ensembl.genes.registry_helper
+   :members:
+   :show-inheritance:
+   :undoc-members:

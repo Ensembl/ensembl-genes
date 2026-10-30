@@ -1,0 +1,22 @@
+ensembl.genes.projects.registry
+===============================
+
+Source directory: ``src/python/ensembl/genes/projects/registry``
+
+Package Contents
+----------------
+
+.. automodule:: ensembl.genes.projects.registry
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+Folders, Scripts, and Files
+---------------------------
+
+.. toctree::
+   :maxdepth: 2
+
+   gb_tracker <ensembl.genes.projects.registry.gb_tracker>
+   metadata_db <ensembl.genes.projects.registry.metadata_db>
+   ncbi_entrez <ensembl.genes.projects.registry.ncbi_entrez>

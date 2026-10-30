@@ -1,0 +1,9 @@
+ensembl.genes.transcriptomic_data.check_for_transcriptomic
+==========================================================
+
+Source: ``src/python/ensembl/genes/transcriptomic_data/check_for_transcriptomic.py``
+
+.. automodule:: ensembl.genes.transcriptomic_data.check_for_transcriptomic
+   :members:
+   :show-inheritance:
+   :undoc-members:
