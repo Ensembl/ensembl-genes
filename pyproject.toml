@@ -53,6 +53,7 @@ cicd = [
     "types-requests",
     "types-PyYAML",
     "coverage>=7,<8",
+    "yaml"
 ]
 
 [project.urls]
