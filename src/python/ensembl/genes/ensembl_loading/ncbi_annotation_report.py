@@ -23,6 +23,9 @@ NCBI_DATASETS_REPORT_URL = (
     "https://api.ncbi.nlm.nih.gov/datasets/v2/genome/accession/"
     "{accession}/dataset_report"
 )
+NCBI_DATASETS_GENOME_URL = (
+    "https://www.ncbi.nlm.nih.gov/datasets/genome/{accession}/"
+)
 
 
 class HttpResponse(Protocol):
@@ -87,7 +90,15 @@ def get_annotation_report_url(
     session: HttpSession | None = None,
     timeout: int = 20,
 ) -> str:
-    """Return NCBI's official annotation-report URL for a GCF accession."""
+    """Return the best NCBI URL for annotation provenance.
+
+    NCBI's genome dataset report does not always contain ``reportUrl``.  This
+    is valid for assemblies whose annotation was supplied or propagated by an
+    external provider rather than produced by the NCBI Eukaryotic Genome
+    Annotation Pipeline.  In that case the stable NCBI Datasets genome page
+    is the canonical provenance page and is preferable to fabricating an old
+    ``annotation_euk`` URL.
+    """
 
     accession = assembly_accession.strip()
     if not accession.upper().startswith("GCF_"):
@@ -111,11 +122,18 @@ def get_annotation_report_url(
     response = http_session.get(url, timeout=timeout)
     response.raise_for_status()
     report_url = _find_annotation_report_url(response.json())
-    if not report_url:
-        raise ValueError(
-            "NCBI did not return an annotation-report URL for " f"{assembly_accession}"
-        )
-    return report_url
+    if report_url:
+        return report_url
+
+    fallback_url = NCBI_DATASETS_GENOME_URL.format(
+        accession=quote(accession, safe="")
+    )
+    LOGGER.warning(
+        "NCBI dataset report has no annotation-report URL for %s; using %s",
+        accession,
+        fallback_url,
+    )
+    return fallback_url
 
 
 def main() -> None:
