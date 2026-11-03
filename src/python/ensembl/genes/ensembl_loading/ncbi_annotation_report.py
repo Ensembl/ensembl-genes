@@ -23,9 +23,7 @@ NCBI_DATASETS_REPORT_URL = (
     "https://api.ncbi.nlm.nih.gov/datasets/v2/genome/accession/"
     "{accession}/dataset_report"
 )
-NCBI_DATASETS_GENOME_URL = (
-    "https://www.ncbi.nlm.nih.gov/datasets/genome/{accession}/"
-)
+NCBI_DATASETS_GENOME_URL = "https://www.ncbi.nlm.nih.gov/datasets/genome/{accession}/"
 
 
 class HttpResponse(Protocol):
@@ -125,9 +123,7 @@ def get_annotation_report_url(
     if report_url:
         return report_url
 
-    fallback_url = NCBI_DATASETS_GENOME_URL.format(
-        accession=quote(accession, safe="")
-    )
+    fallback_url = NCBI_DATASETS_GENOME_URL.format(accession=quote(accession, safe=""))
     LOGGER.warning(
         "NCBI dataset report has no annotation-report URL for %s; using %s",
         accession,

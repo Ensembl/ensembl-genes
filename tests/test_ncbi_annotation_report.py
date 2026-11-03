@@ -1,5 +1,8 @@
 """Tests for NCBI annotation provenance URL resolution."""
 
+# pylint: disable=missing-class-docstring,missing-function-docstring
+# pylint: disable=too-few-public-methods,wrong-import-position
+
 from __future__ import annotations
 
 import sys
