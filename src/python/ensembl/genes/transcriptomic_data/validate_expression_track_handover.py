@@ -22,6 +22,7 @@ class HandoverValidationError(ValueError):
 
 
 def text_value(raw: Any) -> str:
+    """Return a stripped string for presence and URL checks."""
     return "" if raw is None else str(raw).strip()
 
 
@@ -73,7 +74,9 @@ def validate_record(record: Mapping[str, Any]) -> None:
     track_source = record.get("track_source")
     if track_source is not None and (
         not isinstance(track_source, dict)
-        or not all(text_value(track_source.get(key)) for key in ("name", "details", "url"))
+        or not all(
+            text_value(track_source.get(key)) for key in ("name", "details", "url")
+        )
         or urlparse(track_source["url"]).scheme not in {"http", "https"}
     ):
         raise HandoverValidationError(f"{name} has invalid track_source")
@@ -81,7 +84,9 @@ def validate_record(record: Mapping[str, Any]) -> None:
     try:
         json.dumps(record)
     except TypeError as exc:
-        raise HandoverValidationError(f"{name} is not JSON serializable: {exc}") from exc
+        raise HandoverValidationError(
+            f"{name} is not JSON serializable: {exc}"
+        ) from exc
 
 
 def validate_records(records: Any) -> list[str]:
@@ -106,6 +111,7 @@ def validate_records(records: Any) -> list[str]:
 
 
 def load_handover(path: Path) -> Any:
+    """Read and decode a handover JSON file."""
     try:
         return json.loads(path.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError) as exc:
@@ -113,12 +119,14 @@ def load_handover(path: Path) -> Any:
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
+    """Parse command-line arguments for the validator."""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("handover", type=Path)
     return parser.parse_args(argv)
 
 
 def main(argv: list[str] | None = None) -> int:
+    """Validate a handover file and print a machine-readable result."""
     args = parse_args(argv)
     try:
         records = load_handover(args.handover)

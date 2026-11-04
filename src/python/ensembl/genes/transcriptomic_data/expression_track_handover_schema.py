@@ -105,7 +105,11 @@ def presentable_label(field: str, raw: Any) -> Any:
         return standardized
     words = re.sub(r"[_-]+", " ", standardized).split()
     if len(words) < 2:
-        return standardized[:1].upper() + standardized[1:] if standardized else standardized
+        return (
+            standardized[:1].upper() + standardized[1:]
+            if standardized
+            else standardized
+        )
     return " ".join(word if word.isupper() else word.capitalize() for word in words)
 
 
@@ -169,7 +173,10 @@ class TrackMetadataPayload(BaseModel):
 
     @field_validator("metadata")
     @classmethod
-    def validate_metadata(cls, fields: dict[str, MetadataField]) -> dict[str, MetadataField]:
+    def validate_metadata(
+        cls, fields: dict[str, MetadataField]
+    ) -> dict[str, MetadataField]:
+        """Require canonical field names and recorded value normalization."""
         for field_name, field in fields.items():
             canonical_name = canonical_metadata_field_name(field_name)
             if field_name != canonical_name:
@@ -196,6 +203,7 @@ class TrackMetadataPayload(BaseModel):
 
     @model_validator(mode="after")
     def validate_display_label(self) -> "TrackMetadataPayload":
+        """Normalize controlled aggregate labels for presentation."""
         if self.selection_level == "tissue":
             self.display_label = str(presentable_label("tissue", self.display_label))
         return self

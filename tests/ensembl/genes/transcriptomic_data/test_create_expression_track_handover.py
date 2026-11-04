@@ -1,3 +1,9 @@
+"""Tests for expression-track handover generation and validation."""
+
+# Test doubles and small data builders are deliberately compact.
+# pylint: disable=missing-class-docstring,missing-function-docstring
+# pylint: disable=too-few-public-methods,use-implicit-booleaness-not-comparison
+
 from __future__ import annotations
 
 import csv
@@ -324,7 +330,10 @@ def test_draft_can_emit_placeholder_track_sources(tmp_path: Path) -> None:
         if record["track_metadata_payload"]["selection_level"] == "tissue"
     )
     assert aggregate_record["track_source"]["name"] == "ENA project placeholder"
-    assert "Source BAM provenance for aggregate" in aggregate_record["track_source"]["details"]
+    assert (
+        "Source BAM provenance for aggregate"
+        in aggregate_record["track_source"]["details"]
+    )
     assert aggregate_record["track_source"]["url"].startswith(
         "https://example.org/ena-project/"
     )
@@ -355,9 +364,9 @@ def test_validator_reports_nested_assembly_uuid_mismatch(tmp_path: Path) -> None
         ]
     )
     output, _, _ = build_handover(args, FakeAssemblyResolver())
-    output[0]["track_metadata_payload"]["target_genome"]["assembly_uuid"] = (
-        "00000000-0000-0000-0000-000000000002"
-    )
+    output[0]["track_metadata_payload"]["target_genome"][
+        "assembly_uuid"
+    ] = "00000000-0000-0000-0000-000000000002"
 
     errors = validate_records(output)
 

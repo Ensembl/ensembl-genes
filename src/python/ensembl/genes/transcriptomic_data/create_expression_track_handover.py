@@ -13,6 +13,14 @@ The resolver is kept behind :class:`AssemblyResolver` so it can be replaced by
 an API-backed adapter without changing handover rendering.
 """
 
+# This module is intentionally a single, explicit CLI boundary for assembling
+# handover records from several manifests.  Keep the data-flow checks together;
+# the standalone schema validator owns structural validation.
+# pylint: disable=too-many-lines,missing-function-docstring,missing-class-docstring
+# pylint: disable=too-few-public-methods,broad-exception-caught,redefined-outer-name
+# pylint: disable=too-many-arguments,too-many-locals,too-many-return-statements
+# pylint: disable=too-many-branches,too-many-statements,consider-using-dict-items
+
 from __future__ import annotations
 
 import argparse
@@ -691,12 +699,19 @@ def build_track_description(species: str, gca: str, row: Mapping[str, Any]) -> s
         detail = f"run {row['run_accession']}"
         if row["alignment_strand"]:
             detail += f" ({row['alignment_strand']} strand)"
-        return f"{species} RNA-seq {row['track_type'].replace('_', ' ')} track for {detail} on {gca}. Genebuild data-check pilot."
+        return (
+            f"{species} RNA-seq {row['track_type'].replace('_', ' ')} track for "
+            f"{detail} on {gca}. Genebuild data-check pilot."
+        )
     count = row.get("source_count") or len(row.get("source_runs", []))
     detail = f"tissue group {row['aggregate_label']}"
     if row["alignment_strand"]:
         detail += f" ({row['alignment_strand']} strand)"
-    return f"{species} RNA-seq {row['track_type'].replace('_', ' ')} aggregate for {detail}, combining {count} selected runs on {gca}. Genebuild data-check pilot."
+    return (
+        f"{species} RNA-seq {row['track_type'].replace('_', ' ')} aggregate for "
+        f"{detail}, combining {count} selected runs on {gca}. "
+        "Genebuild data-check pilot."
+    )
 
 
 def render_record(
