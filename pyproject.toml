@@ -21,7 +21,8 @@ dependencies = [
     "sqlalchemy >=1.4.16",
     "xmltodict",
     "pandas",
-    "PyYAML"
+    "PyYAML",
+    "pydantic>=2,<3"
 ]
 
 [project.optional-dependencies]
@@ -68,6 +69,7 @@ live_tracking = "ensembl.genes.tracking.live_tracking:main"
 check_for_transcriptomic = "ensembl.genes.transcriptomic_data.check_for_transcriptomic:main"
 get_transcriptomic_data = "ensembl.genes.transcriptomic_data.get_transcriptomic_data:main"
 select_transcriptomic_data = "ensembl.genes.transcriptomic_data.select_transcriptomic_data:main"
+create_expression_track_handover = "ensembl.genes.transcriptomic_data.create_expression_track_handover:main"
 generate_project_yaml = "ensembl.genes.projects.generate_project_yaml:main"
 
 [build-system]
