@@ -13,14 +13,6 @@ The resolver is kept behind :class:`AssemblyResolver` so it can be replaced by
 an API-backed adapter without changing handover rendering.
 """
 
-# This module is intentionally a single, explicit CLI boundary for assembling
-# handover records from several manifests.  Keep the data-flow checks together;
-# the standalone schema validator owns structural validation.
-# pylint: disable=too-many-lines,missing-function-docstring,missing-class-docstring
-# pylint: disable=too-few-public-methods,broad-exception-caught,redefined-outer-name
-# pylint: disable=too-many-arguments,too-many-locals,too-many-return-statements
-# pylint: disable=too-many-branches,too-many-statements,consider-using-dict-items
-
 from __future__ import annotations
 
 import argparse
@@ -34,12 +26,21 @@ import tempfile
 from collections import defaultdict
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Iterable, Mapping, NoReturn, Protocol
+from typing import (
+    Any,
+    cast,
+    Iterable,
+    Literal,
+    Mapping,
+    NoReturn,
+    Protocol,
+    TypedDict,
+)
 from urllib.parse import urlparse
 
 from sqlalchemy import create_engine, text as sql_text
 from sqlalchemy.engine import make_url
-from sqlalchemy.exc import ArgumentError
+from sqlalchemy.exc import ArgumentError, SQLAlchemyError
 
 from ensembl.genes.transcriptomic_data.expression_track_handover_schema import (
     ATTRIBUTE_ALIASES,
@@ -113,18 +114,53 @@ DEFAULT_AGGREGATE_PRODUCTS = (
 )
 
 
+# This CLI intentionally keeps input adapters, validation, rendering, and
+# publication together so the lifecycle remains auditable end to end.
+# pylint: disable=too-many-lines
+
+
+class ProductRow(TypedDict):
+    """Canonical representation of one product-manifest row."""
+
+    selection_level: Literal["run", "aggregate"]
+    entity_id: str
+    run_accession: str
+    aggregate_id: str
+    aggregate_label: str
+    gca_accession: str
+    track_type: str
+    product_slug: str
+    format: str
+    kind: Literal["bigwig", "bigbed"]
+    role: Literal["summary", "details"]
+    alignment_strand: str
+    track_file: str
+    status: str
+    sha256: str
+    md5: str
+    source_runs: list[str]
+    source_count: int | None
+    metadata: dict[str, Any]
+    provenance: dict[str, Any]
+    raw: dict[str, str]
+
+
 class HandoverError(ValueError):
     """A required handover invariant was violated."""
 
 
+# pylint: disable=too-few-public-methods
 class AssemblyResolver(Protocol):
     """Resolve a GCA accession to one active assembly UUID."""
 
-    def resolve(self, gca_accession: str) -> "AssemblyResolution": ...
+    def resolve(self, gca_accession: str) -> "AssemblyResolution":
+        """Resolve one assembly accession."""
 
 
 @dataclass(frozen=True)
 class AssemblyResolution:
+    """Resolved assembly identity and linked genome evidence."""
+
     gca_accession: str
     assembly_uuid: str
     linked_genomes: tuple[dict[str, Any], ...]
@@ -133,12 +169,15 @@ class AssemblyResolution:
 
 @dataclass
 class Diagnostic:
+    """One validation or consistency finding."""
+
     severity: str
     code: str
     message: str
     context: dict[str, Any]
 
     def as_dict(self) -> dict[str, Any]:
+        """Return the report representation of this diagnostic."""
         return {
             "severity": self.severity,
             "code": self.code,
@@ -148,6 +187,7 @@ class Diagnostic:
 
 
 def fail(message: str) -> NoReturn:
+    """Raise a handover error for an unrecoverable input or invariant."""
     raise HandoverError(message)
 
 
@@ -163,6 +203,7 @@ class MetadataDbAssemblyResolver:
     """Resolve assembly UUIDs using the repository's metadata DB URI style."""
 
     def __init__(self, metadata_uri: str | None = None, engine: Any | None = None):
+        """Create a resolver from a metadata URI or injected test engine."""
         if engine is not None:
             self.engine = engine
             self.metadata_uri = (
@@ -176,9 +217,7 @@ class MetadataDbAssemblyResolver:
             fail("metadata DB URI is required via --metadata-uri or METADATA_URI")
         try:
             self.engine = create_engine(uri)
-        except (
-            Exception
-        ) as exc:  # pragma: no cover - driver errors are environment-specific
+        except SQLAlchemyError as exc:  # pragma: no cover - driver-specific
             fail(
                 "cannot create metadata DB engine for "
                 f"{redacted_metadata_uri(uri)}: {type(exc).__name__}"
@@ -186,6 +225,7 @@ class MetadataDbAssemblyResolver:
         self.metadata_uri = redacted_metadata_uri(uri)
 
     def resolve(self, gca_accession: str) -> AssemblyResolution:
+        """Resolve the active assembly UUID and linked genomes."""
         uuid_query = sql_text(
             """
             SELECT DISTINCT genome.genome_uuid
@@ -225,9 +265,7 @@ class MetadataDbAssemblyResolver:
                 linked = connection.execute(
                     linked_query, {"assembly_uuid": uuids[0]}
                 ).fetchall()
-        except HandoverError:
-            raise
-        except Exception as exc:
+        except SQLAlchemyError as exc:
             fail(f"metadata DB assembly lookup failed for {gca_accession}: {exc}")
 
         linked_genomes = tuple(
@@ -247,7 +285,11 @@ class MetadataDbAssemblyResolver:
         )
 
 
+# pylint: enable=too-few-public-methods
+
+
 def json_load(path: Path) -> Any:
+    """Load one JSON input file."""
     try:
         return json.loads(path.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError) as exc:
@@ -264,12 +306,12 @@ def temporary_output_path(path: Path) -> Path:
     return Path(temporary_name)
 
 
-def write_json(path: Path, value: Any) -> None:
+def write_json(path: Path, payload: Any) -> None:
     """Write JSON through a same-directory temporary file and rename."""
     temporary_path = temporary_output_path(path)
     try:
         temporary_path.write_text(
-            json.dumps(value, indent=2, ensure_ascii=False, sort_keys=True) + "\n",
+            json.dumps(payload, indent=2, ensure_ascii=False, sort_keys=True) + "\n",
             encoding="utf-8",
         )
         os.replace(temporary_path, path)
@@ -279,6 +321,7 @@ def write_json(path: Path, value: Any) -> None:
 
 
 def read_tsv(path: Path) -> list[dict[str, str]]:
+    """Read one tab-separated input file as string dictionaries."""
     try:
         with path.open(encoding="utf-8", newline="") as handle:
             reader = csv.DictReader(handle, delimiter="\t")
@@ -289,11 +332,13 @@ def read_tsv(path: Path) -> list[dict[str, str]]:
         fail(f"cannot read TSV input {path}: {exc}")
 
 
-def value(value: Any) -> str:
-    return "" if value is None else str(value).strip()
+def value(raw: Any) -> str:
+    """Return a stripped string representation of an input value."""
+    return "" if raw is None else str(raw).strip()
 
 
 def first(row: Mapping[str, Any], *keys: str) -> str:
+    """Return the first non-empty value found under the supplied keys."""
     for key in keys:
         result = value(row.get(key))
         if result:
@@ -302,6 +347,7 @@ def first(row: Mapping[str, Any], *keys: str) -> str:
 
 
 def jsonish(raw: Any, default: Any = None) -> Any:
+    """Decode JSON text while retaining a caller-provided fallback."""
     if raw is None or raw == "":
         return default
     if not isinstance(raw, str):
@@ -313,6 +359,7 @@ def jsonish(raw: Any, default: Any = None) -> Any:
 
 
 def split_values(raw: Any) -> list[str]:
+    """Normalize list-like run identifiers from historical manifest formats."""
     parsed = jsonish(raw, raw)
     if isinstance(parsed, list):
         return [value(item) for item in parsed if value(item)]
@@ -324,12 +371,14 @@ def split_values(raw: Any) -> list[str]:
 
 
 def clean_value(raw: Any) -> Any:
+    """Collapse whitespace in string metadata values."""
     if isinstance(raw, str):
         return re.sub(r"\s+", " ", raw.strip())
     return raw
 
 
 def scalar_or_list(items: Iterable[Any]) -> Any:
+    """Return one distinct value or all distinct values as a list."""
     distinct: list[Any] = []
     for item in items:
         item = clean_value(item)
@@ -340,29 +389,34 @@ def scalar_or_list(items: Iterable[Any]) -> Any:
     return distinct[0] if len(distinct) == 1 else distinct
 
 
+# pylint: disable=too-many-arguments
 def metadata_field(
     field: str,
-    value: Any,
+    raw_value: Any,
     source: str,
     source_field: str,
     source_id: str | None = None,
     source_value: Any = None,
 ) -> dict[str, Any]:
     """Build one extensible metadata field with auditable source information."""
-    standardized = standardize_metadata_value(field, value)
+    standardized = standardize_metadata_value(field, raw_value)
     provenance: dict[str, Any] = {
         "source": source,
         "source_field": source_field,
-        "source_value": value if source_value is None else source_value,
+        "source_value": raw_value if source_value is None else source_value,
     }
     if source_id:
         provenance["source_id"] = source_id
-    if standardized != (value if source_value is None else source_value):
+    if standardized != (raw_value if source_value is None else source_value):
         provenance["normalization"] = "explicit_display_label_rule"
     return {"value": standardized, "provenance": provenance}
 
 
+# pylint: enable=too-many-arguments
+
+
 def source_attributes(record: Mapping[str, Any]) -> list[dict[str, Any]]:
+    """Normalize list- and object-shaped BioSample attributes."""
     source = record.get("attributes", record.get("metadata", {}))
     if isinstance(source, list):
         return [item for item in source if isinstance(item, dict) and "name" in item]
@@ -384,6 +438,7 @@ def source_attributes(record: Mapping[str, Any]) -> list[dict[str, Any]]:
 
 
 def biological_attributes(record: Mapping[str, Any]) -> dict[str, Any]:
+    """Canonicalize and combine BioSample attributes."""
     by_name: dict[str, list[Any]] = defaultdict(list)
     for item in source_attributes(record):
         canonical = canonical_attribute_name(item["name"])
@@ -399,6 +454,7 @@ def biological_attributes(record: Mapping[str, Any]) -> dict[str, Any]:
 
 
 def json_records(path: Path, keys: tuple[str, ...]) -> list[dict[str, Any]]:
+    """Load records from a list or a known wrapper object."""
     raw = json_load(path)
     if isinstance(raw, list):
         records = raw
@@ -425,6 +481,7 @@ def json_records(path: Path, keys: tuple[str, ...]) -> list[dict[str, Any]]:
 
 
 def load_selected(path: Path) -> dict[str, dict[str, str]]:
+    """Load selected runs and their required sample and assembly identities."""
     selected: dict[str, dict[str, str]] = {}
     for line_number, row in enumerate(read_tsv(path), start=2):
         run_id = first(row, "run_accession", "run_id", "entity_id")
@@ -448,6 +505,7 @@ def load_selected(path: Path) -> dict[str, dict[str, str]]:
 
 
 def load_run_metadata(path: Path) -> dict[str, dict[str, Any]]:
+    """Load and de-duplicate ENA run metadata."""
     runs: dict[str, dict[str, Any]] = {}
     for record in json_records(path, ("runs", "records", "data")):
         run_id = first(record, "run_accession", "run_id", "accession", "_key")
@@ -476,6 +534,7 @@ def load_run_metadata(path: Path) -> dict[str, dict[str, Any]]:
 
 
 def load_biosamples(path: Path) -> dict[str, dict[str, Any]]:
+    """Load BioSamples and retain canonical attributes plus source fields."""
     samples: dict[str, dict[str, Any]] = {}
     for record in json_records(path, ("samples", "biosamples", "records", "data")):
         sample_id = first(
@@ -505,6 +564,7 @@ def load_biosamples(path: Path) -> dict[str, dict[str, Any]]:
 
 
 def load_source_bams(path: Path | None) -> dict[str, dict[str, Any]]:
+    """Load optional source-BAM submission metadata."""
     if path is None:
         return {}
     records = (
@@ -524,6 +584,7 @@ def load_source_bams(path: Path | None) -> dict[str, dict[str, Any]]:
 
 
 def product_config(raw_type: str) -> tuple[str, dict[str, str]]:
+    """Map a historical product label to the canonical product configuration."""
     key = value(raw_type).lower()
     if key not in PRODUCTS:
         fail(f"unsupported track product: {raw_type}")
@@ -531,95 +592,107 @@ def product_config(raw_type: str) -> tuple[str, dict[str, str]]:
     return config.get("slug", key), config
 
 
-def load_product_rows(path: Path, level: str) -> list[dict[str, Any]]:
-    rows: list[dict[str, Any]] = []
+def product_row_from_raw(
+    raw: dict[str, str],
+    level: Literal["run", "aggregate"],
+    path: Path,
+    line_number: int,
+) -> ProductRow:
+    """Convert one historical manifest row to the canonical product shape."""
+    entity_id = first(raw, "entity_id", "run_accession", "aggregate_id")
+    raw_type = first(
+        raw, "product", "product_slug", "track_type", "track_product", "type"
+    )
+    track_file = first(
+        raw, "track_file", "track_path", "path", "artifact", "source_path"
+    )
+    if not entity_id or not raw_type or not track_file:
+        fail(
+            f"{path} row {line_number} requires entity_id, product type, and track_file"
+        )
+    product_slug, config = product_config(raw_type)
+    source_runs = split_values(
+        first(
+            raw,
+            "source_run_accessions",
+            "source_runs",
+            "run_accessions",
+            "constituent_run_ids",
+            "source_entity_ids",
+        )
+    )
+    if level == "run" and not source_runs:
+        source_runs = [first(raw, "run_accession", "run_id", "entity_id")]
+    source_runs = list(dict.fromkeys(source_runs))
+    metadata = jsonish(first(raw, "metadata_json", "metadata"), {})
+    provenance = jsonish(first(raw, "provenance_json", "provenance"), {})
+    if not isinstance(metadata, dict) or not isinstance(provenance, dict):
+        fail(f"{path} row {line_number} has non-object metadata/provenance JSON")
+    source_count_raw = first(raw, "source_count", "source_run_count", "run_count")
+    source_count = (
+        int(source_count_raw)
+        if source_count_raw.isdigit()
+        else (len(source_runs) if level == "run" else None)
+    )
+    return ProductRow(
+        selection_level=level,
+        entity_id=entity_id,
+        run_accession=(
+            first(raw, "run_accession", "run_id")
+            or (entity_id if level == "run" else "")
+        ),
+        aggregate_id=(
+            first(raw, "aggregate_id", "entity_id") if level == "aggregate" else ""
+        ),
+        aggregate_label=(
+            first(
+                raw,
+                "aggregate_label",
+                "tissue",
+                "label",
+                "group_label",
+                "entity_id",
+            )
+            if level == "aggregate"
+            else ""
+        ),
+        gca_accession=first(raw, "gca_accession", "assembly_accession", "assembly"),
+        track_type=config["track_type"],
+        product_slug=product_slug,
+        format=config["format"],
+        kind=cast(Literal["bigwig", "bigbed"], config["kind"]),
+        role=cast(Literal["summary", "details"], config["role"]),
+        alignment_strand=config.get("strand", ""),
+        track_file=track_file,
+        status=first(raw, "status", "product_status").lower() or "complete",
+        sha256=first(raw, "sha256", "sha_256"),
+        md5=first(raw, "md5"),
+        source_runs=source_runs,
+        source_count=source_count,
+        metadata=metadata,
+        provenance=provenance,
+        raw=raw,
+    )
+
+
+def load_product_rows(
+    path: Path, level: Literal["run", "aggregate"]
+) -> list[ProductRow]:
+    """Load and normalize product rows to the canonical internal shape."""
+    rows: list[ProductRow] = []
     seen: set[tuple[str, str]] = set()
     for line_number, raw in enumerate(read_tsv(path), start=2):
-        entity_id = first(raw, "entity_id", "run_accession", "aggregate_id")
-        raw_type = first(
-            raw, "product", "product_slug", "track_type", "track_product", "type"
-        )
-        track_file = first(
-            raw, "track_file", "track_path", "path", "artifact", "source_path"
-        )
-        if not entity_id or not raw_type or not track_file:
-            fail(
-                f"{path} row {line_number} requires entity_id, product type, and track_file"
-            )
-        product_slug, config = product_config(raw_type)
-        key = (entity_id, product_slug)
+        row = product_row_from_raw(raw, level, path, line_number)
+        key = (row["entity_id"], row["product_slug"])
         if key in seen:
             fail(f"duplicate product row in {path}: {key}")
         seen.add(key)
-        source_runs = split_values(
-            first(
-                raw,
-                "source_run_accessions",
-                "source_runs",
-                "run_accessions",
-                "constituent_run_ids",
-                "source_entity_ids",
-            )
-        )
-        if level == "run" and not source_runs:
-            source_runs = [first(raw, "run_accession", "run_id", "entity_id")]
-        metadata = jsonish(first(raw, "metadata_json", "metadata"), {})
-        provenance = jsonish(first(raw, "provenance_json", "provenance"), {})
-        if not isinstance(metadata, dict) or not isinstance(provenance, dict):
-            fail(f"{path} row {line_number} has non-object metadata/provenance JSON")
-        source_count_raw = first(raw, "source_count", "source_run_count", "run_count")
-        source_count = (
-            int(source_count_raw)
-            if source_count_raw.isdigit()
-            else (len(source_runs) if level == "run" else None)
-        )
-        rows.append(
-            {
-                "selection_level": level,
-                "entity_id": entity_id,
-                "run_accession": first(raw, "run_accession", "run_id")
-                or (entity_id if level == "run" else ""),
-                "aggregate_id": (
-                    first(raw, "aggregate_id", "entity_id")
-                    if level == "aggregate"
-                    else ""
-                ),
-                "aggregate_label": (
-                    first(
-                        raw,
-                        "aggregate_label",
-                        "tissue",
-                        "label",
-                        "group_label",
-                        "entity_id",
-                    )
-                    if level == "aggregate"
-                    else ""
-                ),
-                "gca_accession": first(
-                    raw, "gca_accession", "assembly_accession", "assembly"
-                ),
-                "track_type": config["track_type"],
-                "product_slug": product_slug,
-                "format": config["format"],
-                "kind": config["kind"],
-                "role": config["role"],
-                "alignment_strand": config.get("strand", ""),
-                "track_file": track_file,
-                "status": first(raw, "status", "product_status").lower() or "complete",
-                "sha256": first(raw, "sha256", "sha_256"),
-                "md5": first(raw, "md5"),
-                "source_runs": source_runs,
-                "source_count": source_count,
-                "metadata": metadata,
-                "provenance": provenance,
-                "raw": raw,
-            }
-        )
+        rows.append(row)
     return rows
 
 
 def sha256_file(path: Path) -> str:
+    """Calculate a SHA-256 checksum for a local artifact."""
     digest = hashlib.sha256()
     try:
         with path.open("rb") as handle:
@@ -631,6 +704,7 @@ def sha256_file(path: Path) -> str:
 
 
 def input_hash(path: Path | None) -> str | None:
+    """Return an input-file checksum when the path exists locally."""
     if path is None or not path.is_file():
         return None
     return sha256_file(path)
@@ -643,12 +717,23 @@ def add_diagnostic(
     severity: str = "error",
     **context: Any,
 ) -> None:
+    """Append one structured diagnostic to a validation result."""
     diagnostics.append(Diagnostic(severity, code, message, context))
 
 
-def validate_artifact(
-    row: dict[str, Any], diagnostics: list[Diagnostic], mode: str
-) -> bool:
+def normalize_product_row(row: ProductRow) -> ProductRow:
+    """Enrich a local product row with its computed checksum when needed."""
+    parsed = urlparse(row["track_file"])
+    path = Path(row["track_file"])
+    if not parsed.scheme and path.is_file() and not row["sha256"]:
+        return ProductRow(**{**row, "sha256": sha256_file(path)})
+    return row
+
+
+def validate_artifact(row: ProductRow, mode: str) -> tuple[bool, list[Diagnostic]]:
+    """Validate one completed product row without changing it."""
+    diagnostics: list[Diagnostic] = []
+    valid = True
     if row["status"] != "complete":
         add_diagnostic(
             diagnostics,
@@ -657,9 +742,9 @@ def validate_artifact(
             entity_id=row["entity_id"],
             product=row["product_slug"],
         )
-        return False
+        valid = False
     parsed = urlparse(row["track_file"])
-    if not parsed.scheme:
+    if valid and not parsed.scheme:
         path = Path(row["track_file"])
         if not path.is_file():
             add_diagnostic(
@@ -670,19 +755,28 @@ def validate_artifact(
                 entity_id=row["entity_id"],
                 product=row["product_slug"],
             )
-            return mode == "draft" and bool(row["sha256"])
-        actual = sha256_file(path)
-        if row["sha256"] and row["sha256"].lower() != actual:
+            valid = mode == "draft" and bool(row["sha256"])
+        elif row["sha256"] and not SHA256_RE.fullmatch(row["sha256"]):
             add_diagnostic(
                 diagnostics,
-                "checksum_mismatch",
-                f"sha256 does not match: {path}",
+                "invalid_checksum",
+                f"invalid sha256: {row['track_file']}",
                 entity_id=row["entity_id"],
                 product=row["product_slug"],
             )
-            return False
-        row["sha256"] = actual
-    elif not row["sha256"]:
+            valid = False
+        elif row["sha256"]:
+            actual = sha256_file(path)
+            if row["sha256"].lower() != actual:
+                add_diagnostic(
+                    diagnostics,
+                    "checksum_mismatch",
+                    f"sha256 does not match: {path}",
+                    entity_id=row["entity_id"],
+                    product=row["product_slug"],
+                )
+                valid = False
+    elif valid and not row["sha256"]:
         add_diagnostic(
             diagnostics,
             "missing_checksum",
@@ -690,8 +784,8 @@ def validate_artifact(
             entity_id=row["entity_id"],
             product=row["product_slug"],
         )
-        return False
-    if not SHA256_RE.fullmatch(row["sha256"]):
+        valid = False
+    if valid and not SHA256_RE.fullmatch(row["sha256"]):
         add_diagnostic(
             diagnostics,
             "invalid_checksum",
@@ -699,8 +793,8 @@ def validate_artifact(
             entity_id=row["entity_id"],
             product=row["product_slug"],
         )
-        return False
-    if row["md5"] and not MD5_RE.fullmatch(row["md5"]):
+        valid = False
+    if valid and row["md5"] and not MD5_RE.fullmatch(row["md5"]):
         add_diagnostic(
             diagnostics,
             "invalid_md5",
@@ -708,208 +802,17 @@ def validate_artifact(
             entity_id=row["entity_id"],
             product=row["product_slug"],
         )
-        return False
-    return True
+        valid = False
+    return valid, diagnostics
 
 
-def slug(raw: str) -> str:
-    return re.sub(r"[^a-z0-9]+", "_", raw.casefold()).strip("_") or "unknown"
-
-
-def accession_slug(raw: str) -> str:
-    """Keep accession case while removing unsafe name characters."""
-    return re.sub(r"[^A-Za-z0-9]+", "_", raw).strip("_") or "unknown"
-
-
-def build_track_name(
-    species: str, row: Mapping[str, Any], assembly_accession: str | None = None
-) -> str:
-    scope = "run" if row["selection_level"] == "run" else "tissue"
-    assembly = accession_slug(
-        assembly_accession or row.get("gca_accession") or "unknown_assembly"
-    )
-    entity = (
-        accession_slug(row["run_accession"])
-        if scope == "run"
-        else accession_slug(row["aggregate_id"])
-    )
-    return f"{slug(species)}_pilot_{scope}_{assembly}_{entity}_{row['product_slug']}"
-
-
-def build_track_description(species: str, gca: str, row: Mapping[str, Any]) -> str:
-    if row["selection_level"] == "run":
-        detail = f"run {row['run_accession']}"
-        if row["alignment_strand"]:
-            detail += f" ({row['alignment_strand']} strand)"
-        return (
-            f"{species} RNA-seq {row['track_type'].replace('_', ' ')} track for "
-            f"{detail} on {gca}. Genebuild data-check pilot."
-        )
-    count = row.get("source_count") or len(row.get("source_runs", []))
-    detail = f"tissue group {row['aggregate_label']}"
-    if row["alignment_strand"]:
-        detail += f" ({row['alignment_strand']} strand)"
-    return (
-        f"{species} RNA-seq {row['track_type'].replace('_', ' ')} aggregate for "
-        f"{detail}, combining {count} selected runs on {gca}. "
-        "Genebuild data-check pilot."
-    )
-
-
-def render_record(
-    row: Mapping[str, Any],
-    species: str,
-    assembly: AssemblyResolution,
-    label: str,
-    team: str,
-    user: str,
-    hierarchy: list[str],
-    run: Mapping[str, Any] | None,
-    sample: Mapping[str, Any] | None,
-    source_bams: Mapping[str, Mapping[str, Any]],
-    dummy_track_source: bool,
-) -> dict[str, Any]:
-    name = build_track_name(species, row, assembly.gca_accession)
-    track_file = row["track_file"]
-
-    if row["selection_level"] == "run":
-        if run is None or sample is None:
-            fail(f"cannot render run record without metadata: {row['run_accession']}")
-        assert sample is not None
-        metadata: dict[str, dict[str, Any]] = {}
-        for field, field_value in sample["attributes"].items():
-            sources = sample.get("attribute_sources", {}).get(field, [])
-            source = sources[0] if sources else {}
-            metadata[field] = metadata_field(
-                field,
-                field_value,
-                "ENA BioSample",
-                source.get("field", field),
-                sample["sample_accession"],
-                source.get("value"),
-            )
-        if run.get("study_accession"):
-            metadata["study"] = metadata_field(
-                "study",
-                run["study_accession"],
-                "ENA run metadata",
-                "study_accession",
-                row["run_accession"],
-            )
-        provenance: dict[str, Any] = {
-            "biosample_accession": sample["sample_accession"],
-            "run_accessions": [row["run_accession"]],
-        }
-        if run.get("study_accession"):
-            provenance["study_accession"] = run["study_accession"]
-        provenance.update(row.get("provenance", {}))
-        selection_level = "run"
-        display_label = row["run_accession"]
-    else:
-        metadata = {
-            "tissue": metadata_field(
-                "tissue",
-                presentable_label("tissue", row["aggregate_label"]),
-                "aggregate_manifest",
-                "aggregate_label",
-                row["aggregate_id"],
-                row["aggregate_label"],
-            )
-        }
-        aggregate_metadata = dict(row.get("metadata", {}))
-        # Keep the structured derived tissue field authoritative; raw
-        # aggregate metadata may contain a plain ``tissue`` string.
-        aggregate_metadata.pop("tissue", None)
-        for raw_field, field_value in aggregate_metadata.items():
-            field = canonical_metadata_field_name(raw_field)
-            metadata[field] = metadata_field(
-                field,
-                field_value,
-                "aggregate_manifest",
-                value(raw_field),
-                row["aggregate_id"],
-            )
-        provenance = {
-            "aggregate_id": row["aggregate_id"],
-            "aggregate_label": row["aggregate_label"],
-            "run_accessions": list(row["source_runs"]),
-            **row.get("provenance", {}),
-        }
-        selection_level = "tissue"
-        display_label = presentable_label("tissue", row["aggregate_label"])
-
-    payload: dict[str, Any] = {
-        "schema_version": SCHEMA_VERSION,
-        "selection_id": name,
-        "selection_level": selection_level,
-        "data_type": "rnaseq",
-        "display_label": display_label,
-        "target_genome": {
-            "species": species,
-            "assembly": assembly.gca_accession,
-            "assembly_uuid": assembly.assembly_uuid,
-        },
-        "metadata": metadata,
-        "provenance": provenance,
-        "selection_hierarchy": hierarchy,
-    }
-    record: dict[str, Any] = {
-        "team_responsible": team,
-        "user": user,
-        "name": name,
-        "description": build_track_description(species, assembly.gca_accession, row),
-        "label": label,
-        "dataset_type": DATASET_TYPE,
-        "dataset_source": {"name": track_file, "type": row["kind"]},
-        "assembly_uuid": assembly.assembly_uuid,
-        "track_files": {row["role"]: track_file},
-        "track_metadata_payload": payload,
-    }
-    if row["selection_level"] == "run":
-        submission = source_bams.get(row["run_accession"])
-        source_url = first(submission or {}, "url", "ena_url", "file_url")
-        if source_url:
-            record["track_source"] = {
-                "name": "ENA",
-                "details": f"Run {row['run_accession']}",
-                "url": source_url,
-            }
-    if dummy_track_source and "track_source" not in record:
-        if row["selection_level"] == "run":
-            run_accession = row["run_accession"]
-            record["track_source"] = {
-                "name": "ENA",
-                "details": f"Run {run_accession}",
-                "url": f"https://www.ebi.ac.uk/ena/browser/view/{run_accession}",
-            }
-        else:
-            aggregate_id = slug(row["aggregate_id"])
-            record["track_source"] = {
-                "name": "ENA project placeholder",
-                "details": (
-                    "DRAFT PLACEHOLDER - Source BAM provenance for aggregate "
-                    f"{row['aggregate_id']}"
-                ),
-                "url": f"https://example.org/ena-project/{aggregate_id}",
-            }
-    return record
-
-
-def build_handover(
-    args: argparse.Namespace,
-    resolver: AssemblyResolver | None = None,
-) -> tuple[list[dict[str, Any]], dict[str, Any], list[dict[str, Any]]]:
-    selected = load_selected(args.selected_runs)
-    runs = load_run_metadata(args.run_metadata)
-    samples = load_biosamples(args.biosamples)
-    resolver = resolver or MetadataDbAssemblyResolver(args.metadata_uri)
-    gcas = {row["gca_accession"] for row in selected.values()}
-    if len(gcas) != 1:
-        fail(f"selected runs contain multiple GCA accessions: {sorted(gcas)}")
-    assembly = resolver.resolve(next(iter(gcas)))
-    source_bams = load_source_bams(args.source_bams)
+def validate_selected_metadata(
+    selected: Mapping[str, Mapping[str, str]],
+    runs: Mapping[str, Mapping[str, Any]],
+    samples: Mapping[str, Mapping[str, Any]],
+) -> list[Diagnostic]:
+    """Validate the selected-run, ENA-run, and BioSample joins."""
     diagnostics: list[Diagnostic] = []
-
     for run_id, selected_row in selected.items():
         run = runs.get(run_id)
         if run is None:
@@ -943,78 +846,90 @@ def build_handover(
                 f"no BioSample metadata for {selected_row['sample_accession']}",
                 run_accession=run_id,
             )
+    return diagnostics
 
-    run_rows = load_product_rows(args.run_manifest, "run")
-    aggregate_rows = (
-        load_product_rows(args.aggregate_manifest, "aggregate")
-        if args.aggregate_manifest
-        else []
-    )
-    all_rows = run_rows + aggregate_rows
-    grouped: dict[tuple[str, str], list[dict[str, Any]]] = defaultdict(list)
-    for row in all_rows:
-        grouped[(row["selection_level"], row["entity_id"])].append(row)
-        row["_emit"] = validate_artifact(row, diagnostics, args.mode)
-        if row["gca_accession"] and row["gca_accession"] != assembly.gca_accession:
+
+def validate_product_row(
+    row: ProductRow,
+    selected: Mapping[str, Mapping[str, str]],
+    assembly: AssemblyResolution,
+    mode: str,
+) -> tuple[bool, list[Diagnostic]]:
+    """Validate one normalized product and return its diagnostics."""
+    valid, diagnostics = validate_artifact(row, mode)
+    if row["gca_accession"] and row["gca_accession"] != assembly.gca_accession:
+        add_diagnostic(
+            diagnostics,
+            "wrong_assembly",
+            f"product uses {row['gca_accession']}, expected {assembly.gca_accession}",
+            entity_id=row["entity_id"],
+            product=row["product_slug"],
+        )
+        valid = False
+    if row["selection_level"] == "run" and row["run_accession"] not in selected:
+        add_diagnostic(
+            diagnostics,
+            "unselected_run",
+            f"product run is not selected: {row['run_accession']}",
+            run_accession=row["run_accession"],
+        )
+        valid = False
+    if row["selection_level"] == "aggregate":
+        if row["source_count"] is not None and row["source_count"] != len(
+            row["source_runs"]
+        ):
             add_diagnostic(
                 diagnostics,
-                "wrong_assembly",
-                f"product uses {row['gca_accession']}, expected {assembly.gca_accession}",
+                "source_count_mismatch",
+                "aggregate source count differs from source-run list",
                 entity_id=row["entity_id"],
-                product=row["product_slug"],
             )
-            row["_emit"] = False
-        if row["selection_level"] == "run" and row["run_accession"] not in selected:
+            valid = False
+        if not row["source_runs"]:
             add_diagnostic(
                 diagnostics,
-                "unselected_run",
-                f"product run is not selected: {row['run_accession']}",
-                run_accession=row["run_accession"],
+                "missing_aggregate_sources",
+                "aggregate has no source-run list",
+                entity_id=row["entity_id"],
             )
-            row["_emit"] = False
-        if row["selection_level"] == "aggregate":
-            row["source_runs"] = list(dict.fromkeys(row["source_runs"]))
-            if row["source_count"] is not None and row["source_count"] != len(
-                row["source_runs"]
-            ):
-                add_diagnostic(
-                    diagnostics,
-                    "source_count_mismatch",
-                    "aggregate source count differs from source-run list",
-                    entity_id=row["entity_id"],
-                )
-                row["_emit"] = False
-            if not row["source_runs"]:
-                add_diagnostic(
-                    diagnostics,
-                    "missing_aggregate_sources",
-                    "aggregate has no source-run list",
-                    entity_id=row["entity_id"],
-                )
-                row["_emit"] = False
-            if any(run_id not in selected for run_id in row["source_runs"]):
-                add_diagnostic(
-                    diagnostics,
-                    "unselected_aggregate_source",
-                    "aggregate contains a run outside the selected set",
-                    entity_id=row["entity_id"],
-                    source_runs=row["source_runs"],
-                )
-                row["_emit"] = False
+            valid = False
+        if any(run_id not in selected for run_id in row["source_runs"]):
+            add_diagnostic(
+                diagnostics,
+                "unselected_aggregate_source",
+                "aggregate contains a run outside the selected set",
+                entity_id=row["entity_id"],
+                source_runs=row["source_runs"],
+            )
+            valid = False
+    return valid, diagnostics
 
-    for (level, entity_id), rows in grouped.items():
-        expected = set(args.run_products if level == "run" else args.aggregate_products)
-        actual = {row["product_slug"] for row in rows}
-        missing = sorted(expected - actual)
+
+def validate_product_matrix(
+    rows: list[ProductRow],
+    selected: Mapping[str, Mapping[str, str]],
+    expected_products: Mapping[str, set[str]],
+) -> list[Diagnostic]:
+    """Check product completeness for each selected entity."""
+    diagnostics: list[Diagnostic] = []
+    grouped: dict[tuple[str, str], list[ProductRow]] = defaultdict(list)
+    for row in rows:
+        grouped[(row["selection_level"], row["entity_id"])].append(row)
+    for (level, entity_id), entity_rows in grouped.items():
+        missing = expected_products[level] - {
+            row["product_slug"] for row in entity_rows
+        }
         if missing:
             add_diagnostic(
                 diagnostics,
                 "incomplete_product_matrix",
                 f"{level} entity is missing products",
                 entity_id=entity_id,
-                missing=missing,
+                missing=sorted(missing),
             )
-    product_run_ids = {row["entity_id"] for row in run_rows}
+    product_run_ids = {
+        row["entity_id"] for row in rows if row["selection_level"] == "run"
+    }
     for run_id in selected:
         if run_id not in product_run_ids:
             add_diagnostic(
@@ -1023,95 +938,391 @@ def build_handover(
                 f"selected run has no products: {run_id}",
                 run_accession=run_id,
             )
+    return diagnostics
 
-    if args.mode == "final":
-        for run_id in selected:
-            submission = source_bams.get(run_id)
-            if not submission:
-                add_diagnostic(
-                    diagnostics,
-                    "missing_source_bam_submission",
-                    f"no source-BAM submission for {run_id}",
-                    run_accession=run_id,
-                )
-                continue
-            status = first(submission, "status", "submission_status").lower()
-            source_url = first(submission, "url", "ena_url", "file_url")
-            if status not in {"submitted", "complete", "completed", "released"}:
-                add_diagnostic(
-                    diagnostics,
-                    "source_bam_not_submitted",
-                    f"source-BAM status is {status!r}",
-                    run_accession=run_id,
-                )
-            if urlparse(source_url).scheme not in {"http", "https"}:
-                add_diagnostic(
-                    diagnostics,
-                    "invalid_source_bam_url",
-                    "source-BAM URL is not verified HTTP(S)",
-                    run_accession=run_id,
-                )
-            selected_bam = first(
-                selected[run_id], "bam", "source_bam_path", "source_bam_filename"
-            )
-            submitted_bam = first(
-                submission, "source_bam_path", "source_bam_filename", "source_file"
-            )
-            if (
-                selected_bam
-                and submitted_bam
-                and Path(selected_bam).name != Path(submitted_bam).name
-            ):
-                add_diagnostic(
-                    diagnostics,
-                    "source_bam_mismatch",
-                    "source-BAM submission does not match selected source",
-                    run_accession=run_id,
-                    selected=selected_bam,
-                    submitted=submitted_bam,
-                )
 
-    output: list[dict[str, Any]] = []
+def validate_products(
+    rows: list[ProductRow],
+    selected: Mapping[str, Mapping[str, str]],
+    assembly: AssemblyResolution,
+    mode: str,
+    expected_products: Mapping[str, set[str]],
+) -> tuple[list[ProductRow], list[ProductRow], list[Diagnostic]]:
+    """Normalize and validate products, returning only rows safe to render."""
+    diagnostics: list[Diagnostic] = []
+    normalized_rows = [normalize_product_row(row) for row in rows]
+    valid_rows: list[ProductRow] = []
+
+    for row in normalized_rows:
+        valid, row_diagnostics = validate_product_row(row, selected, assembly, mode)
+        diagnostics.extend(row_diagnostics)
+        if valid:
+            valid_rows.append(row)
+
+    diagnostics.extend(
+        validate_product_matrix(normalized_rows, selected, expected_products)
+    )
+    return valid_rows, normalized_rows, diagnostics
+
+
+def validate_source_bams(
+    selected: Mapping[str, Mapping[str, str]],
+    source_bams: Mapping[str, Mapping[str, Any]],
+) -> list[Diagnostic]:
+    """Validate source-BAM submissions required for final handovers."""
+    diagnostics: list[Diagnostic] = []
+    for run_id in selected:
+        submission = source_bams.get(run_id)
+        if not submission:
+            add_diagnostic(
+                diagnostics,
+                "missing_source_bam_submission",
+                f"no source-BAM submission for {run_id}",
+                run_accession=run_id,
+            )
+            continue
+        status = first(submission, "status", "submission_status").lower()
+        source_url = first(submission, "url", "ena_url", "file_url")
+        if status not in {"submitted", "complete", "completed", "released"}:
+            add_diagnostic(
+                diagnostics,
+                "source_bam_not_submitted",
+                f"source-BAM status is {status!r}",
+                run_accession=run_id,
+            )
+        if urlparse(source_url).scheme not in {"http", "https"}:
+            add_diagnostic(
+                diagnostics,
+                "invalid_source_bam_url",
+                "source-BAM URL is not verified HTTP(S)",
+                run_accession=run_id,
+            )
+        selected_bam = first(
+            selected[run_id], "bam", "source_bam_path", "source_bam_filename"
+        )
+        submitted_bam = first(
+            submission, "source_bam_path", "source_bam_filename", "source_file"
+        )
+        if (
+            selected_bam
+            and submitted_bam
+            and Path(selected_bam).name != Path(submitted_bam).name
+        ):
+            add_diagnostic(
+                diagnostics,
+                "source_bam_mismatch",
+                "source-BAM submission does not match selected source",
+                run_accession=run_id,
+                selected=selected_bam,
+                submitted=submitted_bam,
+            )
+    return diagnostics
+
+
+def slug(raw: str) -> str:
+    """Create a lowercase filesystem- and identifier-safe slug."""
+    return re.sub(r"[^a-z0-9]+", "_", raw.casefold()).strip("_") or "unknown"
+
+
+def accession_slug(raw: str) -> str:
+    """Keep accession case while removing unsafe name characters."""
+    return re.sub(r"[^A-Za-z0-9]+", "_", raw).strip("_") or "unknown"
+
+
+def build_track_name(
+    species: str, row: Mapping[str, Any], assembly_accession: str | None = None
+) -> str:
+    """Build a stable identifier including assembly and entity identity."""
+    scope = "run" if row["selection_level"] == "run" else "tissue"
+    assembly = accession_slug(
+        assembly_accession or row.get("gca_accession") or "unknown_assembly"
+    )
+    entity = (
+        accession_slug(row["run_accession"])
+        if scope == "run"
+        else accession_slug(row["aggregate_id"])
+    )
+    return f"{slug(species)}_pilot_{scope}_{assembly}_{entity}_{row['product_slug']}"
+
+
+def build_track_description(species: str, gca: str, row: Mapping[str, Any]) -> str:
+    """Build the human-readable description for one normalized product."""
+    if row["selection_level"] == "run":
+        detail = f"run {row['run_accession']}"
+        if row["alignment_strand"]:
+            detail += f" ({row['alignment_strand']} strand)"
+        return (
+            f"{species} RNA-seq {row['track_type'].replace('_', ' ')} track for "
+            f"{detail} on {gca}. Genebuild data-check pilot."
+        )
+    count = row.get("source_count") or len(row.get("source_runs", []))
+    detail = f"tissue group {row['aggregate_label']}"
+    if row["alignment_strand"]:
+        detail += f" ({row['alignment_strand']} strand)"
+    return (
+        f"{species} RNA-seq {row['track_type'].replace('_', ' ')} aggregate for "
+        f"{detail}, combining {count} selected runs on {gca}. "
+        "Genebuild data-check pilot."
+    )
+
+
+def track_source_for_row(
+    row: ProductRow,
+    source_bams: Mapping[str, Mapping[str, Any]],
+    dummy_track_source: bool,
+) -> dict[str, str] | None:
+    """Return verified or draft-only source provenance for one row."""
+    if row["selection_level"] == "run":
+        submission = source_bams.get(row["run_accession"])
+        source_url = first(submission or {}, "url", "ena_url", "file_url")
+        if source_url:
+            return {
+                "name": "ENA",
+                "details": f"Run {row['run_accession']}",
+                "url": source_url,
+            }
+        if not dummy_track_source:
+            return None
+        run_accession = row["run_accession"]
+        return {
+            "name": "ENA",
+            "details": f"Run {run_accession}",
+            "url": f"https://www.ebi.ac.uk/ena/browser/view/{run_accession}",
+        }
+    if not dummy_track_source:
+        return None
+    aggregate_id = slug(row["aggregate_id"])
+    return {
+        "name": "ENA project placeholder",
+        "details": (
+            "DRAFT PLACEHOLDER - Source BAM provenance for aggregate "
+            f"{row['aggregate_id']}"
+        ),
+        "url": f"https://example.org/ena-project/{aggregate_id}",
+    }
+
+
+# pylint: disable=too-many-arguments
+def render_outer_record(
+    row: ProductRow,
+    args: argparse.Namespace,
+    assembly: AssemblyResolution,
+    metadata: dict[str, dict[str, Any]],
+    provenance: dict[str, Any],
+    selection_level: Literal["run", "tissue"],
+    display_label: str,
+    track_source: dict[str, str] | None,
+) -> dict[str, Any]:
+    """Render the common outer record and nested payload fields."""
+    name = build_track_name(args.species, row, assembly.gca_accession)
+    payload: dict[str, Any] = {
+        "schema_version": SCHEMA_VERSION,
+        "selection_id": name,
+        "selection_level": selection_level,
+        "data_type": "rnaseq",
+        "display_label": display_label,
+        "target_genome": {
+            "species": args.species,
+            "assembly": assembly.gca_accession,
+            "assembly_uuid": assembly.assembly_uuid,
+        },
+        "metadata": metadata,
+        "provenance": provenance,
+        "selection_hierarchy": args.selection_hierarchy,
+    }
+    record: dict[str, Any] = {
+        "team_responsible": args.team,
+        "user": args.user,
+        "name": name,
+        "description": build_track_description(
+            args.species, assembly.gca_accession, row
+        ),
+        "label": args.label,
+        "dataset_type": DATASET_TYPE,
+        "dataset_source": {"name": row["track_file"], "type": row["kind"]},
+        "assembly_uuid": assembly.assembly_uuid,
+        "track_files": {row["role"]: row["track_file"]},
+        "track_metadata_payload": payload,
+    }
+    if track_source:
+        record["track_source"] = track_source
+    return record
+
+
+def render_run_record(
+    row: ProductRow,
+    args: argparse.Namespace,
+    assembly: AssemblyResolution,
+    run: Mapping[str, Any],
+    sample: Mapping[str, Any],
+    source_bams: Mapping[str, Mapping[str, Any]],
+) -> dict[str, Any]:
+    """Render a run-level product and its BioSample metadata."""
+    metadata: dict[str, dict[str, Any]] = {}
+    for field, field_value in sample["attributes"].items():
+        sources = sample.get("attribute_sources", {}).get(field, [])
+        source = sources[0] if sources else {}
+        metadata[field] = metadata_field(
+            field,
+            field_value,
+            "ENA BioSample",
+            source.get("field", field),
+            sample["sample_accession"],
+            source.get("value"),
+        )
+    if run.get("study_accession"):
+        metadata["study"] = metadata_field(
+            "study",
+            run["study_accession"],
+            "ENA run metadata",
+            "study_accession",
+            row["run_accession"],
+        )
+    provenance: dict[str, Any] = {
+        "biosample_accession": sample["sample_accession"],
+        "run_accessions": [row["run_accession"]],
+    }
+    if run.get("study_accession"):
+        provenance["study_accession"] = run["study_accession"]
+    provenance.update(row["provenance"])
+    return render_outer_record(
+        row,
+        args,
+        assembly,
+        metadata,
+        provenance,
+        "run",
+        row["run_accession"],
+        track_source_for_row(row, source_bams, args.dummy_track_source),
+    )
+
+
+def render_aggregate_record(
+    row: ProductRow,
+    args: argparse.Namespace,
+    assembly: AssemblyResolution,
+) -> dict[str, Any]:
+    """Render an aggregate product and its aggregate metadata."""
+    metadata = {
+        "tissue": metadata_field(
+            "tissue",
+            presentable_label("tissue", row["aggregate_label"]),
+            "aggregate_manifest",
+            "aggregate_label",
+            row["aggregate_id"],
+            row["aggregate_label"],
+        )
+    }
+    aggregate_metadata = dict(row["metadata"])
+    # The structured tissue field is authoritative for aggregate records.
+    aggregate_metadata.pop("tissue", None)
+    for raw_field, field_value in aggregate_metadata.items():
+        field = canonical_metadata_field_name(raw_field)
+        metadata[field] = metadata_field(
+            field,
+            field_value,
+            "aggregate_manifest",
+            value(raw_field),
+            row["aggregate_id"],
+        )
+    provenance = {
+        "aggregate_id": row["aggregate_id"],
+        "aggregate_label": row["aggregate_label"],
+        "run_accessions": list(row["source_runs"]),
+        **row["provenance"],
+    }
+    return render_outer_record(
+        row,
+        args,
+        assembly,
+        metadata,
+        provenance,
+        "tissue",
+        presentable_label("tissue", row["aggregate_label"]),
+        track_source_for_row(row, {}, args.dummy_track_source),
+    )
+
+
+def render_records(
+    rows: list[ProductRow],
+    selected: Mapping[str, Mapping[str, str]],
+    runs: Mapping[str, Mapping[str, Any]],
+    samples: Mapping[str, Mapping[str, Any]],
+    source_bams: Mapping[str, Mapping[str, Any]],
+    args: argparse.Namespace,
+    assembly: AssemblyResolution,
+) -> list[dict[str, Any]]:
+    """Render valid normalized rows without changing validation state."""
+    records: list[dict[str, Any]] = []
     for row in sorted(
-        all_rows,
+        rows,
         key=lambda item: (
             item["selection_level"],
             item["entity_id"],
             item["product_slug"],
         ),
     ):
-        if not row.get("_emit"):
-            continue
         if row["selection_level"] == "run":
             selected_row = selected[row["run_accession"]]
             run = runs.get(row["run_accession"])
             sample = samples.get(selected_row["sample_accession"])
             if run is None or sample is None:
                 continue
-        else:
-            run = sample = None
-        output.append(
-            render_record(
-                row,
-                args.species,
-                assembly,
-                args.label,
-                args.team,
-                args.user,
-                args.selection_hierarchy,
-                run,
-                sample,
-                source_bams,
-                args.dummy_track_source,
+            records.append(
+                render_run_record(row, args, assembly, run, sample, source_bams)
             )
-        )
+        else:
+            records.append(render_aggregate_record(row, args, assembly))
+    names = [record["name"] for record in records]
+    if len(names) != len(set(names)):
+        fail("duplicate output name detected")
+    return records
 
-    names: set[str] = set()
-    for record in output:
-        if record["name"] in names:
-            fail(f"duplicate output name: {record['name']}")
-        names.add(record["name"])
-    report = {
+
+def load_handover_inputs(
+    args: argparse.Namespace,
+) -> tuple[
+    dict[str, dict[str, str]],
+    dict[str, dict[str, Any]],
+    dict[str, dict[str, Any]],
+    dict[str, dict[str, Any]],
+    list[ProductRow],
+]:
+    """Load all manifests and normalize product rows at the input boundary."""
+    selected = load_selected(args.selected_runs)
+    runs = load_run_metadata(args.run_metadata)
+    samples = load_biosamples(args.biosamples)
+    source_bams = load_source_bams(args.source_bams)
+    run_rows = load_product_rows(args.run_manifest, "run")
+    aggregate_rows = (
+        load_product_rows(args.aggregate_manifest, "aggregate")
+        if args.aggregate_manifest
+        else []
+    )
+    return selected, runs, samples, source_bams, run_rows + aggregate_rows
+
+
+def resolve_assembly(
+    selected: Mapping[str, Mapping[str, str]], resolver: AssemblyResolver
+) -> AssemblyResolution:
+    """Resolve the single assembly accession represented by selected runs."""
+    gcas = {row["gca_accession"] for row in selected.values()}
+    if len(gcas) != 1:
+        fail(f"selected runs contain multiple GCA accessions: {sorted(gcas)}")
+    return resolver.resolve(next(iter(gcas)))
+
+
+# pylint: disable=too-many-arguments
+def build_report(
+    args: argparse.Namespace,
+    selected: Mapping[str, Mapping[str, str]],
+    rows: list[ProductRow],
+    assembly: AssemblyResolution,
+    output: list[dict[str, Any]],
+    diagnostics: list[Diagnostic],
+) -> dict[str, Any]:
+    """Build the report from immutable inputs, records, and diagnostics."""
+    return {
         "mode": args.mode,
         "assembly": {
             "gca_accession": assembly.gca_accession,
@@ -1120,8 +1331,12 @@ def build_handover(
             "evidence": assembly.evidence,
         },
         "selected_run_count": len(selected),
-        "run_entity_count": len({row["entity_id"] for row in run_rows}),
-        "tissue_entity_count": len({row["entity_id"] for row in aggregate_rows}),
+        "run_entity_count": len(
+            {row["entity_id"] for row in rows if row["selection_level"] == "run"}
+        ),
+        "tissue_entity_count": len(
+            {row["entity_id"] for row in rows if row["selection_level"] == "aggregate"}
+        ),
         "run_record_count": sum(
             record["track_metadata_payload"]["selection_level"] == "run"
             for record in output
@@ -1145,21 +1360,61 @@ def build_handover(
             if path is not None
         },
     }
+
+
+def build_handover(
+    args: argparse.Namespace,
+    resolver: AssemblyResolver | None = None,
+) -> tuple[list[dict[str, Any]], dict[str, Any], list[ProductRow]]:
+    """Build validated handover records and their diagnostic report."""
+    selected, runs, samples, source_bams, all_rows = load_handover_inputs(args)
+    assembly = resolve_assembly(
+        selected, resolver or MetadataDbAssemblyResolver(args.metadata_uri)
+    )
+    diagnostics = validate_selected_metadata(selected, runs, samples)
+
+    valid_rows, normalized_rows, product_diagnostics = validate_products(
+        all_rows,
+        selected,
+        assembly,
+        args.mode,
+        {
+            "run": set(args.run_products),
+            "aggregate": set(args.aggregate_products),
+        },
+    )
+    diagnostics.extend(product_diagnostics)
+    if args.mode == "final":
+        diagnostics.extend(validate_source_bams(selected, source_bams))
+
+    output = render_records(
+        valid_rows,
+        selected,
+        runs,
+        samples,
+        source_bams,
+        args,
+        assembly,
+    )
     validation_errors = validate_records(output)
     if validation_errors:
-        report["diagnostics"].extend(
-            Diagnostic(
-                "error",
-                "generated_record_invalid",
-                error,
-                {},
-            ).as_dict()
+        diagnostics.extend(
+            Diagnostic("error", "generated_record_invalid", error, {})
             for error in validation_errors
         )
-    return output, report, all_rows
+    report = build_report(
+        args,
+        selected,
+        all_rows,
+        assembly,
+        output,
+        diagnostics,
+    )
+    return output, report, normalized_rows
 
 
-def write_normalized(path: Path, rows: list[dict[str, Any]]) -> None:
+def write_normalized(path: Path, rows: list[ProductRow]) -> None:
+    """Write the normalized product manifest atomically."""
     columns = [
         "selection_level",
         "entity_id",
@@ -1205,6 +1460,7 @@ def write_normalized(path: Path, rows: list[dict[str, Any]]) -> None:
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
+    """Parse command-line configuration for the handover generator."""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--selected-runs", type=Path, required=True)
     parser.add_argument("--run-metadata", type=Path, required=True)
@@ -1252,6 +1508,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
 
 
 def main(argv: list[str] | None = None) -> int:
+    """Run the generator CLI and publish outputs when validation succeeds."""
     args = parse_args(argv)
     if args.mode == "final" and args.source_bams is None:
         print("--source-bams is required in final mode", file=sys.stderr)
