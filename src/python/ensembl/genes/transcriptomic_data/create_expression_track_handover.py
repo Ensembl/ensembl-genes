@@ -30,6 +30,7 @@ import json
 import os
 import re
 import sys
+import tempfile
 from collections import defaultdict
 from dataclasses import dataclass
 from pathlib import Path
@@ -37,6 +38,8 @@ from typing import Any, Iterable, Mapping, NoReturn, Protocol
 from urllib.parse import urlparse
 
 from sqlalchemy import create_engine, text as sql_text
+from sqlalchemy.engine import make_url
+from sqlalchemy.exc import ArgumentError
 
 from ensembl.genes.transcriptomic_data.expression_track_handover_schema import (
     ATTRIBUTE_ALIASES,
@@ -44,6 +47,9 @@ from ensembl.genes.transcriptomic_data.expression_track_handover_schema import (
     canonical_metadata_field_name,
     presentable_label,
     standardize_metadata_value,
+)
+from ensembl.genes.transcriptomic_data.validate_expression_track_handover import (
+    validate_records,
 )
 
 
@@ -145,13 +151,25 @@ def fail(message: str) -> NoReturn:
     raise HandoverError(message)
 
 
+def redacted_metadata_uri(uri: str) -> str:
+    """Return database identity without password or query credentials."""
+    try:
+        return make_url(uri).set(query={}).render_as_string(hide_password=True)
+    except ArgumentError:
+        return "<redacted metadata DB URI>"
+
+
 class MetadataDbAssemblyResolver:
     """Resolve assembly UUIDs using the repository's metadata DB URI style."""
 
     def __init__(self, metadata_uri: str | None = None, engine: Any | None = None):
         if engine is not None:
             self.engine = engine
-            self.metadata_uri = metadata_uri or "injected-engine"
+            self.metadata_uri = (
+                redacted_metadata_uri(metadata_uri)
+                if metadata_uri
+                else "injected-engine"
+            )
             return
         uri = metadata_uri or os.getenv("METADATA_URI")
         if not uri:
@@ -161,8 +179,11 @@ class MetadataDbAssemblyResolver:
         except (
             Exception
         ) as exc:  # pragma: no cover - driver errors are environment-specific
-            fail(f"cannot create metadata DB engine: {exc}")
-        self.metadata_uri = uri
+            fail(
+                "cannot create metadata DB engine for "
+                f"{redacted_metadata_uri(uri)}: {type(exc).__name__}"
+            )
+        self.metadata_uri = redacted_metadata_uri(uri)
 
     def resolve(self, gca_accession: str) -> AssemblyResolution:
         uuid_query = sql_text(
@@ -233,12 +254,28 @@ def json_load(path: Path) -> Any:
         fail(f"cannot read JSON input {path}: {exc}")
 
 
-def write_json(path: Path, value: Any) -> None:
+def temporary_output_path(path: Path) -> Path:
+    """Create a temporary sibling path for an atomic output publication."""
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(
-        json.dumps(value, indent=2, ensure_ascii=False, sort_keys=True) + "\n",
-        encoding="utf-8",
+    file_descriptor, temporary_name = tempfile.mkstemp(
+        prefix=f".{path.name}.", suffix=".tmp", dir=path.parent
     )
+    os.close(file_descriptor)
+    return Path(temporary_name)
+
+
+def write_json(path: Path, value: Any) -> None:
+    """Write JSON through a same-directory temporary file and rename."""
+    temporary_path = temporary_output_path(path)
+    try:
+        temporary_path.write_text(
+            json.dumps(value, indent=2, ensure_ascii=False, sort_keys=True) + "\n",
+            encoding="utf-8",
+        )
+        os.replace(temporary_path, path)
+    except OSError:
+        temporary_path.unlink(missing_ok=True)
+        raise
 
 
 def read_tsv(path: Path) -> list[dict[str, str]]:
@@ -684,14 +721,19 @@ def accession_slug(raw: str) -> str:
     return re.sub(r"[^A-Za-z0-9]+", "_", raw).strip("_") or "unknown"
 
 
-def build_track_name(species: str, row: Mapping[str, Any]) -> str:
+def build_track_name(
+    species: str, row: Mapping[str, Any], assembly_accession: str | None = None
+) -> str:
     scope = "run" if row["selection_level"] == "run" else "tissue"
+    assembly = accession_slug(
+        assembly_accession or row.get("gca_accession") or "unknown_assembly"
+    )
     entity = (
         accession_slug(row["run_accession"])
         if scope == "run"
-        else slug(row["aggregate_label"])
+        else accession_slug(row["aggregate_id"])
     )
-    return f"{slug(species)}_pilot_{scope}_{entity}_{row['product_slug']}"
+    return f"{slug(species)}_pilot_{scope}_{assembly}_{entity}_{row['product_slug']}"
 
 
 def build_track_description(species: str, gca: str, row: Mapping[str, Any]) -> str:
@@ -727,7 +769,7 @@ def render_record(
     source_bams: Mapping[str, Mapping[str, Any]],
     dummy_track_source: bool,
 ) -> dict[str, Any]:
-    name = build_track_name(species, row)
+    name = build_track_name(species, row, assembly.gca_accession)
     track_file = row["track_file"]
 
     if row["selection_level"] == "run":
@@ -1103,6 +1145,17 @@ def build_handover(
             if path is not None
         },
     }
+    validation_errors = validate_records(output)
+    if validation_errors:
+        report["diagnostics"].extend(
+            Diagnostic(
+                "error",
+                "generated_record_invalid",
+                error,
+                {},
+            ).as_dict()
+            for error in validation_errors
+        )
     return output, report, all_rows
 
 
@@ -1126,24 +1179,29 @@ def write_normalized(path: Path, rows: list[dict[str, Any]]) -> None:
         "metadata_json",
         "provenance_json",
     ]
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with path.open("w", encoding="utf-8", newline="") as handle:
-        writer = csv.DictWriter(
-            handle, fieldnames=columns, delimiter="\t", extrasaction="ignore"
-        )
-        writer.writeheader()
-        for row in rows:
-            output = dict(row)
-            output["source_run_accessions"] = json.dumps(
-                row.get("source_runs", []), sort_keys=True
+    temporary_path = temporary_output_path(path)
+    try:
+        with temporary_path.open("w", encoding="utf-8", newline="") as handle:
+            writer = csv.DictWriter(
+                handle, fieldnames=columns, delimiter="\t", extrasaction="ignore"
             )
-            output["metadata_json"] = json.dumps(
-                row.get("metadata", {}), sort_keys=True
-            )
-            output["provenance_json"] = json.dumps(
-                row.get("provenance", {}), sort_keys=True
-            )
-            writer.writerow(output)
+            writer.writeheader()
+            for row in rows:
+                output = dict(row)
+                output["source_run_accessions"] = json.dumps(
+                    row.get("source_runs", []), sort_keys=True
+                )
+                output["metadata_json"] = json.dumps(
+                    row.get("metadata", {}), sort_keys=True
+                )
+                output["provenance_json"] = json.dumps(
+                    row.get("provenance", {}), sort_keys=True
+                )
+                writer.writerow(output)
+        os.replace(temporary_path, path)
+    except OSError:
+        temporary_path.unlink(missing_ok=True)
+        raise
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
@@ -1214,6 +1272,41 @@ def main(argv: list[str] | None = None) -> int:
         for record in output:
             if attributes:
                 record["dataset_attribute"] = attributes
+
+        validation_errors = [
+            diagnostic
+            for diagnostic in report["diagnostics"]
+            if diagnostic["code"] == "generated_record_invalid"
+        ]
+        if validation_errors:
+            write_json(args.report_out, report)
+            print(
+                json.dumps(
+                    {
+                        "valid": False,
+                        "report": str(args.report_out),
+                        "errors": validation_errors,
+                    },
+                    indent=2,
+                ),
+                file=sys.stderr,
+            )
+            return 1
+        if args.mode == "final" and report["diagnostics"]:
+            write_json(args.report_out, report)
+            print(
+                json.dumps(
+                    {
+                        "valid": False,
+                        "report": str(args.report_out),
+                        "diagnostics": len(report["diagnostics"]),
+                    },
+                    indent=2,
+                ),
+                file=sys.stderr,
+            )
+            return 1
+
         write_json(args.out, output)
         write_normalized(args.normalized_out, rows)
         write_json(args.report_out, report)
@@ -1229,7 +1322,7 @@ def main(argv: list[str] | None = None) -> int:
                 indent=2,
             )
         )
-        return 1 if args.mode == "final" and report["diagnostics"] else 0
+        return 0
     except HandoverError as exc:
         print(str(exc), file=sys.stderr)
         return 1

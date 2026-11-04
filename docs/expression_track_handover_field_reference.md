@@ -27,7 +27,7 @@ generation rejects `--dummy-track-source`.
   "dataset_type": "expression_tracks",
   "description": "Sus scrofa RNA-seq rnaseq coverage track for run DRR169427 (forward strand) on GCA_000003025.6. Genebuild data-check pilot.",
   "label": "pig-pilot-20261104-r1",
-  "name": "sus_scrofa_pilot_run_DRR169427_coverage_forward",
+  "name": "sus_scrofa_pilot_run_GCA_000003025_6_DRR169427_coverage_forward",
   "team_responsible": "genebuild",
   "track_files": {
     "summary": "/hps/nobackup/flicek/ensembl/genebuild/jackt/expression_tracks/pig-pilot/run_level/GCA_000003025.6/DRR169427/coverage_forward/DRR169427.forward.bw"
@@ -92,7 +92,7 @@ generation rejects `--dummy-track-source`.
       "study_accession": "PRJDB7878"
     },
     "schema_version": "transcriptomic-selection-0.3.1",
-    "selection_id": "sus_scrofa_pilot_run_DRR169427_coverage_forward",
+    "selection_id": "sus_scrofa_pilot_run_GCA_000003025_6_DRR169427_coverage_forward",
     "selection_hierarchy": [
       "tissue",
       "biosample",
@@ -120,7 +120,7 @@ generation rejects `--dummy-track-source`.
 | --- | --- | --- |
 | `team_responsible` | Identifies the submitting Ensembl team. | Command configuration: `--team`, default `genebuild`. |
 | `user` | Identifies the submitting user. | Command configuration: `--user`. |
-| `name` | Stable unique name for this submitted physical track. | Deterministically generated from species, run accession, and product slug. |
+| `name` | Stable unique name for this submitted physical track. | Deterministically generated from species, assembly accession, run or aggregate identity, and product slug. |
 | `description` | Human-readable description for the track. | Generated from normalized species, run, strand, assembly, and product fields; paths are deliberately excluded. |
 | `label` | Groups records belonging to one handover preparation/release. | Command configuration: `--label`. |
 | `dataset_type` | Tells the receiver that this is an expression-track dataset. | Renderer constant: `expression_tracks`. |
@@ -136,7 +136,7 @@ generation rejects `--dummy-track-source`.
 | Field | Purpose | Source in this record |
 | --- | --- | --- |
 | `schema_version` | Version of the internal transcriptomic payload convention. | Renderer/project convention: `transcriptomic-selection-0.3.1`. |
-| `selection_id` | Internal identity of the selected track product. | Same deterministic identity as the outer `name`. |
+| `selection_id` | Internal identity of the selected track product. | Same deterministic identity as the outer `name`; includes assembly and stable entity identity. |
 | `selection_level` | States what biological entity the record represents. | Derived from the product manifest: `run`. Tissue aggregates use `tissue`. |
 | `data_type` | Describes the assay/data family. | Project convention: `rnaseq`. |
 | `display_label` | Presentable label suitable for a selector or browser UI. | Run accession for run-level records; standardized aggregate label for tissue-level records. Machine identifiers remain in `name` and `selection_id`. |

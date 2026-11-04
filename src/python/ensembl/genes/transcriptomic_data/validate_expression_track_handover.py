@@ -1,5 +1,8 @@
 """Validate an expression-track handover JSON file."""
 
+# The outer contract intentionally checks several independent record invariants.
+# pylint: disable=too-many-branches
+
 from __future__ import annotations
 
 import argparse
@@ -52,6 +55,10 @@ def validate_record(record: Mapping[str, Any]) -> None:
         raise HandoverValidationError(
             f"{name} has invalid track_metadata_payload: {exc}"
         ) from exc
+    if name != payload.selection_id:
+        raise HandoverValidationError(
+            f"{name} does not match track_metadata_payload.selection_id"
+        )
     if str(payload.target_genome.assembly_uuid) != str(record["assembly_uuid"]):
         raise HandoverValidationError(f"{name} has inconsistent assembly UUIDs")
 
@@ -66,10 +73,17 @@ def validate_record(record: Mapping[str, Any]) -> None:
     files = record["track_files"]
     if not isinstance(files, dict) or not files or set(files) - {"details", "summary"}:
         raise HandoverValidationError(f"{name} has invalid track_files")
+    if not all(isinstance(path, str) and text_value(path) for path in files.values()):
+        raise HandoverValidationError(f"{name} has empty or invalid track file paths")
     if source["type"] == "bigwig" and set(files) != {"summary"}:
         raise HandoverValidationError(f"{name} BigWig must map to summary")
     if source["type"] == "bigbed" and set(files) != {"details"}:
         raise HandoverValidationError(f"{name} BigBed must map to details")
+    role = "summary" if source["type"] == "bigwig" else "details"
+    if source["name"] != files[role]:
+        raise HandoverValidationError(
+            f"{name} dataset_source.name must match track_files.{role}"
+        )
 
     track_source = record.get("track_source")
     if track_source is not None and (

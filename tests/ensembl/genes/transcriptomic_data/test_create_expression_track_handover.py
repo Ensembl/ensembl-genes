@@ -11,11 +11,13 @@ import hashlib
 import json
 from pathlib import Path
 
+import ensembl.genes.transcriptomic_data.create_expression_track_handover as handover_module
 from ensembl.genes.transcriptomic_data.create_expression_track_handover import (
     AssemblyResolution,
     HandoverError,
     MetadataDbAssemblyResolver,
     build_handover,
+    main,
     parse_args,
 )
 from ensembl.genes.transcriptomic_data.validate_expression_track_handover import (
@@ -250,7 +252,7 @@ def test_builds_expected_run_and_tissue_records(tmp_path: Path) -> None:
     aggregate_record = next(
         record
         for record in output
-        if "tissue_brain_cns_coverage_forward" in record["name"]
+        if "tissue_GCA_000003025_6_AGG_BRAIN_coverage_forward" in record["name"]
     )
     aggregate_tissue = aggregate_record["track_metadata_payload"]["metadata"]["tissue"]
     assert aggregate_tissue["value"] == "Brain CNS"
@@ -267,7 +269,10 @@ def test_builds_expected_run_and_tissue_records(tmp_path: Path) -> None:
 
 def test_metadata_db_resolver_returns_uuid_and_linked_genomes() -> None:
     resolver = MetadataDbAssemblyResolver(
-        metadata_uri="mysql+pymysql://example/metadata",
+        metadata_uri=(
+            "mysql+pymysql://ensro:secret@mysql-ens-production-1:4721/"
+            "ensembl_genome_metadata?token=also-secret"
+        ),
         engine=FakeEngine(
             [("00000000-0000-0000-0000-000000000001",)],
             [
@@ -284,6 +289,11 @@ def test_metadata_db_resolver_returns_uuid_and_linked_genomes() -> None:
         "00000000-0000-0000-0000-000000000001",
         "linked-uuid",
     }
+    assert result.evidence["metadata_uri"] == (
+        "mysql+pymysql://ensro:***@mysql-ens-production-1:4721/"
+        "ensembl_genome_metadata"
+    )
+    assert "secret" not in json.dumps(result.evidence)
 
 
 def test_draft_can_emit_placeholder_track_sources(tmp_path: Path) -> None:
@@ -384,3 +394,142 @@ def test_metadata_db_resolver_rejects_ambiguous_uuid() -> None:
         assert "exactly one" in str(exc)
     else:
         raise AssertionError("ambiguous assembly lookup should fail")
+
+
+def test_validator_rejects_outer_and_nested_inconsistencies(tmp_path: Path) -> None:
+    files = make_inputs(tmp_path)
+    args = parse_args(
+        [
+            "--selected-runs",
+            str(files["selected"]),
+            "--run-metadata",
+            str(files["run_metadata"]),
+            "--biosamples",
+            str(files["biosamples"]),
+            "--run-manifest",
+            str(files["run_manifest"]),
+            "--aggregate-manifest",
+            str(files["aggregate_manifest"]),
+            "--mode",
+            "draft",
+            "--out",
+            str(tmp_path / "handover.json"),
+            "--normalized-out",
+            str(tmp_path / "normalized.tsv"),
+            "--report-out",
+            str(tmp_path / "report.json"),
+        ]
+    )
+    output, _, _ = build_handover(args, FakeAssemblyResolver())
+
+    wrong_name = dict(output[0])
+    wrong_name["name"] = "different-name"
+    assert any(
+        "does not match track_metadata_payload.selection_id" in error
+        for error in validate_records([wrong_name])
+    )
+
+    wrong_source = dict(output[0])
+    wrong_source["track_files"] = {"summary": "different-track.bw"}
+    assert any(
+        "dataset_source.name must match track_files.summary" in error
+        for error in validate_records([wrong_source])
+    )
+
+
+def test_final_failure_writes_report_without_publishing_outputs(
+    tmp_path: Path, monkeypatch
+) -> None:
+    files = make_inputs(tmp_path)
+    source_bams = tmp_path / "source_bams.json"
+    write_json(source_bams, [])
+    output_path = tmp_path / "handover.json"
+    normalized_path = tmp_path / "normalized.tsv"
+    report_path = tmp_path / "report.json"
+    monkeypatch.setattr(
+        handover_module,
+        "MetadataDbAssemblyResolver",
+        lambda _uri: FakeAssemblyResolver(),
+    )
+
+    exit_code = main(
+        [
+            "--selected-runs",
+            str(files["selected"]),
+            "--run-metadata",
+            str(files["run_metadata"]),
+            "--biosamples",
+            str(files["biosamples"]),
+            "--run-manifest",
+            str(files["run_manifest"]),
+            "--aggregate-manifest",
+            str(files["aggregate_manifest"]),
+            "--source-bams",
+            str(source_bams),
+            "--mode",
+            "final",
+            "--out",
+            str(output_path),
+            "--normalized-out",
+            str(normalized_path),
+            "--report-out",
+            str(report_path),
+        ]
+    )
+
+    assert exit_code == 1
+    assert not output_path.exists()
+    assert not normalized_path.exists()
+    report = json.loads(report_path.read_text(encoding="utf-8"))
+    assert any(
+        diagnostic["code"] == "missing_source_bam_submission"
+        for diagnostic in report["diagnostics"]
+    )
+
+
+def test_generator_rejects_invalid_generated_payload(
+    tmp_path: Path, monkeypatch
+) -> None:
+    files = make_inputs(tmp_path)
+    output_path = tmp_path / "handover.json"
+    normalized_path = tmp_path / "normalized.tsv"
+    report_path = tmp_path / "report.json"
+    monkeypatch.setattr(
+        handover_module,
+        "MetadataDbAssemblyResolver",
+        lambda _uri: FakeAssemblyResolver(),
+    )
+
+    exit_code = main(
+        [
+            "--selected-runs",
+            str(files["selected"]),
+            "--run-metadata",
+            str(files["run_metadata"]),
+            "--biosamples",
+            str(files["biosamples"]),
+            "--run-manifest",
+            str(files["run_manifest"]),
+            "--aggregate-manifest",
+            str(files["aggregate_manifest"]),
+            "--selection-hierarchy",
+            "",
+            "--mode",
+            "draft",
+            "--out",
+            str(output_path),
+            "--normalized-out",
+            str(normalized_path),
+            "--report-out",
+            str(report_path),
+        ]
+    )
+
+    assert exit_code == 1
+    assert not output_path.exists()
+    assert not normalized_path.exists()
+    report = json.loads(report_path.read_text(encoding="utf-8"))
+    assert any(
+        diagnostic["code"] == "generated_record_invalid"
+        for diagnostic in report["diagnostics"]
+    )
