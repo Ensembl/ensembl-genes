@@ -12,6 +12,9 @@ from ensembl.genes.transcriptomic_data.create_expression_track_handover import (
     build_handover,
     parse_args,
 )
+from ensembl.genes.transcriptomic_data.validate_expression_track_handover import (
+    validate_records,
+)
 
 
 class FakeAssemblyResolver:
@@ -196,6 +199,7 @@ def test_builds_expected_run_and_tissue_records(tmp_path: Path) -> None:
 
     output, report, _ = build_handover(args, FakeAssemblyResolver())
 
+    assert validate_records(output) == []
     assert len(output) == 11
     assert report["run_record_count"] == 8
     assert report["tissue_record_count"] == 3
@@ -324,6 +328,40 @@ def test_draft_can_emit_placeholder_track_sources(tmp_path: Path) -> None:
     assert aggregate_record["track_source"]["url"].startswith(
         "https://example.org/ena-project/"
     )
+
+
+def test_validator_reports_nested_assembly_uuid_mismatch(tmp_path: Path) -> None:
+    files = make_inputs(tmp_path)
+    args = parse_args(
+        [
+            "--selected-runs",
+            str(files["selected"]),
+            "--run-metadata",
+            str(files["run_metadata"]),
+            "--biosamples",
+            str(files["biosamples"]),
+            "--run-manifest",
+            str(files["run_manifest"]),
+            "--aggregate-manifest",
+            str(files["aggregate_manifest"]),
+            "--mode",
+            "draft",
+            "--out",
+            str(tmp_path / "handover.json"),
+            "--normalized-out",
+            str(tmp_path / "normalized.tsv"),
+            "--report-out",
+            str(tmp_path / "report.json"),
+        ]
+    )
+    output, _, _ = build_handover(args, FakeAssemblyResolver())
+    output[0]["track_metadata_payload"]["target_genome"]["assembly_uuid"] = (
+        "00000000-0000-0000-0000-000000000002"
+    )
+
+    errors = validate_records(output)
+
+    assert any("inconsistent assembly UUIDs" in error for error in errors)
 
 
 def test_metadata_db_resolver_rejects_ambiguous_uuid() -> None:

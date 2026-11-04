@@ -163,8 +163,8 @@ fact while `source_value` preserves the original text.
 
 ## Draft Pydantic specification
 
-The generator defines `TrackMetadataPayload` as a Pydantic model and validates
-each payload before writing the handover JSON. It currently enforces the
+The shared schema module defines `TrackMetadataPayload` as a Pydantic model.
+The standalone validator validates each record before handover. It currently enforces the
 `run`/`tissue` selection levels, `rnaseq` data type, UUID-shaped assembly
 identifiers, canonical metadata field names, and the provenance requirement
 for normalized values. File format and role are represented by the outer
@@ -174,5 +174,11 @@ allowed because the Confluence contract does not yet define this nested schema.
 The JSON Schema can be emitted with:
 
 ```bash
-uv run python -c 'import json; from ensembl.genes.transcriptomic_data.create_expression_track_handover import TrackMetadataPayload; print(json.dumps(TrackMetadataPayload.model_json_schema(), indent=2))'
+uv run python -c 'import json; from ensembl.genes.transcriptomic_data.expression_track_handover_schema import TrackMetadataPayload; print(json.dumps(TrackMetadataPayload.model_json_schema(), indent=2))'
+```
+
+Validate an existing handover with:
+
+```bash
+uv run validate_expression_track_handover path/to/handover.json
 ```
