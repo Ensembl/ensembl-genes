@@ -56,6 +56,16 @@ def _clean_id(value: object) -> str:
     return value
 
 
+def _clean_id_series(values: pd.Series) -> pd.Series:
+    """Vectorize the common GFF/GTF identifier cleanup rules."""
+    cleaned = values.astype("string")
+    cleaned = cleaned.str.split(",", n=1).str[0].str.strip()
+    for prefix in ("gene:", "transcript:", "mRNA:"):
+        prefixed = cleaned.str.startswith(prefix, na=False)
+        cleaned.loc[prefixed] = cleaned.loc[prefixed].str.slice(len(prefix))
+    return cleaned.mask(cleaned == "", pd.NA)
+
+
 def standardize_annotation(annotation) -> pd.DataFrame:
     """Normalize common GFF3/GTF columns used by annotation-QC metrics."""
     df = _as_dataframe(annotation)
@@ -81,15 +91,14 @@ def standardize_annotation(annotation) -> pd.DataFrame:
     transcript_mask = feature.isin(TRANSCRIPT_FEATURE_TYPES)
     child_mask = ~(gene_mask | transcript_mask)
 
-    for index in df.index:
-        if gene_mask.loc[index] and pd.isna(df.at[index, "gene_id"]):
-            df.at[index, "gene_id"] = _clean_id(df.at[index, "ID"])
-        if transcript_mask.loc[index] and pd.isna(df.at[index, "transcript_id"]):
-            df.at[index, "transcript_id"] = _clean_id(df.at[index, "ID"])
-        if transcript_mask.loc[index] and pd.isna(df.at[index, "gene_id"]):
-            df.at[index, "gene_id"] = _clean_id(df.at[index, "Parent"])
-        if child_mask.loc[index] and pd.isna(df.at[index, "transcript_id"]):
-            df.at[index, "transcript_id"] = _clean_id(df.at[index, "Parent"])
+    clean_id = _clean_id_series(df["ID"])
+    clean_parent = _clean_id_series(df["Parent"])
+    missing_gene = df["gene_id"].isna()
+    missing_transcript = df["transcript_id"].isna()
+    df.loc[gene_mask & missing_gene, "gene_id"] = clean_id
+    df.loc[transcript_mask & missing_transcript, "transcript_id"] = clean_id
+    df.loc[transcript_mask & missing_gene, "gene_id"] = clean_parent
+    df.loc[child_mask & missing_transcript, "transcript_id"] = clean_parent
 
     transcript_to_gene = (
         df.loc[transcript_mask, ["transcript_id", "gene_id"]]
