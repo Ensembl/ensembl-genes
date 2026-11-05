@@ -86,9 +86,32 @@ def compute_feature_metrics(annotation) -> pd.DataFrame:
     utr3_by_transcript = {
         key: group for key, group in utr3.groupby("transcript_id", sort=False)
     }
-    intron_by_transcript = {
-        key: group for key, group in introns.groupby("transcript_id", sort=False)
-    }
+
+    def grouped_count(frame: pd.DataFrame) -> pd.Series:
+        return frame.groupby("transcript_id", sort=False).size()
+
+    def grouped_length(frame: pd.DataFrame) -> pd.Series:
+        lengths = frame["End"].astype(int) - frame["Start"].astype(int)
+        return lengths.groupby(frame["transcript_id"], sort=False).sum()
+
+    exon_counts = grouped_count(exons)
+    exonic_lengths = grouped_length(exons)
+    intron_counts = grouped_count(introns)
+    utr5_lengths = grouped_length(utr5)
+    utr3_lengths = grouped_length(utr3)
+    cds_counts = grouped_count(cds)
+    cds_lengths = grouped_length(cds)
+    phase_missing_counts = (
+        (~cds["phase"].isin(CODING_PHASES))
+        .groupby(cds["transcript_id"], sort=False)
+        .sum()
+    )
+    coordinate_valid = (
+        transcripts["Start"].astype(int) < transcripts["End"].astype(int)
+    ) & transcripts["Strand"].isin({"+", "-", "."})
+    coordinate_valid_by_transcript = dict(
+        zip(transcripts["transcript_id"], coordinate_valid, strict=False)
+    )
     rows = []
 
     for transcript in transcripts.itertuples(index=False):
@@ -97,60 +120,48 @@ def compute_feature_metrics(annotation) -> pd.DataFrame:
         transcript_cds = cds_by_transcript.get(transcript_id, cds.iloc[0:0])
         transcript_utr5 = utr5_by_transcript.get(transcript_id, utr5.iloc[0:0])
         transcript_utr3 = utr3_by_transcript.get(transcript_id, utr3.iloc[0:0])
-        transcript_introns = intron_by_transcript.get(transcript_id, introns.iloc[0:0])
         exon_order = transcript_exons.sort_values(
             "Start", ascending=str(transcript.Strand) != "-"
         )
         child_order_valid = True
+        previous_start = None
         previous_end = None
-        for exon in exon_order.itertuples(index=False):
-            if int(exon.Start) >= int(exon.End):
+        for exon_start, exon_end in exon_order[["Start", "End"]].itertuples(
+            index=False, name=None
+        ):
+            exon_start = int(exon_start)
+            exon_end = int(exon_end)
+            if exon_start >= exon_end:
                 child_order_valid = False
-            if previous_end is not None and int(exon.Start) < previous_end:
-                child_order_valid = False
-            previous_end = max(previous_end or int(exon.End), int(exon.End))
+            if previous_start is not None and str(transcript.Strand) == "-":
+                child_order_valid &= exon_end <= previous_start
+            elif previous_end is not None:
+                child_order_valid &= exon_start >= previous_end
+            previous_start = exon_start
+            previous_end = exon_end
 
-        phases = transcript_cds["phase"].dropna()
-        phase_missing = int(
-            len(transcript_cds) - len(phases[phases.isin(CODING_PHASES)])
-        )
-        cds_length = int(
-            (
-                transcript_cds["End"].astype(int) - transcript_cds["Start"].astype(int)
-            ).sum()
-        )
+        cds_length = int(cds_lengths.get(transcript_id, 0))
+        phase_missing = int(phase_missing_counts.get(transcript_id, 0))
         rows.append(
             {
                 "feature_type": "transcript",
                 "feature_id": transcript_id,
                 "gene_id": transcript.gene_id,
-                "exon_count": len(transcript_exons),
-                "exonic_length_bp": int(
-                    (
-                        transcript_exons["End"].astype(int)
-                        - transcript_exons["Start"].astype(int)
-                    ).sum()
-                ),
-                "intron_count": len(transcript_introns),
-                "five_prime_utr_length_bp": int(
-                    (
-                        transcript_utr5["End"].astype(int)
-                        - transcript_utr5["Start"].astype(int)
-                    ).sum()
-                ),
-                "three_prime_utr_length_bp": int(
-                    (
-                        transcript_utr3["End"].astype(int)
-                        - transcript_utr3["Start"].astype(int)
-                    ).sum()
-                ),
-                "cds_segment_count": len(transcript_cds),
+                "exon_count": int(exon_counts.get(transcript_id, 0)),
+                "exonic_length_bp": int(exonic_lengths.get(transcript_id, 0)),
+                "intron_count": int(intron_counts.get(transcript_id, 0)),
+                "five_prime_utr_length_bp": int(utr5_lengths.get(transcript_id, 0)),
+                "three_prime_utr_length_bp": int(utr3_lengths.get(transcript_id, 0)),
+                "cds_segment_count": int(cds_counts.get(transcript_id, 0)),
                 "cds_length_nt": cds_length,
                 "phase_missing_count": phase_missing,
-                "cds_frame_ok": pd.NA if transcript_cds.empty else cds_length % 3 == 0,
+                "cds_frame_ok": (
+                    pd.NA
+                    if transcript_id not in cds_counts.index
+                    else cds_length % 3 == 0
+                ),
                 "coordinate_valid": bool(
-                    int(transcript.Start) < int(transcript.End)
-                    and str(transcript.Strand) in {"+", "-", "."}
+                    coordinate_valid_by_transcript.get(transcript_id, False)
                 ),
                 "child_order_valid": child_order_valid,
                 "cds_utr_overlap_bp": _overlap_with_utrs(
