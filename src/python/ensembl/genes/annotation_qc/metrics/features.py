@@ -74,15 +74,30 @@ def compute_feature_metrics(annotation) -> pd.DataFrame:
     utr5 = df[df["Feature"].isin(FIVE_PRIME_UTR_TYPES) & df["transcript_id"].notna()]
     utr3 = df[df["Feature"].isin(THREE_PRIME_UTR_TYPES) & df["transcript_id"].notna()]
     introns = derive_introns(df)
+    exon_by_transcript = {
+        key: group for key, group in exons.groupby("transcript_id", sort=False)
+    }
+    cds_by_transcript = {
+        key: group for key, group in cds.groupby("transcript_id", sort=False)
+    }
+    utr5_by_transcript = {
+        key: group for key, group in utr5.groupby("transcript_id", sort=False)
+    }
+    utr3_by_transcript = {
+        key: group for key, group in utr3.groupby("transcript_id", sort=False)
+    }
+    intron_by_transcript = {
+        key: group for key, group in introns.groupby("transcript_id", sort=False)
+    }
     rows = []
 
     for transcript in transcripts.itertuples(index=False):
         transcript_id = str(transcript.transcript_id)
-        transcript_exons = exons[exons["transcript_id"] == transcript_id]
-        transcript_cds = cds[cds["transcript_id"] == transcript_id]
-        transcript_utr5 = utr5[utr5["transcript_id"] == transcript_id]
-        transcript_utr3 = utr3[utr3["transcript_id"] == transcript_id]
-        transcript_introns = introns[introns["transcript_id"] == transcript_id]
+        transcript_exons = exon_by_transcript.get(transcript_id, exons.iloc[0:0])
+        transcript_cds = cds_by_transcript.get(transcript_id, cds.iloc[0:0])
+        transcript_utr5 = utr5_by_transcript.get(transcript_id, utr5.iloc[0:0])
+        transcript_utr3 = utr3_by_transcript.get(transcript_id, utr3.iloc[0:0])
+        transcript_introns = intron_by_transcript.get(transcript_id, introns.iloc[0:0])
         exon_order = transcript_exons.sort_values(
             "Start", ascending=str(transcript.Strand) != "-"
         )

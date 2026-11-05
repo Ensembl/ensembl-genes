@@ -50,6 +50,12 @@ def get_genetic_code(table_id: int) -> dict:
 
 def _annotation_df(annotation) -> pd.DataFrame:
     """Standardize a PyRanges/DataFrame input for event calculations."""
+    if isinstance(annotation, pd.DataFrame) and {
+        "gene_id",
+        "transcript_id",
+        "feature_length",
+    }.issubset(annotation.columns):
+        return annotation
     return standardize_annotation(annotation)
 
 
@@ -302,24 +308,24 @@ def derive_introns(annotation) -> pd.DataFrame:
         return pd.DataFrame(columns=columns)
 
     rows = []
-    for transcript_id, group in exons.groupby("transcript_id", dropna=True):
+    for transcript_id, group in exons.groupby("transcript_id", dropna=True, sort=False):
         strand = str(group["Strand"].iloc[0])
-        ordered = group.sort_values("Start", ascending=strand != "-").reset_index(
-            drop=True
-        )
-        for number in range(len(ordered) - 1):
-            previous = ordered.iloc[number]
-            following = ordered.iloc[number + 1]
-            start = min(int(previous.End), int(following.End))
-            end = max(int(previous.Start), int(following.Start))
+        ordered = group.sort_values("Start", ascending=strand != "-")
+        intervals = list(ordered[["Start", "End"]].itertuples(index=False, name=None))
+        for number, (
+            (previous_start, previous_end),
+            (following_start, following_end),
+        ) in enumerate(zip(intervals, intervals[1:])):
+            start = min(int(previous_end), int(following_end))
+            end = max(int(previous_start), int(following_start))
             if end <= start:
                 continue
             rows.append(
                 {
                     "event_type": "intron",
                     "transcript_id": str(transcript_id),
-                    "gene_id": previous["gene_id"],
-                    "chromosome": previous["Chromosome"],
+                    "gene_id": group["gene_id"].iloc[0],
+                    "chromosome": group["Chromosome"].iloc[0],
                     "strand": strand,
                     "intron_number": number + 1,
                     "intron_start": start,
