@@ -135,45 +135,59 @@ def compute_feature_metrics(annotation) -> pd.DataFrame:
         child_order_valid_by_transcript.update(
             (~invalid).groupby(ordered["transcript_id"], sort=False).all().to_dict()
         )
-    rows = []
+    feature_metrics = pd.DataFrame(
+        {
+            "feature_type": "transcript",
+            "feature_id": transcripts["transcript_id"].astype(str).to_numpy(),
+            "gene_id": transcripts["gene_id"].to_numpy(),
+        }
+    )
+    feature_ids = feature_metrics["feature_id"]
+    feature_metrics["exon_count"] = feature_ids.map(exon_counts).fillna(0).astype(int)
+    feature_metrics["exonic_length_bp"] = (
+        feature_ids.map(exonic_lengths).fillna(0).astype(int)
+    )
+    feature_metrics["intron_count"] = (
+        feature_ids.map(intron_counts).fillna(0).astype(int)
+    )
+    feature_metrics["five_prime_utr_length_bp"] = (
+        feature_ids.map(utr5_lengths).fillna(0).astype(int)
+    )
+    feature_metrics["three_prime_utr_length_bp"] = (
+        feature_ids.map(utr3_lengths).fillna(0).astype(int)
+    )
+    feature_metrics["cds_segment_count"] = (
+        feature_ids.map(cds_counts).fillna(0).astype(int)
+    )
+    feature_metrics["cds_length_nt"] = (
+        feature_ids.map(cds_lengths).fillna(0).astype(int)
+    )
+    feature_metrics["phase_missing_count"] = (
+        feature_ids.map(phase_missing_counts).fillna(0).astype(int)
+    )
+    feature_metrics["cds_frame_ok"] = (
+        feature_metrics["cds_length_nt"].mod(3).eq(0).astype("boolean")
+    )
+    feature_metrics.loc[feature_metrics["cds_segment_count"] == 0, "cds_frame_ok"] = (
+        pd.NA
+    )
+    feature_metrics["coordinate_valid"] = feature_ids.map(
+        coordinate_valid_by_transcript
+    ).fillna(False)
+    feature_metrics["child_order_valid"] = feature_ids.map(
+        child_order_valid_by_transcript
+    ).fillna(True)
 
-    for transcript in transcripts.itertuples(index=False):
-        transcript_id = str(transcript.transcript_id)
-        transcript_cds = cds_by_transcript.get(transcript_id, cds.iloc[0:0])
+    overlap_by_transcript = {}
+    for transcript_id, transcript_cds in cds_by_transcript.items():
         transcript_utr = utr_by_transcript.get(transcript_id, utr5.iloc[0:0])
-
-        cds_length = int(cds_lengths.get(transcript_id, 0))
-        phase_missing = int(phase_missing_counts.get(transcript_id, 0))
-        rows.append(
-            {
-                "feature_type": "transcript",
-                "feature_id": transcript_id,
-                "gene_id": transcript.gene_id,
-                "exon_count": int(exon_counts.get(transcript_id, 0)),
-                "exonic_length_bp": int(exonic_lengths.get(transcript_id, 0)),
-                "intron_count": int(intron_counts.get(transcript_id, 0)),
-                "five_prime_utr_length_bp": int(utr5_lengths.get(transcript_id, 0)),
-                "three_prime_utr_length_bp": int(utr3_lengths.get(transcript_id, 0)),
-                "cds_segment_count": int(cds_counts.get(transcript_id, 0)),
-                "cds_length_nt": cds_length,
-                "phase_missing_count": phase_missing,
-                "cds_frame_ok": (
-                    pd.NA
-                    if transcript_id not in cds_counts.index
-                    else cds_length % 3 == 0
-                ),
-                "coordinate_valid": bool(
-                    coordinate_valid_by_transcript.get(transcript_id, False)
-                ),
-                "child_order_valid": child_order_valid_by_transcript.get(
-                    transcript_id, True
-                ),
-                "cds_utr_overlap_bp": _overlap_with_utrs(
-                    transcript_cds, transcript_utr
-                ),
-            }
+        overlap_by_transcript[transcript_id] = _overlap_with_utrs(
+            transcript_cds, transcript_utr
         )
-    return pd.DataFrame(rows)
+    feature_metrics["cds_utr_overlap_bp"] = (
+        feature_ids.map(overlap_by_transcript).fillna(0).astype(int)
+    )
+    return feature_metrics
 
 
 def summarize_feature_metrics(feature_metrics: pd.DataFrame) -> pd.DataFrame:
