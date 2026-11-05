@@ -1,0 +1,9 @@
+ensembl.genes.ensembl_loading.convert_repearmasker
+==================================================
+
+Source: ``src/python/ensembl/genes/ensembl_loading/convert_repearmasker.py``
+
+.. automodule:: ensembl.genes.ensembl_loading.convert_repearmasker
+   :members:
+   :show-inheritance:
+   :undoc-members:

@@ -1,0 +1,23 @@
+ensembl.genes.metrics
+=====================
+
+Source directory: ``src/python/ensembl/genes/metrics``
+
+Package Contents
+----------------
+
+.. automodule:: ensembl.genes.metrics
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+Folders, Scripts, and Files
+---------------------------
+
+.. toctree::
+   :maxdepth: 2
+
+   busco_lineage_selector <ensembl.genes.metrics.busco_lineage_selector>
+   busco_metakeys_patch <ensembl.genes.metrics.busco_metakeys_patch>
+   check_busco_score <ensembl.genes.metrics.check_busco_score>
+   busco_lineage.json <ensembl.genes.metrics.busco_lineage_json>

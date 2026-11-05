@@ -1,0 +1,21 @@
+ensembl.genes.ensembl_loading.core_utils
+========================================
+
+Source directory: ``src/python/ensembl/genes/ensembl_loading/core_utils``
+
+Package Contents
+----------------
+
+.. automodule:: ensembl.genes.ensembl_loading.core_utils
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+Folders, Scripts, and Files
+---------------------------
+
+.. toctree::
+   :maxdepth: 2
+
+   add_prod_tables <ensembl.genes.ensembl_loading.core_utils.add_prod_tables>
+   external_db <ensembl.genes.ensembl_loading.core_utils.external_db>

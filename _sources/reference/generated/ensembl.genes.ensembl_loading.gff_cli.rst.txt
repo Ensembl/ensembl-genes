@@ -1,0 +1,9 @@
+ensembl.genes.ensembl_loading.gff_cli
+=====================================
+
+Source: ``src/python/ensembl/genes/ensembl_loading/gff_cli.py``
+
+.. automodule:: ensembl.genes.ensembl_loading.gff_cli
+   :members:
+   :show-inheritance:
+   :undoc-members:

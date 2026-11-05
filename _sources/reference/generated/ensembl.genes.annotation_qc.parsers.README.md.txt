@@ -1,0 +1,3 @@
+```{include} ../../../src/python/ensembl/genes/annotation_qc/parsers/README.md
+:parser: myst_parser.sphinx_
+```

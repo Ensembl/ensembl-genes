@@ -1,0 +1,9 @@
+ensembl.genes.rgb.db
+====================
+
+Source: ``src/python/ensembl/genes/rgb/db.py``
+
+.. automodule:: ensembl.genes.rgb.db
+   :members:
+   :show-inheritance:
+   :undoc-members:

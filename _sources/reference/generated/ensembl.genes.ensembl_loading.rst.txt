@@ -1,0 +1,38 @@
+ensembl.genes.ensembl_loading
+=============================
+
+Source directory: ``src/python/ensembl/genes/ensembl_loading``
+
+Package Contents
+----------------
+
+.. automodule:: ensembl.genes.ensembl_loading
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+Folders, Scripts, and Files
+---------------------------
+
+.. toctree::
+   :maxdepth: 2
+
+   README <ensembl.genes.ensembl_loading.README>
+   config <ensembl.genes.ensembl_loading.config>
+   core_utils <ensembl.genes.ensembl_loading.core_utils>
+   docs <ensembl.genes.ensembl_loading.docs>
+   convert_repearmasker <ensembl.genes.ensembl_loading.convert_repearmasker>
+   gff_annotation <ensembl.genes.ensembl_loading.gff_annotation>
+   gff_cli <ensembl.genes.ensembl_loading.gff_cli>
+   gff_core_database <ensembl.genes.ensembl_loading.gff_core_database>
+   gff_core_loader <ensembl.genes.ensembl_loading.gff_core_loader>
+   gff_metadata <ensembl.genes.ensembl_loading.gff_metadata>
+   gff_models <ensembl.genes.ensembl_loading.gff_models>
+   gff_quality_check <ensembl.genes.ensembl_loading.gff_quality_check>
+   gff_repeat_loader <ensembl.genes.ensembl_loading.gff_repeat_loader>
+   gff_source_config <ensembl.genes.ensembl_loading.gff_source_config>
+   ncbi_annotation_report <ensembl.genes.ensembl_loading.ncbi_annotation_report>
+   refseq_constants <ensembl.genes.ensembl_loading.refseq_constants>
+   refseq_conversion <ensembl.genes.ensembl_loading.refseq_conversion>
+   refseq_models <ensembl.genes.ensembl_loading.refseq_models>
+   refseq_ncbi <ensembl.genes.ensembl_loading.refseq_ncbi>

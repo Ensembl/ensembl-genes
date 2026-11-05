@@ -1,0 +1,9 @@
+ensembl.genes.projects.config
+=============================
+
+Source: ``src/python/ensembl/genes/projects/config.py``
+
+.. automodule:: ensembl.genes.projects.config
+   :members:
+   :show-inheritance:
+   :undoc-members:

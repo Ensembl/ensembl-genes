@@ -1,0 +1,8 @@
+busco_lineage.json
+==================
+
+Source: ``src/python/ensembl/genes/metrics/busco_lineage.json``
+
+.. literalinclude:: ../../../src/python/ensembl/genes/metrics/busco_lineage.json
+   :language: json
+   :linenos:

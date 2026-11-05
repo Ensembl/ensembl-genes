@@ -1,0 +1,9 @@
+ensembl.genes.ensembl_loading.gff_repeat_loader
+===============================================
+
+Source: ``src/python/ensembl/genes/ensembl_loading/gff_repeat_loader.py``
+
+.. automodule:: ensembl.genes.ensembl_loading.gff_repeat_loader
+   :members:
+   :show-inheritance:
+   :undoc-members:

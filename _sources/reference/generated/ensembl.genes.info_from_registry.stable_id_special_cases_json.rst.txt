@@ -1,0 +1,8 @@
+stable_id_special_cases.json
+============================
+
+Source: ``src/python/ensembl/genes/info_from_registry/stable_id_special_cases.json``
+
+.. literalinclude:: ../../../src/python/ensembl/genes/info_from_registry/stable_id_special_cases.json
+   :language: json
+   :linenos:

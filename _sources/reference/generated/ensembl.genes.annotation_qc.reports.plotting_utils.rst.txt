@@ -1,0 +1,9 @@
+ensembl.genes.annotation_qc.reports.plotting_utils
+==================================================
+
+Source: ``src/python/ensembl/genes/annotation_qc/reports/plotting_utils.py``
+
+.. automodule:: ensembl.genes.annotation_qc.reports.plotting_utils
+   :members:
+   :show-inheritance:
+   :undoc-members:

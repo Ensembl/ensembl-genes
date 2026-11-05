@@ -1,0 +1,9 @@
+ensembl.genes.projects.yaml_renderer
+====================================
+
+Source: ``src/python/ensembl/genes/projects/yaml_renderer.py``
+
+.. automodule:: ensembl.genes.projects.yaml_renderer
+   :members:
+   :show-inheritance:
+   :undoc-members:

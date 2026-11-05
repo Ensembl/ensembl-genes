@@ -1,0 +1,9 @@
+ensembl.genes.annotation_qc.runners.assess_feature_events
+=========================================================
+
+Source: ``src/python/ensembl/genes/annotation_qc/runners/assess_feature_events.py``
+
+.. automodule:: ensembl.genes.annotation_qc.runners.assess_feature_events
+   :members:
+   :show-inheritance:
+   :undoc-members:

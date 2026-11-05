@@ -1,0 +1,34 @@
+ensembl.genes.projects
+======================
+
+Source directory: ``src/python/ensembl/genes/projects``
+
+Package Contents
+----------------
+
+.. automodule:: ensembl.genes.projects
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+Folders, Scripts, and Files
+---------------------------
+
+.. toctree::
+   :maxdepth: 2
+
+   README <ensembl.genes.projects.README>
+   registry <ensembl.genes.projects.registry>
+   accession_utils <ensembl.genes.projects.accession_utils>
+   changelog <ensembl.genes.projects.changelog>
+   config <ensembl.genes.projects.config>
+   ftp_client <ensembl.genes.projects.ftp_client>
+   ftp_manifest <ensembl.genes.projects.ftp_manifest>
+   generate_project_yaml <ensembl.genes.projects.generate_project_yaml>
+   haplotype_resolver <ensembl.genes.projects.haplotype_resolver>
+   icon_resolver <ensembl.genes.projects.icon_resolver>
+   legacy_vep_manifest <ensembl.genes.projects.legacy_vep_manifest>
+   models <ensembl.genes.projects.models>
+   yaml_renderer <ensembl.genes.projects.yaml_renderer>
+   icons.txt <ensembl.genes.projects.icons_txt>
+   server_config.json <ensembl.genes.projects.server_config_json>

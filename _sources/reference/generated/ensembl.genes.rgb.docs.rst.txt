@@ -1,0 +1,12 @@
+ensembl.genes.rgb.docs
+======================
+
+Source directory: ``src/python/ensembl/genes/rgb/docs``
+
+Folders, Scripts, and Files
+---------------------------
+
+.. toctree::
+   :maxdepth: 2
+
+   reverse-gene-builder <ensembl.genes.rgb.docs.reverse-gene-builder>

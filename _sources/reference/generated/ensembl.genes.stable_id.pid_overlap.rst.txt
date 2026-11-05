@@ -1,0 +1,9 @@
+ensembl.genes.stable_id.pid_overlap
+===================================
+
+Source: ``src/python/ensembl/genes/stable_id/pid_overlap.py``
+
+.. automodule:: ensembl.genes.stable_id.pid_overlap
+   :members:
+   :show-inheritance:
+   :undoc-members:
