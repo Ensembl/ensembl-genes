@@ -70,6 +70,9 @@ instance/
 
 # Sphinx documentation
 docs/_build/
+sphinx/_build/
+sphinx/api/generated/
+sphinx/reference/generated/
 
 # PyBuilder
 .pybuilder/
@@ -136,23 +139,10 @@ dmypy.json
 
 # Cython debug symbols
 cython_debug/
-.pytest_cache
-dist
-build
-*swp
-__pycache__
 
-#other
-.nextflow
+# IDEA
+.idea/
 .codex
-# macOS
-.DS_Store
 
-# Generated project-page pipeline outputs
-# (see src/python/ensembl/genes/projects/generate_project_yaml.py)
-*_species.yaml
-*_audit.tsv
-*_changelog.tsv
-*_guuids.txt
-*_dbs.txt
-slurm-*.out
+# Nextflow
+.nextflow

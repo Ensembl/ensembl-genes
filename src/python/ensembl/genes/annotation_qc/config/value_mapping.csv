@@ -1,0 +1,74 @@
+Genebuild_metric,AGAT_source,Explanation
+genebuild.stats.coding_genes,mrna_number_of_gene,Number of protein-coding genes.
+genebuild.stats.coding_transcripts,mrna_number_of_mrna,Number of protein-coding transcripts.
+genebuild.stats.coding_transcripts_per_gene,mrna_mean_mrnas_per_gene,Average number of transcripts per coding gene.
+genebuild.stats.total_coding_exons,mrna_number_of_exon_in_cds,Total number of coding exons (CDS) in all transcripts.
+genebuild.stats.total_transcript_exons,mrna_number_of_exon,Total number of exons in all coding transcripts.
+genebuild.stats.total_coding_introns,mrna_number_of_intron_in_exon,Total number of introns in coding exons.
+genebuild.stats.longest_coding_gene_length,mrna_longest_gene_(bp),Length of the longest coding gene.
+genebuild.stats.shortest_coding_gene_length,mrna_shortest_gene_(bp),Length of the shortest coding gene.
+genebuild.stats.total_transcripts,total_transcripts,"Total transcripts including coding, non-coding, pseudogenes."
+genebuild.stats.average_cds_length,mrna_mean_cds_length_(bp),Average coding sequence (CDS) length.
+genebuild.stats.average_coding_exons_per_coding_tr,mrna_mean_exons_per_cds,Average exons per coding transcript (CDS).
+genebuild.stats.average_coding_exons_per_transcrip,mrna_mean_exons_per_mrna,Average exons per coding transcript (mRNA).
+genebuild.stats.average_coding_exon_length,mrna_mean_cds_piece_length_(bp),Average coding exon length (CDS pieces).
+genebuild.stats.average_exon_length,mrna_mean_transcipt_exon_length_(bp),Average exon length across coding transcripts.
+genebuild.stats.average_coding_genomic_span,mrna_mean_gene_length_(bp),Average genomic span of coding genes.
+genebuild.stats.average_coding_intron_length,mrna_mean_intron_in_exon_length_(bp),Average intron length in coding exons.
+genebuild.stats.average_coding_sequence_length,average_coding_sequence_length,Average coding sequence length per transcript.
+genebuild.stats.transcripts_per_gene,transcripts_per_gene,"Average total transcripts per gene including coding, non-coding, pseudogenes."
+genebuild.stats.single_exon_coding_genes,mrna_number_of_single_exon_gene,Number of single-exon coding genes.
+genebuild.stats.single_exon_coding_transcripts,mrna_number_of_single_exon_mrna,Number of single-exon coding transcripts.
+genebuild.stats.coding_transcripts_with_both_utrs,mrna_number_of_mrnas_with_utr_both_sides,Coding transcripts with both 5’ and 3’ UTRs.
+genebuild.stats.coding_transcripts_with_utr,mrna_number_of_mrnas_with_at_least_one_utr,Coding transcripts with at least one UTR.
+genebuild.stats.average_cds_intron_length,mrna_mean_intron_in_cds_length_(bp),Average intron length within coding sequences.
+genebuild.stats.longest_transcript_length,mrna_longest_mrna_(bp),Length of the longest coding transcript (mRNA).
+genebuild.stats.longest_cds_length,mrna_longest_cds_(bp),Length of the longest coding sequence (CDS).
+genebuild.stats.average_five_prime_utr_length,mrna_mean_five_prime_utr_length_(bp),Average length of 5’ UTRs in coding transcripts.
+genebuild.stats.average_three_prime_utr_length,mrna_mean_three_prime_utr_length_(bp),Average length of 3’ UTRs in coding transcripts.
+genebuild.stats.nc_long_non_coding_genes,lnc_rna_number_of_ncrna_gene,Number of long non-coding RNA genes.
+genebuild.stats.nc_misc_non_coding_genes,ncrna_number_of_ncrna_gene,Number of miscellaneous non-coding RNA genes.
+genebuild.stats.nc_small_non_coding_genes,nc_small_non_coding_genes,"Number of small non-coding RNA genes (tRNA, miRNA, etc.)."
+genebuild.stats.nc_total_transcripts,nc_total_transcripts,Total transcripts for all non-coding RNA types.
+genebuild.stats.nc_total_exons,nc_total_exons,Total exons across non-coding transcripts.
+genebuild.stats.nc_total_introns,nc_total_introns,Total introns across non-coding transcripts.
+genebuild.stats.nc_transcripts_per_gene,nc_transcripts_per_gene,Average non-coding transcripts per gene.
+genebuild.stats.nc_non_coding_genes,nc_non_coding_genes,Total number of non-coding genes.
+genebuild.stats.nc_longest_gene_length,lnc_rna_longest_ncrna_gene_(bp),Length of the longest non-coding RNA gene.
+genebuild.stats.nc_shortest_gene_length,nc_shortest_gene_length,Length of the shortest non-coding RNA gene.
+genebuild.stats.nc_average_exons_per_transcript,nc_average_exons_per_transcript,Average exons per non-coding transcript.
+genebuild.stats.nc_average_exon_length,nc_average_exon_length,Average exon length in non-coding transcripts.
+genebuild.stats.nc_average_intron_length,nc_average_intron_length,Average intron length in non-coding transcripts.
+genebuild.stats.nc_average_sequence_length,nc_average_sequence_length,Average non-coding transcript length per gene.
+genebuild.stats.nc_single_exon_long_non_coding_genes,lnc_rna_number_of_single_exon_ncrna_gene,Single-exon long non-coding RNA genes.
+genebuild.stats.nc_mirna_genes,mirna_number_of_ncrna_gene,Number of miRNA genes.
+genebuild.stats.nc_unclassified_genes,ncrna_number_of_ncrna_gene,Number of unclassified non-coding genes.
+genebuild.stats.nc_rrna_genes,rrna_number_of_ncrna_gene,Number of rRNA genes.
+genebuild.stats.nc_scrna_genes,scrna_number_of_ncrna_gene,Number of scRNA genes.
+genebuild.stats.nc_snorna_genes,snorna_number_of_ncrna_gene,Number of snoRNA genes.
+genebuild.stats.nc_snrna_genes,snrna_number_of_ncrna_gene,Number of snRNA genes.
+genebuild.stats.nc_trna_genes,trna_number_of_ncrna_gene,Number of tRNA genes.
+genebuild.stats.nc_y_rna_genes,y_rna_number_of_ncrna_gene,Number of Y RNA genes.
+genebuild.stats.ps_pseudogenes,pseudogenic_transcript_number_of_pseudogene,Total pseudogenes.
+genebuild.stats.ps_total_transcripts,pseudogenic_transcript_number_of_pseudogenic_transcript,Total pseudogene transcripts.
+genebuild.stats.ps_total_exons,pseudogenic_transcript_number_of_exon,Total exons in pseudogene transcripts.
+genebuild.stats.ps_total_introns,pseudogenic_transcript_number_of_intron_in_exon,Total introns in pseudogene transcripts.
+genebuild.stats.ps_transcripts_per_gene,pseudogenic_transcript_mean_pseudogenic_transcripts_per_pseudogene,Average transcripts per pseudogene.
+genebuild.stats.ps_longest_gene_length,pseudogenic_transcript_longest_pseudogene_(bp),Length of longest pseudogene.
+genebuild.stats.ps_shortest_gene_length,pseudogenic_transcript_shortest_pseudogene_(bp),Length of shortest pseudogene.
+genebuild.stats.ps_average_exons_per_transcript,pseudogenic_transcript_mean_exons_per_pseudogenic_transcript,Average exons per pseudogene transcript.
+genebuild.stats.ps_average_exon_length,pseudogenic_transcript_mean_exon_length_(bp),Average exon length in pseudogene transcripts.
+genebuild.stats.ps_average_genomic_span,pseudogenic_transcript_mean_pseudogene_length_(bp),Average genomic span of pseudogenes.
+genebuild.stats.ps_average_intron_length,pseudogenic_transcript_mean_intron_in_exon_length_(bp),Average intron length in pseudogene transcripts.
+genebuild.stats.ps_average_sequence_length,ps_average_sequence_length,Average pseudogene transcript length.
+genebuild.stats.long_non_coding_genes_overlapping_nc,lnc_rna_number_ncrna_gene_overlapping,Long non-coding RNA genes overlapping other nc genes.
+genebuild.stats.mirna_genes_overlapping_nc,mirna_number_ncrna_gene_overlapping,miRNA genes overlapping other nc genes.
+genebuild.stats.overlapping_coding_genes,mrna_number_gene_overlapping,Coding genes overlapping other coding genes.
+genebuild.stats.nc_overlapping_nc,ncrna_number_ncrna_gene_overlapping,Non-coding genes overlapping other non-coding genes.
+genebuild.stats.ps_overlapping_ps,pseudogenic_transcript_number_pseudogene_overlapping,Pseudogenes overlapping other pseudogenes.
+genebuild.stats.rrna_overlapping_rrna,rrna_number_ncrna_gene_overlapping,rRNA genes overlapping other rRNA genes.
+genebuild.stats.small_non_coding_overlapping_nc,scrna_number_ncrna_gene_overlapping,scRNA genes overlapping other nc genes.
+genebuild.stats.snorna_overlapping_nc,snorna_number_ncrna_gene_overlapping,snoRNA genes overlapping other nc genes.
+genebuild.stats.snrna_overlapping_nc,snrna_number_ncrna_gene_overlapping,snRNA genes overlapping other nc genes.
+genebuild.stats.trna_overlapping_nc,trna_number_ncrna_gene_overlapping,tRNA genes overlapping other nc genes.
+genebuild.stats.yrna_overlapping_nc,y_rna_number_ncrna_gene_overlapping,Y RNA genes overlapping other nc genes.
