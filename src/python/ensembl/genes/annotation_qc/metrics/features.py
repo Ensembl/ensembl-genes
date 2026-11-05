@@ -74,9 +74,6 @@ def compute_feature_metrics(annotation) -> pd.DataFrame:
     utr5 = df[df["Feature"].isin(FIVE_PRIME_UTR_TYPES) & df["transcript_id"].notna()]
     utr3 = df[df["Feature"].isin(THREE_PRIME_UTR_TYPES) & df["transcript_id"].notna()]
     introns = derive_introns(df)
-    exon_by_transcript = {
-        key: group for key, group in exons.groupby("transcript_id", sort=False)
-    }
     cds_by_transcript = {
         key: group for key, group in cds.groupby("transcript_id", sort=False)
     }
@@ -112,33 +109,41 @@ def compute_feature_metrics(annotation) -> pd.DataFrame:
     coordinate_valid_by_transcript = dict(
         zip(transcripts["transcript_id"], coordinate_valid, strict=False)
     )
+    child_order_valid_by_transcript = {}
+    for strand, ascending in (("-", False), ("+", True), (".", True)):
+        strand_exons = exons[exons["Strand"] == strand]
+        if strand_exons.empty:
+            continue
+        ordered = strand_exons.sort_values(
+            ["transcript_id", "Start"], ascending=[True, ascending]
+        )
+        invalid = ordered["Start"].astype(int) >= ordered["End"].astype(int)
+        if ascending:
+            previous_end = (
+                ordered.groupby("transcript_id", sort=False)["End"]
+                .cummax()
+                .groupby(ordered["transcript_id"], sort=False)
+                .shift()
+            )
+            invalid |= previous_end > ordered["Start"]
+        else:
+            previous_start = (
+                ordered.groupby("transcript_id", sort=False)["Start"]
+                .cummin()
+                .groupby(ordered["transcript_id"], sort=False)
+                .shift()
+            )
+            invalid |= ordered["End"] > previous_start
+        child_order_valid_by_transcript.update(
+            (~invalid).groupby(ordered["transcript_id"], sort=False).all().to_dict()
+        )
     rows = []
 
     for transcript in transcripts.itertuples(index=False):
         transcript_id = str(transcript.transcript_id)
-        transcript_exons = exon_by_transcript.get(transcript_id, exons.iloc[0:0])
         transcript_cds = cds_by_transcript.get(transcript_id, cds.iloc[0:0])
         transcript_utr5 = utr5_by_transcript.get(transcript_id, utr5.iloc[0:0])
         transcript_utr3 = utr3_by_transcript.get(transcript_id, utr3.iloc[0:0])
-        exon_order = transcript_exons.sort_values(
-            "Start", ascending=str(transcript.Strand) != "-"
-        )
-        child_order_valid = True
-        previous_start = None
-        previous_end = None
-        for exon_start, exon_end in exon_order[["Start", "End"]].itertuples(
-            index=False, name=None
-        ):
-            exon_start = int(exon_start)
-            exon_end = int(exon_end)
-            if exon_start >= exon_end:
-                child_order_valid = False
-            if previous_start is not None and str(transcript.Strand) == "-":
-                child_order_valid &= exon_end <= previous_start
-            elif previous_end is not None:
-                child_order_valid &= exon_start >= previous_end
-            previous_start = exon_start
-            previous_end = exon_end
 
         cds_length = int(cds_lengths.get(transcript_id, 0))
         phase_missing = int(phase_missing_counts.get(transcript_id, 0))
@@ -163,7 +168,9 @@ def compute_feature_metrics(annotation) -> pd.DataFrame:
                 "coordinate_valid": bool(
                     coordinate_valid_by_transcript.get(transcript_id, False)
                 ),
-                "child_order_valid": child_order_valid,
+                "child_order_valid": child_order_valid_by_transcript.get(
+                    transcript_id, True
+                ),
                 "cds_utr_overlap_bp": _overlap_with_utrs(
                     transcript_cds, pd.concat([transcript_utr5, transcript_utr3])
                 ),
