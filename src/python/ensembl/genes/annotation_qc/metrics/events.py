@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import re
 
+import numpy as np
 import pandas as pd
 from Bio.Data import CodonTable
 
@@ -307,33 +308,43 @@ def derive_introns(annotation) -> pd.DataFrame:
     if exons.empty:
         return pd.DataFrame(columns=columns)
 
-    rows = []
-    for transcript_id, group in exons.groupby("transcript_id", dropna=True, sort=False):
-        strand = str(group["Strand"].iloc[0])
-        ordered = group.sort_values("Start", ascending=strand != "-")
-        intervals = list(ordered[["Start", "End"]].itertuples(index=False, name=None))
-        for number, (
-            (previous_start, previous_end),
-            (following_start, following_end),
-        ) in enumerate(zip(intervals, intervals[1:])):
-            start = min(int(previous_end), int(following_end))
-            end = max(int(previous_start), int(following_start))
-            if end <= start:
-                continue
-            rows.append(
-                {
-                    "event_type": "intron",
-                    "transcript_id": str(transcript_id),
-                    "gene_id": group["gene_id"].iloc[0],
-                    "chromosome": group["Chromosome"].iloc[0],
-                    "strand": strand,
-                    "intron_number": number + 1,
-                    "intron_start": start,
-                    "intron_end": end,
-                    "intron_length_bp": end - start,
-                }
-            )
-    return pd.DataFrame(rows, columns=columns)
+    intron_parts = []
+    for strand, ascending in (("-", False), ("+", True), (".", True)):
+        strand_exons = exons[exons["Strand"] == strand]
+        if strand_exons.empty:
+            continue
+        ordered = strand_exons.sort_values(
+            ["transcript_id", "Start"], ascending=[True, ascending]
+        )
+        grouped = ordered.groupby("transcript_id", sort=False)
+        previous_start = grouped["Start"].shift()
+        previous_end = grouped["End"].shift()
+        intron_start = np.minimum(previous_end, ordered["End"])
+        intron_end = np.maximum(previous_start, ordered["Start"])
+        valid = previous_start.notna() & (intron_end > intron_start)
+        if not valid.any():
+            continue
+        part = pd.DataFrame(
+            {
+                "event_type": "intron",
+                "transcript_id": ordered["transcript_id"].astype(str),
+                "gene_id": ordered["gene_id"],
+                "chromosome": ordered["Chromosome"],
+                "strand": strand,
+                "intron_number": grouped.cumcount() + 1,
+                "intron_start": intron_start,
+                "intron_end": intron_end,
+                "intron_length_bp": intron_end - intron_start,
+            },
+            index=ordered.index,
+        )
+        part["intron_start"] = part["intron_start"].astype("Int64")
+        part["intron_end"] = part["intron_end"].astype("Int64")
+        part["intron_length_bp"] = part["intron_length_bp"].astype("Int64")
+        intron_parts.append(part.loc[valid])
+    if not intron_parts:
+        return pd.DataFrame(columns=columns)
+    return pd.concat(intron_parts, ignore_index=True)[columns]
 
 
 def compute_splice_junction_metrics(
