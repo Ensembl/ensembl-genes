@@ -16,12 +16,12 @@ from dataclasses import asdict
 from pathlib import Path
 
 import pandas as pd
+from pyfaidx import Fasta
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 # pylint: disable=wrong-import-position
 from parsers.annotation import parse_annotation
-from parsers.sequence import parse_fasta
 from parsers.diamond import parse_diamond_hits
 from metrics.events import (
     compute_cds_metrics,
@@ -149,7 +149,7 @@ def _run(args):
     genetic_code = get_genetic_code(args.genetic_code)
     print(f"Using genetic code: {genetic_code.table_id} ({genetic_code.name})")
     annotation = parse_annotation(args.annotation)
-    fasta = parse_fasta(args.genome)
+    fasta = Fasta(args.genome)
     results = run_cds_qc(annotation, fasta, genetic_code)
     if args.diamond_hits:
         diamond_df = parse_diamond_hits(args.diamond_hits)
