@@ -211,3 +211,25 @@ The refactor is complete when:
 ## 13. One-line summary for contributors
 
 **Put parsing in `parsers/`, calculations in `metrics/`, orchestration in `runners/`, output in `reports/`, and configuration in `config/`.**
+
+## Current feature and event metrics
+
+The `feature-events` runner is the current annotation-plus-genome workflow:
+
+```bash
+annotation-qc feature-events \
+    --annotation annotation.gff3 \
+    --genome genome.fa \
+    --outdir qc-results \
+    --promoter-motif tata_like='TATA[AT]A[AT]'
+```
+
+It writes separate TSV tables for transcript features, introns, splice
+junctions, translation events, promoter-like sequence context, and poly-A
+motif context. Feature rows describe annotation objects. Event rows describe
+derived introns, junctions, translation boundaries, or transcript boundaries.
+
+Kozak, promoter, and poly-A results are sequence-based observations. They are
+reported as candidates or unresolved context; they do not establish a true
+transcription start site, promoter, or cleavage site. Promoter motifs must be
+provided explicitly because promoter sequence models are lineage-dependent.

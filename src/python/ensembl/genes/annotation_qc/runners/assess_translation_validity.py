@@ -11,24 +11,18 @@ Usage:
 
 import argparse
 import os
-import sys
-from dataclasses import asdict
-from pathlib import Path
 
 import pandas as pd
 from pyfaidx import Fasta
 
-sys.path.insert(0, str(Path(__file__).parent.parent))
-
-# pylint: disable=wrong-import-position
-from parsers.annotation import parse_annotation
-from parsers.diamond import parse_diamond_hits
-from metrics.events import (
-    compute_cds_metrics,
+from ensembl.genes.annotation_qc.metrics.events import (
+    compute_translation_metrics,
+    extract_cds_sequences,
     get_genetic_code,
-    GeneticCode,
     STANDARD_CODE,
 )
+from ensembl.genes.annotation_qc.parsers.annotation import parse_annotation
+from ensembl.genes.annotation_qc.parsers.diamond import parse_diamond_hits
 
 
 def pair_cds_with_sequences(annotation, fasta) -> dict:
@@ -44,46 +38,10 @@ def pair_cds_with_sequences(annotation, fasta) -> dict:
     Returns:
             dict mapping transcript_id to concatenated CDS nucleotide sequence
     """
-    cds_df = annotation[annotation["Feature"] == "CDS"]
-
-    if "transcript_id" in cds_df.columns and cds_df["transcript_id"].notna().any():
-        group_col = "transcript_id"
-    elif "Parent" in cds_df.columns:
-        group_col = "Parent"
-        cds_df = cds_df.assign(
-            Parent=cds_df["Parent"].str.replace(r"^transcript:", "", regex=True)
-        )
-    else:
-        raise ValueError(
-            "Annotation has no 'transcript_id' or 'Parent' column — cannot group CDS by transcript."
-        )
-
-    transcript_sequences = {}
-    for transcript_id, group in cds_df.groupby(group_col):
-        strand = group["Strand"].iloc[0]
-        group = group.sort_values("Start", ascending=strand == "+")
-
-        seq_parts = []
-        for _, row in group.iterrows():
-            chrom = row["Chromosome"]
-            start = int(row["Start"])
-            end = int(row["End"])
-            try:
-                interval = fasta[chrom][start:end]
-                seq_parts.append(
-                    interval.seq if strand == "+" else interval.reverse.complement.seq
-                )
-            except KeyError:
-                seq_parts.append("")
-
-        transcript_sequences[transcript_id] = "".join(seq_parts)
-
-    return transcript_sequences
+    return extract_cds_sequences(annotation, fasta)
 
 
-def run_cds_qc(
-    annotation, fasta, genetic_code: GeneticCode = STANDARD_CODE
-) -> pd.DataFrame:
+def run_cds_qc(annotation, fasta, genetic_code: dict = STANDARD_CODE) -> pd.DataFrame:
     """
     Run CDS validity checks for all transcripts in the annotation.
     Args:
@@ -93,12 +51,7 @@ def run_cds_qc(
     Returns:
             DataFrame with one row per transcript and CDSMetrics columns
     """
-    cds_sequences = pair_cds_with_sequences(annotation, fasta)
-    records = [
-        {"transcript_id": tid, **asdict(compute_cds_metrics(seq, genetic_code))}
-        for tid, seq in cds_sequences.items()
-    ]
-    return pd.DataFrame(records)
+    return compute_translation_metrics(annotation, fasta, genetic_code)
 
 
 def _add_args(parser):
@@ -147,7 +100,7 @@ def register(subparsers):
 def _run(args):
     os.makedirs(args.outdir, exist_ok=True)
     genetic_code = get_genetic_code(args.genetic_code)
-    print(f"Using genetic code: {genetic_code.table_id} ({genetic_code.name})")
+    print(f"Using genetic code: {genetic_code['table_id']} ({genetic_code['name']})")
     annotation = parse_annotation(args.annotation)
     fasta = Fasta(args.genome)
     results = run_cds_qc(annotation, fasta, genetic_code)

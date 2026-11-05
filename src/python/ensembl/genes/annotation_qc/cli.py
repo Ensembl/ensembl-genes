@@ -10,17 +10,16 @@ Usage:
 """
 
 import argparse
-import sys
-from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).parent))
-
-# pylint: disable=wrong-import-position
-from runners import assess_translation_validity
-from parsers import interpro, parse_agat
+from ensembl.genes.annotation_qc.parsers import interpro, parse_agat
+from ensembl.genes.annotation_qc.runners import (
+    assess_feature_events,
+    assess_translation_validity,
+)
 
 RUNNERS = [
     assess_translation_validity,
+    assess_feature_events,
 ]
 
 PARSERS = [
