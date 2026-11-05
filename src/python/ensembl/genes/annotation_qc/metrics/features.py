@@ -77,11 +77,9 @@ def compute_feature_metrics(annotation) -> pd.DataFrame:
     cds_by_transcript = {
         key: group for key, group in cds.groupby("transcript_id", sort=False)
     }
-    utr5_by_transcript = {
-        key: group for key, group in utr5.groupby("transcript_id", sort=False)
-    }
-    utr3_by_transcript = {
-        key: group for key, group in utr3.groupby("transcript_id", sort=False)
+    utr_by_transcript = {
+        key: group
+        for key, group in pd.concat([utr5, utr3]).groupby("transcript_id", sort=False)
     }
 
     def grouped_count(frame: pd.DataFrame) -> pd.Series:
@@ -142,8 +140,7 @@ def compute_feature_metrics(annotation) -> pd.DataFrame:
     for transcript in transcripts.itertuples(index=False):
         transcript_id = str(transcript.transcript_id)
         transcript_cds = cds_by_transcript.get(transcript_id, cds.iloc[0:0])
-        transcript_utr5 = utr5_by_transcript.get(transcript_id, utr5.iloc[0:0])
-        transcript_utr3 = utr3_by_transcript.get(transcript_id, utr3.iloc[0:0])
+        transcript_utr = utr_by_transcript.get(transcript_id, utr5.iloc[0:0])
 
         cds_length = int(cds_lengths.get(transcript_id, 0))
         phase_missing = int(phase_missing_counts.get(transcript_id, 0))
@@ -172,7 +169,7 @@ def compute_feature_metrics(annotation) -> pd.DataFrame:
                     transcript_id, True
                 ),
                 "cds_utr_overlap_bp": _overlap_with_utrs(
-                    transcript_cds, pd.concat([transcript_utr5, transcript_utr3])
+                    transcript_cds, transcript_utr
                 ),
             }
         )
