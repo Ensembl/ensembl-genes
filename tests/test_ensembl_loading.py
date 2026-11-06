@@ -583,6 +583,15 @@ def test_refseq_translation_edits_and_frameshift_use_core_coordinates() -> None:
         [],
         [("amino_acid_sub", "1 1 X")],
     )
+    nested_cds = [
+        CdsSegment(100, 102, -1, "0"),
+        CdsSegment(200, 202, -1, "0"),
+    ]
+    assert parse_translation_attributes(
+        "(pos:complement(join(102,200..201)),aa:Other)",
+        nested_cds,
+        -1,
+    ) == ([], [("amino_acid_sub", "1 2 X")])
     split_cds = [
         CdsSegment(100, 102, 1, "0"),
         CdsSegment(200, 202, 1, "0"),

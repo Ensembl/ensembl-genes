@@ -44,6 +44,7 @@ from .gff_source_config import GENERIC_GFF_CONFIG, REFSEQ_CONFIG, GffSourceConfi
 from .refseq_conversion import load_assembly_report_name_maps
 
 LOGGER = logging.getLogger(__name__)
+REFSEQ_MITOCHONDRIAL_CODON_TABLE = "2"
 
 
 def fetch_controlled_analysis_metadata(
@@ -156,6 +157,11 @@ def load_to_ensembl_core(
             coord_system_id,
             logger=log,
             seq_region_attributes=annotation.seq_region_attributes,
+            mitochondrial_codon_table=(
+                REFSEQ_MITOCHONDRIAL_CODON_TABLE
+                if source_config.name == REFSEQ_CONFIG.name
+                else None
+            ),
         )
         if source_config.name == "refseq":
             accession_maps = load_assembly_report_name_maps(assembly_report_path)

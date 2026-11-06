@@ -59,6 +59,7 @@ def load_seq_regions_from_fna(
     coord_system_id: int,
     logger: logging.Logger | None = None,
     seq_region_attributes: Mapping[str, list[tuple[str, str]]] | None = None,
+    mitochondrial_codon_table: str | None = None,
 ) -> dict[str, int]:
     """Load seq_region and dna rows from a converted FASTA file."""
 
@@ -100,6 +101,12 @@ def load_seq_regions_from_fna(
                 ("sequence_location", "mitochondrial_chromosome")
             ]
             mitochondrial_attributes.extend((seq_region_attributes or {}).get(name, []))
+            if mitochondrial_codon_table and not any(
+                code == "codon_table" for code, _ in mitochondrial_attributes
+            ):
+                mitochondrial_attributes.append(
+                    ("codon_table", mitochondrial_codon_table)
+                )
             for code, value in mitochondrial_attributes:
                 attrib_type_id = get_or_create_attrib_type(cursor, code)
                 cursor.execute(
