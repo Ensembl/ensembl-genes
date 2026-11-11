@@ -499,7 +499,7 @@ def main() -> None:
     if core_dict["assembly.accession"].startswith("GCF"):
         gca_accession = core_dict["assembly.alt_accession"]
         truth_dict["assembly.alt_accession"] = core_dict["assembly.alt_accession"]
-        truth_dict["assembly.accession_refseq"] = core_dict["assembly.accession"]
+        #truth_dict["assembly.accession_refseq"] = core_dict["assembly.accession"]
         truth_dict["assembly.accession_body"] = "RefSeq"
     elif "assembly.accession_refseq" in core_dict:
         # if the core comes from the main site, we need to put the GCF back as the main accession
