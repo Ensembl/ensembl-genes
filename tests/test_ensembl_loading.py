@@ -583,6 +583,15 @@ def test_refseq_translation_edits_and_frameshift_use_core_coordinates() -> None:
         [],
         [("amino_acid_sub", "1 1 X")],
     )
+    nested_cds = [
+        CdsSegment(100, 102, -1, "0"),
+        CdsSegment(200, 202, -1, "0"),
+    ]
+    assert parse_translation_attributes(
+        "(pos:complement(join(102,200..201)),aa:Other)",
+        nested_cds,
+        -1,
+    ) == ([], [("amino_acid_sub", "1 2 X")])
     split_cds = [
         CdsSegment(100, 102, 1, "0"),
         CdsSegment(200, 202, 1, "0"),
@@ -794,6 +803,22 @@ def test_repeatmasker_conversion_normalizes_reverse_strand_coordinates(
         'repeat_id 2; repeat_name "Alu"; repeat_class "SINE/Alu"; '
         'repeat_type "mock"; repeat_start "3"; repeat_end "9"; score "200";\n'
     )
+
+
+def test_repeat_consensus_range_normalizes_repeatmasker_zero_boundary() -> None:
+    record = gff_repeat_loader.SingleLineFeatureRecord(
+        seq_name="1",
+        start=10,
+        end=20,
+        strand=1,
+        attributes={
+            "repeat_name": "A-rich",
+            "repeat_start": "0",
+            "repeat_end": "40",
+        },
+    )
+
+    assert gff_repeat_loader.repeat_consensus_range(record) == (1, 40)
 
 
 def test_insert_refseq_seq_region_synonyms_preserves_multiple_accessions() -> None:

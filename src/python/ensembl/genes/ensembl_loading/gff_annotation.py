@@ -133,8 +133,7 @@ def parse_translation_attributes(
         "Val": "V",
     }
     exception_pattern = re.compile(
-        r"pos:(?P<position>join\([^)]*\)|complement\([^)]*\)|\d+(?:\.\.\d+)?),"
-        r"aa:(?P<amino_acid>[A-Za-z*]+)"
+        r"pos:(?P<position>.*?)," + r"aa:(?P<amino_acid>[A-Za-z*]+)"
     )
     genomic_to_cds_position: dict[int, int] = {}
     ordered_cds = sorted(

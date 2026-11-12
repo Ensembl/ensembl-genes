@@ -218,12 +218,18 @@ def get_or_create_repeat_consensus(
 
 
 def repeat_consensus_range(record: SingleLineFeatureRecord) -> tuple[int, int]:
-    """Return the consensus coordinates carried by a repeat record."""
+    """Return 1-based coordinates within the repeat consensus sequence."""
 
     repeat_start = int(record.attributes.get("repeat_start", "1"))
     repeat_end = int(
         record.attributes.get("repeat_end", str(record.end - record.start + 1))
     )
+    if repeat_start == 0:
+        # RepeatMasker emits zero for the beginning of some simple/low-
+        # complexity consensus matches (for example A-rich). The Ensembl
+        # repeat_feature columns are 1-based, so map this boundary sentinel to
+        # the first consensus base.
+        repeat_start = 1
     if repeat_start < 1 or repeat_end < repeat_start:
         repeat_name = record.attributes.get("repeat_name", "unknown")
         raise ValueError(
