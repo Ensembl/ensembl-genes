@@ -18,9 +18,19 @@ sys.path.insert(0, str(Path(__file__).parent))
 # pylint: disable=wrong-import-position
 from runners import assess_translation_validity
 from parsers import interpro, parse_agat
+from ensembl.genes.annotation_qc.runners import (
+    high_confidence,
+    rescore_high_confidence,
+    high_confidence_summary,
+    gene_confidence_summary,
+)
 
 RUNNERS = [
     assess_translation_validity,
+    high_confidence,
+    rescore_high_confidence,
+    high_confidence_summary,
+    gene_confidence_summary,
 ]
 
 PARSERS = [
