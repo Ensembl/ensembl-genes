@@ -211,3 +211,7 @@ The refactor is complete when:
 ## 13. One-line summary for contributors
 
 **Put parsing in `parsers/`, calculations in `metrics/`, orchestration in `runners/`, output in `reports/`, and configuration in `config/`.**
+
+## High-confidence gene QC
+
+The integrated `high-confidence`, `high-confidence-rescore` and `high-confidence-summary` subcommands follow the parser → DataFrame → metric → report architecture above. See [HIGH_CONFIDENCE.md](HIGH_CONFIDENCE.md) for module responsibilities, coordinate conventions, confidence policy v2, preserved legacy homology arithmetic, CLI examples and tests. Plotting is optional through the `annotation-qc-plots` extra.

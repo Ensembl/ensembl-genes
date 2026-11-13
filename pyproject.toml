@@ -27,6 +27,8 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+annotation-qc-plots = ["matplotlib>=3.7,<4"]
+
 docs = [
     "sphinx>=7,<9",
     "myst-parser",
