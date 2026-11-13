@@ -142,6 +142,23 @@ The wrapper requires a non-empty
 outputs are loaded when their `annotation.gtf` files exist and are non-empty;
 missing or empty optional files are skipped.
 
+For a GMB annotation output, use `--gmb-anno`. The wrapper then loads
+`gmb/finalise/canonical/consensus.canonical_annotated.gff3` as the main gene
+set and uses its `tag=Ensembl_canonical` transcript tag when setting each
+gene's canonical transcript. The optional ncRNA, repeat, and simple-feature
+outputs are handled in the same way as the regular anno-GTF mode:
+
+```bash
+gff-loader load-anno-output /path/to/GCA_000000000.1 \
+  --gmb-anno \
+  --db-name lepidoptera_example_core \
+  --db-host mysql-ens-genebuild-prod-6 \
+  --db-port 4532 \
+  --db-user <write-user> \
+  --db-password <password> \
+  --coord-system-name primary_assembly
+```
+
 The usual anno pipeline load sequence is:
 
 ```bash

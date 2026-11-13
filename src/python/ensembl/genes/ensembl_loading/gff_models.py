@@ -51,6 +51,7 @@ class TranscriptRecord:
     strand: int
     biotype: str
     stable_id: str
+    is_canonical: bool = False
     exons: list[ExonRecord] = field(default_factory=list)
     protein_id: str | None = None
     translation_coords: str | None = None

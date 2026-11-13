@@ -28,17 +28,18 @@ Usage:
 
 # pylint:disable=logging-fstring-interpolation
 import argparse
+import json
 import logging
-from pathlib import Path
 import re
 import subprocess
-import json
-from typing import Dict, Any, Optional
-from ensembl.genes.info_from_registry.start_pipeline_from_registry import main as info
-from ensembl.genes.info_from_registry.seed_nonvert import seed_jobs_from_json
+from pathlib import Path
+from typing import Any
+
 from ensembl.genes.info_from_registry.create_pipe_reg import (
     update_registry_path_in_pipedb,
 )
+from ensembl.genes.info_from_registry.seed_nonvert import seed_jobs_from_json
+from ensembl.genes.info_from_registry.start_pipeline_from_registry import main as info
 
 # Configure logging
 logging.basicConfig(
@@ -49,7 +50,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-def init_pipeline_anno(config_file: str, hive_force_init: int = 1) -> Optional[str]:
+def init_pipeline_anno(config_file: str, hive_force_init: int = 1) -> str | None:
     """
     Initialize an eHive pipeline using a given config file.
 
@@ -83,7 +84,7 @@ def init_pipeline_anno(config_file: str, hive_force_init: int = 1) -> Optional[s
         raise
 
 
-def init_pipeline_main(config_file: str, hive_force_init: int = 1) -> Optional[str]:
+def init_pipeline_main(config_file: str, hive_force_init: int = 1) -> str | None:
     """
     Initialize an eHive pipeline using a given config file.
 
@@ -133,8 +134,8 @@ def init_pipeline_main(config_file: str, hive_force_init: int = 1) -> Optional[s
 
 
 def main(  # pylint:disable=too-many-statements, too-many-locals
-    gcas: str, settings_file: str, seed_url: Optional[str]
-) -> Dict[str, Any]:
+    gcas: str, settings_file: str, seed_url: str | None
+) -> dict[str, Any]:
     """
     Main execution logic: extract metadata, initialize the pipeline, and seed jobs.
 
@@ -153,7 +154,7 @@ def main(  # pylint:disable=too-many-statements, too-many-locals
     server_info, all_output_params, saved_paths = info(gcas, settings_file)
 
     # Save EHIVE URLs
-    ehive_urls: Dict[str, Dict[str, str]] = {}  # pylint:disable=redefined-outer-name
+    ehive_urls: dict[str, dict[str, str]] = {}  # pylint:disable=redefined-outer-name
 
     # Anno
     if saved_paths.get("anno"):

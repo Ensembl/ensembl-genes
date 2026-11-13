@@ -39,6 +39,8 @@ class GffSourceConfig:
     exon_stable_id_attributes: tuple[str, ...] = ()
     translation_stable_id_attributes: tuple[str, ...] = ()
     translation_coords_attribute: str | None = None
+    canonical_transcript_attribute: str | None = None
+    canonical_transcript_value: str | None = None
     gene_xref_prefix: str = "GeneID:"
     transcribed_pseudogene_gbkey_token: str = "Transcribed_Pseudogene"
     segment_gbkey_suffix: str = "_segment"
@@ -347,6 +349,24 @@ ANNO_GTF_CONFIG = GffSourceConfig(
     transcript_rows_define_genes=True,
 )
 
+GMB_GFF_CONFIG = GffSourceConfig(
+    name="gmb_gff3",
+    source_label="ensembl",
+    analysis_logic_name="ensembl",
+    analysis_program="GMB_GFF3",
+    parsed_gene_feature_types=frozenset({"gene"}),
+    parsed_transcript_feature_types=frozenset({"mRNA", "transcript"}),
+    biotype_transcript_feature_types=frozenset({"mRNA", "transcript"}),
+    transcript_feature_biotype_map={"mRNA": "protein_coding"},
+    id_prefixes_to_strip=(),
+    gene_name_attributes=("Name", "ID"),
+    transcript_stable_id_attributes=("Name", "ID"),
+    exon_stable_id_attributes=("ID",),
+    translation_stable_id_attributes=("protein_id", "Name", "ID"),
+    canonical_transcript_attribute="tag",
+    canonical_transcript_value="Ensembl_canonical",
+)
+
 NCRNA_GTF_CONFIG = GffSourceConfig(
     name="ncrna_gtf",
     source_label="ensembl",
@@ -375,6 +395,7 @@ NCRNA_GTF_CONFIG = GffSourceConfig(
 SOURCE_CONFIGS: dict[str, GffSourceConfig] = {
     ANNO_GTF_CONFIG.name: ANNO_GTF_CONFIG,
     ENSEMBL_GFF_CONFIG.name: ENSEMBL_GFF_CONFIG,
+    GMB_GFF_CONFIG.name: GMB_GFF_CONFIG,
     GENERIC_GFF_CONFIG.name: GENERIC_GFF_CONFIG,
     NCRNA_GTF_CONFIG.name: NCRNA_GTF_CONFIG,
     REFSEQ_CONFIG.name: REFSEQ_CONFIG,
