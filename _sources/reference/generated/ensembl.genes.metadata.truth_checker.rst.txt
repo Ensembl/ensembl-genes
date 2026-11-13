@@ -1,0 +1,9 @@
+ensembl.genes.metadata.truth_checker
+====================================
+
+Source: ``src/python/ensembl/genes/metadata/truth_checker.py``
+
+.. automodule:: ensembl.genes.metadata.truth_checker
+   :members:
+   :show-inheritance:
+   :undoc-members:

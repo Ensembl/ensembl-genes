@@ -1,0 +1,9 @@
+ensembl.genes.ensembl_loading.core_utils.external_db
+====================================================
+
+Source: ``src/python/ensembl/genes/ensembl_loading/core_utils/external_db.py``
+
+.. automodule:: ensembl.genes.ensembl_loading.core_utils.external_db
+   :members:
+   :show-inheritance:
+   :undoc-members:

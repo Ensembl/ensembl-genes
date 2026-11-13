@@ -1,0 +1,9 @@
+ensembl.genes.projects.ftp_client
+=================================
+
+Source: ``src/python/ensembl/genes/projects/ftp_client.py``
+
+.. automodule:: ensembl.genes.projects.ftp_client
+   :members:
+   :show-inheritance:
+   :undoc-members:

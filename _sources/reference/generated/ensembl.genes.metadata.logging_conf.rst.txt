@@ -1,0 +1,8 @@
+logging.conf
+============
+
+Source: ``src/python/ensembl/genes/metadata/logging.conf``
+
+.. literalinclude:: ../../../src/python/ensembl/genes/metadata/logging.conf
+   :language: text
+   :linenos:

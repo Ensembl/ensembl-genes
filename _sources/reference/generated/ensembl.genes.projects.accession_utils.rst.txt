@@ -1,0 +1,9 @@
+ensembl.genes.projects.accession_utils
+======================================
+
+Source: ``src/python/ensembl/genes/projects/accession_utils.py``
+
+.. automodule:: ensembl.genes.projects.accession_utils
+   :members:
+   :show-inheritance:
+   :undoc-members:

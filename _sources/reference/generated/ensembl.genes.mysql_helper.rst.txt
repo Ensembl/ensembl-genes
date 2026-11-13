@@ -1,0 +1,9 @@
+ensembl.genes.mysql_helper
+==========================
+
+Source: ``src/python/ensembl/genes/mysql_helper.py``
+
+.. automodule:: ensembl.genes.mysql_helper
+   :members:
+   :show-inheritance:
+   :undoc-members:

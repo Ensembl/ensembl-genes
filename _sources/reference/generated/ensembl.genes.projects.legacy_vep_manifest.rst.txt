@@ -1,0 +1,9 @@
+ensembl.genes.projects.legacy_vep_manifest
+==========================================
+
+Source: ``src/python/ensembl/genes/projects/legacy_vep_manifest.py``
+
+.. automodule:: ensembl.genes.projects.legacy_vep_manifest
+   :members:
+   :show-inheritance:
+   :undoc-members:

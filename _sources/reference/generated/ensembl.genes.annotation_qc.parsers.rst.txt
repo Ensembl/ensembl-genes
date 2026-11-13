@@ -1,0 +1,27 @@
+ensembl.genes.annotation_qc.parsers
+===================================
+
+Source directory: ``src/python/ensembl/genes/annotation_qc/parsers``
+
+Package Contents
+----------------
+
+.. automodule:: ensembl.genes.annotation_qc.parsers
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+Folders, Scripts, and Files
+---------------------------
+
+.. toctree::
+   :maxdepth: 2
+
+   README <ensembl.genes.annotation_qc.parsers.README>
+   _high_confidence_records <ensembl.genes.annotation_qc.parsers._high_confidence_records>
+   annotation <ensembl.genes.annotation_qc.parsers.annotation>
+   diamond <ensembl.genes.annotation_qc.parsers.diamond>
+   high_confidence <ensembl.genes.annotation_qc.parsers.high_confidence>
+   interpro <ensembl.genes.annotation_qc.parsers.interpro>
+   parse_agat <ensembl.genes.annotation_qc.parsers.parse_agat>
+   tool_output <ensembl.genes.annotation_qc.parsers.tool_output>

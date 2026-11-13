@@ -1,0 +1,9 @@
+ensembl.genes.annotation_qc.config.high_confidence
+==================================================
+
+Source: ``src/python/ensembl/genes/annotation_qc/config/high_confidence.py``
+
+.. automodule:: ensembl.genes.annotation_qc.config.high_confidence
+   :members:
+   :show-inheritance:
+   :undoc-members:

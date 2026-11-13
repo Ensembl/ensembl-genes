@@ -1,0 +1,23 @@
+ensembl.genes.annotation_qc.config
+==================================
+
+Source directory: ``src/python/ensembl/genes/annotation_qc/config``
+
+Package Contents
+----------------
+
+.. automodule:: ensembl.genes.annotation_qc.config
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+Folders, Scripts, and Files
+---------------------------
+
+.. toctree::
+   :maxdepth: 2
+
+   high_confidence <ensembl.genes.annotation_qc.config.high_confidence>
+   feature_levels.yaml <ensembl.genes.annotation_qc.config.feature_levels_yaml>
+   value_map.json <ensembl.genes.annotation_qc.config.value_map_json>
+   value_mapping.csv <ensembl.genes.annotation_qc.config.value_mapping_csv>

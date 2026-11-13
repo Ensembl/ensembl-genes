@@ -1,0 +1,9 @@
+ensembl.genes.rgb.version
+=========================
+
+Source: ``src/python/ensembl/genes/rgb/version.py``
+
+.. automodule:: ensembl.genes.rgb.version
+   :members:
+   :show-inheritance:
+   :undoc-members:

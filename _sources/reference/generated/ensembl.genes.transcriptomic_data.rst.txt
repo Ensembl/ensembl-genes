@@ -1,0 +1,22 @@
+ensembl.genes.transcriptomic_data
+=================================
+
+Source directory: ``src/python/ensembl/genes/transcriptomic_data``
+
+Package Contents
+----------------
+
+.. automodule:: ensembl.genes.transcriptomic_data
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+Folders, Scripts, and Files
+---------------------------
+
+.. toctree::
+   :maxdepth: 2
+
+   check_for_transcriptomic <ensembl.genes.transcriptomic_data.check_for_transcriptomic>
+   get_transcriptomic_data <ensembl.genes.transcriptomic_data.get_transcriptomic_data>
+   select_transcriptomic_data <ensembl.genes.transcriptomic_data.select_transcriptomic_data>

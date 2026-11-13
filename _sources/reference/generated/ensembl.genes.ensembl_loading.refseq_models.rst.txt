@@ -1,0 +1,9 @@
+ensembl.genes.ensembl_loading.refseq_models
+===========================================
+
+Source: ``src/python/ensembl/genes/ensembl_loading/refseq_models.py``
+
+.. automodule:: ensembl.genes.ensembl_loading.refseq_models
+   :members:
+   :show-inheritance:
+   :undoc-members:

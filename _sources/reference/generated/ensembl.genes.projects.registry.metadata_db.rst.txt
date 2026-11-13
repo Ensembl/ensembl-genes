@@ -1,0 +1,9 @@
+ensembl.genes.projects.registry.metadata_db
+===========================================
+
+Source: ``src/python/ensembl/genes/projects/registry/metadata_db.py``
+
+.. automodule:: ensembl.genes.projects.registry.metadata_db
+   :members:
+   :show-inheritance:
+   :undoc-members:

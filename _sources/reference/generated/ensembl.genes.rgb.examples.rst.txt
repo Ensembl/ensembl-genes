@@ -1,0 +1,13 @@
+ensembl.genes.rgb.examples
+==========================
+
+Source directory: ``src/python/ensembl/genes/rgb/examples``
+
+Folders, Scripts, and Files
+---------------------------
+
+.. toctree::
+   :maxdepth: 2
+
+   evidence_class_map.example.yaml <ensembl.genes.rgb.examples.evidence_class_map_example_yaml>
+   rgb_config_example.yaml <ensembl.genes.rgb.examples.rgb_config_example_yaml>

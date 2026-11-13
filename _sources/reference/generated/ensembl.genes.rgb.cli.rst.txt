@@ -1,0 +1,9 @@
+ensembl.genes.rgb.cli
+=====================
+
+Source: ``src/python/ensembl/genes/rgb/cli.py``
+
+.. automodule:: ensembl.genes.rgb.cli
+   :members:
+   :show-inheritance:
+   :undoc-members:

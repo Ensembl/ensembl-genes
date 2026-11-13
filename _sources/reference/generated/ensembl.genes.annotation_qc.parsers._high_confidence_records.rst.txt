@@ -1,0 +1,9 @@
+ensembl.genes.annotation_qc.parsers._high_confidence_records
+============================================================
+
+Source: ``src/python/ensembl/genes/annotation_qc/parsers/_high_confidence_records.py``
+
+.. automodule:: ensembl.genes.annotation_qc.parsers._high_confidence_records
+   :members:
+   :show-inheritance:
+   :undoc-members:

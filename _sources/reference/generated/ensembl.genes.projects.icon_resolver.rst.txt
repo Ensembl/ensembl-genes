@@ -1,0 +1,9 @@
+ensembl.genes.projects.icon_resolver
+====================================
+
+Source: ``src/python/ensembl/genes/projects/icon_resolver.py``
+
+.. automodule:: ensembl.genes.projects.icon_resolver
+   :members:
+   :show-inheritance:
+   :undoc-members:
